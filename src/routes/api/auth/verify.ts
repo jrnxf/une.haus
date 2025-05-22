@@ -51,7 +51,6 @@ export const APIRoute = createAPIFileRoute("/api/auth/verify")({
 
     setHeader("set-cookie", session);
 
-    console.log("Cookie set, redirecting to", redirectTo);
     return new Response(null, {
       status: 307,
       headers: {

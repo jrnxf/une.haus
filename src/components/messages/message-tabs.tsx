@@ -5,7 +5,7 @@ import type { RecordWithLikes } from "~/models/likes";
 import { useSessionUser } from "~/lib/session";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { type RouterOutputs } from "~/trpc/react";
+import { type RouterOutputs } from "~/integrations/trpc/router";
 
 type Message = RouterOutputs["messages"]["list"][number];
 

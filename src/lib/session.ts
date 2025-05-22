@@ -5,12 +5,15 @@ import {
   useRouteContext,
   useRouter,
 } from "@tanstack/react-router";
+import { serverOnly } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import cookie from "cookie";
 import { SignJWT, jwtVerify } from "jose";
 import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
 import { env } from "~/lib/env";
+
+export const HAUS_SESSION_KEY = "haus_session";
 
 export const hausSessionSchema = z.object({
   flash: z.string().optional(),
@@ -24,13 +27,13 @@ export const hausSessionSchema = z.object({
     .optional(),
 });
 
-export async function useServerSession(): Promise<HausSession> {
+export const useServerSession = serverOnly(async (): Promise<HausSession> => {
   const request = getWebRequest();
   if (request) {
     const cookieHeader = request.headers.get("cookie");
     if (cookieHeader) {
       const cookies = cookie.parse(cookieHeader);
-      const session = await decrypt(cookies.haus);
+      const session = await decrypt(cookies[HAUS_SESSION_KEY]);
 
       const parsedSession = hausSessionSchema.safeParse(session);
 
@@ -43,7 +46,7 @@ export async function useServerSession(): Promise<HausSession> {
     user: undefined,
     flash: undefined,
   };
-}
+});
 
 export type HausSession = z.infer<typeof hausSessionSchema>;
 export type HausSessionUser = HausSession["user"];
@@ -131,7 +134,7 @@ export async function createSession(
 export async function serializeSession(session: string) {
   const expires = new Date(Date.now() + 60 * 60 * 1000 * 300); // in 1 hour
 
-  const serializedSession = cookie.serialize("haus", session, {
+  const serializedSession = cookie.serialize(HAUS_SESSION_KEY, session, {
     ...BASE_AUTH_COOKIE,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -146,7 +149,7 @@ export async function serializeSession(session: string) {
 async function setAuthCookie(session: string, res: { headers: Headers }) {
   const expires = new Date(Date.now() + 60 * 60 * 1000 * 300); // in 1 hour
 
-  const serializedSession = cookie.serialize("haus", session, {
+  const serializedSession = cookie.serialize(HAUS_SESSION_KEY, session, {
     ...BASE_AUTH_COOKIE,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -161,7 +164,7 @@ async function setAuthCookie(session: string, res: { headers: Headers }) {
 export async function deleteSession(res: { headers: Headers }) {
   res.headers.set(
     "Set-Cookie",
-    cookie.serialize("haus", "", {
+    cookie.serialize(HAUS_SESSION_KEY, "", {
       ...BASE_AUTH_COOKIE,
       maxAge: 0,
     }),

@@ -4,9 +4,8 @@ import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { YoutubeIframe } from "~/components/youtube-iframe";
+import { type RouterOutputs } from "~/integrations/trpc/router";
 import { useSessionUser } from "~/lib/session";
-import { type getPost } from "~/server/fns/posts/get";
-import { type ServerFnReturn } from "~/server/types";
 
 export function PostView({
   initialData,
@@ -14,7 +13,7 @@ export function PostView({
 }: {
   initialData: {
     messages: [];
-    post: ServerFnReturn<typeof getPost.serverFn>;
+    post: RouterOutputs["post"]["get"];
   };
   postId: number;
 }) {

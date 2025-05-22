@@ -18,11 +18,11 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
 import { WrappedBadges } from "~/components/wrapped-badges";
-import { listPosts } from "~/server/fns/posts/list";
 import { useTRPC } from "~/integrations/trpc/react";
+import { listPostsSchema } from "~/models/posts";
 
 export const Route = createFileRoute("/posts/")({
-  validateSearch: listPosts.schema,
+  validateSearch: listPostsSchema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureInfiniteQueryData(

@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-export const likeableEntities = [
+export const recordTypeWithLikes = [
   "chatMessage",
   "post",
   "postMessage",
   "user",
 ] as const;
 
-export type LikeableEntity = {
+export type RecordWithLikes = {
   id: number;
   likes: {
     user: {
@@ -17,10 +17,8 @@ export type LikeableEntity = {
   }[];
 };
 
-export type LikeableEntityType = (typeof likeableEntities)[number];
-
 export const likeUnlikeSchema = z.object({
   action: z.enum(["like", "unlike"]),
   recordId: z.number(), // the id of the thing being liked
-  type: z.enum(likeableEntities),
+  type: z.enum(recordTypeWithLikes),
 });

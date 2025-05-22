@@ -1,3 +1,4 @@
+import { getWebRequest, setHeader } from "@tanstack/react-start/server";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, count, desc, eq, ilike, lt, or } from "drizzle-orm";
 import { z } from "zod";
@@ -5,7 +6,7 @@ import { z } from "zod";
 import { db } from "~/db";
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
 import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
-import { createUpdatePostSchema } from "~/models/posts";
+import { createUpdatePostSchema, listPostsSchema } from "~/models/posts";
 
 export const postRouter = {
   create: authProcedure
@@ -117,62 +118,50 @@ export const postRouter = {
       return post;
     }),
 
-  list: publicProcedure
-    .input(
-      z.object({
-        cursor: z.number().nullish(),
-        limit: z.number().min(25).max(50).default(25),
-        search: z.string().optional(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const data = await ctx.db
-        .select({
-          content: posts.content,
-          counts: {
-            likes: count(postLikes.postId),
-            messages: count(postMessages.postId),
-          },
-          createdAt: posts.createdAt,
-          id: posts.id,
-          imageUrl: posts.imageUrl,
-          tags: posts.tags,
-          title: posts.title,
-          user: {
-            id: users.id,
-            name: users.name,
-          },
-          video: {
-            playbackId: muxVideos.playbackId,
-          },
-          youtubeVideoId: posts.youtubeVideoId,
-        })
-        .from(posts)
-        .innerJoin(users, eq(posts.userId, users.id))
-        .leftJoin(postLikes, eq(posts.id, postLikes.postId))
-        .leftJoin(postMessages, eq(posts.id, postMessages.postId))
-        .leftJoin(muxVideos, eq(posts.videoUploadId, muxVideos.uploadId))
-        .groupBy(posts.id, users.id, muxVideos.uploadId)
-        .where(
-          and(
-            or(
-              input.search
-                ? ilike(posts.title, `%${input.search}%`)
-                : undefined,
-              input.search
-                ? ilike(posts.content, `%${input.search}%`)
-                : undefined,
-              input.search ? ilike(users.name, `%${input.search}%`) : undefined,
-            ),
-
-            input.cursor ? lt(posts.id, input.cursor) : undefined,
+  list: publicProcedure.input(listPostsSchema).query(async ({ ctx, input }) => {
+    const data = await ctx.db
+      .select({
+        content: posts.content,
+        counts: {
+          likes: count(postLikes.postId),
+          messages: count(postMessages.postId),
+        },
+        createdAt: posts.createdAt,
+        id: posts.id,
+        imageUrl: posts.imageUrl,
+        tags: posts.tags,
+        title: posts.title,
+        user: {
+          id: users.id,
+          name: users.name,
+        },
+        video: {
+          playbackId: muxVideos.playbackId,
+        },
+        youtubeVideoId: posts.youtubeVideoId,
+      })
+      .from(posts)
+      .innerJoin(users, eq(posts.userId, users.id))
+      .leftJoin(postLikes, eq(posts.id, postLikes.postId))
+      .leftJoin(postMessages, eq(posts.id, postMessages.postId))
+      .leftJoin(muxVideos, eq(posts.videoUploadId, muxVideos.uploadId))
+      .groupBy(posts.id, users.id, muxVideos.uploadId)
+      .where(
+        and(
+          or(
+            input.q ? ilike(posts.title, `%${input.q}%`) : undefined,
+            input.q ? ilike(posts.content, `%${input.q}%`) : undefined,
+            input.q ? ilike(users.name, `%${input.q}%`) : undefined,
           ),
-        )
-        .orderBy(desc(posts.id))
-        .limit(input.limit);
 
-      return data;
-    }),
+          input.cursor ? lt(posts.id, input.cursor) : undefined,
+        ),
+      )
+      .orderBy(desc(posts.id))
+      .limit(input.limit);
+
+    return data;
+  }),
 
   update: authProcedure
     .input(

@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { muxVideos, rius, riuSets, users } from "~/db/schema";
-import { schema } from "~/server/fns/auth/login";
 import { authOptionalMiddleware } from "~/server/middleware/auth";
 
 const serverFn = createServerFn({
@@ -74,6 +73,5 @@ export const getUpcomingRiuRoster = {
       queryFn: serverFn,
       refetchInterval: 5000,
     }),
-  schema,
   serverFn,
 };

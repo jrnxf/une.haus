@@ -9,7 +9,7 @@ import { authProcedure } from "~/integrations/trpc/init";
 import { env } from "~/lib/env";
 import { googleClient } from "~/server/clients/google";
 
-export const googleMapsRouter = {
+export const locationRouter = {
   cities: authProcedure
     .input(
       z.object({

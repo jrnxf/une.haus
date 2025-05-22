@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
 import { YoutubeInput } from "~/components/youtube-input";
 import { POST_TAGS } from "~/db/schema";
+import { type CreateUpdatePostArgs } from "~/models/posts";
 import { basePostSchema } from "~/server/fns/posts/shared";
 
 const MEDIA_TYPES = {

@@ -22,3 +22,9 @@ export type CreateUpdatePostArgs = z.infer<typeof createUpdatePostSchema>;
 export const deletePostSchema = z.number(); // postId
 
 export type DeletePostArgs = z.infer<typeof deletePostSchema>;
+
+export const listPostsSchema = z.object({
+  cursor: z.number().nullish(),
+  limit: z.number().min(25).max(50).default(25),
+  q: z.string().optional(),
+});

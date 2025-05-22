@@ -3,7 +3,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
 
-import { getPost } from "~/server/fns/posts/get";
 import { setFlash } from "~/server/fns/session/flash/set";
 import { PostView } from "~/views/post";
 
@@ -17,11 +16,11 @@ export const Route = createFileRoute("/posts/$postId/")({
     parse: pathParametersSchema.parse,
   },
   loader: async ({ context, params: { postId } }) => {
-    const post = await context.queryClient.ensureQueryData(
-      context.trpc.post.get.queryOptions({ id: postId }),
-    );
-
-    if (!post) {
+    try {
+      await context.queryClient.ensureQueryData(
+        context.trpc.post.get.queryOptions({ id: postId }),
+      );
+    } catch {
       await setFlash.serverFn({ data: "Post not found" });
       throw redirect({ to: "/posts" });
     }

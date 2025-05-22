@@ -6,8 +6,6 @@ import {
 import { toast } from "sonner";
 import { useTRPC } from "~/integrations/trpc/react";
 import { useSessionUser } from "~/lib/session";
-import { createFollow } from "~/server/fns/users/follows/create";
-import { deleteFollow } from "~/server/fns/users/follows/delete";
 
 export function useFollows({ userId }: { userId: number }) {
   const trpc = useTRPC();
@@ -15,96 +13,98 @@ export function useFollows({ userId }: { userId: number }) {
 
   const qc = useQueryClient();
 
-  const { isPending: isFollowing, mutate: follow } = useMutation({
-    mutationFn: createFollow.serverFn,
-    onMutate: () => {
-      qc.cancelQueries({
-        queryKey: trpc.user.follows.queryKey({ userId }),
-      });
+  const { isPending: isFollowing, mutate: follow } = useMutation(
+    trpc.user.follow.mutationOptions({
+      onMutate: () => {
+        qc.cancelQueries({
+          queryKey: trpc.user.follows.queryKey({ userId }),
+        });
 
-      const prev = qc.getQueryData(trpc.user.follows.queryKey({ userId }));
+        const prev = qc.getQueryData(trpc.user.follows.queryKey({ userId }));
 
-      qc.setQueryData(trpc.user.follows.queryKey({ userId }), (previous) => {
-        if (previous && sessionUser) {
-          return {
-            ...previous,
-            followers: {
-              count: previous.followers.count + 1,
-              users: [
-                ...previous.followers.users,
-                {
-                  avatarUrl: sessionUser.avatarUrl,
-                  id: sessionUser.id,
-                  name: sessionUser.name,
-                },
-              ],
-            },
-          };
+        qc.setQueryData(trpc.user.follows.queryKey({ userId }), (previous) => {
+          if (previous && sessionUser) {
+            return {
+              ...previous,
+              followers: {
+                count: previous.followers.count + 1,
+                users: [
+                  ...previous.followers.users,
+                  {
+                    avatarUrl: sessionUser.avatarUrl,
+                    id: sessionUser.id,
+                    name: sessionUser.name,
+                  },
+                ],
+              },
+            };
+          }
+        });
+
+        return { previousData: prev };
+      },
+      onError: (error, _variables, context) => {
+        console.error(error);
+        if (context) {
+          qc.setQueryData(
+            trpc.user.follows.queryKey({ userId }),
+            context.previousData,
+          );
+          toast.error("Failed to follow user");
         }
-      });
+      },
+      onSettled: () => {
+        qc.invalidateQueries({
+          queryKey: trpc.user.follows.queryKey({ userId }),
+        });
+      },
+    }),
+  );
 
-      return { previousData: prev };
-    },
-    onError: (error, _variables, context) => {
-      console.error(error);
-      if (context) {
-        qc.setQueryData(
+  const { isPending: isUnfollowing, mutate: unfollow } = useMutation(
+    trpc.user.unfollow.mutationOptions({
+      onMutate: () => {
+        qc.cancelQueries({
+          queryKey: trpc.user.follows.queryKey({ userId }),
+        });
+
+        const previousData = qc.getQueryData(
           trpc.user.follows.queryKey({ userId }),
-          context.previousData,
         );
-        toast.error("Failed to follow user");
-      }
-    },
-    onSettled: () => {
-      qc.invalidateQueries({
-        queryKey: trpc.user.follows.queryKey({ userId }),
-      });
-    },
-  });
 
-  const { isPending: isUnfollowing, mutate: unfollow } = useMutation({
-    mutationFn: deleteFollow.serverFn,
-    onMutate: () => {
-      qc.cancelQueries({
-        queryKey: trpc.user.follows.queryKey({ userId }),
-      });
+        qc.setQueryData(trpc.user.follows.queryKey({ userId }), (previous) => {
+          if (previous && sessionUser) {
+            return {
+              ...previous,
+              followers: {
+                count: previous.followers.count - 1,
+                users: previous.followers.users.filter(
+                  (user) => user.id !== sessionUser.id,
+                ),
+              },
+            };
+          }
+        });
 
-      const previousData = qc.getQueryData(
-        trpc.user.follows.queryKey({ userId }),
-      );
-
-      qc.setQueryData(trpc.user.follows.queryKey({ userId }), (previous) => {
-        if (previous && sessionUser) {
-          return {
-            ...previous,
-            followers: {
-              count: previous.followers.count - 1,
-              users: previous.followers.users.filter(
-                (user) => user.id !== sessionUser.id,
-              ),
-            },
-          };
+        return { previousData };
+      },
+      onError: (error, _variables, context) => {
+        console.error(error);
+        if (context) {
+          qc.setQueryData(
+            trpc.user.follows.queryKey({ userId }),
+            context.previousData,
+          );
+          toast.error("Failed to unfollow user");
         }
-      });
-
-      return { previousData };
-    },
-    onError: (error, _variables, context) => {
-      console.error(error);
-      if (context) {
-        qc.setQueryData(
-          trpc.user.follows.queryKey({ userId }),
-          context.previousData,
-        );
-        toast.error("Failed to unfollow user");
-      }
-    },
-    onSettled: () => {
-      qc.invalidateQueries({
-        queryKey: trpc.user.follows.queryKey({ userId }),
-      });
-    },
-  });
+      },
+      onSettled: () => {
+        qc.invalidateQueries({
+          queryKey: trpc.user.follows.queryKey({ userId }),
+        });
+      },
+    }),
+  );
 
   const sessionUser = useSessionUser();
 

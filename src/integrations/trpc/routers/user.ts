@@ -26,9 +26,9 @@ export const userRouter = {
   }),
   follow: authProcedure
     .input(z.object({ userId: z.number() }))
-    .mutation(async ({ ctx: { db, user }, input }) => {
+    .mutation(async ({ ctx: { db, session }, input }) => {
       await db.insert(userFollows).values({
-        followedByUserId: user.id,
+        followedByUserId: session.user.id,
         followedUserId: input.userId,
       });
     }),
@@ -91,6 +91,7 @@ export const userRouter = {
           email: users.email,
           id: users.id,
           location: {
+            countryName: userLocations.countryName,
             countryCode: userLocations.countryCode,
             formattedAddress: userLocations.formattedAddress,
             lat: userLocations.lat,
@@ -172,22 +173,22 @@ export const userRouter = {
     }),
   unfollow: authProcedure
     .input(z.object({ userId: z.number() }))
-    .mutation(async ({ ctx: { db, user }, input }) => {
+    .mutation(async ({ ctx: { db, session }, input }) => {
       await db
         .delete(userFollows)
         .where(
           and(
-            eq(userFollows.followedByUserId, user.id),
+            eq(userFollows.followedByUserId, session.user.id),
             eq(userFollows.followedUserId, input.userId),
           ),
         );
     }),
   update: authProcedure
     .input(updateUserSchema)
-    .mutation(async ({ ctx: { db, user }, input }) => {
+    .mutation(async ({ ctx: { db, session }, input }) => {
       const { location, socials, ...data } = input;
 
-      const userId = user.id;
+      const userId = session.user.id;
 
       const promises: Promise<unknown>[] = [
         db.update(users).set(data).where(eq(users.id, userId)),

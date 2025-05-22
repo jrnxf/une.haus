@@ -1,11 +1,12 @@
+import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
 import { Button } from "~/components/ui/button";
 import { useFormOps } from "~/components/ui/form-ops-provider";
+import { useTRPC } from "~/integrations/trpc/react";
 import { cn } from "~/lib/utils";
-import { getPresignedS3Url } from "~/server/clients/s3";
 
 export const ImageInput = ({
   currentUrl,
@@ -16,7 +17,12 @@ export const ImageInput = ({
   id: string;
   onChange: (url: null | string) => void;
 }) => {
+  const trpc = useTRPC();
   const [file, setFile] = useState<File>();
+
+  const getPresignedS3Url = useMutation(
+    trpc.media.getPresignedS3Url.mutationOptions(),
+  );
 
   const { pendingImageUpload, setPendingImageUpload } = useFormOps();
 
@@ -27,7 +33,9 @@ export const ImageInput = ({
         setFile(file);
         try {
           setPendingImageUpload(true);
-          const presignedS3Url = await getPresignedS3Url(file.name);
+          const presignedS3Url = await getPresignedS3Url.mutateAsync({
+            fileName: file.name,
+          });
           const { href, origin, pathname } = new URL(presignedS3Url);
 
           await fetch(href, { body: file, method: "PUT" });

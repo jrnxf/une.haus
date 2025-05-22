@@ -143,5 +143,10 @@
     "typescript-eslint": "^8.31.0",
     "vite-plugin-beasties": "^0.3.3",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "cmdk@1.1.1": "patches/cmdk@1.1.1.patch"
+    }
   }
 }

@@ -20,7 +20,8 @@ import {
 } from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
+import { useTRPC } from "~/integrations/trpc/react";
+import { useMutation } from "@tanstack/react-query";
 
 export type LocationSelectorLocation = Omit<SelectLocation, "userId">;
 
@@ -35,15 +36,19 @@ export function LocationSelector({
   onUpdate: (location: LocationSelectorLocation | undefined) => void;
   placeholder?: string;
 }) {
+  const trpc = useTRPC();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<SelectOption>();
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [noResults, setNoResults] = useState(false);
 
-  const { isPending: isFetchingCities, mutate: fetchCities } =
-    api.googleMaps.cities.useMutation();
+  const { isPending: isFetchingCities, mutate: fetchCities } = useMutation(
+    trpc.location.cities.mutationOptions(),
+  );
 
-  const { mutate: fetchPlace } = api.googleMaps.place.useMutation();
+  const { mutate: fetchPlace } = useMutation(
+    trpc.location.place.mutationOptions(),
+  );
 
   const exchangeForPlaceId = useCallback(
     async (placeId: string) => {
@@ -93,7 +98,7 @@ export function LocationSelector({
         <PopoverTrigger asChild>
           <Button
             aria-expanded={open}
-            className="w-xs justify-between hover:bg-inherit"
+            className="w-full justify-between hover:bg-inherit"
             id={id}
             role="combobox"
             size="lg"
@@ -139,7 +144,7 @@ export function LocationSelector({
                           if (value === selected?.value) {
                             // deselect
                             setSelected(undefined);
-                            onUpdate();
+                            onUpdate(undefined);
                           } else {
                             const match = options.find(
                               (option) => option.value === value,

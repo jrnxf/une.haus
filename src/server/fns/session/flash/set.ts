@@ -1,7 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getWebRequest, setHeader } from "@tanstack/react-start/server";
+import cookie from "cookie";
 
 import { z } from "zod";
-import { useServerSession } from "~/lib/session";
+import {
+  decrypt,
+  encrypt,
+  HAUS_SESSION_KEY,
+  serializeSession,
+} from "~/lib/session";
 
 const schema = z.string();
 
@@ -10,8 +17,18 @@ const serverFn = createServerFn({
 })
   .validator(schema)
   .handler(async ({ data: message }) => {
-    const session = await useServerSession();
-    await session.update({ flash: message });
+    const cookieHeader = getWebRequest()?.headers.get("cookie");
+    const cookies = cookie.parse(cookieHeader ?? "");
+    const decryptedSession = await decrypt(cookies[HAUS_SESSION_KEY]);
+
+    const encryptedSession = await encrypt({
+      ...decryptedSession,
+      flash: message,
+    });
+    const session = await serializeSession(encryptedSession);
+
+    setHeader("set-cookie", session);
+    return message;
   });
 
 export const setFlash = {

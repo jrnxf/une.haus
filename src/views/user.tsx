@@ -18,16 +18,12 @@ import { DialogHeader } from "~/components/ui/dialog";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { Skeleton } from "~/components/ui/skeleton";
 import { WrappedBadges } from "~/components/wrapped-badges";
+import { type RouterOutputs } from "~/integrations/trpc/router";
 import { useFollows } from "~/lib/hooks/users";
 import { useSessionUser } from "~/lib/session";
 import { cn, isDefined } from "~/lib/utils";
-import { type getUser } from "~/server/fns/users/get";
 
-export function UserView({
-  user,
-}: {
-  user: NonNullable<Awaited<ReturnType<typeof getUser.serverFn>>>;
-}) {
+export function UserView({ user }: { user: RouterOutputs["user"]["get"] }) {
   const { disciplines, socials } = user;
   const sessionUser = useSessionUser();
 
@@ -178,10 +174,7 @@ function Follows({ userId }: { userId: number }) {
         </Tray>
       </div>
       {showActionButton && (
-        <Button
-          disabled={isPending}
-          onClick={() => action({ data: { userId } })}
-        >
+        <Button disabled={isPending} onClick={() => action({ userId })}>
           {authUserFollowsUser ? "Unfollow" : "Follow"}
         </Button>
       )}
