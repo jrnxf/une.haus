@@ -18,7 +18,6 @@ import { WrappedBadges } from "~/components/wrapped-badges";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { useTRPC } from "~/integrations/trpc/react";
 import { cn } from "~/lib/utils";
-import { setFlash } from "~/server/fns/session/flash/set";
 import { listUsers } from "~/server/fns/users/list";
 
 export const Route = createFileRoute("/users/")({
@@ -31,8 +30,6 @@ export const Route = createFileRoute("/users/")({
       // listUsers.infiniteQueryOptions(deps),
       opts,
     );
-
-    await setFlash({ data: "Hello" });
   },
   component: RouteComponent,
 });
