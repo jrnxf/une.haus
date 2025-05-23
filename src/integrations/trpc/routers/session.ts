@@ -9,10 +9,9 @@ export const sessionRouter = {
 
     const flashMessage = session.data.flash;
 
-    console.log("flashMessage", flashMessage);
-
     if (flashMessage) {
       // clear the flash
+      console.log("clearing flash");
       await session.update({ flash: undefined });
     }
 

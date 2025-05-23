@@ -1,17 +1,17 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import superjson from "superjson";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
+import superjson from "superjson";
 
-import { CatchBoundary } from "./components/catch-boundary";
-import { NotFound } from "./components/not-found";
-import { routeTree } from "./routeTree.gen";
 import { QueryClient } from "@tanstack/react-query";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { getHeaders } from "@tanstack/react-start/server";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
-import { type TRPCRouter } from "~/integrations/trpc/router";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { TRPCProvider } from "~/integrations/trpc/react";
+import { type TRPCRouter } from "~/integrations/trpc/router";
+import { CatchBoundary } from "./components/catch-boundary";
+import { NotFound } from "./components/not-found";
+import { routeTree } from "./routeTree.gen";
 
 const getUrl = () => {
   const base = (() => {
@@ -25,10 +25,13 @@ const getIncomingHeaders = createIsomorphicFn()
   .client(() => ({
     "x-trpc-source": "client",
   }))
-  .server(() => ({
-    ...getHeaders(),
-    "x-trpc-source": "server",
-  }));
+  .server(() => {
+    const serverHeaders = getHeaders();
+    return {
+      ...serverHeaders,
+      "x-trpc-source": "server",
+    };
+  });
 
 export function createRouter() {
   const queryClient = new QueryClient({

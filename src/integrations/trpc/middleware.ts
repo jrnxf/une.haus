@@ -14,6 +14,8 @@ export const timingMiddleware: MiddlewareFn = async (opts) => {
     opts.ctx.req.headers.get("x-trpc-source") ?? "unknown",
   );
 
+  opts.ctx.setCookie("x-trpc-sourcey", source);
+
   const path = colors.blue(`${opts.type}.${opts.path}`);
 
   const totalTime =

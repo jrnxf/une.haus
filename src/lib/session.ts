@@ -12,6 +12,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
 import { env } from "~/lib/env";
+import { clearSession } from "~/server/fns/session/clear";
 
 export const HAUS_SESSION_KEY = "haus_session";
 
@@ -75,30 +76,14 @@ export function useSessionFlash() {
 }
 
 export function useLogout() {
-  const trpc = useTRPC();
-  const router = useRouter();
   const navigate = useNavigate();
 
-  const qc = useQueryClient();
-
-  const { mutate } = useMutation(
-    trpc.auth.logout.mutationOptions({
-      onMutate: async () => {
-        qc.cancelQueries({ queryKey: trpc.session.get.queryKey() });
-      },
-      onSuccess: async () => {
-        qc.setQueryData(trpc.session.get.queryKey(), () => ({
-          user: undefined,
-          flash: undefined,
-        }));
-
-        navigate({ to: "/auth/login" });
-      },
-      onSettled: () => {
-        qc.invalidateQueries({ queryKey: trpc.session.get.queryKey() });
-      },
-    }),
-  );
+  const { mutate } = useMutation({
+    mutationFn: clearSession,
+    onSuccess: () => {
+      navigate({ to: "/auth/login" });
+    },
+  });
 
   return mutate;
 }

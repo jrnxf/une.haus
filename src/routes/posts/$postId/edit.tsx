@@ -26,11 +26,11 @@ export const Route = createFileRoute("/posts/$postId/edit")({
       context.trpc.post.get.queryOptions({ id: postId }),
     );
     if (!post) {
-      await setFlash.serverFn({ data: "Post not found" });
+      await setFlash({ data: "Post not found" });
       throw redirect({ to: "/posts" });
     }
     if (post.userId !== context.session.user?.id) {
-      await setFlash.serverFn({ data: "Access denied" });
+      await setFlash({ data: "Access denied" });
       throw redirect({ to: "/posts" });
     }
   },

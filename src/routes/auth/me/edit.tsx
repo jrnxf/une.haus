@@ -59,8 +59,7 @@ function RouteComponent() {
 
   const updateUser = useMutation(
     trpc.user.update.mutationOptions({
-      onSuccess: async (data) => {
-        console.log(data);
+      onSuccess: async () => {
         await qc.invalidateQueries({
           queryKey: trpc.user.get.queryKey({ userId: sessionUser.id }),
         });

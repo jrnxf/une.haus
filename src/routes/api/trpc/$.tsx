@@ -1,5 +1,6 @@
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { serialize, type SerializeOptions } from "cookie";
 import { createTRPCContext } from "~/integrations/trpc/init";
 import { trpcRouter } from "~/integrations/trpc/router";
 
@@ -13,10 +14,18 @@ function handler({ request }: { request: Request }) {
         // TODO send to sentry
       }
     },
+
     createContext: async ({ req, resHeaders }) => {
       return createTRPCContext({
         req: { headers: req.headers },
-        res: { headers: resHeaders },
+        setCookie: (
+          name: string,
+          value: string,
+          options?: SerializeOptions,
+        ) => {
+          resHeaders.append("Set-Cookie", serialize(name, value, options));
+        },
+        // res: { headers: resHeaders },
       });
     },
   });

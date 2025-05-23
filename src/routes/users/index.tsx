@@ -18,15 +18,21 @@ import { WrappedBadges } from "~/components/wrapped-badges";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { useTRPC } from "~/integrations/trpc/react";
 import { cn } from "~/lib/utils";
+import { setFlash } from "~/server/fns/session/flash/set";
 import { listUsers } from "~/server/fns/users/list";
 
 export const Route = createFileRoute("/users/")({
   validateSearch: listUsers.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
-    await context.queryClient.ensureInfiniteQueryData(
-      context.trpc.user.list.infiniteQueryOptions(deps),
+    const opts = context.trpc.user.list.infiniteQueryOptions(deps);
+
+    await context.queryClient.prefetchInfiniteQuery(
+      // listUsers.infiniteQueryOptions(deps),
+      opts,
     );
+
+    await setFlash({ data: "Hello" });
   },
   component: RouteComponent,
 });

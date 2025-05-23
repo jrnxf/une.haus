@@ -12,7 +12,6 @@ export const APIRoute = createAPIFileRoute("/api/auth/verify")({
 
     const token = url.searchParams.get("token");
 
-    console.log(Object.fromEntries(url.searchParams.entries()));
     const redirectTo = url.searchParams.get("redirect") ?? "/auth/me";
 
     if (!token) {

@@ -2,9 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import invariant from "tiny-invariant";
 import { MESSAGES_KEY } from "~/lib/keys";
 import { useSessionUser } from "~/lib/session";
+import { rpc } from "~/server/fns";
 
 import { createMessage } from "~/server/fns/messages/create";
-import { type Message } from "~/server/fns/messages/list";
+import { listMessages, type Message } from "~/server/fns/messages/list";
 import { type RecordWithMessages } from "~/server/fns/messages/shared";
 
 export function useCreateMessage(record: RecordWithMessages) {
@@ -18,31 +19,29 @@ export function useCreateMessage(record: RecordWithMessages) {
     onMutate: async (newMessage) => {
       invariant(sessionUser, "sessionUser is required");
 
-      qc.cancelQueries({
-        queryKey: [MESSAGES_KEY, record.type, record.recordId],
+      const listOptions = rpc.messages.list.queryOptions({
+        type: record.type,
+        recordId: record.recordId,
       });
 
-      const prev = qc.getQueryData<Message[]>([
-        MESSAGES_KEY,
-        record.type,
-        record.recordId,
-      ]);
+      qc.cancelQueries({
+        queryKey: listOptions.queryKey,
+      });
+
+      const prev = qc.getQueryData(listOptions.queryKey);
 
       if (prev) {
-        qc.setQueryData(
-          [MESSAGES_KEY, record.type, record.recordId],
-          [
-            ...prev,
-            {
-              content: newMessage.data.content,
-              createdAt: new Date(),
-              id: Math.random(),
-              likes: [],
-              user: sessionUser,
-              userId: sessionUser.id,
-            },
-          ],
-        );
+        qc.setQueryData(listOptions.queryKey, [
+          ...prev,
+          {
+            content: newMessage.data.content,
+            createdAt: new Date(),
+            id: Math.random(),
+            likes: [],
+            user: sessionUser,
+            userId: sessionUser.id,
+          },
+        ]);
       }
 
       return { prev };

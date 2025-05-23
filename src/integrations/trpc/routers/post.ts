@@ -174,16 +174,6 @@ export const postRouter = {
       .orderBy(desc(posts.id))
       .limit(input.limit);
 
-    const session = await useServerSession();
-    console.log("session data", session.data);
-
-    setCookie("test", "test");
-
-    await session.update({
-      ...session.data,
-      flash: "test",
-    });
-
     return data;
   }),
 

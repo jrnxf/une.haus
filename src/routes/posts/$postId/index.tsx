@@ -2,8 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
-
 import { setFlash } from "~/server/fns/session/flash/set";
+
 import { PostView } from "~/views/post";
 
 const pathParametersSchema = z.object({
@@ -21,15 +21,8 @@ export const Route = createFileRoute("/posts/$postId/")({
       context.trpc.post.get.queryOptions({ id: postId }),
     );
 
-    const session = await context.queryClient.ensureQueryData(
-      context.trpc.session.get.queryOptions(),
-    );
-
-    console.log("session", session);
-
     if (!post) {
-      console.log("no post");
-      // await setFlash.serverFn({ data: "Post not found :/" });
+      await setFlash({ data: "Post not found" });
       throw redirect({ to: "/posts" });
     }
 

@@ -1,4 +1,4 @@
-import { useSuspenseQuery, type QueryClient } from "@tanstack/react-query";
+import { type QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
@@ -14,9 +14,9 @@ import { AuthButton } from "~/components/auth-button";
 import { CommandMenu } from "~/components/command-menu";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
-import { useTRPC } from "~/integrations/trpc/react";
 import { type TRPCRouter } from "~/integrations/trpc/router";
 import { type HausSession } from "~/lib/session";
+import { getSession } from "~/server/fns/session/get";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -26,10 +26,8 @@ export interface RouterAppContext {
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
-  beforeLoad: async ({ context }) => {
-    const session = await context.queryClient.ensureQueryData(
-      context.trpc.session.get.queryOptions(),
-    );
+  beforeLoad: async () => {
+    const session = await getSession();
     return { session };
   },
   component: RootComponent,
@@ -56,11 +54,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
-  const trpc = useTRPC();
-
-  const { data: session } = useSuspenseQuery(trpc.session.get.queryOptions());
-  console.log("session!!", session);
-
   return (
     <RootDocument>
       <Outlet />

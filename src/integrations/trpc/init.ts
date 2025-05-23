@@ -2,31 +2,18 @@ import { TRPCError, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
+import { type SerializeOptions } from "cookie";
 import { db } from "~/db";
 import { timingMiddleware } from "~/integrations/trpc/middleware";
 import { type EnhancedErrorShape } from "~/integrations/trpc/types";
 import { useServerSession } from "~/lib/session";
 import { isDefined } from "~/lib/utils";
 
-/**
- * 1. CONTEXT
- *
- * This section defines the "contexts" that are available in the backend API.
- *
- * These allow you to access things when processing a request, like the database, the session, etc.
- *
- * This helper generates the "internals" for a tRPC context. The API handler and RSC clients each
- * wrap this and provides the required context.
- *
- * @see https://trpc.io/docs/server/context
- */
 export const createTRPCContext = async (opts: {
   req: {
     headers: Headers;
   };
-  res: {
-    headers: Headers;
-  };
+  setCookie: (name: string, value: string, options?: SerializeOptions) => void;
 }) => {
   const session = await useServerSession();
 
