@@ -1,11 +1,10 @@
 import { json } from "@tanstack/react-start";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { setHeader } from "@tanstack/react-start/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { magicLinks, users } from "~/db/schema";
-import { encrypt, serializeSession } from "~/lib/session";
+import { useServerSession } from "~/lib/session";
 
 export const APIRoute = createAPIFileRoute("/api/auth/verify")({
   GET: async ({ request }) => {
@@ -46,10 +45,11 @@ export const APIRoute = createAPIFileRoute("/api/auth/verify")({
       });
     }
 
-    const encryptedSession = await encrypt({ user: magicLink.user });
-    const session = await serializeSession(encryptedSession);
+    const session = await useServerSession();
 
-    setHeader("set-cookie", session);
+    await session.update({
+      user: magicLink.user,
+    });
 
     return new Response(null, {
       status: 307,

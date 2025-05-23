@@ -16,14 +16,28 @@ export const Route = createFileRoute("/posts/$postId/")({
     parse: pathParametersSchema.parse,
   },
   loader: async ({ context, params: { postId } }) => {
-    try {
-      await context.queryClient.ensureQueryData(
-        context.trpc.post.get.queryOptions({ id: postId }),
-      );
-    } catch {
-      await setFlash.serverFn({ data: "Post not found" });
+    // try {
+    const post = await context.queryClient.ensureQueryData(
+      context.trpc.post.get.queryOptions({ id: postId }),
+    );
+
+    const session = await context.queryClient.ensureQueryData(
+      context.trpc.session.get.queryOptions(),
+    );
+
+    console.log("session", session);
+
+    if (!post) {
+      console.log("no post");
+      // await setFlash.serverFn({ data: "Post not found :/" });
       throw redirect({ to: "/posts" });
     }
+
+    return post;
+    // } catch {
+    //   await setFlash.serverFn({ data: "Post not found" });
+    //   throw redirect({ to: "/posts" });
+    // }
   },
 });
 
@@ -33,6 +47,8 @@ function RouteComponent() {
   const { data: post } = useSuspenseQuery(
     trpc.post.get.queryOptions({ id: postId }),
   );
+
+  const { data: session } = useSuspenseQuery(trpc.session.get.queryOptions());
 
   return (
     <div className="flex grow flex-col">

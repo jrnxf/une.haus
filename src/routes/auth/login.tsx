@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   useNavigate,
@@ -16,6 +16,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useTRPC } from "~/integrations/trpc/react";
 import { loginSchema } from "~/models/auth";
+import { sillySet } from "~/server/fns/session/silly";
 
 const searchParamsSchema = z
   .object({
@@ -31,6 +32,16 @@ const searchParamsSchema = z
 export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
   validateSearch: searchParamsSchema,
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      context.trpc.auth.sillySet.queryOptions(),
+    );
+
+    const x = await context.queryClient.ensureQueryData(
+      sillySet.queryOptions(),
+    );
+    console.log("xaoeuaoeu", { x });
+  },
 });
 
 function RouteComponent() {
@@ -43,13 +54,17 @@ function RouteComponent() {
     resolver: zodResolver(loginSchema),
   });
 
+  const trpc = useTRPC();
+
+  // const { data: session } = useQuery(trpc.auth.sillySet.queryOptions());
+
+  // console.log("session", session);
+
   const {
     formState: { errors },
     handleSubmit,
     register,
   } = form;
-
-  const trpc = useTRPC();
 
   const navigate = useNavigate();
 

@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { magicLinks, userLocations, userSocials, users } from "~/db/schema";
 import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
-import { createSession, deleteSession } from "~/lib/session";
+import { useServerSession } from "~/lib/session";
 
 export const authRouter = {
   verifyMagicLink: publicProcedure
@@ -43,17 +43,24 @@ export const authRouter = {
         });
       }
 
-      await createSession(
-        {
-          user,
-        },
-        ctx.res,
-      );
+      const session = await useServerSession();
+
+      await session.update({
+        user,
+      });
 
       return magicLink;
     }),
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    await deleteSession(ctx.res);
+    ctx.res.headers.set("Set-Cookie", "myCookie=myValue; Path=/; HttpOnly");
+    const session = await useServerSession();
+    await session.clear();
+  }),
+  sillySet: publicProcedure.query(async ({ ctx }) => {
+    ctx.res.headers.set("Set-Cookie", "sillyCookie=myValue; Path=/; HttpOnly");
+    return {
+      success: true,
+    };
   }),
   getAuthUser: authProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;

@@ -1,37 +1,33 @@
 import { type TRPCRouterRecord } from "@trpc/server";
-import { publicProcedure } from "~/integrations/trpc/init";
-import {
-  decrypt,
-  encrypt,
-  serializeSession,
-  HAUS_SESSION_KEY,
-} from "~/lib/session";
-import cookie from "cookie";
 import { z } from "zod";
+import { publicProcedure } from "~/integrations/trpc/init";
+import { useServerSession } from "~/lib/session";
 
 export const sessionRouter = {
-  get: publicProcedure.query(async ({ ctx }) => {
-    const cookieHeader = ctx.req.headers.get("cookie");
-    const cookies = cookie.parse(cookieHeader ?? "");
-    const session = await decrypt(cookies[HAUS_SESSION_KEY]);
+  get: publicProcedure.query(async () => {
+    const session = await useServerSession();
 
-    return (
-      session ?? {
-        user: undefined,
-      }
-    );
+    const flashMessage = session.data.flash;
+
+    console.log("flashMessage", flashMessage);
+
+    if (flashMessage) {
+      // clear the flash
+      await session.update({ flash: undefined });
+    }
+
+    return {
+      user: session.data.user,
+      flash: flashMessage,
+    };
   }),
-  setFlash: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const encryptedSession = await encrypt({
-      ...ctx.session,
+  setFlash: publicProcedure.input(z.string()).query(async ({ input }) => {
+    const session = await useServerSession();
+    await session.update({
       flash: input,
     });
-    const session = await serializeSession(encryptedSession);
-
-    ctx.res.headers.set("set-cookie", session);
-
-    console.log("resHeaders", Object.fromEntries(ctx.res.headers.entries()));
-
-    return input;
+    return {
+      success: true,
+    };
   }),
 } satisfies TRPCRouterRecord;

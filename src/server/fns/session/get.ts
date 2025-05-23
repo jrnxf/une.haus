@@ -12,9 +12,9 @@ export const serverFn = createServerFn({ method: "GET" }).handler(
     // capture the flash
     const flash = session.data.flash;
 
-    if (flash) {
-      await session.update({ flash: undefined });
-    }
+    // if (flash) {
+    //   await session.update({ flash: undefined });
+    // }
 
     const sessionData = {
       ...session.data,

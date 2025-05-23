@@ -1,4 +1,8 @@
-import { getWebRequest, setHeader } from "@tanstack/react-start/server";
+import {
+  getWebRequest,
+  setCookie,
+  setHeader,
+} from "@tanstack/react-start/server";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, count, desc, eq, ilike, lt, or } from "drizzle-orm";
 import { z } from "zod";
@@ -6,6 +10,7 @@ import { z } from "zod";
 import { db } from "~/db";
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
 import { authProcedure, publicProcedure } from "~/integrations/trpc/init";
+import { useServerSession } from "~/lib/session";
 import { createUpdatePostSchema, listPostsSchema } from "~/models/posts";
 
 export const postRouter = {
@@ -109,10 +114,19 @@ export const postRouter = {
       });
 
       if (!post) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Post not found",
+        const session = await useServerSession();
+        console.log("no post session data", session.data);
+        await session.update({
+          ...session.data,
+          flash: "Post not found!!!!!",
         });
+
+        return null;
+
+        // throw new TRPCError({
+        //   code: "NOT_FOUND",
+        //   message: "Post not found",
+        // });
       }
 
       return post;
@@ -159,6 +173,16 @@ export const postRouter = {
       )
       .orderBy(desc(posts.id))
       .limit(input.limit);
+
+    const session = await useServerSession();
+    console.log("session data", session.data);
+
+    setCookie("test", "test");
+
+    await session.update({
+      ...session.data,
+      flash: "test",
+    });
 
     return data;
   }),
