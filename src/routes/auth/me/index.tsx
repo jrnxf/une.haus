@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { useTRPC } from "~/integrations/trpc/react";
 import { useSessionUser } from "~/lib/session";
 import { UserView } from "~/views/user";

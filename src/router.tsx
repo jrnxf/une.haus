@@ -12,6 +12,7 @@ import { type TRPCRouter } from "~/integrations/trpc/router";
 import { CatchBoundary } from "./components/catch-boundary";
 import { NotFound } from "./components/not-found";
 import { routeTree } from "./routeTree.gen";
+import { setFlash } from "~/server/fns/session/flash/set";
 
 const getUrl = () => {
   const base = (() => {

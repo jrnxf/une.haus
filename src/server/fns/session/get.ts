@@ -1,9 +1,10 @@
+import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { type HausSession } from "~/lib/session";
 
 import { useServerSession } from "~/lib/session";
 
-export const getSession = createServerFn({ method: "GET" }).handler(
+export const serverFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<HausSession> => {
     const session = await useServerSession();
 
@@ -24,12 +25,11 @@ export const getSession = createServerFn({ method: "GET" }).handler(
   },
 );
 
-// export const getSession = {
-//   queryOptions: () => {
-//     return queryOptions({
-//       queryKey: [SESSION_KEY],
-//       queryFn: serverFn,
-//     });
-//   },
-//   serverFn,
-// };
+export const getSession = {
+  queryOptions: () => {
+    return queryOptions({
+      queryKey: ["session.get"],
+      queryFn: serverFn,
+    });
+  },
+};

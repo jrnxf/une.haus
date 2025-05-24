@@ -16,7 +16,7 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { type TRPCRouter } from "~/integrations/trpc/router";
 import { type HausSession } from "~/lib/session";
-import { getSession } from "~/server/fns/session/get";
+import { serverFn } from "~/server/fns/session/get";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -27,7 +27,7 @@ export interface RouterAppContext {
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async () => {
-    const session = await getSession();
+    const session = await serverFn();
     return { session };
   },
   component: RootComponent,

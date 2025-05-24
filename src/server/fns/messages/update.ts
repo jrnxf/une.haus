@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 
 import { db } from "~/db";
 import {

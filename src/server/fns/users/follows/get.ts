@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { asc, eq } from "drizzle-orm";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { z } from "zod";
 
 import { db } from "~/db";

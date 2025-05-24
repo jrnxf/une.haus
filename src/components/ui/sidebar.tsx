@@ -2,7 +2,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 import * as React from "react";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { useMediaQuery } from "usehooks-ts";
 
 import { Button } from "~/components/ui/button";

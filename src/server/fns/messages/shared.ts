@@ -1,4 +1,4 @@
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { z } from "zod";
 import { chatMessages, postMessages } from "~/db/schema";
 

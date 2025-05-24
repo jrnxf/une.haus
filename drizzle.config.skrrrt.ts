@@ -1,6 +1,6 @@
 import type { Config } from "drizzle-kit";
 
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 
 import { env } from "~/lib/env";
 

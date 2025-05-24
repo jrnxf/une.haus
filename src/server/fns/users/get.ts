@@ -1,12 +1,12 @@
-import { queryOptions } from "@tanstack/react-query";
+import { type QueryOptions, queryOptions } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
-import invariant from "tiny-invariant";
 import { z } from "zod";
 
 import { db } from "~/db";
 import { userLocations, users, userSocials } from "~/db/schema";
+import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session";
 import { type ServerFnData } from "~/server/types";
 
@@ -49,19 +49,7 @@ export const serverFn = createServerFn({
       // .leftJoin(userDisciplines, eq(userDisciplines.userId, users.id))
       .limit(1);
 
-    if (!user) {
-      const session = await useServerSession();
-      session.update({
-        flash: "User not found",
-      });
-
-      console.log("redirecting to /users");
-
-      throw redirect({
-        to: "/users",
-      });
-    }
-
+    invariant(user, "User not found");
     return user;
   });
 
@@ -73,5 +61,4 @@ export const getUser = {
     });
   },
   schema,
-  // serverFn,
 };

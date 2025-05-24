@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { MESSAGES_KEY } from "~/lib/keys";
 import { useSessionUser } from "~/lib/session";
 import { rpc } from "~/server/fns";

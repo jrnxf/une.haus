@@ -1,6 +1,6 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Suspense, useMemo, useState } from "react";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { VList } from "virtua";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 
 export function MatrixText({ text }: { text: string }) {
   const [mounted, setMounted] = useState(false);

@@ -11,7 +11,7 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { Controller, useForm } from "react-hook-form";
-import invariant from "tiny-invariant";
+import { invariant } from "~/lib/invariant";
 import { useSessionUser } from "~/lib/session";
 
 import { BadgeInput } from "~/components/badge-input";
