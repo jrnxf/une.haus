@@ -52,3 +52,5 @@ export const updateUserSchema = z.object({
     .optional()
     .nullable(),
 });
+
+export type UpdateUserArgs = z.infer<typeof updateUserSchema>;

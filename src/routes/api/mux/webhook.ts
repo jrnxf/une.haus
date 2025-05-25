@@ -1,6 +1,6 @@
 import { db } from "~/db";
 import { muxVideos } from "~/db/schema";
-import { muxClient } from "~/server/clients/mux";
+import { muxClient } from "~/lib/clients/mux";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { json } from "@tanstack/react-start";
 

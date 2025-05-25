@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { MultiSelect } from "~/components/ui/multi-select";
-import { WrappedBadges } from "~/components/wrapped-badges";
+import { Badges } from "~/components/badges";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -97,7 +97,7 @@ function RouteComponent() {
                 </p>
               )}
 
-              <WrappedBadges content={user.disciplines} />
+              <Badges content={user.disciplines} />
             </Link>
           );
         })}

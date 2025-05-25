@@ -1,8 +1,8 @@
 import { json } from "@tanstack/react-start";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 
-import { muxClient } from "~/server/clients/mux";
-import { useServerSession } from "~/lib/session";
+import { muxClient } from "~/lib/clients/mux";
+import { useServerSession } from "~/lib/session/hooks";
 
 export const APIRoute = createAPIFileRoute("/api/mux/url")({
   GET: async () => {

@@ -7,6 +7,9 @@ import tseslint from "typescript-eslint";
 import pluginRouter from "@tanstack/eslint-plugin-router";
 
 export default tseslint.config(
+  {
+    ignores: ["**/routeTree.gen.ts"],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.stylistic,

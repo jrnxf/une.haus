@@ -1,25 +1,34 @@
+import { useSuspenseQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
-import { WrappedBadges } from "~/components/wrapped-badges";
+import { Badges } from "~/components/badges";
 import { YoutubeIframe } from "~/components/youtube-iframe";
-import { type PostsGetData } from "~/lib/posts";
-import { useSessionUser } from "~/lib/session";
+import { messages } from "~/lib/messages";
+import { useCreateMessage } from "~/lib/messages/hooks";
+import { posts } from "~/lib/posts";
+import { useSessionUser } from "~/lib/session/hooks";
+import { MessagesView } from "~/views/messages";
 
-export function PostView({
-  initialData,
-  postId,
-}: {
-  initialData: {
-    messages: [];
-    post: PostsGetData;
-  };
-  postId: number;
-}) {
+export function PostView({ postId }: { postId: number }) {
+  const [{ data: post }, { data: messagesData }] = useSuspenseQueries({
+    queries: [
+      posts.get.queryOptions({ postId }),
+      messages.list.queryOptions({
+        recordId: postId,
+        type: "post",
+      }),
+    ],
+  });
+
   const sessionUser = useSessionUser();
 
-  const post = initialData.post;
+  const { mutate } = useCreateMessage({
+    recordId: postId,
+    type: "post",
+  });
+
   if (!post) {
     return null;
   }
@@ -52,7 +61,7 @@ export function PostView({
         {post.imageUrl && (
           <img
             alt=""
-            className="h-full w-48 rounded-md object-cover"
+            className="max-h-96 max-w-48 rounded-md object-cover"
             src={post.imageUrl}
           />
         )}
@@ -65,7 +74,7 @@ export function PostView({
         <VideoPlayer playbackId={post.video.playbackId} />
       )}
 
-      <WrappedBadges content={post.tags} />
+      <Badges content={post.tags} />
       {post.userId === sessionUser?.id && (
         <div className="flex gap-2">
           <Button asChild>
@@ -91,19 +100,15 @@ export function PostView({
         </div>
       )}
 
-      {/* <div className="shrink-0">
+      <div className="shrink-0">
         <MessagesView
-          record={{ recordId: post.id, type: "post" }}
-          messages={messages}
+          record={{ recordId: postId, type: "post" }}
+          messages={messagesData}
           onMessageCreated={(message) => {
-            createPostMessage.mutate({
-              content: message,
-              recordId: post.id,
-              type: "post",
-            });
+            mutate(message);
           }}
         />
-      </div> */}
+      </div>
     </div>
   );
 }

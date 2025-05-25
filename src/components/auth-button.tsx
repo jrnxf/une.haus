@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { useLogout, useSessionUser } from "~/lib/session";
+import { useLogout, useSessionUser } from "~/lib/session/hooks";
 
 export function AuthButton() {
   const sessionUser = useSessionUser();

@@ -1,4 +1,4 @@
-import type { ZodError } from "zod";
+import { ZodError } from "zod";
 
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -7,8 +7,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Format a ZodError into a string
+ */
+export function zodErrorFmt(error: ZodError) {
+  const errorCount = error.issues.length;
+  const errorMessage = `Validation ${errorCount === 1 ? "error" : "errors"}: ${error.issues.map((issue) => issue.message).join(",")}`;
+  return errorMessage;
+}
+
 export function errorFmt(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  return error instanceof ZodError
+    ? zodErrorFmt(error)
+    : error instanceof Error
+      ? error.message
+      : String(error);
 }
 
 export const preferCdn = (url?: string | null): string => {
@@ -18,6 +31,7 @@ export const preferCdn = (url?: string | null): string => {
     "https://d21ywshxutk0x0.cloudfront.net",
   );
 };
+
 /**
  * @see https://dev.to/jorik/country-code-to-flag-emoji-a21
  */
@@ -51,13 +65,4 @@ export function preprocessText(text: string) {
 
 export function isDefined<T>(x: T): x is NonNullable<T> {
   return x !== null && x !== undefined;
-}
-
-/**
- * Format a ZodError into a string
- */
-export function zodErrorFmt(error: ZodError) {
-  const errorCount = error.issues.length;
-  const errorMessage = `Validation ${errorCount === 1 ? "error" : "errors"}: ${error.issues.map((issue) => issue.message).join(",")}`;
-  return errorMessage;
 }

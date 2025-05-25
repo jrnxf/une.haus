@@ -6,18 +6,18 @@ import {
   FormProvider,
   useForm,
 } from "react-hook-form";
+import { type z } from "zod";
 
-import { BadgeInput } from "~/components/badge-input";
+import { BadgeInput } from "~/components/input/badge-input";
 import { FormMessage, FormSubmitButton } from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
-import { YoutubeInput } from "~/components/youtube-input";
+import { YoutubeInput } from "~/components/input/youtube-input";
 import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
-import { type CreateUpdatePostArgs } from "~/models/posts";
 
 const MEDIA_TYPES = {
   none: "None",
@@ -37,12 +37,12 @@ export function PostForm({
   },
   onSubmit,
 }: {
-  defaultValues?: DefaultValues<CreateUpdatePostArgs> & {
+  defaultValues?: DefaultValues<z.infer<typeof posts.create.schema>> & {
     videoPlaybackId?: string;
   };
-  onSubmit: (data: CreateUpdatePostArgs) => void;
+  onSubmit: (data: z.infer<typeof posts.create.schema>) => void;
 }) {
-  const form = useForm<CreateUpdatePostArgs>({
+  const form = useForm<z.infer<typeof posts.create.schema>>({
     defaultValues: {
       content: defaultValues.content,
       imageUrl: defaultValues.imageUrl,

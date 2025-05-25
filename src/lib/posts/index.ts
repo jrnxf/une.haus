@@ -13,7 +13,7 @@ import {
   updatePostSchema,
   createPostSchema,
 } from "~/lib/posts/schemas";
-import { type ServerFnReturn, type ServerFnData } from "~/server/types";
+import { type ServerFnReturn, type ServerFnData } from "~/lib/types";
 
 export const posts = {
   list: {

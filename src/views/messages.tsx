@@ -3,14 +3,14 @@ import { useLayoutEffect, useRef } from "react";
 import { BaseMessageForm } from "~/components/forms/message";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
-import { useSessionUser } from "~/lib/session";
-import { useScroll } from "~/lib/use-scroll";
+import { useSessionUser } from "~/lib/session/hooks";
+import { useScroll } from "~/lib/ux/hooks/use-scroll";
 import { cn } from "~/lib/utils";
-import { type listMessages } from "~/server/fns/messages/list";
-import { type RecordWithMessages } from "~/server/fns/messages/shared";
-import { type ServerFnReturn } from "~/server/types";
+import { type ServerFnReturn } from "~/lib/types";
+import { type messages } from "~/lib/messages";
+import { type RecordWithMessages } from "~/lib/messages/schemas";
 
-type Message = ServerFnReturn<typeof listMessages.serverFn>[number];
+type Message = ServerFnReturn<typeof messages.list.fn>[number];
 
 export function MessagesView({
   record,
@@ -101,7 +101,10 @@ export function MessagesView({
               <div
                 className={cn("flex w-full", isUserMessage && "justify-end")}
               >
-                <MessageBubble record={record} message={message} />
+                <MessageBubble
+                  //  record={record}
+                  message={message}
+                />
               </div>
             </div>
           );

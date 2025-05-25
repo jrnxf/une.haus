@@ -1,25 +1,23 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PenIcon } from "lucide-react";
-import DeleteSetButton from "~/components/buttons/delete-set-button";
-// import DeleteSetButton from "~/components/buttons/delete-set-button";
+import { DeleteSetButton } from "~/components/delete-set-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { VideoPlayer } from "~/components/video-player";
-import { getUpcomingRiuRoster } from "~/server/fns/games/rius/upcoming/roster";
+import { games } from "~/lib/games";
 
 export const Route = createFileRoute("/games/rius/upcoming/")({
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      getUpcomingRiuRoster.queryOptions(),
+      games.rius.upcoming.roster.queryOptions(),
     );
   },
 });
 
 function RouteComponent() {
-  const { data } = useSuspenseQuery(getUpcomingRiuRoster.queryOptions());
+  const { data } = useSuspenseQuery(games.rius.upcoming.roster.queryOptions());
 
   const playerRoster = Object.values(data.roster);
 

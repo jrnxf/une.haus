@@ -2,17 +2,18 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "@tanstack/react-router";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { useSessionUser } from "~/lib/session";
-// import { useUpdateMessage } from "~/lib/hooks/messages";
 import {
   type MessageFormOutput,
   messageFormSchema,
-} from "~/server/fns/messages/shared";
+} from "~/lib/messages/schemas";
+import { useSessionUser } from "~/lib/session/hooks";
+// import { useUpdateMessage } from "~/lib/hooks/messages";
 
 export function BaseMessageForm({
   initialContent,
@@ -37,8 +38,16 @@ export function BaseMessageForm({
   if (!sessionUser) {
     return (
       <div className="grid place-items-center pt-3">
-        <p>log in to chat</p>
-        {/* <LoginAndReturnButton>Log in to chat</LoginAndReturnButton> */}
+        <Button asChild>
+          <Link
+            to="/auth/login"
+            search={{
+              redirect: "/chat",
+            }}
+          >
+            Log in to chat
+          </Link>
+        </Button>
       </div>
     );
   }

@@ -1,13 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/integrations/trpc/react";
+import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
-// import { useCreateMessage } from "~/lib/hooks/messages";
 import { MessagesView } from "~/views/messages";
 
 export function ChatMessagesView() {
-  const trpc = useTRPC();
   const { data: chatMessages } = useSuspenseQuery(
-    trpc.messages.list.queryOptions({
+    messages.list.queryOptions({
       recordId: -1,
       type: "chat",
     }),
@@ -17,6 +15,7 @@ export function ChatMessagesView() {
     recordId: -1,
     type: "chat",
   });
+
   return (
     <MessagesView
       record={{ recordId: -1, type: "chat" }}

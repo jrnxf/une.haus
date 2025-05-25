@@ -11,7 +11,7 @@ import {
   listPostsSchema,
   updatePostSchema,
 } from "~/lib/posts/schemas";
-import { authMiddleware } from "~/server/middleware/auth";
+import { authMiddleware } from "~/lib/middleware";
 
 export const listPostsServerFn = createServerFn({
   method: "GET",

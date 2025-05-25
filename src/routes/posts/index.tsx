@@ -17,12 +17,11 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
-import { WrappedBadges } from "~/components/wrapped-badges";
-import { listPostsSchema } from "~/models/posts";
+import { Badges } from "~/components/badges";
 import { posts } from "~/lib/posts";
 
 export const Route = createFileRoute("/posts/")({
-  validateSearch: listPostsSchema,
+  validateSearch: posts.list.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureInfiniteQueryData(
@@ -84,7 +83,7 @@ function RouteComponent() {
                   <p>{post.content}</p>
                 </div>
 
-                <WrappedBadges content={post.tags} />
+                <Badges content={post.tags} />
 
                 <div className="flex w-full justify-between gap-4">
                   <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">

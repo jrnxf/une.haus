@@ -16,7 +16,7 @@ import {
   unfollowUserSchema,
   updateUserSchema,
 } from "~/lib/users/schemas";
-import { type ServerFnReturn, type ServerFnData } from "~/server/types";
+import { type ServerFnReturn, type ServerFnData } from "~/lib/types";
 
 export const users = {
   all: {

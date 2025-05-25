@@ -9,22 +9,21 @@ import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { VideoInput } from "~/components/video-input";
-import { useCreateSet } from "~/lib/hooks/rius";
-import { createRiuSet } from "~/server/fns/games/rius/sets";
-import { getUpcomingRiuRoster } from "~/server/fns/games/rius/upcoming/roster";
+import { VideoInput } from "~/components/input/video-input";
+import { games } from "~/lib/games";
+import { useCreateSet } from "~/lib/games/rius/hooks";
 
 export const Route = createFileRoute("/games/rius/upcoming/join")({
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      getUpcomingRiuRoster.queryOptions(),
+      games.rius.upcoming.roster.queryOptions(),
     );
   },
 });
 
 function RouteComponent() {
-  const { data } = useSuspenseQuery(getUpcomingRiuRoster.queryOptions());
+  const { data } = useSuspenseQuery(games.rius.upcoming.roster.queryOptions());
 
   return (
     <div>
@@ -49,8 +48,8 @@ function JoinRiuForm() {
     formState: { errors },
     handleSubmit,
     register,
-  } = useForm<z.infer<typeof createRiuSet.schema>>({
-    resolver: zodResolver(createRiuSet.schema),
+  } = useForm<z.infer<typeof games.rius.sets.create.schema>>({
+    resolver: zodResolver(games.rius.sets.create.schema),
   });
 
   const createSet = useCreateSet();

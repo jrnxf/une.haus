@@ -18,9 +18,9 @@ import { Button } from "~/components/ui/button";
 import { DialogHeader } from "~/components/ui/dialog";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { Skeleton } from "~/components/ui/skeleton";
-import { WrappedBadges } from "~/components/wrapped-badges";
-import { useFollows } from "~/lib/hooks/users";
-import { useSessionUser } from "~/lib/session";
+import { Badges } from "~/components/badges";
+import { useFollows } from "~/lib/users/hooks";
+import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersGetData } from "~/lib/users";
 import { cn, isDefined } from "~/lib/utils";
 
@@ -112,7 +112,7 @@ export function UserView({ user }: { user: UsersGetData }) {
             </p>
           )}
 
-          <WrappedBadges content={disciplines} />
+          <Badges content={disciplines} />
 
           {socials && Object.values(socials).some(isDefined) && (
             <div className="flex gap-4">

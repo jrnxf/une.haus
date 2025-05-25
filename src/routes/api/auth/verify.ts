@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { magicLinks, users } from "~/db/schema";
-import { useServerSession } from "~/lib/session";
+import { useServerSession } from "~/lib/session/hooks";
 
 export const APIRoute = createAPIFileRoute("/api/auth/verify")({
   GET: async ({ request }) => {

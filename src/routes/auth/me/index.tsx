@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { invariant } from "~/lib/invariant";
-import { useSessionUser } from "~/lib/session";
+import { useSessionUser } from "~/lib/session/hooks";
 import { users } from "~/lib/users";
 import { UserView } from "~/views/user";
 

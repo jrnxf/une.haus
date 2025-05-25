@@ -14,8 +14,7 @@ import { Button } from "~/components/ui/button";
 import { FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useTRPC } from "~/integrations/trpc/react";
-import { loginSchema } from "~/models/auth";
+import { email } from "~/lib/email";
 
 const searchParamsSchema = z
   .object({
@@ -35,15 +34,13 @@ export const Route = createFileRoute("/auth/login")({
 
 function RouteComponent() {
   const search = useSearch({ from: "/auth/login" });
-  const form = useForm<z.infer<typeof loginSchema>>({
+  const form = useForm<z.infer<typeof email.sendMagicLink.schema>>({
     defaultValues: {
       email: "",
       redirect: search.redirect,
     },
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(email.sendMagicLink.schema),
   });
-
-  const trpc = useTRPC();
 
   const {
     formState: { errors },
@@ -53,14 +50,13 @@ function RouteComponent() {
 
   const navigate = useNavigate();
 
-  const { mutate, isPending } = useMutation(
-    trpc.email.sendMagicLink.mutationOptions({
-      onSuccess: async () => {
-        toast.success(`Email sent! Check your inbox for a magic link.`);
-        navigate({ to: "/" });
-      },
-    }),
-  );
+  const { mutate, isPending } = useMutation({
+    mutationFn: email.sendMagicLink.fn,
+    onSuccess: async () => {
+      toast.success(`Email sent! Check your inbox for a magic link.`);
+      navigate({ to: "/" });
+    },
+  });
 
   return (
     <div className="mx-auto w-full max-w-xl p-8" id="main-content">
@@ -70,7 +66,7 @@ function RouteComponent() {
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit((data) => {
-              mutate(data);
+              mutate({ data });
             })(event);
           }}
         >

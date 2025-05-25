@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Toaster as Sonner, toast } from "sonner";
-import { useSessionFlash } from "~/lib/session";
+import { useSessionFlash } from "~/lib/session/hooks";
 
 type ToasterProperties = React.ComponentProps<typeof Sonner>;
 

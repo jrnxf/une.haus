@@ -12,12 +12,12 @@ import {
 } from "@tanstack/react-router";
 import { Controller, useForm } from "react-hook-form";
 import { invariant } from "~/lib/invariant";
-import { useSessionUser } from "~/lib/session";
+import { useSessionUser } from "~/lib/session/hooks";
 
-import { BadgeInput } from "~/components/badge-input";
-import { ImageInput } from "~/components/image-input";
 import { toast } from "sonner";
-import { LocationSelector } from "~/components/location-selector";
+import { BadgeInput } from "~/components/input/badge-input";
+import { ImageInput } from "~/components/input/image-input";
+import { LocationSelector } from "~/components/input/location-selector";
 import { Button } from "~/components/ui/button";
 import { FormMessage, FormSubmitButton } from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
@@ -25,10 +25,9 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { USER_DISCIPLINES } from "~/db/schema";
-import { users } from "~/lib/users";
-import { type UpdateUserArgs, updateUserSchema } from "~/models/users";
-import { sleep } from "~/lib/dx/utils";
 import { Json } from "~/lib/dx/json";
+import { users } from "~/lib/users";
+import { type z } from "zod";
 
 export const Route = createFileRoute("/auth/me/edit")({
   component: RouteComponent,
@@ -80,9 +79,9 @@ function RouteComponent() {
     handleSubmit,
     register,
     setValue,
-  } = useForm<UpdateUserArgs>({
+  } = useForm<z.infer<typeof users.update.schema>>({
     defaultValues: user,
-    resolver: zodResolver(updateUserSchema),
+    resolver: zodResolver(users.update.schema),
   });
 
   return (

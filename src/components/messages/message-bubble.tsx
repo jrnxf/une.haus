@@ -1,19 +1,18 @@
 import { HeartIcon } from "lucide-react";
 
-import { useSessionUser } from "~/lib/session";
 import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
+import { type messages } from "~/lib/messages";
+import { useSessionUser } from "~/lib/session/hooks";
+import { type ServerFnReturn } from "~/lib/types";
 import { cn, preprocessText } from "~/lib/utils";
-import { type listMessages } from "~/server/fns/messages/list";
-import { type RecordWithMessages } from "~/server/fns/messages/shared";
-import { type ServerFnReturn } from "~/server/types";
 
-type Message = ServerFnReturn<typeof listMessages.serverFn>[number];
+type Message = ServerFnReturn<typeof messages.list.fn>[number];
 
 export function MessageBubble({
-  record,
+  // record,
   message,
 }: {
-  record: RecordWithMessages;
+  // record: RecordWithMessages;
   message: Message;
 }) {
   const sessionUser = useSessionUser();

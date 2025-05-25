@@ -7,28 +7,25 @@ import {
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { type ReactNode } from "react";
 
 import { AuthButton } from "~/components/auth-button";
 import { CommandMenu } from "~/components/command-menu";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
-import { type TRPCRouter } from "~/integrations/trpc/router";
-import { type HausSession } from "~/lib/session";
-import { serverFn } from "~/server/fns/session/get";
+import { session } from "~/lib/session/index";
+import { type HausSession } from "~/lib/session/schema";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
-  trpc: TRPCOptionsProxy<TRPCRouter>;
   session: HausSession;
   queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async () => {
-    const session = await serverFn();
-    return { session };
+    const sessionData = await session.get.fn();
+    return { session: sessionData };
   },
   component: RootComponent,
   head: () => ({

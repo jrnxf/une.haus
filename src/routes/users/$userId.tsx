@@ -1,7 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { session } from "~/lib/session/index";
 import { users } from "~/lib/users";
-import { setFlash } from "~/server/fns/session/flash/set";
+import { errorFmt } from "~/lib/utils";
 
 import { UserView } from "~/views/user";
 
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/users/$userId")({
         users.get.queryOptions({ userId }),
       );
     } catch (error) {
-      await setFlash({ data: error.message });
+      await session.flash.set.fn({ data: { message: errorFmt(error) } });
       throw redirect({ to: "/users" });
     }
   },

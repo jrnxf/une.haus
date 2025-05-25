@@ -12,7 +12,7 @@ import {
   CommandSeparator,
 } from "~/components/ui/command";
 import { Separator } from "~/components/ui/separator";
-import { useLogout, useSessionUser } from "~/lib/session";
+import { useLogout, useSessionUser } from "~/lib/session/hooks";
 
 type Page = "games" | "posts" | "root" | "theme" | "users";
 

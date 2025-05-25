@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useRef } from "react";
 
-import { useSessionUser } from "~/lib/session";
+import { useSessionUser } from "~/lib/session/hooks";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

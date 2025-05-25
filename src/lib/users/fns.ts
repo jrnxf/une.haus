@@ -10,9 +10,9 @@ import {
   getUserSchema,
   listUsersSchema,
   unfollowUserSchema,
+  updateUserSchema,
 } from "~/lib/users/schemas";
-import { updateUserSchema } from "~/models/users";
-import { authMiddleware } from "~/server/middleware/auth";
+import { authMiddleware } from "~/lib/middleware";
 
 export const allUsersServerFn = createServerFn({
   method: "GET",

@@ -4,13 +4,13 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { merge } from "lodash-es";
 import { z } from "zod";
 
 import { toast } from "sonner";
 import { PostForm } from "~/components/forms/post";
 import { posts } from "~/lib/posts";
-import { setFlash } from "~/server/fns/session/flash/set";
+import { session } from "~/lib/session/index";
+import { errorFmt } from "~/lib/utils";
 
 const pathParametersSchema = z.object({
   postId: z.coerce.number(),
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/posts/$postId/edit")({
         posts.get.queryOptions({ postId }),
       );
     } catch (error) {
-      await setFlash({ data: error.message });
+      await session.flash.set.fn({ data: { message: errorFmt(error) } });
       throw redirect({ to: "/posts" });
     }
   },
@@ -44,16 +44,21 @@ function RouteComponent() {
 
   const { mutate } = useMutation({
     mutationFn: posts.update.fn,
-    onMutate: (data) => {
+    onMutate: ({ data }) => {
       qc.cancelQueries({
         queryKey: posts.get.queryOptions({ postId }).queryKey,
       });
 
       const prev = qc.getQueryData(posts.get.queryOptions({ postId }).queryKey);
 
-      qc.setQueryData(posts.get.queryOptions({ postId }).queryKey, (prev) =>
-        merge(prev, data),
-      );
+      qc.setQueryData(posts.get.queryOptions({ postId }).queryKey, (prev) => {
+        return prev
+          ? {
+              ...prev,
+              ...data,
+            }
+          : undefined;
+      });
 
       navigate({ to: "/posts/$postId", params: { postId } });
 
