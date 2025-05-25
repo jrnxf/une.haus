@@ -16,18 +16,19 @@ import { useSessionUser } from "~/lib/session";
 
 import { BadgeInput } from "~/components/badge-input";
 import { ImageInput } from "~/components/image-input";
-// import { LocationSelector } from "~/components/location-selector";
+import { toast } from "sonner";
+import { LocationSelector } from "~/components/location-selector";
 import { Button } from "~/components/ui/button";
 import { FormMessage, FormSubmitButton } from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { type UpdateUserArgs, updateUserSchema } from "~/models/users";
-import { LocationSelector } from "~/components/location-selector";
-import { useTRPC } from "~/integrations/trpc/react";
-import { toast } from "sonner";
 import { USER_DISCIPLINES } from "~/db/schema";
+import { users } from "~/lib/users";
+import { type UpdateUserArgs, updateUserSchema } from "~/models/users";
+import { sleep } from "~/lib/dx/utils";
+import { Json } from "~/lib/dx/json";
 
 export const Route = createFileRoute("/auth/me/edit")({
   component: RouteComponent,
@@ -41,38 +42,37 @@ export const Route = createFileRoute("/auth/me/edit")({
       });
     }
     await context.queryClient.ensureQueryData(
-      context.trpc.user.get.queryOptions({ userId: sessionUser.id }),
+      users.get.queryOptions({ userId: sessionUser.id }),
     );
   },
 });
 
 function RouteComponent() {
-  const trpc = useTRPC();
   const sessionUser = useSessionUser();
   invariant(sessionUser, "Authentication required");
   const navigate = useNavigate();
   const qc = useQueryClient();
 
   const { data: user } = useSuspenseQuery(
-    trpc.user.get.queryOptions({ userId: sessionUser.id }),
+    users.get.queryOptions({ userId: sessionUser.id }),
   );
 
-  const updateUser = useMutation(
-    trpc.user.update.mutationOptions({
-      onSuccess: async () => {
-        await qc.invalidateQueries({
-          queryKey: trpc.user.get.queryKey({ userId: sessionUser.id }),
-        });
-        toast.success("Profile updated");
-        navigate({
-          to: "/auth/me",
-        });
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    }),
-  );
+  const updateUser = useMutation({
+    mutationFn: users.update.fn,
+    onSuccess: async () => {
+      await qc.invalidateQueries({
+        queryKey: users.get.queryOptions({ userId: sessionUser.id }).queryKey,
+      });
+      toast.success("Profile updated");
+
+      navigate({
+        to: "/auth/me",
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const {
     control,
@@ -94,7 +94,7 @@ function RouteComponent() {
           onSubmit={(event) => {
             event.preventDefault();
             handleSubmit((data) => {
-              updateUser.mutate(data);
+              updateUser.mutate({ data });
             })(event);
           }}
         >
@@ -114,7 +114,7 @@ function RouteComponent() {
                   <LocationSelector
                     id="location"
                     onUpdate={onChange}
-                    placeholder={user.location?.formattedAddress}
+                    placeholder={user.location?.label}
                   />
                 )}
               />
@@ -200,6 +200,7 @@ function RouteComponent() {
           </div>
         </form>
       </FormOpsProvider>
+      <Json data={errors} />
     </div>
   );
 }

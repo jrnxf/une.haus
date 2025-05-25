@@ -18,22 +18,21 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
 import { WrappedBadges } from "~/components/wrapped-badges";
-import { useTRPC } from "~/integrations/trpc/react";
 import { listPostsSchema } from "~/models/posts";
+import { posts } from "~/lib/posts";
 
 export const Route = createFileRoute("/posts/")({
   validateSearch: listPostsSchema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureInfiniteQueryData(
-      context.trpc.post.list.infiniteQueryOptions(deps),
+      posts.list.infiniteQueryOptions(deps),
     );
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const trpc = useTRPC();
   const searchParams = Route.useSearch();
 
   const {
@@ -41,21 +40,9 @@ function RouteComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(
-    trpc.post.list.infiniteQueryOptions(searchParams, {
-      getNextPageParam: (lastPage) => {
-        if (lastPage.length < 25) {
-          // the last page returned less than the requested limit, so we
-          // know there is no more results for this filter set
-          return;
-        }
+  } = useSuspenseInfiniteQuery(posts.list.infiniteQueryOptions(searchParams));
 
-        return lastPage.at(-1)?.id;
-      },
-    }),
-  );
-
-  const posts = useMemo(() => postsPages.pages.flat(), [postsPages]);
+  const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages]);
 
   return (
     <div className="mx-auto flex w-full max-w-4xl grow flex-col gap-3 p-3">
@@ -68,10 +55,10 @@ function RouteComponent() {
           <FiltersTray />
         </div>
       </div>
-      {posts.length === 0 && (
+      {displayedPosts.length === 0 && (
         <p className="text-muted-foreground mt-1">No posts</p>
       )}
-      {posts.map((post) => {
+      {displayedPosts.map((post) => {
         const posterUrl =
           post.imageUrl ||
           (post.video?.playbackId && getMuxPoster(post.video.playbackId)) ||

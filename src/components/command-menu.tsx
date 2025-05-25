@@ -1,4 +1,4 @@
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 import { useEventListener } from "usehooks-ts";
 
@@ -102,7 +102,7 @@ export function CommandMenu() {
                   </CommandItem>
                   <CommandItem
                     onSelect={() => {
-                      logout();
+                      logout({});
                       setOpen(false);
                     }}
                   >

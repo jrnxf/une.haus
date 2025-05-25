@@ -1,3 +1,4 @@
+// TODO the bundle on this is huge - just download these svgs locally
 import {
   SiFacebook,
   SiInstagram,
@@ -18,12 +19,12 @@ import { DialogHeader } from "~/components/ui/dialog";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { Skeleton } from "~/components/ui/skeleton";
 import { WrappedBadges } from "~/components/wrapped-badges";
-import { type RouterOutputs } from "~/integrations/trpc/router";
 import { useFollows } from "~/lib/hooks/users";
 import { useSessionUser } from "~/lib/session";
+import { type UsersGetData } from "~/lib/users";
 import { cn, isDefined } from "~/lib/utils";
 
-export function UserView({ user }: { user: RouterOutputs["user"]["get"] }) {
+export function UserView({ user }: { user: UsersGetData }) {
   const { disciplines, socials } = user;
   const sessionUser = useSessionUser();
 
@@ -100,7 +101,7 @@ export function UserView({ user }: { user: RouterOutputs["user"]["get"] }) {
                 location={user.location}
               />
               <span className="truncate leading-none text-nowrap">
-                {user.location.formattedAddress}
+                {user.location.label}
               </span>
             </div>
           )}
@@ -174,7 +175,10 @@ function Follows({ userId }: { userId: number }) {
         </Tray>
       </div>
       {showActionButton && (
-        <Button disabled={isPending} onClick={() => action({ userId })}>
+        <Button
+          disabled={isPending}
+          onClick={() => action({ data: { userId } })}
+        >
           {authUserFollowsUser ? "Unfollow" : "Follow"}
         </Button>
       )}

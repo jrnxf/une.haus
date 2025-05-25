@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { QUERY_KEYS } from "~/lib/keys";
 import { useSessionUser } from "~/lib/session";
 import { createRiuSet, deleteRiuSet } from "~/server/fns/games/rius/sets";
 

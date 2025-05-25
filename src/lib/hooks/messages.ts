@@ -5,6 +5,7 @@ import type { ProcedureOptions } from "~/server/api/root";
 
 import { useSessionUser } from "~/lib/session";
 import { api } from "~/trpc/react";
+
 export function useDeleteMessage(
   record: RecordWithMessages,
   arguments_?: Pick<ProcedureOptions["messages"]["delete"], "onSuccess">,

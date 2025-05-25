@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { YoutubeIframe } from "~/components/youtube-iframe";
-import { type RouterOutputs } from "~/integrations/trpc/router";
+import { type PostsGetData } from "~/lib/posts";
 import { useSessionUser } from "~/lib/session";
 
 export function PostView({
@@ -13,25 +13,11 @@ export function PostView({
 }: {
   initialData: {
     messages: [];
-    post: RouterOutputs["post"]["get"];
+    post: PostsGetData;
   };
   postId: number;
 }) {
   const sessionUser = useSessionUser();
-
-  // const [post] = trpc.post.get.useSuspenseQuery(postId, {
-  //   initialData: initialData.post,
-  // });
-
-  // const [messages] = trpc.messages.list.useSuspenseQuery(
-  //   { recordId: postId, type: "post" },
-  //   { initialData: initialData.messages },
-  // );
-
-  // const createPostMessage = useCreateMessage({
-  //   recordId: postId,
-  //   type: "post",
-  // });
 
   const post = initialData.post;
   if (!post) {

@@ -95,7 +95,7 @@ export function AuthButton() {
          */}
         <DropdownMenuItem
           onSelect={() => {
-            logout();
+            logout({});
           }}
         >
           Logout

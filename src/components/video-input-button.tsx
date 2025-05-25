@@ -3,8 +3,6 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 import { z } from "zod";
 
-import type { MuxGetPresignedUrlResponse } from "~/app/api/mux/url/route";
-
 import { Button } from "~/components/ui/button";
 
 export const muxPresignedUrlSchema = z.object({
@@ -27,7 +25,7 @@ export const VideoInputButton = ({
 
         try {
           const res = await fetch("/api/mux/url");
-          const uploadSpec: MuxGetPresignedUrlResponse = await res.json();
+          const uploadSpec = await res.json();
 
           const { id: muxUploadId, url: presignedUrl } =
             muxPresignedUrlSchema.parse(uploadSpec);

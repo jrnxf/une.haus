@@ -19,7 +19,8 @@ import {
 } from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
+import { users } from "~/lib/users";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 type User = {
   avatarUrl: null | string;
@@ -68,13 +69,7 @@ function UserItem({
       value={user.id.toString()}
     >
       <Avatar className="size-6 rounded-lg">
-        <AvatarImage
-          alt={user.name}
-          height={28}
-          quality={70}
-          src={user.avatarUrl}
-          width={28}
-        />
+        <AvatarImage alt={user.name} src={user.avatarUrl} />
         <AvatarFallback className="text-xs" name={user.name} />
       </Avatar>
       <p className="grow truncate text-sm">{user.name}</p>
@@ -91,15 +86,15 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
   const [query, setQuery] = useState("");
 
   const [open, setOpen] = useState(false);
-  const [users] = api.user.all.useSuspenseQuery();
+  const { data } = useSuspenseQuery(users.all.queryOptions());
 
-  invariant(users[0], "No users found");
+  invariant(data[0], "No users found");
 
   const filteredUsers = useMemo(() => {
-    return users.filter((user) =>
+    return data.filter((user) =>
       user.name.toLowerCase().includes(query.toLowerCase()),
     );
-  }, [users, query]);
+  }, [data, query]);
 
   const noResults = filteredUsers.length === 0;
 
@@ -131,10 +126,7 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
               >
                 <AvatarImage
                   alt={selectedUser.name}
-                  height={28}
-                  quality={70}
                   src={selectedUser.avatarUrl}
-                  width={28}
                 />
                 <AvatarFallback className="text-xs" name={selectedUser.name} />
               </Avatar>

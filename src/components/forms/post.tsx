@@ -16,8 +16,8 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
 import { YoutubeInput } from "~/components/youtube-input";
 import { POST_TAGS } from "~/db/schema";
+import { posts } from "~/lib/posts";
 import { type CreateUpdatePostArgs } from "~/models/posts";
-import { basePostSchema } from "~/server/fns/postsx/shared";
 
 const MEDIA_TYPES = {
   none: "None",
@@ -50,7 +50,7 @@ export function PostForm({
       title: defaultValues.title,
       videoUploadId: defaultValues.videoUploadId,
     },
-    resolver: zodResolver(basePostSchema),
+    resolver: zodResolver(posts.create.schema),
     shouldUnregister: false,
   });
 
@@ -59,16 +59,15 @@ export function PostForm({
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
-    setValue,
-    watch,
+    // watch,
   } = form;
 
   const [mediaType, setMediaType] = useState<MediaType>(
     defaultValues.imageUrl || defaultValues.videoUploadId ? "upload" : "none",
   );
 
-  const formImageUrl = watch("imageUrl");
-  const formVideoUploadId = watch("videoUploadId");
+  // const formImageUrl = watch("imageUrl");
+  // const formVideoUploadId = watch("videoUploadId");
 
   return (
     <div className="mx-auto w-full max-w-xl">

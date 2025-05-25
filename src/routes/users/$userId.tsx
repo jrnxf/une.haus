@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useTRPC } from "~/integrations/trpc/react";
 import { users } from "~/lib/users";
 import { setFlash } from "~/server/fns/session/flash/set";
 
@@ -22,10 +21,8 @@ export const Route = createFileRoute("/users/$userId")({
 });
 
 function RouteComponent() {
-  const trpc = useTRPC();
-
   const { userId } = Route.useParams();
-  const { data } = useSuspenseQuery(trpc.user.get.queryOptions({ userId }));
+  const { data } = useSuspenseQuery(users.get.queryOptions({ userId }));
 
   return <UserView user={data} />;
 }

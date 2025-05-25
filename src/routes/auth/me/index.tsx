@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { invariant } from "~/lib/invariant";
-import { useTRPC } from "~/integrations/trpc/react";
 import { useSessionUser } from "~/lib/session";
+import { users } from "~/lib/users";
 import { UserView } from "~/views/user";
 
 export const Route = createFileRoute("/auth/me/")({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth/me/")({
       });
     }
     await context.queryClient.ensureQueryData(
-      context.trpc.user.get.queryOptions({
+      users.get.queryOptions({
         userId: sessionUser.id,
       }),
     );
@@ -25,13 +25,11 @@ export const Route = createFileRoute("/auth/me/")({
 });
 
 function RouteComponent() {
-  const trpc = useTRPC();
-
   const sessionUser = useSessionUser();
   invariant(sessionUser, "Authentication required");
 
   const { data } = useSuspenseQuery(
-    trpc.user.get.queryOptions({ userId: sessionUser.id }),
+    users.get.queryOptions({ userId: sessionUser.id }),
   );
 
   return <UserView user={data} />;

@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import { POST_TAGS } from "~/db/schema";
 
+export const getPostSchema = z.object({
+  postId: z.coerce.number(),
+});
+
 export const createPostSchema = z.object({
   content: z.string().min(1, { message: "Required" }),
   imageUrl: z.string().url().optional().nullable(),

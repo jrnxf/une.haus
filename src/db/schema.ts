@@ -63,9 +63,8 @@ export const users = pgTable("users", {
 
 export const userLocations = pgTable("user_locations", {
   countryCode: text("country_code").notNull(),
-
   countryName: text("country_name").notNull(),
-  formattedAddress: text("formatted_address").notNull(),
+  label: text("label").notNull(),
   lat: real("lat").notNull(),
   lng: real("lng").notNull(),
   userId: integer("user_id")

@@ -68,9 +68,9 @@ function RouteComponent() {
             </div>
             <div className="flex shrink-0 justify-end gap-1">
               <Button asChild size="icon-sm" variant="ghost">
-                <Link href={`/games/rius/sets/${set.id}/edit`}>
+                {/* <Link to="/games/rius/sets/$setId/edit" params={{ setId: set.id }}>
                   <PenIcon className="size-4" />
-                </Link>
+                </Link> */}
               </Button>
               <DeleteSetButton setId={set.id} />
             </div>

@@ -1,16 +1,12 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   rootRouteId,
   useNavigate,
   useRouteContext,
-  useRouter,
 } from "@tanstack/react-router";
 import { serverOnly } from "@tanstack/react-start";
-import { getWebRequest, useSession } from "@tanstack/react-start/server";
-import cookie from "cookie";
-import { SignJWT, jwtVerify } from "jose";
+import { useSession } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { useTRPC } from "~/integrations/trpc/react";
 import { env } from "~/lib/env";
 import { clearSession } from "~/server/fns/session/clear";
 
@@ -49,7 +45,7 @@ export const hausSessionSchema = z.object({
 //   };
 // });
 
-export const useServerSession = () => {
+export const useServerSession = serverOnly(() => {
   return useSession<HausSession>({
     name: HAUS_SESSION_KEY,
     password: env.SESSION_SECRET,
@@ -60,7 +56,7 @@ export const useServerSession = () => {
     },
     maxAge: 60 * 60 * 24 * 30, // 30 days
   });
-};
+});
 
 export type HausSession = z.infer<typeof hausSessionSchema>;
 export type HausSessionUser = HausSession["user"];

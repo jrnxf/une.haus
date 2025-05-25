@@ -1,12 +1,75 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 
 import { db } from "~/db";
-import { userLocations, users, userSocials } from "~/db/schema";
+import { userFollows, userLocations, users, userSocials } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
-import { getUserSchema } from "~/lib/users/schemas";
+import {
+  followUserSchema,
+  getUserFollowsSchema,
+  getUserSchema,
+  listUsersSchema,
+  unfollowUserSchema,
+} from "~/lib/users/schemas";
 import { updateUserSchema } from "~/models/users";
 import { authMiddleware } from "~/server/middleware/auth";
+
+export const allUsersServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  return await db
+    .select({
+      avatarUrl: users.avatarUrl,
+      id: users.id,
+      name: users.name,
+    })
+    .from(users)
+    .orderBy(asc(users.id));
+});
+
+export const listUsersServerFn = createServerFn({
+  method: "GET",
+})
+  .validator(listUsersSchema)
+  .handler(async ({ data: input }) => {
+    return await db
+      .select({
+        avatarUrl: users.avatarUrl,
+        bio: users.bio,
+        disciplines: users.disciplines,
+        email: users.email,
+        id: users.id,
+        location: {
+          countryCode: userLocations.countryCode,
+          label: userLocations.label,
+          lat: userLocations.lat,
+          lng: userLocations.lng,
+        },
+        name: users.name,
+        socials: {
+          facebook: userSocials.facebook,
+          instagram: userSocials.instagram,
+          spotify: userSocials.spotify,
+          tiktok: userSocials.tiktok,
+          twitter: userSocials.twitter,
+          youtube: userSocials.youtube,
+        },
+      })
+      .from(users)
+      .leftJoin(userLocations, eq(userLocations.userId, users.id))
+      .leftJoin(userSocials, eq(userSocials.userId, users.id))
+      .where(
+        and(
+          input.q ? ilike(users.name, `%${input.q}%`) : undefined,
+          input.disciplines && input.disciplines.length > 0
+            ? sql`${users.disciplines}::jsonb @> ${sql.raw(`'${JSON.stringify(input.disciplines)}'`)}::jsonb`
+            : undefined,
+          input.cursor ? gt(users.id, input.cursor) : undefined,
+        ),
+      )
+      .orderBy(asc(users.id))
+      .limit(input.limit);
+  });
 
 export const getUserServerFn = createServerFn({
   method: "GET",
@@ -21,8 +84,9 @@ export const getUserServerFn = createServerFn({
         email: users.email,
         id: users.id,
         location: {
+          countryName: userLocations.countryName,
           countryCode: userLocations.countryCode,
-          formattedAddress: userLocations.formattedAddress,
+          label: userLocations.label,
           lat: userLocations.lat,
           lng: userLocations.lng,
         },
@@ -94,4 +158,83 @@ export const updateUserServerFn = createServerFn({
     }
 
     await Promise.all(promises);
+  });
+
+export const getUserFollowsServerFn = createServerFn({
+  method: "GET",
+})
+  .validator(getUserFollowsSchema)
+  .handler(async ({ data: input }) => {
+    const [followedUsersResult, followedByUsersResult] =
+      await Promise.allSettled([
+        db
+          .select({
+            avatarUrl: users.avatarUrl,
+            id: users.id,
+            name: users.name,
+          })
+          .from(userFollows)
+          .leftJoin(users, eq(userFollows.followedUserId, users.id))
+          .where(eq(userFollows.followedByUserId, input.userId))
+          .orderBy(asc(users.id)),
+
+        db
+          .select({
+            avatarUrl: users.avatarUrl,
+            id: users.id,
+            name: users.name,
+          })
+          .from(userFollows)
+          .leftJoin(users, eq(userFollows.followedByUserId, users.id))
+          .where(eq(userFollows.followedUserId, input.userId))
+          .orderBy(asc(users.id)),
+      ]);
+
+    const followedUsers =
+      followedUsersResult.status === "fulfilled"
+        ? followedUsersResult.value
+        : [];
+    const followedByUsers =
+      followedByUsersResult.status === "fulfilled"
+        ? followedByUsersResult.value
+        : [];
+
+    return {
+      followers: {
+        count: followedByUsers.length,
+        users: followedByUsers,
+      },
+      following: {
+        count: followedUsers.length,
+        users: followedUsers,
+      },
+    };
+  });
+
+export const followUserServerFn = createServerFn({
+  method: "POST",
+})
+  .validator(followUserSchema)
+  .middleware([authMiddleware])
+  .handler(async ({ data: input, context }) => {
+    await db.insert(userFollows).values({
+      followedByUserId: context.user.id,
+      followedUserId: input.userId,
+    });
+  });
+
+export const unfollowUserServerFn = createServerFn({
+  method: "POST",
+})
+  .validator(unfollowUserSchema)
+  .middleware([authMiddleware])
+  .handler(async ({ data: input, context }) => {
+    await db
+      .delete(userFollows)
+      .where(
+        and(
+          eq(userFollows.followedByUserId, context.user.id),
+          eq(userFollows.followedUserId, input.userId),
+        ),
+      );
   });

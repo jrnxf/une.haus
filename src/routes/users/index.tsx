@@ -16,26 +16,21 @@ import { Input } from "~/components/ui/input";
 import { MultiSelect } from "~/components/ui/multi-select";
 import { WrappedBadges } from "~/components/wrapped-badges";
 import { USER_DISCIPLINES } from "~/db/schema";
-import { useTRPC } from "~/integrations/trpc/react";
+import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
-import { listUsers } from "~/server/fns/users/list";
 
 export const Route = createFileRoute("/users/")({
-  validateSearch: listUsers.schema,
+  validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
-    const opts = context.trpc.user.list.infiniteQueryOptions(deps);
-
-    await context.queryClient.prefetchInfiniteQuery(
-      // listUsers.infiniteQueryOptions(deps),
-      opts,
+    await context.queryClient.ensureInfiniteQueryData(
+      users.list.infiniteQueryOptions(deps),
     );
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const trpc = useTRPC();
   const searchParams = Route.useSearch();
 
   const {
@@ -43,22 +38,11 @@ function RouteComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(
-    trpc.user.list.infiniteQueryOptions(searchParams, {
-      getNextPageParam: (lastPage) => {
-        if (lastPage.length < 25) {
-          // the last page returned less than the requested limit, so we
-          // know there is no more results for this filter set
-          return;
-        }
-        return lastPage.at(-1)?.id;
-      },
-    }),
-  );
+  } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(searchParams));
 
   // const [selectedUserIdx, setSelectedUserIdx] = useState(-1);
 
-  const users = useMemo(() => usersPages.pages.flat(), [usersPages]);
+  const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
 
   // const selectUser = (idx: number) => {
   //   setSelectedUserIdx(idx);
@@ -83,10 +67,10 @@ function RouteComponent() {
         <div className="flex justify-end gap-2">
           <FiltersTray />
         </div>
-        {users.length === 0 && (
+        {displayedUsers.length === 0 && (
           <p className="text-muted-foreground">No users found</p>
         )}
-        {users.map((user) => {
+        {displayedUsers.map((user) => {
           return (
             <Link
               key={user.id}
@@ -119,7 +103,13 @@ function RouteComponent() {
         })}
       </div>
       {hasNextPage && (
-        <Button onClick={() => fetchNextPage()}>
+        <Button
+          className="shrink-0"
+          onClick={() => {
+            console.log("fetching next page");
+            fetchNextPage();
+          }}
+        >
           {isFetchingNextPage ? "Loading..." : "Load more"}
         </Button>
       )}

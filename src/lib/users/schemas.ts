@@ -1,7 +1,26 @@
 import { z } from "zod";
 import { USER_DISCIPLINES } from "~/db/schema";
 
+export const listUsersSchema = z.object({
+  cursor: z.number().nullish(),
+  disciplines: z.array(z.enum(USER_DISCIPLINES)).optional(),
+  limit: z.number().min(25).max(50).default(25),
+  q: z.string().optional(),
+});
+
 export const getUserSchema = z.object({
+  userId: z.coerce.number(),
+});
+
+export const getUserFollowsSchema = z.object({
+  userId: z.coerce.number(),
+});
+
+export const followUserSchema = z.object({
+  userId: z.coerce.number(),
+});
+
+export const unfollowUserSchema = z.object({
   userId: z.coerce.number(),
 });
 
@@ -13,7 +32,7 @@ export const updateUserSchema = z.object({
     .object({
       countryCode: z.string().min(1),
       countryName: z.string().min(1),
-      formattedAddress: z.string().min(1),
+      label: z.string().min(1),
       lat: z.number(),
       lng: z.number(),
     })

@@ -11,7 +11,7 @@ export const updateUserSchema = z.object({
     .object({
       countryCode: z.string().min(1),
       countryName: z.string().min(1),
-      formattedAddress: z.string().min(1),
+      label: z.string().min(1),
       lat: z.number(),
       lng: z.number(),
     })

@@ -8,7 +8,7 @@ import { env } from "~/lib/env";
 import { s3Client } from "~/server/clients/s3";
 
 export const mediaRouter = {
-  getPresignedS3Url: authProcedure
+  createPresignedS3Url: authProcedure
     .input(
       z.object({
         fileName: z.string(),

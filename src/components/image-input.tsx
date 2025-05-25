@@ -20,8 +20,8 @@ export const ImageInput = ({
   const trpc = useTRPC();
   const [file, setFile] = useState<File>();
 
-  const getPresignedS3Url = useMutation(
-    trpc.media.getPresignedS3Url.mutationOptions(),
+  const createPresignedS3Url = useMutation(
+    trpc.media.createPresignedS3Url.mutationOptions(),
   );
 
   const { pendingImageUpload, setPendingImageUpload } = useFormOps();
@@ -33,7 +33,7 @@ export const ImageInput = ({
         setFile(file);
         try {
           setPendingImageUpload(true);
-          const presignedS3Url = await getPresignedS3Url.mutateAsync({
+          const presignedS3Url = await createPresignedS3Url.mutateAsync({
             fileName: file.name,
           });
           const { href, origin, pathname } = new URL(presignedS3Url);

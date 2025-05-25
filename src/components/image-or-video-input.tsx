@@ -3,13 +3,11 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone-esm";
 import { useFormContext } from "react-hook-form";
 
-import type { MuxGetPresignedUrlResponse } from "~/app/api/mux/url/route";
-
 import { Button } from "~/components/ui/button";
 import { useFormOps } from "~/components/ui/form-ops-provider";
 import { Progress } from "~/components/ui/progress";
 import { muxPresignedUrlSchema } from "~/components/video-input";
-import { getPresignedS3Url } from "~/server/clients/s3";
+import { media } from "~/lib/media";
 
 export function ImageOrVideoInput({
   imageName,
@@ -37,7 +35,11 @@ export function ImageOrVideoInput({
         if (isImage) {
           try {
             setPendingImageUpload(true);
-            const presignedS3Url = await getPresignedS3Url(file.name);
+            const presignedS3Url = await media.s3.createPresignedS3Url.fn({
+              data: {
+                fileName: file.name,
+              },
+            });
             const { href, origin, pathname } = new URL(presignedS3Url);
 
             await fetch(href, { body: file, method: "PUT" });
@@ -52,7 +54,7 @@ export function ImageOrVideoInput({
 
         if (isVideo) {
           const res = await fetch("/api/mux/url");
-          const uploadSpec: MuxGetPresignedUrlResponse = await res.json();
+          const uploadSpec = await res.json();
 
           const { id: muxUploadId, url: presignedUrl } =
             muxPresignedUrlSchema.parse(uploadSpec);

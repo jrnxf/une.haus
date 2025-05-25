@@ -37,6 +37,7 @@ export const locationRouter = {
     .input(
       z.object({
         placeId: z.string(),
+        placeName: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -49,9 +50,10 @@ export const locationRouter = {
         timeout: 3000,
       });
 
-      const { address_components, formatted_address, geometry } = data.result;
+      console.log("data", JSON.stringify(data.result, null, 2));
+      const { address_components, geometry } = data.result;
 
-      if (!geometry || !formatted_address || !address_components) {
+      if (!geometry || !address_components) {
         throw new Error(
           "Unable to determine geometry, formatted_address, or address_components",
         );
@@ -68,7 +70,7 @@ export const locationRouter = {
       return {
         countryCode: country.short_name,
         countryName: country.long_name,
-        formattedAddress: formatted_address,
+        label: input.placeName,
         lat: geometry.location.lat,
         lng: geometry.location.lng,
       };

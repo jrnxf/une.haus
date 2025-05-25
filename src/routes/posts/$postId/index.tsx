@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
-import { useTRPC } from "~/integrations/trpc/react";
+import { posts } from "~/lib/posts";
 import { setFlash } from "~/server/fns/session/flash/set";
 
 import { PostView } from "~/views/post";
@@ -16,32 +16,20 @@ export const Route = createFileRoute("/posts/$postId/")({
     parse: pathParametersSchema.parse,
   },
   loader: async ({ context, params: { postId } }) => {
-    // try {
-    const post = await context.queryClient.ensureQueryData(
-      context.trpc.post.get.queryOptions({ id: postId }),
-    );
-
-    if (!post) {
+    try {
+      return await context.queryClient.ensureQueryData(
+        posts.get.queryOptions({ postId }),
+      );
+    } catch {
       await setFlash({ data: "Post not found" });
       throw redirect({ to: "/posts" });
     }
-
-    return post;
-    // } catch {
-    //   await setFlash.serverFn({ data: "Post not found" });
-    //   throw redirect({ to: "/posts" });
-    // }
   },
 });
 
 function RouteComponent() {
   const { postId } = Route.useParams();
-  const trpc = useTRPC();
-  const { data: post } = useSuspenseQuery(
-    trpc.post.get.queryOptions({ id: postId }),
-  );
-
-  const { data: session } = useSuspenseQuery(trpc.session.get.queryOptions());
+  const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }));
 
   return (
     <div className="flex grow flex-col">

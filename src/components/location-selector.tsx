@@ -51,8 +51,8 @@ export function LocationSelector({
   );
 
   const exchangeForPlaceId = useCallback(
-    async (placeId: string) => {
-      fetchPlace({ placeId }, { onSuccess: onUpdate });
+    async ({ placeId, placeName }: { placeId: string; placeName: string }) => {
+      fetchPlace({ placeId, placeName }, { onSuccess: onUpdate });
     },
     [fetchPlace, onUpdate],
   );
@@ -97,14 +97,14 @@ export function LocationSelector({
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
-            aria-expanded={open}
-            className="w-full justify-between hover:bg-inherit"
             id={id}
+            aria-expanded={open}
+            className="w-full justify-between overflow-hidden hover:bg-inherit"
             role="combobox"
             size="lg"
             variant="outline"
           >
-            {displayedValue}
+            <span className="truncate">{displayedValue}</span>
             <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -150,7 +150,10 @@ export function LocationSelector({
                               (option) => option.value === value,
                             );
                             if (match) {
-                              exchangeForPlaceId(match.value);
+                              exchangeForPlaceId({
+                                placeId: match.value,
+                                placeName: option.label,
+                              });
                               setSelected(match);
                             }
                           }

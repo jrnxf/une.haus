@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { toast } from "sonner";
 import { PostForm } from "~/components/forms/post";
-import { useTRPC } from "~/integrations/trpc/react";
+import { posts } from "~/lib/posts";
 import { setFlash } from "~/server/fns/session/flash/set";
 
 const pathParametersSchema = z.object({
@@ -22,15 +22,12 @@ export const Route = createFileRoute("/posts/$postId/edit")({
     parse: pathParametersSchema.parse,
   },
   loader: async ({ context, params: { postId } }) => {
-    const post = await context.queryClient.ensureQueryData(
-      context.trpc.post.get.queryOptions({ id: postId }),
-    );
-    if (!post) {
-      await setFlash({ data: "Post not found" });
-      throw redirect({ to: "/posts" });
-    }
-    if (post.userId !== context.session.user?.id) {
-      await setFlash({ data: "Access denied" });
+    try {
+      return await context.queryClient.ensureQueryData(
+        posts.get.queryOptions({ postId }),
+      );
+    } catch (error) {
+      await setFlash({ data: error.message });
       throw redirect({ to: "/posts" });
     }
   },
@@ -38,57 +35,56 @@ export const Route = createFileRoute("/posts/$postId/edit")({
 
 function RouteComponent() {
   const { postId } = Route.useParams();
-  const trpc = useTRPC();
 
-  const { data: post } = useSuspenseQuery(
-    trpc.post.get.queryOptions({ id: postId }),
-  );
+  const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }));
 
   const navigate = useNavigate();
 
   const qc = useQueryClient();
 
-  const { mutate } = useMutation(
-    trpc.post.update.mutationOptions({
-      onMutate: (data) => {
-        qc.cancelQueries({
-          queryKey: trpc.post.get.queryKey({ id: postId }),
-        });
+  const { mutate } = useMutation({
+    mutationFn: posts.update.fn,
+    onMutate: (data) => {
+      qc.cancelQueries({
+        queryKey: posts.get.queryOptions({ postId }).queryKey,
+      });
 
-        const prev = qc.getQueryData(trpc.post.get.queryKey({ id: postId }));
+      const prev = qc.getQueryData(posts.get.queryOptions({ postId }).queryKey);
 
-        qc.setQueryData(trpc.post.get.queryKey({ id: postId }), (prev) =>
-          merge(prev, data),
+      qc.setQueryData(posts.get.queryOptions({ postId }).queryKey, (prev) =>
+        merge(prev, data),
+      );
+
+      navigate({ to: "/posts/$postId", params: { postId } });
+
+      return {
+        prev,
+      };
+    },
+    onSuccess: () => {
+      // no need to await - fire and forget. will almost definitely finish
+      // before the user can navigate there
+      qc.refetchQueries({
+        queryKey: posts.list.infiniteQueryOptions({}).queryKey,
+      });
+    },
+    onError: (error, _variables, context) => {
+      console.error(error);
+      if (context) {
+        qc.setQueryData(
+          posts.get.queryOptions({ postId }).queryKey,
+          context.prev,
         );
-
-        navigate({ to: "/posts/$postId", params: { postId } });
-
-        return {
-          prev,
-        };
-      },
-      onSuccess: () => {
-        // no need to await - fire and forget. will almost definitely finish
-        // before the user can navigate there
-        qc.refetchQueries({
-          queryKey: trpc.post.list.queryKey(),
-        });
-      },
-      onError: (error, _variables, context) => {
-        console.error(error);
-        if (context) {
-          qc.setQueryData(trpc.post.get.queryKey({ id: postId }), context.prev);
-          toast.error("Failed to update post");
-          navigate({ to: "/posts/$postId/edit", params: { postId } });
-        }
-      },
-      onSettled: () => {
-        qc.invalidateQueries({
-          queryKey: trpc.post.get.queryKey({ id: postId }),
-        });
-      },
-    }),
-  );
+        toast.error("Failed to update post");
+        navigate({ to: "/posts/$postId/edit", params: { postId } });
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({
+        queryKey: posts.get.queryOptions({ postId }).queryKey,
+      });
+    },
+  });
 
   if (!post) {
     return null;
@@ -110,8 +106,10 @@ function RouteComponent() {
         }}
         onSubmit={(data) => {
           mutate({
-            ...data,
-            postId,
+            data: {
+              ...data,
+              postId,
+            },
           });
         }}
       />
