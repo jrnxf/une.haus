@@ -1,23 +1,18 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { z } from "zod";
 import { useTRPC } from "~/integrations/trpc/react";
+import { users } from "~/lib/users";
 import { setFlash } from "~/server/fns/session/flash/set";
-import { getUser } from "~/server/fns/users/get";
 
 import { UserView } from "~/views/user";
 
 export const Route = createFileRoute("/users/$userId")({
   component: RouteComponent,
-  params: {
-    parse: z.object({
-      userId: z.coerce.number(),
-    }).parse,
-  },
+  params: users.get.schema,
   loader: async ({ context, params: { userId } }) => {
     try {
       await context.queryClient.ensureQueryData(
-        getUser.queryOptions({ userId }),
+        users.get.queryOptions({ userId }),
       );
     } catch (error) {
       await setFlash({ data: error.message });

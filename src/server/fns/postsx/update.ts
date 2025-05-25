@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { db } from "~/db";
 import { posts } from "~/db/schema";
-import { basePostSchema } from "~/server/fns/posts/shared";
+import { basePostSchema } from "~/server/fns/postsx/shared";
 
 const schema = basePostSchema.extend({
   postId: z.number(),
