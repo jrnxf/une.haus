@@ -69,5 +69,6 @@ export function isDefined<T>(x: T): x is NonNullable<T> {
 }
 
 export function getUrl() {
-  return env.VERCEL_PROJECT_PRODUCTION_URL ?? "http://localhost:3000";
+  // return env.VERCEL_PROJECT_PRODUCTION_URL ?? "http://localhost:3000";
+  return env.URL;
 }
