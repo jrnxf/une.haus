@@ -3,7 +3,7 @@
 
 [phases.install]
   cmds = [
-    "pnpm install --filter-prod"
+    "pnpm install --prod"
   ]
 
 [phases.build]
