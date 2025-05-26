@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import {
   createFileRoute,
@@ -7,6 +6,8 @@ import {
 } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -59,7 +60,7 @@ function RouteComponent() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-xl p-8" id="main-content">
+    <div className="mx-auto w-full max-w-4xl p-8" id="main-content">
       <FormProvider {...form}>
         <form
           className="space-y-4"

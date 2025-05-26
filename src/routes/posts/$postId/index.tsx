@@ -1,9 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
 import { z } from "zod";
+
 import { messages } from "~/lib/messages";
 import { posts } from "~/lib/posts";
 import { session } from "~/lib/session/index";
-
 import { PostView } from "~/views/post";
 
 const pathParametersSchema = z.object({
@@ -53,7 +54,7 @@ function RouteComponent() {
   return (
     <div className="flex grow flex-col">
       <div
-        className="mx-auto flex min-h-0 w-full max-w-xl grow flex-col gap-4 px-4 py-6"
+        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
         id="main-content"
       >
         <PostView postId={postId} />

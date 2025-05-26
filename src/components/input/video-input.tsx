@@ -1,6 +1,7 @@
-import * as Upchunk from "@mux/upchunk";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone-esm";
+
+import * as Upchunk from "@mux/upchunk";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";

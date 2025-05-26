@@ -1,9 +1,13 @@
-import { sendMagicLinkServerFn } from "~/lib/email/fns";
-import { sendMagicLinkSchema } from "~/lib/email/schemas";
+import { likeRecordServerFn, unlikeRecordServerFn } from "~/lib/reactions/fns";
+import { likeRecordSchema, unlikeRecordSchema } from "~/lib/reactions/schemas";
 
-export const email = {
-  sendMagicLink: {
-    fn: sendMagicLinkServerFn,
-    schema: sendMagicLinkSchema,
+export const reactions = {
+  like: {
+    fn: likeRecordServerFn,
+    schema: likeRecordSchema,
+  },
+  unlike: {
+    fn: unlikeRecordServerFn,
+    schema: unlikeRecordSchema,
   },
 };

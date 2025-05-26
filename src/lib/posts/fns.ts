@@ -1,9 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, count, desc, eq, ilike, lt, or } from "drizzle-orm";
+
+import { and, countDistinct, desc, eq, ilike, lt, or } from "drizzle-orm";
 
 import { db } from "~/db";
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
+import { PAGE_SIZE } from "~/lib/constants";
 import { invariant } from "~/lib/invariant";
+import { authMiddleware } from "~/lib/middleware";
 import {
   createPostSchema,
   deletePostSchema,
@@ -11,7 +14,6 @@ import {
   listPostsSchema,
   updatePostSchema,
 } from "~/lib/posts/schemas";
-import { authMiddleware } from "~/lib/middleware";
 
 export const listPostsServerFn = createServerFn({
   method: "GET",
@@ -22,8 +24,8 @@ export const listPostsServerFn = createServerFn({
       .select({
         content: posts.content,
         counts: {
-          likes: count(postLikes.postId),
-          messages: count(postMessages.postId),
+          likes: countDistinct(postLikes.postId),
+          messages: countDistinct(postMessages.postId),
         },
         createdAt: posts.createdAt,
         id: posts.id,
@@ -57,7 +59,7 @@ export const listPostsServerFn = createServerFn({
         ),
       )
       .orderBy(desc(posts.id))
-      .limit(input.limit);
+      .limit(PAGE_SIZE);
 
     return data;
   });
@@ -181,5 +183,10 @@ export const deletePostServerFn = createServerFn({
     invariant(post, "Post not found");
     invariant(post.userId === userId, "Access denied");
 
-    await db.delete(posts).where(eq(posts.id, postId)).returning();
+    const [deletedPost] = await db
+      .delete(posts)
+      .where(eq(posts.id, postId))
+      .returning();
+
+    return deletedPost;
   });

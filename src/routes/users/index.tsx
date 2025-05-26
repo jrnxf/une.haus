@@ -3,6 +3,7 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { Badges } from "~/components/badges";
 import {
   Tray,
   TrayClose,
@@ -14,7 +15,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { MultiSelect } from "~/components/ui/multi-select";
-import { Badges } from "~/components/badges";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -110,7 +110,7 @@ function RouteComponent() {
             fetchNextPage();
           }}
         >
-          {isFetchingNextPage ? "Loading..." : "Load more"}
+          {isFetchingNextPage ? "Loading more..." : "Load more"}
         </Button>
       )}
     </div>

@@ -7,6 +7,7 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
+  console.log(process.env);
   return (
     <div className="grid grow place-items-center">
       <div className="w-[min(80vw,300px)]">

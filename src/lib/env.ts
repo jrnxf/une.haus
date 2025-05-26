@@ -40,6 +40,7 @@ export const env = createEnv({
 
   server: {
     AWS_ACCESS_KEY_ID: z.string(),
+    URL: z.string().optional().default("http://localhost:3000"),
     AWS_BUCKET_NAME: z.string(),
     AWS_REGION: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),

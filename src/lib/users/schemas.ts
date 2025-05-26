@@ -1,10 +1,10 @@
 import { z } from "zod";
+
 import { USER_DISCIPLINES } from "~/db/schema";
 
 export const listUsersSchema = z.object({
   cursor: z.number().nullish(),
   disciplines: z.array(z.enum(USER_DISCIPLINES)).optional(),
-  limit: z.number().min(25).max(50).default(25),
   q: z.string().optional(),
 });
 

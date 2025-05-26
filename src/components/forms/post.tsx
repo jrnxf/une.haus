@@ -1,21 +1,22 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import {
   Controller,
-  type DefaultValues,
   FormProvider,
   useForm,
+  type DefaultValues,
 } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 
 import { BadgeInput } from "~/components/input/badge-input";
+import { YoutubeInput } from "~/components/input/youtube-input";
 import { FormMessage, FormSubmitButton } from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
-import { YoutubeInput } from "~/components/input/youtube-input";
 import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
 
@@ -70,7 +71,7 @@ export function PostForm({
   // const formVideoUploadId = watch("videoUploadId");
 
   return (
-    <div className="mx-auto w-full max-w-xl">
+    <div className="mx-auto w-full max-w-4xl">
       <FormProvider {...form}>
         <FormOpsProvider>
           <form

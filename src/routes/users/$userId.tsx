@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+
 import { session } from "~/lib/session/index";
 import { users } from "~/lib/users";
 import { errorFmt } from "~/lib/utils";
-
 import { UserView } from "~/views/user";
 
 export const Route = createFileRoute("/users/$userId")({

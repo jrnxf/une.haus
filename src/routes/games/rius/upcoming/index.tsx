@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+
 import { DeleteSetButton } from "~/components/delete-set-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -22,7 +23,7 @@ function RouteComponent() {
   const playerRoster = Object.values(data.roster);
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
       <div>
         <p>Next Game Roster</p>
         {playerRoster.length === 0 ? (

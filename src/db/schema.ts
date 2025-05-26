@@ -136,9 +136,7 @@ export const chatMessageLikes = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.chatMessageId, t.userId] }),
-  }),
+  (t) => [primaryKey({ columns: [t.chatMessageId, t.userId] })],
 );
 
 export const postMessages = pgTable("post_messages", {
@@ -164,9 +162,7 @@ export const postLikes = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.postId, t.userId] }),
-  }),
+  (t) => [primaryKey({ columns: [t.postId, t.userId] })],
 );
 
 export const postMessageLikes = pgTable(
@@ -179,9 +175,7 @@ export const postMessageLikes = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.postMessageId, t.userId] }),
-  }),
+  (t) => [primaryKey({ columns: [t.postMessageId, t.userId] })],
 );
 
 export const muxVideos = pgTable("mux_videos", {
@@ -246,9 +240,7 @@ export const userFollows = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.followedUserId, t.followedByUserId] }),
-  }),
+  (t) => [primaryKey({ columns: [t.followedUserId, t.followedByUserId] })],
 );
 
 /**

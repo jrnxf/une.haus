@@ -1,15 +1,17 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Controller, useForm } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
+
+import { VideoInput } from "~/components/input/video-input";
 import { Button } from "~/components/ui/button";
 import { FormMessage, FormSubmitButton } from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { VideoInput } from "~/components/input/video-input";
 import { games } from "~/lib/games";
 import { useCreateSet } from "~/lib/games/rius/hooks";
 
@@ -55,7 +57,7 @@ function JoinRiuForm() {
   const createSet = useCreateSet();
 
   return (
-    <div className="mx-auto w-full max-w-xl">
+    <div className="mx-auto w-full max-w-4xl">
       <FormOpsProvider>
         <form
           className="flex flex-col gap-4"

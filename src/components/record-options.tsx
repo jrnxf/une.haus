@@ -1,7 +1,6 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useRef } from "react";
 
-import { useSessionUser } from "~/lib/session/hooks";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { useSessionUser } from "~/lib/session/hooks";
 
 export function RecordOptions({
   onDeleteRecord,

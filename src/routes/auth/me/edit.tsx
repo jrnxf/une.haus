@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useMutation,
   useQueryClient,
@@ -11,10 +10,11 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { Controller, useForm } from "react-hook-form";
-import { invariant } from "~/lib/invariant";
-import { useSessionUser } from "~/lib/session/hooks";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { type z } from "zod";
+
 import { BadgeInput } from "~/components/input/badge-input";
 import { ImageInput } from "~/components/input/image-input";
 import { LocationSelector } from "~/components/input/location-selector";
@@ -25,9 +25,9 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { USER_DISCIPLINES } from "~/db/schema";
-import { Json } from "~/lib/dx/json";
+import { invariant } from "~/lib/invariant";
+import { useSessionUser } from "~/lib/session/hooks";
 import { users } from "~/lib/users";
-import { type z } from "zod";
 
 export const Route = createFileRoute("/auth/me/edit")({
   component: RouteComponent,
@@ -199,7 +199,6 @@ function RouteComponent() {
           </div>
         </form>
       </FormOpsProvider>
-      <Json data={errors} />
     </div>
   );
 }

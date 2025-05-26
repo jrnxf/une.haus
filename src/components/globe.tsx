@@ -1,6 +1,7 @@
-import createGlobe from "cobe";
 // import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
+
+import createGlobe from "cobe";
 
 import { cn } from "~/lib/utils";
 

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import { messages } from "~/lib/messages";
 import { ChatMessagesView } from "~/views/chat-messages";
 
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/chat/")({
 function RouteComponent() {
   return (
     <div
-      className="mx-auto flex w-full max-w-xl grow flex-col px-4 pb-4"
+      className="mx-auto flex w-full max-w-4xl grow flex-col px-4 pb-4"
       id="main-content"
     >
       <ChatMessagesView />

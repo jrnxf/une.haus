@@ -1,15 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { and, asc, eq } from "drizzle-orm";
+
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
+import { PAGE_SIZE } from "~/lib/constants";
 import { invariant } from "~/lib/invariant";
 import {
   createMessageSchema,
   deleteMessageSchema,
   listMessagesSchema,
-  type RecordWithMessagesType,
   recordWithMessagesTypes,
   updateMessageSchema,
+  type RecordWithMessagesType,
 } from "~/lib/messages/schemas";
 import { authMiddleware } from "~/lib/middleware";
 
@@ -19,7 +22,7 @@ export const listMessagesServerFn = createServerFn({
   .validator(listMessagesSchema)
   .handler(async ({ data: input }) => {
     if (input.type === "chat") {
-      return await db.query.chatMessages.findMany({
+      const messages = await db.query.chatMessages.findMany({
         orderBy: asc(chatMessages.createdAt),
         with: {
           likes: {
@@ -45,13 +48,23 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
+        limit: PAGE_SIZE,
       });
+
+      return {
+        type: "chatMessages" as const,
+        parentId: input.recordId,
+        messages,
+      };
     }
 
     if (input.type === "post") {
-      return await db.query.postMessages.findMany({
+      const messages = await db.query.postMessages.findMany({
         orderBy: asc(postMessages.createdAt),
         where: eq(postMessages.postId, input.recordId),
+        columns: {
+          postId: false,
+        },
         with: {
           likes: {
             columns: {
@@ -77,9 +90,15 @@ export const listMessagesServerFn = createServerFn({
           },
         },
       });
+
+      return {
+        type: "postMessages" as const,
+        parentId: input.recordId,
+        messages,
+      };
     }
 
-    return [];
+    invariant(false, "Invalid type");
   });
 
 export const createMessageServerFn = createServerFn({

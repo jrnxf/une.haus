@@ -10,6 +10,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 
+import { Badges } from "~/components/badges";
 import { Globe } from "~/components/globe";
 import { SocialLink } from "~/components/social-link";
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray";
@@ -18,10 +19,9 @@ import { Button } from "~/components/ui/button";
 import { DialogHeader } from "~/components/ui/dialog";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { Skeleton } from "~/components/ui/skeleton";
-import { Badges } from "~/components/badges";
-import { useFollows } from "~/lib/users/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersGetData } from "~/lib/users";
+import { useFollows } from "~/lib/users/hooks";
 import { cn, isDefined } from "~/lib/utils";
 
 export function UserView({ user }: { user: UsersGetData }) {

@@ -4,9 +4,10 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { z } from "zod";
 
 import { toast } from "sonner";
+import { z } from "zod";
+
 import { PostForm } from "~/components/forms/post";
 import { posts } from "~/lib/posts";
 import { session } from "~/lib/session/index";
@@ -97,7 +98,7 @@ function RouteComponent() {
 
   return (
     <div
-      className="mx-auto flex min-h-0 w-full max-w-xl grow flex-col gap-4 px-4 py-6"
+      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
       id="main-content"
     >
       <PostForm

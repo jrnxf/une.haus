@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 import { type RecordWithMessages } from "~/lib/messages/schemas";
@@ -26,19 +27,24 @@ export function useCreateMessage(record: RecordWithMessages) {
 
       const prev = qc.getQueryData(listOptions.queryKey);
 
-      if (prev) {
-        qc.setQueryData(listOptions.queryKey, [
+      qc.setQueryData(listOptions.queryKey, (prev) => {
+        if (!prev) return prev;
+
+        return {
           ...prev,
-          {
-            content: newMessage.data.content,
-            createdAt: new Date(),
-            id: Math.random(),
-            likes: [],
-            user: sessionUser,
-            userId: sessionUser.id,
-          },
-        ]);
-      }
+          messages: [
+            ...prev.messages,
+            {
+              content: newMessage.data.content,
+              createdAt: new Date(),
+              id: Math.random(),
+              likes: [],
+              user: sessionUser,
+              userId: sessionUser.id,
+            },
+          ],
+        };
+      });
 
       return { prev };
     },

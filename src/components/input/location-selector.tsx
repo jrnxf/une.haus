@@ -1,9 +1,9 @@
+import { useMutation } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useCallback, useState } from "react";
+
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
-
-import type { SelectLocation } from "~/db/schema";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -19,9 +19,9 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
-import { cn } from "~/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import type { SelectLocation } from "~/db/schema";
 import { location } from "~/lib/location";
+import { cn } from "~/lib/utils";
 
 export type LocationSelectorLocation = Omit<SelectLocation, "userId">;
 

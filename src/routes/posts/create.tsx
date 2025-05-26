@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+
 import { toast } from "sonner";
 
 import { PostForm } from "~/components/forms/post";
@@ -34,8 +35,8 @@ function RouteComponent() {
 
       router.navigate({ params: { postId: data.id }, to: "/posts/$postId" });
     },
-    onError: (error) => {
-      console.error(error);
+    onError: () => {
+      // sentry
       toast.error("Failed to create post");
       router.navigate({ to: "/posts/create" });
     },
@@ -43,7 +44,7 @@ function RouteComponent() {
 
   return (
     <div
-      className="mx-auto flex min-h-0 w-full max-w-xl grow flex-col gap-4 px-4 py-6"
+      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
       id="main-content"
     >
       <PostForm onSubmit={(data) => mutate({ data })} />

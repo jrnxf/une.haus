@@ -1,5 +1,7 @@
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+
+import { AnimatePresence, motion } from "framer-motion";
+
 import { invariant } from "~/lib/invariant";
 
 export function MatrixText({ text }: { text: string }) {

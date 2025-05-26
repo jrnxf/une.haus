@@ -1,8 +1,8 @@
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 import * as React from "react";
-import { invariant } from "~/lib/invariant";
+
+import { cva, type VariantProps } from "class-variance-authority";
 import { useMediaQuery } from "usehooks-ts";
 
 import { Button } from "~/components/ui/button";
@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { invariant } from "~/lib/invariant";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";

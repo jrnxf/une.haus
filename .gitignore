@@ -10,3 +10,7 @@ routeTree.gen.ts
 
 **/db/scripts
 **/db/skrrrt
+
+.vercel
+.netlify
+dist

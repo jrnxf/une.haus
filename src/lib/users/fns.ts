@@ -1,9 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import { userFollows, userLocations, users, userSocials } from "~/db/schema";
+import { PAGE_SIZE } from "~/lib/constants";
 import { invariant } from "~/lib/invariant";
+import { authMiddleware } from "~/lib/middleware";
 import {
   followUserSchema,
   getUserFollowsSchema,
@@ -12,7 +15,6 @@ import {
   unfollowUserSchema,
   updateUserSchema,
 } from "~/lib/users/schemas";
-import { authMiddleware } from "~/lib/middleware";
 
 export const allUsersServerFn = createServerFn({
   method: "GET",
@@ -68,7 +70,7 @@ export const listUsersServerFn = createServerFn({
         ),
       )
       .orderBy(asc(users.id))
-      .limit(input.limit);
+      .limit(PAGE_SIZE);
   });
 
 export const getUserServerFn = createServerFn({

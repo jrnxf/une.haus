@@ -1,41 +1,60 @@
 import { createServerFn } from "@tanstack/react-start";
+import {
+  likeRecordSchema,
+  recordTypeWithLikes,
+  unlikeRecordSchema,
+  type RecordWithLikesType,
+} from "~/lib/reactions/schemas";
 
 import { and, eq } from "drizzle-orm";
+
 import { db } from "~/db";
 import { chatMessageLikes, postLikes, postMessageLikes } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
-import {
-  reactionSchema,
-  recordTypeWithLikes,
-  type RecordWithLikesType,
-} from "~/lib/reactions/schemas";
 import { authMiddleware } from "~/lib/middleware";
 
 // react as in the action, not the library lol
-export const reactServerFn = createServerFn({
+export const likeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .validator(reactionSchema)
+  .validator(likeRecordSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    const { action, recordId, type } = input;
+    const { recordId, type } = input;
 
     const table = getTableByType(type);
 
     const columnName = `${type}Id` as const;
 
-    if (action === "like") {
-      await db.insert(table).values({
+    return await db
+      .insert(table)
+      .values({
         [columnName]: recordId,
         userId,
-      });
-    } else {
-      await db
-        .delete(table)
-        .where(and(eq(table[columnName], recordId), eq(table.userId, userId)));
-    }
+      })
+      .returning();
+  });
+
+export const unlikeRecordServerFn = createServerFn({
+  method: "POST",
+})
+  .validator(unlikeRecordSchema)
+  .middleware([authMiddleware])
+  .handler(async ({ data: input, context }) => {
+    const userId = context.user.id;
+
+    const { recordId, type } = input;
+
+    const table = getTableByType(type);
+
+    const columnName = `${type}Id` as const;
+
+    return await db
+      .delete(table)
+      .where(and(eq(table[columnName], recordId), eq(table.userId, userId)))
+      .returning();
   });
 
 export const getTableByType = (type: RecordWithLikesType) => {

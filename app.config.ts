@@ -1,14 +1,15 @@
-import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "@tanstack/react-start/config";
-import tsConfigPaths from "vite-tsconfig-paths";
+
+import tailwindcss from "@tailwindcss/vite";
 import { beasties } from "vite-plugin-beasties";
+import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   tsr: {
     appDirectory: "./src",
   },
   server: {
-    preset: "bun",
+    preset: "netlify-edge",
   },
   vite: {
     // @ts-expect-error @tanstack/react-start uses `Omit` for server to limit me
@@ -16,7 +17,9 @@ export default defineConfig({
     // supply through - which is great because I need it to in order to let me
     // use ngrok with vite in dev mode
     server: {
-      allowedHosts: ["564e-89-152-81-249.ngrok-free.app"],
+      allowedHosts: [
+        // put your ngrok url here
+      ],
     },
     plugins: [
       tsConfigPaths({

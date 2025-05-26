@@ -1,11 +1,14 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { HeartIcon, MessageCircleIcon, PaperclipIcon } from "lucide-react";
-import { useMemo } from "react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import {
+  FilterIcon,
+  HeartIcon,
+  MessageCircleIcon,
+  PaperclipIcon,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { useRouter } from "@tanstack/react-router";
-import { FilterIcon } from "lucide-react";
-import { useState } from "react";
+import { Badges } from "~/components/badges";
 import { TimeAgo } from "~/components/time-ago";
 import {
   Tray,
@@ -17,7 +20,6 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
-import { Badges } from "~/components/badges";
 import { posts } from "~/lib/posts";
 
 export const Route = createFileRoute("/posts/")({
@@ -107,7 +109,7 @@ function RouteComponent() {
 
       {hasNextPage && (
         <Button onClick={() => fetchNextPage()}>
-          {isFetchingNextPage ? "Loading..." : "Load more"}
+          {isFetchingNextPage ? "Loading more..." : "Load more"}
         </Button>
       )}
     </div>

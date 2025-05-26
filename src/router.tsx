@@ -1,8 +1,9 @@
+import { QueryClient } from "@tanstack/react-query";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { routerWithQueryClient } from "@tanstack/react-router-with-query";
+
 import superjson from "superjson";
 
-import { QueryClient } from "@tanstack/react-query";
 import { CatchBoundary } from "./components/catch-boundary";
 import { NotFound } from "./components/not-found";
 import { routeTree } from "./routeTree.gen";

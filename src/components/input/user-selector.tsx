@@ -1,6 +1,7 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Suspense, useMemo, useState } from "react";
-import { invariant } from "~/lib/invariant";
+
 import { VList } from "virtua";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -18,9 +19,9 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Separator } from "~/components/ui/separator";
-import { cn } from "~/lib/utils";
+import { invariant } from "~/lib/invariant";
 import { users } from "~/lib/users";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { cn } from "~/lib/utils";
 
 type User = {
   avatarUrl: null | string;

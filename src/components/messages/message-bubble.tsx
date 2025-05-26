@@ -1,18 +1,22 @@
-import { HeartIcon } from "lucide-react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
+import { HeartIcon, TrendingUpIcon } from "lucide-react";
 
 import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
-import { type messages } from "~/lib/messages";
+import { Button } from "~/components/ui/button";
+import { messages } from "~/lib/messages";
+import { type RecordWithMessages } from "~/lib/messages/schemas";
+import { posts } from "~/lib/posts";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type ServerFnReturn } from "~/lib/types";
 import { cn, preprocessText } from "~/lib/utils";
 
-type Message = ServerFnReturn<typeof messages.list.fn>[number];
+type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number];
 
 export function MessageBubble({
-  // record,
+  parentRecord,
   message,
 }: {
-  // record: RecordWithMessages;
+  parentRecord: RecordWithMessages;
   message: Message;
 }) {
   const sessionUser = useSessionUser();
@@ -27,6 +31,25 @@ export function MessageBubble({
   const isUserMessage = Boolean(
     sessionUser && sessionUser.id === message.user.id,
   );
+
+  const authUserLiked = Boolean(
+    sessionUser &&
+      message.likes.some((message) => message.user.id === sessionUser.id),
+  );
+  const { mutate: likeUnlike } = useLikeUnlikeRecord({
+    authUserLiked,
+    record: { id: message.id, type: `${parentRecord.type}Message` },
+    recordQueryKey:
+      parentRecord.type === "post"
+        ? posts.get.queryOptions({ postId: parentRecord.recordId }).queryKey
+        : parentRecord.type === "chat"
+          ? messages.list.queryOptions(parentRecord).queryKey
+          : [],
+    refetchQueryKey:
+      parentRecord.type === "post"
+        ? posts.list.infiniteQueryOptions({}).queryKey
+        : [],
+  });
 
   // const messageType = `${record.type}Message` as const;
 
@@ -54,9 +77,7 @@ export function MessageBubble({
               {message.likes.length}
             </div>
           )}
-
           <p className="leading-relaxed">{preprocessText(message.content)}</p>
-
           {/* <RecordOptions
         onDeleteRecord={onDeleteMessage}
         onEditRecord={() => setIsEditMessageOpen(true)}
@@ -87,6 +108,19 @@ export function MessageBubble({
         </button>
       </TrayTrigger>
       <TrayContent>
+        <div className="flex shrink-0 items-center gap-1 self-end">
+          <Button size="icon-sm" variant="outline" onClick={likeUnlike}>
+            <HeartIcon
+              className={cn(
+                "size-4",
+                // authUserLiked && "fill-red-700/50 stroke-red-700",
+              )}
+            />
+          </Button>
+          <Button size="icon-sm" variant="outline">
+            <TrendingUpIcon className="size-4" />
+          </Button>
+        </div>
         <p className="leading-relaxed">{preprocessText(message.content)}</p>
       </TrayContent>
     </Tray>

@@ -1,4 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+
+import { PAGE_SIZE } from "~/lib/constants";
 import {
   createPostServerFn,
   deletePostServerFn,
@@ -7,13 +9,13 @@ import {
   updatePostServerFn,
 } from "~/lib/posts/fns";
 import {
-  getPostSchema,
+  createPostSchema,
   deletePostSchema,
+  getPostSchema,
   listPostsSchema,
   updatePostSchema,
-  createPostSchema,
 } from "~/lib/posts/schemas";
-import { type ServerFnReturn, type ServerFnData } from "~/lib/types";
+import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
 
 export const posts = {
   list: {
@@ -32,7 +34,7 @@ export const posts = {
         },
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
-          if (lastPage.length < 25) {
+          if (lastPage.length < PAGE_SIZE) {
             // the last page returned less than the requested limit, so we
             // know there is no more results for this filter set
             return;

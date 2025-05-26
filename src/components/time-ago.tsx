@@ -1,5 +1,6 @@
-import { formatDistanceToNowStrict } from "date-fns";
 import { useEffect, useState } from "react";
+
+import { formatDistanceToNowStrict } from "date-fns";
 
 const EVERY_10_SECONDS = 1000 * 10;
 const EVERY_MINUTE = 1000 * 60;

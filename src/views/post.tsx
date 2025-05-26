@@ -1,14 +1,25 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
+import {
+  HeartIcon,
+  PencilIcon,
+  Share2Icon,
+  TrashIcon,
+  TrendingUpIcon,
+} from "lucide-react";
 
+import { Badges } from "~/components/badges";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
-import { Badges } from "~/components/badges";
 import { YoutubeIframe } from "~/components/youtube-iframe";
+import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
 import { posts } from "~/lib/posts";
+import { useDeletePost } from "~/lib/posts/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
+import { cn } from "~/lib/utils";
 import { MessagesView } from "~/views/messages";
 
 export function PostView({ postId }: { postId: number }) {
@@ -22,16 +33,27 @@ export function PostView({ postId }: { postId: number }) {
     ],
   });
 
+  invariant(post, "Post not found");
+
   const sessionUser = useSessionUser();
 
-  const { mutate } = useCreateMessage({
+  const { mutate: createMessage } = useCreateMessage({
     recordId: postId,
     type: "post",
   });
 
-  if (!post) {
-    return null;
-  }
+  const authUserLiked = Boolean(
+    sessionUser && post.likes.some((like) => like.userId === sessionUser.id),
+  );
+
+  const { mutate: likeUnlikePost } = useLikeUnlikeRecord({
+    authUserLiked,
+    record: { id: postId, type: "post" },
+    recordQueryKey: posts.get.queryOptions({ postId }).queryKey,
+    refetchQueryKey: posts.list.infiniteQueryOptions({}).queryKey,
+  });
+
+  const { mutate: deletePost } = useDeletePost();
 
   const isOwner = post.userId === sessionUser?.id;
 
@@ -48,13 +70,22 @@ export function PostView({ postId }: { postId: number }) {
 
           <div className="text-muted-foreground text-sm">{post.user.name}</div>
         </div>
-        {isOwner && (
-          <Button asChild>
-            <Link params={{ postId }} to={`/posts/$postId/edit`}>
-              Edit
-            </Link>
+        <div className="flex shrink-0 items-center gap-1">
+          <Button size="icon-sm" variant="outline" onClick={likeUnlikePost}>
+            <HeartIcon
+              className={cn(
+                "size-4",
+                authUserLiked && "fill-red-700/50 stroke-red-700",
+              )}
+            />
           </Button>
-        )}
+          <Button size="icon-sm" variant="outline">
+            <TrendingUpIcon className="size-4" />
+          </Button>
+          <Button size="icon-sm" variant="outline">
+            <Share2Icon className="size-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="break-words whitespace-pre-wrap">
@@ -68,6 +99,27 @@ export function PostView({ postId }: { postId: number }) {
         <p>{post.content}</p>
       </div>
 
+      {isOwner && (
+        <div className="flex items-center gap-1">
+          <Button asChild size="icon-sm" variant="outline">
+            <Link params={{ postId }} to={`/posts/$postId/edit`}>
+              <PencilIcon className="size-4" />
+            </Link>
+          </Button>
+          <Button
+            onClick={() => {
+              deletePost({
+                data: post.id,
+              });
+            }}
+            size="icon-sm"
+            variant="outline"
+          >
+            <TrashIcon className="size-4" />
+          </Button>
+        </div>
+      )}
+
       {post.youtubeVideoId && <YoutubeIframe videoId={post.youtubeVideoId} />}
 
       {post.video && post.video.playbackId && (
@@ -75,38 +127,12 @@ export function PostView({ postId }: { postId: number }) {
       )}
 
       <Badges content={post.tags} />
-      {post.userId === sessionUser?.id && (
-        <div className="flex gap-2">
-          <Button asChild>
-            <Link params={{ postId }} to={`/posts/$postId/edit`}>
-              Edit
-            </Link>
-          </Button>
-          {/* 
-          <Button
-            disabled={deletePost.isPending}
-            iconLeft={
-              deletePost.isPending && (
-                <Loader2Icon className="size-4 animate-spin" />
-              )
-            }
-            onClick={() => {
-              deletePost.mutate(post.id);
-            }}
-            variant="destructive"
-          >
-            {deletePost.isPending ? "Deleting" : "Delete"}
-          </Button> */}
-        </div>
-      )}
 
       <div className="shrink-0">
         <MessagesView
           record={{ recordId: postId, type: "post" }}
-          messages={messagesData}
-          onMessageCreated={(message) => {
-            mutate(message);
-          }}
+          messages={messagesData.messages}
+          onMessageCreated={createMessage}
         />
       </div>
     </div>
