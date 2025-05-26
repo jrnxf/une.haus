@@ -23,6 +23,7 @@
     "@aws-sdk/s3-request-presigner": "^3.609.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@hookform/resolvers": "^3.8.0",
+    "@icons-pack/react-simple-icons": "^12.8.0",
     "@mux/mux-node": "^8.8.0",
     "@mux/mux-player-react": "^2.7.0",
     "@mux/upchunk": "^3.4.0",
@@ -111,7 +112,6 @@
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
-    "@icons-pack/react-simple-icons": "^12.8.0",
     "@tanstack/eslint-plugin-router": "^1.115.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
