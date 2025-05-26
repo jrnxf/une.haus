@@ -1,0 +1,17 @@
+[phases.setup]
+  nixPkgs = ["nodejs_20", "pnpm-8_x", "bun"]
+
+[phases.install]
+  cmds = [
+    "pnpm install --filter-prod"
+  ]
+
+[phases.build]
+  cmds = [
+    "pnpm run build"
+  ]
+
+[phases.start]
+  cmd = [
+    "pnpm run start"
+  ]
