@@ -53,7 +53,6 @@ export const listMessagesServerFn = createServerFn({
 
       return {
         type: "chatMessages" as const,
-        parentId: input.recordId,
         messages,
       };
     }
@@ -109,12 +108,12 @@ export const createMessageServerFn = createServerFn({
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    const { content, recordId, type } = input;
+    const { content, id, type } = input;
 
     if (type === "post") {
       await db.insert(postMessages).values({
         content,
-        postId: recordId,
+        postId: id,
         userId,
       });
     }
@@ -135,14 +134,14 @@ export const updateMessageServerFn = createServerFn({
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    const { content, recordId, type } = input;
+    const { content, id, type } = input;
 
     const table = getTableByType(type);
 
     return await db
       .update(table)
       .set({ content, userId })
-      .where(and(eq(table.id, recordId), eq(table.userId, userId)));
+      .where(and(eq(table.id, id), eq(table.userId, userId)));
   });
 
 export const deleteMessageServerFn = createServerFn({
@@ -151,14 +150,13 @@ export const deleteMessageServerFn = createServerFn({
   .validator(deleteMessageSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const { recordId, type } = input;
     const userId = context.user.id;
 
-    const table = getTableByType(type);
+    const table = getTableByType(input.type);
 
     await db
       .delete(table)
-      .where(and(eq(table.id, recordId), eq(table.userId, userId)));
+      .where(and(eq(table.id, input.id), eq(table.userId, userId)));
   });
 
 export const getTableByType = (type: MessageParentType) => {

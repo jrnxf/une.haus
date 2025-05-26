@@ -8,20 +8,21 @@ export const messageFormSchema = z.object({
 
 export type MessageFormOutput = z.infer<typeof messageFormSchema>;
 
-export const chatMessageSchema = z.object({
+export const chatParentMessageSchema = z.object({
+  id: z.literal(-1),
   type: z.literal("chat"),
 });
 
-export type ChatMessageOutput = z.infer<typeof chatMessageSchema>;
+export type ChatMessageOutput = z.infer<typeof chatParentMessageSchema>;
 
-export const recordMessageSchema = z.object({
-  id: z.number(), // the id of the thing receiving the message (in the case of chat just pass in -1 since there is no id)
+export const recordParentMessageSchema = z.object({
+  id: z.number().positive().int(), // the id of the thing receiving the message (in the case of chat just pass in -1 since there is no id)
   type: z.enum(recordWithMessagesTypes),
 });
 
 export const messageParentSchema = z.discriminatedUnion("type", [
-  chatMessageSchema,
-  recordMessageSchema,
+  chatParentMessageSchema,
+  recordParentMessageSchema,
 ]);
 
 export type MessageParent = z.infer<typeof messageParentSchema>;

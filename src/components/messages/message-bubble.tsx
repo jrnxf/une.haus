@@ -45,7 +45,7 @@ export function MessageBubble({
       parent.type === "post"
         ? posts.get.queryOptions({ postId: parent.id }).queryKey
         : parent.type === "chat"
-          ? messages.list.queryOptions({ type: "chat" }).queryKey
+          ? messages.list.queryOptions({ type: "chat", id: -1 }).queryKey
           : [],
     refetchQueryKey:
       parent.type === "post"

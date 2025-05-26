@@ -75,7 +75,7 @@ export function MessagesView({
         // router's scroll restoration for this element. interestingly,
         // disabling the scroll restoration seems to still actually do the
         // scroll restoration but not cause the jump mentioned above.
-        data-scroll-restoration-id={`no-scroll-restore-${record.type}-${record.recordId}`}
+        data-scroll-restoration-id={`no-scroll-restore-${record.type}-${record.id}`}
         ref={ref}
       >
         {messages.map((message, index) => {

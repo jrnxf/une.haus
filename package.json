@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "export $(grep -v '^#' .env | xargs) && vinxi start",
+    "start": "bun run .output/server/index.mjs",
     "email:dev": "email dev",
     "lint": "eslint src --fix",
     "db:seed": "bun run src/db/scripts/wipe.ts && bunx drizzle-kit push && bun run src/db/scripts/seed.ts",

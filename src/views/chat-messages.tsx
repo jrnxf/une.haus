@@ -8,16 +8,18 @@ export function ChatMessagesView() {
   const { data: chatMessages } = useSuspenseQuery(
     messages.list.queryOptions({
       type: "chat",
+      id: -1,
     }),
   );
 
   const { mutate: createChatMessage } = useCreateMessage({
     type: "chat",
+    id: -1,
   });
 
   return (
     <MessagesView
-      record={{ type: "chat" }}
+      record={{ type: "chat", id: -1 }}
       messages={chatMessages.messages}
       onMessageCreated={createChatMessage}
     />

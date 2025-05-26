@@ -10,10 +10,7 @@ export function useCreateMessage(record: MessageParent) {
 
   const qc = useQueryClient();
 
-  const listOptions = messages.list.queryOptions({
-    type: record.type,
-    id: record.recordId,
-  });
+  const listOptions = messages.list.queryOptions(record);
 
   const mutation = useMutation({
     mutationFn: messages.create.fn,
