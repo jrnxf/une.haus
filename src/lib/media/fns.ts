@@ -2,9 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+import { s3Client } from "~/lib/clients/s3";
 import { env } from "~/lib/env";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
-import { s3Client } from "~/lib/clients/s3";
 
 export const createPresignedS3UrlServerFn = createServerFn({
   method: "POST",
@@ -14,7 +15,7 @@ export const createPresignedS3UrlServerFn = createServerFn({
     const key = `${input.prefix}/${Date.now()}__${input.fileName}`;
 
     const command = new PutObjectCommand({
-      Bucket: env.AWS_BUCKET_NAME,
+      Bucket: env.HAUS_AWS_BUCKET_NAME,
       Key: key,
     });
 
