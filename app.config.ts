@@ -9,7 +9,7 @@ export default defineConfig({
     appDirectory: "./src",
   },
   server: {
-    preset: "netlify-edge",
+    preset: "vercel",
   },
   vite: {
     // @ts-expect-error @tanstack/react-start uses `Omit` for server to limit me
