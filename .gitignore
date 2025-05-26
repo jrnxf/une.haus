@@ -12,5 +12,4 @@ routeTree.gen.ts
 **/db/skrrrt
 
 .vercel
-.netlify
 dist

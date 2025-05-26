@@ -19,6 +19,7 @@
   "author": "colby@jrnxf.co",
   "license": "ISC",
   "dependencies": {
+    "autoprefixer": "^10.4.20",
     "@aws-sdk/client-s3": "^3.609.0",
     "@aws-sdk/s3-request-presigner": "^3.609.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
@@ -118,7 +119,6 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
-    "autoprefixer": "^10.4.20",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.25.1",
@@ -133,7 +133,6 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "react-email": "4.0.15",
-    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.31.0",
