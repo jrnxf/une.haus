@@ -7,7 +7,6 @@ export const Route = createFileRoute("/chat/")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       messages.list.queryOptions({
-        recordId: -1,
         type: "chat",
       }),
     );

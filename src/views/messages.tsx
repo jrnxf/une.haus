@@ -4,7 +4,7 @@ import { BaseMessageForm } from "~/components/forms/message";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
 import { type messages } from "~/lib/messages";
-import { type RecordWithMessages } from "~/lib/messages/schemas";
+import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type ServerFnReturn } from "~/lib/types";
 import { cn } from "~/lib/utils";
@@ -17,7 +17,7 @@ export function MessagesView({
   messages,
   onMessageCreated,
 }: {
-  record: RecordWithMessages;
+  record: MessageParent;
   messages: Message[];
   onMessageCreated: (newMessage: string) => void;
 }) {
@@ -101,7 +101,7 @@ export function MessagesView({
               <div
                 className={cn("flex w-full", isUserMessage && "justify-end")}
               >
-                <MessageBubble parentRecord={record} message={message} />
+                <MessageBubble parent={record} message={message} />
               </div>
             </div>
           );

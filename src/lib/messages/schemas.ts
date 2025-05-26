@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const recordWithMessagesTypes = ["post", "chat"] as const;
+export const recordWithMessagesTypes = ["post"] as const;
 
 export const messageFormSchema = z.object({
   content: z.string().min(1),
@@ -8,25 +8,36 @@ export const messageFormSchema = z.object({
 
 export type MessageFormOutput = z.infer<typeof messageFormSchema>;
 
-export const baseSchema = z.object({
-  recordId: z.number(), // the id of the thing receiving the message (in the case of chat just pass in -1 since there is no id)
+export const chatMessageSchema = z.object({
+  type: z.literal("chat"),
+});
+
+export type ChatMessageOutput = z.infer<typeof chatMessageSchema>;
+
+export const recordMessageSchema = z.object({
+  id: z.number(), // the id of the thing receiving the message (in the case of chat just pass in -1 since there is no id)
   type: z.enum(recordWithMessagesTypes),
 });
 
-export type RecordWithMessages = z.infer<typeof baseSchema>;
+export const messageParentSchema = z.discriminatedUnion("type", [
+  chatMessageSchema,
+  recordMessageSchema,
+]);
 
-export type RecordWithMessagesType = RecordWithMessages["type"];
+export type MessageParent = z.infer<typeof messageParentSchema>;
 
-export const listMessagesSchema = baseSchema;
+export type MessageParentType = MessageParent["type"];
 
-export const deleteMessageSchema = baseSchema;
+export const listMessagesSchema = messageParentSchema;
+
+export const deleteMessageSchema = messageParentSchema;
 
 export const createMessageSchema = z.intersection(
   messageFormSchema,
-  baseSchema,
+  messageParentSchema,
 );
 
 export const updateMessageSchema = z.intersection(
   messageFormSchema,
-  baseSchema,
+  messageParentSchema,
 );

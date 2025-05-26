@@ -19,7 +19,7 @@ type RecordReactionArgs = {
     id: number;
     type: RecordWithLikesType;
   };
-  recordQueryKey: QueryKey;
+  optimisticUpdateQueryKey: QueryKey;
   refetchQueryKey?: QueryKey;
 };
 
@@ -37,7 +37,7 @@ export function useLikeUnlikeRecord({
 
 export function useLikeRecord({
   record,
-  recordQueryKey,
+  optimisticUpdateQueryKey,
   refetchQueryKey,
 }: RecordReactionArgs) {
   const qc = useQueryClient();
@@ -47,13 +47,12 @@ export function useLikeRecord({
     mutationFn: reactions.like.fn,
     onMutate: async () => {
       invariant(sessionUser, "Not authenticated");
+      qc.cancelQueries({ queryKey: optimisticUpdateQueryKey });
 
-      qc.cancelQueries({ queryKey: recordQueryKey });
-
-      const prev = qc.getQueryData(recordQueryKey);
+      const prev = qc.getQueryData(optimisticUpdateQueryKey);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      qc.setQueryData(recordQueryKey, (prev: any) => {
+      qc.setQueryData(optimisticUpdateQueryKey, (prev: any) => {
         if (!prev) return prev;
 
         // chat message schemas are a little different so they need to be handled differently
@@ -108,7 +107,7 @@ export function useLikeRecord({
       toast.error(`Failed to like ${recordTypeToLabel[record.type]}`);
       console.error(error);
       if (context) {
-        qc.setQueryData(recordQueryKey, context.prev);
+        qc.setQueryData(optimisticUpdateQueryKey, context.prev);
       }
     },
     onSuccess: () => {
@@ -117,7 +116,7 @@ export function useLikeRecord({
       }
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: recordQueryKey });
+      qc.invalidateQueries({ queryKey: optimisticUpdateQueryKey });
     },
   });
 
@@ -136,7 +135,7 @@ export function useLikeRecord({
 
 export function useUnlikeRecord({
   record,
-  recordQueryKey,
+  optimisticUpdateQueryKey,
   refetchQueryKey,
 }: RecordReactionArgs) {
   const qc = useQueryClient();
@@ -145,14 +144,14 @@ export function useUnlikeRecord({
   const mutation = useMutation({
     mutationFn: reactions.unlike.fn,
     onMutate: async () => {
-      qc.cancelQueries({ queryKey: recordQueryKey });
+      qc.cancelQueries({ queryKey: optimisticUpdateQueryKey });
 
       invariant(sessionUser, "Not authenticated");
 
-      const prev = qc.getQueryData(recordQueryKey);
+      const prev = qc.getQueryData(optimisticUpdateQueryKey);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      qc.setQueryData(recordQueryKey, (prev: any) => {
+      qc.setQueryData(optimisticUpdateQueryKey, (prev: any) => {
         if (!prev) return prev;
 
         // chat message schemas are a little different so they need to be handled differently
@@ -190,7 +189,7 @@ export function useUnlikeRecord({
       toast.error(`Failed to unlike ${recordTypeToLabel[record.type]}`);
       console.error(error);
       if (context) {
-        qc.setQueryData(recordQueryKey, context.prev);
+        qc.setQueryData(optimisticUpdateQueryKey, context.prev);
       }
     },
     onSuccess: () => {
@@ -199,7 +198,7 @@ export function useUnlikeRecord({
       }
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: recordQueryKey });
+      qc.invalidateQueries({ queryKey: optimisticUpdateQueryKey });
     },
   });
 

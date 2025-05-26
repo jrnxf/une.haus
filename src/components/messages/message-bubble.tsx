@@ -4,7 +4,7 @@ import { HeartIcon, TrendingUpIcon } from "lucide-react";
 import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
 import { Button } from "~/components/ui/button";
 import { messages } from "~/lib/messages";
-import { type RecordWithMessages } from "~/lib/messages/schemas";
+import { type MessageParent } from "~/lib/messages/schemas";
 import { posts } from "~/lib/posts";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type ServerFnReturn } from "~/lib/types";
@@ -13,12 +13,13 @@ import { cn, preprocessText } from "~/lib/utils";
 type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number];
 
 export function MessageBubble({
-  parentRecord,
+  parent,
   message,
 }: {
-  parentRecord: RecordWithMessages;
+  parent: MessageParent;
   message: Message;
 }) {
+  const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
 
   // const likeUnlike = useLikeUnlikeMessage(record, message.id);
@@ -36,17 +37,18 @@ export function MessageBubble({
     sessionUser &&
       message.likes.some((message) => message.user.id === sessionUser.id),
   );
+
   const { mutate: likeUnlike } = useLikeUnlikeRecord({
     authUserLiked,
-    record: { id: message.id, type: `${parentRecord.type}Message` },
-    recordQueryKey:
-      parentRecord.type === "post"
-        ? posts.get.queryOptions({ postId: parentRecord.recordId }).queryKey
-        : parentRecord.type === "chat"
-          ? messages.list.queryOptions(parentRecord).queryKey
+    record: { id: message.id, type: messageType },
+    optimisticUpdateQueryKey:
+      parent.type === "post"
+        ? posts.get.queryOptions({ postId: parent.id }).queryKey
+        : parent.type === "chat"
+          ? messages.list.queryOptions({ type: "chat" }).queryKey
           : [],
     refetchQueryKey:
-      parentRecord.type === "post"
+      parent.type === "post"
         ? posts.list.infiniteQueryOptions({}).queryKey
         : [],
   });
@@ -77,7 +79,9 @@ export function MessageBubble({
               {message.likes.length}
             </div>
           )}
+
           <p className="leading-relaxed">{preprocessText(message.content)}</p>
+
           {/* <RecordOptions
         onDeleteRecord={onDeleteMessage}
         onEditRecord={() => setIsEditMessageOpen(true)}

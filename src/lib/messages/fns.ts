@@ -12,7 +12,7 @@ import {
   listMessagesSchema,
   recordWithMessagesTypes,
   updateMessageSchema,
-  type RecordWithMessagesType,
+  type MessageParentType,
 } from "~/lib/messages/schemas";
 import { authMiddleware } from "~/lib/middleware";
 
@@ -61,7 +61,7 @@ export const listMessagesServerFn = createServerFn({
     if (input.type === "post") {
       const messages = await db.query.postMessages.findMany({
         orderBy: asc(postMessages.createdAt),
-        where: eq(postMessages.postId, input.recordId),
+        where: eq(postMessages.postId, input.id),
         columns: {
           postId: false,
         },
@@ -93,7 +93,7 @@ export const listMessagesServerFn = createServerFn({
 
       return {
         type: "postMessages" as const,
-        parentId: input.recordId,
+        parentId: input.id,
         messages,
       };
     }
@@ -161,7 +161,7 @@ export const deleteMessageServerFn = createServerFn({
       .where(and(eq(table.id, recordId), eq(table.userId, userId)));
   });
 
-export const getTableByType = (type: RecordWithMessagesType) => {
+export const getTableByType = (type: MessageParentType) => {
   const table =
     type === "post" ? postMessages : type === "chat" ? chatMessages : undefined;
 

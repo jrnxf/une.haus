@@ -25,7 +25,7 @@ export const Route = createFileRoute("/posts/$postId/")({
 
         await context.queryClient.ensureQueryData(
           messages.list.queryOptions({
-            recordId: postId,
+            id: postId,
             type: "post",
           }),
         );
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/posts/$postId/")({
     const ensureMessages = async () => {
       await context.queryClient.ensureQueryData(
         messages.list.queryOptions({
-          recordId: postId,
+          id: postId,
           type: "post",
         }),
       );

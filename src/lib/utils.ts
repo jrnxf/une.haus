@@ -1,7 +1,8 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
 
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { env } from "~/lib/env";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -65,4 +66,8 @@ export function preprocessText(text: string) {
 
 export function isDefined<T>(x: T): x is NonNullable<T> {
   return x !== null && x !== undefined;
+}
+
+export function getUrl() {
+  return env.VERCEL_PROJECT_PRODUCTION_URL ?? "http://localhost:3000";
 }

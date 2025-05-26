@@ -27,7 +27,7 @@ export function PostView({ postId }: { postId: number }) {
     queries: [
       posts.get.queryOptions({ postId }),
       messages.list.queryOptions({
-        recordId: postId,
+        id: postId,
         type: "post",
       }),
     ],
@@ -38,7 +38,7 @@ export function PostView({ postId }: { postId: number }) {
   const sessionUser = useSessionUser();
 
   const { mutate: createMessage } = useCreateMessage({
-    recordId: postId,
+    id: postId,
     type: "post",
   });
 
@@ -49,7 +49,7 @@ export function PostView({ postId }: { postId: number }) {
   const { mutate: likeUnlikePost } = useLikeUnlikeRecord({
     authUserLiked,
     record: { id: postId, type: "post" },
-    recordQueryKey: posts.get.queryOptions({ postId }).queryKey,
+    optimisticUpdateQueryKey: posts.get.queryOptions({ postId }).queryKey,
     refetchQueryKey: posts.list.infiniteQueryOptions({}).queryKey,
   });
 
@@ -130,7 +130,7 @@ export function PostView({ postId }: { postId: number }) {
 
       <div className="shrink-0">
         <MessagesView
-          record={{ recordId: postId, type: "post" }}
+          record={{ id: postId, type: "post" }}
           messages={messagesData.messages}
           onMessageCreated={createMessage}
         />

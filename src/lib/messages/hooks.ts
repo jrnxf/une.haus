@@ -2,17 +2,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
-import { type RecordWithMessages } from "~/lib/messages/schemas";
+import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
 
-export function useCreateMessage(record: RecordWithMessages) {
+export function useCreateMessage(record: MessageParent) {
   const sessionUser = useSessionUser();
 
   const qc = useQueryClient();
 
   const listOptions = messages.list.queryOptions({
     type: record.type,
-    recordId: record.recordId,
+    id: record.recordId,
   });
 
   const mutation = useMutation({
