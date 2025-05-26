@@ -8,15 +8,14 @@ const booleanEnvVar = z
 
 export const env = createEnv({
   client: {
-    // client env vars can go here
-    VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
+    PUBLIC_APP_URL: z.string().optional().default("http://localhost:3000"),
   },
 
   /**
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix: "",
+  clientPrefix: "PUBLIC_",
 
   /**
    * By default, this library will feed the environment variables directly to
@@ -41,7 +40,6 @@ export const env = createEnv({
 
   server: {
     HAUS_AWS_ACCESS_KEY_ID: z.string(),
-    URL: z.string().optional().default("http://localhost:3000"),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     HAUS_AWS_BUCKET_NAME: z.string(),
     HAUS_AWS_REGION: z.string(),
