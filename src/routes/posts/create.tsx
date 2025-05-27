@@ -9,7 +9,13 @@ import { posts } from "~/lib/posts";
 export const Route = createFileRoute("/posts/create")({
   component: RouteComponent,
   loader: async ({ context, location }) => {
-    if (!context.session.user) {
+    const sessionUser = context.session.user;
+
+    if (!sessionUser) {
+      console.log(
+        ">>> redirecting to login. context",
+        JSON.stringify(context, null, 2),
+      );
       throw redirect({
         to: "/auth/login",
         search: {

@@ -25,6 +25,7 @@ export interface RouterAppContext {
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async () => {
     const sessionData = await session.get.fn();
+    console.log(">>> __root sessionData", JSON.stringify(sessionData, null, 2));
     return { session: sessionData };
   },
   component: RootComponent,
