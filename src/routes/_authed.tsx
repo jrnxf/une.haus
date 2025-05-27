@@ -3,7 +3,8 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/_authed")({
   beforeLoad: ({ context, location }) => {
     console.log("in _authed beforeLoad");
-    if (!context.session.user) {
+    const session = context.session;
+    if (!session.user) {
       throw redirect({
         to: "/auth/login",
         search: {
@@ -11,6 +12,10 @@ export const Route = createFileRoute("/_authed")({
         },
       });
     }
+
+    return {
+      user: session.user,
+    };
   },
   errorComponent: ({ error }) => {
     if (error.message === "Not authenticated") {

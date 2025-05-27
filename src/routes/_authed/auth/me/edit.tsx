@@ -3,12 +3,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Controller, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,42 +20,34 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { USER_DISCIPLINES } from "~/db/schema";
-import { invariant } from "~/lib/invariant";
-import { useSessionUser } from "~/lib/session/hooks";
 import { users } from "~/lib/users";
 
-export const Route = createFileRoute("/auth/me/edit")({
+export const Route = createFileRoute("/_authed/auth/me/edit")({
   component: RouteComponent,
-  loader: async ({ context, location }) => {
-    const sessionUser = context.session.user;
-
-    if (!sessionUser) {
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: location.href },
-      });
-    }
+  loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      users.get.queryOptions({ userId: sessionUser.id }),
+      users.get.queryOptions({ userId: context.user.id }),
     );
+    return {
+      authUser: context.user,
+    };
   },
 });
 
 function RouteComponent() {
-  const sessionUser = useSessionUser();
-  invariant(sessionUser, "Authentication required");
+  const { authUser } = Route.useLoaderData();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
   const { data: user } = useSuspenseQuery(
-    users.get.queryOptions({ userId: sessionUser.id }),
+    users.get.queryOptions({ userId: authUser.id }),
   );
 
   const updateUser = useMutation({
     mutationFn: users.update.fn,
     onSuccess: async () => {
       await qc.invalidateQueries({
-        queryKey: users.get.queryOptions({ userId: sessionUser.id }).queryKey,
+        queryKey: users.get.queryOptions({ userId: authUser.id }).queryKey,
       });
       toast.success("Profile updated");
 

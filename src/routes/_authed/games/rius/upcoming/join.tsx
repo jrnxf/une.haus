@@ -15,7 +15,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { games } from "~/lib/games";
 import { useCreateSet } from "~/lib/games/rius/hooks";
 
-export const Route = createFileRoute("/games/rius/upcoming/join")({
+export const Route = createFileRoute("/_authed/games/rius/upcoming/join")({
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
