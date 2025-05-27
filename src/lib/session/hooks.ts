@@ -4,13 +4,13 @@ import {
   useNavigate,
   useRouteContext,
 } from "@tanstack/react-router";
-import { serverOnly } from "@tanstack/react-start";
 import { useSession } from "@tanstack/react-start/server";
+
 import { env } from "~/lib/env";
 import { HAUS_SESSION_KEY, session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 
-export const useServerSession = serverOnly(() => {
+export const useServerSession = () => {
   return useSession<HausSession>({
     name: HAUS_SESSION_KEY,
     password: env.SESSION_SECRET,
@@ -21,7 +21,7 @@ export const useServerSession = serverOnly(() => {
     },
     maxAge: 60 * 60 * 24 * 30, // 30 days
   });
-});
+};
 
 export function useSessionUser() {
   const { session } = useRouteContext({ from: rootRouteId });
