@@ -1,29 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
 import { PostForm } from "~/components/forms/post";
 import { posts } from "~/lib/posts";
 
-export const Route = createFileRoute("/posts/create")({
+export const Route = createFileRoute("/_authed/posts/create")({
   component: RouteComponent,
-  loader: async ({ context, location }) => {
-    const sessionUser = context.session.user;
-
-    if (!sessionUser) {
-      console.log(
-        ">>> redirecting to login. context",
-        JSON.stringify(context, null, 2),
-      );
-      throw redirect({
-        to: "/auth/login",
-        search: {
-          redirect: location.href,
-        },
-      });
-    }
-  },
 });
 
 function RouteComponent() {
@@ -44,7 +28,6 @@ function RouteComponent() {
     onError: () => {
       // sentry
       toast.error("Failed to create post");
-      router.navigate({ to: "/posts/create" });
     },
   });
 

@@ -17,7 +17,7 @@ const pathParametersSchema = z.object({
   postId: z.coerce.number(),
 });
 
-export const Route = createFileRoute("/posts/$postId/edit")({
+export const Route = createFileRoute("/_authed/posts/$postId/edit")({
   component: RouteComponent,
   params: {
     parse: pathParametersSchema.parse,
