@@ -8,7 +8,7 @@ export const adminOnlyMiddleware = createMiddleware().server(
     const session = await useServerSession();
 
     if (!session.data.user) {
-      throw redirect({ to: "/auth/login" });
+      throw redirect({ to: "/auth" });
     }
 
     invariant(session.data.user.id === 1, "User is not an admin");
@@ -25,7 +25,7 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
   const session = await useServerSession();
 
   if (!session.data.user) {
-    throw redirect({ to: "/auth/login" });
+    throw redirect({ to: "/auth" });
   }
 
   return next({

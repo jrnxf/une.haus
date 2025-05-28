@@ -57,48 +57,46 @@ function JoinRiuForm() {
   const createSet = useCreateSet();
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
-      <FormOpsProvider>
-        <form
-          className="flex flex-col gap-4"
-          method="post"
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleSubmit((data) => {
-              createSet.mutate({ data });
-            })(event);
-          }}
-        >
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input {...register("name")} id="name" />
-            <FormMessage error={errors.name} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea {...register("description")} id="description" rows={2} />
-            <FormMessage error={errors.description} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="videoUploadId">Video</Label>
-            <Controller
-              control={control}
-              name="videoUploadId"
-              render={({ field: { onChange } }) => {
-                return <VideoInput id="videoUploadId" onChange={onChange} />;
-              }}
-            />
-            <FormMessage error={errors.videoUploadId} />
-          </div>
+    <FormOpsProvider>
+      <form
+        className="mx-auto flex w-full max-w-4xl flex-col gap-4"
+        method="post"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleSubmit((data) => {
+            createSet.mutate({ data });
+          })(event);
+        }}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input {...register("name")} id="name" />
+          <FormMessage error={errors.name} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea {...register("description")} id="description" rows={2} />
+          <FormMessage error={errors.description} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="videoUploadId">Video</Label>
+          <Controller
+            control={control}
+            name="videoUploadId"
+            render={({ field: { onChange } }) => {
+              return <VideoInput id="videoUploadId" onChange={onChange} />;
+            }}
+          />
+          <FormMessage error={errors.videoUploadId} />
+        </div>
 
-          <div className="flex justify-between gap-2">
-            <Button asChild type="button" variant="outline">
-              <Link to="/games/rius/upcoming">Cancel</Link>
-            </Button>
-            <FormSubmitButton busy={createSet.isPending} />
-          </div>
-        </form>
-      </FormOpsProvider>
-    </div>
+        <div className="flex justify-between gap-2">
+          <Button asChild type="button" variant="outline">
+            <Link to="/games/rius/upcoming">Cancel</Link>
+          </Button>
+          <FormSubmitButton busy={createSet.isPending} />
+        </div>
+      </form>
+    </FormOpsProvider>
   );
 }

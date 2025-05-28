@@ -42,7 +42,7 @@ export function BaseMessageForm({
       <div className="grid place-items-center pt-3">
         <Button asChild>
           <Link
-            to="/auth/login"
+            to="/auth"
             search={{
               redirect: "/chat",
             }}

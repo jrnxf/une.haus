@@ -1,5 +1,6 @@
 import { json } from "@tanstack/react-start";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
+
 import { eq } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -39,7 +40,7 @@ export const APIRoute = createAPIFileRoute("/api/auth/verify")({
       return new Response(null, {
         status: 302,
         headers: {
-          Location: "/auth/login",
+          Location: "/auth",
         },
       });
     }

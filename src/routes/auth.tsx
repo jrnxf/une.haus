@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
-import { FormMessage } from "~/components/ui/form";
+import { FormDescription, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { email } from "~/lib/email";
@@ -28,13 +28,13 @@ const searchParamsSchema = z
     redirect: "/auth/me",
   });
 
-export const Route = createFileRoute("/auth/login")({
+export const Route = createFileRoute("/auth")({
   component: RouteComponent,
   validateSearch: searchParamsSchema,
 });
 
 function RouteComponent() {
-  const search = useSearch({ from: "/auth/login" });
+  const search = useSearch({ from: "/auth" });
   const form = useForm<z.infer<typeof email.sendMagicLink.schema>>({
     defaultValues: {
       email: "",
@@ -60,7 +60,7 @@ function RouteComponent() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-8" id="main-content">
+    <div className="mx-auto w-full max-w-xl p-8" id="main-content">
       <FormProvider {...form}>
         <form
           className="space-y-4"
@@ -73,8 +73,11 @@ function RouteComponent() {
         >
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
+            <FormDescription>
+              You'll receive an email with a magic link to authenticate
+            </FormDescription>
             <Input {...register("email")} autoFocus id="email" />
-            <FormMessage error={errors.email} />
+            <FormMessage />
           </div>
           <div className="flex flex-row-reverse items-center justify-between">
             <Button
