@@ -4,7 +4,6 @@ import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
-import { PAGE_SIZE } from "~/lib/constants";
 import { invariant } from "~/lib/invariant";
 import {
   createMessageSchema,
@@ -48,7 +47,6 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-        limit: PAGE_SIZE,
       });
 
       return {
@@ -111,18 +109,24 @@ export const createMessageServerFn = createServerFn({
     const { content, id, type } = input;
 
     if (type === "post") {
-      await db.insert(postMessages).values({
-        content,
-        postId: id,
-        userId,
-      });
+      await db
+        .insert(postMessages)
+        .values({
+          content,
+          postId: id,
+          userId,
+        })
+        .returning();
     }
 
     if (type === "chat") {
-      await db.insert(chatMessages).values({
-        content,
-        userId,
-      });
+      await db
+        .insert(chatMessages)
+        .values({
+          content,
+          userId,
+        })
+        .returning();
     }
   });
 

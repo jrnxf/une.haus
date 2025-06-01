@@ -13,6 +13,7 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
+import { useFormField } from "~/components/ui/form";
 import {
   Popover,
   PopoverContent,
@@ -28,14 +29,13 @@ export type LocationSelectorLocation = Omit<SelectLocation, "userId">;
 type SelectOption = { label: string; value: string };
 
 export function LocationSelector({
-  id,
   onUpdate,
   placeholder = "Select location...",
 }: {
-  id: string;
   onUpdate: (location: LocationSelectorLocation | undefined) => void;
   placeholder?: string;
 }) {
+  const { formItemId } = useFormField();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<SelectOption>();
   const [options, setOptions] = useState<SelectOption[]>([]);
@@ -96,7 +96,7 @@ export function LocationSelector({
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverTrigger asChild>
           <Button
-            id={id}
+            id={formItemId}
             aria-expanded={open}
             className="w-full justify-between overflow-hidden hover:bg-inherit"
             role="combobox"

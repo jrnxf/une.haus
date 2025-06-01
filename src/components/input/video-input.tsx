@@ -1,13 +1,17 @@
-import { useCallback } from "react";
+import MuxPlayer from "@mux/mux-player-react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2Icon, TrashIcon } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
 import * as Upchunk from "@mux/upchunk";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
+import { useFormField } from "~/components/ui/form";
 import { useFormOps } from "~/components/ui/form-ops-provider";
-import { Progress } from "~/components/ui/progress";
-import { cn } from "~/lib/utils";
+import { getMuxPoster } from "~/components/video-player";
+import { media } from "~/lib/media";
 
 export const muxPresignedUrlSchema = z.object({
   id: z.string(),
@@ -15,13 +19,27 @@ export const muxPresignedUrlSchema = z.object({
 });
 
 export const VideoInput = ({
-  id,
   onChange,
 }: {
-  id: string;
   onChange: (uploadId: null | string) => void;
 }) => {
+  const { formItemId } = useFormField();
+
   const { setVideoUploadPercentage, videoUploadPercentage } = useFormOps();
+  const [muxUploadId, setMuxUploadId] = useState("");
+
+  const { data: video } = useQuery({
+    ...media.pollVideoUploadStatus.queryOptions({
+      uploadId: muxUploadId,
+    }),
+    refetchInterval: (data) => {
+      if (data.state.data?.playbackId) {
+        return false;
+      }
+      return 1000;
+    },
+    enabled: Boolean(muxUploadId),
+  });
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -58,6 +76,7 @@ export const VideoInput = ({
             }, 1000);
 
             onChange(muxUploadId);
+            setMuxUploadId(muxUploadId);
           });
         } catch {
           setVideoUploadPercentage(-1);
@@ -73,28 +92,53 @@ export const VideoInput = ({
     onDrop,
   });
 
+  if (video?.playbackId) {
+    return (
+      <div className="flex flex-col gap-2">
+        <MuxPlayer
+          accentColor="#000000"
+          className="aspect-video"
+          playbackId={video.playbackId}
+          playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
+          poster={getMuxPoster(video.playbackId)}
+          preload="none" // save on bandwidth
+          streamType="on-demand"
+        />
+        <Button
+          className="self-start"
+          onClick={() => {
+            setMuxUploadId("");
+            onChange(null);
+          }}
+          iconRight={<TrashIcon className="size-4" />}
+          type="button"
+          variant="destructive"
+        >
+          Remove
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-28 items-center gap-2">
+    <div className="flex h-32 items-center gap-2">
       <Button
         aria-label="file upload"
-        className={cn(
-          "border-border h-full w-full rounded-md border-2 border-dashed",
-          videoUploadPercentage !== -1 && "hidden",
-        )}
+        className="border-border h-full w-full rounded-md border-2 border-dashed"
         type="button"
         variant="unstyled"
         {...getRootProps()}
       >
-        <input {...getInputProps()} id={id} />
+        <input {...getInputProps()} id={formItemId} />
         <span className="w-64 leading-relaxed text-wrap sm:w-auto">
           {acceptedFiles[0]
             ? acceptedFiles[0].name
             : "Click to select a video or drag and drop one here"}
         </span>
+        {(videoUploadPercentage !== -1 || muxUploadId) && (
+          <Loader2Icon className="size-4 animate-spin" />
+        )}
       </Button>
-      {videoUploadPercentage !== -1 && (
-        <Progress className="h-3" value={videoUploadPercentage} />
-      )}
     </div>
   );
 };

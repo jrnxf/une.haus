@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { CornerDownLeftIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
@@ -15,8 +15,6 @@ import {
 } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
 
-// import { useUpdateMessage } from "~/lib/hooks/messages";
-
 export function BaseMessageForm({
   initialContent,
   onSubmit,
@@ -24,6 +22,7 @@ export function BaseMessageForm({
   initialContent?: string;
   onSubmit: (content: string) => void;
 }) {
+  const location = useLocation();
   const sessionUser = useSessionUser();
   const { getValues, handleSubmit, register, setFocus, setValue } =
     useForm<MessageFormOutput>({
@@ -44,7 +43,7 @@ export function BaseMessageForm({
           <Link
             to="/auth"
             search={{
-              redirect: "/chat",
+              redirect: location.href,
             }}
           >
             Log in to chat

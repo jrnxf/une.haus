@@ -129,11 +129,13 @@ export const createPostServerFn = createServerFn({
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    if (input.videoUploadId) {
+    const { media, ...rest } = input;
+
+    if (media && media.type === "video" && media.value) {
       await db
         .insert(muxVideos)
         .values({
-          uploadId: input.videoUploadId,
+          uploadId: media.value,
         })
         .onConflictDoNothing(); // the webhook won – the video is already ready
     }
@@ -141,7 +143,10 @@ export const createPostServerFn = createServerFn({
     const [post] = await db
       .insert(posts)
       .values({
-        ...input,
+        ...rest,
+        imageUrl: media && media.type === "image" ? media.value : null,
+        videoUploadId: media && media.type === "video" ? media.value : null,
+        youtubeVideoId: media && media.type === "youtube" ? media.value : null,
         userId,
       })
       .returning();

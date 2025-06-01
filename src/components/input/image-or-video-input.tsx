@@ -1,3 +1,5 @@
+import MuxPlayer from "@mux/mux-player-react";
+import { TrashIcon } from "lucide-react";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone-esm";
 import { useFormContext } from "react-hook-form";
@@ -11,11 +13,13 @@ import { Progress } from "~/components/ui/progress";
 import { media } from "~/lib/media";
 
 export function ImageOrVideoInput({
-  imageName,
-  videoName,
+  value,
+  onChange,
 }: {
-  imageName: string;
-  videoName: string;
+  value: { type: "image" | "video"; value: string } | undefined;
+  onChange: (
+    data: { type: "image" | "video"; value: string } | undefined,
+  ) => void;
 }) {
   const form = useFormContext();
 
@@ -47,7 +51,7 @@ export function ImageOrVideoInput({
 
             const imageUrl = origin + pathname;
 
-            setValue(imageName, imageUrl);
+            onChange({ type: "image", value: imageUrl });
           } finally {
             setPendingImageUpload(false);
           }
@@ -81,18 +85,12 @@ export function ImageOrVideoInput({
               setVideoUploadPercentage(-1);
             }, 1000);
 
-            setValue(videoName, muxUploadId);
+            onChange({ type: "video", value: muxUploadId });
           });
         }
       }
     },
-    [
-      imageName,
-      setPendingImageUpload,
-      setValue,
-      setVideoUploadPercentage,
-      videoName,
-    ],
+    [setPendingImageUpload, setValue, setVideoUploadPercentage],
   );
 
   const { acceptedFiles, getInputProps, getRootProps } = useDropzone({
@@ -105,23 +103,67 @@ export function ImageOrVideoInput({
   });
 
   return (
-    <div className="flex h-28 items-center gap-2">
-      <Button
-        aria-label="file upload"
-        className="border-border h-full w-full rounded-md border-2 border-dashed"
-        type="button"
-        variant="unstyled"
-        {...getRootProps()}
-      >
-        <input {...getInputProps()} />
-        <span className="w-64 leading-relaxed text-wrap sm:w-auto">
-          {acceptedFiles[0]
-            ? acceptedFiles[0].name
-            : "Click to select a file or drag and drop one here"}
-        </span>
-      </Button>
-      {videoUploadPercentage !== -1 && (
-        <Progress className="h-3" value={videoUploadPercentage} />
+    <div>
+      {!value && (
+        <div className="relative flex h-32 items-center gap-2">
+          <Button
+            aria-label="file upload"
+            className="border-border h-full w-full rounded-md border-2 border-dashed"
+            type="button"
+            variant="unstyled"
+            {...getRootProps()}
+          >
+            <input {...getInputProps()} />
+            {videoUploadPercentage === -1 && (
+              <span className="w-64 leading-relaxed text-wrap sm:w-auto">
+                {acceptedFiles[0]
+                  ? acceptedFiles[0].name
+                  : "Click to select a file or drag and drop one here"}
+              </span>
+            )}
+          </Button>
+          {videoUploadPercentage !== -1 && (
+            <div className="absolute inset-0 z-10 flex h-full flex-col justify-center p-4">
+              <Progress className="h-3" value={videoUploadPercentage} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {value && (
+        <div className="flex flex-col gap-2">
+          <Button
+            iconRight={<TrashIcon className="size-4" />}
+            onClick={() => {
+              onChange(undefined);
+            }}
+            type="button"
+            variant="destructive"
+            className="self-start"
+          >
+            Delete
+          </Button>
+
+          <div className="h-80">
+            {value.type === "image" ? (
+              <img
+                alt=""
+                className="h-full rounded-lg object-cover"
+                src={value.value}
+              />
+            ) : value.type === "video" ? (
+              <MuxPlayer
+                accentColor="#000000"
+                className="aspect-video"
+                // playbackId={defaultValues.videoPlaybackId}
+                playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
+                // poster={getMuxPoster(defaultValues.videoPlaybackId)}
+                preload="none" // save on bandwidth
+                streamType="on-demand"
+              />
+            ) : null}
+          </div>
+        </div>
       )}
     </div>
   );

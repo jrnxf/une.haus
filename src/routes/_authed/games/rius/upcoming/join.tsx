@@ -1,16 +1,22 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 
 import { VideoInput } from "~/components/input/video-input";
 import { Button } from "~/components/ui/button";
-import { FormMessage, FormSubmitButton } from "~/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormSubmitButton,
+} from "~/components/ui/form";
 import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { games } from "~/lib/games";
 import { useCreateSet } from "~/lib/games/rius/hooks";
@@ -45,12 +51,9 @@ function RouteComponent() {
 }
 
 function JoinRiuForm() {
-  const {
-    control,
-    formState: { errors },
-    handleSubmit,
-    register,
-  } = useForm<z.infer<typeof games.rius.sets.create.schema>>({
+  const { control, handleSubmit } = useForm<
+    z.infer<typeof games.rius.sets.create.schema>
+  >({
     resolver: zodResolver(games.rius.sets.create.schema),
   });
 
@@ -68,27 +71,55 @@ function JoinRiuForm() {
           })(event);
         }}
       >
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input {...register("name")} id="name" />
-          <FormMessage error={errors.name} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea {...register("description")} id="description" rows={2} />
-          <FormMessage error={errors.description} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="videoUploadId">Video</Label>
-          <Controller
-            control={control}
-            name="videoUploadId"
-            render={({ field: { onChange } }) => {
-              return <VideoInput id="videoUploadId" onChange={onChange} />;
-            }}
-          />
-          <FormMessage error={errors.videoUploadId} />
-        </div>
+        <FormField
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="videoUploadId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Media</FormLabel>
+
+              <VideoInput
+                onChange={(data) => {
+                  field.onChange(
+                    data
+                      ? {
+                          type: "video",
+                          value: data,
+                        }
+                      : undefined,
+                  );
+                }}
+              />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-between gap-2">
           <Button asChild type="button" variant="outline">

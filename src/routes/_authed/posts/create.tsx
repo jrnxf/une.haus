@@ -1,10 +1,41 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { type z } from "zod";
 
-import { PostForm } from "~/components/forms/post";
+import { BadgeInput } from "~/components/input/badge-input";
+import { ImageInput } from "~/components/input/image-input";
+import { VideoInput } from "~/components/input/video-input";
+import { YoutubeInput } from "~/components/input/youtube-input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormSubmitButton,
+} from "~/components/ui/form";
+import { FormOpsProvider } from "~/components/ui/form-ops-provider";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { Textarea } from "~/components/ui/textarea";
+import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
+
+const MEDIA_OPTIONS = {
+  none: "None",
+  image: "Image",
+  video: "Video",
+  youtube: "YouTube",
+} as const;
+
+type MediaOption = keyof typeof MEDIA_OPTIONS;
 
 export const Route = createFileRoute("/_authed/posts/create")({
   component: RouteComponent,
@@ -13,6 +44,8 @@ export const Route = createFileRoute("/_authed/posts/create")({
 function RouteComponent() {
   const router = useRouter();
   const qc = useQueryClient();
+
+  const [mediaOption, setMediaOption] = useState<MediaOption>("none");
 
   const { mutate } = useMutation({
     mutationFn: posts.create.fn,
@@ -31,12 +64,159 @@ function RouteComponent() {
     },
   });
 
+  const form = useForm<z.infer<typeof posts.create.schema>>({
+    resolver: zodResolver(posts.create.schema),
+    shouldUnregister: false,
+  });
+
+  const {
+    control,
+    formState: { isSubmitting },
+    handleSubmit,
+  } = form;
+
   return (
-    <div
-      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
-      id="main-content"
-    >
-      <PostForm onSubmit={(data) => mutate({ data })} />
-    </div>
+    <Form {...form}>
+      <FormOpsProvider>
+        <form
+          className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
+          id="main-content"
+          method="post"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSubmit((data) => {
+              mutate({ data });
+            })(event);
+          }}
+        >
+          <FormField
+            control={control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tags</FormLabel>
+                <FormControl>
+                  <BadgeInput
+                    defaultSelections={field.value}
+                    onChange={field.onChange}
+                    options={POST_TAGS}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="media"
+            render={({ field }) => {
+              const currentValue = field.value?.value;
+
+              return (
+                <FormItem>
+                  <FormLabel>Media</FormLabel>
+                  <RadioGroup
+                    className="flex gap-6 py-2"
+                    onValueChange={(value) => {
+                      field.onChange(null);
+                      setMediaOption(value as MediaOption);
+                    }}
+                    value={mediaOption}
+                  >
+                    {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
+                      <div className="flex items-center space-x-2" key={k}>
+                        <RadioGroupItem id={k} value={k} />
+                        <Label htmlFor={k}>{v}</Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+
+                  {mediaOption === "youtube" && (
+                    <YoutubeInput
+                      currentId={currentValue}
+                      onChange={(id) => {
+                        field.onChange(
+                          id
+                            ? {
+                                type: "youtube",
+                                value: id,
+                              }
+                            : undefined,
+                        );
+                      }}
+                    />
+                  )}
+
+                  {mediaOption === "image" && (
+                    <ImageInput
+                      previewClassNames="rounded-lg h-64"
+                      value={currentValue}
+                      onChange={(data) => {
+                        field.onChange(
+                          data
+                            ? {
+                                type: "image",
+                                value: data,
+                              }
+                            : undefined,
+                        );
+                      }}
+                    />
+                  )}
+
+                  {mediaOption === "video" && (
+                    <VideoInput
+                      onChange={(data) => {
+                        field.onChange(
+                          data
+                            ? {
+                                type: "video",
+                                value: data,
+                              }
+                            : undefined,
+                        );
+                      }}
+                    />
+                  )}
+                </FormItem>
+              );
+            }}
+          />
+
+          <div className="float-right">
+            <FormSubmitButton busy={isSubmitting} />
+          </div>
+        </form>
+      </FormOpsProvider>
+    </Form>
   );
 }

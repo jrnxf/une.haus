@@ -4,13 +4,29 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { PostForm } from "~/components/forms/post";
+import { BadgeInput } from "~/components/input/badge-input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormSubmitButton,
+} from "~/components/ui/form";
+import { FormOpsProvider } from "~/components/ui/form-ops-provider";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
 import { session } from "~/lib/session/index";
+import { type ServerFnReturn } from "~/lib/types";
 import { errorFmt } from "~/lib/utils";
 
 const pathParametersSchema = z.object({
@@ -36,12 +52,10 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
 
 function RouteComponent() {
   const { postId } = Route.useParams();
-
-  const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }));
-
+  const qc = useQueryClient();
   const navigate = useNavigate();
 
-  const qc = useQueryClient();
+  const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }));
 
   const { mutate } = useMutation({
     mutationFn: posts.update.fn,
@@ -92,33 +106,116 @@ function RouteComponent() {
     },
   });
 
+  const form = useForm<z.infer<typeof posts.create.schema>>({
+    defaultValues: buildDefaultValues(post),
+    resolver: zodResolver(posts.create.schema),
+    shouldUnregister: false,
+  });
+
+  const {
+    control,
+    formState: { isSubmitting },
+    handleSubmit,
+  } = form;
+
   if (!post) {
     return null;
   }
 
   return (
-    <div
-      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
-      id="main-content"
-    >
-      <PostForm
-        defaultValues={{
-          content: post.content,
-          imageUrl: post.imageUrl,
-          tags: post.tags ?? [],
-          title: post.title,
-          videoPlaybackId: post.video?.playbackId ?? undefined,
-          videoUploadId: post.video?.uploadId ?? undefined,
-        }}
-        onSubmit={(data) => {
-          mutate({
-            data: {
-              ...data,
-              postId,
-            },
-          });
-        }}
-      />
-    </div>
+    <Form {...form}>
+      <FormOpsProvider>
+        <form
+          className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
+          id="main-content"
+          method="post"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSubmit((data) => {
+              mutate({
+                data: {
+                  ...data,
+                  postId,
+                },
+              });
+            })(event);
+          }}
+        >
+          <FormField
+            control={control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tags</FormLabel>
+                <FormControl>
+                  <BadgeInput
+                    defaultSelections={field.value}
+                    onChange={field.onChange}
+                    options={POST_TAGS}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="float-right">
+            <FormSubmitButton busy={isSubmitting} />
+          </div>
+        </form>
+      </FormOpsProvider>
+    </Form>
   );
+}
+
+function buildDefaultValues(post: ServerFnReturn<typeof posts.get.fn>) {
+  return {
+    content: post.content,
+    media: post.imageUrl
+      ? {
+          type: "image" as const,
+          value: post.imageUrl,
+        }
+      : post.video && post.video.playbackId
+        ? {
+            type: "video" as const,
+            value: post.video.playbackId,
+          }
+        : post.youtubeVideoId
+          ? {
+              type: "youtube" as const,
+              value: post.youtubeVideoId,
+            }
+          : undefined,
+    tags: post.tags ?? [],
+    title: post.title,
+  } as const;
 }
