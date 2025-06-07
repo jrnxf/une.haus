@@ -17,10 +17,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMediaProvider,
   FormMessage,
   FormSubmitButton,
 } from "~/components/ui/form";
-import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { POST_TAGS } from "~/db/schema";
@@ -124,7 +124,7 @@ function RouteComponent() {
 
   return (
     <Form {...form}>
-      <FormOpsProvider>
+      <FormMediaProvider>
         <form
           className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
           id="main-content"
@@ -187,11 +187,9 @@ function RouteComponent() {
             )}
           />
 
-          <div className="float-right">
-            <FormSubmitButton busy={isSubmitting} />
-          </div>
+          <FormSubmitButton busy={isSubmitting} />
         </form>
-      </FormOpsProvider>
+      </FormMediaProvider>
     </Form>
   );
 }

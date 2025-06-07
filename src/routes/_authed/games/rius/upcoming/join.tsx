@@ -8,6 +8,7 @@ import { type z } from "zod";
 import { VideoInput } from "~/components/input/video-input";
 import { Button } from "~/components/ui/button";
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -15,7 +16,6 @@ import {
   FormMessage,
   FormSubmitButton,
 } from "~/components/ui/form";
-import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { games } from "~/lib/games";
@@ -51,16 +51,16 @@ function RouteComponent() {
 }
 
 function JoinRiuForm() {
-  const { control, handleSubmit } = useForm<
-    z.infer<typeof games.rius.sets.create.schema>
-  >({
+  const form = useForm<z.infer<typeof games.rius.sets.create.schema>>({
     resolver: zodResolver(games.rius.sets.create.schema),
   });
+
+  const { control, handleSubmit } = form;
 
   const createSet = useCreateSet();
 
   return (
-    <FormOpsProvider>
+    <Form {...form}>
       <form
         className="mx-auto flex w-full max-w-4xl flex-col gap-4"
         method="post"
@@ -128,6 +128,6 @@ function JoinRiuForm() {
           <FormSubmitButton busy={createSet.isPending} />
         </div>
       </form>
-    </FormOpsProvider>
+    </Form>
   );
 }

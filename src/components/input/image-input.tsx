@@ -4,8 +4,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
 import { Button } from "~/components/ui/button";
-import { useFormField } from "~/components/ui/form";
-import { useFormOps } from "~/components/ui/form-ops-provider";
+import { useFormField, useFormMedia } from "~/components/ui/form";
 import { media } from "~/lib/media";
 import { cn } from "~/lib/utils";
 
@@ -26,7 +25,7 @@ export const ImageInput = ({
     mutationFn: media.createPresignedS3Url.fn,
   });
 
-  const { pendingImageUpload, setPendingImageUpload } = useFormOps();
+  const { imageUploadStatus, setImageUploadStatus } = useFormMedia();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -34,7 +33,7 @@ export const ImageInput = ({
       if (file) {
         setFile(file);
         try {
-          setPendingImageUpload(true);
+          setImageUploadStatus("pending");
           const presignedS3Url = await createPresignedS3Url.mutateAsync({
             data: {
               fileName: file.name,
@@ -50,14 +49,14 @@ export const ImageInput = ({
         } catch {
           setFile(undefined);
         } finally {
-          setPendingImageUpload(false);
+          setImageUploadStatus("idle");
         }
       }
     },
-    [onChange, setPendingImageUpload],
+    [onChange, setImageUploadStatus],
   );
 
-  const { acceptedFiles, getInputProps, getRootProps } = useDropzone({
+  const { getInputProps, getRootProps } = useDropzone({
     accept: { "image/*": [] },
     multiple: false,
     onDrop,
@@ -67,37 +66,39 @@ export const ImageInput = ({
 
   if (previewSource) {
     return (
-      <div
-        className={cn(
-          "group relative flex size-48 shrink-0 items-center justify-center overflow-hidden",
-          previewClassNames,
-        )}
-      >
-        <img
-          alt=""
+      <div className="flex flex-col gap-2">
+        <div
           className={cn(
-            "size-full object-cover",
-            pendingImageUpload && "opacity-30",
+            "group relative flex size-48 shrink-0 items-center justify-center overflow-hidden rounded-full",
+            previewClassNames,
           )}
-          src={previewSource}
-        />
-        {pendingImageUpload ? (
-          <div className="bg-opacity-50 absolute inset-0 flex h-full items-center justify-center bg-zinc-900 text-white">
-            <Loader2Icon className="size-6 animate-spin duration-700" />
-          </div>
-        ) : (
-          <Button
-            className="absolute inset-0 flex h-full items-center justify-center rounded-none bg-red-900/90 text-white opacity-0 outline-hidden group-hover:opacity-100 focus:opacity-100"
-            onClick={() => {
-              setFile(undefined);
-              onChange(null);
-            }}
-            type="button"
-            variant="unstyled"
-          >
-            <TrashIcon className="size-6" />
-          </Button>
-        )}
+        >
+          <img
+            alt=""
+            className={cn(
+              "size-full object-cover",
+              imageUploadStatus === "pending" && "opacity-30",
+            )}
+            src={previewSource}
+          />
+          {imageUploadStatus === "pending" && (
+            <div className="absolute inset-0 flex h-full items-center justify-center bg-zinc-900/50 text-white">
+              <Loader2Icon className="size-6 animate-spin duration-700" />
+            </div>
+          )}
+        </div>
+        <Button
+          className="self-start"
+          onClick={() => {
+            setFile(undefined);
+            onChange(null);
+          }}
+          iconRight={<TrashIcon className="size-4" />}
+          type="button"
+          variant="destructive"
+        >
+          Remove
+        </Button>
       </div>
     );
   }
@@ -114,8 +115,8 @@ export const ImageInput = ({
         <input {...getInputProps()} id={formItemId} />
 
         <span className="w-64 leading-relaxed text-wrap sm:w-auto">
-          {acceptedFiles[0]
-            ? acceptedFiles[0].name
+          {file
+            ? file.name
             : "Click to select an image or drag and drop one here"}
         </span>
       </Button>

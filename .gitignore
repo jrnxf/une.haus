@@ -14,3 +14,5 @@ routeTree.gen.ts
 .vercel
 .netlify
 dist
+
+app.config.timestamp*

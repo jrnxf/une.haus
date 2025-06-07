@@ -8,17 +8,76 @@ import {
   type ControllerProps,
   type FieldPath,
   type FieldValues,
+  type UseFormReturn,
 } from "react-hook-form";
 
-import {
-  Button,
-  type ButtonProps as ButtonProperties,
-} from "~/components/ui/button";
-import { useFormOps } from "~/components/ui/form-ops-provider";
+import { Button, type ButtonProps } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
+import { invariant } from "~/lib/invariant";
 import { cn } from "~/lib/utils";
 
-const Form = FormProvider;
+type VideoUploadStatus = "idle" | number;
+type ImageUploadStatus = "idle" | "pending";
+
+type FormMediaProviderProps = {
+  imageUploadStatus: ImageUploadStatus;
+  videoUploadStatus: VideoUploadStatus;
+  setImageUploadStatus: (status: ImageUploadStatus) => void;
+  setVideoUploadStatus: (status: VideoUploadStatus) => void;
+  isMediaUploading: boolean;
+};
+
+const FormMediaContext = React.createContext<FormMediaProviderProps>({
+  imageUploadStatus: "idle",
+  setImageUploadStatus: () => ({}),
+  setVideoUploadStatus: () => ({}),
+  isMediaUploading: false,
+  videoUploadStatus: "idle",
+});
+
+const useFormMedia = () => {
+  const context = React.useContext(FormMediaContext);
+  invariant(context, "useFormMedia must be used within a FormMediaProvider");
+  return context;
+};
+
+function FormMediaProvider({ children }: { children: React.ReactNode }) {
+  const [videoUploadStatus, setVideoUploadStatus] =
+    React.useState<VideoUploadStatus>("idle");
+  const [imageUploadStatus, setImageUploadStatus] =
+    React.useState<ImageUploadStatus>("idle");
+
+  return (
+    <FormMediaContext.Provider
+      value={{
+        imageUploadStatus,
+        videoUploadStatus,
+        isMediaUploading:
+          imageUploadStatus !== "idle" || videoUploadStatus !== "idle",
+        setImageUploadStatus,
+        setVideoUploadStatus,
+      }}
+    >
+      {children}
+    </FormMediaContext.Provider>
+  );
+}
+
+type FormProps<TFieldValues extends FieldValues> =
+  UseFormReturn<TFieldValues> & {
+    children: React.ReactNode;
+  };
+
+function Form<TFieldValues extends FieldValues>({
+  children,
+  ...methods
+}: FormProps<TFieldValues>) {
+  return (
+    <FormProvider {...methods}>
+      <FormMediaProvider>{children}</FormMediaProvider>
+    </FormProvider>
+  );
+}
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
@@ -171,21 +230,23 @@ function FormSubmitButton({
   busy,
   busyText = "Submitting",
   idleText = "Submit",
-  ...properties
-}: ButtonProperties & {
+  className,
+  ...props
+}: ButtonProps & {
   busy?: boolean;
   busyText?: string;
   idleText?: string;
 }) {
-  const { uploadInProgress } = useFormOps();
-  const disabled = busy || uploadInProgress;
+  const { isMediaUploading } = useFormMedia();
+  const disabled = busy || isMediaUploading;
 
   return (
     <Button
       disabled={disabled}
       iconLeft={busy && <Loader2Icon className="size-4 animate-spin" />}
       type="submit"
-      {...properties}
+      className={cn("self-start", className)}
+      {...props}
     >
       <span>{busy ? busyText : idleText}</span>
     </Button>
@@ -193,13 +254,15 @@ function FormSubmitButton({
 }
 
 export {
-  useFormField,
   Form,
-  FormItem,
-  FormLabel,
   FormControl,
   FormDescription,
-  FormMessage,
   FormField,
+  FormItem,
+  FormLabel,
+  FormMediaProvider,
+  FormMessage,
   FormSubmitButton,
+  useFormField,
+  useFormMedia,
 };

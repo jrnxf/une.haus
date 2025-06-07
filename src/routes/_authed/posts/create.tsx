@@ -20,7 +20,6 @@ import {
   FormMessage,
   FormSubmitButton,
 } from "~/components/ui/form";
-import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
@@ -77,146 +76,136 @@ function RouteComponent() {
 
   return (
     <Form {...form}>
-      <FormOpsProvider>
-        <form
-          className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
-          id="main-content"
-          method="post"
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleSubmit((data) => {
-              mutate({ data });
-            })(event);
+      <form
+        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
+        id="main-content"
+        method="post"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleSubmit((data) => {
+            mutate({ data });
+          })(event);
+        }}
+      >
+        <FormField
+          control={control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Content</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <FormControl>
+                <BadgeInput
+                  defaultSelections={field.value}
+                  onChange={field.onChange}
+                  options={POST_TAGS}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="media"
+          render={({ field }) => {
+            const currentValue = field.value?.value;
+
+            return (
+              <FormItem>
+                <FormLabel>Media</FormLabel>
+                <RadioGroup
+                  className="flex gap-6 py-2"
+                  onValueChange={(value) => {
+                    field.onChange(undefined);
+                    setMediaOption(value as MediaOption);
+                  }}
+                  value={mediaOption}
+                >
+                  {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
+                    <Label
+                      htmlFor={k}
+                      className="flex items-center space-x-2"
+                      key={k}
+                    >
+                      <RadioGroupItem id={k} value={k} />
+                      {v}
+                    </Label>
+                  ))}
+                </RadioGroup>
+                <FormControl>
+                  <>
+                    {mediaOption === "youtube" && (
+                      <YoutubeInput
+                        currentId={currentValue}
+                        onChange={(id) => {
+                          field.onChange(
+                            id ? { type: "youtube", value: id } : undefined,
+                          );
+                        }}
+                      />
+                    )}
+
+                    {mediaOption === "image" && (
+                      <ImageInput
+                        previewClassNames="rounded-md size-86"
+                        value={currentValue}
+                        onChange={(data) => {
+                          field.onChange(
+                            data ? { type: "image", value: data } : undefined,
+                          );
+                        }}
+                      />
+                    )}
+
+                    {mediaOption === "video" && (
+                      <VideoInput
+                        onChange={(data) => {
+                          field.onChange(
+                            data ? { type: "video", value: data } : undefined,
+                          );
+                        }}
+                      />
+                    )}
+                  </>
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            );
           }}
-        >
-          <FormField
-            control={control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        />
 
-          <FormField
-            control={control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Content</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tags</FormLabel>
-                <FormControl>
-                  <BadgeInput
-                    defaultSelections={field.value}
-                    onChange={field.onChange}
-                    options={POST_TAGS}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="media"
-            render={({ field }) => {
-              const currentValue = field.value?.value;
-
-              return (
-                <FormItem>
-                  <FormLabel>Media</FormLabel>
-                  <RadioGroup
-                    className="flex gap-6 py-2"
-                    onValueChange={(value) => {
-                      field.onChange(null);
-                      setMediaOption(value as MediaOption);
-                    }}
-                    value={mediaOption}
-                  >
-                    {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
-                      <div className="flex items-center space-x-2" key={k}>
-                        <RadioGroupItem id={k} value={k} />
-                        <Label htmlFor={k}>{v}</Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-
-                  {mediaOption === "youtube" && (
-                    <YoutubeInput
-                      currentId={currentValue}
-                      onChange={(id) => {
-                        field.onChange(
-                          id
-                            ? {
-                                type: "youtube",
-                                value: id,
-                              }
-                            : undefined,
-                        );
-                      }}
-                    />
-                  )}
-
-                  {mediaOption === "image" && (
-                    <ImageInput
-                      previewClassNames="rounded-lg h-64"
-                      value={currentValue}
-                      onChange={(data) => {
-                        field.onChange(
-                          data
-                            ? {
-                                type: "image",
-                                value: data,
-                              }
-                            : undefined,
-                        );
-                      }}
-                    />
-                  )}
-
-                  {mediaOption === "video" && (
-                    <VideoInput
-                      onChange={(data) => {
-                        field.onChange(
-                          data
-                            ? {
-                                type: "video",
-                                value: data,
-                              }
-                            : undefined,
-                        );
-                      }}
-                    />
-                  )}
-                </FormItem>
-              );
-            }}
-          />
-
-          <div className="float-right">
-            <FormSubmitButton busy={isSubmitting} />
-          </div>
-        </form>
-      </FormOpsProvider>
+        <FormSubmitButton busy={isSubmitting} />
+      </form>
     </Form>
   );
 }

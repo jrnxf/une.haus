@@ -23,7 +23,6 @@ import {
   FormMessage,
   FormSubmitButton,
 } from "~/components/ui/form";
-import { FormOpsProvider } from "~/components/ui/form-ops-provider";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { USER_DISCIPLINES } from "~/db/schema";
@@ -76,203 +75,196 @@ function RouteComponent() {
 
   return (
     <Form {...form}>
-      <FormOpsProvider>
-        <form
-          className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-8"
-          id="main-content"
-          method="post"
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleSubmit((data) => {
-              updateUser.mutate({ data });
-            })(event);
+      <form
+        className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-8"
+        id="main-content"
+        method="post"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleSubmit((data) => {
+            updateUser.mutate({ data });
+          })(event);
+        }}
+      >
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+          <FormField
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <LocationSelector
+                    onUpdate={field.onChange}
+                    placeholder={user.location?.label}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={control}
+          name="bio"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bio</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="disciplines"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Disciplines</FormLabel>
+              <FormControl>
+                <BadgeInput
+                  defaultSelections={field.value}
+                  onChange={field.onChange}
+                  options={USER_DISCIPLINES}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+          <FormField
+            control={control}
+            name="socials.facebook"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Facebook</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="socials.tiktok"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>TikTok</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="socials.twitter"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Twitter</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="socials.youtube"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>YouTube</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="socials.instagram"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Instagram</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="socials.spotify"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Spotify</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={control}
+          name="avatarUrl"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Avatar</FormLabel>
+                <ImageInput
+                  previewClassNames="rounded-md size-86"
+                  value={field.value}
+                  onChange={(data) => {
+                    field.onChange(
+                      data ? { type: "image", value: data } : undefined,
+                    );
+                  }}
+                />
+              </FormItem>
+            );
           }}
-        >
-          <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-            <FormField
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        />
 
-            <FormField
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <LocationSelector
-                      onUpdate={field.onChange}
-                      placeholder={user.location?.label}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={control}
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bio</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="disciplines"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Disciplines</FormLabel>
-                <FormControl>
-                  <BadgeInput
-                    defaultSelections={field.value}
-                    onChange={field.onChange}
-                    options={USER_DISCIPLINES}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-            <FormField
-              control={control}
-              name="socials.facebook"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Facebook</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="socials.tiktok"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>TikTok</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="socials.twitter"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Twitter</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="socials.youtube"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>YouTube</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="socials.instagram"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Instagram</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="socials.spotify"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Spotify</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={control}
-            name="avatarUrl"
-            render={({ field }) => {
-              return (
-                <FormItem>
-                  <FormLabel>Avatar</FormLabel>
-                  <ImageInput
-                    previewClassNames="rounded-lg h-64"
-                    value={field.value}
-                    onChange={(data) => {
-                      field.onChange(
-                        data
-                          ? {
-                              type: "image",
-                              value: data,
-                            }
-                          : undefined,
-                      );
-                    }}
-                  />
-                </FormItem>
-              );
-            }}
-          />
-
-          <div className="flex justify-end gap-2">
-            <Button asChild variant="secondary">
-              <Link to="/auth/me">Cancel</Link>
-            </Button>
-            <FormSubmitButton busy={updateUser.isPending} />
-          </div>
-        </form>
-      </FormOpsProvider>
+        <div className="flex justify-end gap-2">
+          <Button asChild variant="secondary">
+            <Link to="/auth/me">Cancel</Link>
+          </Button>
+          <FormSubmitButton busy={updateUser.isPending} />
+        </div>
+      </form>
     </Form>
   );
 }

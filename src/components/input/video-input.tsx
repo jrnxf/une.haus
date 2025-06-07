@@ -8,8 +8,7 @@ import * as Upchunk from "@mux/upchunk";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
-import { useFormField } from "~/components/ui/form";
-import { useFormOps } from "~/components/ui/form-ops-provider";
+import { useFormField, useFormMedia } from "~/components/ui/form";
 import { getMuxPoster } from "~/components/video-player";
 import { media } from "~/lib/media";
 
@@ -25,7 +24,7 @@ export const VideoInput = ({
 }) => {
   const { formItemId } = useFormField();
 
-  const { setVideoUploadPercentage, videoUploadPercentage } = useFormOps();
+  const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
   const [muxUploadId, setMuxUploadId] = useState("");
 
   const { data: video } = useQuery({
@@ -45,7 +44,7 @@ export const VideoInput = ({
     async (acceptedFiles: File[]) => {
       const [file] = acceptedFiles;
       if (file) {
-        setVideoUploadPercentage(0);
+        setVideoUploadStatus(0);
 
         try {
           const res = await fetch("/api/mux/url");
@@ -66,24 +65,24 @@ export const VideoInput = ({
           });
 
           upload.on("progress", (progress) => {
-            setVideoUploadPercentage(Math.trunc(progress.detail));
+            setVideoUploadStatus(Math.trunc(progress.detail));
           });
 
           upload.on("success", () => {
             setTimeout(() => {
               // nice for users to see 100 for a sec
-              setVideoUploadPercentage(-1);
+              setVideoUploadStatus("idle");
             }, 1000);
 
             onChange(muxUploadId);
             setMuxUploadId(muxUploadId);
           });
         } catch {
-          setVideoUploadPercentage(-1);
+          setVideoUploadStatus("idle");
         }
       }
     },
-    [onChange, setVideoUploadPercentage],
+    [onChange, setVideoUploadStatus],
   );
 
   const { acceptedFiles, getInputProps, getRootProps } = useDropzone({
@@ -135,7 +134,7 @@ export const VideoInput = ({
             ? acceptedFiles[0].name
             : "Click to select a video or drag and drop one here"}
         </span>
-        {(videoUploadPercentage !== -1 || muxUploadId) && (
+        {(videoUploadStatus !== "idle" || muxUploadId) && (
           <Loader2Icon className="size-4 animate-spin" />
         )}
       </Button>

@@ -31,20 +31,6 @@ export const preferCdn = (url?: string | null): string => {
   );
 };
 
-/**
- * @see https://dev.to/jorik/country-code-to-flag-emoji-a21
- */
-export function getFlagEmoji(countryCode: string) {
-  const codePoints = [...countryCode.toUpperCase()]
-    .map((char) => {
-      const codePoint = char.codePointAt(0);
-      return codePoint ? 127_397 + codePoint : undefined;
-    })
-    .filter(isDefined);
-
-  return codePoints.length === 2 ? String.fromCodePoint(...codePoints) : "";
-}
-
 export function getUserInitials(name: string) {
   return name
     .split(" ")

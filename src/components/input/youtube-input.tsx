@@ -21,10 +21,10 @@ export function YoutubeInput({
         defaultValue={currentId ? `https://youtu.be/${currentId}` : ""}
         placeholder="YouTube URL"
         onChange={(event) => {
-          const nextValue = event.target.value;
-          const videoId = getYoutubeVideoId(nextValue);
+          const value = event.target.value;
+          const videoId = getYoutubeVideoId(value);
           setYoutubeVideoId(videoId);
-          onChange(videoId);
+          onChange(value);
         }}
       />
 

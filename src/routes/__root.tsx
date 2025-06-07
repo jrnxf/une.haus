@@ -65,7 +65,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="dark bg-background text-foreground flex min-h-dvh grow flex-col font-mono">
+      <body className="bg-background text-foreground flex min-h-dvh grow flex-col font-mono">
         {/* <SidebarProvider> */}
         {/* <AppSidebar /> */}
         <CommandMenu />

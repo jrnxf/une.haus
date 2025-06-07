@@ -1,6 +1,6 @@
 import { type HTMLAttributes } from "react";
 
-import { cn, getFlagEmoji } from "~/lib/utils";
+import { cn, isDefined } from "~/lib/utils";
 
 export function FlagEmoji({
   className,
@@ -20,4 +20,18 @@ export function FlagEmoji({
       {emoji}
     </p>
   );
+}
+
+/**
+ * @credit https://dev.to/jorik/country-code-to-flag-emoji-a21
+ */
+function getFlagEmoji(countryCode: string) {
+  const codePoints = [...countryCode.toUpperCase()]
+    .map((char) => {
+      const codePoint = char.codePointAt(0);
+      return codePoint ? 127_397 + codePoint : undefined;
+    })
+    .filter(isDefined);
+
+  return codePoints.length === 2 ? String.fromCodePoint(...codePoints) : "";
 }

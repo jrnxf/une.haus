@@ -1,3 +1,4 @@
+import getYoutubeVideoId from "get-youtube-id";
 import { z } from "zod";
 
 import { POST_TAGS } from "~/db/schema";
@@ -20,19 +21,42 @@ export const createPostSchema = z.object({
     .discriminatedUnion("type", [
       z.object({
         type: z.literal("image"),
-        value: z.string().url().optional().nullable(),
+        value: z.string().url(),
       }),
       z.object({
         type: z.literal("video"),
-        value: z.string().optional().nullable(),
+        value: z.string(),
       }),
       z.object({
         type: z.literal("youtube"),
-        value: z.string().min(11).optional().nullable(), // youtube ids are 11 characters
+        value: z.string(),
       }),
     ])
     .optional()
-    .nullable(),
+    .nullable()
+    .transform((data, ctx) => {
+      if (!data) {
+        return data;
+      }
+
+      if (data.type === "youtube") {
+        const youtubeId = getYoutubeVideoId(data.value ?? "");
+
+        if (!youtubeId) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Invalid YouTube URL",
+          });
+          return z.NEVER;
+        }
+
+        return {
+          ...data,
+          value: youtubeId,
+        };
+      }
+      return data;
+    }),
 });
 
 export type CreatePostArgs = z.infer<typeof createPostSchema>;
