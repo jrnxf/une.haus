@@ -1,3 +1,5 @@
+import { type SkipToken } from "@tanstack/react-query";
+
 export type ServerFnData<
   T extends (args: { data: Record<string, unknown> }) => unknown,
 > = Parameters<T>[0]["data"];
@@ -5,3 +7,5 @@ export type ServerFnData<
 export type ServerFnReturn<
   T extends (args: { data: Record<string, unknown> }) => unknown,
 > = Awaited<ReturnType<T>>;
+
+export type Skippable<T> = T | SkipToken;

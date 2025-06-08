@@ -2,7 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authed")({
   beforeLoad: ({ context, location }) => {
-    console.log("in _authed beforeLoad");
     const session = context.session;
     if (!session.user) {
       throw redirect({

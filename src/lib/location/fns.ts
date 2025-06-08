@@ -4,12 +4,13 @@ import {
   AddressType,
   PlaceAutocompleteType,
 } from "@googlemaps/google-maps-services-js";
+
+import { google } from "~/lib/clients/google";
 import { env } from "~/lib/env";
 import {
   placeGoogleMapsSchema,
   searchCitiesGoogleMapsSchema,
 } from "~/lib/location/schemas";
-import { google } from "~/lib/clients/google";
 
 export const searchCitiesGoogleMapsServerFn = createServerFn({
   method: "POST",
@@ -46,7 +47,6 @@ export const placeGoogleMapsServerFn = createServerFn({
       timeout: 3000,
     });
 
-    console.log("data", JSON.stringify(data.result, null, 2));
     const { address_components, geometry } = data.result;
 
     if (!geometry || !address_components) {

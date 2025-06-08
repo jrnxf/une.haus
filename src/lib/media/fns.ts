@@ -1,4 +1,3 @@
-import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";

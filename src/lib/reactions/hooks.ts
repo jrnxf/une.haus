@@ -57,8 +57,6 @@ export function useLikeRecord({
 
         // chat message schemas are a little different so they need to be handled differently
         if (record.type === "chatMessage") {
-          console.log("prev", prev);
-          console.log("record", record);
           return {
             ...prev,
             messages: prev.messages.map((message) => {

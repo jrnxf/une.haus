@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
 import * as Upchunk from "@mux/upchunk";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
@@ -21,30 +22,26 @@ export const muxPresignedUrlSchema = z.object({
 export const VideoInput = ({
   onChange,
 }: {
-  onChange: (uploadId: null | string) => void;
+  onChange: (uploadId: undefined | string) => void;
 }) => {
   const { formItemId } = useFormField();
 
   const [fileName, setFileName] = useState<string>();
-  const [muxUploadId, setMuxUploadId] = useState<string>();
+  const [uploadId, setUploadId] = useState<string>();
 
   const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
 
   const { data: video } = useQuery({
     ...media.pollVideoUploadStatus.queryOptions(
-      muxUploadId
-        ? {
-            uploadId: muxUploadId,
-          }
-        : skipToken,
+      uploadId ? { uploadId } : skipToken,
     ),
     refetchInterval: (data) => {
-      if (data.state.data && data.state.data.playbackId) {
-        // the video is now ready!
+      const response = data.state.data;
+      if (response && response.playbackId) {
         setVideoUploadStatus("idle");
         return false;
       }
-      return 1000;
+      return 1000; // poll every second
     },
   });
 
@@ -57,10 +54,10 @@ export const VideoInput = ({
         setVideoUploadStatus(0);
 
         try {
-          const res = await fetch("/api/mux/url");
-          const uploadSpec = await res.json();
+          const response = await fetch("/api/mux/url");
+          const uploadSpec = await response.json();
 
-          const { id: muxUploadId, url: presignedUrl } =
+          const { id: uploadId, url: presignedUrl } =
             muxPresignedUrlSchema.parse(uploadSpec);
 
           const upload = Upchunk.createUpload({
@@ -71,22 +68,25 @@ export const VideoInput = ({
 
           // subscribe to events
           upload.on("error", (error) => {
+            toast.error(
+              <span>
+                Upload failed. Please try again and contact{" "}
+                <span className="font-bold">colby@jrnxf.co</span> if the problem
+                persists.
+              </span>,
+            );
+            // sentry
             console.error("mux upload error", error.detail);
           });
 
           upload.on("progress", (progress) => {
-            console.log(progress.detail);
             setVideoUploadStatus(Math.trunc(progress.detail));
           });
 
           upload.on("success", () => {
-            setTimeout(() => {
-              // let users see 100 for a blip
-              setVideoUploadStatus("processing");
-            }, 300);
-
-            onChange(muxUploadId);
-            setMuxUploadId(muxUploadId);
+            setVideoUploadStatus("processing");
+            onChange(uploadId);
+            setUploadId(uploadId);
           });
         } catch {
           setVideoUploadStatus("idle");
@@ -104,23 +104,26 @@ export const VideoInput = ({
 
   const reset = () => {
     setVideoUploadStatus("idle");
-    setMuxUploadId(undefined);
+    setUploadId(undefined);
     setFileName(undefined);
-    onChange(null);
+    onChange(undefined);
   };
 
   if (video && video.playbackId) {
     return (
       <div className="flex flex-col gap-2">
-        <MuxPlayer
-          accentColor="#000000"
-          className="aspect-video"
-          playbackId={video.playbackId}
-          playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
-          poster={getMuxPoster(video.playbackId)}
-          preload="none" // save on bandwidth
-          streamType="on-demand"
-        />
+        <div className="overflow-clip rounded-md border-2 border-dashed">
+          <MuxPlayer
+            accentColor="#000000"
+            className="aspect-video"
+            playbackId={video.playbackId}
+            playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
+            poster={getMuxPoster(video.playbackId)}
+            preload="none" // save on bandwidth
+            streamType="on-demand"
+          />
+        </div>
+
         <Button
           className="self-start"
           onClick={reset}
@@ -143,7 +146,11 @@ export const VideoInput = ({
         variant="unstyled"
         {...getRootProps()}
       >
-        <input {...getInputProps()} id={formItemId} />
+        <input
+          {...getInputProps()}
+          disabled={videoUploadStatus !== "idle"}
+          id={formItemId}
+        />
         <span className="w-64 leading-relaxed text-wrap sm:w-auto">
           {fileName ?? "Click to select a video or drag and drop one here"}
         </span>

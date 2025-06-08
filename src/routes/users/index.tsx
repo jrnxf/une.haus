@@ -106,7 +106,6 @@ function RouteComponent() {
         <Button
           className="shrink-0"
           onClick={() => {
-            console.log("fetching next page");
             fetchNextPage();
           }}
         >
