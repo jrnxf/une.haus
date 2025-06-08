@@ -101,22 +101,10 @@ function JoinRiuForm() {
         <FormField
           control={control}
           name="videoUploadId"
-          render={({ field }) => (
+          render={({ field: { onChange } }) => (
             <FormItem>
-              <FormLabel>Media</FormLabel>
-
-              <VideoInput
-                onChange={(data) => {
-                  field.onChange(
-                    data
-                      ? {
-                          type: "video",
-                          value: data,
-                        }
-                      : undefined,
-                  );
-                }}
-              />
+              <FormLabel>Video</FormLabel>
+              <VideoInput onChange={onChange} />
             </FormItem>
           )}
         />

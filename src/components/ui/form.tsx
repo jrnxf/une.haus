@@ -12,11 +12,20 @@ import {
 } from "react-hook-form";
 
 import { Button, type ButtonProps } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
+import { Json } from "~/lib/dx/json";
 import { invariant } from "~/lib/invariant";
+import { useIsAdmin } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
 
-type VideoUploadStatus = "idle" | number;
+type VideoUploadStatus = "idle" | number | "processing";
 type ImageUploadStatus = "idle" | "pending";
 
 type FormMediaProviderProps = {
@@ -237,10 +246,11 @@ function FormSubmitButton({
   busyText?: string;
   idleText?: string;
 }) {
+  const isAdmin = useIsAdmin();
   const { isMediaUploading } = useFormMedia();
   const disabled = busy || isMediaUploading;
 
-  return (
+  const button = (
     <Button
       disabled={disabled}
       iconLeft={busy && <Loader2Icon className="size-4 animate-spin" />}
@@ -250,6 +260,53 @@ function FormSubmitButton({
     >
       <span>{busy ? busyText : idleText}</span>
     </Button>
+  );
+
+  if (isAdmin) {
+    return (
+      <div className="flex items-center gap-2">
+        <FormDebug />
+        {button}
+      </div>
+    );
+  }
+
+  return button;
+}
+
+function FormDebug() {
+  const isAdmin = useIsAdmin();
+  const {
+    watch,
+    formState: { errors },
+  } = useFormContext();
+
+  const values = watch();
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button type="button" variant="secondary">
+          Debug
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="sr-only">
+          <DialogTitle>Debug</DialogTitle>
+        </DialogHeader>
+        <Json
+          className="w-full border-none"
+          data={{
+            values,
+            errors,
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
 

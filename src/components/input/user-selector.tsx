@@ -151,7 +151,6 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
       >
         <Command className="w-64" shouldFilter={false}>
           <CommandInput
-            autoFocus
             onValueChange={setQuery}
             placeholder="Search users..."
             value={query}

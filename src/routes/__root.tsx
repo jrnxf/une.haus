@@ -15,6 +15,7 @@ import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
+import { cn } from "~/lib/utils";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -25,7 +26,6 @@ export interface RouterAppContext {
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   beforeLoad: async () => {
     const sessionData = await session.get.fn();
-    console.log(">>> __root sessionData", JSON.stringify(sessionData, null, 2));
     return { session: sessionData };
   },
   component: RootComponent,
@@ -65,7 +65,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-background text-foreground flex min-h-dvh grow flex-col font-mono">
+      <body
+        className={cn(
+          "dark",
+          "bg-background text-foreground flex min-h-dvh grow flex-col font-mono",
+        )}
+      >
         {/* <SidebarProvider> */}
         {/* <AppSidebar /> */}
         <CommandMenu />

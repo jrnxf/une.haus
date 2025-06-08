@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, skipToken, type SkipToken } from "@tanstack/react-query";
 
 import {
   createPresignedS3UrlServerFn,
@@ -15,11 +15,14 @@ export const media = {
   pollVideoUploadStatus: {
     fn: pollVideoUploadStatusServerFn,
     queryOptions: (
-      data: ServerFnData<typeof pollVideoUploadStatusServerFn>,
+      data: ServerFnData<typeof pollVideoUploadStatusServerFn> | SkipToken,
     ) => {
       return queryOptions({
         queryKey: ["media.pollVideoUploadStatus", data],
-        queryFn: () => pollVideoUploadStatusServerFn({ data }),
+        queryFn:
+          typeof data === "symbol"
+            ? skipToken
+            : () => pollVideoUploadStatusServerFn({ data }),
       });
     },
   },

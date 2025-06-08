@@ -29,6 +29,11 @@ export function useSessionUser() {
   return session.user;
 }
 
+export function useIsAdmin() {
+  const user = useSessionUser();
+  return user && user.id === 1;
+}
+
 export function useSessionFlash() {
   const { session } = useRouteContext({ from: rootRouteId });
   return session.flash;

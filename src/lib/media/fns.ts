@@ -1,3 +1,4 @@
+import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -9,6 +10,7 @@ import { db } from "~/db";
 import { muxVideos } from "~/db/schema";
 import { s3Client } from "~/lib/clients/s3";
 import { env } from "~/lib/env";
+import { assertFound } from "~/lib/invariant";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
 
 export const createPresignedS3UrlServerFn = createServerFn({
@@ -42,6 +44,8 @@ export const pollVideoUploadStatusServerFn = createServerFn({
     const video = await db.query.muxVideos.findFirst({
       where: eq(muxVideos.uploadId, input.uploadId),
     });
+
+    assertFound(video);
 
     return video;
   });
