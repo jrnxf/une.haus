@@ -1,18 +1,17 @@
-**/build
-**/public
-pnpm-lock.yaml
-routeTree.gen.ts
+node_modules
+.DS_Store
+
+dist
+dist-ssr
+
+*.local
 
 .env
-
+.nitro
+.tanstack
 .output
-.vinxi
+
+pnpm-lock.yaml
 
 **/db/scripts
 **/db/skrrrt
-
-.vercel
-.netlify
-dist
-
-app.config.timestamp*

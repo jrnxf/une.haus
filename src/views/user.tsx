@@ -37,7 +37,10 @@ export function UserView({ user }: { user: UsersGetData }) {
               className={cn(
                 "mx-auto w-5/6 overflow-clip",
                 user.location &&
-                  cn("transform-gpu", "h-[calc(min(300px,44vw))]"),
+                  cn(
+                    // "transform-gpu",
+                    "h-[calc(min(300px,44vw))]",
+                  ),
               )}
             >
               <div>
@@ -66,7 +69,12 @@ export function UserView({ user }: { user: UsersGetData }) {
             // because of tiny but annoying layout shifting when users have long
             // bios
             user.location && "absolute top-[calc(min(200px,30vw))]",
-            "transform-gpu", // eek out performance - also fixes layout issues in Safari
+
+            // uncommenting this out for now because it crops the overlay of
+            // dialogs. This transform-gpu doesn't seem to be necessary but
+            // keeping this around for posterity in case something comes up
+            // "transform-gpu", // eek out performance - also fixes layout
+            // issues in Safari
           )}
           id="main-content"
           key={user.id}

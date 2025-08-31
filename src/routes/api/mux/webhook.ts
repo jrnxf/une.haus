@@ -1,10 +1,11 @@
+import { json } from "@tanstack/react-start";
+import { createServerFileRoute } from "@tanstack/react-start/server";
+
 import { db } from "~/db";
 import { muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { json } from "@tanstack/react-start";
 
-export const APIRoute = createAPIFileRoute("/api/mux/webhook")({
+export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
   POST: async ({ request }) => {
     const rawBody = await request.text();
     const headers = request.headers;

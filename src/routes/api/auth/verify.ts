@@ -1,5 +1,5 @@
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
+import { createServerFileRoute } from "@tanstack/react-start/server";
 
 import { eq } from "drizzle-orm";
 
@@ -7,7 +7,7 @@ import { db } from "~/db";
 import { magicLinks, users } from "~/db/schema";
 import { useServerSession } from "~/lib/session/hooks";
 
-export const APIRoute = createAPIFileRoute("/api/auth/verify")({
+export const ServerRoute = createServerFileRoute("/api/auth/verify").methods({
   GET: async ({ request }) => {
     const url = new URL(request.url);
 
