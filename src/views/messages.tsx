@@ -16,11 +16,11 @@ type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number];
 export function MessagesView({
   record,
   messages,
-  onMessageCreated,
+  handleCreateMessage: handleCreateMessage,
 }: {
   record: MessageParent;
   messages: Message[];
-  onMessageCreated: (newMessage: string) => void;
+  handleCreateMessage: (newMessage: string) => void;
 }) {
   const scrollCountReference = useRef(0);
 
@@ -126,7 +126,7 @@ export function MessagesView({
         <BaseMessageForm
           onSubmit={(newMessage) => {
             scrollTo("bottom", Infinity);
-            onMessageCreated(newMessage);
+            handleCreateMessage(newMessage);
           }}
         />
       </div>

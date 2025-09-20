@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
+import { sleep } from "~/lib/dx/utils";
 import { invariant } from "~/lib/invariant";
 import {
   createMessageSchema,
@@ -21,8 +22,16 @@ export const listMessagesServerFn = createServerFn({
   .validator(listMessagesSchema)
   .handler(async ({ data: input }) => {
     if (input.type === "chat") {
+      const twentyEightDaysAgo = new Date(
+        Date.now() - 28 * 24 * 60 * 60 * 1000,
+      );
+
       const messages = await db.query.chatMessages.findMany({
         orderBy: asc(chatMessages.createdAt),
+        limit: 100,
+        where(fields, operators) {
+          return operators.gte(fields.createdAt, twentyEightDaysAgo);
+        },
         with: {
           likes: {
             columns: {

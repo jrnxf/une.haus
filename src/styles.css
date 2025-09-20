@@ -117,3 +117,24 @@
     @apply bg-background text-foreground;
   }
 }
+[vaul-drawer]::after {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+mux-player {
+  --seek-backward-button: none;
+  --seek-forward-button: none;
+}
+
+/*
+  This will hide the focus indicator if the element receives focus via the mouse,
+  but it will still show up on keyboard focus.
+*/
+.js-focus-visible :focus:not(.focus-visible):not([autofocus]) {
+  /* :not(input):not(textarea) because i don't want it to break when I'm using
+  autoFocus attributes */
+  outline: none;
+  /* tailwind actually uses box-shadow */
+  box-shadow: none;
+}

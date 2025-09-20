@@ -1,4 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
+
 import {
   adminOnlyRotateRiusServerFn,
   createRiuSetServerFn,
@@ -6,6 +7,7 @@ import {
   deleteRiuSetServerFn,
   getRiuSetServerFn,
   getRiuSubmissionServerFn,
+  listActiveRiusServerFn,
   listArchivedRiusServerFn,
   listUpcomingRiuRosterServerFn,
   updateRiuSetServerFn,
@@ -18,9 +20,21 @@ import {
   getRiuSubmissionSchema,
   updateRiuSetSchema,
 } from "~/lib/games/rius/schemas";
+import { type ServerFnData } from "~/lib/types";
 
 export const games = {
   rius: {
+    active: {
+      list: {
+        fn: listActiveRiusServerFn,
+        queryOptions: () => {
+          return queryOptions({
+            queryKey: ["games.rius.active.list"],
+            queryFn: listActiveRiusServerFn,
+          });
+        },
+      },
+    },
     admin: {
       rotate: {
         fn: adminOnlyRotateRiusServerFn,
@@ -29,6 +43,12 @@ export const games = {
     archived: {
       list: {
         fn: listArchivedRiusServerFn,
+        queryOptions: () => {
+          return queryOptions({
+            queryKey: ["games.rius.archived.list"],
+            queryFn: listArchivedRiusServerFn,
+          });
+        },
       },
     },
     upcoming: {
@@ -46,6 +66,12 @@ export const games = {
       get: {
         fn: getRiuSetServerFn,
         schema: getRiuSetSchema,
+        queryOptions: (data: ServerFnData<typeof getRiuSetServerFn>) => {
+          return queryOptions({
+            queryKey: ["games.rius.sets.get", data],
+            queryFn: () => getRiuSetServerFn({ data }),
+          });
+        },
       },
       create: {
         fn: createRiuSetServerFn,

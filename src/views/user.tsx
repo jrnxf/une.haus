@@ -57,7 +57,7 @@ export function UserView({ user }: { user: UsersGetData }) {
                 "absolute -bottom-2",
                 "h-[calc(min(10rem,20vw))] w-full",
                 "from-background bg-linear-to-t to-transparent",
-                "transform-gpu", // eek out performance - also fixes layout issues in Safari
+                // "transform-gpu", // eek out performance - also fixes layout issues in Safari
               )}
             />
           </>

@@ -21,7 +21,7 @@ export function ChatMessagesView() {
     <MessagesView
       record={{ type: "chat", id: -1 }}
       messages={chatMessages.messages}
-      onMessageCreated={createChatMessage}
+      handleCreateMessage={createChatMessage}
     />
   );
 }

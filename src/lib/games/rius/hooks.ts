@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+
 import { toast } from "sonner";
+
 import { games } from "~/lib/games";
 import { useSessionUser } from "~/lib/session/hooks";
 
@@ -31,6 +33,15 @@ export function useCreateSet() {
       });
 
       navigate({ to: "/games/rius/upcoming" });
+    },
+  });
+}
+
+export function useAdminRotateRius() {
+  return useMutation({
+    mutationFn: games.rius.admin.rotate.fn,
+    onSuccess: () => {
+      toast.success("Rius rotated");
     },
   });
 }

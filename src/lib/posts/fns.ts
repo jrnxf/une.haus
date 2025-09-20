@@ -46,7 +46,7 @@ export const listPostsServerFn = createServerFn({
       .leftJoin(postLikes, eq(posts.id, postLikes.postId))
       .leftJoin(postMessages, eq(posts.id, postMessages.postId))
       .leftJoin(muxVideos, eq(posts.videoUploadId, muxVideos.uploadId))
-      .groupBy(posts.id, users.id, muxVideos.uploadId)
+      .groupBy(posts.id, users.id, muxVideos.uploadId, muxVideos.playbackId)
       .where(
         and(
           or(

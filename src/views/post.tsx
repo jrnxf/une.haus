@@ -132,7 +132,7 @@ export function PostView({ postId }: { postId: number }) {
         <MessagesView
           record={{ id: postId, type: "post" }}
           messages={messagesData.messages}
-          onMessageCreated={createMessage}
+          handleCreateMessage={createMessage}
         />
       </div>
     </div>

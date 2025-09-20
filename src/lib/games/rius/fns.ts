@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { and, eq } from "drizzle-orm";
+
 import { db } from "~/db";
 import { muxVideos, rius, riuSets, riuSubmissions, users } from "~/db/schema";
 import {
@@ -42,7 +43,7 @@ export const getRiuSetServerFn = createServerFn({
       .innerJoin(muxVideos, eq(riuSets.videoUploadId, muxVideos.uploadId))
       .innerJoin(users, eq(riuSets.userId, users.id))
       .innerJoin(rius, eq(riuSets.riuId, rius.id))
-      .where(eq(riuSets.id, input.riuSetId));
+      .where(eq(riuSets.id, input.setId));
 
     return set;
   });
@@ -202,13 +203,69 @@ export const createRiuSubmissionServerFn = createServerFn({
     return riuSubmission;
   });
 
+export const listActiveRiusServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const activeRius = await db.query.rius.findFirst({
+    where: eq(rius.status, "active"),
+    with: {
+      sets: {
+        columns: {
+          id: true,
+          name: true,
+        },
+        with: {
+          user: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+          video: {
+            columns: {
+              playbackId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  invariant(activeRius, "No active RIU found");
+
+  return activeRius;
+});
+
 export const listArchivedRiusServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
-  const archivedRius = await db
-    .select()
-    .from(rius)
-    .where(eq(rius.status, "archived"));
+  const archivedRius = await db.query.rius.findMany({
+    where: eq(rius.status, "archived"),
+    orderBy: (rius, { desc }) => [desc(rius.createdAt)],
+    with: {
+      sets: {
+        columns: {
+          id: true,
+          name: true,
+          description: true,
+        },
+        with: {
+          user: {
+            columns: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+            },
+          },
+          video: {
+            columns: {
+              playbackId: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
   return archivedRius;
 });

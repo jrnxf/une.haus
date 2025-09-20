@@ -182,7 +182,7 @@ export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   playbackId: text("playback_id").unique(),
-  uploadId: text("upload_id").primaryKey(),
+  uploadId: text("upload_id"),
 });
 
 export const rius = pgTable("rius", {

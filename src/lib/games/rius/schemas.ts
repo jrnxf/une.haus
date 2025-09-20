@@ -16,7 +16,7 @@ export const createRiuSetSchema = baseRiuSetSchema.extend({
 export type CreateRiuSetArgs = z.infer<typeof createRiuSetSchema>;
 
 export const getRiuSetSchema = z.object({
-  riuSetId: z.number().positive({ message: "Required" }),
+  setId: z.number().positive({ message: "Required" }),
 });
 
 export type GetRiuSetArgs = z.infer<typeof getRiuSetSchema>;
