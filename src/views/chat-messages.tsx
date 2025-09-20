@@ -20,7 +20,7 @@ export function ChatMessagesView() {
   return (
     <MessagesView
       record={{ type: "chat", id: -1 }}
-      messages={chatMessages.messages}
+      messages={chatMessages.messages.slice(0, 100)}
       onMessageCreated={createChatMessage}
     />
   );

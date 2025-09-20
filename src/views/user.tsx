@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { DialogHeader } from "~/components/ui/dialog";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersGetData } from "~/lib/users";
@@ -29,7 +30,7 @@ export function UserView({ user }: { user: UsersGetData }) {
   const sessionUser = useSessionUser();
 
   return (
-    <div className="@container relative mx-auto flex w-full max-w-2xl grow flex-col overflow-auto">
+    <ScrollArea className="@container relative mx-auto flex w-full max-w-2xl grow flex-col">
       <div className="relative">
         {user.location && (
           <>
@@ -140,7 +141,7 @@ export function UserView({ user }: { user: UsersGetData }) {
           )}
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }
 
