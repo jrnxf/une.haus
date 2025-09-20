@@ -19,6 +19,7 @@ import {
 } from "~/components/tray";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { getMuxPoster } from "~/components/video-player";
 import { posts } from "~/lib/posts";
 
@@ -46,72 +47,79 @@ function RouteComponent() {
   const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages]);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow flex-col gap-3 p-3">
-      <div className="flex items-end justify-between gap-4">
-        <Button asChild>
-          <Link to="/posts/create">Create</Link>
-        </Button>
+    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto p-2">
+      <ScrollArea
+        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
+        id="main-content"
+      >
+        <div className="mb-2 flex items-end justify-between gap-4">
+          <Button asChild>
+            <Link to="/posts/create">Create</Link>
+          </Button>
 
-        <div className="sticky top-3 z-10 self-end">
-          <FiltersTray />
+          <div className="sticky top-3 z-10 self-end">
+            <FiltersTray />
+          </div>
         </div>
-      </div>
-      {displayedPosts.length === 0 && (
-        <p className="text-muted-foreground mt-1">No posts</p>
-      )}
-      {displayedPosts.map((post) => {
-        const posterUrl =
-          post.imageUrl ||
-          (post.video?.playbackId && getMuxPoster(post.video.playbackId)) ||
-          (post.youtubeVideoId &&
-            `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
+        <div className="flex flex-col gap-3">
+          {displayedPosts.length === 0 && (
+            <p className="text-muted-foreground mt-1">No posts</p>
+          )}
+          {displayedPosts.map((post) => {
+            const posterUrl =
+              post.imageUrl ||
+              (post.video?.playbackId && getMuxPoster(post.video.playbackId)) ||
+              (post.youtubeVideoId &&
+                `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
 
-        return (
-          <Link
-            className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
-            key={post.id}
-            params={{ postId: post.id }}
-            to={`/posts/$postId`}
-          >
-            <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
-              <div className="flex w-full flex-col gap-2">
-                <p className="truncate font-semibold">
-                  {Boolean(posterUrl) && (
-                    <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
-                  )}
-                  {post.title}
-                </p>
-                <div className="line-clamp-3 text-sm">
-                  <p>{post.content}</p>
-                </div>
+            return (
+              <Link
+                className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+                key={post.id}
+                params={{ postId: post.id }}
+                to={`/posts/$postId`}
+              >
+                <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
+                  <div className="flex w-full flex-col gap-2">
+                    <p className="truncate font-semibold">
+                      {Boolean(posterUrl) && (
+                        <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
+                      )}
+                      {post.title}
+                    </p>
+                    <div className="line-clamp-3 text-sm">
+                      <p>{post.content}</p>
+                    </div>
 
-                <Badges content={post.tags} />
+                    <Badges content={post.tags} />
 
-                <div className="flex w-full justify-between gap-4">
-                  <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
-                    <span>{post.user.name}</span>
-                    <span>•</span>
-                    <TimeAgo date={post.createdAt} />
-                  </p>
+                    <div className="flex w-full justify-between gap-4">
+                      <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
+                        <span>{post.user.name}</span>
+                        <span>•</span>
+                        <TimeAgo date={post.createdAt} />
+                      </p>
 
-                  <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                    <MessageCircleIcon className="size-3" />
-                    {post.counts.messages}
-                    <HeartIcon className="size-3" />
-                    {post.counts.likes}
+                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                        <MessageCircleIcon className="size-3" />
+                        {post.counts.messages}
+                        <HeartIcon className="size-3" />
+                        {post.counts.likes}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </Link>
-        );
-      })}
+              </Link>
+            );
+          })}
 
-      {hasNextPage && (
-        <Button onClick={() => fetchNextPage()}>
-          {isFetchingNextPage ? "Loading more..." : "Load more"}
-        </Button>
-      )}
+          {hasNextPage && (
+            <Button onClick={() => fetchNextPage()}>
+              {isFetchingNextPage ? "Loading more..." : "Load more"}
+            </Button>
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

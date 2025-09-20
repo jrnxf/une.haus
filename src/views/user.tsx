@@ -227,21 +227,30 @@ function UsersList({
   users: { avatarUrl: null | string; id: null | number; name: null | string }[];
 }) {
   return (
-    <div className="flex max-h-[300px] flex-col gap-2 overflow-y-auto">
-      {users.map((user) => {
-        if (!user.name || !user.id) {
-          return null;
-        }
-        return (
-          <div className="flex items-center gap-2" key={user.id}>
-            <Avatar className="size-6 rounded-lg">
-              <AvatarImage alt={user.name} src={user.avatarUrl} />
-              <AvatarFallback className="text-xs" name={user.name} />
-            </Avatar>
-            <p className="truncate text-base">{user.name}</p>
-          </div>
-        );
-      })}
-    </div>
+    <ScrollArea className="overflow-y-auto">
+      <div className="flex max-h-[300px] flex-col gap-2">
+        {users.map((user) => {
+          if (!user.name || !user.id) {
+            return null;
+          }
+          return (
+            <Button
+              className="flex items-center justify-start gap-2 p-2"
+              variant="ghost"
+              key={user.id}
+              asChild
+            >
+              <Link params={{ userId: user.id }} to={`/users/$userId`}>
+                <Avatar className="size-6 rounded-lg">
+                  <AvatarImage alt={user.name} src={user.avatarUrl} />
+                  <AvatarFallback className="text-xs" name={user.name} />
+                </Avatar>
+                <p className="truncate text-base">{user.name}</p>
+              </Link>
+            </Button>
+          );
+        })}
+      </div>
+    </ScrollArea>
   );
 }

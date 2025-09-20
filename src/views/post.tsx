@@ -58,7 +58,7 @@ export function PostView({ postId }: { postId: number }) {
   const isOwner = post.userId === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6">
+    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
       <div className="flex items-center gap-3">
         <div className="w-full space-y-1">
           <div className="flex w-full items-center justify-between">

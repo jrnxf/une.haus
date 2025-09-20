@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { MultiSelect } from "~/components/ui/multi-select";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -59,59 +60,61 @@ function RouteComponent() {
   // };
 
   return (
-    <div
-      className="mx-auto flex min-h-0 w-full max-w-4xl flex-col gap-3 p-3"
-      id="main-content"
-    >
-      <div className="flex flex-col gap-3">
-        <div className="flex justify-end gap-2">
+    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto p-2">
+      <ScrollArea
+        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
+        id="main-content"
+      >
+        <div className="mb-2 flex items-end justify-end gap-4">
           <FiltersTray />
         </div>
-        {displayedUsers.length === 0 && (
-          <p className="text-muted-foreground">No users found</p>
-        )}
-        {displayedUsers.map((user) => {
-          return (
-            <Link
-              key={user.id}
-              to="/users/$userId"
-              params={{ userId: user.id }}
-              className={cn(
-                "w-full space-y-2 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
-                "ring-offset-background",
-                "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-              )}
-              data-user-name={user.name}
-              // onClick={() => selectUser(idx)}
-            >
-              <div className="flex items-center gap-2">
-                <Avatar className="size-6 rounded-full">
-                  <AvatarImage alt={user.name} src={user.avatarUrl} />
-                  <AvatarFallback className="text-xs" name={user.name} />
-                </Avatar>
-                <p className="truncate text-base">{user.name}</p>
-              </div>
-              {user.bio && (
-                <p className="text-muted-foreground line-clamp-3 text-sm">
-                  {user.bio}
-                </p>
-              )}
+        <div className="flex flex-col gap-3">
+          {displayedUsers.length === 0 && (
+            <p className="text-muted-foreground">No users found</p>
+          )}
+          {displayedUsers.map((user) => {
+            return (
+              <Link
+                key={user.id}
+                to="/users/$userId"
+                params={{ userId: user.id }}
+                className={cn(
+                  "w-full space-y-2 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
+                  "ring-offset-background",
+                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+                )}
+                data-user-name={user.name}
+                // onClick={() => selectUser(idx)}
+              >
+                <div className="flex items-center gap-2">
+                  <Avatar className="size-6 rounded-full">
+                    <AvatarImage alt={user.name} src={user.avatarUrl} />
+                    <AvatarFallback className="text-xs" name={user.name} />
+                  </Avatar>
+                  <p className="truncate text-base">{user.name}</p>
+                </div>
+                {user.bio && (
+                  <p className="text-muted-foreground line-clamp-3 text-sm">
+                    {user.bio}
+                  </p>
+                )}
 
-              <Badges content={user.disciplines} />
-            </Link>
-          );
-        })}
-      </div>
-      {hasNextPage && (
-        <Button
-          className="shrink-0"
-          onClick={() => {
-            fetchNextPage();
-          }}
-        >
-          {isFetchingNextPage ? "Loading more..." : "Load more"}
-        </Button>
-      )}
+                <Badges content={user.disciplines} />
+              </Link>
+            );
+          })}
+          {hasNextPage && (
+            <Button
+              className="shrink-0"
+              onClick={() => {
+                fetchNextPage();
+              }}
+            >
+              {isFetchingNextPage ? "Loading more..." : "Load more"}
+            </Button>
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

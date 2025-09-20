@@ -63,7 +63,10 @@ export function MessageBubble({
     <Tray>
       <TrayTrigger asChild>
         <button
-          className="relative flex w-max max-w-[80%] items-center gap-1 rounded-md border bg-white px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap dark:bg-[#0a0a0a]"
+          className={cn(
+            "relative flex w-max max-w-[80%] cursor-pointer items-center gap-1 rounded-md border bg-white px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap dark:bg-[#0a0a0a]",
+            "ring-offset-background focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+          )}
           style={{ wordBreak: "break-word" }}
         >
           {message.likes.length > 0 && (

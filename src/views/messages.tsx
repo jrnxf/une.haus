@@ -65,9 +65,9 @@ export function MessagesView({
       {messages.length === 0 && (
         <p className="text-muted-foreground mt-1">No messages</p>
       )}
-      <div className="-mx-4 flex grow basis-0 flex-col gap-2 overflow-hidden p-4">
+      <div className="-mx-4 flex grow basis-0 flex-col gap-2 overflow-hidden p-2">
         <ScrollArea
-          className="overflow-auto"
+          className="overflow-auto px-4"
           // https://tanstack.com/router/latest/docs/framework/react/guide/scroll-restoration#manual-scroll-restoration
           // I don't like the way the scroll restoration is automatically handled
           // here because on a refresh it loads at the top of the page and then
@@ -80,7 +80,12 @@ export function MessagesView({
           data-scroll-restoration-id={`no-scroll-restore-${record.type}-${record.id}`}
           ref={ref}
         >
-          <div className="space-y-2">
+          <div
+            className={cn(
+              "space-y-2",
+              "p-1", // don't cut off outlines
+            )}
+          >
             {messages.map((message, index) => {
               const isAuthUserMessage = Boolean(
                 sessionUser && sessionUser.id === message.user.id,
