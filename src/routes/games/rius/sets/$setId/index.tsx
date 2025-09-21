@@ -77,20 +77,20 @@ function SetView({ setId }: { setId: number }) {
     <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
       <div>
         <div className="w-full space-y-1">
-          <div
-            // className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight"
+          <button
+            className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight"
             style={{ viewTransitionName: `set-name-${set.id}` }}
           >
             {set.name}
-          </div>
+          </button>
         </div>
 
-        <div
+        <button
           className="text-muted-foreground text-sm"
           style={{ viewTransitionName: `user-name-${set.user.id}` }}
         >
           {set.user.name}
-        </div>
+        </button>
         <div className="flex shrink-0 items-center gap-1">
           <Button size="icon-sm" variant="outline" disabled>
             <HeartIcon

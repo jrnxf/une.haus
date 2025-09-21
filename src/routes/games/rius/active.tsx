@@ -74,7 +74,7 @@ function RouteComponent() {
           >
             <AccordionTrigger className="px-4 py-3 hover:no-underline">
               <h2
-                className="relative font-semibold"
+                className="font-semibold"
                 style={{ viewTransitionName: `user-name-${user.id}` }}
               >
                 {user.name}
@@ -91,15 +91,13 @@ function RouteComponent() {
                   <AccordionItem
                     key={set.id}
                     value={set.id.toString()}
-                    className="relative border-b last:border-b-0"
+                    className="border-b last:border-b-0"
                   >
                     <AccordionTrigger className="px-3 py-2 hover:no-underline">
                       <div className="flex flex-col items-start">
                         <h3
-                          className="absolute top-8 left-4 text-sm font-medium"
-                          style={{
-                            viewTransitionName: `set-name-${set.id}`,
-                          }}
+                          className="text-sm font-medium"
+                          style={{ viewTransitionName: `set-name-${set.id}` }}
                         >
                           {set.name}
                         </h3>
