@@ -186,3 +186,38 @@ mux-player {
   /* tailwind actually uses box-shadow */
   box-shadow: none;
 }
+
+/* View Transitions */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+}
+
+::view-transition-old(*) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(*) {
+  animation-name: fade-in;
+}
+/* 
+::view-transition-old(*),
+::view-transition-new(*) {
+  height: 100%;
+} */
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

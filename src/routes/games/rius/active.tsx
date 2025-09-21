@@ -73,13 +73,12 @@ function RouteComponent() {
             className="border-b last:border-b-0"
           >
             <AccordionTrigger className="px-4 py-3 hover:no-underline">
-              <div className="flex items-center gap-3">
-                <Avatar className="size-8">
-                  <AvatarImage alt={user.name} src={user.avatarUrl} />
-                  <AvatarFallback name={user.name} />
-                </Avatar>
-                <h2 className="font-semibold">{user.name}</h2>
-              </div>
+              <h2
+                className="relative font-semibold"
+                style={{ viewTransitionName: `user-name-${user.id}` }}
+              >
+                {user.name}
+              </h2>
             </AccordionTrigger>
 
             <AccordionContent className="px-4 pb-3">
@@ -92,11 +91,18 @@ function RouteComponent() {
                   <AccordionItem
                     key={set.id}
                     value={set.id.toString()}
-                    className="border-b last:border-b-0"
+                    className="relative border-b last:border-b-0"
                   >
                     <AccordionTrigger className="px-3 py-2 hover:no-underline">
                       <div className="flex flex-col items-start">
-                        <h3 className="text-sm font-medium">{set.name}</h3>
+                        <h3
+                          className="absolute top-8 left-4 text-sm font-medium"
+                          style={{
+                            viewTransitionName: `set-name-${set.id}`,
+                          }}
+                        >
+                          {set.name}
+                        </h3>
                       </div>
                     </AccordionTrigger>
 
@@ -107,7 +113,10 @@ function RouteComponent() {
                             <img
                               alt=""
                               src={getMuxPoster(set.video.playbackId)}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-contain"
+                              style={{
+                                viewTransitionName: `set-video-${set.id}`,
+                              }}
                             />
                           </div>
                         )}
@@ -117,6 +126,16 @@ function RouteComponent() {
                           className={cn(
                             "bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded px-3 py-1.5 text-xs font-medium",
                           )}
+                          onClick={(e) => {
+                            if (!document.startViewTransition) return;
+
+                            e.preventDefault();
+                            const href = e.currentTarget.href;
+
+                            document.startViewTransition(() => {
+                              globalThis.location.href = href;
+                            });
+                          }}
                         >
                           View Set
                         </Link>

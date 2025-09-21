@@ -75,15 +75,21 @@ function SetView({ setId }: { setId: number }) {
 
   return (
     <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
-      <div className="flex items-center gap-3">
+      <div>
         <div className="w-full space-y-1">
-          <div className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
-              {set.name}
-            </div>
+          <div
+            // className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight"
+            style={{ viewTransitionName: `set-name-${set.id}` }}
+          >
+            {set.name}
           </div>
+        </div>
 
-          <div className="text-muted-foreground text-sm">{set.user.name}</div>
+        <div
+          className="text-muted-foreground text-sm"
+          style={{ viewTransitionName: `user-name-${set.user.id}` }}
+        >
+          {set.user.name}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <Button size="icon-sm" variant="outline" disabled>
@@ -126,7 +132,7 @@ function SetView({ setId }: { setId: number }) {
       )}
 
       {set.video && set.video.playbackId && (
-        <VideoPlayer playbackId={set.video.playbackId} />
+        <VideoPlayer playbackId={set.video.playbackId} setId={set.id} />
       )}
 
       {/* Sets don't have messages yet - could be added later */}
