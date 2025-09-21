@@ -2,9 +2,14 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { getMuxPoster, VideoPlayer } from "~/components/video-player";
-import { Json } from "~/lib/dx/json";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { getMuxPoster } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { cn } from "~/lib/utils";
 
@@ -59,42 +64,71 @@ function RouteComponent() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
       <h1 className="text-2xl font-bold">Active RIUs</h1>
-      <div className="flex flex-col gap-6">
-        {Object.entries(groupedSets).map(([userName, { user, sets }]) => (
-          <div key={userName} className="space-y-3">
-            {/* User header */}
-            <div className="border-border flex items-center gap-3 border-b pb-2">
-              <Avatar className="size-8 rounded-full">
-                <AvatarFallback className="text-sm" name={user.name} />
-              </Avatar>
-              <h2 className="text-lg font-semibold">{user.name}</h2>
-            </div>
 
-            {/* Sets for this user */}
-            <div className="grid grid-cols-1 gap-3 pl-2 md:grid-cols-3">
-              {sets.map((set) => (
-                <Link
-                  params={{ setId: set.id }}
-                  to="/games/rius/sets/$setId"
-                  key={set.id}
-                  className={cn(
-                    "space-y-3 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
-                  )}
-                >
-                  <p className="truncate text-base font-medium">{set.name}</p>
-                  {set.video?.playbackId && (
-                    <img
-                      alt=""
-                      src={getMuxPoster(set.video.playbackId)}
-                      className="aspect-video object-cover"
-                    />
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
+      <Accordion type="single" collapsible className="w-full rounded-lg border">
+        {Object.entries(groupedSets).map(([userId, { user, sets }]) => (
+          <AccordionItem
+            key={userId}
+            value={userId}
+            className="border-b last:border-b-0"
+          >
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3">
+                <Avatar className="size-8">
+                  <AvatarImage alt={user.name} src={user.avatarUrl} />
+                  <AvatarFallback name={user.name} />
+                </Avatar>
+                <h2 className="font-semibold">{user.name}</h2>
+              </div>
+            </AccordionTrigger>
+
+            <AccordionContent className="px-4 pb-3">
+              <Accordion
+                type="single"
+                collapsible
+                className="rounded-md border"
+              >
+                {sets.map((set) => (
+                  <AccordionItem
+                    key={set.id}
+                    value={set.id.toString()}
+                    className="border-b last:border-b-0"
+                  >
+                    <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                      <div className="flex flex-col items-start">
+                        <h3 className="text-sm font-medium">{set.name}</h3>
+                      </div>
+                    </AccordionTrigger>
+
+                    <AccordionContent className="px-3 pb-3">
+                      <div className="space-y-2">
+                        {set.video?.playbackId && (
+                          <div className="aspect-video overflow-hidden rounded">
+                            <img
+                              alt=""
+                              src={getMuxPoster(set.video.playbackId)}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <Link
+                          params={{ setId: set.id }}
+                          to="/games/rius/sets/$setId"
+                          className={cn(
+                            "bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded px-3 py-1.5 text-xs font-medium",
+                          )}
+                        >
+                          View Set
+                        </Link>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </AccordionContent>
+          </AccordionItem>
         ))}
-      </div>
+      </Accordion>
     </div>
   );
 }

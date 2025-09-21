@@ -219,6 +219,7 @@ export const listActiveRiusServerFn = createServerFn({
             columns: {
               id: true,
               name: true,
+              avatarUrl: true,
             },
           },
           video: {
