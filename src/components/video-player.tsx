@@ -9,13 +9,7 @@ export function getMuxPoster(playbackId: null | string | undefined) {
     : undefined;
 }
 
-export function VideoPlayer({
-  playbackId,
-  setId,
-}: {
-  playbackId: string;
-  setId?: number;
-}) {
+export function VideoPlayer({ playbackId }: { playbackId: string }) {
   return (
     <div className="aspect-video overflow-hidden rounded-lg">
       <MuxPlayer
@@ -29,7 +23,6 @@ export function VideoPlayer({
         // at the end of their timestamp. setting 0.001 seems te be respected though
         startTime={0.001}
         streamType="on-demand"
-        style={setId ? { viewTransitionName: `set-video-${setId}` } : undefined}
       />
     </div>
   );

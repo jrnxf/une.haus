@@ -73,12 +73,7 @@ function RouteComponent() {
             className="border-b last:border-b-0"
           >
             <AccordionTrigger className="px-4 py-3 hover:no-underline">
-              <h2
-                className="font-semibold"
-                style={{ viewTransitionName: `user-name-${user.id}` }}
-              >
-                {user.name}
-              </h2>
+              <h2 className="font-semibold">{user.name}</h2>
             </AccordionTrigger>
 
             <AccordionContent className="px-4 pb-3">
@@ -95,12 +90,7 @@ function RouteComponent() {
                   >
                     <AccordionTrigger className="px-3 py-2 hover:no-underline">
                       <div className="flex flex-col items-start">
-                        <h3
-                          className="text-sm font-medium"
-                          style={{ viewTransitionName: `set-name-${set.id}` }}
-                        >
-                          {set.name}
-                        </h3>
+                        <h3 className="text-sm font-medium">{set.name}</h3>
                       </div>
                     </AccordionTrigger>
 
@@ -112,9 +102,6 @@ function RouteComponent() {
                               alt=""
                               src={getMuxPoster(set.video.playbackId)}
                               className="h-full w-full object-contain"
-                              style={{
-                                viewTransitionName: `set-video-${set.id}`,
-                              }}
                             />
                           </div>
                         )}
@@ -124,16 +111,6 @@ function RouteComponent() {
                           className={cn(
                             "bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded px-3 py-1.5 text-xs font-medium",
                           )}
-                          onClick={(e) => {
-                            if (!document.startViewTransition) return;
-
-                            e.preventDefault();
-                            const href = e.currentTarget.href;
-
-                            document.startViewTransition(() => {
-                              globalThis.location.href = href;
-                            });
-                          }}
                         >
                           View Set
                         </Link>

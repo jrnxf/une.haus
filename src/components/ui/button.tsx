@@ -34,7 +34,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
 
-        // i like the look ofghost using alpha channels most of the time so
+        // i like the look of ghost using alpha channels most of the time so
         // trying this out
         // ghost: "hover:bg-secondary text-secondary-foreground",
         // "ghost-alpha": "dark:hover:bg-white/10 hover:bg-black/10",
@@ -52,55 +52,34 @@ const buttonVariants = cva(
   },
 );
 
-export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  children,
+  iconLeft,
+  iconRight,
+  ...props
+}: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     iconLeft?: React.ReactNode;
     iconRight?: React.ReactNode;
-  };
+  }) {
+  const Comp = asChild ? Slot : "button";
 
-/**
- *  Slottable is necessary since there can be multiple children of Comp (which
- * can be a Slot if asChild is provided). The props passed to Comp will actually
- * end up on whatever html element "children" represents. In the following
- * example, in would be the "a" element. Not it must be a JSX element and not
- * simply a string that is the first child
- * @example
- * ```jsx
- * <Button asChild iconLeft={<Loader2Icon />}>
- *   <a href="/">hello</a>
- * </Button>
- * ```
- */
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      asChild = false,
-      children,
-      className,
-      iconLeft,
-      iconRight,
-      size,
-      variant,
-      ...properties
-    },
-    reference,
-  ) => {
-    const Comp = asChild ? Slot : "button";
-
-    return (
-      <Comp
-        className={cn(buttonVariants({ className, size, variant }))}
-        ref={reference}
-        {...properties}
-      >
-        {iconLeft}
-        <Slottable>{children}</Slottable>
-        {iconRight}
-      </Comp>
-    );
-  },
-);
-Button.displayName = "Button";
+  return (
+    <Comp
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    >
+      {iconLeft}
+      <Slottable>{children}</Slottable>
+      {iconRight}
+    </Comp>
+  );
+}
 
 export { Button, buttonVariants };

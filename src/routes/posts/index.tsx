@@ -114,7 +114,10 @@ function RouteComponent() {
           })}
 
           {hasNextPage && (
-            <Button onClick={() => fetchNextPage()}>
+            <Button
+              className="shrink-0 self-start"
+              onClick={() => fetchNextPage()}
+            >
               {isFetchingNextPage ? "Loading more..." : "Load more"}
             </Button>
           )}
