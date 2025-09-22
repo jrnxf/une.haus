@@ -21,6 +21,9 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
       const assetId = data.id;
       const playbackId = data.playback_ids?.[0]?.id;
 
+      console.log("assetId", assetId);
+      console.log("playbackId", playbackId);
+
       if (playbackId) {
         const [video] = await db
           .insert(muxVideos)
@@ -29,7 +32,7 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
             playbackId,
           })
           .onConflictDoUpdate({
-            set: { assetId, playbackId },
+            set: { playbackId },
             target: muxVideos.assetId,
           })
           .returning();
