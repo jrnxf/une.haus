@@ -63,13 +63,6 @@ export const createRiuSetServerFn = createServerFn({
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    await db
-      .insert(muxVideos)
-      .values({
-        assetId: input.muxAssetId,
-      })
-      .onConflictDoNothing(); // the webhook won – the video is already ready
-
     const upcomingRiu = await db.query.rius.findFirst({
       where: eq(rius.status, "upcoming"),
     });
@@ -165,15 +158,6 @@ export const createRiuSubmissionServerFn = createServerFn({
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
-
-    if (input.muxAssetId) {
-      await db
-        .insert(muxVideos)
-        .values({
-          assetId: input.muxAssetId,
-        })
-        .onConflictDoNothing(); // the webhook won – the video is already ready
-    }
 
     const [riuSet] = await db
       .select({

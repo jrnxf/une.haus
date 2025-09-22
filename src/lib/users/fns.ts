@@ -140,8 +140,8 @@ export const updateUserServerFn = createServerFn({
           .insert(userLocations)
           .values({ ...location, userId })
           .onConflictDoUpdate({
-            set: location,
             target: userLocations.userId,
+            set: location,
           }),
       );
     }
@@ -155,7 +155,7 @@ export const updateUserServerFn = createServerFn({
         db
           .insert(userSocials)
           .values({ ...socials, userId })
-          .onConflictDoUpdate({ set: socials, target: userSocials.userId }),
+          .onConflictDoUpdate({ target: userSocials.userId, set: socials }),
       );
     }
 

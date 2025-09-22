@@ -67,7 +67,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
     invariant(session.data.user, "Unauthorized");
 
     const MAX_TRIES = 50;
-    const SLEEP_INTERVAL_MS = 3000;
+    const SLEEP_INTERVAL_MS = 750;
 
     // Poll Mux for asset ID creation
     let assetId: string | undefined;
@@ -92,8 +92,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
       `Asset id not found for uploadId ${input.uploadId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
     );
 
-    // Insert video record if it doesn't exist (webhook might have already created it)
-    await db.insert(muxVideos).values({ assetId });
+    // now that we have the asset id we know what to poll the backend for
 
     // Poll database for playback ID (set by webhook when video is ready)
     tries = 0;
@@ -111,9 +110,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
         };
       }
 
-      console.log(
-        `Waiting for playback id tied to asset id ${assetId} for another ${SLEEP_INTERVAL_MS}ms. ${MAX_TRIES - tries - 1} tries left.`,
-      );
+      console.log(`Polling ${assetId}: ${MAX_TRIES - tries - 1} left`);
       await sleep(SLEEP_INTERVAL_MS);
       tries++;
     }

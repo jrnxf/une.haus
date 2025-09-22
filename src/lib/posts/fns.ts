@@ -131,15 +131,6 @@ export const createPostServerFn = createServerFn({
 
     const { media, ...rest } = input;
 
-    // if (media && media.type === "video" && media.value) {
-    //   await db
-    //     .insert(muxVideos)
-    //     .values({
-    //       assetId: media.value,
-    //     })
-    //     .onConflictDoNothing(); // the webhook won – the video is already ready
-    // }
-
     const [post] = await db
       .insert(posts)
       .values({

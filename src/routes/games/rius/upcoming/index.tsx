@@ -98,7 +98,6 @@ function RouteComponent() {
               <DeleteSetButton setId={set.id} />
             </div>
           </div>
-          <Json data={{ set }} />
           <div className="mt-4">
             {set.video.playbackId && (
               <VideoPlayer playbackId={set.video.playbackId} />

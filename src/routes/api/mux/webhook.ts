@@ -14,33 +14,24 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
 
     const { data, type } = event;
 
-    console.log(`--> MUX EVENT --> ${type}`);
+    console.log(`[MUX EVENT] --> ${type}`);
 
     if (type === "video.asset.ready") {
-      console.dir(data, { depth: null });
       const assetId = data.id;
       const playbackId = data.playback_ids?.[0]?.id;
 
-      console.log("assetId", assetId);
-      console.log("playbackId", playbackId);
-
       if (playbackId) {
-        const [video] = await db
+        await db
           .insert(muxVideos)
-          .values({
-            assetId,
-            playbackId,
-          })
+          .values({ assetId, playbackId })
           .onConflictDoUpdate({
-            set: { playbackId },
             target: muxVideos.assetId,
+            set: { playbackId },
           })
           .returning();
-
-        console.log("Video asset ready", { video });
       }
     }
 
-    return json({ type: event.type });
+    return json({ type });
   },
 });

@@ -6,39 +6,27 @@ import { useDropzone } from "react-dropzone-esm";
 
 import * as Upchunk from "@mux/upchunk";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { useFormField, useFormMedia } from "~/components/ui/form";
 import { Progress } from "~/components/ui/progress";
 import { getMuxPoster } from "~/components/video-player";
-import { Json } from "~/lib/dx/json";
 import { media } from "~/lib/media";
-
-export const muxPresignedUrlSchema = z.object({
-  id: z.string(),
-
-  url: z.string(),
-});
 
 export const VideoInput = ({
   onChange,
 }: {
-  onChange: (assetId: undefined | string) => void;
+  onChange: (assetId: string | undefined) => void;
 }) => {
   const { formItemId } = useFormField();
 
   const [fileName, setFileName] = useState<string>();
+  const [playbackId, setPlaybackId] = useState<string>();
 
   const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
 
-  const { mutate, data: videoData } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: media.pollMuxVideoUploadStatus.fn,
-    onSuccess: (videoData) => {
-      // the video is ready!
-      setVideoUploadStatus("idle");
-      onChange(videoData.playbackId);
-    },
   });
 
   const createPresignedMuxUrl = useMutation({
@@ -55,8 +43,6 @@ export const VideoInput = ({
 
         try {
           const presignedMuxUrl = await createPresignedMuxUrl.mutateAsync({});
-
-          console.log("presignedMuxUrl", presignedMuxUrl);
 
           const { id: uploadId, url: presignedUrl } = presignedMuxUrl;
 
@@ -86,7 +72,11 @@ export const VideoInput = ({
           upload.on("success", () => {
             setVideoUploadStatus("processing");
 
-            mutate({ data: { uploadId } });
+            mutateAsync({ data: { uploadId } }).then((data) => {
+              onChange(data.assetId);
+              setPlaybackId(data.playbackId);
+              setVideoUploadStatus("idle");
+            });
           });
         } catch {
           setVideoUploadStatus("idle");
@@ -104,26 +94,25 @@ export const VideoInput = ({
 
   const reset = () => {
     setVideoUploadStatus("idle");
+    setPlaybackId(undefined);
     setFileName(undefined);
     onChange(undefined);
   };
 
-  if (videoData && videoData.playbackId) {
+  if (playbackId) {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex overflow-clip rounded-md border-2 border-dashed">
           <MuxPlayer
             accentColor="#000000"
             className="aspect-video"
-            playbackId={videoData.playbackId}
+            playbackId={playbackId}
             playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
-            poster={getMuxPoster(videoData.playbackId)}
+            poster={getMuxPoster(playbackId)}
             preload="none" // save on bandwidth
             streamType="on-demand"
           />
         </div>
-
-        <Json data={{ videoData }} />
 
         <Button
           className="self-start"
@@ -139,40 +128,37 @@ export const VideoInput = ({
   }
 
   return (
-    <>
-      <div className="flex h-32 items-center gap-2">
-        <Button
-          aria-label="file upload"
-          className="border-border relative h-full w-full overflow-hidden rounded-md border-2 border-dashed"
-          type="button"
-          variant="unstyled"
-          {...getRootProps()}
-        >
-          <input
-            {...getInputProps()}
-            disabled={videoUploadStatus !== "idle"}
-            id={formItemId}
+    <div className="flex h-32 items-center gap-2">
+      <Button
+        aria-label="file upload"
+        className="border-border relative h-full w-full overflow-hidden rounded-md border-2 border-dashed"
+        type="button"
+        variant="unstyled"
+        {...getRootProps()}
+      >
+        <input
+          {...getInputProps()}
+          disabled={videoUploadStatus !== "idle"}
+          id={formItemId}
+        />
+        <span className="w-64 leading-relaxed text-wrap sm:w-auto">
+          {fileName ?? "Click to select a video or drag and drop one here"}
+        </span>
+
+        {typeof videoUploadStatus === "number" && (
+          <Progress
+            value={videoUploadStatus}
+            className="absolute bottom-0 h-1 rounded-none"
           />
-          <span className="w-64 leading-relaxed text-wrap sm:w-auto">
-            {fileName ?? "Click to select a video or drag and drop one here"}
-          </span>
+        )}
 
-          {typeof videoUploadStatus === "number" && (
-            <Progress
-              value={videoUploadStatus}
-              className="absolute bottom-0 h-1 rounded-none"
-            />
-          )}
-
-          {videoUploadStatus === "processing" && (
-            <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-              <span>Processing</span>
-              <Loader2Icon className="size-3 animate-spin" />
-            </div>
-          )}
-        </Button>
-      </div>
-      <Json data={{ videoData }} />
-    </>
+        {videoUploadStatus === "processing" && (
+          <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
+            <span>Processing</span>
+            <Loader2Icon className="size-3 animate-spin" />
+          </div>
+        )}
+      </Button>
+    </div>
   );
 };
