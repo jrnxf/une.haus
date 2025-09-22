@@ -6,9 +6,10 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "~/db";
-import { muxUploads, muxVideos } from "~/db/schema";
+import { muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
 import { s3Client } from "~/lib/clients/s3";
+import { sleep } from "~/lib/dx/utils";
 import { env } from "~/lib/env";
 import { assertFound, invariant } from "~/lib/invariant";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
@@ -48,36 +49,69 @@ export const createPresignedMuxUrlServerFn = createServerFn({
     },
   });
 
-  await db.insert(muxUploads).values({
-    uploadId: upload.id,
-    assetId: "",
-  });
-
   return upload;
 });
 
 export const getMuxVideoUploadStatusServerFn = createServerFn({
   method: "GET",
 })
-  .validator(z.object({ uploadId: z.string() }))
-  .handler(async ({ data: input }) => {
+  .validator(z.string())
+  .handler(async ({ data: uploadId }) => {
     const session = await useServerSession();
 
     invariant(session.data.user, "Unauthorized");
 
-    const [video] = await db
-      .select({
-        assetId: muxUploads.assetId,
-        playbackId: muxVideos.playbackId,
-      })
-      .from(muxUploads)
-      .innerJoin(muxVideos, eq(muxUploads.assetId, muxVideos.assetId))
-      .where(eq(muxUploads.uploadId, input.uploadId))
-      .limit(1);
+    const MAX_TRIES = 50;
+    const SLEEP_INTERVAL_MS = 500;
 
-    assertFound(video);
+    // Poll Mux for asset ID creation
+    let assetId: string | undefined;
+    let tries = 0;
 
-    return video;
+    while (!assetId && tries < MAX_TRIES) {
+      const upload = await muxClient.video.uploads.retrieve(uploadId);
+      assetId = upload.asset_id;
+
+      if (!assetId) {
+        console.log(
+          `Waiting for asset id another ${SLEEP_INTERVAL_MS}ms for uploadId ${uploadId}. ${MAX_TRIES - tries - 1} tries left.`,
+        );
+        await sleep(SLEEP_INTERVAL_MS);
+      }
+
+      tries++;
+    }
+
+    invariant(
+      assetId,
+      `Asset id not found for uploadId ${uploadId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
+    );
+
+    // Insert video record if it doesn't exist (webhook might have already created it)
+    await db.insert(muxVideos).values({ assetId });
+
+    // Poll database for playback ID (set by webhook when video is ready)
+    tries = 0;
+
+    while (tries < MAX_TRIES) {
+      const video = await db.query.muxVideos.findFirst({
+        where: eq(muxVideos.assetId, assetId),
+      });
+
+      if (video?.playbackId) {
+        return video;
+      }
+
+      console.log(
+        `Waiting for playback id another ${SLEEP_INTERVAL_MS}ms. ${MAX_TRIES - tries - 1} tries left.`,
+      );
+      await sleep(SLEEP_INTERVAL_MS);
+      tries++;
+    }
+
+    throw new Error(
+      `Playback id not found for assetId ${assetId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
+    );
   });
 
 export const getMuxVideoServerFn = createServerFn({

@@ -1,5 +1,5 @@
 import MuxPlayer from "@mux/mux-player-react";
-import { skipToken, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
@@ -33,24 +33,9 @@ export const VideoInput = ({
 
   const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
 
-  const { data: videoData } = useQuery({
-    ...media.getMuxVideoUploadStatus.queryOptions(
-      uploadId ? { uploadId } : skipToken,
-    ),
-    refetchInterval: (data) => {
-      const response = data.state.data;
-      if (response) {
-        if (response.assetId) {
-          onChange(response.assetId);
-        }
-        if (response.playbackId) {
-          setVideoUploadStatus("idle");
-          return false;
-        }
-      }
-      return 1000; // poll every second
-    },
-  });
+  const { data: videoData } = useQuery(
+    media.getMuxVideoUploadStatus.queryOptions(uploadId),
+  );
 
   const createPresignedMuxUrl = useMutation({
     mutationFn: media.createPresignedMuxUrl.fn,
@@ -134,6 +119,8 @@ export const VideoInput = ({
           />
         </div>
 
+        <Json data={{ videoData }} />
+
         <Button
           className="self-start"
           onClick={reset}
@@ -179,6 +166,8 @@ export const VideoInput = ({
           </div>
         )}
       </Button>
+
+      <Json data={{ videoData }} />
     </div>
   );
 };
