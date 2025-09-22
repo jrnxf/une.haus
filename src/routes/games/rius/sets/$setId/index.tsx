@@ -124,7 +124,7 @@ function SetView({ setId }: { setId: number }) {
       )}
 
       {set.video && set.video.playbackId && (
-        <VideoPlayer playbackId={set.video.playbackId} setId={set.id} />
+        <VideoPlayer playbackId={set.video.playbackId} />
       )}
 
       {/* Sets don't have messages yet - could be added later */}

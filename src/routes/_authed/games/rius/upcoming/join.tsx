@@ -108,7 +108,7 @@ function JoinRiuForm() {
         />
         <FormField
           control={control}
-          name="videoUploadId"
+          name="muxAssetId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Video</FormLabel>

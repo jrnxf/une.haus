@@ -91,11 +91,11 @@ export function UserView({ user }: { user: UsersGetData }) {
               src={user.avatarUrl}
             />
             <AvatarFallback
-              className="flex w-full items-center justify-center"
+              className="flex w-full items-center justify-center text-3xl font-semibold"
               name={user.name}
             />
           </Avatar>
-          <h1 className="flex max-w-full items-center gap-2 truncate text-2xl leading-none font-semibold tracking-tight">
+          <h1 className="truncate text-2xl font-semibold tracking-tight">
             <span className="truncate">{user.name}</span>
           </h1>
 
@@ -104,19 +104,16 @@ export function UserView({ user }: { user: UsersGetData }) {
           </Suspense>
 
           {user.location && (
-            <div className="flex max-w-full items-center gap-2 leading-none">
-              <FlagEmoji
-                className="text-2xl leading-none"
-                location={user.location}
-              />
-              <span className="truncate leading-none text-nowrap">
+            <div className="flex max-w-full items-center gap-2">
+              <FlagEmoji className="text-2xl" location={user.location} />
+              <span className="truncate text-nowrap">
                 {user.location.label}
               </span>
             </div>
           )}
 
           {user.bio && (
-            <p className="max-w-full break-words whitespace-pre-wrap">
+            <p className="max-w-full leading-tight break-words whitespace-pre-wrap">
               {user.bio}
             </p>
           )}

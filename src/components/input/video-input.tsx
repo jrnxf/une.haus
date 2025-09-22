@@ -1,10 +1,11 @@
 import MuxPlayer from "@mux/mux-player-react";
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { skipToken, useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
 import * as Upchunk from "@mux/upchunk";
+import { nanoid } from "nanoid";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -12,6 +13,7 @@ import { Button } from "~/components/ui/button";
 import { useFormField, useFormMedia } from "~/components/ui/form";
 import { Progress } from "~/components/ui/progress";
 import { getMuxPoster } from "~/components/video-player";
+import { Json } from "~/lib/dx/json";
 import { media } from "~/lib/media";
 
 export const muxPresignedUrlSchema = z.object({
@@ -22,19 +24,19 @@ export const muxPresignedUrlSchema = z.object({
 export const VideoInput = ({
   onChange,
 }: {
-  onChange: (uploadId: undefined | string) => void;
+  onChange: (assetId: undefined | string) => void;
 }) => {
   const { formItemId } = useFormField();
 
   const [fileName, setFileName] = useState<string>();
+
   const [uploadId, setUploadId] = useState<string>();
+  const [assetId, setAssetId] = useState<string>();
 
   const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
 
-  const { data: video } = useQuery({
-    ...media.pollVideoUploadStatus.queryOptions(
-      uploadId ? { uploadId } : skipToken,
-    ),
+  const { data: videoData } = useQuery({
+    ...media.getMuxVideo.queryOptions(assetId ? { assetId } : skipToken),
     refetchInterval: (data) => {
       const response = data.state.data;
       if (response && response.playbackId) {
@@ -43,6 +45,26 @@ export const VideoInput = ({
       }
       return 1000; // poll every second
     },
+  });
+
+  useQuery({
+    ...media.getMuxVideoUploadStatus.queryOptions(
+      uploadId && !assetId ? { uploadId } : skipToken,
+    ),
+    refetchInterval: (data) => {
+      const response = data.state.data;
+      if (response && response.asset_id) {
+        setVideoUploadStatus("idle");
+        setAssetId(response.asset_id);
+        onChange(response.asset_id);
+        return false;
+      }
+      return 1000; // poll every second
+    },
+  });
+
+  const createPresignedMuxUrl = useMutation({
+    mutationFn: media.createPresignedMuxUrl.fn,
   });
 
   const onDrop = useCallback(
@@ -54,11 +76,11 @@ export const VideoInput = ({
         setVideoUploadStatus(0);
 
         try {
-          const response = await fetch("/api/mux/url");
-          const uploadSpec = await response.json();
+          const presignedMuxUrl = await createPresignedMuxUrl.mutateAsync({});
 
-          const { id: uploadId, url: presignedUrl } =
-            muxPresignedUrlSchema.parse(uploadSpec);
+          console.log("presignedMuxUrl", presignedMuxUrl);
+
+          const { id: uploadId, url: presignedUrl } = presignedMuxUrl;
 
           const upload = Upchunk.createUpload({
             chunkSize: 5120, // upload the video in ~5mb chunks
@@ -85,7 +107,6 @@ export const VideoInput = ({
 
           upload.on("success", () => {
             setVideoUploadStatus("processing");
-            onChange(uploadId);
             setUploadId(uploadId);
           });
         } catch {
@@ -104,21 +125,21 @@ export const VideoInput = ({
 
   const reset = () => {
     setVideoUploadStatus("idle");
-    setUploadId(undefined);
+    setAssetId(undefined);
     setFileName(undefined);
     onChange(undefined);
   };
 
-  if (video && video.playbackId) {
+  if (videoData && videoData.playbackId) {
     return (
       <div className="flex flex-col gap-2">
         <div className="overflow-clip rounded-md border-2 border-dashed">
           <MuxPlayer
             accentColor="#000000"
             className="aspect-video"
-            playbackId={video.playbackId}
+            playbackId={videoData.playbackId}
             playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
-            poster={getMuxPoster(video.playbackId)}
+            poster={getMuxPoster(videoData.playbackId)}
             preload="none" // save on bandwidth
             streamType="on-demand"
           />
@@ -164,11 +185,18 @@ export const VideoInput = ({
 
         {videoUploadStatus === "processing" && (
           <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-            <span>Processing</span>
+            <span>Processing: {assetId}</span>
             <Loader2Icon className="size-3 animate-spin" />
           </div>
         )}
       </Button>
+
+      <Json
+        data={{
+          uploadId,
+          assetId,
+        }}
+      />
     </div>
   );
 };

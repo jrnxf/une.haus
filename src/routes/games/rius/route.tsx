@@ -1,44 +1,52 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  useLocation,
+} from "@tanstack/react-router";
 
 import { Button } from "~/components/ui/button";
-import { useAdminRotateRius } from "~/lib/games/rius/hooks";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 export const Route = createFileRoute("/games/rius")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const rotateRius = useAdminRotateRius();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname.includes(path);
 
   return (
-    <div
-      className="relative mx-auto flex w-full max-w-5xl grow gap-4 p-4"
-      id="main-content"
-    >
-      <aside className="sticky top-16 flex flex-col gap-2">
-        <h2 className="text-muted-foreground text-xs font-semibold uppercase">
-          Filters
-        </h2>
-        <Button asChild className="justify-start" variant="ghost">
-          <Link to="/games/rius/active">Active</Link>
-        </Button>
-        <Button asChild className="justify-start" variant="ghost">
-          <Link to="/games/rius/upcoming">Upcoming</Link>
-        </Button>
-        <Button asChild className="justify-start" variant="ghost">
-          <Link to="/games/rius/previous">Previous</Link>
-        </Button>
-        {/* <Button
-          className="justify-start"
-          onClick={() => rotateRius.mutate({})}
-          variant="ghost"
-        >
-          Rotate
-        </Button> */}
-      </aside>
-      <div className="grow">
-        <Outlet />
-      </div>
+    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden p-2">
+      <ScrollArea className="w-full overflow-y-auto px-4" id="main-content">
+        <div className="relative">
+          <Outlet />
+          <div className="absolute top-0 right-0 flex gap-2">
+            <Button
+              asChild
+              variant={isActive("/previous") ? "default" : "outline"}
+              size="sm"
+            >
+              <Link to="/games/rius/previous">Previous</Link>
+            </Button>
+            <Button
+              asChild
+              variant={isActive("/active") ? "default" : "outline"}
+              size="sm"
+            >
+              <Link to="/games/rius/active">Active</Link>
+            </Button>
+            <Button
+              asChild
+              variant={isActive("/upcoming") ? "default" : "outline"}
+              size="sm"
+            >
+              <Link to="/games/rius/upcoming">Upcoming</Link>
+            </Button>
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 }

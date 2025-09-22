@@ -3,7 +3,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 
 import { db } from "~/db";
-import { muxVideos, rius, riuSets, riuSubmissions, users } from "~/db/schema";
+import {
+  muxVideos,
+  rius,
+  riuSets,
+  riuSubmissions,
+  users,
+  type UserDiscipline,
+} from "~/db/schema";
 import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
@@ -40,7 +47,7 @@ export const getRiuSetServerFn = createServerFn({
         },
       })
       .from(riuSets)
-      .innerJoin(muxVideos, eq(riuSets.videoUploadId, muxVideos.uploadId))
+      .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
       .innerJoin(users, eq(riuSets.userId, users.id))
       .innerJoin(rius, eq(riuSets.riuId, rius.id))
       .where(eq(riuSets.id, input.setId));
@@ -56,14 +63,12 @@ export const createRiuSetServerFn = createServerFn({
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    if (input.videoUploadId) {
-      await db
-        .insert(muxVideos)
-        .values({
-          uploadId: input.videoUploadId,
-        })
-        .onConflictDoNothing(); // the webhook won – the video is already ready
-    }
+    await db
+      .insert(muxVideos)
+      .values({
+        assetId: input.muxAssetId,
+      })
+      .onConflictDoNothing(); // the webhook won – the video is already ready
 
     const upcomingRiu = await db.query.rius.findFirst({
       where: eq(rius.status, "upcoming"),
@@ -75,6 +80,7 @@ export const createRiuSetServerFn = createServerFn({
       .insert(riuSets)
       .values({
         ...input,
+
         riuId: upcomingRiu.id,
         userId,
       })
@@ -145,10 +151,7 @@ export const getRiuSubmissionServerFn = createServerFn({
         },
       })
       .from(riuSubmissions)
-      .innerJoin(
-        muxVideos,
-        eq(riuSubmissions.videoUploadId, muxVideos.uploadId),
-      )
+      .innerJoin(muxVideos, eq(riuSubmissions.muxAssetId, muxVideos.assetId))
       .innerJoin(users, eq(riuSubmissions.userId, users.id))
       .where(eq(riuSubmissions.id, input.riuSubmissionId));
 
@@ -163,11 +166,11 @@ export const createRiuSubmissionServerFn = createServerFn({
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
 
-    if (input.videoUploadId) {
+    if (input.muxAssetId) {
       await db
         .insert(muxVideos)
         .values({
-          uploadId: input.videoUploadId,
+          assetId: input.muxAssetId,
         })
         .onConflictDoNothing(); // the webhook won – the video is already ready
     }
@@ -285,6 +288,9 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
           avatarUrl: users.avatarUrl,
           id: users.id,
           name: users.name,
+          bio: users.bio,
+          disciplines: users.disciplines,
+          createdAt: users.createdAt,
         },
         video: {
           playbackId: muxVideos.playbackId,
@@ -293,7 +299,7 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
       .from(riuSets)
       .innerJoin(rius, eq(rius.id, riuSets.riuId))
       .innerJoin(users, eq(riuSets.userId, users.id))
-      .innerJoin(muxVideos, eq(riuSets.videoUploadId, muxVideos.uploadId))
+      .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
       .where(eq(rius.status, "upcoming"));
 
     const map = new Map<
@@ -303,6 +309,8 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
         count: number;
         id: number;
         name: string;
+        bio: string | null;
+        disciplines: UserDiscipline[] | null;
       }
     >();
 

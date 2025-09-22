@@ -2,15 +2,14 @@ import { json } from "@tanstack/react-start";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 
 import { muxClient } from "~/lib/clients/mux";
+import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
 
 export const ServerRoute = createServerFileRoute("/api/mux/url").methods({
   GET: async () => {
     const session = await useServerSession();
 
-    if (!session.data.user) {
-      throw new Error("Unauthorized");
-    }
+    invariant(session.data.user, "Unauthorized");
 
     const upload = await muxClient.video.uploads.create({
       cors_origin: "*", // TODO set up cors

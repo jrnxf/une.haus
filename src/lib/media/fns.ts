@@ -7,10 +7,13 @@ import { z } from "zod";
 
 import { db } from "~/db";
 import { muxVideos } from "~/db/schema";
+import { muxClient } from "~/lib/clients/mux";
 import { s3Client } from "~/lib/clients/s3";
+import { sleep } from "~/lib/dx/utils";
 import { env } from "~/lib/env";
-import { assertFound } from "~/lib/invariant";
+import { assertFound, invariant } from "~/lib/invariant";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
+import { useServerSession } from "~/lib/session/hooks";
 
 export const createPresignedS3UrlServerFn = createServerFn({
   method: "POST",
@@ -31,8 +34,26 @@ export const createPresignedS3UrlServerFn = createServerFn({
     return url;
   });
 
-export const pollVideoUploadStatusServerFn = createServerFn({
+export const createPresignedMuxUrlServerFn = createServerFn({
   method: "POST",
+}).handler(async () => {
+  const session = await useServerSession();
+
+  invariant(session.data.user, "Unauthorized");
+
+  const upload = await muxClient.video.uploads.create({
+    cors_origin: "*", // TODO set up cors
+    new_asset_settings: {
+      mp4_support: "standard",
+      playback_policy: ["public"],
+    },
+  });
+
+  return upload;
+});
+
+export const getMuxVideoUploadStatusServerFn = createServerFn({
+  method: "GET",
 })
   .validator(
     z.object({
@@ -40,8 +61,26 @@ export const pollVideoUploadStatusServerFn = createServerFn({
     }),
   )
   .handler(async ({ data: input }) => {
+    const session = await useServerSession();
+
+    invariant(session.data.user, "Unauthorized");
+
+    const upload = await muxClient.video.uploads.retrieve(input.uploadId);
+
+    return upload;
+  });
+
+export const getMuxVideoServerFn = createServerFn({
+  method: "POST",
+})
+  .validator(
+    z.object({
+      assetId: z.string(),
+    }),
+  )
+  .handler(async ({ data: input }) => {
     const video = await db.query.muxVideos.findFirst({
-      where: eq(muxVideos.uploadId, input.uploadId),
+      where: eq(muxVideos.assetId, input.assetId),
     });
 
     assertFound(video);

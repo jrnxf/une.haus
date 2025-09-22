@@ -3,30 +3,16 @@ import { createMiddleware } from "@tanstack/react-start";
 
 import { useServerSession } from "~/lib/session/hooks";
 
-export const adminOnlyMiddleware = createMiddleware().server(
-  async ({ next }) => {
-    const session = await useServerSession();
-
-    if (!session.data.user) {
-      throw redirect({ to: "/auth" });
-    }
-
-    invariant(session.data.user.id === 1, "User is not an admin");
-
-    return next({
-      context: {
-        user: session.data.user,
-      },
-    });
-  },
-);
-
-export const authMiddleware = createMiddleware().server(async ({ next }) => {
+export const adminOnlyMiddleware = createMiddleware({
+  type: "function",
+}).server(async ({ next }) => {
   const session = await useServerSession();
 
   if (!session.data.user) {
     throw redirect({ to: "/auth" });
   }
+
+  invariant(session.data.user.id === 1, "User is not an admin");
 
   return next({
     context: {
@@ -35,9 +21,13 @@ export const authMiddleware = createMiddleware().server(async ({ next }) => {
   });
 });
 
-export const authOptionalMiddleware = createMiddleware().server(
+export const authMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
     const session = await useServerSession();
+
+    if (!session.data.user) {
+      throw redirect({ to: "/auth" });
+    }
 
     return next({
       context: {
@@ -46,3 +36,15 @@ export const authOptionalMiddleware = createMiddleware().server(
     });
   },
 );
+
+export const authOptionalMiddleware = createMiddleware({
+  type: "function",
+}).server(async ({ next }) => {
+  const session = await useServerSession();
+
+  return next({
+    context: {
+      user: session.data.user,
+    },
+  });
+});

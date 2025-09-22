@@ -10,7 +10,7 @@ export function YoutubeInput({
   onChange,
 }: {
   currentId?: null | string;
-  onChange: (uploadId: null | string) => void;
+  onChange: (videoId: null | string) => void;
 }) {
   const [youtubeVideoId, setYoutubeVideoId] = useState<null | string>(
     currentId,

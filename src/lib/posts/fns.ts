@@ -45,8 +45,8 @@ export const listPostsServerFn = createServerFn({
       .innerJoin(users, eq(posts.userId, users.id))
       .leftJoin(postLikes, eq(posts.id, postLikes.postId))
       .leftJoin(postMessages, eq(posts.id, postMessages.postId))
-      .leftJoin(muxVideos, eq(posts.videoUploadId, muxVideos.uploadId))
-      .groupBy(posts.id, users.id, muxVideos.uploadId, muxVideos.playbackId)
+      .leftJoin(muxVideos, eq(posts.muxVideoId, muxVideos.id))
+      .groupBy(posts.id, users.id, muxVideos.id, muxVideos.playbackId)
       .where(
         and(
           or(
@@ -135,7 +135,7 @@ export const createPostServerFn = createServerFn({
       await db
         .insert(muxVideos)
         .values({
-          uploadId: media.value,
+          id: media.value,
         })
         .onConflictDoNothing(); // the webhook won – the video is already ready
     }
@@ -145,7 +145,7 @@ export const createPostServerFn = createServerFn({
       .values({
         ...rest,
         imageUrl: media && media.type === "image" ? media.value : null,
-        videoUploadId: media && media.type === "video" ? media.value : null,
+        muxVideoId: media && media.type === "video" ? media.value : null,
         youtubeVideoId: media && media.type === "youtube" ? media.value : null,
         userId,
       })

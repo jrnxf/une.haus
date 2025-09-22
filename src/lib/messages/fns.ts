@@ -1,10 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { chatMessages, postMessages } from "~/db/schema";
-import { sleep } from "~/lib/dx/utils";
 import { invariant } from "~/lib/invariant";
 import {
   createMessageSchema,

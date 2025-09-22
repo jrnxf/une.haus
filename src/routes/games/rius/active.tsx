@@ -8,7 +8,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getMuxPoster } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { cn } from "~/lib/utils";
@@ -27,13 +26,8 @@ function RouteComponent() {
 
   if (!data?.sets.length) {
     return (
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Active RIUs</h1>
-          <p className="text-muted-foreground mt-2">
-            No active RIUs available.
-          </p>
-        </div>
+      <div className="text-center">
+        <p className="text-muted-foreground">No active RIUs available.</p>
       </div>
     );
   }
@@ -62,9 +56,8 @@ function RouteComponent() {
   }, [data.sets]);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-      <h1 className="text-2xl font-bold">Active RIUs</h1>
-
+    <div className="flex flex-col gap-8">
+      <h2 className="text-lg font-semibold">RIU #{data.id}</h2>
       <Accordion type="single" collapsible className="w-full rounded-lg border">
         {Object.entries(groupedSets).map(([userId, { user, sets }]) => (
           <AccordionItem

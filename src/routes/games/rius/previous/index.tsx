@@ -47,22 +47,16 @@ function RouteComponent() {
 
   if (archivedRius.length === 0) {
     return (
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Previous RIUs</h1>
-          <p className="text-muted-foreground mt-2">
-            No previous RIUs available yet.
-          </p>
-        </div>
+      <div className="text-center">
+        <p className="text-muted-foreground">No previous RIUs available yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Previous RIUs</h1>
-
+    <div className="space-y-2">
+      <h2 className="text-lg font-semibold">Previous RIUs</h2>
+      <div className="flex items-center justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="min-w-[200px] justify-between">
@@ -77,7 +71,7 @@ function RouteComponent() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <ScrollArea className="max-h-[400px] min-w-[250px] overflow-y-auto">
+            <ScrollArea className="h-[400px] min-w-[250px]">
               {archivedRius.map((riu) => (
                 <DropdownMenuItem
                   key={riu.id}

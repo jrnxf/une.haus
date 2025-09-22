@@ -60,9 +60,9 @@ function RouteComponent() {
   // };
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto p-2">
+    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden p-2">
       <ScrollArea
-        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
+        className="flex w-full max-w-4xl grow overflow-y-auto px-4"
         id="main-content"
       >
         <div className="mb-2 flex items-end justify-end gap-4">
@@ -104,7 +104,10 @@ function RouteComponent() {
             );
           })}
           {hasNextPage && (
-            <Button className="shrink-0 self-start" onClick={fetchNextPage}>
+            <Button
+              className="shrink-0 self-start"
+              onClick={() => fetchNextPage()}
+            >
               {isFetchingNextPage ? "Loading more..." : "Load more"}
             </Button>
           )}

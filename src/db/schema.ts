@@ -27,7 +27,7 @@ export const USER_DISCIPLINES = [
   "distance",
 ] as const;
 
-type UserDiscipline = (typeof USER_DISCIPLINES)[number];
+export type UserDiscipline = (typeof USER_DISCIPLINES)[number];
 
 export const POST_TAGS = [
   "flatland",
@@ -109,7 +109,7 @@ export const posts = pgTable("posts", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 
-  videoUploadId: text("video_upload_id").references(() => muxVideos.uploadId, {
+  muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
     onDelete: "set null",
   }),
 
@@ -179,10 +179,9 @@ export const postMessageLikes = pgTable(
 );
 
 export const muxVideos = pgTable("mux_videos", {
-  assetId: text("asset_id").unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
-  uploadId: text("upload_id"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const rius = pgTable("rius", {
@@ -205,8 +204,8 @@ export const riuSets = pgTable("riu_sets", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 
-  videoUploadId: text("video_upload_id")
-    .references(() => muxVideos.uploadId, {
+  muxAssetId: text("mux_asset_id")
+    .references(() => muxVideos.assetId, {
       onDelete: "set null",
     })
     .notNull(),
@@ -223,8 +222,8 @@ export const riuSubmissions = pgTable("riu_submissions", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 
-  videoUploadId: text("video_upload_id")
-    .references(() => muxVideos.uploadId, {
+  muxAssetId: text("mux_asset_id")
+    .references(() => muxVideos.assetId, {
       onDelete: "set null",
     })
     .notNull(),
@@ -276,8 +275,8 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   messages: many(postMessages),
   user: one(users, { fields: [posts.userId], references: [users.id] }),
   video: one(muxVideos, {
-    fields: [posts.videoUploadId],
-    references: [muxVideos.uploadId],
+    fields: [posts.muxAssetId],
+    references: [muxVideos.assetId],
   }),
 }));
 
@@ -293,8 +292,8 @@ export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
   submissions: many(riuSubmissions),
   user: one(users, { fields: [riuSets.userId], references: [users.id] }),
   video: one(muxVideos, {
-    fields: [riuSets.videoUploadId],
-    references: [muxVideos.uploadId],
+    fields: [riuSets.muxAssetId],
+    references: [muxVideos.assetId],
   }),
 }));
 
@@ -305,8 +304,8 @@ export const riuSubmissionsRelations = relations(riuSubmissions, ({ one }) => ({
   }),
   user: one(users, { fields: [riuSubmissions.userId], references: [users.id] }),
   video: one(muxVideos, {
-    fields: [riuSubmissions.videoUploadId],
-    references: [muxVideos.uploadId],
+    fields: [riuSubmissions.muxAssetId],
+    references: [muxVideos.assetId],
   }),
 }));
 
