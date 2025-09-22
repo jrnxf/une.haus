@@ -14,8 +14,8 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
 
     const { data, type } = event;
 
-    console.log("MUX EVENT >>", type);
-    console.dir({ type, data }, { depth: null });
+    console.log(`--- ${type} ---`);
+    console.dir(data, { depth: null });
 
     if (type === "video.asset.ready") {
       const assetId = data.id;
