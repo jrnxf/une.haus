@@ -51,6 +51,7 @@ export function useLikeRecord({
 
       const prev = qc.getQueryData(optimisticUpdateQueryKey);
 
+      // TODO COLBY
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       qc.setQueryData(optimisticUpdateQueryKey, (prev: any) => {
         if (!prev) return prev;
@@ -59,7 +60,10 @@ export function useLikeRecord({
         if (record.type === "chatMessage") {
           return {
             ...prev,
-            messages: prev.messages.map((message) => {
+
+            // TODO COLBY
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            messages: prev.messages.map((message: any) => {
               if (message.id === record.id) {
                 return {
                   ...message,
@@ -101,7 +105,7 @@ export function useLikeRecord({
         prev,
       };
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       toast.error(`Failed to like ${recordTypeToLabel[record.type]}`);
       console.error(error);
       if (context) {
@@ -156,12 +160,16 @@ export function useUnlikeRecord({
         if (record.type === "chatMessage") {
           return {
             ...prev,
-            messages: prev.messages.map((message) => {
+            // TODO COLBY
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            messages: prev.messages.map((message: any) => {
               if (message.id === record.id) {
                 return {
                   ...message,
                   likes: message.likes.filter(
-                    (like) => like.user.id !== sessionUser.id,
+                    // TODO COLBY
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (like: any) => like.user.id !== sessionUser.id,
                   ),
                 };
               }
@@ -171,7 +179,9 @@ export function useUnlikeRecord({
         }
 
         const likes = prev.likes.filter(
-          (like) => like.userId !== sessionUser.id,
+          // TODO COLBY
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (like: any) => like.userId !== sessionUser.id,
         );
         return {
           ...prev,
@@ -183,7 +193,7 @@ export function useUnlikeRecord({
         prev,
       };
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       toast.error(`Failed to unlike ${recordTypeToLabel[record.type]}`);
       console.error(error);
       if (context) {

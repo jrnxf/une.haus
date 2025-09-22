@@ -178,12 +178,6 @@ export const postMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.postMessageId, t.userId] })],
 );
 
-export const muxUploads = pgTable("mux_uploads", {
-  uploadId: text("upload_id").primaryKey(),
-  assetId: text("asset_id"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
 export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
@@ -273,22 +267,6 @@ export const locationsRelations = relations(userLocations, ({ one }) => ({
 
 export const userSocialsRelations = relations(userSocials, ({ one }) => ({
   user: one(users, { fields: [userSocials.userId], references: [users.id] }),
-}));
-
-// MUX
-
-export const muxUploadsRelations = relations(muxUploads, ({ one }) => ({
-  asset: one(muxVideos, {
-    fields: [muxUploads.assetId],
-    references: [muxVideos.assetId],
-  }),
-}));
-
-export const muxVideosRelations = relations(muxVideos, ({ one }) => ({
-  upload: one(muxUploads, {
-    fields: [muxVideos.assetId],
-    references: [muxUploads.assetId],
-  }),
 }));
 
 // POSTS

@@ -5,7 +5,7 @@ import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 import { db } from "~/db";
 import { userFollows, userLocations, users, userSocials } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
-import { assertFound, invariant } from "~/lib/invariant";
+import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
 import {
   followUserSchema,

@@ -51,8 +51,11 @@ export const unlikeRecordServerFn = createServerFn({
 
     const columnName = `${type}Id` as const;
 
+    invariant(table, "Invalid table");
+
     return await db
       .delete(table)
+      // @ts-expect-error TODO COLBY
       .where(and(eq(table[columnName], recordId), eq(table.userId, userId)))
       .returning();
   });

@@ -67,7 +67,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
     invariant(session.data.user, "Unauthorized");
 
     const MAX_TRIES = 50;
-    const SLEEP_INTERVAL_MS = 500;
+    const SLEEP_INTERVAL_MS = 3000;
 
     // Poll Mux for asset ID creation
     let assetId: string | undefined;
@@ -112,7 +112,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
       }
 
       console.log(
-        `Waiting for playback id another ${SLEEP_INTERVAL_MS}ms. ${MAX_TRIES - tries - 1} tries left.`,
+        `Waiting for playback id tied to asset id ${assetId} for another ${SLEEP_INTERVAL_MS}ms. ${MAX_TRIES - tries - 1} tries left.`,
       );
       await sleep(SLEEP_INTERVAL_MS);
       tries++;

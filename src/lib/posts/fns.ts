@@ -45,8 +45,8 @@ export const listPostsServerFn = createServerFn({
       .innerJoin(users, eq(posts.userId, users.id))
       .leftJoin(postLikes, eq(posts.id, postLikes.postId))
       .leftJoin(postMessages, eq(posts.id, postMessages.postId))
-      .leftJoin(muxVideos, eq(posts.muxVideoId, muxVideos.id))
-      .groupBy(posts.id, users.id, muxVideos.id, muxVideos.playbackId)
+      .leftJoin(muxVideos, eq(posts.muxAssetId, muxVideos.assetId))
+      .groupBy(posts.id, users.id, muxVideos.assetId, muxVideos.playbackId)
       .where(
         and(
           or(
@@ -131,21 +131,21 @@ export const createPostServerFn = createServerFn({
 
     const { media, ...rest } = input;
 
-    if (media && media.type === "video" && media.value) {
-      await db
-        .insert(muxVideos)
-        .values({
-          id: media.value,
-        })
-        .onConflictDoNothing(); // the webhook won – the video is already ready
-    }
+    // if (media && media.type === "video" && media.value) {
+    //   await db
+    //     .insert(muxVideos)
+    //     .values({
+    //       assetId: media.value,
+    //     })
+    //     .onConflictDoNothing(); // the webhook won – the video is already ready
+    // }
 
     const [post] = await db
       .insert(posts)
       .values({
         ...rest,
         imageUrl: media && media.type === "image" ? media.value : null,
-        muxVideoId: media && media.type === "video" ? media.value : null,
+        muxAssetId: media && media.type === "video" ? media.value : null,
         youtubeVideoId: media && media.type === "youtube" ? media.value : null,
         userId,
       })

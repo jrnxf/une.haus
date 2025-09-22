@@ -16,7 +16,6 @@
     "email:dev": "email dev",
     "format": "prettier --write \"**/*.{tsx,tx,md,json,yml}\"",
     "lint": "eslint src --fix",
-    "tsgo": "~/Dev/tsgo/built/local/tsgo --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

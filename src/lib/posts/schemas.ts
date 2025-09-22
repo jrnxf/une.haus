@@ -25,7 +25,7 @@ export const createPostSchema = z.object({
       }),
       z.object({
         type: z.literal("video"),
-        value: z.number(),
+        value: z.string(), // asset id
       }),
       z.object({
         type: z.literal("youtube"),

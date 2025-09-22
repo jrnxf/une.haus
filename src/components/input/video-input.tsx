@@ -35,6 +35,8 @@ export const VideoInput = ({
   const { mutate, data: videoData } = useMutation({
     mutationFn: media.pollMuxVideoUploadStatus.fn,
     onSuccess: (videoData) => {
+      // the video is ready!
+      setVideoUploadStatus("idle");
       onChange(videoData.playbackId);
     },
   });
@@ -137,39 +139,40 @@ export const VideoInput = ({
   }
 
   return (
-    <div className="flex h-32 items-center gap-2">
-      <Button
-        aria-label="file upload"
-        className="border-border relative h-full w-full overflow-hidden rounded-md border-2 border-dashed"
-        type="button"
-        variant="unstyled"
-        {...getRootProps()}
-      >
-        <input
-          {...getInputProps()}
-          disabled={videoUploadStatus !== "idle"}
-          id={formItemId}
-        />
-        <span className="w-64 leading-relaxed text-wrap sm:w-auto">
-          {fileName ?? "Click to select a video or drag and drop one here"}
-        </span>
-
-        {typeof videoUploadStatus === "number" && (
-          <Progress
-            value={videoUploadStatus}
-            className="absolute bottom-0 h-1 rounded-none"
+    <>
+      <div className="flex h-32 items-center gap-2">
+        <Button
+          aria-label="file upload"
+          className="border-border relative h-full w-full overflow-hidden rounded-md border-2 border-dashed"
+          type="button"
+          variant="unstyled"
+          {...getRootProps()}
+        >
+          <input
+            {...getInputProps()}
+            disabled={videoUploadStatus !== "idle"}
+            id={formItemId}
           />
-        )}
+          <span className="w-64 leading-relaxed text-wrap sm:w-auto">
+            {fileName ?? "Click to select a video or drag and drop one here"}
+          </span>
 
-        {videoUploadStatus === "processing" && (
-          <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-            <span>Processing</span>
-            <Loader2Icon className="size-3 animate-spin" />
-          </div>
-        )}
-      </Button>
+          {typeof videoUploadStatus === "number" && (
+            <Progress
+              value={videoUploadStatus}
+              className="absolute bottom-0 h-1 rounded-none"
+            />
+          )}
 
+          {videoUploadStatus === "processing" && (
+            <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
+              <span>Processing</span>
+              <Loader2Icon className="size-3 animate-spin" />
+            </div>
+          )}
+        </Button>
+      </div>
       <Json data={{ videoData }} />
-    </div>
+    </>
   );
 };

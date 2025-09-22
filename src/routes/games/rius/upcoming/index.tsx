@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
 import { VideoPlayer } from "~/components/video-player";
+import { Json } from "~/lib/dx/json";
 import { games } from "~/lib/games";
 import { useSessionUser } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
@@ -97,6 +98,7 @@ function RouteComponent() {
               <DeleteSetButton setId={set.id} />
             </div>
           </div>
+          <Json data={{ set }} />
           <div className="mt-4">
             {set.video.playbackId && (
               <VideoPlayer playbackId={set.video.playbackId} />

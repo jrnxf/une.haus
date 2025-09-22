@@ -14,12 +14,11 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
 
     const { data, type } = event;
 
-    console.log(`--- ${type} ---`);
-    console.dir(data, { depth: null });
+    console.log(`--> MUX EVENT --> ${type}`);
 
     if (type === "video.asset.ready") {
+      console.dir(data, { depth: null });
       const assetId = data.id;
-
       const playbackId = data.playback_ids?.[0]?.id;
 
       if (playbackId) {
@@ -30,10 +29,7 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
             playbackId,
           })
           .onConflictDoUpdate({
-            set: {
-              assetId,
-              playbackId,
-            },
+            set: { assetId, playbackId },
             target: muxVideos.assetId,
           })
           .returning();
