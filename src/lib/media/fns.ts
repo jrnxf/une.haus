@@ -6,10 +6,9 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "~/db";
-import { muxVideos } from "~/db/schema";
+import { muxUploads, muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
 import { s3Client } from "~/lib/clients/s3";
-import { sleep } from "~/lib/dx/utils";
 import { env } from "~/lib/env";
 import { assertFound, invariant } from "~/lib/invariant";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
@@ -49,25 +48,36 @@ export const createPresignedMuxUrlServerFn = createServerFn({
     },
   });
 
+  await db.insert(muxUploads).values({
+    uploadId: upload.id,
+    assetId: "",
+  });
+
   return upload;
 });
 
 export const getMuxVideoUploadStatusServerFn = createServerFn({
   method: "GET",
 })
-  .validator(
-    z.object({
-      uploadId: z.string(),
-    }),
-  )
+  .validator(z.object({ uploadId: z.string() }))
   .handler(async ({ data: input }) => {
     const session = await useServerSession();
 
     invariant(session.data.user, "Unauthorized");
 
-    const upload = await muxClient.video.uploads.retrieve(input.uploadId);
+    const [video] = await db
+      .select({
+        assetId: muxUploads.assetId,
+        playbackId: muxVideos.playbackId,
+      })
+      .from(muxUploads)
+      .innerJoin(muxVideos, eq(muxUploads.assetId, muxVideos.assetId))
+      .where(eq(muxUploads.uploadId, input.uploadId))
+      .limit(1);
 
-    return upload;
+    assertFound(video);
+
+    return video;
   });
 
 export const getMuxVideoServerFn = createServerFn({

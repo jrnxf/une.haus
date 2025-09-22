@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
 import * as Upchunk from "@mux/upchunk";
-import { nanoid } from "nanoid";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -31,33 +30,23 @@ export const VideoInput = ({
   const [fileName, setFileName] = useState<string>();
 
   const [uploadId, setUploadId] = useState<string>();
-  const [assetId, setAssetId] = useState<string>();
 
   const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
 
   const { data: videoData } = useQuery({
-    ...media.getMuxVideo.queryOptions(assetId ? { assetId } : skipToken),
-    refetchInterval: (data) => {
-      const response = data.state.data;
-      if (response && response.playbackId) {
-        setVideoUploadStatus("idle");
-        return false;
-      }
-      return 1000; // poll every second
-    },
-  });
-
-  useQuery({
     ...media.getMuxVideoUploadStatus.queryOptions(
-      uploadId && !assetId ? { uploadId } : skipToken,
+      uploadId ? { uploadId } : skipToken,
     ),
     refetchInterval: (data) => {
       const response = data.state.data;
-      if (response && response.asset_id) {
-        setVideoUploadStatus("idle");
-        setAssetId(response.asset_id);
-        onChange(response.asset_id);
-        return false;
+      if (response) {
+        if (response.assetId) {
+          onChange(response.assetId);
+        }
+        if (response.playbackId) {
+          setVideoUploadStatus("idle");
+          return false;
+        }
       }
       return 1000; // poll every second
     },
@@ -125,7 +114,7 @@ export const VideoInput = ({
 
   const reset = () => {
     setVideoUploadStatus("idle");
-    setAssetId(undefined);
+    setUploadId(undefined);
     setFileName(undefined);
     onChange(undefined);
   };
@@ -185,18 +174,11 @@ export const VideoInput = ({
 
         {videoUploadStatus === "processing" && (
           <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-            <span>Processing: {assetId}</span>
+            <span>Processing</span>
             <Loader2Icon className="size-3 animate-spin" />
           </div>
         )}
       </Button>
-
-      <Json
-        data={{
-          uploadId,
-          assetId,
-        }}
-      />
     </div>
   );
 };

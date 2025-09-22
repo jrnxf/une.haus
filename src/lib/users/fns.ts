@@ -5,7 +5,7 @@ import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 import { db } from "~/db";
 import { userFollows, userLocations, users, userSocials } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
-import { invariant } from "~/lib/invariant";
+import { assertFound, invariant } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
 import {
   followUserSchema,
@@ -109,7 +109,7 @@ export const getUserServerFn = createServerFn({
       // .leftJoin(userDisciplines, eq(userDisciplines.userId, users.id))
       .limit(1);
 
-    invariant(user, "User not found");
+    assertFound(user);
     return user;
   });
 
