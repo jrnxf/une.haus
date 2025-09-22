@@ -3,9 +3,11 @@ import { queryOptions, skipToken } from "@tanstack/react-query";
 import {
   createPresignedMuxUrlServerFn,
   createPresignedS3UrlServerFn,
-  getMuxVideoUploadStatusServerFn,
+  getMuxVideoServerFn,
+  pollMuxVideoUploadStatusServerFn,
 } from "~/lib/media/fns";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
+import { type ServerFnData, type Skippable } from "~/lib/types";
 
 export const media = {
   createPresignedS3Url: {
@@ -17,15 +19,7 @@ export const media = {
     fn: createPresignedMuxUrlServerFn,
   },
 
-  getMuxVideoUploadStatus: {
-    fn: getMuxVideoUploadStatusServerFn,
-    queryOptions: (data: string | undefined) => {
-      return queryOptions({
-        queryKey: ["media.getMuxVideoUploadStatus", data],
-        queryFn: data
-          ? () => getMuxVideoUploadStatusServerFn({ data })
-          : skipToken,
-      });
-    },
+  pollMuxVideoUploadStatus: {
+    fn: pollMuxVideoUploadStatusServerFn,
   },
 };

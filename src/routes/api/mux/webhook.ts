@@ -1,10 +1,8 @@
 import { json } from "@tanstack/react-start";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 
-import { eq } from "drizzle-orm";
-
 import { db } from "~/db";
-import { muxUploads, muxVideos } from "~/db/schema";
+import { muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
 
 export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
@@ -16,26 +14,11 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
 
     const { data, type } = event;
 
-    console.log("MUX EVENT >>");
-    console.dir(
-      {
-        type,
-        data,
-      },
-      { depth: null },
-    );
+    console.log("MUX EVENT >>", type);
+    console.dir({ type, data }, { depth: null });
 
-    if (
-      (type === "video.asset.ready" || type === "video.asset.created") &&
-      data.upload_id
-    ) {
+    if (type === "video.asset.ready") {
       const assetId = data.id;
-      await db
-        .update(muxUploads)
-        .set({
-          assetId,
-        })
-        .where(eq(muxUploads.uploadId, data.upload_id));
 
       const playbackId = data.playback_ids?.[0]?.id;
 
@@ -55,9 +38,7 @@ export const ServerRoute = createServerFileRoute("/api/mux/webhook").methods({
           })
           .returning();
 
-        console.log("Video asset ready", {
-          video,
-        });
+        console.log("Video asset ready", { video });
       }
     }
 

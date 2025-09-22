@@ -14,6 +14,7 @@ import { env } from "~/lib/env";
 import { assertFound, invariant } from "~/lib/invariant";
 import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
 import { useServerSession } from "~/lib/session/hooks";
+import { isDefined } from "~/lib/utils";
 
 export const createPresignedS3UrlServerFn = createServerFn({
   method: "POST",
@@ -52,11 +53,15 @@ export const createPresignedMuxUrlServerFn = createServerFn({
   return upload;
 });
 
-export const getMuxVideoUploadStatusServerFn = createServerFn({
-  method: "GET",
+export const pollMuxVideoUploadStatusServerFn = createServerFn({
+  method: "POST",
 })
-  .validator(z.string())
-  .handler(async ({ data: uploadId }) => {
+  .validator(
+    z.object({
+      uploadId: z.string(),
+    }),
+  )
+  .handler(async ({ data: input }) => {
     const session = await useServerSession();
 
     invariant(session.data.user, "Unauthorized");
@@ -69,12 +74,12 @@ export const getMuxVideoUploadStatusServerFn = createServerFn({
     let tries = 0;
 
     while (!assetId && tries < MAX_TRIES) {
-      const upload = await muxClient.video.uploads.retrieve(uploadId);
+      const upload = await muxClient.video.uploads.retrieve(input.uploadId);
       assetId = upload.asset_id;
 
       if (!assetId) {
         console.log(
-          `Waiting for asset id another ${SLEEP_INTERVAL_MS}ms for uploadId ${uploadId}. ${MAX_TRIES - tries - 1} tries left.`,
+          `Waiting for asset id another ${SLEEP_INTERVAL_MS}ms for uploadId ${input.uploadId}. ${MAX_TRIES - tries - 1} tries left.`,
         );
         await sleep(SLEEP_INTERVAL_MS);
       }
@@ -84,7 +89,7 @@ export const getMuxVideoUploadStatusServerFn = createServerFn({
 
     invariant(
       assetId,
-      `Asset id not found for uploadId ${uploadId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
+      `Asset id not found for uploadId ${input.uploadId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
     );
 
     // Insert video record if it doesn't exist (webhook might have already created it)
@@ -98,8 +103,12 @@ export const getMuxVideoUploadStatusServerFn = createServerFn({
         where: eq(muxVideos.assetId, assetId),
       });
 
-      if (video?.playbackId) {
-        return video;
+      const playbackId = video?.playbackId;
+      if (video && isDefined(playbackId)) {
+        return {
+          ...video,
+          playbackId,
+        };
       }
 
       console.log(

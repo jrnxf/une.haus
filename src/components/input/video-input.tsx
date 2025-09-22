@@ -1,5 +1,5 @@
 import MuxPlayer from "@mux/mux-player-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
@@ -17,6 +17,7 @@ import { media } from "~/lib/media";
 
 export const muxPresignedUrlSchema = z.object({
   id: z.string(),
+
   url: z.string(),
 });
 
@@ -29,13 +30,14 @@ export const VideoInput = ({
 
   const [fileName, setFileName] = useState<string>();
 
-  const [uploadId, setUploadId] = useState<string>();
-
   const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
 
-  const { data: videoData } = useQuery(
-    media.getMuxVideoUploadStatus.queryOptions(uploadId),
-  );
+  const { mutate, data: videoData } = useMutation({
+    mutationFn: media.pollMuxVideoUploadStatus.fn,
+    onSuccess: (videoData) => {
+      onChange(videoData.playbackId);
+    },
+  });
 
   const createPresignedMuxUrl = useMutation({
     mutationFn: media.createPresignedMuxUrl.fn,
@@ -81,7 +83,8 @@ export const VideoInput = ({
 
           upload.on("success", () => {
             setVideoUploadStatus("processing");
-            setUploadId(uploadId);
+
+            mutate({ data: { uploadId } });
           });
         } catch {
           setVideoUploadStatus("idle");
@@ -99,7 +102,6 @@ export const VideoInput = ({
 
   const reset = () => {
     setVideoUploadStatus("idle");
-    setUploadId(undefined);
     setFileName(undefined);
     onChange(undefined);
   };
@@ -107,7 +109,7 @@ export const VideoInput = ({
   if (videoData && videoData.playbackId) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="overflow-clip rounded-md border-2 border-dashed">
+        <div className="flex overflow-clip rounded-md border-2 border-dashed">
           <MuxPlayer
             accentColor="#000000"
             className="aspect-video"
