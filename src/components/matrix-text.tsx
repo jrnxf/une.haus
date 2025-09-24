@@ -4,7 +4,13 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { invariant } from "~/lib/invariant";
 
-export function MatrixText({ text }: { text: string }) {
+export function MatrixText({
+  text,
+  dropHeight,
+}: {
+  text: string;
+  dropHeight: number;
+}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -20,7 +26,7 @@ export function MatrixText({ text }: { text: string }) {
           {[...text].map((char, index) => (
             <motion.span
               animate={{ opacity: 1, y: 0 }}
-              initial={{ opacity: 0, y: -55 }}
+              initial={{ opacity: 0, y: -dropHeight }}
               key={`${char}-${index}`}
               transition={{ delay: 0.035 * index, type: "spring" }}
             >

@@ -154,7 +154,7 @@ export const VideoInput = ({
 
         {videoUploadStatus === "processing" && (
           <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-            <span>Processing</span>
+            <span>processing</span>
             <Loader2Icon className="size-3 animate-spin" />
           </div>
         )}

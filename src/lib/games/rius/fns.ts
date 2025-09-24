@@ -33,7 +33,7 @@ export const getRiuSetServerFn = createServerFn({
   .handler(async ({ data: input }) => {
     const [set] = await db
       .select({
-        description: riuSets.description,
+        instructions: riuSets.instructions,
         id: riuSets.id,
         name: riuSets.name,
         setPlaybackId: muxVideos.playbackId,
@@ -235,7 +235,7 @@ export const listArchivedRiusServerFn = createServerFn({
         columns: {
           id: true,
           name: true,
-          description: true,
+          instructions: true,
         },
         with: {
           user: {
@@ -265,7 +265,7 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
   .handler(async ({ context }) => {
     const sets = await db
       .select({
-        description: riuSets.description,
+        instructions: riuSets.instructions,
         id: riuSets.id,
         name: riuSets.name,
         user: {

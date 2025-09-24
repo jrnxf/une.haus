@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const baseRiuSetSchema = z.object({
-  description: z.string().optional(),
+  instructions: z.string().optional(),
   name: z.string().min(1, { message: "Required" }),
 });
 

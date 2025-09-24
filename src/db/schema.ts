@@ -193,7 +193,7 @@ export const rius = pgTable("rius", {
 
 export const riuSets = pgTable("riu_sets", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  description: text("description"),
+  instructions: text("instructions"),
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
 

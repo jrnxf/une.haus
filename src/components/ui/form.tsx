@@ -1,4 +1,5 @@
 import { Slot } from "@radix-ui/react-slot";
+import { useBlocker } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import * as React from "react";
 import {
@@ -56,6 +57,14 @@ function FormMediaProvider({ children }: { children: React.ReactNode }) {
   const [imageUploadStatus, setImageUploadStatus] =
     React.useState<ImageUploadStatus>("idle");
 
+  const shouldBlock =
+    videoUploadStatus !== "idle" || imageUploadStatus !== "idle";
+
+  useBlocker({
+    enableBeforeUnload: shouldBlock,
+    shouldBlockFn: () => shouldBlock,
+  });
+
   return (
     <FormMediaContext.Provider
       value={{
@@ -72,6 +81,36 @@ function FormMediaProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+function FormNavigationBlock() {
+  const { formState } = useFormContext();
+  const { videoUploadStatus, imageUploadStatus } = useFormMedia();
+
+  const isVideoUploading = videoUploadStatus !== "idle";
+  const isImageUploading = imageUploadStatus !== "idle";
+
+  const shouldBlock =
+    isVideoUploading ||
+    isImageUploading ||
+    (formState.isDirty && !formState.isSubmitSuccessful);
+
+  useBlocker({
+    enableBeforeUnload: shouldBlock,
+    shouldBlockFn: () => {
+      if (shouldBlock) {
+        const shouldLeave = confirm(
+          "Are you sure you want to leave? You have unsaved changes.",
+        );
+
+        return !shouldLeave;
+      }
+
+      return false;
+    },
+  });
+
+  return null;
+}
+
 type FormProps<TFieldValues extends FieldValues> =
   UseFormReturn<TFieldValues> & {
     children: React.ReactNode;
@@ -83,7 +122,10 @@ function Form<TFieldValues extends FieldValues>({
 }: FormProps<TFieldValues>) {
   return (
     <FormProvider {...methods}>
-      <FormMediaProvider>{children}</FormMediaProvider>
+      <FormMediaProvider>
+        <FormNavigationBlock />
+        {children}
+      </FormMediaProvider>
     </FormProvider>
   );
 }

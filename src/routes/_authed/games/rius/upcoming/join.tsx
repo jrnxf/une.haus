@@ -95,10 +95,10 @@ function JoinRiuForm() {
 
         <FormField
           control={control}
-          name="description"
+          name="instructions"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Instructions</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
