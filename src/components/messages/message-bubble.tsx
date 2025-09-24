@@ -5,7 +5,6 @@ import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
 import { Button } from "~/components/ui/button";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
-import { posts } from "~/lib/posts";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type ServerFnReturn } from "~/lib/types";
 import { cn, preprocessText } from "~/lib/utils";
@@ -22,13 +21,6 @@ export function MessageBubble({
   const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
 
-  // const likeUnlike = useLikeUnlikeMessage(record, message.id);
-  // const deleteMessage = useDeleteMessage(record);
-
-  // const onDeleteMessage = () => {
-  //   deleteMessage.mutate({ recordId: message.id, type: record.type });
-  // };
-
   const isUserMessage = Boolean(
     sessionUser && sessionUser.id === message.user.id,
   );
@@ -41,23 +33,9 @@ export function MessageBubble({
   const { mutate: likeUnlike } = useLikeUnlikeRecord({
     authUserLiked,
     record: { id: message.id, type: messageType },
-    optimisticUpdateQueryKey:
-      parent.type === "post"
-        ? posts.get.queryOptions({ postId: parent.id }).queryKey
-        : parent.type === "chat"
-          ? messages.list.queryOptions({ type: "chat", id: -1 }).queryKey
-          : [],
-    refetchQueryKey:
-      parent.type === "post"
-        ? posts.list.infiniteQueryOptions({}).queryKey
-        : [],
+    optimisticUpdateQueryKey: messages.list.queryOptions(parent).queryKey,
+    refetchQueryKey: messages.list.queryOptions(parent).queryKey,
   });
-
-  // const messageType = `${record.type}Message` as const;
-
-  // const [isReactionsOpen, setIsReactionsOpen] = useState(false);
-  // const [isEditMessageOpen, setIsEditMessageOpen] = useState(false);
-  // const reactionsTriggerReference = useRef<HTMLButtonElement>(null);
 
   return (
     <Tray>
@@ -120,7 +98,7 @@ export function MessageBubble({
             <HeartIcon
               className={cn(
                 "size-4",
-                // authUserLiked && "fill-red-700/50 stroke-red-700",
+                authUserLiked && "fill-red-700/50 stroke-red-700",
               )}
             />
           </Button>

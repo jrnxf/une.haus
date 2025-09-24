@@ -53,13 +53,10 @@ function RouteComponent() {
   const { postId } = Route.useParams();
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-2 py-4">
-      <ScrollArea
-        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
-        id="main-content"
-      >
+    <ScrollArea className="mx-2 grow overflow-y-auto" id="main-content">
+      <div className="mx-auto w-full max-w-4xl overflow-y-auto">
         <PostView postId={postId} />
-      </ScrollArea>
-    </div>
+      </div>
+    </ScrollArea>
   );
 }
