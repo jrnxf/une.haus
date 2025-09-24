@@ -31,7 +31,6 @@ import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius
 import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
 import { ServerRoute as ApiMuxWebhookServerRouteImport } from './routes/api/mux/webhook'
 import { ServerRoute as ApiMuxUrlServerRouteImport } from './routes/api/mux/url'
-import { ServerRoute as ApiAuthVerifyServerRouteImport } from './routes/api/auth/verify'
 
 const rootServerRouteImport = createServerRootRoute()
 
@@ -133,11 +132,6 @@ const ApiMuxWebhookServerRoute = ApiMuxWebhookServerRouteImport.update({
 const ApiMuxUrlServerRoute = ApiMuxUrlServerRouteImport.update({
   id: '/api/mux/url',
   path: '/api/mux/url',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiAuthVerifyServerRoute = ApiAuthVerifyServerRouteImport.update({
-  id: '/api/auth/verify',
-  path: '/api/auth/verify',
   getParentRoute: () => rootServerRouteImport,
 } as any)
 
@@ -273,31 +267,27 @@ export interface RootRouteChildren {
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
 }
 export interface FileServerRoutesByFullPath {
-  '/api/auth/verify': typeof ApiAuthVerifyServerRoute
   '/api/mux/url': typeof ApiMuxUrlServerRoute
   '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
 }
 export interface FileServerRoutesByTo {
-  '/api/auth/verify': typeof ApiAuthVerifyServerRoute
   '/api/mux/url': typeof ApiMuxUrlServerRoute
   '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
-  '/api/auth/verify': typeof ApiAuthVerifyServerRoute
   '/api/mux/url': typeof ApiMuxUrlServerRoute
   '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/auth/verify' | '/api/mux/url' | '/api/mux/webhook'
+  fullPaths: '/api/mux/url' | '/api/mux/webhook'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/auth/verify' | '/api/mux/url' | '/api/mux/webhook'
-  id: '__root__' | '/api/auth/verify' | '/api/mux/url' | '/api/mux/webhook'
+  to: '/api/mux/url' | '/api/mux/webhook'
+  id: '__root__' | '/api/mux/url' | '/api/mux/webhook'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
-  ApiAuthVerifyServerRoute: typeof ApiAuthVerifyServerRoute
   ApiMuxUrlServerRoute: typeof ApiMuxUrlServerRoute
   ApiMuxWebhookServerRoute: typeof ApiMuxWebhookServerRoute
 }
@@ -448,13 +438,6 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiMuxUrlServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
-    '/api/auth/verify': {
-      id: '/api/auth/verify'
-      path: '/api/auth/verify'
-      fullPath: '/api/auth/verify'
-      preLoaderRoute: typeof ApiAuthVerifyServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
   }
 }
 
@@ -510,7 +493,6 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiAuthVerifyServerRoute: ApiAuthVerifyServerRoute,
   ApiMuxUrlServerRoute: ApiMuxUrlServerRoute,
   ApiMuxWebhookServerRoute: ApiMuxWebhookServerRoute,
 }

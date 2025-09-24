@@ -1,9 +1,13 @@
-import { sendMagicLinkServerFn } from "~/lib/email/fns";
-import { sendMagicLinkSchema } from "~/lib/email/schemas";
+import { enterCodeServerFn, sendMagicLinkServerFn } from "~/lib/email/fns";
+import { enterCodeSchema, sendCodeSchema } from "~/lib/email/schemas";
 
 export const email = {
-  sendMagicLink: {
+  sendCode: {
     fn: sendMagicLinkServerFn,
-    schema: sendMagicLinkSchema,
+    schema: sendCodeSchema,
+  },
+  enterCode: {
+    fn: enterCodeServerFn,
+    schema: enterCodeSchema,
   },
 };

@@ -1,21 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { sendMagicLinkSchema } from "~/lib/email/schemas";
-import { env } from "~/lib/env";
-
-import MagicLinkTemplate from "emails/magic-link";
-
 import { eq } from "drizzle-orm";
+import AuthCodeTemplate from "emails/auth-code";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
-import { db } from "~/db";
-import { magicLinks, users } from "~/db/schema";
 
-const resend = new Resend(env.RESEND_API_KEY);
+import { db } from "~/db";
+import { authCodes, users } from "~/db/schema";
+import { enterCodeSchema, sendCodeSchema } from "~/lib/email/schemas";
+import { env } from "~/lib/env";
+import { invariant } from "~/lib/invariant";
+import { useServerSession } from "~/lib/session/hooks";
+
+const resendClient = new Resend(env.RESEND_API_KEY);
+
 export const sendMagicLinkServerFn = createServerFn({
   method: "POST",
 })
-  .validator(sendMagicLinkSchema)
+  .validator(sendCodeSchema)
   .handler(async ({ data: input }) => {
     const userWithEmail = await db.query.users.findFirst({
       where: eq(users.email, input.email),
@@ -27,23 +29,23 @@ export const sendMagicLinkServerFn = createServerFn({
       return;
     }
 
-    const [token] = await db
-      .insert(magicLinks)
+    const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5);
+
+    const [authCode] = await db
+      .insert(authCodes)
       .values({
         email: userWithEmail.email,
         id: nanoid(),
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        code: Math.floor(Math.random() * 10_000),
+        expiresAt: inFiveMinutes,
       })
       .returning();
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resendClient.emails.send({
       from: "Colby Thomas <colby@jrnxf.co>",
       to: [input.email],
       subject: "Welcome to une.haus!",
-      react: MagicLinkTemplate({
-        token: token.id,
-        redirect: input.redirect,
-      }),
+      react: AuthCodeTemplate({ code: authCode.code }),
     });
 
     if (error) {
@@ -55,4 +57,42 @@ export const sendMagicLinkServerFn = createServerFn({
     if (data) {
       // log successful send to sentry
     }
+  });
+
+export const enterCodeServerFn = createServerFn({
+  method: "POST",
+})
+  .validator(enterCodeSchema)
+  .handler(async ({ data: input }) => {
+    const { code } = input;
+
+    const [authCode] = await db
+      .select({
+        id: authCodes.id,
+        user: {
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          avatarUrl: users.avatarUrl,
+          bio: users.bio,
+          disciplines: users.disciplines,
+        },
+      })
+      .from(authCodes)
+      .where(eq(authCodes.code, Number(code)))
+      .leftJoin(users, eq(users.email, authCodes.email))
+      .limit(1);
+
+    invariant(authCode.id, "Invalid code");
+    invariant(authCode.user, "User not found");
+
+    const session = await useServerSession();
+
+    await session.update({
+      user: authCode.user,
+    });
+
+    return {
+      success: true,
+    };
   });
