@@ -11,8 +11,6 @@ dist-ssr
 .tanstack
 .output
 
-pnpm-lock.yaml
-
 **/db/scripts
 **/db/skrrrt
 

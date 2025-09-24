@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createServerRootRoute } from '@tanstack/react-start/server'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthedRouteImport } from './routes/_authed'
@@ -27,6 +29,10 @@ import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/post
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
 import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
+import { ServerRoute as ApiMuxWebhookServerRouteImport } from './routes/api/mux/webhook'
+import { ServerRoute as ApiMuxUrlServerRouteImport } from './routes/api/mux/url'
+
+const rootServerRouteImport = createServerRootRoute()
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -118,6 +124,16 @@ const AuthedGamesRiusUpcomingJoinRoute =
     path: '/games/rius/upcoming/join',
     getParentRoute: () => AuthedRoute,
   } as any)
+const ApiMuxWebhookServerRoute = ApiMuxWebhookServerRouteImport.update({
+  id: '/api/mux/webhook',
+  path: '/api/mux/webhook',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
+const ApiMuxUrlServerRoute = ApiMuxUrlServerRouteImport.update({
+  id: '/api/mux/url',
+  path: '/api/mux/url',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -250,6 +266,31 @@ export interface RootRouteChildren {
   UsersIndexRoute: typeof UsersIndexRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
 }
+export interface FileServerRoutesByFullPath {
+  '/api/mux/url': typeof ApiMuxUrlServerRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
+}
+export interface FileServerRoutesByTo {
+  '/api/mux/url': typeof ApiMuxUrlServerRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
+}
+export interface FileServerRoutesById {
+  __root__: typeof rootServerRouteImport
+  '/api/mux/url': typeof ApiMuxUrlServerRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
+}
+export interface FileServerRouteTypes {
+  fileServerRoutesByFullPath: FileServerRoutesByFullPath
+  fullPaths: '/api/mux/url' | '/api/mux/webhook'
+  fileServerRoutesByTo: FileServerRoutesByTo
+  to: '/api/mux/url' | '/api/mux/webhook'
+  id: '__root__' | '/api/mux/url' | '/api/mux/webhook'
+  fileServerRoutesById: FileServerRoutesById
+}
+export interface RootServerRouteChildren {
+  ApiMuxUrlServerRoute: typeof ApiMuxUrlServerRoute
+  ApiMuxWebhookServerRoute: typeof ApiMuxWebhookServerRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
@@ -381,6 +422,24 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+declare module '@tanstack/react-start/server' {
+  interface ServerFileRoutesByPath {
+    '/api/mux/webhook': {
+      id: '/api/mux/webhook'
+      path: '/api/mux/webhook'
+      fullPath: '/api/mux/webhook'
+      preLoaderRoute: typeof ApiMuxWebhookServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/mux/url': {
+      id: '/api/mux/url'
+      path: '/api/mux/url'
+      fullPath: '/api/mux/url'
+      preLoaderRoute: typeof ApiMuxUrlServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+  }
+}
 
 interface AuthedRouteChildren {
   AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute
@@ -433,11 +492,10 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
+const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiMuxUrlServerRoute: ApiMuxUrlServerRoute,
+  ApiMuxWebhookServerRoute: ApiMuxWebhookServerRoute,
 }
+export const serverRouteTree = rootServerRouteImport
+  ._addFileChildren(rootServerRouteChildren)
+  ._addFileTypes<FileServerRouteTypes>()
