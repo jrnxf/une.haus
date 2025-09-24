@@ -131,6 +131,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "cmdk@1.1.1": "patches/cmdk@1.1.1.patch",
+  },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 

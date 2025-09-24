@@ -79,9 +79,10 @@ function EnterCodeForm() {
       toast.success("Welcome to une.haus!");
       navigate({ to: search.redirect ?? "/auth/me" });
     },
-    onError: () => {
+    onError: (error) => {
       enterCodeForm.setError("code", { message: "Invalid code" });
       enterCodeForm.setFocus("code");
+      toast.error(error.message);
       enterCodeForm.reset();
     },
   });

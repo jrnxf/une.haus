@@ -121,9 +121,9 @@ function RouteComponent() {
                   <p className="truncate text-base font-medium">{set.name}</p>
                 </div>
 
-                {set.description && (
+                {set.instructions && (
                   <p className="text-muted-foreground line-clamp-3 text-sm">
-                    {set.description}
+                    {set.instructions}
                   </p>
                 )}
 

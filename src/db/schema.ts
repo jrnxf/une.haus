@@ -94,7 +94,7 @@ export const authCodes = pgTable("auth_codes", {
     .references(() => users.email, {
       onDelete: "cascade",
     }),
-  code: integer("code").notNull(),
+  code: text("code").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
 });
 

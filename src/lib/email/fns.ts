@@ -36,7 +36,7 @@ export const sendMagicLinkServerFn = createServerFn({
       .values({
         email: userWithEmail.email,
         id: nanoid(),
-        code: Math.floor(Math.random() * 10_000),
+        code: String(Math.floor(Math.random() * 10_000)).padStart(4, "0"),
         expiresAt: inFiveMinutes,
       })
       .returning();
@@ -69,6 +69,7 @@ export const enterCodeServerFn = createServerFn({
     const [authCode] = await db
       .select({
         id: authCodes.id,
+        expiresAt: authCodes.expiresAt,
         user: {
           id: users.id,
           email: users.email,
@@ -79,14 +80,23 @@ export const enterCodeServerFn = createServerFn({
         },
       })
       .from(authCodes)
-      .where(eq(authCodes.code, Number(code)))
+      .where(eq(authCodes.code, code))
       .leftJoin(users, eq(users.email, authCodes.email))
       .limit(1);
 
-    invariant(authCode.id, "Invalid code");
+    invariant(authCode, "Invalid code");
     invariant(authCode.user, "User not found");
 
-    const session = await useServerSession();
+    const deleteCode = async () => {
+      await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
+    };
+
+    if (authCode.expiresAt < new Date()) {
+      await deleteCode();
+      invariant(false, "Code has expired");
+    }
+
+    const [session] = await Promise.all([useServerSession(), deleteCode()]);
 
     await session.update({
       user: authCode.user,

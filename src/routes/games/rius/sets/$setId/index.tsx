@@ -102,7 +102,7 @@ function SetView({ setId }: { setId: number }) {
       </div>
 
       <div className="break-words whitespace-pre-wrap">
-        <p>{set.description}</p>
+        <p>{set.instructions}</p>
       </div>
 
       {isOwner && (

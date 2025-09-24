@@ -82,9 +82,9 @@ function RouteComponent() {
           <div className="flex items-start justify-between gap-2">
             <div>
               <h3 className="line-clamp-1 text-lg">{set.name}</h3>
-              {set.description && (
+              {set.instructions && (
                 <p className="text-muted-foreground line-clamp-2 text-sm">
-                  {set.description}
+                  {set.instructions}
                 </p>
               )}
             </div>
