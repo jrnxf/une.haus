@@ -1,8 +1,7 @@
 import type { Config } from "drizzle-kit";
 
-import { invariant } from "~/lib/invariant";
-
 import { env } from "~/lib/env";
+import { invariant } from "~/lib/invariant";
 
 invariant(env.SKRRRT_DATABASE_URL, "SKRRRT_DATABASE_URL is not set");
 

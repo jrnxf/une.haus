@@ -132,7 +132,7 @@ function RouteComponent() {
               </p>
             </div>
             <Button asChild>
-              <Link to={user ? "/games/rius/upcoming/join" : "/auth"}>
+              <Link to={user ? "/games/rius/upcoming/join" : "/auth/code/send"}>
                 {user ? "Join Game" : "Sign In"}
               </Link>
             </Button>

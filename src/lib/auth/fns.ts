@@ -7,34 +7,28 @@ import { Resend } from "resend";
 
 import { db } from "~/db";
 import { authCodes, users } from "~/db/schema";
-import { enterCodeSchema, sendCodeSchema } from "~/lib/email/schemas";
+import {
+  enterCodeSchema,
+  registerSchema,
+  sendCodeSchema,
+} from "~/lib/auth/schemas";
 import { env } from "~/lib/env";
 import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
 
 const resendClient = new Resend(env.RESEND_API_KEY);
 
-export const sendMagicLinkServerFn = createServerFn({
+export const sendAuthCodeServerFn = createServerFn({
   method: "POST",
 })
   .validator(sendCodeSchema)
   .handler(async ({ data: input }) => {
-    const userWithEmail = await db.query.users.findFirst({
-      where: eq(users.email, input.email),
-    });
-
-    if (!userWithEmail) {
-      // we don't want to give potential attackers any information about
-      // whether an email exists or not
-      return;
-    }
-
     const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5);
 
     const [authCode] = await db
       .insert(authCodes)
       .values({
-        email: userWithEmail.email,
+        email: input.email,
         id: nanoid(),
         code: String(Math.floor(Math.random() * 10_000)).padStart(4, "0"),
         expiresAt: inFiveMinutes,
@@ -84,12 +78,20 @@ export const enterCodeServerFn = createServerFn({
       .leftJoin(users, eq(users.email, authCodes.email))
       .limit(1);
 
-    invariant(authCode, "Invalid code");
-    invariant(authCode.user, "User not found");
+    if (!authCode) {
+      throw new Error("Invalid code");
+    }
 
     const deleteCode = async () => {
       await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
     };
+
+    if (!authCode.user) {
+      await deleteCode();
+      return {
+        status: "user_not_found",
+      };
+    }
 
     if (authCode.expiresAt < new Date()) {
       await deleteCode();
@@ -103,6 +105,49 @@ export const enterCodeServerFn = createServerFn({
     });
 
     return {
-      success: true,
+      status: "success",
     };
+  });
+
+export const registerServerFn = createServerFn({
+  method: "POST",
+})
+  .validator(registerSchema)
+  .handler(async ({ data: input }) => {
+    const {
+      // TODO use code
+      // code,
+      email,
+      name,
+      bio,
+    } = input;
+
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (user) {
+      throw new Error("User already exists");
+    }
+
+    const [newUser] = await db
+      .insert(users)
+      .values({
+        email,
+        name,
+        bio,
+      })
+      .returning();
+
+    if (!newUser) {
+      throw new Error("Failed to create user");
+    }
+
+    const session = await useServerSession();
+
+    await session.update({
+      user: newUser,
+    });
   });

@@ -45,7 +45,7 @@ export function useLogout() {
   const { mutate } = useMutation({
     mutationFn: session.clear.fn,
     onSuccess: () => {
-      navigate({ to: "/auth" });
+      navigate({ to: "/auth/code/send" });
     },
   });
 

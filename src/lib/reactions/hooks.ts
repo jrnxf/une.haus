@@ -46,12 +46,6 @@ export function useLikeRecord({
   const mutation = useMutation({
     mutationFn: reactions.like.fn,
     onMutate: async () => {
-      console.log("like", {
-        record,
-        optimisticUpdateQueryKey,
-        refetchQueryKey,
-      });
-
       invariant(sessionUser, "Not authenticated");
       qc.cancelQueries({ queryKey: optimisticUpdateQueryKey });
 
@@ -60,12 +54,11 @@ export function useLikeRecord({
       // TODO COLBY
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       qc.setQueryData(optimisticUpdateQueryKey, (prev: any) => {
-        console.log("prev", prev);
         if (!prev) return prev;
 
         // chat message schemas are a little different so they need to be handled differently
         if (record.type === "chatMessage" || record.type === "postMessage") {
-          const updated = {
+          return {
             ...prev,
 
             // TODO COLBY
@@ -90,8 +83,6 @@ export function useLikeRecord({
               return message;
             }),
           };
-          console.log("updated", updated);
-          return updated;
         }
 
         return {
@@ -121,7 +112,6 @@ export function useLikeRecord({
     },
     onSuccess: () => {
       if (refetchQueryKey) {
-        console.log("refetching", refetchQueryKey);
         qc.refetchQueries({ queryKey: refetchQueryKey });
       }
     },
@@ -154,11 +144,6 @@ export function useUnlikeRecord({
   const mutation = useMutation({
     mutationFn: reactions.unlike.fn,
     onMutate: async () => {
-      console.log("unlike", {
-        record,
-        optimisticUpdateQueryKey,
-        refetchQueryKey,
-      });
       invariant(sessionUser, "Not authenticated");
 
       qc.cancelQueries({ queryKey: optimisticUpdateQueryKey });

@@ -115,7 +115,7 @@ export function CommandMenu() {
                   {/* <CommandItem onSelect={() => pushPage("theme")}>
                     Theme
                   </CommandItem> */}
-                  <CommandItem onSelect={() => goTo("/auth")}>
+                  <CommandItem onSelect={() => goTo("/auth/code/send")}>
                     Login
                   </CommandItem>
                 </>

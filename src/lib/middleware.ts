@@ -1,6 +1,7 @@
-import { invariant, redirect } from "@tanstack/react-router";
+import { redirect } from "@tanstack/react-router";
 import { createMiddleware } from "@tanstack/react-start";
 
+import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
 
 export const adminOnlyMiddleware = createMiddleware({
@@ -9,7 +10,7 @@ export const adminOnlyMiddleware = createMiddleware({
   const session = await useServerSession();
 
   if (!session.data.user) {
-    throw redirect({ to: "/auth" });
+    throw redirect({ to: "/auth/code/send" });
   }
 
   invariant(session.data.user.id === 1, "User is not an admin");
@@ -26,7 +27,7 @@ export const authMiddleware = createMiddleware({ type: "function" }).server(
     const session = await useServerSession();
 
     if (!session.data.user) {
-      throw redirect({ to: "/auth" });
+      throw redirect({ to: "/auth/code/send" });
     }
 
     return next({

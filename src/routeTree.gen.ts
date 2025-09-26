@@ -11,16 +11,18 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
+import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
 import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
+import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
+import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/upcoming/index'
 import { Route as GamesRiusPreviousIndexRouteImport } from './routes/games/rius/previous/index'
@@ -34,11 +36,6 @@ import { ServerRoute as ApiMuxUrlServerRouteImport } from './routes/api/mux/url'
 
 const rootServerRouteImport = createServerRootRoute()
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
@@ -68,6 +65,11 @@ const UsersUserIdRoute = UsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRegisterRoute = AuthRegisterRouteImport.update({
+  id: '/auth/register',
+  path: '/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesRiusRouteRoute = GamesRiusRouteRouteImport.update({
   id: '/games/rius',
   path: '/games/rius',
@@ -82,6 +84,16 @@ const GamesRiusActiveRoute = GamesRiusActiveRouteImport.update({
   id: '/active',
   path: '/active',
   getParentRoute: () => GamesRiusRouteRoute,
+} as any)
+const AuthCodeVerifyRoute = AuthCodeVerifyRouteImport.update({
+  id: '/auth/code/verify',
+  path: '/auth/code/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCodeSendRoute = AuthCodeSendRouteImport.update({
+  id: '/auth/code/send',
+  path: '/auth/code/send',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedPostsCreateRoute = AuthedPostsCreateRouteImport.update({
   id: '/posts/create',
@@ -137,13 +149,15 @@ const ApiMuxUrlServerRoute = ApiMuxUrlServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
   '/posts/create': typeof AuthedPostsCreateRoute
+  '/auth/code/send': typeof AuthCodeSendRoute
+  '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -156,13 +170,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
   '/posts/create': typeof AuthedPostsCreateRoute
+  '/auth/code/send': typeof AuthCodeSendRoute
+  '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -177,13 +193,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
-  '/auth': typeof AuthRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat/': typeof ChatIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/users/': typeof UsersIndexRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
+  '/auth/code/send': typeof AuthCodeSendRoute
+  '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -198,13 +216,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
     | '/games/rius'
+    | '/auth/register'
     | '/users/$userId'
     | '/chat'
     | '/posts'
     | '/users'
     | '/posts/create'
+    | '/auth/code/send'
+    | '/auth/code/verify'
     | '/games/rius/active'
     | '/posts/$postId'
     | '/auth/me/edit'
@@ -217,13 +237,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
     | '/games/rius'
+    | '/auth/register'
     | '/users/$userId'
     | '/chat'
     | '/posts'
     | '/users'
     | '/posts/create'
+    | '/auth/code/send'
+    | '/auth/code/verify'
     | '/games/rius/active'
     | '/posts/$postId'
     | '/auth/me/edit'
@@ -237,13 +259,15 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authed'
-    | '/auth'
     | '/games/rius'
+    | '/auth/register'
     | '/users/$userId'
     | '/chat/'
     | '/posts/'
     | '/users/'
     | '/_authed/posts/create'
+    | '/auth/code/send'
+    | '/auth/code/verify'
     | '/games/rius/active'
     | '/posts/$postId/'
     | '/_authed/auth/me/edit'
@@ -258,12 +282,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
-  AuthRoute: typeof AuthRoute
   GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren
+  AuthRegisterRoute: typeof AuthRegisterRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  AuthCodeSendRoute: typeof AuthCodeSendRoute
+  AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
 }
 export interface FileServerRoutesByFullPath {
@@ -294,13 +320,6 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authed': {
       id: '/_authed'
       path: ''
@@ -343,6 +362,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/register': {
+      id: '/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof AuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/rius': {
       id: '/games/rius'
       path: '/games/rius'
@@ -363,6 +389,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/rius/active'
       preLoaderRoute: typeof GamesRiusActiveRouteImport
       parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/auth/code/verify': {
+      id: '/auth/code/verify'
+      path: '/auth/code/verify'
+      fullPath: '/auth/code/verify'
+      preLoaderRoute: typeof AuthCodeVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/code/send': {
+      id: '/auth/code/send'
+      path: '/auth/code/send'
+      fullPath: '/auth/code/send'
+      preLoaderRoute: typeof AuthCodeSendRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authed/posts/create': {
       id: '/_authed/posts/create'
@@ -481,12 +521,14 @@ const GamesRiusRouteRouteWithChildren = GamesRiusRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
-  AuthRoute: AuthRoute,
   GamesRiusRouteRoute: GamesRiusRouteRouteWithChildren,
+  AuthRegisterRoute: AuthRegisterRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ChatIndexRoute: ChatIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  AuthCodeSendRoute: AuthCodeSendRoute,
+  AuthCodeVerifyRoute: AuthCodeVerifyRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
 }
 export const routeTree = rootRouteImport

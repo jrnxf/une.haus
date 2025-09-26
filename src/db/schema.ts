@@ -57,7 +57,6 @@ export const users = pgTable("users", {
   email: text("email").unique().notNull(),
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  password: text("password").notNull(),
   type: userTypeEnum("type").default("user"),
 });
 
@@ -89,11 +88,7 @@ export const userSocials = pgTable("user_socials", {
 
 export const authCodes = pgTable("auth_codes", {
   id: text("id").primaryKey(),
-  email: text("email")
-    .notNull()
-    .references(() => users.email, {
-      onDelete: "cascade",
-    }),
+  email: text("email"),
   code: text("code").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
 });

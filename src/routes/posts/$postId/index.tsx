@@ -3,9 +3,9 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { flashMessage } from "~/lib/flash";
 import { messages } from "~/lib/messages";
 import { posts } from "~/lib/posts";
-import { session } from "~/lib/session/index";
 import { PostView } from "~/views/post";
 
 const pathParametersSchema = z.object({
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/posts/$postId/")({
           }),
         );
       } catch {
-        await session.flash.set.fn({ data: { message: "Post not found" } });
+        await flashMessage("Post not found");
         throw redirect({ to: "/posts" });
       }
     };

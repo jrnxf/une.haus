@@ -5,6 +5,7 @@ import { env } from "~/lib/env";
 
 import * as schema from "./schema";
 
+console.trace();
 const client = neon(env.DATABASE_URL);
 
 export const db = drizzle(client, {
