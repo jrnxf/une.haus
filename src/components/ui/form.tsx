@@ -1,6 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { useBlocker } from "@tanstack/react-router";
-import { Loader2Icon } from "lucide-react";
+import { BugIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";
 import {
   Controller,
@@ -332,8 +332,13 @@ function FormDebug() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button type="button" variant="secondary">
-          Debug
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          className="border-dashed"
+        >
+          <BugIcon className="size-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>

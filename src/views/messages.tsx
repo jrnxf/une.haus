@@ -65,9 +65,9 @@ export function MessagesView({
       {messages.length === 0 && (
         <p className="text-muted-foreground mt-1">No messages</p>
       )}
-      <div className="-mx-4 flex grow basis-0 flex-col gap-2 overflow-hidden p-2">
+      <div className="flex grow basis-0 flex-col gap-2 overflow-hidden">
         <ScrollArea
-          className="overflow-auto px-4"
+          className="overflow-y-auto"
           // https://tanstack.com/router/latest/docs/framework/react/guide/scroll-restoration#manual-scroll-restoration
           // I don't like the way the scroll restoration is automatically handled
           // here because on a refresh it loads at the top of the page and then
@@ -122,7 +122,7 @@ export function MessagesView({
           </div>
         </ScrollArea>
       </div>
-      <div className="shrink-0">
+      <div className="shrink-0 p-1">
         <BaseMessageForm
           onSubmit={(newMessage) => {
             scrollTo("bottom", Infinity);
