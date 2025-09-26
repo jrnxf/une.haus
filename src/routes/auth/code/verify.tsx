@@ -75,53 +75,52 @@ function RouteComponent() {
   });
 
   return (
-    <Form {...enterCodeForm}>
-      <form
-        className="mx-auto w-full max-w-xl space-y-4 p-8"
-        id="main-content"
-        onSubmit={(event) => {
-          event.preventDefault();
-          enterCodeForm.handleSubmit((data) => {
-            enterCodeMutation.mutate({ data });
-          })(event);
-        }}
-      >
-        <FormField
-          control={enterCodeForm.control}
-          name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Code</FormLabel>
-              <FormControl>
-                <InputOTP
-                  maxLength={4}
-                  {...field}
-                  value={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
+    <Form
+      rhf={enterCodeForm}
+      className="mx-auto w-full max-w-xl space-y-4 p-8"
+      id="main-content"
+      onSubmit={(event) => {
+        event.preventDefault();
+        enterCodeForm.handleSubmit((data) => {
+          enterCodeMutation.mutate({ data });
+        })(event);
+      }}
+    >
+      <FormField
+        control={enterCodeForm.control}
+        name="code"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Code</FormLabel>
+            <FormControl>
+              <InputOTP
+                maxLength={4}
+                {...field}
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
 
-                    if (value.length === 4) {
-                      enterCodeForm.handleSubmit((data) => {
-                        enterCodeMutation.mutate({ data });
-                      })();
-                    }
-                  }}
-                  pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-                  autoComplete="off"
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} autoFocus />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </form>
+                  if (value.length === 4) {
+                    enterCodeForm.handleSubmit((data) => {
+                      enterCodeMutation.mutate({ data });
+                    })();
+                  }
+                }}
+                pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                autoComplete="off"
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} autoFocus />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                </InputOTPGroup>
+              </InputOTP>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <Button variant="link" type="button" asChild>
         <Link to="/auth/code/send">Need a code?</Link>

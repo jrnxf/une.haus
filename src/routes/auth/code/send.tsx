@@ -55,54 +55,53 @@ function RouteComponent() {
   });
 
   return (
-    <Form {...sendCodeForm}>
-      <form
-        className="mx-auto w-full max-w-xl space-y-4 p-8"
-        id="main-content"
-        onSubmit={(event) => {
-          event.preventDefault();
-          sendCodeForm.handleSubmit((data) => {
-            sendCodeMutation.mutate({ data });
-          })(event);
-        }}
-      >
-        <FormField
-          control={sendCodeForm.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormDescription>
-                You'll receive an email with a code to authenticate
-              </FormDescription>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Form
+      rhf={sendCodeForm}
+      className="mx-auto w-full max-w-xl space-y-4 p-8"
+      id="main-content"
+      onSubmit={(event) => {
+        event.preventDefault();
+        sendCodeForm.handleSubmit((data) => {
+          sendCodeMutation.mutate({ data });
+        })(event);
+      }}
+    >
+      <FormField
+        control={sendCodeForm.control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Email</FormLabel>
+            <FormDescription>
+              You'll receive an email with a code to authenticate
+            </FormDescription>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-        <div className="flex flex-row-reverse items-center justify-between">
-          <Button
-            disabled={sendCodeMutation.isPending}
-            iconLeft={
-              sendCodeMutation.isPending && (
-                <Loader2Icon className="size-4 animate-spin" />
-              )
-            }
-            type="submit"
-          >
-            <span>
-              {sendCodeMutation.isPending ? "Sending code" : "Send code"}
-            </span>
-          </Button>
+      <div className="flex flex-row-reverse items-center justify-between">
+        <Button
+          disabled={sendCodeMutation.isPending}
+          iconLeft={
+            sendCodeMutation.isPending && (
+              <Loader2Icon className="size-4 animate-spin" />
+            )
+          }
+          type="submit"
+        >
+          <span>
+            {sendCodeMutation.isPending ? "Sending code" : "Send code"}
+          </span>
+        </Button>
 
-          <Button variant="link" type="button" asChild>
-            <Link to="/auth/code/verify">Have a code?</Link>
-          </Button>
-        </div>
-      </form>
+        <Button variant="link" type="button" asChild>
+          <Link to="/auth/code/verify">Have a code?</Link>
+        </Button>
+      </div>
     </Form>
   );
 }

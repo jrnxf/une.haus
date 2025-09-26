@@ -9,6 +9,9 @@ const booleanEnvVar = z
 export const env = createEnv({
   client: {
     PUBLIC_APP_URL: z.string().optional().default("http://localhost:3000"),
+    PUBLIC_ENVIRONMENT: z
+      .enum(["development", "production"])
+      .default("development"),
   },
 
   /**
@@ -59,3 +62,6 @@ export const env = createEnv({
     SKRRRT_DATABASE_URL: z.string().optional(),
   },
 });
+
+export const isDevelopment = env.PUBLIC_ENVIRONMENT === "development";
+export const isProduction = env.PUBLIC_ENVIRONMENT === "production";

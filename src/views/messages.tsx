@@ -82,7 +82,7 @@ export function MessagesView({
         >
           <div
             className={cn(
-              "space-y-2",
+              "mx-auto w-full max-w-4xl space-y-2",
               "p-1", // don't cut off outlines
             )}
           >
@@ -122,7 +122,7 @@ export function MessagesView({
           </div>
         </ScrollArea>
       </div>
-      <div className="shrink-0 p-1">
+      <div className="mx-auto w-full max-w-4xl shrink-0 p-1">
         <BaseMessageForm
           onSubmit={(newMessage) => {
             scrollTo("bottom", Infinity);

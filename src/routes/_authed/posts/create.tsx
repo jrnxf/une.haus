@@ -63,7 +63,7 @@ function RouteComponent() {
     },
   });
 
-  const form = useForm<z.infer<typeof posts.create.schema>>({
+  const rhf = useForm<z.infer<typeof posts.create.schema>>({
     resolver: zodResolver(posts.create.schema),
     shouldUnregister: false,
   });
@@ -72,140 +72,141 @@ function RouteComponent() {
     control,
     formState: { isSubmitting },
     handleSubmit,
-  } = form;
+  } = rhf;
 
   return (
-    <Form {...form}>
-      <form
-        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
-        id="main-content"
-        method="post"
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleSubmit((data) => {
-            mutate({ data });
-          })(event);
+    <Form
+      rhf={rhf}
+      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
+      id="main-content"
+      method="post"
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleSubmit((data) => {
+          mutate({ data });
+        })(event);
+      }}
+    >
+      <FormField
+        control={control}
+        name="title"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Title</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="content"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Content</FormLabel>
+            <FormControl>
+              <Textarea {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="tags"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tags</FormLabel>
+            <FormControl>
+              <BadgeInput
+                defaultSelections={field.value}
+                onChange={field.onChange}
+                options={POST_TAGS}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="media"
+        render={({ field }) => {
+          const currentValue = field.value?.value;
+
+          return (
+            <FormItem>
+              <FormLabel>Media</FormLabel>
+              <RadioGroup
+                className="flex gap-6 py-2"
+                onValueChange={(value) => {
+                  field.onChange(undefined);
+                  setMediaOption(value as MediaOption);
+                }}
+                value={mediaOption}
+              >
+                {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
+                  <Label
+                    htmlFor={k}
+                    className="flex items-center space-x-2"
+                    key={k}
+                  >
+                    <RadioGroupItem id={k} value={k} />
+                    {v}
+                  </Label>
+                ))}
+              </RadioGroup>
+              <FormControl>
+                <>
+                  {mediaOption === "youtube" && (
+                    <YoutubeInput
+                      currentId={currentValue}
+                      onChange={(id) => {
+                        field.onChange(
+                          id ? { type: "youtube", value: id } : undefined,
+                        );
+                      }}
+                    />
+                  )}
+
+                  {mediaOption === "image" && (
+                    <ImageInput
+                      previewClassNames="rounded-md size-86"
+                      value={currentValue}
+                      onChange={(data) => {
+                        field.onChange(
+                          data ? { type: "image", value: data } : undefined,
+                        );
+                      }}
+                    />
+                  )}
+
+                  {mediaOption === "video" && (
+                    <VideoInput
+                      onChange={(data) => {
+                        field.onChange(
+                          data ? { type: "video", value: data } : undefined,
+                        );
+                      }}
+                    />
+                  )}
+                </>
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          );
         }}
-      >
-        <FormField
-          control={control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      />
 
-        <FormField
-          control={control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="tags"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tags</FormLabel>
-              <FormControl>
-                <BadgeInput
-                  defaultSelections={field.value}
-                  onChange={field.onChange}
-                  options={POST_TAGS}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="media"
-          render={({ field }) => {
-            const currentValue = field.value?.value;
-
-            return (
-              <FormItem>
-                <FormLabel>Media</FormLabel>
-                <RadioGroup
-                  className="flex gap-6 py-2"
-                  onValueChange={(value) => {
-                    field.onChange(undefined);
-                    setMediaOption(value as MediaOption);
-                  }}
-                  value={mediaOption}
-                >
-                  {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
-                    <Label
-                      htmlFor={k}
-                      className="flex items-center space-x-2"
-                      key={k}
-                    >
-                      <RadioGroupItem id={k} value={k} />
-                      {v}
-                    </Label>
-                  ))}
-                </RadioGroup>
-                <FormControl>
-                  <>
-                    {mediaOption === "youtube" && (
-                      <YoutubeInput
-                        currentId={currentValue}
-                        onChange={(id) => {
-                          field.onChange(
-                            id ? { type: "youtube", value: id } : undefined,
-                          );
-                        }}
-                      />
-                    )}
-
-                    {mediaOption === "image" && (
-                      <ImageInput
-                        previewClassNames="rounded-md size-86"
-                        value={currentValue}
-                        onChange={(data) => {
-                          field.onChange(
-                            data ? { type: "image", value: data } : undefined,
-                          );
-                        }}
-                      />
-                    )}
-
-                    {mediaOption === "video" && (
-                      <VideoInput
-                        onChange={(data) => {
-                          field.onChange(
-                            data ? { type: "video", value: data } : undefined,
-                          );
-                        }}
-                      />
-                    )}
-                  </>
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
-
+      <div className="flex justify-end">
         <FormSubmitButton busy={isSubmitting} />
-      </form>
+      </div>
     </Form>
   );
 }

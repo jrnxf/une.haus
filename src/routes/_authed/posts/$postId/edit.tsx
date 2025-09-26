@@ -17,7 +17,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMediaProvider,
   FormMessage,
   FormSubmitButton,
 } from "~/components/ui/form";
@@ -106,7 +105,7 @@ function RouteComponent() {
     },
   });
 
-  const form = useForm<z.infer<typeof posts.create.schema>>({
+  const rhf = useForm<z.infer<typeof posts.create.schema>>({
     defaultValues: buildDefaultValues(post),
     resolver: zodResolver(posts.create.schema),
     shouldUnregister: false,
@@ -116,80 +115,77 @@ function RouteComponent() {
     control,
     formState: { isSubmitting },
     handleSubmit,
-  } = form;
+  } = rhf;
 
   if (!post) {
     return null;
   }
 
   return (
-    <Form {...form}>
-      <FormMediaProvider>
-        <form
-          className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
-          id="main-content"
-          method="post"
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleSubmit((data) => {
-              mutate({
-                data: {
-                  ...data,
-                  postId,
-                },
-              });
-            })(event);
-          }}
-        >
-          <FormField
-            control={control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Form
+      rhf={rhf}
+      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 px-4 py-6"
+      id="main-content"
+      method="post"
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleSubmit((data) => {
+          mutate({
+            data: {
+              ...data,
+              postId,
+            },
+          });
+        })(event);
+      }}
+    >
+      <FormField
+        control={control}
+        name="title"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Title</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-          <FormField
-            control={control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Content</FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <FormField
+        control={control}
+        name="content"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Content</FormLabel>
+            <FormControl>
+              <Textarea {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-          <FormField
-            control={control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tags</FormLabel>
-                <FormControl>
-                  <BadgeInput
-                    defaultSelections={field.value}
-                    onChange={field.onChange}
-                    options={POST_TAGS}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <FormField
+        control={control}
+        name="tags"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tags</FormLabel>
+            <FormControl>
+              <BadgeInput
+                defaultSelections={field.value}
+                onChange={field.onChange}
+                options={POST_TAGS}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-          <FormSubmitButton busy={isSubmitting} />
-        </form>
-      </FormMediaProvider>
+      <FormSubmitButton busy={isSubmitting} />
     </Form>
   );
 }

@@ -22,6 +22,7 @@ import {
 } from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
 import { Json } from "~/lib/dx/json";
+import { isProduction } from "~/lib/env";
 import { invariant } from "~/lib/invariant";
 import { useIsAdmin } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
@@ -89,9 +90,10 @@ function FormNavigationBlock() {
   const isImageUploading = imageUploadStatus !== "idle";
 
   const shouldBlock =
-    isVideoUploading ||
-    isImageUploading ||
-    (formState.isDirty && !formState.isSubmitSuccessful);
+    isProduction &&
+    (isVideoUploading ||
+      isImageUploading ||
+      (formState.isDirty && !formState.isSubmitSuccessful));
 
   useBlocker({
     enableBeforeUnload: shouldBlock,
@@ -111,20 +113,20 @@ function FormNavigationBlock() {
   return null;
 }
 
-type FormProps<TFieldValues extends FieldValues> =
-  UseFormReturn<TFieldValues> & {
-    children: React.ReactNode;
-  };
+type FormProps<TFieldValues extends FieldValues> = {
+  rhf: UseFormReturn<TFieldValues>;
+} & React.FormHTMLAttributes<HTMLFormElement>;
 
 function Form<TFieldValues extends FieldValues>({
   children,
-  ...methods
+  rhf,
+  ...props
 }: FormProps<TFieldValues>) {
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...rhf}>
       <FormMediaProvider>
         <FormNavigationBlock />
-        {children}
+        <form {...props}>{children}</form>
       </FormMediaProvider>
     </FormProvider>
   );

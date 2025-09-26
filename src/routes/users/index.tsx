@@ -60,15 +60,12 @@ function RouteComponent() {
   // };
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden p-2">
-      <ScrollArea
-        className="flex w-full max-w-4xl grow overflow-y-auto px-4"
-        id="main-content"
-      >
-        <div className="mb-2 flex items-end justify-end gap-4">
-          <FiltersTray />
-        </div>
-        <div className="flex flex-col gap-3">
+    <div className="flex grow flex-col overflow-hidden">
+      <ScrollArea className="overflow-y-auto" id="main-content">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
+          <div className="flex items-end justify-end gap-4">
+            <FiltersTray />
+          </div>
           {displayedUsers.length === 0 && (
             <p className="text-muted-foreground">No users found</p>
           )}
@@ -105,7 +102,7 @@ function RouteComponent() {
           })}
           {hasNextPage && (
             <Button
-              className="shrink-0 self-start"
+              className="shrink-0 self-center"
               onClick={() => fetchNextPage()}
             >
               {isFetchingNextPage ? "Loading more..." : "Load more"}

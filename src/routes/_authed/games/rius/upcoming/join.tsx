@@ -59,74 +59,73 @@ function RouteComponent() {
 }
 
 function JoinRiuForm() {
-  const form = useForm<z.infer<typeof games.rius.sets.create.schema>>({
+  const rhf = useForm<z.infer<typeof games.rius.sets.create.schema>>({
     resolver: zodResolver(games.rius.sets.create.schema),
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit } = rhf;
 
   const createSet = useCreateSet();
 
   return (
-    <Form {...form}>
-      <form
-        className="space-y-4"
-        method="post"
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleSubmit((data) => {
-            createSet.mutate({ data });
-          })(event);
-        }}
-      >
-        <FormField
-          control={control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Form
+      rhf={rhf}
+      className="space-y-4"
+      method="post"
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleSubmit((data) => {
+          createSet.mutate({ data });
+        })(event);
+      }}
+    >
+      <FormField
+        control={control}
+        name="name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Name</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-        <FormField
-          control={control}
-          name="instructions"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Instructions</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="muxAssetId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Video</FormLabel>
-              <FormControl>
-                <VideoInput {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <FormField
+        control={control}
+        name="instructions"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Instructions</FormLabel>
+            <FormControl>
+              <Textarea {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="muxAssetId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Video</FormLabel>
+            <FormControl>
+              <VideoInput {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-        <div className="flex justify-between gap-2">
-          <Button asChild type="button" variant="outline">
-            <Link to="/games/rius/upcoming">Cancel</Link>
-          </Button>
-          <FormSubmitButton busy={createSet.isPending} />
-        </div>
-      </form>
+      <div className="flex justify-between gap-2">
+        <Button asChild type="button" variant="outline">
+          <Link to="/games/rius/upcoming">Cancel</Link>
+        </Button>
+        <FormSubmitButton busy={createSet.isPending} />
+      </div>
     </Form>
   );
 }
