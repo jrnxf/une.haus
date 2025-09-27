@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 import { invariant } from "~/lib/invariant";
 import { users } from "~/lib/users";
@@ -171,7 +172,7 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
                   />
                 ))
               ) : (
-                <VList style={{ height: 300 }}>
+                <ScrollArea virtualize className="h-[250px]">
                   {filteredUsers.map((user) => (
                     <UserItem
                       key={user.id}
@@ -180,7 +181,7 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
                       user={user}
                     />
                   ))}
-                </VList>
+                </ScrollArea>
               )}
             </CommandList>
           </CommandGroup>

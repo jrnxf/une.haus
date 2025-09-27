@@ -1,14 +1,21 @@
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import * as React from "react";
+import { useRef } from "react";
+
+import { Virtualizer } from "virtua";
 
 import { cn } from "~/lib/utils";
 
 function ScrollArea({
   className,
   children,
-  ref,
+  virtualize = false,
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+  virtualize?: boolean;
+}) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
@@ -21,9 +28,13 @@ function ScrollArea({
           "focus-visible:ring-ring/50 size-full grow rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
           "[&>div]:!block", // https://github.com/radix-ui/primitives/issues/2722#issuecomment-2347902050 weird display table issue
         )}
-        ref={ref}
+        ref={scrollRef}
       >
-        {children}
+        {virtualize ? (
+          <Virtualizer scrollRef={scrollRef}>{children}</Virtualizer>
+        ) : (
+          children
+        )}
       </ScrollAreaPrimitive.Viewport>
       <ScrollBar />
       <ScrollAreaPrimitive.Corner />

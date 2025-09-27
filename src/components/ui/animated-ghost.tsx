@@ -6,8 +6,8 @@ export function AnimatedGhost() {
   useEffect(() => {
     const moveGhost = () => {
       setPosition({
-        x: Math.sin(Date.now() / 1000) * 10,
-        y: Math.cos(Date.now() / 1500) * 5,
+        x: Math.sin(Date.now() / 333) * 10,
+        y: Math.cos(Date.now() / 500) * 5,
       });
     };
 
@@ -17,7 +17,7 @@ export function AnimatedGhost() {
 
   return (
     <span
-      className="inline-block text-2xl transition-transform duration-300 ease-in-out"
+      className="text-4xl transition-transform duration-300 ease-in-out"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}

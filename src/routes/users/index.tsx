@@ -1,9 +1,18 @@
+import {
+  useDebouncedCallback,
+  useDebouncedValue,
+} from "@tanstack/react-pacer/debouncer";
+import {
+  useThrottledCallback,
+  useThrottledValue,
+} from "@tanstack/react-pacer/throttler";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Badges } from "~/components/badges";
+import { UserSelector } from "~/components/input/user-selector";
 import {
   Tray,
   TrayClose,
@@ -11,9 +20,12 @@ import {
   TrayTitle,
   TrayTrigger,
 } from "~/components/tray";
+import { AnimatedGhost } from "~/components/ui/animated-ghost";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { DotPattern } from "~/components/ui/dot-pattern";
 import { Input } from "~/components/ui/input";
+import { InteractiveGridPattern } from "~/components/ui/interactive-grid-pattern";
 import { MultiSelect } from "~/components/ui/multi-select";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { USER_DISCIPLINES } from "~/db/schema";
@@ -41,6 +53,10 @@ function RouteComponent() {
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(searchParams));
 
+  const [query, setQuery] = useState("");
+
+  const [debouncedQuery] = useDebouncedValue(query, { wait: 250 });
+  const [throttledQuery] = useThrottledValue(query, { wait: 400 });
   // const [selectedUserIdx, setSelectedUserIdx] = useState(-1);
 
   const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
@@ -59,6 +75,25 @@ function RouteComponent() {
   //   setSelectedUserIdx((selectedUserIdx - 1 + users.length) % users.length);
   // };
 
+  const router = useRouter();
+  const updateSearch = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("updateSearch", evt.target.value);
+
+    const query = evt.target.value;
+    router.navigate({
+      to: "/users",
+      search: {
+        q: query,
+        disciplines: searchParams.disciplines,
+      },
+      replace: true,
+    });
+  };
+
+  const debouncedUpdateSearch = useDebouncedCallback(updateSearch, {
+    wait: 200,
+  });
+
   return (
     <div className="flex grow flex-col overflow-hidden">
       <ScrollArea className="overflow-y-auto" id="main-content">
@@ -66,9 +101,23 @@ function RouteComponent() {
           <div className="flex items-end justify-end gap-4">
             <FiltersTray />
           </div>
+
+          <div
+            data-color="blue"
+            className="size-28 [background-color:data-color]"
+          />
+
+          <UserSelector onUpdate={console.log} />
+
+          <Input placeholder="Search users" onChange={debouncedUpdateSearch} />
+
           {displayedUsers.length === 0 && (
-            <p className="text-muted-foreground">No users found</p>
+            <div className="flex h-28 flex-col items-center justify-center gap-1.5">
+              <AnimatedGhost />
+              <p className="text-muted-foreground">No users found</p>
+            </div>
           )}
+
           {displayedUsers.map((user) => {
             return (
               <Link
