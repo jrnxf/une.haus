@@ -1,6 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { CornerDownLeftIcon, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
+import { useDropzone } from "react-dropzone-esm";
+
+import { toast } from "sonner";
 
 import {
   Accordion,
@@ -8,9 +12,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { getMuxPoster } from "~/components/video-player";
-import { games } from "~/lib/games";
-import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { VideoPlayer } from "~/components/video-player";
+import { games, groupSetsByUser } from "~/lib/games";
+import { useCreateSubmission } from "~/lib/games/rius/hooks";
+import { useVideoUpload } from "~/lib/media";
+import { useSessionUser } from "~/lib/session/hooks";
 
 export const Route = createFileRoute("/games/rius/active")({
   component: RouteComponent,
@@ -21,8 +29,47 @@ export const Route = createFileRoute("/games/rius/active")({
   },
 });
 
+function UploadButton({
+  onUploadSuccess,
+}: {
+  onUploadSuccess: (assetId: string) => void;
+}) {
+  const { uploadVideo, isUploading } = useVideoUpload({
+    onSuccess: (data) => {
+      onUploadSuccess(data.assetId);
+      toast.success("Video uploaded successfully");
+    },
+  });
+
+  const { getRootProps, getInputProps, open } = useDropzone({
+    accept: { "video/*": [] },
+    multiple: false,
+    noClick: true,
+    onDrop: useCallback(
+      (acceptedFiles: File[]) => {
+        const [file] = acceptedFiles;
+        if (file) {
+          uploadVideo(file);
+        }
+      },
+      [uploadVideo],
+    ),
+  });
+
+  return (
+    <div {...getRootProps()}>
+      <input {...getInputProps()} />
+      <Button onClick={open} disabled={isUploading}>
+        {isUploading ? "Uploading..." : "Upload"}
+      </Button>
+    </div>
+  );
+}
+
 function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions());
+  const sessionUser = useSessionUser();
+  const createSubmission = useCreateSubmission();
 
   if (!data?.sets.length) {
     return (
@@ -33,30 +80,10 @@ function RouteComponent() {
   }
 
   // Group sets by user elegantly
-  const groupedSets = useMemo(() => {
-    const groups: Record<
-      number,
-      { user: (typeof data.sets)[0]["user"]; sets: typeof data.sets }
-    > = {};
-
-    for (const set of data.sets) {
-      const userId = set.user.id;
-      const existing = groups[userId];
-      if (existing) {
-        existing.sets.push(set);
-      } else {
-        groups[userId] = {
-          user: set.user,
-          sets: [set],
-        };
-      }
-    }
-
-    return groups;
-  }, [data.sets]);
+  const groupedSets = useMemo(() => groupSetsByUser(data.sets), [data.sets]);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 p-4">
       <h2 className="text-lg font-semibold">RIU #{data.id}</h2>
       <Accordion type="single" collapsible className="w-full rounded-lg border">
         {Object.entries(groupedSets).map(([userId, { user, sets }]) => (
@@ -74,6 +101,7 @@ function RouteComponent() {
                 type="single"
                 collapsible
                 className="rounded-md border"
+                defaultValue={sets[0]?.id.toString()}
               >
                 {sets.map((set) => (
                   <AccordionItem
@@ -82,31 +110,68 @@ function RouteComponent() {
                     className="border-b last:border-b-0"
                   >
                     <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                      <div className="flex flex-col items-start">
+                      <div className="flex w-full items-center justify-between pr-4">
                         <h3 className="text-sm font-medium">{set.name}</h3>
+                        <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                          <div className="flex items-center gap-1">
+                            <MessageCircleIcon className="size-3" />
+                            <span>0</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <HeartIcon className="size-3" />
+                            <span>0</span>
+                          </div>
+                        </div>
                       </div>
                     </AccordionTrigger>
 
                     <AccordionContent className="px-3 pb-3">
-                      <div className="space-y-2">
+                      <div className="space-y-4" data-set-id={set.id}>
+                        {/* Video player */}
                         {set.video?.playbackId && (
-                          <div className="aspect-video overflow-hidden rounded">
-                            <img
-                              alt=""
-                              src={getMuxPoster(set.video.playbackId)}
-                              className="h-full w-full object-contain"
-                            />
-                          </div>
+                          <VideoPlayer playbackId={set.video.playbackId} />
                         )}
-                        <Link
-                          params={{ setId: set.id }}
-                          to="/games/rius/sets/$setId"
-                          className={cn(
-                            "bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded px-3 py-1.5 text-xs font-medium",
+
+                        {/* Instructions below video */}
+                        {set.instructions && (
+                          <p className="text-muted-foreground text-xs">
+                            {set.instructions}
+                          </p>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2">
+                          {sessionUser && (
+                            <UploadButton
+                              onUploadSuccess={(assetId) => {
+                                createSubmission.mutate({
+                                  data: {
+                                    riuSetId: set.id,
+                                    muxAssetId: assetId,
+                                  },
+                                });
+                              }}
+                            />
                           )}
-                        >
-                          View Set
-                        </Link>
+
+                          {/* Message form */}
+                          <form className="bg-background focus-within:ring-ring border-input relative w-full overflow-clip rounded-md border px-2 focus-within:ring-2">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                className="h-9 border-0 px-1 shadow-none focus-visible:ring-0"
+                                placeholder="Quick message..."
+                              />
+                              <Button
+                                iconRight={
+                                  <CornerDownLeftIcon className="size-3" />
+                                }
+                                size="sm"
+                                type="submit"
+                                variant="secondary"
+                              />
+                            </div>
+                          </form>
+                        </div>
                       </div>
                     </AccordionContent>
                   </AccordionItem>

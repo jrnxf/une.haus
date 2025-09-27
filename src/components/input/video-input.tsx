@@ -1,17 +1,13 @@
 import MuxPlayer from "@mux/mux-player-react";
-import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
-
-import * as Upchunk from "@mux/upchunk";
-import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
 import { useFormField, useFormMedia } from "~/components/ui/form";
 import { Progress } from "~/components/ui/progress";
 import { getMuxPoster } from "~/components/video-player";
-import { media } from "~/lib/media";
+import { useVideoUpload } from "~/lib/media";
 
 export const VideoInput = ({
   onChange,
@@ -25,15 +21,22 @@ export const VideoInput = ({
   const [fileName, setFileName] = useState<string>();
   const [playbackId, setPlaybackId] = useState<string>();
 
-  const { setVideoUploadStatus, videoUploadStatus } = useFormMedia();
+  const { setVideoUploadStatus } = useFormMedia();
 
-  const { mutateAsync } = useMutation({
-    mutationFn: media.pollMuxVideoUploadStatus.fn,
-  });
-
-  const createPresignedMuxUrl = useMutation({
-    mutationFn: media.createPresignedMuxUrl.fn,
-  });
+  const { uploadVideo, isUploading, uploadProgress, isProcessing } =
+    useVideoUpload({
+      onSuccess: (data) => {
+        onChange(data.assetId);
+        setPlaybackId(data.playbackId);
+        setVideoUploadStatus("idle");
+      },
+      onProgress: (progress) => {
+        setVideoUploadStatus(progress);
+      },
+      onError: () => {
+        setVideoUploadStatus("idle");
+      },
+    });
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -42,50 +45,10 @@ export const VideoInput = ({
       if (file) {
         setFileName(file.name);
         setVideoUploadStatus(0);
-
-        try {
-          const presignedMuxUrl = await createPresignedMuxUrl.mutateAsync({});
-
-          const { id: uploadId, url: presignedUrl } = presignedMuxUrl;
-
-          const upload = Upchunk.createUpload({
-            chunkSize: 5120, // upload the video in ~5mb chunks
-            endpoint: presignedUrl,
-            file,
-          });
-
-          // subscribe to events
-          upload.on("error", (error) => {
-            toast.error(
-              <span>
-                Upload failed. Please try again and contact{" "}
-                <span className="font-bold">colby@jrnxf.co</span> if the problem
-                persists.
-              </span>,
-            );
-            // sentry
-            console.error("mux upload error", error.detail);
-          });
-
-          upload.on("progress", (progress) => {
-            setVideoUploadStatus(Math.trunc(progress.detail));
-          });
-
-          upload.on("success", () => {
-            setVideoUploadStatus("processing");
-
-            mutateAsync({ data: { uploadId } }).then((data) => {
-              onChange(data.assetId);
-              setPlaybackId(data.playbackId);
-              setVideoUploadStatus("idle");
-            });
-          });
-        } catch {
-          setVideoUploadStatus("idle");
-        }
+        uploadVideo(file);
       }
     },
-    [onChange, setVideoUploadStatus],
+    [uploadVideo, setVideoUploadStatus],
   );
 
   const { getInputProps, getRootProps } = useDropzone({
@@ -107,7 +70,7 @@ export const VideoInput = ({
     }
     return (
       <div className="flex flex-col gap-2">
-        <div className="flex overflow-clip rounded-md border-2 border-dashed">
+        <div className="relative flex overflow-clip rounded-md border">
           <MuxPlayer
             accentColor="#000000"
             className="aspect-video"
@@ -117,17 +80,17 @@ export const VideoInput = ({
             preload="none" // save on bandwidth
             streamType="on-demand"
           />
-        </div>
 
-        <Button
-          className="self-start"
-          onClick={reset}
-          iconRight={<TrashIcon className="size-4" />}
-          type="button"
-          variant="destructive"
-        >
-          Remove
-        </Button>
+          <Button
+            className="absolute top-2 right-2"
+            onClick={reset}
+            type="button"
+            size="icon-sm"
+            variant="secondary"
+          >
+            <TrashIcon className="size-4" />
+          </Button>
+        </div>
       </div>
     );
   }
@@ -143,21 +106,21 @@ export const VideoInput = ({
       >
         <input
           {...getInputProps()}
-          disabled={videoUploadStatus !== "idle"}
+          disabled={isUploading || isProcessing}
           id={formItemId}
         />
         <span className="w-64 leading-relaxed text-wrap sm:w-auto">
           {fileName ?? "Click to select a video or drag and drop one here"}
         </span>
 
-        {typeof videoUploadStatus === "number" && (
+        {isUploading && (
           <Progress
-            value={videoUploadStatus}
+            value={uploadProgress}
             className="absolute bottom-0 h-1 rounded-none"
           />
         )}
 
-        {videoUploadStatus === "processing" && (
+        {isProcessing && (
           <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
             <span>processing</span>
             <Loader2Icon className="size-3 animate-spin" />

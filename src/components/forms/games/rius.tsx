@@ -46,7 +46,7 @@ export function CreateRiuSetForm() {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>title</FormLabel>
             <FormControl>
               <Input {...field} />
             </FormControl>
@@ -60,7 +60,7 @@ export function CreateRiuSetForm() {
         name="instructions"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Instructions</FormLabel>
+            <FormLabel>instructions</FormLabel>
             <FormControl>
               <Textarea {...field} />
             </FormControl>
@@ -73,7 +73,6 @@ export function CreateRiuSetForm() {
         name="muxAssetId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Video</FormLabel>
             <FormControl>
               <VideoInput {...field} />
             </FormControl>
@@ -84,7 +83,7 @@ export function CreateRiuSetForm() {
 
       <div className="flex justify-between gap-2">
         <Button asChild type="button" variant="outline">
-          <Link to="/games/rius/upcoming">Cancel</Link>
+          <Link to="/games/rius/upcoming">cancel</Link>
         </Button>
         <FormSubmitButton busy={createSet.isPending} />
       </div>

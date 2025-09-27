@@ -1,5 +1,5 @@
 {
-  "name": "une",
+  "name": "une.haus",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -45,6 +45,7 @@
     "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-radio-group": "^1.2.0",
     "@radix-ui/react-scroll-area": "^1.2.8",
+    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.0",

@@ -19,18 +19,15 @@ function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.upcoming.roster.queryOptions());
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto p-2">
-      <ScrollArea
-        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto"
-        id="main-content"
-      >
-        <div className="space-y-4 px-4">
-          <h1>Join game</h1>
+    <div className="flex grow flex-col overflow-hidden">
+      <ScrollArea className="overflow-y-auto" id="main-content">
+        <div className="mx-auto flex w-full max-w-lg flex-col gap-3 p-3">
+          <h1 className="text-xl leading-loose font-semibold">Upload set</h1>
           {data.authUserSets && data.authUserSets.length === 3 ? (
             <>
-              <p>You have already uploaded all the allowable sets!</p>
+              <p>you have already uploaded all the allowable sets!</p>
               <Button asChild>
-                <Link to="/games/rius/upcoming">Back</Link>
+                <Link to="/games/rius/upcoming">back</Link>
               </Button>
             </>
           ) : (

@@ -18,7 +18,7 @@ function Textarea({
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
-      rows={5}
+      rows={3}
       value={value ?? undefined}
       {...props}
     />

@@ -281,8 +281,8 @@ FormMessage.displayName = "FormMessage";
 
 function FormSubmitButton({
   busy,
-  busyText = "Submitting",
-  idleText = "Submit",
+  busyText = "submitting",
+  idleText = "submit",
   className,
   ...props
 }: ButtonProps & {
@@ -345,7 +345,7 @@ function FormDebug() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader className="sr-only">
-          <DialogTitle>Debug</DialogTitle>
+          <DialogTitle>debug</DialogTitle>
         </DialogHeader>
         <Json
           className="w-full border-none"

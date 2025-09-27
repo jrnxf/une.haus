@@ -200,6 +200,7 @@ export const listActiveRiusServerFn = createServerFn({
         columns: {
           id: true,
           name: true,
+          instructions: true,
         },
         with: {
           user: {

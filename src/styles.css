@@ -175,6 +175,13 @@ mux-player {
   --seek-forward-button: none;
 }
 
+/* doing it this way instead of via mux poster query params is better since on
+their end they run calculations so the poster only shows after a delay - this is
+immediate */
+mux-player::part(poster img) {
+  object-fit: cover;
+}
+
 /*
   This will hide the focus indicator if the element receives focus via the mouse,
   but it will still show up on keyboard focus.
@@ -185,4 +192,9 @@ mux-player {
   outline: none;
   /* tailwind actually uses box-shadow */
   box-shadow: none;
+}
+
+* {
+  /* always */
+  text-transform: lowercase;
 }

@@ -1,15 +1,11 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { toast } from "sonner";
+
 import { useSessionUser } from "~/lib/session/hooks";
 import { users } from "~/lib/users";
 
-export function useFollows({ userId }: { userId: number }) {
-  const { data } = useSuspenseQuery(users.follows.queryOptions({ userId }));
-
+export function useFollowMutations({ userId }: { userId: number }) {
   const qc = useQueryClient();
 
   const { isPending: isFollowing, mutate: follow } = useMutation({
@@ -113,12 +109,5 @@ export function useFollows({ userId }: { userId: number }) {
 
   const sessionUser = useSessionUser();
 
-  const authUserFollowsUser = data.followers.users.some(
-    (user) => user.id === sessionUser?.id,
-  );
-
-  const action = authUserFollowsUser ? unfollow : follow;
-  const isPending = authUserFollowsUser ? isUnfollowing : isFollowing;
-
-  return { action, authUserFollowsUser, data, isPending };
+  return { follow, isFollowing, unfollow, isUnfollowing };
 }

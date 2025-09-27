@@ -104,3 +104,22 @@ export const games = {
     },
   },
 };
+
+export function groupSetsByUser<T extends { user: { id: number } }>(sets: T[]) {
+  const groups: Record<number, { user: T["user"]; sets: T[] }> = {};
+
+  for (const set of sets) {
+    const userId = set.user.id;
+    const existing = groups[userId];
+    if (existing) {
+      existing.sets.push(set);
+    } else {
+      groups[userId] = {
+        user: set.user,
+        sets: [set],
+      };
+    }
+  }
+
+  return groups;
+}

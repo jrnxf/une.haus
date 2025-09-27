@@ -1,11 +1,10 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, serverOnly } from "@tanstack/react-start";
 
 import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import { userFollows, userLocations, users, userSocials } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
-import { sleep } from "~/lib/dx/utils";
 import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
 import {
@@ -80,39 +79,23 @@ export const getUserServerFn = createServerFn({
 })
   .validator(getUserSchema)
   .handler(async ({ data }) => {
-    const [user] = await db
-      .select({
-        avatarUrl: users.avatarUrl,
-        bio: users.bio,
-        disciplines: users.disciplines,
-        email: users.email,
-        id: users.id,
-        location: {
-          countryName: userLocations.countryName,
-          countryCode: userLocations.countryCode,
-          label: userLocations.label,
-          lat: userLocations.lat,
-          lng: userLocations.lng,
-        },
-        name: users.name,
-        socials: {
-          facebook: userSocials.facebook,
-          instagram: userSocials.instagram,
-          spotify: userSocials.spotify,
-          tiktok: userSocials.tiktok,
-          twitter: userSocials.twitter,
-          youtube: userSocials.youtube,
-        },
-      })
-      .from(users)
-      .where(eq(users.id, data.userId))
-      .leftJoin(userLocations, eq(userLocations.userId, users.id))
-      .leftJoin(userSocials, eq(userSocials.userId, users.id))
-      // .leftJoin(userDisciplines, eq(userDisciplines.userId, users.id))
-      .limit(1);
+    return await getUser(data.userId);
+  });
 
-    assertFound(user);
-    return user;
+export const getUserWithFollowsServerFn = createServerFn({
+  method: "GET",
+})
+  .validator(getUserSchema)
+  .handler(async ({ data }) => {
+    const [user, follows] = await Promise.all([
+      getUser(data.userId),
+      getUserFollows(data.userId),
+    ]);
+
+    return {
+      ...user,
+      ...follows,
+    };
   });
 
 export const updateUserServerFn = createServerFn({
@@ -169,50 +152,7 @@ export const getUserFollowsServerFn = createServerFn({
 })
   .validator(getUserFollowsSchema)
   .handler(async ({ data: input }) => {
-    const [followedUsersResult, followedByUsersResult] =
-      await Promise.allSettled([
-        db
-          .select({
-            avatarUrl: users.avatarUrl,
-            id: users.id,
-            name: users.name,
-          })
-          .from(userFollows)
-          .leftJoin(users, eq(userFollows.followedUserId, users.id))
-          .where(eq(userFollows.followedByUserId, input.userId))
-          .orderBy(asc(users.id)),
-
-        db
-          .select({
-            avatarUrl: users.avatarUrl,
-            id: users.id,
-            name: users.name,
-          })
-          .from(userFollows)
-          .leftJoin(users, eq(userFollows.followedByUserId, users.id))
-          .where(eq(userFollows.followedUserId, input.userId))
-          .orderBy(asc(users.id)),
-      ]);
-
-    const followedUsers =
-      followedUsersResult.status === "fulfilled"
-        ? followedUsersResult.value
-        : [];
-    const followedByUsers =
-      followedByUsersResult.status === "fulfilled"
-        ? followedByUsersResult.value
-        : [];
-
-    return {
-      followers: {
-        count: followedByUsers.length,
-        users: followedByUsers,
-      },
-      following: {
-        count: followedUsers.length,
-        users: followedUsers,
-      },
-    };
+    return await getUserFollows(input.userId);
   });
 
 export const followUserServerFn = createServerFn({
@@ -242,3 +182,96 @@ export const unfollowUserServerFn = createServerFn({
         ),
       );
   });
+
+const getUser = serverOnly(async (userId: number) => {
+  const [user] = await db
+    .select({
+      avatarUrl: users.avatarUrl,
+      bio: users.bio,
+      disciplines: users.disciplines,
+      email: users.email,
+      id: users.id,
+      location: {
+        countryName: userLocations.countryName,
+        countryCode: userLocations.countryCode,
+        label: userLocations.label,
+        lat: userLocations.lat,
+        lng: userLocations.lng,
+      },
+      name: users.name,
+      socials: {
+        facebook: userSocials.facebook,
+        instagram: userSocials.instagram,
+        spotify: userSocials.spotify,
+        tiktok: userSocials.tiktok,
+        twitter: userSocials.twitter,
+        youtube: userSocials.youtube,
+      },
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .leftJoin(userLocations, eq(userLocations.userId, users.id))
+    .leftJoin(userSocials, eq(userSocials.userId, users.id))
+    .limit(1);
+
+  assertFound(user);
+
+  return user;
+});
+
+const getUserFollows = serverOnly(async (userId: number) => {
+  const [followedUsersResult, followedByUsersResult] = await Promise.allSettled(
+    [
+      // Users that this user follows (followedByUserId = userId, join on followedUserId)
+      db
+        .select({
+          avatarUrl: users.avatarUrl,
+          id: users.id,
+          name: users.name,
+          location: {
+            lat: userLocations.lat,
+            lng: userLocations.lng,
+          },
+        })
+        .from(userFollows)
+        .innerJoin(users, eq(userFollows.followedUserId, users.id))
+        .leftJoin(userLocations, eq(userLocations.userId, users.id))
+        .where(eq(userFollows.followedByUserId, userId))
+        .orderBy(asc(users.id)),
+      // Users that follow this user (followedUserId = userId, join on followedByUserId)
+      db
+        .select({
+          avatarUrl: users.avatarUrl,
+          id: users.id,
+          name: users.name,
+          location: {
+            lat: userLocations.lat,
+            lng: userLocations.lng,
+          },
+        })
+        .from(userFollows)
+        .innerJoin(users, eq(userFollows.followedByUserId, users.id))
+        .leftJoin(userLocations, eq(userLocations.userId, users.id))
+        .where(eq(userFollows.followedUserId, userId))
+        .orderBy(asc(users.id)),
+    ],
+  );
+
+  const followedUsers =
+    followedUsersResult.status === "fulfilled" ? followedUsersResult.value : [];
+  const followedByUsers =
+    followedByUsersResult.status === "fulfilled"
+      ? followedByUsersResult.value
+      : [];
+
+  return {
+    followers: {
+      count: followedByUsers.length,
+      users: followedByUsers,
+    },
+    following: {
+      count: followedUsers.length,
+      users: followedUsers,
+    },
+  };
+});

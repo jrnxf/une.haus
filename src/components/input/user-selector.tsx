@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -37,7 +38,7 @@ export function UserSelector({
       fallback={
         <div className="pointer-events-none cursor-not-allowed">
           <Button
-            className="w-64 justify-between hover:bg-inherit"
+            className="w-full justify-between hover:bg-inherit"
             role="combobox"
             size="lg"
             variant="outline"
@@ -78,6 +79,7 @@ function UserItem({
   );
 }
 
+const VIRTUALIZE_THRESHOLD = 7;
 function UsersCommandGroup({
   onSelect,
 }: {
@@ -164,33 +166,33 @@ function UsersCommandGroup({
         <Command className="w-full" shouldFilter={false}>
           <CommandInput
             onValueChange={setQuery}
-            placeholder="Search users..."
+            placeholder="Search"
             value={query}
           />
-          {noResults ? (
-            <p className="border-t py-4 text-center text-sm">No results</p>
-          ) : (
-            <CommandGroup>
-              <CommandList>
-                <ScrollArea
-                  virtualize={filteredUsers.length > 10}
-                  className={cn(
-                    // allows the list to shrink when we're not virtualizing
-                    filteredUsers.length > 10 ? "h-[250px]" : "max-h-[250px]",
-                  )}
-                >
-                  {filteredUsers.map((user) => (
-                    <UserItem
-                      key={user.id}
-                      onSelect={onSelectUser}
-                      showCheck={user.id === checkedUser?.id}
-                      user={user}
-                    />
-                  ))}
-                </ScrollArea>
-              </CommandList>
-            </CommandGroup>
-          )}
+          <CommandGroup>
+            <CommandList>
+              <CommandEmpty>No results</CommandEmpty>
+              <ScrollArea
+                virtualize={filteredUsers.length >= VIRTUALIZE_THRESHOLD}
+                className={cn(
+                  "w-[200px]",
+                  // allows the list to shrink when we're not virtualizing
+                  filteredUsers.length >= VIRTUALIZE_THRESHOLD
+                    ? "h-[250px]"
+                    : "max-h-[250px]",
+                )}
+              >
+                {filteredUsers.map((user) => (
+                  <UserItem
+                    key={user.id}
+                    onSelect={onSelectUser}
+                    showCheck={user.id === checkedUser?.id}
+                    user={user}
+                  />
+                ))}
+              </ScrollArea>
+            </CommandList>
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>

@@ -1,9 +1,19 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import {
+  ChevronDown,
+  CornerDownLeftIcon,
+  HeartIcon,
+  MessageCircleIcon,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -11,10 +21,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { VideoPlayer } from "~/components/video-player";
-import { games } from "~/lib/games";
-import { cn } from "~/lib/utils";
+import { games, groupSetsByUser } from "~/lib/games";
 
 const formatRiuDate = (createdAt: Date | string) => {
   const date = typeof createdAt === "string" ? new Date(createdAt) : createdAt;
@@ -45,6 +55,12 @@ function RouteComponent() {
 
   const selectedRiu = archivedRius.find((riu) => riu.id === selectedRiuId);
 
+  // Group sets by user elegantly
+  const groupedSets = useMemo(() => {
+    if (!selectedRiu) return {};
+    return groupSetsByUser(selectedRiu.sets);
+  }, [selectedRiu]);
+
   if (archivedRius.length === 0) {
     return (
       <div className="text-center">
@@ -54,9 +70,9 @@ function RouteComponent() {
   }
 
   return (
-    <div className="space-y-2">
-      <h2 className="text-lg font-semibold">Previous RIUs</h2>
-      <div className="flex items-center justify-end">
+    <div className="flex flex-col gap-8 p-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Previous RIUs</h2>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="min-w-[200px] justify-between">
@@ -90,50 +106,91 @@ function RouteComponent() {
         </DropdownMenu>
       </div>
 
-      {selectedRiu && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div>
-              <h2 className="text-lg font-semibold">RIU #{selectedRiu.id}</h2>
-              <p className="text-muted-foreground text-sm">
-                {formatRiuDate(selectedRiu.createdAt)} •{" "}
-                {selectedRiu.sets.length} sets
-              </p>
-            </div>
-          </div>
+      {selectedRiu && Object.keys(groupedSets).length > 0 && (
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full rounded-lg border"
+        >
+          {Object.entries(groupedSets).map(([userId, { user, sets }]) => (
+            <AccordionItem
+              key={userId}
+              value={userId}
+              className="border-b last:border-b-0"
+            >
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <h2 className="font-semibold">{user.name}</h2>
+              </AccordionTrigger>
 
-          <div className="flex flex-col gap-3">
-            {selectedRiu.sets.map((set) => (
-              <div
-                key={set.id}
-                className={cn(
-                  "w-full space-y-3 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Avatar className="size-6 rounded-full">
-                    <AvatarImage
-                      alt={set.user.name}
-                      src={set.user.avatarUrl || undefined}
-                    />
-                    <AvatarFallback className="text-xs" name={set.user.name} />
-                  </Avatar>
-                  <p className="truncate text-base font-medium">{set.name}</p>
-                </div>
+              <AccordionContent className="px-4 pb-3">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="rounded-md border"
+                  defaultValue={sets[0]?.id.toString()}
+                >
+                  {sets.map((set) => (
+                    <AccordionItem
+                      key={set.id}
+                      value={set.id.toString()}
+                      className="border-b last:border-b-0"
+                    >
+                      <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                        <div className="flex w-full items-center justify-between pr-4">
+                          <h3 className="text-sm font-medium">{set.name}</h3>
+                          <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                            <div className="flex items-center gap-1">
+                              <MessageCircleIcon className="size-3" />
+                              <span>0</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <HeartIcon className="size-3" />
+                              <span>0</span>
+                            </div>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
 
-                {set.instructions && (
-                  <p className="text-muted-foreground line-clamp-3 text-sm">
-                    {set.instructions}
-                  </p>
-                )}
+                      <AccordionContent className="px-3 pb-3">
+                        <div className="space-y-4">
+                          {/* Video player */}
+                          {set.video?.playbackId && (
+                            <VideoPlayer playbackId={set.video.playbackId} />
+                          )}
 
-                {set.video?.playbackId && (
-                  <VideoPlayer playbackId={set.video.playbackId} />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+                          {/* Instructions below video */}
+                          {set.instructions && (
+                            <p className="text-muted-foreground text-xs">
+                              {set.instructions}
+                            </p>
+                          )}
+
+                          {/* Message form */}
+                          <form className="bg-background focus-within:ring-ring border-input relative w-full overflow-clip rounded-md border px-2 focus-within:ring-2">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                className="h-9 border-0 px-1 shadow-none focus-visible:ring-0"
+                                placeholder="Quick message..."
+                              />
+                              <Button
+                                iconRight={
+                                  <CornerDownLeftIcon className="size-3" />
+                                }
+                                size="sm"
+                                type="submit"
+                                variant="secondary"
+                              />
+                            </div>
+                          </form>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       )}
     </div>
   );

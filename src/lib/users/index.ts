@@ -6,10 +6,11 @@ import {
   allUsersServerFn,
   followUserServerFn,
   getUserFollowsServerFn,
-  getUserServerFn,
+  getUserWithFollowsServerFn,
   listUsersServerFn,
   unfollowUserServerFn,
   updateUserServerFn,
+  type getUserServerFn,
 } from "~/lib/users/fns";
 import {
   followUserSchema,
@@ -57,12 +58,12 @@ export const users = {
     },
   },
   get: {
-    fn: getUserServerFn,
+    fn: getUserWithFollowsServerFn,
     schema: getUserSchema,
-    queryOptions: (data: ServerFnData<typeof getUserServerFn>) => {
+    queryOptions: (data: ServerFnData<typeof getUserWithFollowsServerFn>) => {
       return queryOptions({
         queryKey: ["users.get", data],
-        queryFn: () => getUserServerFn({ data }),
+        queryFn: () => getUserWithFollowsServerFn({ data }),
       });
     },
   },
@@ -91,4 +92,8 @@ export const users = {
 };
 
 export type UsersGetData = ServerFnReturn<typeof getUserServerFn>;
+export type UsersWithFollowsData = ServerFnReturn<
+  typeof getUserWithFollowsServerFn
+>;
+export type UsersFollowsData = ServerFnReturn<typeof getUserFollowsServerFn>;
 export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>;
