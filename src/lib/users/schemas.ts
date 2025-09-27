@@ -5,7 +5,11 @@ import { USER_DISCIPLINES } from "~/db/schema";
 export const listUsersSchema = z.object({
   cursor: z.number().nullish(),
   disciplines: z.array(z.enum(USER_DISCIPLINES)).optional(),
-  q: z.string().optional(),
+  name: z.string().optional(),
+
+  // it thinks this is a promise .catch lol
+  // eslint-disable-next-line unicorn/prefer-top-level-await
+  id: z.number().optional().catch(undefined),
 });
 
 export const getUserSchema = z.object({

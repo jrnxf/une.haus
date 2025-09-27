@@ -2,8 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Suspense, useMemo, useState } from "react";
 
-import { VList } from "virtua";
-
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -19,7 +17,6 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { Separator } from "~/components/ui/separator";
 import { invariant } from "~/lib/invariant";
 import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -31,25 +28,28 @@ type User = {
 };
 
 export function UserSelector({
-  onUpdate,
+  onSelect,
 }: {
-  onUpdate: (user: undefined | User) => void;
+  onSelect: (user: undefined | User) => void;
 }) {
   return (
     <Suspense
       fallback={
-        <Button
-          className="w-64 justify-between hover:bg-inherit"
-          disabled
-          role="combobox"
-          size="lg"
-          variant="outline"
-        >
-          Select user...
-        </Button>
+        <div className="pointer-events-none cursor-not-allowed">
+          <Button
+            className="w-64 justify-between hover:bg-inherit"
+            role="combobox"
+            size="lg"
+            variant="outline"
+          >
+            <p className="grow truncate text-left">Select user</p>
+
+            <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+          </Button>
+        </div>
       }
     >
-      <UsersCommandGroup onUpdate={onUpdate} />
+      <UsersCommandGroup onSelect={onSelect} />
     </Suspense>
   );
 }
@@ -70,10 +70,6 @@ function UserItem({
       onSelect={() => onSelect(user)}
       value={user.id.toString()}
     >
-      <Avatar className="size-6 rounded-md">
-        <AvatarImage alt={user.name} src={user.avatarUrl} />
-        <AvatarFallback className="text-xs" name={user.name} />
-      </Avatar>
       <p className="grow truncate text-sm">{user.name}</p>
       <Check
         className={cn("mr-2 size-4", showCheck ? "opacity-100" : "opacity-0")}
@@ -82,7 +78,11 @@ function UserItem({
   );
 }
 
-function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
+function UsersCommandGroup({
+  onSelect,
+}: {
+  onSelect: (user: User | undefined) => void;
+}) {
   const [selectedUser, setSelectedUser] = useState<User>();
   const [checkedUser, setCheckedUser] = useState<User>();
   const [query, setQuery] = useState("");
@@ -92,18 +92,29 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
 
   invariant(data[0], "No users found");
 
-  const filteredUsers = useMemo(() => {
-    return data.filter((user) =>
-      user.name.toLowerCase().includes(query.toLowerCase()),
-    );
-  }, [data, query]);
+  const searchReadyUsers = useMemo(
+    () =>
+      data.map((user) => ({
+        ...user,
+        searchKey: user.name.toLowerCase(),
+      })),
+    [data],
+  );
+
+  const lowercasedQuery = query.toLowerCase();
+
+  const filteredUsers = searchReadyUsers.filter((user) =>
+    user.searchKey.includes(lowercasedQuery),
+  );
 
   const noResults = filteredUsers.length === 0;
 
-  const onSelect = (user: User) => {
-    setSelectedUser(user);
+  const onSelectUser = (user: User) => {
+    const nextValue =
+      selectedUser && user.id === selectedUser.id ? undefined : user;
+    setSelectedUser(nextValue);
     setOpen(false);
-    onUpdate(user);
+    onSelect(nextValue);
   };
 
   return (
@@ -111,7 +122,7 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
       <PopoverTrigger asChild>
         <Button
           aria-expanded={open}
-          className="w-64 justify-between hover:bg-inherit"
+          className="w-full justify-between hover:bg-inherit"
           role="combobox"
           size="lg"
           variant="outline"
@@ -135,7 +146,7 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
               <p className="grow truncate text-left">{selectedUser.name}</p>
             </div>
           ) : (
-            <p className="grow truncate text-left">Select user...</p>
+            <p className="grow truncate text-left">Select user</p>
           )}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
@@ -150,41 +161,36 @@ function UsersCommandGroup({ onUpdate }: { onUpdate: (user: User) => void }) {
           setQuery("");
         }}
       >
-        <Command className="w-64" shouldFilter={false}>
+        <Command className="w-full" shouldFilter={false}>
           <CommandInput
             onValueChange={setQuery}
             placeholder="Search users..."
             value={query}
           />
-          <Separator />
-          {noResults && (
-            <p className="border-t py-4 text-center text-sm">No user found.</p>
-          )}
-          <CommandGroup>
-            <CommandList>
-              {filteredUsers.length < 20 ? (
-                filteredUsers.map((user) => (
-                  <UserItem
-                    key={user.id}
-                    onSelect={onSelect}
-                    showCheck={user.id === checkedUser?.id}
-                    user={user}
-                  />
-                ))
-              ) : (
-                <ScrollArea virtualize className="h-[250px]">
+          {noResults ? (
+            <p className="border-t py-4 text-center text-sm">No results</p>
+          ) : (
+            <CommandGroup>
+              <CommandList>
+                <ScrollArea
+                  virtualize={filteredUsers.length > 10}
+                  className={cn(
+                    // allows the list to shrink when we're not virtualizing
+                    filteredUsers.length > 10 ? "h-[250px]" : "max-h-[250px]",
+                  )}
+                >
                   {filteredUsers.map((user) => (
                     <UserItem
                       key={user.id}
-                      onSelect={onSelect}
+                      onSelect={onSelectUser}
                       showCheck={user.id === checkedUser?.id}
                       user={user}
                     />
                   ))}
                 </ScrollArea>
-              )}
-            </CommandList>
-          </CommandGroup>
+              </CommandList>
+            </CommandGroup>
+          )}
         </Command>
       </PopoverContent>
     </Popover>

@@ -1,11 +1,3 @@
-import {
-  useDebouncedCallback,
-  useDebouncedValue,
-} from "@tanstack/react-pacer/debouncer";
-import {
-  useThrottledCallback,
-  useThrottledValue,
-} from "@tanstack/react-pacer/throttler";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { FilterIcon } from "lucide-react";
@@ -23,9 +15,6 @@ import {
 import { AnimatedGhost } from "~/components/ui/animated-ghost";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { DotPattern } from "~/components/ui/dot-pattern";
-import { Input } from "~/components/ui/input";
-import { InteractiveGridPattern } from "~/components/ui/interactive-grid-pattern";
 import { MultiSelect } from "~/components/ui/multi-select";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { USER_DISCIPLINES } from "~/db/schema";
@@ -53,64 +42,15 @@ function RouteComponent() {
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(searchParams));
 
-  const [query, setQuery] = useState("");
-
-  const [debouncedQuery] = useDebouncedValue(query, { wait: 250 });
-  const [throttledQuery] = useThrottledValue(query, { wait: 400 });
-  // const [selectedUserIdx, setSelectedUserIdx] = useState(-1);
-
   const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
-
-  // const selectUser = (idx: number) => {
-  //   setSelectedUserIdx(idx);
-  // };
-
-  // const selectedUser = users[selectedUserIdx];
-
-  // const goToNextUser = () => {
-  //   setSelectedUserIdx((selectedUserIdx + 1) % users.length);
-  // };
-
-  // const goToPreviousUser = () => {
-  //   setSelectedUserIdx((selectedUserIdx - 1 + users.length) % users.length);
-  // };
-
-  const router = useRouter();
-  const updateSearch = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("updateSearch", evt.target.value);
-
-    const query = evt.target.value;
-    router.navigate({
-      to: "/users",
-      search: {
-        q: query,
-        disciplines: searchParams.disciplines,
-      },
-      replace: true,
-    });
-  };
-
-  const debouncedUpdateSearch = useDebouncedCallback(updateSearch, {
-    wait: 200,
-  });
 
   return (
     <div className="flex grow flex-col overflow-hidden">
       <ScrollArea className="overflow-y-auto" id="main-content">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
-          <div className="flex items-end justify-end gap-4">
+          <div className="sticky top-3 z-10 self-end">
             <FiltersTray />
           </div>
-
-          <div
-            data-color="blue"
-            className="size-28 [background-color:data-color]"
-          />
-
-          <UserSelector onUpdate={console.log} />
-
-          <Input placeholder="Search users" onChange={debouncedUpdateSearch} />
-
           {displayedUsers.length === 0 && (
             <div className="flex h-28 flex-col items-center justify-center gap-1.5">
               <AnimatedGhost />
@@ -130,7 +70,6 @@ function RouteComponent() {
                   "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
                 )}
                 data-user-name={user.name}
-                // onClick={() => selectUser(idx)}
               >
                 <div className="flex items-center gap-2">
                   <Avatar className="size-6 rounded-full">
@@ -167,7 +106,8 @@ function FiltersTray() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
-  const [query, setQuery] = useState(searchParams.q);
+  const [selectedUserId, setSelectedUserId] = useState<number>();
+
   const [disciplines, setDisciplines] = useState(searchParams.disciplines);
 
   return (
@@ -180,29 +120,20 @@ function FiltersTray() {
       <TrayContent>
         <TrayTitle>Filters</TrayTitle>
         <div className="flex flex-col items-start gap-3">
-          <Input
-            className="w-64"
-            id="search"
-            onChange={(evt) => setQuery(evt.target.value)}
-            placeholder="Search users"
-            value={query}
+          <UserSelector onSelect={(user) => setSelectedUserId(user?.id)} />
+
+          <MultiSelect
+            buttonLabel="Disciplines"
+            onOptionCheckedChange={(option, checked) => {
+              if (checked) {
+                setDisciplines([...(disciplines ?? []), option]);
+              } else {
+                setDisciplines((disciplines ?? []).filter((d) => d !== option));
+              }
+            }}
+            options={USER_DISCIPLINES}
+            selections={disciplines ?? []}
           />
-          <div className="w-64">
-            <MultiSelect
-              buttonLabel="Disciplines"
-              onOptionCheckedChange={(option, checked) => {
-                if (checked) {
-                  setDisciplines([...(disciplines ?? []), option]);
-                } else {
-                  setDisciplines(
-                    (disciplines ?? []).filter((d) => d !== option),
-                  );
-                }
-              }}
-              options={USER_DISCIPLINES}
-              selections={disciplines ?? []}
-            />
-          </div>
 
           <div className="flex w-full justify-end gap-2">
             <TrayClose asChild>
@@ -216,19 +147,14 @@ function FiltersTray() {
               </Button>
             </TrayClose>
             <TrayClose asChild>
-              <Button
-                onClick={() => {
-                  router.navigate({
-                    to: "/users",
-                    search: {
-                      q: query,
-                      disciplines,
-                    },
-                    replace: true,
-                  });
-                }}
-              >
-                Apply
+              <Button asChild>
+                <Link
+                  to="/users"
+                  replace
+                  search={{ id: selectedUserId, disciplines }}
+                >
+                  Apply
+                </Link>
               </Button>
             </TrayClose>
           </div>

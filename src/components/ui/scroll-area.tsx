@@ -1,6 +1,6 @@
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import * as React from "react";
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 
 import { Virtualizer } from "virtua";
 

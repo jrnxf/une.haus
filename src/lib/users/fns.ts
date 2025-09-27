@@ -5,6 +5,7 @@ import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 import { db } from "~/db";
 import { userFollows, userLocations, users, userSocials } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
+import { sleep } from "~/lib/dx/utils";
 import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
 import {
@@ -62,7 +63,8 @@ export const listUsersServerFn = createServerFn({
       .leftJoin(userSocials, eq(userSocials.userId, users.id))
       .where(
         and(
-          input.q ? ilike(users.name, `%${input.q}%`) : undefined,
+          input.name ? ilike(users.name, `%${input.name}%`) : undefined,
+          input.id ? eq(users.id, input.id) : undefined,
           input.disciplines && input.disciplines.length > 0
             ? sql`${users.disciplines}::jsonb @> ${sql.raw(`'${JSON.stringify(input.disciplines)}'`)}::jsonb`
             : undefined,

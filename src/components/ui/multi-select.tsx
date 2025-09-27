@@ -9,6 +9,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "~/components/ui/command";
 import {
   Popover,
@@ -50,8 +51,8 @@ export function MultiSelect<T extends string>({
         <Command>
           <CommandInput placeholder="Filter..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
-            <CommandGroup>
+            <CommandEmpty>No results</CommandEmpty>
+            <CommandGroup heading="foo">
               {options.map((option) => {
                 const isChecked = selections.includes(option);
                 return (
