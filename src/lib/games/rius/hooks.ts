@@ -46,22 +46,28 @@ export function useAdminRotateRius() {
   });
 }
 
-// export function useCreateSubmission() {
-//   const qc = useQueryClient();
+export function useCreateSubmission() {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
 
-//   return api.games.createRiuSubmission.useMutation({
-//     onError: (error) => {
-//       toast.error("Failed to create submission");
-//       console.error(error);
-//     },
-//     onSuccess: () => {
-//       toast.success("Submission created");
-//       qc.refetchQueries({
-//         queryKey: getQueryKey(api.games.listRiuSets, "active"),
-//       });
-//     },
-//   });
-// }
+  return useMutation({
+    mutationFn: games.rius.submissions.create.fn,
+    onSuccess: (data) => {
+      toast.success("Submission uploaded", {
+        action: {
+          label: "View",
+          onClick: () => {
+            navigate({ to: `/games/rius/submissions/${data.id}` });
+          },
+        },
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to create submission");
+      console.error(error);
+    },
+  });
+}
 
 export function useDeleteSet() {
   const sessionUser = useSessionUser();

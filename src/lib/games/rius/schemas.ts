@@ -18,7 +18,7 @@ export const getRiuSetSchema = z.object({
 export type GetRiuSetArgs = z.infer<typeof getRiuSetSchema>;
 
 export const getRiuSubmissionSchema = z.object({
-  riuSubmissionId: z.number().positive({ message: "Required" }),
+  submissionId: z.number().positive({ message: "Required" }),
 });
 
 export type GetRiuSubmissionArgs = z.infer<typeof getRiuSubmissionSchema>;

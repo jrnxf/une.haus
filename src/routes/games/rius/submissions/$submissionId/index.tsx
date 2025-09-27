@@ -14,6 +14,7 @@ import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { VideoPlayer } from "~/components/video-player";
+import { flashMessage } from "~/lib/flash";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -21,23 +22,23 @@ import { session } from "~/lib/session/index";
 import { cn } from "~/lib/utils";
 
 const pathParametersSchema = z.object({
-  setId: z.coerce.number(),
+  submissionId: z.coerce.number(),
 });
 
-export const Route = createFileRoute("/games/rius/sets/$setId/")({
+export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
   component: RouteComponent,
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { setId } }) => {
+  loader: async ({ context, params: { submissionId } }) => {
     const ensureSet = async () => {
       try {
         await context.queryClient.ensureQueryData(
-          games.rius.sets.get.queryOptions({ setId }),
+          games.rius.submissions.get.queryOptions({ submissionId }),
         );
       } catch {
-        await session.flash.set.fn({ data: { message: "Set not found" } });
-        throw redirect({ to: "/games/rius" });
+        await flashMessage("Submission not found");
+        throw redirect({ to: "/games/rius/active" });
       }
     };
 
@@ -46,7 +47,7 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
 });
 
 function RouteComponent() {
-  const { setId } = Route.useParams();
+  const { submissionId } = Route.useParams();
 
   return (
     <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-2 py-4">
@@ -54,36 +55,38 @@ function RouteComponent() {
         className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
         id="main-content"
       >
-        <SetView setId={setId} />
+        <SubmissionView submissionId={submissionId} />
       </ScrollArea>
     </div>
   );
 }
 
-function SetView({ setId }: { setId: number }) {
-  const { data: set } = useSuspenseQuery(
-    games.rius.sets.get.queryOptions({ setId }),
+function SubmissionView({ submissionId }: { submissionId: number }) {
+  const { data: submission } = useSuspenseQuery(
+    games.rius.submissions.get.queryOptions({ submissionId }),
   );
 
-  invariant(set, "Set not found");
+  invariant(submission, "Submission not found");
 
   const sessionUser = useSessionUser();
 
   // TODO: Add like/unlike functionality for sets if needed
   const authUserLiked = false; // Sets don't have likes yet
 
-  const isOwner = set.user.id === sessionUser?.id;
+  const isOwner = submission.user.id === sessionUser?.id;
 
   return (
     <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
       <div className="flex items-center gap-3">
         <div className="w-full space-y-1">
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
-            {set.name}
+            #{submission.id}
           </div>
         </div>
 
-        <div className="text-muted-foreground text-sm">{set.user.name}</div>
+        <div className="text-muted-foreground text-sm">
+          {submission.user.name}
+        </div>
         <div className="flex shrink-0 items-center gap-1">
           <Button size="icon-sm" variant="outline" disabled>
             <HeartIcon
@@ -102,10 +105,6 @@ function SetView({ setId }: { setId: number }) {
         </div>
       </div>
 
-      <div className="break-words whitespace-pre-wrap">
-        <p>{set.instructions}</p>
-      </div>
-
       {isOwner && (
         <div className="flex items-center gap-1">
           <Button size="icon-sm" variant="outline" disabled>
@@ -114,7 +113,7 @@ function SetView({ setId }: { setId: number }) {
           <Button
             onClick={() => {
               // TODO: Implement delete set functionality
-              console.log("Delete set", set.id);
+              console.log("Delete submission", submission.id);
             }}
             size="icon-sm"
             variant="outline"
@@ -124,10 +123,9 @@ function SetView({ setId }: { setId: number }) {
         </div>
       )}
 
-      {set.video && set.video.playbackId && (
-        <VideoPlayer playbackId={set.video.playbackId} />
+      {submission.video && submission.video.playbackId && (
+        <VideoPlayer playbackId={submission.video.playbackId} />
       )}
-      {sessionUser && <CreateRiuSubmissionForm riuSetId={setId} />}
 
       {/* Sets don't have messages yet - could be added later */}
     </div>

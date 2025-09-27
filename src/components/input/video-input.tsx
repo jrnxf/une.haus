@@ -15,8 +15,10 @@ import { media } from "~/lib/media";
 
 export const VideoInput = ({
   onChange,
+  showPreview = true,
 }: {
   onChange: (assetId: string | undefined) => void;
+  showPreview?: boolean;
 }) => {
   const { formItemId } = useFormField();
 
@@ -100,6 +102,9 @@ export const VideoInput = ({
   };
 
   if (playbackId) {
+    if (!showPreview) {
+      return null;
+    }
     return (
       <div className="flex flex-col gap-2">
         <div className="flex overflow-clip rounded-md border-2 border-dashed">

@@ -90,6 +90,12 @@ export const games = {
       get: {
         fn: getRiuSubmissionServerFn,
         schema: getRiuSubmissionSchema,
+        queryOptions: (data: ServerFnData<typeof getRiuSubmissionServerFn>) => {
+          return queryOptions({
+            queryKey: ["games.rius.submissions.get", data],
+            queryFn: () => getRiuSubmissionServerFn({ data }),
+          });
+        },
       },
       create: {
         fn: createRiuSubmissionServerFn,

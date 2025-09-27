@@ -29,6 +29,7 @@ import { Route as GamesRiusPreviousIndexRouteImport } from './routes/games/rius/
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
+import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './routes/games/rius/submissions/$submissionId/index'
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
 import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
 import { ServerRoute as ApiMuxWebhookServerRouteImport } from './routes/api/mux/webhook'
@@ -125,6 +126,12 @@ const AuthedAuthMeEditRoute = AuthedAuthMeEditRouteImport.update({
   path: '/auth/me/edit',
   getParentRoute: () => AuthedRoute,
 } as any)
+const GamesRiusSubmissionsSubmissionIdIndexRoute =
+  GamesRiusSubmissionsSubmissionIdIndexRouteImport.update({
+    id: '/submissions/$submissionId/',
+    path: '/submissions/$submissionId/',
+    getParentRoute: () => GamesRiusRouteRoute,
+  } as any)
 const GamesRiusSetsSetIdIndexRoute = GamesRiusSetsSetIdIndexRouteImport.update({
   id: '/sets/$setId/',
   path: '/sets/$setId/',
@@ -167,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -188,6 +196,7 @@ export interface FileRoutesByTo {
   '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -211,6 +220,7 @@ export interface FileRoutesById {
   '/games/rius/upcoming/': typeof GamesRiusUpcomingIndexRoute
   '/_authed/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
   '/games/rius/sets/$setId/': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId/': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/games/rius/upcoming'
     | '/games/rius/upcoming/join'
     | '/games/rius/sets/$setId'
+    | '/games/rius/submissions/$submissionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/games/rius/upcoming'
     | '/games/rius/upcoming/join'
     | '/games/rius/sets/$setId'
+    | '/games/rius/submissions/$submissionId'
   id:
     | '__root__'
     | '/'
@@ -277,6 +289,7 @@ export interface FileRouteTypes {
     | '/games/rius/upcoming/'
     | '/_authed/games/rius/upcoming/join'
     | '/games/rius/sets/$setId/'
+    | '/games/rius/submissions/$submissionId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAuthMeEditRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/games/rius/submissions/$submissionId/': {
+      id: '/games/rius/submissions/$submissionId/'
+      path: '/submissions/$submissionId'
+      fullPath: '/games/rius/submissions/$submissionId'
+      preLoaderRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
     '/games/rius/sets/$setId/': {
       id: '/games/rius/sets/$setId/'
       path: '/sets/$setId'
@@ -505,6 +525,7 @@ interface GamesRiusRouteRouteChildren {
   GamesRiusPreviousIndexRoute: typeof GamesRiusPreviousIndexRoute
   GamesRiusUpcomingIndexRoute: typeof GamesRiusUpcomingIndexRoute
   GamesRiusSetsSetIdIndexRoute: typeof GamesRiusSetsSetIdIndexRoute
+  GamesRiusSubmissionsSubmissionIdIndexRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRoute
 }
 
 const GamesRiusRouteRouteChildren: GamesRiusRouteRouteChildren = {
@@ -512,6 +533,8 @@ const GamesRiusRouteRouteChildren: GamesRiusRouteRouteChildren = {
   GamesRiusPreviousIndexRoute: GamesRiusPreviousIndexRoute,
   GamesRiusUpcomingIndexRoute: GamesRiusUpcomingIndexRoute,
   GamesRiusSetsSetIdIndexRoute: GamesRiusSetsSetIdIndexRoute,
+  GamesRiusSubmissionsSubmissionIdIndexRoute:
+    GamesRiusSubmissionsSubmissionIdIndexRoute,
 }
 
 const GamesRiusRouteRouteWithChildren = GamesRiusRouteRoute._addFileChildren(

@@ -146,7 +146,7 @@ export const getRiuSubmissionServerFn = createServerFn({
       .from(riuSubmissions)
       .innerJoin(muxVideos, eq(riuSubmissions.muxAssetId, muxVideos.assetId))
       .innerJoin(users, eq(riuSubmissions.userId, users.id))
-      .where(eq(riuSubmissions.id, input.riuSubmissionId));
+      .where(eq(riuSubmissions.id, input.submissionId));
 
     return submission;
   });
