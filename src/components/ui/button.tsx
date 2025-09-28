@@ -23,6 +23,7 @@ const buttonVariants = cva(
         fit: "size-max p-0",
         icon: "size-9",
         "icon-sm": "size-8",
+        "icon-xs": "size-7",
         inherit: "",
         lg: "h-11 px-4 py-2",
         sm: "h-7 rounded-md px-2",

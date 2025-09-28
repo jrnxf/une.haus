@@ -23,7 +23,10 @@ export function createRouter() {
         queryClient,
         session: {},
       },
-      defaultPreload: "intent",
+      // I had this set to "intent" but it doesn't seem to be as helpful on
+      // mobile since there's no hover on mobile and it uses touch start events
+      // which mean it doesn't really load fast enough
+      defaultPreload: "viewport",
       // react-query will handle data fetching & caching
       // https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
       defaultPreloadStaleTime: 0,

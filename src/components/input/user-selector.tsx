@@ -11,6 +11,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "~/components/ui/command";
 import {
   Popover,
@@ -21,6 +22,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { invariant } from "~/lib/invariant";
 import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
+import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
 type User = {
   avatarUrl: null | string;
@@ -31,20 +33,19 @@ type User = {
 export function UserSelector({
   onSelect,
 }: {
-  onSelect: (user: undefined | User) => void;
+  onSelect: (user: User | undefined) => void;
 }) {
   return (
     <Suspense
       fallback={
-        <div className="pointer-events-none cursor-not-allowed">
+        <div className="pointer-events-none w-full cursor-not-allowed">
           <Button
             className="w-full justify-between hover:bg-inherit"
             role="combobox"
             size="lg"
             variant="outline"
           >
-            <p className="grow truncate text-left">Select user</p>
-
+            <p className="grow truncate text-left select-none">Select user</p>
             <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
           </Button>
         </div>
@@ -105,11 +106,12 @@ function UsersCommandGroup({
 
   const lowercasedQuery = query.toLowerCase();
 
-  const filteredUsers = searchReadyUsers.filter((user) =>
-    user.searchKey.includes(lowercasedQuery),
-  );
+  const fzf = useFzf([
+    searchReadyUsers,
+    { selector: (user) => user.searchKey },
+  ]);
 
-  const noResults = filteredUsers.length === 0;
+  const filteredUsers = fzf.find(lowercasedQuery);
 
   const onSelectUser = (user: User) => {
     const nextValue =
@@ -163,36 +165,37 @@ function UsersCommandGroup({
           setQuery("");
         }}
       >
-        <Command className="w-full" shouldFilter={false}>
+        <Command className="w-full divide-y" shouldFilter={false}>
           <CommandInput
             onValueChange={setQuery}
             placeholder="Search"
             value={query}
           />
-          <CommandGroup>
-            <CommandList>
-              <CommandEmpty>No results</CommandEmpty>
-              <ScrollArea
-                virtualize={filteredUsers.length >= VIRTUALIZE_THRESHOLD}
-                className={cn(
-                  "w-[200px]",
-                  // allows the list to shrink when we're not virtualizing
-                  filteredUsers.length >= VIRTUALIZE_THRESHOLD
-                    ? "h-[250px]"
-                    : "max-h-[250px]",
-                )}
-              >
-                {filteredUsers.map((user) => (
-                  <UserItem
-                    key={user.id}
-                    onSelect={onSelectUser}
-                    showCheck={user.id === checkedUser?.id}
-                    user={user}
-                  />
-                ))}
-              </ScrollArea>
-            </CommandList>
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>No results</CommandEmpty>
+            {filteredUsers.length > 0 && (
+              <CommandGroup>
+                <ScrollArea
+                  virtualize={filteredUsers.length >= VIRTUALIZE_THRESHOLD}
+                  className={cn(
+                    // allows the list to shrink when we're not virtualizing
+                    filteredUsers.length >= VIRTUALIZE_THRESHOLD
+                      ? "h-[250px]"
+                      : "max-h-[250px]",
+                  )}
+                >
+                  {filteredUsers.map(({ item: user }) => (
+                    <UserItem
+                      key={user.id}
+                      onSelect={onSelectUser}
+                      showCheck={user.id === checkedUser?.id}
+                      user={user}
+                    />
+                  ))}
+                </ScrollArea>
+              </CommandGroup>
+            )}
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
