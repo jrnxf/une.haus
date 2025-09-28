@@ -12,11 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { invariant } from "~/lib/invariant";
 import { users } from "~/lib/users";
@@ -121,8 +117,8 @@ function UsersCommandGroup({
   };
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
         <Button
           aria-expanded={open}
           className="w-full justify-between hover:bg-inherit"
@@ -153,10 +149,10 @@ function UsersCommandGroup({
           )}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
+      </DialogTrigger>
+      <DialogContent
         className="w-full p-0"
+        showCloseButton={false}
         onCloseAutoFocus={() => {
           if (selectedUser) {
             setCheckedUser(selectedUser);
@@ -196,7 +192,7 @@ function UsersCommandGroup({
             )}
           </CommandList>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }

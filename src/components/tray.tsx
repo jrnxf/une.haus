@@ -88,20 +88,12 @@ export function TrayContent({
           className={cn("p-4", className, drawerClassName)}
           {...properties}
           overlay={false}
-          autoFocus={false}
-          onOpenAutoFocus={(evt) => {
-            evt.preventDefault();
-          }}
         />
       ) : (
         <DialogContent
           className={cn(className, dialogClassName)}
           {...properties}
           overlay={false}
-          autoFocus={false}
-          onOpenAutoFocus={(evt) => {
-            ev.preventDefault();
-          }}
         />
       )}
     </>

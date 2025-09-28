@@ -9,13 +9,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "~/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { cn } from "~/lib/utils";
 
 export function MultiSelect<T extends string>({
@@ -30,8 +25,8 @@ export function MultiSelect<T extends string>({
   selections: T[];
 }) {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button
           className="w-full justify-between"
           role="combobox"
@@ -48,8 +43,8 @@ export function MultiSelect<T extends string>({
             <ChevronsUpDown className="size-4 opacity-50" />
           </div>
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      </DialogTrigger>
+      <DialogContent className="w-full p-0" showCloseButton={false}>
         <Command>
           <CommandInput placeholder="Filter..." />
           <CommandList>
@@ -78,8 +73,8 @@ export function MultiSelect<T extends string>({
             </CommandGroup>
           </CommandList>
         </Command>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
     // <DropdownMenu>
     //   <DropdownMenuTrigger asChild>
     //     <Button size="lg" variant="outline">
