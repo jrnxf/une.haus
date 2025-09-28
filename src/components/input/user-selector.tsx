@@ -40,7 +40,7 @@ export function UserSelector({
             size="lg"
             variant="outline"
           >
-            <p className="grow truncate text-left select-none">Select user</p>
+            <p className="grow truncate text-left select-none">Search</p>
             <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
           </Button>
         </div>
@@ -145,7 +145,7 @@ function UsersCommandGroup({
               <p className="grow truncate text-left">{selectedUser.name}</p>
             </div>
           ) : (
-            <p className="grow truncate text-left">Select user</p>
+            <p className="grow truncate text-left">Search</p>
           )}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>

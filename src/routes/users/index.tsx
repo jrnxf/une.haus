@@ -4,6 +4,7 @@ import { FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Badges } from "~/components/badges";
+import { BadgeInput } from "~/components/input/badge-input";
 import { UserSelector } from "~/components/input/user-selector";
 import {
   Tray,
@@ -15,7 +16,6 @@ import {
 import { AnimatedGhost } from "~/components/ui/animated-ghost";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { MultiSelect } from "~/components/ui/multi-select";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
@@ -48,7 +48,7 @@ function RouteComponent() {
     <div className="flex grow flex-col overflow-hidden">
       <ScrollArea className="overflow-y-auto" id="main-content">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
-          <div className="sticky top-3 z-10 self-end">
+          <div className="fixed right-3 bottom-3 z-10 md:sticky md:top-3 md:self-end">
             <FiltersTray />
           </div>
           {displayedUsers.length === 0 && (
@@ -118,21 +118,16 @@ function FiltersTray() {
         </Button>
       </TrayTrigger>
       <TrayContent>
-        <TrayTitle>Filters</TrayTitle>
         <div className="flex flex-col items-start gap-3">
+          <TrayTitle className="text-lg">Filters</TrayTitle>
+          <label htmlFor="user-selector">User</label>
           <UserSelector onSelect={(user) => setSelectedUserId(user?.id)} />
 
-          <MultiSelect
-            buttonLabel="Disciplines"
-            onOptionCheckedChange={(option, checked) => {
-              if (checked) {
-                setDisciplines([...(disciplines ?? []), option]);
-              } else {
-                setDisciplines((disciplines ?? []).filter((d) => d !== option));
-              }
-            }}
+          <label htmlFor="disciplines">Disciplines</label>
+          <BadgeInput
+            defaultSelections={disciplines}
+            onChange={setDisciplines}
             options={USER_DISCIPLINES}
-            selections={disciplines ?? []}
           />
 
           <div className="flex w-full justify-end gap-2">

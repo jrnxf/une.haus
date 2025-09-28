@@ -85,7 +85,7 @@ export function TrayContent({
       <TrayOverlay />
       {isMobile ? (
         <DrawerContent
-          className={cn("h-full p-4", className, drawerClassName)}
+          className={cn("p-4", className, drawerClassName)}
           {...properties}
           overlay={false}
         />
