@@ -11,7 +11,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "~/components/ui/command";
 import {
   Popover,
@@ -72,7 +71,7 @@ function UserItem({
       onSelect={() => onSelect(user)}
       value={user.id.toString()}
     >
-      <p className="grow truncate text-sm">{user.name}</p>
+      <p className="grow truncate">{user.name}</p>
       <Check
         className={cn("mr-2 size-4", showCheck ? "opacity-100" : "opacity-0")}
       />
@@ -165,10 +164,10 @@ function UsersCommandGroup({
           setQuery("");
         }}
       >
-        <Command className="w-full divide-y" shouldFilter={false}>
+        <Command className="w-full" shouldFilter={false}>
           <CommandInput
             onValueChange={setQuery}
-            placeholder="Search"
+            placeholder="Filter..."
             value={query}
           />
           <CommandList>

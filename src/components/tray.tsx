@@ -10,11 +10,11 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import {
-  Drawer,
   DrawerClose,
   DrawerContent,
   DrawerTitle,
   DrawerTrigger,
+  type Drawer,
 } from "~/components/ui/drawer";
 import { cn } from "~/lib/utils";
 
@@ -35,11 +35,13 @@ export function Tray(
     | React.ComponentProps<typeof Dialog>
     | React.ComponentProps<typeof Drawer>,
 ) {
-  const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
+  const isMobile = false;
+  // const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const [open, setOpen] = useState(false);
 
-  const Comp = isMobile ? Drawer : Dialog;
+  // const Comp = isMobile ? Drawer : Dialog;
+  const Comp = Dialog;
 
   return (
     <TrayContext.Provider value={{ isMobile, open }}>

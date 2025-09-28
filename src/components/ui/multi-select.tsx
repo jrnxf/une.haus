@@ -39,12 +39,14 @@ export function MultiSelect<T extends string>({
           variant="outline"
         >
           {buttonLabel}
-          {selections.length > 0 && (
-            <Badge variant="secondary">
-              {selections.length}/{options.length}
-            </Badge>
-          )}
-          <ChevronsUpDown className="size-4 opacity-50" />
+          <div className="flex items-center gap-2">
+            {selections.length > 0 && (
+              <Badge variant="secondary">
+                {selections.length}/{options.length}
+              </Badge>
+            )}
+            <ChevronsUpDown className="size-4 opacity-50" />
+          </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -52,7 +54,7 @@ export function MultiSelect<T extends string>({
           <CommandInput placeholder="Filter..." />
           <CommandList>
             <CommandEmpty>No results</CommandEmpty>
-            <CommandGroup heading="foo">
+            <CommandGroup>
               {options.map((option) => {
                 const isChecked = selections.includes(option);
                 return (

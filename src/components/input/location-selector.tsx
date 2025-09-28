@@ -110,7 +110,6 @@ export function LocationSelector({
         <PopoverContent align="start" className="w-xs p-0">
           <Command async fetchInProgress={fetching} shouldFilter={false}>
             <CommandInput
-              autoFocus
               className="w-xs"
               isFetching={fetching}
               onValueChange={(nextQuery) => {

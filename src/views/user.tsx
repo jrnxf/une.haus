@@ -99,9 +99,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
               <span className="truncate">{user.name}</span>
             </h1>
 
-            <Suspense fallback={<FollowsLoading userId={user.id} />}>
-              <Follows {...user} />
-            </Suspense>
+            <Follows {...user} />
 
             {user.location && (
               <div className="flex max-w-full items-center gap-2">
@@ -161,14 +159,19 @@ function Follows(props: UsersWithFollowsData) {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-2">
-        <UsersDropdownMenu
-          users={followers.users}
-          triggerText={`${followers.count} followers`}
-        />
-        <UsersDropdownMenu
-          users={following.users}
-          triggerText={`${following.count} following`}
-        />
+        {followers.count > 0 && (
+          <UsersDropdownMenu
+            users={followers.users}
+            triggerText={`${followers.count} followers`}
+          />
+        )}
+
+        {following.count > 0 && (
+          <UsersDropdownMenu
+            users={following.users}
+            triggerText={`${following.count} following`}
+          />
+        )}
       </div>
       {showActionButton && (
         <Button
@@ -177,36 +180,6 @@ function Follows(props: UsersWithFollowsData) {
         >
           {authUserFollowsUser ? "Unfollow" : "Follow"}
         </Button>
-      )}
-    </div>
-  );
-}
-
-function FollowsLoading({ userId }: { userId: number }) {
-  const sessionUser = useSessionUser();
-
-  const showActionButton = sessionUser && sessionUser.id !== userId;
-
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center gap-2">
-        <Skeleton>
-          <Button size="sm" variant="secondary">
-            <Skeleton className="h-4 w-5" />
-            followers
-          </Button>
-        </Skeleton>
-        <Skeleton>
-          <Button size="sm" variant="secondary">
-            <Skeleton className="h-4 w-5" />
-            following
-          </Button>
-        </Skeleton>
-      </div>
-      {showActionButton && (
-        <Skeleton>
-          <Button>Follow</Button>
-        </Skeleton>
       )}
     </div>
   );
