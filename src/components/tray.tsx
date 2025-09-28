@@ -10,11 +10,11 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import {
+  Drawer,
   DrawerClose,
   DrawerContent,
   DrawerTitle,
   DrawerTrigger,
-  type Drawer,
 } from "~/components/ui/drawer";
 import { cn } from "~/lib/utils";
 
@@ -35,13 +35,11 @@ export function Tray(
     | React.ComponentProps<typeof Dialog>
     | React.ComponentProps<typeof Drawer>,
 ) {
-  const isMobile = false;
-  // const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
+  const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const [open, setOpen] = useState(false);
 
-  // const Comp = isMobile ? Drawer : Dialog;
-  const Comp = Dialog;
+  const Comp = isMobile ? Drawer : Dialog;
 
   return (
     <TrayContext.Provider value={{ isMobile, open }}>
@@ -90,12 +88,20 @@ export function TrayContent({
           className={cn("p-4", className, drawerClassName)}
           {...properties}
           overlay={false}
+          autoFocus={false}
+          onOpenAutoFocus={(evt) => {
+            evt.preventDefault();
+          }}
         />
       ) : (
         <DialogContent
           className={cn(className, dialogClassName)}
           {...properties}
           overlay={false}
+          autoFocus={false}
+          onOpenAutoFocus={(evt) => {
+            ev.preventDefault();
+          }}
         />
       )}
     </>

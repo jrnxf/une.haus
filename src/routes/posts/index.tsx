@@ -146,6 +146,7 @@ function FiltersTray() {
             onChange={(evt) => setQuery(evt.target.value)}
             placeholder="Search users"
             value={query}
+            tabIndex={undefined}
           />
 
           <div className="flex w-full justify-end gap-2">
