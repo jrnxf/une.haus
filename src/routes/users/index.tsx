@@ -48,7 +48,7 @@ function RouteComponent() {
     <div className="flex grow flex-col overflow-hidden">
       <ScrollArea className="overflow-y-auto" id="main-content">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
-          <div className="fixed right-3 bottom-3 z-10 md:sticky md:top-3 md:self-end">
+          <div className="fixed right-4 bottom-4 z-10 md:static md:self-end">
             <FiltersTray />
           </div>
           {displayedUsers.length === 0 && (
@@ -106,9 +106,10 @@ function FiltersTray() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
-  const [selectedUserId, setSelectedUserId] = useState<number>();
-
   const [disciplines, setDisciplines] = useState(searchParams.disciplines);
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    searchParams.id,
+  );
 
   return (
     <Tray>
@@ -121,7 +122,10 @@ function FiltersTray() {
         <div className="flex flex-col items-start gap-3">
           <TrayTitle className="text-lg">Filters</TrayTitle>
           <label htmlFor="user-selector">User</label>
-          <UserSelector onSelect={(user) => setSelectedUserId(user?.id)} />
+          <UserSelector
+            initialUserId={searchParams.id}
+            onSelect={(user) => setSelectedUserId(user?.id)}
+          />
 
           <label htmlFor="disciplines">Disciplines</label>
           <BadgeInput

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { isMobile } from "react-device-detect";
 
 import { useMediaQuery } from "usehooks-ts";
 
@@ -21,10 +22,8 @@ import { cn } from "~/lib/utils";
 const MEDIA_QUERY_DESKTOP = "(max-width: 768px)";
 
 const TrayContext = React.createContext<{
-  isMobile: boolean;
   open: boolean;
 }>({
-  isMobile: false,
   open: false,
 });
 
@@ -35,14 +34,12 @@ export function Tray(
     | React.ComponentProps<typeof Dialog>
     | React.ComponentProps<typeof Drawer>,
 ) {
-  const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
-
   const [open, setOpen] = useState(false);
 
   const Comp = isMobile ? Drawer : Dialog;
 
   return (
-    <TrayContext.Provider value={{ isMobile, open }}>
+    <TrayContext.Provider value={{ open }}>
       <Comp
         {...properties}
         onOpenChange={properties.onOpenChange ?? setOpen}
@@ -59,8 +56,6 @@ export function TrayClose(
     | React.ComponentProps<typeof DialogClose>
     | React.ComponentProps<typeof DrawerClose>,
 ) {
-  const { isMobile } = useTrayContext();
-
   const Comp = isMobile ? DrawerClose : DialogClose;
 
   return <Comp {...properties} />;
@@ -78,8 +73,6 @@ export function TrayContent({
   | React.ComponentProps<typeof DialogContent>
   | React.ComponentProps<typeof DrawerContent>
 )) {
-  const { isMobile } = useTrayContext();
-
   return (
     <>
       <TrayOverlay />
@@ -105,8 +98,6 @@ export function TrayTitle(
     | React.ComponentProps<typeof DialogTitle>
     | React.ComponentProps<typeof DrawerTitle>,
 ) {
-  const { isMobile } = useTrayContext();
-
   const Comp = isMobile ? DrawerTitle : DialogTitle;
 
   return <Comp {...properties} />;
@@ -117,8 +108,6 @@ export function TrayTrigger(
     | React.ComponentProps<typeof DialogTrigger>
     | React.ComponentProps<typeof DrawerTrigger>,
 ) {
-  const { isMobile } = useTrayContext();
-
   const Comp = isMobile ? DrawerTrigger : DialogTrigger;
 
   return <Comp {...properties} />;

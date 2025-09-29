@@ -26,8 +26,10 @@ type User = {
 };
 
 export function UserSelector({
+  initialUserId,
   onSelect,
 }: {
+  initialUserId: number | undefined;
   onSelect: (user: User | undefined) => void;
 }) {
   return (
@@ -46,47 +48,28 @@ export function UserSelector({
         </div>
       }
     >
-      <UsersCommandGroup onSelect={onSelect} />
+      <UsersCommandGroup onSelect={onSelect} initialUserId={initialUserId} />
     </Suspense>
   );
 }
 
-function UserItem({
-  onSelect,
-  showCheck,
-  user,
-}: {
-  onSelect: (user: User) => void;
-  showCheck: boolean;
-  user: User;
-}) {
-  return (
-    <CommandItem
-      key={user.id}
-      keywords={[user.name]}
-      onSelect={() => onSelect(user)}
-      value={user.id.toString()}
-    >
-      <p className="grow truncate">{user.name}</p>
-      <Check
-        className={cn("mr-2 size-4", showCheck ? "opacity-100" : "opacity-0")}
-      />
-    </CommandItem>
-  );
-}
-
 const VIRTUALIZE_THRESHOLD = 7;
-function UsersCommandGroup({
-  onSelect,
-}: {
+
+function UsersCommandGroup(props: {
   onSelect: (user: User | undefined) => void;
+  initialUserId: number | undefined;
 }) {
-  const [selectedUser, setSelectedUser] = useState<User>();
-  const [checkedUser, setCheckedUser] = useState<User>();
+  const { data } = useSuspenseQuery(users.all.queryOptions());
+  const initialUser = props.initialUserId
+    ? data.find((user) => user.id === props.initialUserId)
+    : undefined;
+  const [selectedUser, setSelectedUser] = useState<User | undefined>(
+    initialUser,
+  );
+  const [checkedUser, setCheckedUser] = useState<User | undefined>(initialUser);
   const [query, setQuery] = useState("");
 
   const [open, setOpen] = useState(false);
-  const { data } = useSuspenseQuery(users.all.queryOptions());
 
   invariant(data[0], "No users found");
 
@@ -113,7 +96,7 @@ function UsersCommandGroup({
       selectedUser && user.id === selectedUser.id ? undefined : user;
     setSelectedUser(nextValue);
     setOpen(false);
-    onSelect(nextValue);
+    props.onSelect(nextValue);
   };
 
   return (
@@ -194,5 +177,29 @@ function UsersCommandGroup({
         </Command>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function UserItem({
+  onSelect,
+  showCheck,
+  user,
+}: {
+  onSelect: (user: User) => void;
+  showCheck: boolean;
+  user: User;
+}) {
+  return (
+    <CommandItem
+      key={user.id}
+      keywords={[user.name]}
+      onSelect={() => onSelect(user)}
+      value={user.id.toString()}
+    >
+      <p className="grow truncate">{user.name}</p>
+      <Check
+        className={cn("mr-2 size-4", showCheck ? "opacity-100" : "opacity-0")}
+      />
+    </CommandItem>
   );
 }
