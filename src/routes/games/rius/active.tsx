@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, UploadIcon } from "lucide-react";
 import { useMemo } from "react";
 
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray";
@@ -47,39 +47,35 @@ function SetCard({ set }: { set: SetType }) {
   return (
     <Tray>
       <TrayTrigger asChild>
-        <Button variant="outline" className="h-auto w-full justify-start p-0">
-          <div className="flex min-w-0 overflow-hidden p-0">
-            {/* Thumbnail */}
-            {set.video.playbackId && (
-              <img
-                src={getMuxPoster(set.video.playbackId)}
-                alt={`${set.name} thumbnail`}
-                className="m-2 aspect-video h-16 shrink-0 rounded object-cover"
-              />
-            )}
-
-            {/* Content */}
-            <div className="flex flex-col items-start justify-around overflow-hidden p-3">
-              <h3 className="text-sm font-medium">{set.name}</h3>
-              {set.instructions && (
-                <p className="text-muted-foreground line-clamp-2 overflow-hidden text-xs">
-                  {set.instructions}
-                </p>
-              )}
-
-              {/* Stats */}
-              <div className="text-muted-foreground flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1">
-                  <MessageCircleIcon className="size-3" />
-                  <span>{messagesQuery.data.messages.length}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <HeartIcon className="size-3" />
-                  <span>0</span>
-                </div>
+        <Button
+          variant="outline"
+          className="h-auto w-full flex-col items-start justify-start gap-1 p-3 text-left whitespace-normal"
+        >
+          {/* Content */}
+          <div className="flex w-full items-start justify-between gap-6">
+            <h3 className="truncate text-sm font-medium">{set.name}</h3>
+            {/* Stats */}
+            <div className="text-muted-foreground flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-1">
+                <MessageCircleIcon className="size-3" />
+                <span>{messagesQuery.data.messages.length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <HeartIcon className="size-3" />
+                <span>{set.likes.length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <UploadIcon className="size-3" />
+                <span>0</span>
               </div>
             </div>
           </div>
+
+          {set.instructions && (
+            <p className="text-muted-foreground line-clamp-2 overflow-hidden text-xs">
+              {set.instructions}
+            </p>
+          )}
         </Button>
       </TrayTrigger>
 
