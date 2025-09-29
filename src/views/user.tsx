@@ -144,7 +144,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 function Follows(props: UsersWithFollowsData) {
   const { id: userId, followers, following } = props;
 
-  const { follow, isFollowing, unfollow, isUnfollowing } = useFollowMutations({
+  const { follow, unfollow } = useFollowMutations({
     userId,
   });
 
@@ -174,10 +174,7 @@ function Follows(props: UsersWithFollowsData) {
         )}
       </div>
       {showActionButton && (
-        <Button
-          disabled={isFollowing || isUnfollowing}
-          onClick={() => action({ data: { userId } })}
-        >
+        <Button onClick={() => action({ data: { userId } })}>
           {authUserFollowsUser ? "Unfollow" : "Follow"}
         </Button>
       )}

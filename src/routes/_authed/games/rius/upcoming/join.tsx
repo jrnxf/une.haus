@@ -19,7 +19,7 @@ function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.upcoming.roster.queryOptions());
 
   return (
-    <div className="flex grow flex-col overflow-hidden">
+    <div className="flex grow flex-col overflow-hidden px-1">
       <ScrollArea className="overflow-y-auto" id="main-content">
         <div className="mx-auto flex w-full max-w-lg flex-col gap-3 p-3">
           <h1 className="text-xl leading-loose font-semibold">Upload set</h1>

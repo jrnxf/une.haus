@@ -3,7 +3,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
-import { chatMessages, postMessages } from "~/db/schema";
+import {
+  chatMessages,
+  postMessages,
+  riuSetMessages,
+  riuSubmissionMessages,
+} from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import {
   createMessageSchema,
@@ -103,6 +108,86 @@ export const listMessagesServerFn = createServerFn({
       };
     }
 
+    if (input.type === "riuSet") {
+      const messages = await db.query.riuSetMessages.findMany({
+        orderBy: asc(riuSetMessages.createdAt),
+        where: eq(riuSetMessages.riuSetId, input.id),
+        columns: {
+          riuSetId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              riuSetMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarUrl: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarUrl: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "riuSetMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
+    if (input.type === "riuSubmission") {
+      const messages = await db.query.riuSubmissionMessages.findMany({
+        orderBy: asc(riuSubmissionMessages.createdAt),
+        where: eq(riuSubmissionMessages.riuSubmissionId, input.id),
+        columns: {
+          riuSubmissionId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              riuSubmissionMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarUrl: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarUrl: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "riuSubmissionMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
     invariant(false, "Invalid type");
   });
 
@@ -132,6 +217,28 @@ export const createMessageServerFn = createServerFn({
         .insert(chatMessages)
         .values({
           content,
+          userId,
+        })
+        .returning();
+    }
+
+    if (type === "riuSet") {
+      await db
+        .insert(riuSetMessages)
+        .values({
+          content,
+          riuSetId: id,
+          userId,
+        })
+        .returning();
+    }
+
+    if (type === "riuSubmission") {
+      await db
+        .insert(riuSubmissionMessages)
+        .values({
+          content,
+          riuSubmissionId: id,
           userId,
         })
         .returning();
@@ -173,7 +280,15 @@ export const deleteMessageServerFn = createServerFn({
 
 export const getTableByType = (type: MessageParentType) => {
   const table =
-    type === "post" ? postMessages : type === "chat" ? chatMessages : undefined;
+    type === "post"
+      ? postMessages
+      : type === "chat"
+        ? chatMessages
+        : type === "riuSet"
+          ? riuSetMessages
+          : type === "riuSubmission"
+            ? riuSubmissionMessages
+            : undefined;
 
   invariant(
     table,

@@ -174,6 +174,58 @@ export const postMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.postMessageId, t.userId] })],
 );
 
+export const riuSetMessages = pgTable("riu_set_messages", {
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+
+  id: serial("id").primaryKey(),
+  riuSetId: integer("riu_set_id")
+    .notNull()
+    .references(() => riuSets.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const riuSetMessageLikes = pgTable(
+  "riu_set_message_likes",
+  {
+    riuSetMessageId: integer("riu_set_message_id")
+      .notNull()
+      .references(() => riuSetMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.riuSetMessageId, t.userId] })],
+);
+
+export const riuSubmissionMessages = pgTable("riu_submission_messages", {
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+
+  id: serial("id").primaryKey(),
+  riuSubmissionId: integer("riu_submission_id")
+    .notNull()
+    .references(() => riuSubmissions.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const riuSubmissionMessageLikes = pgTable(
+  "riu_submission_message_likes",
+  {
+    riuSubmissionMessageId: integer("riu_submission_message_id")
+      .notNull()
+      .references(() => riuSubmissionMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.riuSubmissionMessageId, t.userId] })],
+);
+
 export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
@@ -249,6 +301,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   likedPosts: many(postLikes),
   location: one(userLocations),
   posts: many(posts),
+  riuSetMessages: many(riuSetMessages),
+  riuSubmissionMessages: many(riuSubmissionMessages),
   socials: one(userSocials),
   authCodes: many(authCodes),
 }));
@@ -283,7 +337,7 @@ export const riusRelations = relations(rius, ({ many }) => ({
 
 export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
   // likes: many(postLikes),
-  // messages: many(postMessages),
+  messages: many(riuSetMessages),
   riu: one(rius, { fields: [riuSets.riuId], references: [rius.id] }),
   submissions: many(riuSubmissions),
   user: one(users, { fields: [riuSets.userId], references: [users.id] }),
@@ -293,17 +347,24 @@ export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
   }),
 }));
 
-export const riuSubmissionsRelations = relations(riuSubmissions, ({ one }) => ({
-  riuSet: one(riuSets, {
-    fields: [riuSubmissions.riuSetId],
-    references: [riuSets.id],
+export const riuSubmissionsRelations = relations(
+  riuSubmissions,
+  ({ one, many }) => ({
+    messages: many(riuSubmissionMessages),
+    riuSet: one(riuSets, {
+      fields: [riuSubmissions.riuSetId],
+      references: [riuSets.id],
+    }),
+    user: one(users, {
+      fields: [riuSubmissions.userId],
+      references: [users.id],
+    }),
+    video: one(muxVideos, {
+      fields: [riuSubmissions.muxAssetId],
+      references: [muxVideos.assetId],
+    }),
   }),
-  user: one(users, { fields: [riuSubmissions.userId], references: [users.id] }),
-  video: one(muxVideos, {
-    fields: [riuSubmissions.muxAssetId],
-    references: [muxVideos.assetId],
-  }),
-}));
+);
 
 export const postLikesRelations = relations(postLikes, ({ one }) => ({
   post: one(posts, { fields: [postLikes.postId], references: [posts.id] }),
@@ -351,6 +412,66 @@ export const chatMessageLikesRelations = relations(
     }),
     user: one(users, {
       fields: [chatMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+// RIU SET MESSAGES
+export const riuSetMessagesRelations = relations(
+  riuSetMessages,
+  ({ many, one }) => ({
+    likes: many(riuSetMessageLikes),
+    riuSet: one(riuSets, {
+      fields: [riuSetMessages.riuSetId],
+      references: [riuSets.id],
+    }),
+    user: one(users, {
+      fields: [riuSetMessages.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const riuSetMessageLikesRelations = relations(
+  riuSetMessageLikes,
+  ({ one }) => ({
+    riuSetMessage: one(riuSetMessages, {
+      fields: [riuSetMessageLikes.riuSetMessageId],
+      references: [riuSetMessages.id],
+    }),
+    user: one(users, {
+      fields: [riuSetMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+// RIU SUBMISSION MESSAGES
+export const riuSubmissionMessagesRelations = relations(
+  riuSubmissionMessages,
+  ({ many, one }) => ({
+    likes: many(riuSubmissionMessageLikes),
+    riuSubmission: one(riuSubmissions, {
+      fields: [riuSubmissionMessages.riuSubmissionId],
+      references: [riuSubmissions.id],
+    }),
+    user: one(users, {
+      fields: [riuSubmissionMessages.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const riuSubmissionMessageLikesRelations = relations(
+  riuSubmissionMessageLikes,
+  ({ one }) => ({
+    riuSubmissionMessage: one(riuSubmissionMessages, {
+      fields: [riuSubmissionMessageLikes.riuSubmissionMessageId],
+      references: [riuSubmissionMessages.id],
+    }),
+    user: one(users, {
+      fields: [riuSubmissionMessageLikes.userId],
       references: [users.id],
     }),
   }),

@@ -8,19 +8,19 @@ import { users } from "~/lib/users";
 export function useFollowMutations({ userId }: { userId: number }) {
   const qc = useQueryClient();
 
-  const { isPending: isFollowing, mutate: follow } = useMutation({
+  const sessionUser = useSessionUser();
+
+  const { mutate: follow } = useMutation({
     mutationFn: users.follow.fn,
     onMutate: () => {
       qc.cancelQueries({
-        queryKey: users.follows.queryOptions({ userId }).queryKey,
+        queryKey: users.get.queryOptions({ userId }).queryKey,
       });
 
-      const prev = qc.getQueryData(
-        users.follows.queryOptions({ userId }).queryKey,
-      );
+      const prev = qc.getQueryData(users.get.queryOptions({ userId }).queryKey);
 
       qc.setQueryData(
-        users.follows.queryOptions({ userId }).queryKey,
+        users.get.queryOptions({ userId }).queryKey,
         (previous) => {
           if (previous && sessionUser) {
             return {
@@ -33,6 +33,7 @@ export function useFollowMutations({ userId }: { userId: number }) {
                     avatarUrl: sessionUser.avatarUrl,
                     id: sessionUser.id,
                     name: sessionUser.name,
+                    location: null, // this doesn't really matter
                   },
                 ],
               },
@@ -47,7 +48,7 @@ export function useFollowMutations({ userId }: { userId: number }) {
       console.error(error);
       if (context) {
         qc.setQueryData(
-          users.follows.queryOptions({ userId }).queryKey,
+          users.get.queryOptions({ userId }).queryKey,
           context.previousData,
         );
         toast.error("Failed to follow user");
@@ -55,24 +56,24 @@ export function useFollowMutations({ userId }: { userId: number }) {
     },
     onSettled: () => {
       qc.invalidateQueries({
-        queryKey: users.follows.queryOptions({ userId }).queryKey,
+        queryKey: users.get.queryOptions({ userId }).queryKey,
       });
     },
   });
 
-  const { isPending: isUnfollowing, mutate: unfollow } = useMutation({
+  const { mutate: unfollow } = useMutation({
     mutationFn: users.unfollow.fn,
     onMutate: () => {
       qc.cancelQueries({
-        queryKey: users.follows.queryOptions({ userId }).queryKey,
+        queryKey: users.get.queryOptions({ userId }).queryKey,
       });
 
       const previousData = qc.getQueryData(
-        users.follows.queryOptions({ userId }).queryKey,
+        users.get.queryOptions({ userId }).queryKey,
       );
 
       qc.setQueryData(
-        users.follows.queryOptions({ userId }).queryKey,
+        users.get.queryOptions({ userId }).queryKey,
         (previous) => {
           if (previous && sessionUser) {
             return {
@@ -94,7 +95,7 @@ export function useFollowMutations({ userId }: { userId: number }) {
       console.error(error);
       if (context) {
         qc.setQueryData(
-          users.follows.queryOptions({ userId }).queryKey,
+          users.get.queryOptions({ userId }).queryKey,
           context.previousData,
         );
         toast.error("Failed to unfollow user");
@@ -102,12 +103,10 @@ export function useFollowMutations({ userId }: { userId: number }) {
     },
     onSettled: () => {
       qc.invalidateQueries({
-        queryKey: users.follows.queryOptions({ userId }).queryKey,
+        queryKey: users.get.queryOptions({ userId }).queryKey,
       });
     },
   });
 
-  const sessionUser = useSessionUser();
-
-  return { follow, isFollowing, unfollow, isUnfollowing };
+  return { follow, unfollow };
 }

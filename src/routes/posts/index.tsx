@@ -47,7 +47,7 @@ function RouteComponent() {
   const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages]);
 
   return (
-    <div className="flex grow flex-col overflow-hidden">
+    <div className="flex grow flex-col overflow-hidden px-1">
       <ScrollArea className="overflow-y-auto" id="main-content">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
           <div className="flex items-end justify-between gap-4">

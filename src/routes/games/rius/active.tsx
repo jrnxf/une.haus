@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CornerDownLeftIcon, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
@@ -13,19 +13,31 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { VideoPlayer } from "~/components/video-player";
+import { Json } from "~/lib/dx/json";
 import { games, groupSetsByUser } from "~/lib/games";
 import { useCreateSubmission } from "~/lib/games/rius/hooks";
 import { useVideoUpload } from "~/lib/media";
+import { messages } from "~/lib/messages";
+import { useCreateMessage } from "~/lib/messages/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
+import { MessagesView } from "~/views/messages";
 
 export const Route = createFileRoute("/games/rius/active")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
+    const activeRiuData = await context.queryClient.ensureQueryData(
       games.rius.active.list.queryOptions(),
     );
+
+    // Prefetch messages for all sets
+    const messagePromises = activeRiuData.sets.map((set) =>
+      context.queryClient.ensureQueryData(
+        messages.list.queryOptions({ type: "riuSet", id: set.id }),
+      ),
+    );
+
+    await Promise.all(messagePromises);
   },
 });
 
@@ -66,6 +78,22 @@ function UploadButton({
   );
 }
 
+function SetMessages({ setId }: { setId: number }) {
+  const record = { type: "riuSet" as const, id: setId };
+  const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record));
+  const createMessage = useCreateMessage(record);
+
+  return (
+    <div className="flex h-64 flex-col">
+      <MessagesView
+        record={record}
+        messages={messagesQuery.data.messages}
+        handleCreateMessage={(content) => createMessage.mutate(content)}
+      />
+    </div>
+  );
+}
+
 function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions());
   const sessionUser = useSessionUser();
@@ -75,6 +103,7 @@ function RouteComponent() {
     return (
       <div className="text-center">
         <p className="text-muted-foreground">No active RIUs available.</p>
+        <Json data={data} />
       </div>
     );
   }
@@ -125,22 +154,29 @@ function RouteComponent() {
                       </div>
                     </AccordionTrigger>
 
-                    <AccordionContent className="px-3 pb-3">
-                      <div className="space-y-4" data-set-id={set.id}>
-                        {/* Video player */}
-                        {set.video?.playbackId && (
-                          <VideoPlayer playbackId={set.video.playbackId} />
-                        )}
+                    <AccordionContent className="@container px-3 pb-3">
+                      <div
+                        className="flex flex-col gap-3 @3xl:flex-row"
+                        data-set-id={set.id}
+                      >
+                        <div className="space-y-3">
+                          {/* Video player */}
+                          {set.video?.playbackId && (
+                            <div className="mx-auto aspect-video max-w-md">
+                              <VideoPlayer playbackId={set.video.playbackId} />
+                            </div>
+                          )}
 
-                        {/* Instructions below video */}
-                        {set.instructions && (
-                          <p className="text-muted-foreground text-xs">
-                            {set.instructions}
-                          </p>
-                        )}
+                          {/* Instructions below video */}
+                          {set.instructions && (
+                            <p className="text-muted-foreground text-xs">
+                              {set.instructions}
+                            </p>
+                          )}
+                        </div>
 
-                        {/* Action buttons */}
-                        <div className="flex items-center gap-2">
+                        <div className="grow space-y-3">
+                          {/* Action buttons */}
                           {sessionUser && (
                             <UploadButton
                               onUploadSuccess={(assetId) => {
@@ -154,23 +190,8 @@ function RouteComponent() {
                             />
                           )}
 
-                          {/* Message form */}
-                          <form className="bg-background focus-within:ring-ring border-input relative w-full overflow-clip rounded-md border px-2 focus-within:ring-2">
-                            <div className="flex items-center gap-2">
-                              <Input
-                                className="h-9 border-0 px-1 shadow-none focus-visible:ring-0"
-                                placeholder="Quick message..."
-                              />
-                              <Button
-                                iconRight={
-                                  <CornerDownLeftIcon className="size-3" />
-                                }
-                                size="sm"
-                                type="submit"
-                                variant="secondary"
-                              />
-                            </div>
-                          </form>
+                          {/* Messages */}
+                          <SetMessages setId={set.id} />
                         </div>
                       </div>
                     </AccordionContent>

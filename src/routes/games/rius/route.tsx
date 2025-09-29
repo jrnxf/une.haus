@@ -18,9 +18,9 @@ function RouteComponent() {
   const isActive = (path: string) => location.pathname.includes(path);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl grow overflow-hidden p-2">
-      <ScrollArea className="w-full overflow-y-auto px-4" id="main-content">
-        <div className="relative">
+    <div className="flex grow flex-col overflow-hidden px-1">
+      <ScrollArea className="overflow-y-auto" id="main-content">
+        <div className="relative mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
           <Outlet />
           <div className="absolute top-0 right-0 flex gap-2">
             <Button

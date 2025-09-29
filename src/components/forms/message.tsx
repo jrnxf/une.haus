@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import {
   messageFormSchema,
@@ -55,7 +56,7 @@ export function BaseMessageForm({
 
   return (
     <form
-      className="bg-background focus-within:ring-ring relative w-full overflow-clip rounded-lg border p-3 focus-within:ring-2"
+      className="bg-background focus-within:ring-ring relative w-full overflow-clip rounded-lg border focus-within:ring-2"
       method="post"
       onClick={() => setFocus("content")}
       onSubmit={(event) => {
@@ -66,9 +67,9 @@ export function BaseMessageForm({
         })(event);
       }}
     >
-      <div className="flex flex-col items-end gap-4">
+      <div className="flex items-center px-2">
         <div className="w-full space-y-2">
-          <Textarea
+          {/* <Textarea
             {...register("content")}
             className="resize-none rounded-none border-0 shadow-none focus-visible:ring-0"
             id="content"
@@ -84,14 +85,29 @@ export function BaseMessageForm({
                 }
               }
             }}
-            rows={4}
+            rows={1}
+          /> */}
+
+          <Input
+            {...register("content")}
+            className="resize-none rounded-none border-0 px-0 pr-2 shadow-none focus-visible:ring-0"
+            id="content"
+            onKeyDown={(event) => {
+              if (event.code === "Enter" && (event.metaKey || event.ctrlKey)) {
+                event.preventDefault();
+                // hitting enter submits, enter while holding shift gives you a
+                // new line
+                const message = getValues().content;
+                if (message) {
+                  onSubmit(message);
+                  reset();
+                }
+              }
+            }}
           />
         </div>
-        <Button
-          iconRight={<CornerDownLeftIcon className="size-4" />}
-          type="submit"
-        >
-          Send
+        <Button type="submit" size="icon-sm" variant="secondary">
+          <CornerDownLeftIcon className="size-4" />
         </Button>
       </div>
     </form>

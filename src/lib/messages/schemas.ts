@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-export const recordWithMessagesTypes = ["post"] as const;
+export const recordWithMessagesTypes = [
+  "post",
+  "riuSet",
+  "riuSubmission",
+] as const;
 
 export const messageFormSchema = z.object({
   content: z.string().min(1),
