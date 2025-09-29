@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon } from "lucide-react";
 import { useMemo } from "react";
 
+import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray";
 import {
   Accordion,
   AccordionContent,
@@ -10,13 +11,6 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
 import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { Json } from "~/lib/dx/json";
 import { games, groupSetsByUser } from "~/lib/games";
@@ -51,26 +45,24 @@ function SetCard({ set }: { set: SetType }) {
   const createMessage = useCreateMessage(record);
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Tray>
+      <TrayTrigger asChild>
         <Button variant="outline" className="h-auto w-full justify-start p-0">
-          <div className="flex p-0">
+          <div className="flex min-w-0 overflow-hidden p-0">
             {/* Thumbnail */}
-            <div className="relative m-2 shrink-0 overflow-hidden rounded-sm">
-              {set.video.playbackId && (
-                <img
-                  src={getMuxPoster(set.video.playbackId)}
-                  alt={`${set.name} thumbnail`}
-                  className="aspect-video h-16 object-cover"
-                />
-              )}
-            </div>
+            {set.video.playbackId && (
+              <img
+                src={getMuxPoster(set.video.playbackId)}
+                alt={`${set.name} thumbnail`}
+                className="m-2 aspect-video h-16 shrink-0 rounded object-cover"
+              />
+            )}
 
             {/* Content */}
-            <div className="flex flex-col items-start justify-between p-3">
+            <div className="flex flex-col items-start justify-around overflow-hidden p-3">
               <h3 className="text-sm font-medium">{set.name}</h3>
               {set.instructions && (
-                <p className="text-muted-foreground line-clamp-2 text-xs">
+                <p className="text-muted-foreground line-clamp-2 overflow-hidden text-xs">
                   {set.instructions}
                 </p>
               )}
@@ -89,12 +81,10 @@ function SetCard({ set }: { set: SetType }) {
             </div>
           </div>
         </Button>
-      </DialogTrigger>
+      </TrayTrigger>
 
-      <DialogContent className="flex max-h-[80vh] max-w-4xl flex-col">
-        <DialogHeader>
-          <DialogTitle>{set.name}</DialogTitle>
-        </DialogHeader>
+      <TrayContent className="flex h-[90vh] max-h-[90vh] max-w-4xl flex-col">
+        <TrayTitle>{set.name}</TrayTitle>
 
         <div className="flex flex-1 flex-col gap-3 overflow-hidden">
           {/* Video player */}
@@ -120,8 +110,8 @@ function SetCard({ set }: { set: SetType }) {
             />
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </TrayContent>
+    </Tray>
   );
 }
 
