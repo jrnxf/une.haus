@@ -9,7 +9,12 @@ import {
 import { and, eq } from "drizzle-orm";
 
 import { db } from "~/db";
-import { chatMessageLikes, postLikes, postMessageLikes } from "~/db/schema";
+import {
+  chatMessageLikes,
+  postLikes,
+  postMessageLikes,
+  riuSetLikes,
+} from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
 
@@ -68,7 +73,9 @@ export const getTableByType = (type: RecordWithLikesType) => {
         ? chatMessageLikes
         : type === "postMessage"
           ? postMessageLikes
-          : undefined;
+          : type === "riuSet"
+            ? riuSetLikes
+            : undefined;
 
   invariant(
     table,

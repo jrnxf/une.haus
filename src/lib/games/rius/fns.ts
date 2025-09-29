@@ -192,38 +192,54 @@ export const createRiuSubmissionServerFn = createServerFn({
 
 export const listActiveRiusServerFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  const activeRius = await db.query.rius.findFirst({
-    where: eq(rius.status, "active"),
-    with: {
-      sets: {
-        columns: {
-          id: true,
-          name: true,
-          instructions: true,
-        },
-        with: {
-          user: {
-            columns: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
+})
+  .middleware([authOptionalMiddleware])
+  .handler(async ({ context }) => {
+    const activeRius = await db.query.rius.findFirst({
+      where: eq(rius.status, "active"),
+      with: {
+        sets: {
+          columns: {
+            id: true,
+            name: true,
+            instructions: true,
           },
-          video: {
-            columns: {
-              playbackId: true,
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarUrl: true,
+              },
+            },
+            video: {
+              columns: {
+                playbackId: true,
+              },
+            },
+            likes: {
+              columns: {
+                userId: true,
+              },
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
             },
           },
         },
       },
-    },
+    });
+
+    invariant(activeRius, "No active RIU found");
+
+    return activeRius;
   });
-
-  invariant(activeRius, "No active RIU found");
-
-  return activeRius;
-});
 
 export const listArchivedRiusServerFn = createServerFn({
   method: "GET",

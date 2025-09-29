@@ -20,7 +20,7 @@ function RouteComponent() {
   return (
     <div className="flex grow flex-col overflow-hidden px-1">
       <ScrollArea className="overflow-y-auto" id="main-content">
-        <div className="relative mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
+        <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-3 p-3">
           <Outlet />
           <div className="absolute top-0 right-0 flex gap-2">
             <Button

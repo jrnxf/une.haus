@@ -1,10 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon } from "lucide-react";
-import { useCallback, useMemo } from "react";
-import { useDropzone } from "react-dropzone-esm";
-
-import { toast } from "sonner";
+import { useMemo } from "react";
 
 import {
   Accordion,
@@ -13,14 +10,19 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import { VideoPlayer } from "~/components/video-player";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { Json } from "~/lib/dx/json";
 import { games, groupSetsByUser } from "~/lib/games";
-import { useCreateSubmission } from "~/lib/games/rius/hooks";
-import { useVideoUpload } from "~/lib/media";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
-import { useSessionUser } from "~/lib/session/hooks";
+import { type ServerFnReturn } from "~/lib/types";
 import { MessagesView } from "~/views/messages";
 
 export const Route = createFileRoute("/games/rius/active")({
@@ -41,63 +43,90 @@ export const Route = createFileRoute("/games/rius/active")({
   },
 });
 
-function UploadButton({
-  onUploadSuccess,
-}: {
-  onUploadSuccess: (assetId: string) => void;
-}) {
-  const { uploadVideo, isUploading } = useVideoUpload({
-    onSuccess: (data) => {
-      onUploadSuccess(data.assetId);
-      toast.success("Video uploaded successfully");
-    },
-  });
+type SetType = ServerFnReturn<typeof games.rius.active.list.fn>["sets"][number];
 
-  const { getRootProps, getInputProps, open } = useDropzone({
-    accept: { "video/*": [] },
-    multiple: false,
-    noClick: true,
-    onDrop: useCallback(
-      (acceptedFiles: File[]) => {
-        const [file] = acceptedFiles;
-        if (file) {
-          uploadVideo(file);
-        }
-      },
-      [uploadVideo],
-    ),
-  });
-
-  return (
-    <div {...getRootProps()}>
-      <input {...getInputProps()} />
-      <Button onClick={open} disabled={isUploading}>
-        {isUploading ? "Uploading..." : "Upload"}
-      </Button>
-    </div>
-  );
-}
-
-function SetMessages({ setId }: { setId: number }) {
-  const record = { type: "riuSet" as const, id: setId };
+function SetCard({ set }: { set: SetType }) {
+  const record = { type: "riuSet" as const, id: set.id };
   const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record));
   const createMessage = useCreateMessage(record);
 
   return (
-    <div className="flex h-64 flex-col">
-      <MessagesView
-        record={record}
-        messages={messagesQuery.data.messages}
-        handleCreateMessage={(content) => createMessage.mutate(content)}
-      />
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="h-auto w-full justify-start p-0">
+          <div className="flex p-0">
+            {/* Thumbnail */}
+            <div className="relative m-2 shrink-0 overflow-hidden rounded-sm">
+              {set.video.playbackId && (
+                <img
+                  src={getMuxPoster(set.video.playbackId)}
+                  alt={`${set.name} thumbnail`}
+                  className="aspect-video h-16 object-cover"
+                />
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="flex flex-col items-start justify-between p-3">
+              <h3 className="text-sm font-medium">{set.name}</h3>
+              {set.instructions && (
+                <p className="text-muted-foreground line-clamp-2 text-xs">
+                  {set.instructions}
+                </p>
+              )}
+
+              {/* Stats */}
+              <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1">
+                  <MessageCircleIcon className="size-3" />
+                  <span>{messagesQuery.data.messages.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <HeartIcon className="size-3" />
+                  <span>0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="flex max-h-[80vh] max-w-4xl flex-col">
+        <DialogHeader>
+          <DialogTitle>{set.name}</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-1 flex-col gap-3 overflow-hidden">
+          {/* Video player */}
+          {set.video?.playbackId && (
+            <div className="shrink-0">
+              <VideoPlayer playbackId={set.video.playbackId} />
+            </div>
+          )}
+
+          {/* Instructions */}
+          {set.instructions && (
+            <p className="text-muted-foreground shrink-0 text-sm">
+              {set.instructions}
+            </p>
+          )}
+
+          {/* Messages */}
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <MessagesView
+              record={record}
+              messages={messagesQuery.data.messages}
+              handleCreateMessage={(content) => createMessage.mutate(content)}
+            />
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions());
-  const sessionUser = useSessionUser();
-  const createSubmission = useCreateSubmission();
 
   if (!data?.sets.length) {
     return (
@@ -114,6 +143,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-8 p-4">
       <h2 className="text-lg font-semibold">RIU #{data.id}</h2>
+
       <Accordion type="single" collapsible className="w-full rounded-lg border">
         {Object.entries(groupedSets).map(([userId, { user, sets }]) => (
           <AccordionItem
@@ -125,79 +155,12 @@ function RouteComponent() {
               <h2 className="font-semibold">{user.name}</h2>
             </AccordionTrigger>
 
-            <AccordionContent className="px-4 pb-3">
-              <Accordion
-                type="single"
-                collapsible
-                className="rounded-md border"
-                defaultValue={sets[0]?.id.toString()}
-              >
+            <AccordionContent className="border-t p-3">
+              <div className="flex flex-col gap-3">
                 {sets.map((set) => (
-                  <AccordionItem
-                    key={set.id}
-                    value={set.id.toString()}
-                    className="border-b last:border-b-0"
-                  >
-                    <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                      <div className="flex w-full items-center justify-between pr-4">
-                        <h3 className="text-sm font-medium">{set.name}</h3>
-                        <div className="text-muted-foreground flex items-center gap-3 text-xs">
-                          <div className="flex items-center gap-1">
-                            <MessageCircleIcon className="size-3" />
-                            <span>0</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <HeartIcon className="size-3" />
-                            <span>0</span>
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-
-                    <AccordionContent className="@container px-3 pb-3">
-                      <div
-                        className="flex flex-col gap-3 @3xl:flex-row"
-                        data-set-id={set.id}
-                      >
-                        <div className="space-y-3">
-                          {/* Video player */}
-                          {set.video?.playbackId && (
-                            <div className="mx-auto aspect-video max-w-md">
-                              <VideoPlayer playbackId={set.video.playbackId} />
-                            </div>
-                          )}
-
-                          {/* Instructions below video */}
-                          {set.instructions && (
-                            <p className="text-muted-foreground text-xs">
-                              {set.instructions}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="grow space-y-3">
-                          {/* Action buttons */}
-                          {sessionUser && (
-                            <UploadButton
-                              onUploadSuccess={(assetId) => {
-                                createSubmission.mutate({
-                                  data: {
-                                    riuSetId: set.id,
-                                    muxAssetId: assetId,
-                                  },
-                                });
-                              }}
-                            />
-                          )}
-
-                          {/* Messages */}
-                          <SetMessages setId={set.id} />
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                  <SetCard key={set.id} set={set} />
                 ))}
-              </Accordion>
+              </div>
             </AccordionContent>
           </AccordionItem>
         ))}

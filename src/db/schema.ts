@@ -187,6 +187,19 @@ export const riuSetMessages = pgTable("riu_set_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
+export const riuSetLikes = pgTable(
+  "riu_set_likes",
+  {
+    riuSetId: integer("riu_set_id")
+      .notNull()
+      .references(() => riuSets.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.riuSetId, t.userId] })],
+);
+
 export const riuSetMessageLikes = pgTable(
   "riu_set_message_likes",
   {
@@ -336,7 +349,7 @@ export const riusRelations = relations(rius, ({ many }) => ({
 }));
 
 export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
-  // likes: many(postLikes),
+  likes: many(riuSetLikes),
   messages: many(riuSetMessages),
   riu: one(rius, { fields: [riuSets.riuId], references: [rius.id] }),
   submissions: many(riuSubmissions),
@@ -432,6 +445,17 @@ export const riuSetMessagesRelations = relations(
     }),
   }),
 );
+
+export const riuSetLikesRelations = relations(riuSetLikes, ({ one }) => ({
+  riuSet: one(riuSets, {
+    fields: [riuSetLikes.riuSetId],
+    references: [riuSets.id],
+  }),
+  user: one(users, {
+    fields: [riuSetLikes.userId],
+    references: [users.id],
+  }),
+}));
 
 export const riuSetMessageLikesRelations = relations(
   riuSetMessageLikes,

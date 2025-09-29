@@ -65,7 +65,13 @@ export function MessagesView({
       {messages.length === 0 && (
         <p className="text-muted-foreground mt-1">No messages</p>
       )}
-      <div className="flex grow basis-0 flex-col gap-2 overflow-hidden">
+      <div
+        className={cn(
+          "flex grow flex-col gap-2 overflow-hidden",
+          // there was basis-0 here before but it's breaking a layout -- keeping it here in case it's needed
+          // "basis-0"
+        )}
+      >
         <ScrollArea
           className="overflow-y-auto"
           // https://tanstack.com/router/latest/docs/framework/react/guide/scroll-restoration#manual-scroll-restoration
