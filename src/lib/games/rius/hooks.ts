@@ -48,7 +48,6 @@ export function useAdminRotateRius() {
 
 export function useCreateSubmission() {
   const navigate = useNavigate();
-  const qc = useQueryClient();
 
   return useMutation({
     mutationFn: games.rius.submissions.create.fn,

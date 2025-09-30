@@ -19,7 +19,7 @@ import { isDefined } from "~/lib/utils";
 export const createPresignedS3UrlServerFn = createServerFn({
   method: "POST",
 })
-  .validator(createPresignedS3UrlSchema)
+  .inputValidator(createPresignedS3UrlSchema)
   .handler(async ({ data: input }) => {
     const key = `${input.prefix}/${Date.now()}__${input.fileName}`;
 
@@ -56,7 +56,7 @@ export const createPresignedMuxUrlServerFn = createServerFn({
 export const pollMuxVideoUploadStatusServerFn = createServerFn({
   method: "POST",
 })
-  .validator(
+  .inputValidator(
     z.object({
       uploadId: z.string(),
     }),
@@ -123,7 +123,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
 export const getMuxVideoServerFn = createServerFn({
   method: "POST",
 })
-  .validator(
+  .inputValidator(
     z.object({
       assetId: z.string(),
     }),

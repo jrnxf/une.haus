@@ -18,7 +18,7 @@ import {
 export const listPostsServerFn = createServerFn({
   method: "GET",
 })
-  .validator(listPostsSchema)
+  .inputValidator(listPostsSchema)
   .handler(async ({ data: input }) => {
     const data = await db
       .select({
@@ -67,7 +67,7 @@ export const listPostsServerFn = createServerFn({
 export const getPostServerFn = createServerFn({
   method: "GET",
 })
-  .validator(getPostSchema)
+  .inputValidator(getPostSchema)
   .handler(async ({ data: { postId } }) => {
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, postId),
@@ -124,7 +124,7 @@ export const getPostServerFn = createServerFn({
 export const createPostServerFn = createServerFn({
   method: "POST",
 })
-  .validator(createPostSchema)
+  .inputValidator(createPostSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -150,7 +150,7 @@ export const createPostServerFn = createServerFn({
 export const updatePostServerFn = createServerFn({
   method: "POST",
 })
-  .validator(updatePostSchema)
+  .inputValidator(updatePostSchema)
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
     const userId = context.user.id;
@@ -168,7 +168,7 @@ export const updatePostServerFn = createServerFn({
 export const deletePostServerFn = createServerFn({
   method: "POST",
 })
-  .validator(deletePostSchema)
+  .inputValidator(deletePostSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: postId, context }) => {
     const userId = context.user.id;

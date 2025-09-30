@@ -15,7 +15,7 @@ import {
 export const searchCitiesGoogleMapsServerFn = createServerFn({
   method: "POST",
 })
-  .validator(searchCitiesGoogleMapsSchema)
+  .inputValidator(searchCitiesGoogleMapsSchema)
   .handler(async ({ data: input }) => {
     const { data } = await google.maps.placeAutocomplete({
       adapter: "fetch",
@@ -36,7 +36,7 @@ export const searchCitiesGoogleMapsServerFn = createServerFn({
 export const placeGoogleMapsServerFn = createServerFn({
   method: "POST",
 })
-  .validator(placeGoogleMapsSchema)
+  .inputValidator(placeGoogleMapsSchema)
   .handler(async ({ data: input }) => {
     const { data } = await google.maps.placeDetails({
       adapter: "fetch",

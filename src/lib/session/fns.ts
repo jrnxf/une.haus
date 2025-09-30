@@ -27,7 +27,7 @@ export const getSessionServerFn = createServerFn({ method: "GET" }).handler(
 export const setFlashServerFn = createServerFn({
   method: "POST",
 })
-  .validator(setFlashSchema)
+  .inputValidator(setFlashSchema)
   .handler(async ({ data: input }) => {
     const session = await useServerSession();
     await session.update({ flash: input.message });

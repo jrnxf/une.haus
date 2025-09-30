@@ -10,7 +10,6 @@ import {
 
 import { z } from "zod";
 
-import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { VideoPlayer } from "~/components/video-player";
@@ -18,7 +17,6 @@ import { flashMessage } from "~/lib/flash";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
 import { useSessionUser } from "~/lib/session/hooks";
-import { session } from "~/lib/session/index";
 import { cn } from "~/lib/utils";
 
 const pathParametersSchema = z.object({

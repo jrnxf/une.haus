@@ -1,6 +1,3 @@
-// NOTE: not using @mux/mux-player-react/lazy below is intentional. When I had
-// it at /lazy, if a video was inside an accordion (which lazy mounts its
-// elements) there was a good chance the video would just fail to load altogether
 import MuxPlayer from "@mux/mux-player-react";
 
 export function getMuxPoster(playbackId: null | string | undefined) {
@@ -18,9 +15,7 @@ export function VideoPlayer({ playbackId }: { playbackId: string }) {
         playbackId={playbackId}
         playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
         poster={getMuxPoster(playbackId)}
-        preload="none" // save on bandwidth
-        // for some reason when I set the start time at 0, mux will load shorter clips
-        // at the end of their timestamp. setting 0.001 seems te be respected though
+        preload="none"
         startTime={0.001}
         streamType="on-demand"
       />

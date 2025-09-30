@@ -11,7 +11,7 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import { getMuxPoster, VideoPlayer } from "~/components/video-player";
+import { VideoPlayer } from "~/components/video-player";
 import { Json } from "~/lib/dx/json";
 import { games, groupSetsByUser } from "~/lib/games";
 import { messages } from "~/lib/messages";

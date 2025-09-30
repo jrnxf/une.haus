@@ -1,4 +1,3 @@
-import MuxPlayer from "@mux/mux-player-react";
 import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
@@ -6,7 +5,7 @@ import { useDropzone } from "react-dropzone-esm";
 import { Button } from "~/components/ui/button";
 import { useFormField, useFormMedia } from "~/components/ui/form";
 import { Progress } from "~/components/ui/progress";
-import { getMuxPoster } from "~/components/video-player";
+import { VideoPlayer } from "~/components/video-player";
 import { useVideoUpload } from "~/lib/media";
 
 export const VideoInput = ({
@@ -71,15 +70,7 @@ export const VideoInput = ({
     return (
       <div className="flex flex-col gap-2">
         <div className="relative flex overflow-clip rounded-md border">
-          <MuxPlayer
-            accentColor="#000000"
-            className="aspect-video"
-            playbackId={playbackId}
-            playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
-            poster={getMuxPoster(playbackId)}
-            preload="none" // save on bandwidth
-            streamType="on-demand"
-          />
+          <VideoPlayer playbackId={playbackId} />
 
           <Button
             className="absolute top-2 right-2"

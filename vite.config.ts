@@ -2,6 +2,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 
 import tailwindcss from "@tailwindcss/vite";
+import { nitroV2Plugin } from "@tanstack/nitro-v2-vite-plugin";
 import { defineConfig } from "vite";
 import { beasties } from "vite-plugin-beasties";
 import viteTsConfigPaths from "vite-tsconfig-paths";
@@ -30,10 +31,8 @@ const config = defineConfig({
         },
       },
     }),
-    tanstackStart({
-      customViteReactPlugin: true,
-      target: "bun",
-    }),
+    tanstackStart(),
+    nitroV2Plugin({ preset: "bun" }),
     viteReact(),
   ],
 });

@@ -1,4 +1,4 @@
-import { createServerFn, serverOnly } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 
 import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 
@@ -32,7 +32,7 @@ export const allUsersServerFn = createServerFn({
 export const listUsersServerFn = createServerFn({
   method: "GET",
 })
-  .validator(listUsersSchema)
+  .inputValidator(listUsersSchema)
   .handler(async ({ data: input }) => {
     return await db
       .select({
@@ -77,7 +77,7 @@ export const listUsersServerFn = createServerFn({
 export const getUserServerFn = createServerFn({
   method: "GET",
 })
-  .validator(getUserSchema)
+  .inputValidator(getUserSchema)
   .handler(async ({ data }) => {
     return await getUser(data.userId);
   });
@@ -85,7 +85,7 @@ export const getUserServerFn = createServerFn({
 export const getUserWithFollowsServerFn = createServerFn({
   method: "GET",
 })
-  .validator(getUserSchema)
+  .inputValidator(getUserSchema)
   .handler(async ({ data }) => {
     const [user, follows] = await Promise.all([
       getUser(data.userId),
@@ -101,7 +101,7 @@ export const getUserWithFollowsServerFn = createServerFn({
 export const updateUserServerFn = createServerFn({
   method: "POST",
 })
-  .validator(updateUserSchema)
+  .inputValidator(updateUserSchema)
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
     const { location, socials, ...updateData } = data;
@@ -150,7 +150,7 @@ export const updateUserServerFn = createServerFn({
 export const getUserFollowsServerFn = createServerFn({
   method: "GET",
 })
-  .validator(getUserFollowsSchema)
+  .inputValidator(getUserFollowsSchema)
   .handler(async ({ data: input }) => {
     return await getUserFollows(input.userId);
   });
@@ -158,7 +158,7 @@ export const getUserFollowsServerFn = createServerFn({
 export const followUserServerFn = createServerFn({
   method: "POST",
 })
-  .validator(followUserSchema)
+  .inputValidator(followUserSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     await db.insert(userFollows).values({
@@ -170,7 +170,7 @@ export const followUserServerFn = createServerFn({
 export const unfollowUserServerFn = createServerFn({
   method: "POST",
 })
-  .validator(unfollowUserSchema)
+  .inputValidator(unfollowUserSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     await db
@@ -183,7 +183,7 @@ export const unfollowUserServerFn = createServerFn({
       );
   });
 
-const getUser = serverOnly(async (userId: number) => {
+const getUser = createServerOnlyFn(async (userId: number) => {
   const [user] = await db
     .select({
       avatarUrl: users.avatarUrl,
@@ -219,7 +219,7 @@ const getUser = serverOnly(async (userId: number) => {
   return user;
 });
 
-const getUserFollows = serverOnly(async (userId: number) => {
+const getUserFollows = createServerOnlyFn(async (userId: number) => {
   const [followedUsersResult, followedByUsersResult] = await Promise.allSettled(
     [
       // Users that this user follows (followedByUserId = userId, join on followedUserId)

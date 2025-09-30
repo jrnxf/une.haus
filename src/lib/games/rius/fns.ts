@@ -29,7 +29,7 @@ import {
 export const getRiuSetServerFn = createServerFn({
   method: "GET",
 })
-  .validator(getRiuSetSchema)
+  .inputValidator(getRiuSetSchema)
   .handler(async ({ data: input }) => {
     const [set] = await db
       .select({
@@ -58,7 +58,7 @@ export const getRiuSetServerFn = createServerFn({
 export const createRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .validator(createRiuSetSchema)
+  .inputValidator(createRiuSetSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -85,7 +85,7 @@ export const createRiuSetServerFn = createServerFn({
 export const updateRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .validator(updateRiuSetSchema)
+  .inputValidator(updateRiuSetSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const [riuSet] = await db
@@ -105,7 +105,7 @@ export const updateRiuSetServerFn = createServerFn({
 export const deleteRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .validator(deleteRiuSetSchema)
+  .inputValidator(deleteRiuSetSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -129,7 +129,7 @@ export const deleteRiuSetServerFn = createServerFn({
 export const getRiuSubmissionServerFn = createServerFn({
   method: "GET",
 })
-  .validator(getRiuSubmissionSchema)
+  .inputValidator(getRiuSubmissionSchema)
   .handler(async ({ data: input }) => {
     const [submission] = await db
       .select({
@@ -154,7 +154,7 @@ export const getRiuSubmissionServerFn = createServerFn({
 export const createRiuSubmissionServerFn = createServerFn({
   method: "POST",
 })
-  .validator(createRiuSubmissionSchema)
+  .inputValidator(createRiuSubmissionSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -194,7 +194,7 @@ export const listActiveRiusServerFn = createServerFn({
   method: "GET",
 })
   .middleware([authOptionalMiddleware])
-  .handler(async ({ context }) => {
+  .handler(async () => {
     const activeRius = await db.query.rius.findFirst({
       where: eq(rius.status, "active"),
       with: {

@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { eq } from "drizzle-orm";
-import AuthCodeTemplate from "emails/auth-code";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
 
@@ -16,12 +15,14 @@ import { env } from "~/lib/env";
 import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
 
+import AuthCodeTemplate from "../../../emails/auth-code";
+
 const resendClient = new Resend(env.RESEND_API_KEY);
 
 export const sendAuthCodeServerFn = createServerFn({
   method: "POST",
 })
-  .validator(sendCodeSchema)
+  .inputValidator(sendCodeSchema)
   .handler(async ({ data: input }) => {
     const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5);
 
@@ -56,7 +57,7 @@ export const sendAuthCodeServerFn = createServerFn({
 export const enterCodeServerFn = createServerFn({
   method: "POST",
 })
-  .validator(enterCodeSchema)
+  .inputValidator(enterCodeSchema)
   .handler(async ({ data: input }) => {
     const { code } = input;
 
@@ -112,7 +113,7 @@ export const enterCodeServerFn = createServerFn({
 export const registerServerFn = createServerFn({
   method: "POST",
 })
-  .validator(registerSchema)
+  .inputValidator(registerSchema)
   .handler(async ({ data: input }) => {
     const {
       // TODO use code

@@ -22,7 +22,7 @@ import { authMiddleware } from "~/lib/middleware";
 export const likeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .validator(likeRecordSchema)
+  .inputValidator(likeRecordSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -45,7 +45,7 @@ export const likeRecordServerFn = createServerFn({
 export const unlikeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .validator(unlikeRecordSchema)
+  .inputValidator(unlikeRecordSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;

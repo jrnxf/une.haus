@@ -8,8 +8,6 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +21,8 @@ import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/ind
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
 import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
 import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
+import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
+import { Route as ApiMuxUrlRouteImport } from './routes/api/mux/url'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/upcoming/index'
 import { Route as GamesRiusPreviousIndexRouteImport } from './routes/games/rius/previous/index'
@@ -32,10 +32,6 @@ import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/e
 import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './routes/games/rius/submissions/$submissionId/index'
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
 import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
-import { ServerRoute as ApiMuxWebhookServerRouteImport } from './routes/api/mux/webhook'
-import { ServerRoute as ApiMuxUrlServerRouteImport } from './routes/api/mux/url'
-
-const rootServerRouteImport = createServerRootRoute()
 
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
@@ -96,6 +92,16 @@ const AuthCodeSendRoute = AuthCodeSendRouteImport.update({
   path: '/auth/code/send',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMuxWebhookRoute = ApiMuxWebhookRouteImport.update({
+  id: '/api/mux/webhook',
+  path: '/api/mux/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMuxUrlRoute = ApiMuxUrlRouteImport.update({
+  id: '/api/mux/url',
+  path: '/api/mux/url',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedPostsCreateRoute = AuthedPostsCreateRouteImport.update({
   id: '/posts/create',
   path: '/posts/create',
@@ -143,16 +149,6 @@ const AuthedGamesRiusUpcomingJoinRoute =
     path: '/games/rius/upcoming/join',
     getParentRoute: () => AuthedRoute,
   } as any)
-const ApiMuxWebhookServerRoute = ApiMuxWebhookServerRouteImport.update({
-  id: '/api/mux/webhook',
-  path: '/api/mux/webhook',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiMuxUrlServerRoute = ApiMuxUrlServerRouteImport.update({
-  id: '/api/mux/url',
-  path: '/api/mux/url',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -163,6 +159,8 @@ export interface FileRoutesByFullPath {
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
   '/posts/create': typeof AuthedPostsCreateRoute
+  '/api/mux/url': typeof ApiMuxUrlRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
@@ -185,6 +183,8 @@ export interface FileRoutesByTo {
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
   '/posts/create': typeof AuthedPostsCreateRoute
+  '/api/mux/url': typeof ApiMuxUrlRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
@@ -209,6 +209,8 @@ export interface FileRoutesById {
   '/posts/': typeof PostsIndexRoute
   '/users/': typeof UsersIndexRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
+  '/api/mux/url': typeof ApiMuxUrlRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
@@ -233,6 +235,8 @@ export interface FileRouteTypes {
     | '/posts'
     | '/users'
     | '/posts/create'
+    | '/api/mux/url'
+    | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
     | '/games/rius/active'
@@ -255,6 +259,8 @@ export interface FileRouteTypes {
     | '/posts'
     | '/users'
     | '/posts/create'
+    | '/api/mux/url'
+    | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
     | '/games/rius/active'
@@ -278,6 +284,8 @@ export interface FileRouteTypes {
     | '/posts/'
     | '/users/'
     | '/_authed/posts/create'
+    | '/api/mux/url'
+    | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
     | '/games/rius/active'
@@ -301,34 +309,11 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  ApiMuxUrlRoute: typeof ApiMuxUrlRoute
+  ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   AuthCodeSendRoute: typeof AuthCodeSendRoute
   AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
-}
-export interface FileServerRoutesByFullPath {
-  '/api/mux/url': typeof ApiMuxUrlServerRoute
-  '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/mux/url': typeof ApiMuxUrlServerRoute
-  '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/mux/url': typeof ApiMuxUrlServerRoute
-  '/api/mux/webhook': typeof ApiMuxWebhookServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/mux/url' | '/api/mux/webhook'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/mux/url' | '/api/mux/webhook'
-  id: '__root__' | '/api/mux/url' | '/api/mux/webhook'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiMuxUrlServerRoute: typeof ApiMuxUrlServerRoute
-  ApiMuxWebhookServerRoute: typeof ApiMuxWebhookServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -417,6 +402,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCodeSendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mux/webhook': {
+      id: '/api/mux/webhook'
+      path: '/api/mux/webhook'
+      fullPath: '/api/mux/webhook'
+      preLoaderRoute: typeof ApiMuxWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mux/url': {
+      id: '/api/mux/url'
+      path: '/api/mux/url'
+      fullPath: '/api/mux/url'
+      preLoaderRoute: typeof ApiMuxUrlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/posts/create': {
       id: '/_authed/posts/create'
       path: '/posts/create'
@@ -482,24 +481,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/api/mux/webhook': {
-      id: '/api/mux/webhook'
-      path: '/api/mux/webhook'
-      fullPath: '/api/mux/webhook'
-      preLoaderRoute: typeof ApiMuxWebhookServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/mux/url': {
-      id: '/api/mux/url'
-      path: '/api/mux/url'
-      fullPath: '/api/mux/url'
-      preLoaderRoute: typeof ApiMuxUrlServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-  }
-}
 
 interface AuthedRouteChildren {
   AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute
@@ -550,6 +531,8 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  ApiMuxUrlRoute: ApiMuxUrlRoute,
+  ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   AuthCodeSendRoute: AuthCodeSendRoute,
   AuthCodeVerifyRoute: AuthCodeVerifyRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
@@ -557,10 +540,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiMuxUrlServerRoute: ApiMuxUrlServerRoute,
-  ApiMuxWebhookServerRoute: ApiMuxWebhookServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()

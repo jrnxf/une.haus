@@ -8,7 +8,6 @@ import {
   SiYoutube,
 } from "@icons-pack/react-simple-icons";
 import { Link } from "@tanstack/react-router";
-import { Suspense } from "react";
 
 import { Badges } from "~/components/badges";
 import { Globe } from "~/components/globe";
@@ -17,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { Skeleton } from "~/components/ui/skeleton";
 import { UsersDropdownMenu } from "~/components/users-dropdown-menu";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersWithFollowsData } from "~/lib/users";

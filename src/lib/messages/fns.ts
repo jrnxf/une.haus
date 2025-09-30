@@ -23,7 +23,7 @@ import { authMiddleware } from "~/lib/middleware";
 export const listMessagesServerFn = createServerFn({
   method: "GET",
 })
-  .validator(listMessagesSchema)
+  .inputValidator(listMessagesSchema)
   .handler(async ({ data: input }) => {
     if (input.type === "chat") {
       const twentyEightDaysAgo = new Date(
@@ -194,7 +194,7 @@ export const listMessagesServerFn = createServerFn({
 export const createMessageServerFn = createServerFn({
   method: "POST",
 })
-  .validator(createMessageSchema)
+  .inputValidator(createMessageSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -248,7 +248,7 @@ export const createMessageServerFn = createServerFn({
 export const updateMessageServerFn = createServerFn({
   method: "POST",
 })
-  .validator(updateMessageSchema)
+  .inputValidator(updateMessageSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -266,7 +266,7 @@ export const updateMessageServerFn = createServerFn({
 export const deleteMessageServerFn = createServerFn({
   method: "POST",
 })
-  .validator(deleteMessageSchema)
+  .inputValidator(deleteMessageSchema)
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
