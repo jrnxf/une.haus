@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VaultIndexRouteImport } from './routes/vault/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
@@ -40,6 +41,11 @@ const AuthedRoute = AuthedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VaultIndexRoute = VaultIndexRouteImport.update({
+  id: '/vault/',
+  path: '/vault/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersIndexRoute = UsersIndexRouteImport.update({
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
+  '/vault': typeof VaultIndexRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/api/mux/url': typeof ApiMuxUrlRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
+  '/vault': typeof VaultIndexRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/api/mux/url': typeof ApiMuxUrlRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/chat/': typeof ChatIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/users/': typeof UsersIndexRoute
+  '/vault/': typeof VaultIndexRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
   '/api/mux/url': typeof ApiMuxUrlRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/posts'
     | '/users'
+    | '/vault'
     | '/posts/create'
     | '/api/mux/url'
     | '/api/mux/webhook'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/posts'
     | '/users'
+    | '/vault'
     | '/posts/create'
     | '/api/mux/url'
     | '/api/mux/webhook'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/posts/'
     | '/users/'
+    | '/vault/'
     | '/_authed/posts/create'
     | '/api/mux/url'
     | '/api/mux/webhook'
@@ -309,6 +321,7 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
+  VaultIndexRoute: typeof VaultIndexRoute
   ApiMuxUrlRoute: typeof ApiMuxUrlRoute
   ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   AuthCodeSendRoute: typeof AuthCodeSendRoute
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vault/': {
+      id: '/vault/'
+      path: '/vault'
+      fullPath: '/vault'
+      preLoaderRoute: typeof VaultIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/': {
@@ -531,6 +551,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
+  VaultIndexRoute: VaultIndexRoute,
   ApiMuxUrlRoute: ApiMuxUrlRoute,
   ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   AuthCodeSendRoute: AuthCodeSendRoute,

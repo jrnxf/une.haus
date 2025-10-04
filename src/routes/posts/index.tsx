@@ -65,7 +65,8 @@ function RouteComponent() {
           {displayedPosts.map((post) => {
             const posterUrl =
               post.imageUrl ||
-              (post.video?.playbackId && getMuxPoster(post.video.playbackId)) ||
+              (post.video?.playbackId &&
+                getMuxPoster({ playbackId: post.video.playbackId })) ||
               (post.youtubeVideoId &&
                 `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
 

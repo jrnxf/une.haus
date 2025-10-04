@@ -239,6 +239,16 @@ export const riuSubmissionMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.riuSubmissionMessageId, t.userId] })],
 );
 
+export const utvVideos = pgTable("utv_videos", {
+  id: serial("id").primaryKey(),
+  legacyUrl: text("legacy_url").notNull(),
+  title: text("title").notNull().default(""),
+  confidenceScore: integer("confidence_score").notNull().default(-1),
+  muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
+    onDelete: "set null",
+  }),
+});
+
 export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
@@ -339,6 +349,13 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   user: one(users, { fields: [posts.userId], references: [users.id] }),
   video: one(muxVideos, {
     fields: [posts.muxAssetId],
+    references: [muxVideos.assetId],
+  }),
+}));
+
+export const utvVideosRelations = relations(utvVideos, ({ one }) => ({
+  video: one(muxVideos, {
+    fields: [utvVideos.muxAssetId],
     references: [muxVideos.assetId],
   }),
 }));

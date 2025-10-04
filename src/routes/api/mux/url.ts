@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/mux/url")({
         const upload = await muxClient.video.uploads.create({
           cors_origin: "*", // TODO set up cors
           new_asset_settings: {
-            mp4_support: "standard",
+            mp4_support: "capped-1080p",
             passthrough: JSON.stringify({ hello: "world" }),
             playback_policy: ["public"],
           },

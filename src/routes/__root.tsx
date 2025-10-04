@@ -75,8 +75,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           "bg-background text-foreground flex min-h-dvh grow flex-col font-mono",
         )}
       >
-        {/* <SidebarProvider> */}
-        {/* <AppSidebar /> */}
         <CommandMenu />
 
         <div className="flex grow flex-col" data-vaul-drawer-wrapper>
@@ -101,6 +99,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                 games
               </Link>
             </Button>
+            <Button asChild variant="ghost">
+              <Link className="[&.active]:bg-secondary" to="/vault">
+                vault
+              </Link>
+            </Button>
             <div className="grow" />
             <AuthButton />
           </nav>
@@ -121,7 +124,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             {children}
           </main>
         </div>
-        {/* </SidebarProvider> */}
         <ReactQueryDevtools buttonPosition="bottom-left" />
 
         <Toaster />

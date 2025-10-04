@@ -10,9 +10,11 @@ function ScrollArea({
   className,
   children,
   virtualize = false,
+  viewportClassName,
   ...props
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
   virtualize?: boolean;
+  viewportClassName?: string;
 }) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,6 +29,7 @@ function ScrollArea({
         className={cn(
           "focus-visible:ring-ring/50 size-full grow rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1",
           "[&>div]:!block", // https://github.com/radix-ui/primitives/issues/2722#issuecomment-2347902050 weird display table issue
+          viewportClassName,
         )}
         ref={scrollRef}
       >
