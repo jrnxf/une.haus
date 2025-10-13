@@ -7,6 +7,7 @@ import { userFollows, userLocations, users, userSocials } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
 import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
+import { useServerSession } from "~/lib/session/hooks";
 import {
   followUserSchema,
   getUserFollowsSchema,
@@ -108,8 +109,10 @@ export const updateUserServerFn = createServerFn({
 
     const userId = context.user.id;
 
+    const session = await useServerSession();
     const promises: Promise<unknown>[] = [
       db.update(users).set(updateData).where(eq(users.id, userId)),
+      session.update({ user: { ...context.user, ...updateData } }),
     ];
 
     if (location === null) {

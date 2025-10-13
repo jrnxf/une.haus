@@ -10,8 +10,10 @@ import { type ReactNode } from "react";
 
 import { AuthButton } from "~/components/auth-button";
 import { CommandMenu } from "~/components/command-menu";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
+import { useSessionTheme } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { cn } from "~/lib/utils";
@@ -63,6 +65,8 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  const { theme } = useSessionTheme();
+
   return (
     <html lang="en">
       <head>
@@ -70,7 +74,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body
         className={cn(
-          "dark",
+          theme,
           "bg-background text-foreground overflow-hidden font-mono",
         )}
       >
@@ -106,6 +110,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                 vault
               </Link>
             </Button>
+            <ThemeToggle />
             <div className="grow" />
             <AuthButton />
           </nav>

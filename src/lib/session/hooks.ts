@@ -3,13 +3,19 @@ import {
   rootRouteId,
   useNavigate,
   useRouteContext,
+  useRouter,
 } from "@tanstack/react-router";
 import { createServerOnlyFn } from "@tanstack/react-start";
 import { useSession } from "@tanstack/react-start/server";
 
 import { env } from "~/lib/env";
+import { session as sessionApi } from "~/lib/session";
 import { HAUS_SESSION_KEY, session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
+
+const api = {
+  session: sessionApi,
+};
 
 export const useServerSession = createServerOnlyFn(() => {
   return useSession<HausSession>({
@@ -37,6 +43,27 @@ export function useIsAdmin() {
 export function useSessionFlash() {
   const { session } = useRouteContext({ from: rootRouteId });
   return session.flash;
+}
+
+export function useSessionTheme() {
+  const router = useRouter();
+  const { session } = useRouteContext({ from: rootRouteId });
+  const toggleTheme = useMutation({
+    mutationFn: api.session.theme.toggle.fn,
+
+    onSuccess: () => {
+      router.invalidate();
+    },
+    onError: () => {
+      console.log("onError");
+    },
+  });
+  return {
+    theme: session.theme,
+    toggle: () => {
+      toggleTheme.mutate({});
+    },
+  };
 }
 
 export function useLogout() {

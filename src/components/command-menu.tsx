@@ -13,7 +13,11 @@ import {
   CommandSeparator,
 } from "~/components/ui/command";
 import { Separator } from "~/components/ui/separator";
-import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import {
+  useLogout,
+  useSessionTheme,
+  useSessionUser,
+} from "~/lib/session/hooks";
 
 type Page = "games" | "posts" | "root" | "theme" | "users";
 
@@ -31,7 +35,7 @@ export function CommandMenu() {
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
-  // const { setTheme } = useTheme();
+  const { toggle } = useSessionTheme();
 
   useEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
@@ -98,7 +102,12 @@ export function CommandMenu() {
                   <CommandItem onSelect={() => goTo("/auth/me")}>
                     Profile
                   </CommandItem>
-                  <CommandItem onSelect={() => pushPage("theme")}>
+                  <CommandItem
+                    onSelect={() => {
+                      toggle();
+                      setOpen(false);
+                    }}
+                  >
                     Theme
                   </CommandItem>
                   <CommandItem

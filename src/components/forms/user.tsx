@@ -42,9 +42,7 @@ export function UserForm({
       }
       toast.success("Profile updated");
 
-      navigate({
-        to: "/auth/me",
-      });
+      navigate({ to: "/auth/me" });
     },
     onError: (error) => {
       toast.error(error.message);

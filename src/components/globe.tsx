@@ -1,8 +1,11 @@
 // import { useTheme } from "next-themes";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import createGlobe from "cobe";
 
+import { session } from "~/lib/session";
+import { useSessionTheme } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
 
 type Coordinates = {
@@ -25,9 +28,7 @@ export function Globe(properties: {
 }) {
   const canvasReference = useRef<HTMLCanvasElement>(null);
 
-  // const { resolvedTheme } = useTheme();
-  // const resolvedTheme = "dark";
-  const resolvedTheme = "light";
+  const { theme } = useSessionTheme();
   const globeReference = useRef<null | ReturnType<typeof createGlobe>>(null);
   const [noLocation, setNoLocation] = useState(
     properties.location === undefined,
@@ -52,11 +53,10 @@ export function Globe(properties: {
 
     const globe = createGlobe(canvas, {
       baseColor: [1, 1, 1],
-      dark: resolvedTheme === "dark" ? 1 : 0,
+      dark: theme === "dark" ? 1 : 0,
       devicePixelRatio: 2,
       diffuse: 0,
-      glowColor:
-        resolvedTheme === "dark" ? [0.2, 0.2, 0.2] : [0.95, 0.95, 0.95],
+      glowColor: theme === "dark" ? [0.2, 0.2, 0.2] : [0.95, 0.95, 0.95],
       height: width * 2,
       mapBrightness: 1.2,
       mapSamples: 14_000,
@@ -104,7 +104,7 @@ export function Globe(properties: {
     return () => {
       window.removeEventListener("resize", setWidth);
     };
-  }, [nextLocation, noLocation, resolvedTheme]);
+  }, [nextLocation, noLocation, theme]);
 
   // When COBE unmounts on refresh you see a gross white flash - this makes sure
   // to animate out the canvas before that flash occurs
