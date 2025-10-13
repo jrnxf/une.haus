@@ -50,9 +50,12 @@ export const toggleThemeServerFn = createServerFn({ method: "POST" }).handler(
   async () => {
     const session = await useServerSession();
 
-    console.log("session.data.theme", session.data.theme);
+    const currentTheme = session.data.theme;
+
+    const nextTheme = currentTheme === "light" ? "dark" : "light";
+
     await session.update({
-      theme: session.data.theme === "light" ? "dark" : "light",
+      theme: nextTheme,
     });
   },
 );
