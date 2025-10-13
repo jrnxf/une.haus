@@ -20,6 +20,10 @@ import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
+const api = {
+  users: usersApi,
+};
+
 type User = {
   avatarUrl: null | string;
   id: number;
@@ -27,10 +31,10 @@ type User = {
 };
 
 export function UserSelector({
-  initialUserId,
+  initialSelectedUserId,
   onSelect,
 }: {
-  initialUserId: number | undefined;
+  initialSelectedUserId: number | undefined;
   onSelect: (user: User | undefined) => void;
 }) {
   return (
@@ -49,7 +53,10 @@ export function UserSelector({
         </div>
       }
     >
-      <UsersCommandDialog onSelect={onSelect} initialUserId={initialUserId} />
+      <UsersCommandDialog
+        onSelect={onSelect}
+        initialSelectedUserId={initialSelectedUserId}
+      />
     </Suspense>
   );
 }
@@ -58,7 +65,7 @@ const VIRTUALIZE_THRESHOLD = 7;
 
 function UsersCommand(props: {
   onSelect: (user: User | undefined) => void;
-  initialUserId: number | undefined;
+  initialSelectedUserId: number | undefined;
 }) {
   const {
     query,
@@ -175,16 +182,16 @@ export function useUserSelector() {
 }
 
 export function UserSelectorProvider({
+  initialSelectedUserId,
   children,
-  initialUserId,
 }: {
+  initialSelectedUserId: number | undefined;
   children: React.ReactNode;
-  initialUserId: number | undefined;
 }) {
-  const { data } = useSuspenseQuery(usersApi.all.queryOptions());
+  const { data: users } = useSuspenseQuery(api.users.all.queryOptions());
 
-  const initialUser = initialUserId
-    ? data.find((user) => user.id === initialUserId)
+  const initialUser = initialSelectedUserId
+    ? users.find((user) => user.id === initialSelectedUserId)
     : undefined;
 
   const [query, setQuery] = useState("");
@@ -199,7 +206,7 @@ export function UserSelectorProvider({
         setQuery,
         selectedUser,
         setSelectedUser,
-        users: data,
+        users,
       }}
     >
       {children}
@@ -207,13 +214,15 @@ export function UserSelectorProvider({
   );
 }
 
-const withUserSelector = <T extends { initialUserId: number | undefined }>(
+const withUserSelector = <
+  T extends { initialSelectedUserId: number | undefined },
+>(
   Component: React.ComponentType<T>,
 ) => {
-  return ({ initialUserId, ...props }: T) => {
+  return ({ initialSelectedUserId, ...props }: T) => {
     return (
-      <UserSelectorProvider initialUserId={initialUserId}>
-        <Component {...props} />
+      <UserSelectorProvider initialSelectedUserId={initialSelectedUserId}>
+        <Component {...(props as T)} />
       </UserSelectorProvider>
     );
   };
@@ -221,7 +230,7 @@ const withUserSelector = <T extends { initialUserId: number | undefined }>(
 
 const UsersCommandDialog = withUserSelector<{
   onSelect: (user: User | undefined) => void;
-  initialUserId: number | undefined;
+  initialSelectedUserId: number | undefined;
 }>((props) => {
   const { selectedUser, setQuery } = useUserSelector();
 

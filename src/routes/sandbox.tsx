@@ -12,7 +12,7 @@ function RouteComponent() {
   return (
     <div className="mx-auto grid h-full max-w-4xl grid-cols-1 gap-3 p-3">
       <UserSelector
-        initialUserId={1}
+        initialSelectedUserId={1}
         onSelect={(user) => {
           toast.success(`Selected user: ${user?.name}`);
         }}

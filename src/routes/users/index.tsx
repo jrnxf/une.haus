@@ -140,7 +140,7 @@ function FiltersTray() {
           <TrayTitle className="text-lg">Filters</TrayTitle>
           <label htmlFor="user-selector">User</label>
           <UserSelector
-            initialUserId={searchParams.id}
+            initialSelectedUserId={searchParams.id}
             onSelect={(user) => setSelectedUserId(user?.id)}
           />
 
