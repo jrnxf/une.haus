@@ -11,7 +11,6 @@ import {
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { utv } from "~/lib/utv";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
@@ -46,7 +45,7 @@ function RouteComponent() {
           placeholder="Search vault"
           className="sticky top-0 m-3 mx-auto max-w-2xl shrink-0"
         />
-        <ScrollArea
+        <div
           className="h-full overflow-y-auto"
           id="main-content"
           virtualize
@@ -60,12 +59,12 @@ function RouteComponent() {
             >
               <AccordionTrigger className="relative min-w-0 overflow-clip rounded-none py-0 pr-4 pl-0 hover:no-underline">
                 <div className="flex min-h-12 w-full min-w-0 items-center gap-2 overflow-clip group-data-[state=open]:pl-4">
-                  <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
+                  <div className="relative aspect-video h-[200px] overflow-clip transition-all group-data-[state=open]:hidden">
                     <img
                       src={getMuxPoster({
                         playbackId: video.playbackId,
                         time: 30, // 30 seconds into the video - usually enough to have the intro over
-                        width: 104 * 2, // 104 is the width of the thumbnail + double for better quality
+                        width: 200 * 2, // 104 is the width of the thumbnail + double for better quality
                       })}
                       alt={String(video.id)}
                       aria-label={video.title}
@@ -74,7 +73,7 @@ function RouteComponent() {
                   </div>
                   <h2 className="truncate font-semibold">{video.title}</h2>
                   <div className="grow" />
-                  <div className="flex shrink-0 gap-2">
+                  {/* <div className="flex shrink-0 gap-2">
                     <Button variant="secondary" asChild size="sm">
                       <a
                         href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.assetId}/monitor`}
@@ -90,7 +89,7 @@ function RouteComponent() {
                         utv
                       </a>
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </AccordionTrigger>
 
@@ -107,7 +106,7 @@ function RouteComponent() {
               </AccordionContent>
             </AccordionItem>
           ))}
-        </ScrollArea>
+        </div>
       </Accordion>
     </div>
   );

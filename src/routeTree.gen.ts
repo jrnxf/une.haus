@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
@@ -34,6 +35,11 @@ import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './rou
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
 import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
 
+const SandboxRoute = SandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
@@ -158,6 +164,7 @@ const AuthedGamesRiusUpcomingJoinRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/sandbox': typeof SandboxRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sandbox': typeof SandboxRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
+  '/sandbox': typeof SandboxRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sandbox'
     | '/games/rius'
     | '/auth/register'
     | '/users/$userId'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/sandbox'
     | '/games/rius'
     | '/auth/register'
     | '/users/$userId'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authed'
+    | '/sandbox'
     | '/games/rius'
     | '/auth/register'
     | '/users/$userId'
@@ -315,6 +327,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
+  SandboxRoute: typeof SandboxRoute
   GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren
   AuthRegisterRoute: typeof AuthRegisterRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
@@ -331,6 +344,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sandbox': {
+      id: '/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof SandboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed': {
       id: '/_authed'
       path: ''
@@ -545,6 +565,7 @@ const GamesRiusRouteRouteWithChildren = GamesRiusRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
+  SandboxRoute: SandboxRoute,
   GamesRiusRouteRoute: GamesRiusRouteRouteWithChildren,
   AuthRegisterRoute: AuthRegisterRoute,
   UsersUserIdRoute: UsersUserIdRoute,

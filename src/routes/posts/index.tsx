@@ -6,7 +6,8 @@ import {
   MessageCircleIcon,
   PaperclipIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { InView } from "react-intersection-observer";
 
 import { Badges } from "~/components/badges";
 import { TimeAgo } from "~/components/time-ago";
@@ -18,8 +19,14 @@ import {
   TrayTrigger,
 } from "~/components/tray";
 import { Button } from "~/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { getMuxPoster } from "~/components/video-player";
 import { posts } from "~/lib/posts";
 
@@ -45,82 +52,87 @@ function RouteComponent() {
   } = useSuspenseInfiniteQuery(posts.list.infiniteQueryOptions(searchParams));
 
   const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // NOTE: opting to not virtualize this bc in 99% of cases it's probably
+  // unnecessary and it means we can't have scroll restoration
 
   return (
-    <div className="flex grow flex-col overflow-hidden px-1">
-      <ScrollArea className="overflow-y-auto" id="main-content">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
-          <div className="flex items-end justify-between gap-4">
-            <Button asChild>
-              <Link to="/posts/create">Create</Link>
-            </Button>
-
-            <div className="sticky top-3 z-10 self-end">
-              <FiltersTray />
-            </div>
+    <div className="h-full overflow-y-auto" ref={scrollRef}>
+      <div className="mx-auto grid h-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
+        <div className="flex items-end justify-between gap-4">
+          <Button asChild>
+            <Link to="/posts/create">Create</Link>
+          </Button>
+          <div className="sticky top-3 z-10 self-end">
+            <FiltersTray />
           </div>
-          {displayedPosts.length === 0 && (
-            <p className="text-muted-foreground mt-1">No posts</p>
-          )}
-          {displayedPosts.map((post) => {
-            const posterUrl =
-              post.imageUrl ||
-              (post.video?.playbackId &&
-                getMuxPoster({ playbackId: post.video.playbackId })) ||
-              (post.youtubeVideoId &&
-                `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
-
-            return (
-              <Link
-                className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
-                key={post.id}
-                params={{ postId: post.id }}
-                to={`/posts/$postId`}
-              >
-                <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
-                  <div className="flex w-full flex-col gap-2">
-                    <p className="truncate font-semibold">
-                      {Boolean(posterUrl) && (
-                        <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
-                      )}
-                      {post.title}
+        </div>
+        {displayedPosts.length === 0 && (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <MessageCircleIcon />
+              </EmptyMedia>
+              <EmptyTitle>No posts</EmptyTitle>
+              <EmptyDescription>
+                There are no posts to display at the moment.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+        {displayedPosts.map((post) => {
+          const posterUrl =
+            post.imageUrl ||
+            (post.video?.playbackId &&
+              getMuxPoster({ playbackId: post.video.playbackId })) ||
+            (post.youtubeVideoId &&
+              `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
+          return (
+            <Link
+              className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+              key={post.id}
+              params={{ postId: post.id }}
+              to="/posts/$postId"
+            >
+              <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
+                <div className="flex w-full flex-col gap-2">
+                  <p className="truncate font-semibold">
+                    {Boolean(posterUrl) && (
+                      <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
+                    )}
+                    {post.title}
+                  </p>
+                  <div className="line-clamp-3 text-sm">
+                    <p>{post.content}</p>
+                  </div>
+                  <Badges content={post.tags} />
+                  <div className="flex w-full justify-between gap-4">
+                    <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
+                      <span>{post.user.name}</span>
+                      <span>•</span>
+                      <TimeAgo date={post.createdAt} />
                     </p>
-                    <div className="line-clamp-3 text-sm">
-                      <p>{post.content}</p>
-                    </div>
-
-                    <Badges content={post.tags} />
-
-                    <div className="flex w-full justify-between gap-4">
-                      <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
-                        <span>{post.user.name}</span>
-                        <span>•</span>
-                        <TimeAgo date={post.createdAt} />
-                      </p>
-
-                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                        <MessageCircleIcon className="size-3" />
-                        {post.counts.messages}
-                        <HeartIcon className="size-3" />
-                        {post.counts.likes}
-                      </div>
+                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                      <MessageCircleIcon className="size-3" />
+                      {post.counts.messages}
+                      <HeartIcon className="size-3" />
+                      {post.counts.likes}
                     </div>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
-
-          {hasNextPage && (
-            <Button
-              className="shrink-0 self-center"
-              onClick={() => fetchNextPage()}
-            >
-              {isFetchingNextPage ? "Loading more..." : "Load more"}
-            </Button>
-          )}
-        </div>
-      </ScrollArea>
+              </div>
+            </Link>
+          );
+        })}
+        {hasNextPage && !isFetchingNextPage && (
+          <InView
+            root={scrollRef.current}
+            rootMargin="1000px"
+            onChange={(inView) => inView && fetchNextPage()}
+          />
+        )}
+      </div>
     </div>
   );
 }

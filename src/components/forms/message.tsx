@@ -91,7 +91,7 @@ export function BaseMessageForm({
             {...register("content")}
             className="resize-none rounded-none border-0 px-1.5 shadow-none focus-visible:ring-0"
             id="content"
-            rows={1}
+            rows={3}
             placeholder="quick message..."
             onKeyDown={(event) => {
               if (event.code === "Enter" && (event.metaKey || event.ctrlKey)) {

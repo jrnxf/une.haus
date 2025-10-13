@@ -12,7 +12,6 @@ import { z } from "zod";
 
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
@@ -50,12 +49,12 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-2 py-4">
-      <ScrollArea
+      <div
         className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
         id="main-content"
       >
         <SetView setId={setId} />
-      </ScrollArea>
+      </div>
     </div>
   );
 }

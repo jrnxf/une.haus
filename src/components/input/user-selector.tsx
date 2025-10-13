@@ -1,6 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { Suspense, useMemo, useState } from "react";
+import { createContext, Suspense, useContext, useMemo, useState } from "react";
+
+import { VList } from "virtua";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -13,9 +15,8 @@ import {
   CommandList,
 } from "~/components/ui/command";
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { invariant } from "~/lib/invariant";
-import { users } from "~/lib/users";
+import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
@@ -48,28 +49,24 @@ export function UserSelector({
         </div>
       }
     >
-      <UsersCommandGroup onSelect={onSelect} initialUserId={initialUserId} />
+      <UsersCommandDialog onSelect={onSelect} initialUserId={initialUserId} />
     </Suspense>
   );
 }
 
 const VIRTUALIZE_THRESHOLD = 7;
 
-function UsersCommandGroup(props: {
+function UsersCommand(props: {
   onSelect: (user: User | undefined) => void;
   initialUserId: number | undefined;
 }) {
-  const { data } = useSuspenseQuery(users.all.queryOptions());
-  const initialUser = props.initialUserId
-    ? data.find((user) => user.id === props.initialUserId)
-    : undefined;
-  const [selectedUser, setSelectedUser] = useState<User | undefined>(
-    initialUser,
-  );
-  const [checkedUser, setCheckedUser] = useState<User | undefined>(initialUser);
-  const [query, setQuery] = useState("");
-
-  const [open, setOpen] = useState(false);
+  const {
+    query,
+    setQuery,
+    users: data,
+    selectedUser,
+    setSelectedUser,
+  } = useUserSelector();
 
   invariant(data[0], "No users found");
 
@@ -95,9 +92,140 @@ function UsersCommandGroup(props: {
     const nextValue =
       selectedUser && user.id === selectedUser.id ? undefined : user;
     setSelectedUser(nextValue);
-    setOpen(false);
     props.onSelect(nextValue);
   };
+
+  const usersNode = filteredUsers.map(({ item: user }) => (
+    <UserItem key={user.id} onSelect={onSelectUser} user={user} />
+  ));
+
+  return (
+    <Command className="w-full" shouldFilter={false}>
+      <CommandInput
+        onValueChange={setQuery}
+        placeholder="Filter..."
+        value={query}
+      />
+      <CommandList>
+        <CommandEmpty>No results</CommandEmpty>
+        {filteredUsers.length > 0 && (
+          <CommandGroup>
+            {filteredUsers.length > VIRTUALIZE_THRESHOLD ? (
+              <div className="h-[250px]">
+                <VList className="h-[250px] overflow-y-auto">{usersNode}</VList>
+              </div>
+            ) : (
+              usersNode
+            )}
+          </CommandGroup>
+        )}
+      </CommandList>
+    </Command>
+  );
+}
+
+function UserItem({
+  onSelect,
+  user,
+}: {
+  onSelect: (user: User) => void;
+  user: User;
+}) {
+  const { selectedUser } = useUserSelector();
+
+  return (
+    <CommandItem
+      key={user.id}
+      keywords={[user.name]}
+      onSelect={() => onSelect(user)}
+      value={user.id.toString()}
+    >
+      <p className="grow truncate">{user.name}</p>
+      <Check
+        className={cn(
+          "mr-2 size-4",
+          selectedUser?.id === user.id ? "opacity-100" : "opacity-0",
+        )}
+      />
+    </CommandItem>
+  );
+}
+
+const UserSelectorContext = createContext<{
+  query: string;
+  setQuery: (query: string) => void;
+  selectedUser: User | undefined;
+  setSelectedUser: (user: User | undefined) => void;
+  users: User[];
+}>({
+  query: "",
+  setQuery: () => {},
+  selectedUser: undefined,
+  setSelectedUser: () => {},
+  users: [],
+});
+
+export function useUserSelector() {
+  const context = useContext(UserSelectorContext);
+  invariant(
+    context,
+    "useUserSelector must be used within a UserSelectorProvider",
+  );
+  return context;
+}
+
+export function UserSelectorProvider({
+  children,
+  initialUserId,
+}: {
+  children: React.ReactNode;
+  initialUserId: number | undefined;
+}) {
+  const { data } = useSuspenseQuery(usersApi.all.queryOptions());
+
+  const initialUser = initialUserId
+    ? data.find((user) => user.id === initialUserId)
+    : undefined;
+
+  const [query, setQuery] = useState("");
+  const [selectedUser, setSelectedUser] = useState<User | undefined>(
+    initialUser,
+  );
+
+  return (
+    <UserSelectorContext.Provider
+      value={{
+        query,
+        setQuery,
+        selectedUser,
+        setSelectedUser,
+        users: data,
+      }}
+    >
+      {children}
+    </UserSelectorContext.Provider>
+  );
+}
+
+const withUserSelector = <T extends { initialUserId: number | undefined }>(
+  Component: React.ComponentType<T>,
+) => {
+  return ({ initialUserId, ...props }: T) => {
+    return (
+      <UserSelectorProvider initialUserId={initialUserId}>
+        <Component {...props} />
+      </UserSelectorProvider>
+    );
+  };
+};
+
+const UsersCommandDialog = withUserSelector<{
+  onSelect: (user: User | undefined) => void;
+  initialUserId: number | undefined;
+}>((props) => {
+  const { selectedUser, setQuery } = useUserSelector();
+
+  const [open, setOpen] = useState(false);
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -137,69 +265,11 @@ function UsersCommandGroup(props: {
         className="w-full p-0"
         showCloseButton={false}
         onCloseAutoFocus={() => {
-          if (selectedUser) {
-            setCheckedUser(selectedUser);
-          }
           setQuery("");
         }}
       >
-        <Command className="w-full" shouldFilter={false}>
-          <CommandInput
-            onValueChange={setQuery}
-            placeholder="Filter..."
-            value={query}
-          />
-          <CommandList>
-            <CommandEmpty>No results</CommandEmpty>
-            {filteredUsers.length > 0 && (
-              <CommandGroup>
-                <ScrollArea
-                  virtualize={filteredUsers.length >= VIRTUALIZE_THRESHOLD}
-                  className={cn(
-                    // allows the list to shrink when we're not virtualizing
-                    filteredUsers.length >= VIRTUALIZE_THRESHOLD
-                      ? "h-[250px]"
-                      : "max-h-[250px]",
-                  )}
-                >
-                  {filteredUsers.map(({ item: user }) => (
-                    <UserItem
-                      key={user.id}
-                      onSelect={onSelectUser}
-                      showCheck={user.id === checkedUser?.id}
-                      user={user}
-                    />
-                  ))}
-                </ScrollArea>
-              </CommandGroup>
-            )}
-          </CommandList>
-        </Command>
+        <UsersCommand {...props} onSelect={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );
-}
-
-function UserItem({
-  onSelect,
-  showCheck,
-  user,
-}: {
-  onSelect: (user: User) => void;
-  showCheck: boolean;
-  user: User;
-}) {
-  return (
-    <CommandItem
-      key={user.id}
-      keywords={[user.name]}
-      onSelect={() => onSelect(user)}
-      value={user.id.toString()}
-    >
-      <p className="grow truncate">{user.name}</p>
-      <Check
-        className={cn("mr-2 size-4", showCheck ? "opacity-100" : "opacity-0")}
-      />
-    </CommandItem>
-  );
-}
+});

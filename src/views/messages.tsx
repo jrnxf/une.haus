@@ -3,7 +3,6 @@ import { useLayoutEffect, useRef } from "react";
 import { BaseMessageForm } from "~/components/forms/message";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { type messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -61,81 +60,53 @@ export function MessagesView({
   }, [scrollTo, lastChatMessageByUserId, chatMessageCount, sessionUser]);
 
   return (
-    <>
-      {messages.length === 0 && (
-        <p className="text-muted-foreground mt-1">No messages</p>
-      )}
-      <div
-        className={cn(
-          "flex grow flex-col gap-2 overflow-hidden",
-          // there was basis-0 here before but it's breaking a layout -- keeping it here in case it's needed
-          // "basis-0"
+    <div className="h-full overflow-y-auto" ref={ref}>
+      <div className="grid h-full grid-cols-1 grid-rows-[1fr_auto]">
+        {messages.length === 0 && (
+          <p className="text-muted-foreground mt-1">No messages</p>
         )}
-      >
-        <ScrollArea
-          className="overflow-y-auto"
-          // https://tanstack.com/router/latest/docs/framework/react/guide/scroll-restoration#manual-scroll-restoration
-          // I don't like the way the scroll restoration is automatically handled
-          // here because on a refresh it loads at the top of the page and then
-          // jumps to the restoration point (this may be a bug with the router) by
-          // manually setting the scroll restoration id and then never registering
-          // it with `useElementScrollRestoration` we effectively disable the
-          // router's scroll restoration for this element. interestingly,
-          // disabling the scroll restoration seems to still actually do the
-          // scroll restoration but not cause the jump mentioned above.
-          data-scroll-restoration-id={`no-scroll-restore-${record.type}-${record.id}`}
-          ref={ref}
-        >
-          <div
-            className={cn(
-              "mx-auto w-full max-w-4xl space-y-2",
-              "p-1", // don't cut off outlines
-            )}
-          >
-            {messages.map((message, index) => {
-              const isAuthUserMessage = Boolean(
-                sessionUser && sessionUser.id === message.user.id,
-              );
-
-              const isNewSection =
-                messages[index - 1]?.user.id !== message.user.id;
-
-              return (
-                <div
-                  data-slot="message"
-                  className={cn(
-                    "flex max-w-full flex-col",
-                    isAuthUserMessage && "items-end",
-                  )}
-                  key={message.id}
-                >
-                  {isNewSection && (
-                    <div className={cn("mb-1", index !== 0 && "mt-4")}>
-                      <MessageAuthor message={message} />
-                    </div>
-                  )}
-                  <div
-                    className={cn(
-                      "flex w-full",
-                      isAuthUserMessage && "justify-end",
-                    )}
-                  >
-                    <MessageBubble parent={record} message={message} />
+        <div className="mx-auto w-full max-w-4xl space-y-2 p-3">
+          {messages.map((message, index) => {
+            const isAuthUserMessage = Boolean(
+              sessionUser && sessionUser.id === message.user.id,
+            );
+            const isNewSection =
+              messages[index - 1]?.user.id !== message.user.id;
+            return (
+              <div
+                data-slot="message"
+                className={cn(
+                  "flex max-w-full flex-col",
+                  isAuthUserMessage && "items-end",
+                )}
+                key={message.id}
+              >
+                {isNewSection && (
+                  <div className={cn("mb-1", index !== 0 && "mt-4")}>
+                    <MessageAuthor message={message} />
                   </div>
+                )}
+                <div
+                  className={cn(
+                    "flex w-full",
+                    isAuthUserMessage && "justify-end",
+                  )}
+                >
+                  <MessageBubble parent={record} message={message} />
                 </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mx-auto w-full max-w-4xl shrink-0 p-3">
+          <BaseMessageForm
+            onSubmit={(newMessage) => {
+              scrollTo("bottom", Infinity);
+              handleCreateMessage(newMessage);
+            }}
+          />
+        </div>
       </div>
-      <div className="mx-auto w-full max-w-4xl shrink-0 p-1">
-        <BaseMessageForm
-          onSubmit={(newMessage) => {
-            scrollTo("bottom", Infinity);
-            handleCreateMessage(newMessage);
-          }}
-        />
-      </div>
-    </>
+    </div>
   );
 }

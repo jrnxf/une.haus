@@ -26,7 +26,8 @@ export function Globe(properties: {
   const canvasReference = useRef<HTMLCanvasElement>(null);
 
   // const { resolvedTheme } = useTheme();
-  const resolvedTheme = "dark";
+  // const resolvedTheme = "dark";
+  const resolvedTheme = "light";
   const globeReference = useRef<null | ReturnType<typeof createGlobe>>(null);
   const [noLocation, setNoLocation] = useState(
     properties.location === undefined,

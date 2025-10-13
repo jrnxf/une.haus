@@ -22,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { VideoPlayer } from "~/components/video-player";
 import { games, groupSetsByUser } from "~/lib/games";
 
@@ -87,7 +86,7 @@ function RouteComponent() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <ScrollArea className="h-[400px] min-w-[250px]">
+            <div className="h-[400px] min-w-[250px]">
               {archivedRius.map((riu) => (
                 <DropdownMenuItem
                   key={riu.id}
@@ -101,7 +100,7 @@ function RouteComponent() {
                   </div>
                 </DropdownMenuItem>
               ))}
-            </ScrollArea>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

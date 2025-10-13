@@ -2,7 +2,6 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { z } from "zod";
 
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { flashMessage } from "~/lib/flash";
 import { messages } from "~/lib/messages";
 import { posts } from "~/lib/posts";
@@ -53,10 +52,10 @@ function RouteComponent() {
   const { postId } = Route.useParams();
 
   return (
-    <ScrollArea className="mx-2 grow overflow-y-auto" id="main-content">
+    <div className="mx-2 grow overflow-y-auto" id="main-content">
       <div className="mx-auto w-full max-w-4xl overflow-y-auto">
         <PostView postId={postId} />
       </div>
-    </ScrollArea>
+    </div>
   );
 }

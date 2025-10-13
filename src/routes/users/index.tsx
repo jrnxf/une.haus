@@ -1,7 +1,8 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { FilterIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { InView } from "react-intersection-observer";
 
 import { Badges } from "~/components/badges";
 import { BadgeInput } from "~/components/input/badge-input";
@@ -13,10 +14,15 @@ import {
   TrayTitle,
   TrayTrigger,
 } from "~/components/tray";
-import { AnimatedGhost } from "~/components/ui/animated-ghost";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -43,61 +49,72 @@ function RouteComponent() {
   } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(searchParams));
 
   const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="flex grow flex-col overflow-hidden px-1">
-      <ScrollArea className="overflow-y-auto" id="main-content">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 p-3">
-          <div className="fixed right-4 bottom-4 z-10 md:static md:self-end">
+    <div className="h-full overflow-y-auto" ref={scrollRef}>
+      <div className="mx-auto grid h-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
+        <div className="flex items-end justify-between gap-4">
+          <div className="sticky top-3 z-10 self-end">
             <FiltersTray />
           </div>
-          {displayedUsers.length === 0 && (
-            <div className="flex h-28 flex-col items-center justify-center gap-1.5">
-              <AnimatedGhost />
-              <p className="text-muted-foreground">No users found</p>
-            </div>
-          )}
-
-          {displayedUsers.map((user) => {
-            return (
-              <Link
-                key={user.id}
-                to="/users/$userId"
-                params={{ userId: user.id }}
-                className={cn(
-                  "w-full space-y-2 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
-                  "ring-offset-background",
-                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-                )}
-                data-user-name={user.name}
-              >
-                <div className="flex items-center gap-2">
-                  <Avatar className="size-6 rounded-full">
-                    <AvatarImage alt={user.name} src={user.avatarUrl} />
-                    <AvatarFallback className="text-xs" name={user.name} />
-                  </Avatar>
-                  <p className="truncate text-base">{user.name}</p>
-                </div>
-                {user.bio && (
-                  <p className="text-muted-foreground line-clamp-3 text-sm">
-                    {user.bio}
-                  </p>
-                )}
-
-                <Badges content={user.disciplines} />
-              </Link>
-            );
-          })}
-          {hasNextPage && (
-            <Button
-              className="shrink-0 self-center"
-              onClick={() => fetchNextPage()}
-            >
-              {isFetchingNextPage ? "Loading more..." : "Load more"}
-            </Button>
-          )}
         </div>
-      </ScrollArea>
+
+        {displayedUsers.length === 0 && (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <FilterIcon />
+              </EmptyMedia>
+              <EmptyTitle>No users</EmptyTitle>
+              <EmptyDescription>
+                There are no users to display at the moment.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+
+        {displayedUsers.map((user) => {
+          return (
+            <Link
+              key={user.id}
+              to="/users/$userId"
+              params={{ userId: user.id }}
+              className={cn(
+                "ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+              )}
+              data-user-name={user.name}
+            >
+              <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
+                <div className="flex w-full flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="size-6 rounded-full">
+                      <AvatarImage alt={user.name} src={user.avatarUrl} />
+                      <AvatarFallback className="text-xs" name={user.name} />
+                    </Avatar>
+                    <p className="truncate text-base font-semibold">
+                      {user.name}
+                    </p>
+                  </div>
+                  {user.bio && (
+                    <div className="line-clamp-3 text-sm">
+                      <p>{user.bio}</p>
+                    </div>
+                  )}
+                  <Badges content={user.disciplines} />
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+        {hasNextPage && !isFetchingNextPage && (
+          <InView
+            root={scrollRef.current}
+            rootMargin="1000px"
+            onChange={(inView) => inView && fetchNextPage()}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -15,8 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { cn } from "~/lib/utils";
 
 type User = {
   avatarUrl: string | null;
@@ -55,14 +53,7 @@ export function UsersDropdownMenu({
         <Command className="w-full">
           <CommandList>
             <CommandGroup>
-              <ScrollArea
-                virtualize={sortedUsers.length >= VIRTUALIZE_THRESHOLD}
-                className={cn(
-                  sortedUsers.length >= VIRTUALIZE_THRESHOLD
-                    ? "h-[200px]"
-                    : "max-h-[200px]",
-                )}
-              >
+              <div className="h-[200px] overflow-y-auto">
                 {sortedUsers.map((user) => (
                   <CommandItem key={user.id} asChild>
                     <Link
@@ -79,7 +70,7 @@ export function UsersDropdownMenu({
                     </Link>
                   </CommandItem>
                 ))}
-              </ScrollArea>
+              </div>
             </CommandGroup>
           </CommandList>
         </Command>

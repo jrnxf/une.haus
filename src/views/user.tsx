@@ -15,7 +15,6 @@ import { SocialLink } from "~/components/social-link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { UsersDropdownMenu } from "~/components/users-dropdown-menu";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersWithFollowsData } from "~/lib/users";
@@ -27,7 +26,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
   const sessionUser = useSessionUser();
 
   return (
-    <ScrollArea className="flex w-full grow flex-col">
+    <div className="flex w-full grow flex-col">
       <div className="@container relative mx-auto flex w-full max-w-2xl grow flex-col">
         <div className="relative">
           {user.location && (
@@ -135,7 +134,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           </div>
         </div>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
 

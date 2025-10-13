@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { Logo } from "~/components/logo";
+import { UsersDropdownMenu } from "~/components/users-dropdown-menu";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
