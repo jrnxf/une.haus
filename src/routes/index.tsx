@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 
 import { Logo } from "~/components/logo";
-import { UsersDropdownMenu } from "~/components/users-dropdown-menu";
+import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
+import { useTheme } from "~/lib/theme/context";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,

@@ -13,11 +13,7 @@ import {
   CommandSeparator,
 } from "~/components/ui/command";
 import { Separator } from "~/components/ui/separator";
-import {
-  useLogout,
-  useSessionTheme,
-  useSessionUser,
-} from "~/lib/session/hooks";
+import { useLogout, useSessionUser } from "~/lib/session/hooks";
 
 type Page = "games" | "posts" | "root" | "theme" | "users";
 
@@ -35,8 +31,6 @@ export function CommandMenu() {
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
-  const { toggle } = useSessionTheme();
-
   useEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
@@ -49,10 +43,10 @@ export function CommandMenu() {
     setOpen(false);
   };
 
-  const pushPage = (page: Page) => {
-    setPages((pages) => [...pages, page]);
-    setInput("");
-  };
+  // const pushPage = (page: Page) => {
+  //   setPages((pages) => [...pages, page]);
+  //   setInput("");
+  // };
 
   const popPage = () => {
     setPages((pages) => pages.slice(0, -1));
@@ -104,7 +98,7 @@ export function CommandMenu() {
                   </CommandItem>
                   <CommandItem
                     onSelect={() => {
-                      toggle();
+                      // toggle();
                       setOpen(false);
                     }}
                   >

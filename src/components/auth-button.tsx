@@ -7,13 +7,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import { useTheme } from "~/lib/theme/context";
 
 export function AuthButton() {
   const sessionUser = useSessionUser();
+  const { setTheme } = useTheme();
   const logout = useLogout();
 
   if (!sessionUser) {
@@ -74,25 +80,36 @@ export function AuthButton() {
         <DropdownMenuItem asChild>
           <Link to="/">Home</Link>
         </DropdownMenuItem>
-        {/* <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <span>Theme</span>
-          </DropdownMenuSubTrigger>
+
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>theme</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
+              <DropdownMenuItem
+                onSelect={() => {
+                  setTheme("light");
+                }}
+              >
+                light
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
+              <DropdownMenuItem
+                onSelect={() => {
+                  setTheme("dark");
+                }}
+              >
+                dark
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
+              <DropdownMenuItem
+                onSelect={() => {
+                  setTheme("system");
+                }}
+              >
+                system
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-         */}
+
         <DropdownMenuItem
           onSelect={() => {
             logout({});

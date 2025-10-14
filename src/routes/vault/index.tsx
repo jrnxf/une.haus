@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { MonitorIcon, TvIcon } from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -9,7 +8,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { utv } from "~/lib/utv";
@@ -45,12 +43,7 @@ function RouteComponent() {
           placeholder="Search vault"
           className="sticky top-0 m-3 mx-auto max-w-2xl shrink-0"
         />
-        <div
-          className="h-full overflow-y-auto"
-          id="main-content"
-          virtualize
-          viewportClassName="max-w-2xl mx-auto"
-        >
+        <div className="h-full overflow-y-auto" id="main-content">
           {filteredVault.map(({ item: video }) => (
             <AccordionItem
               value={String(video.id)}

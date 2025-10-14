@@ -30,7 +30,7 @@ type UsersDropdownMenuProps = {
   triggerText: string;
 };
 
-const VIRTUALIZE_THRESHOLD = 6;
+// const VIRTUALIZE_THRESHOLD = 6;
 
 export function UsersDropdownMenu({
   users,

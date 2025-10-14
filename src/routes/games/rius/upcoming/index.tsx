@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Badges } from "~/components/badges";
 import { DeleteSetButton } from "~/components/delete-set-button";
-import { AnimatedGhost } from "~/components/ui/animated-ghost";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -122,7 +121,7 @@ function RouteComponent() {
       {shouldShowEmptyState && (
         <Card className="border-dashed p-8 text-center">
           <div className="flex flex-col items-center gap-4">
-            <AnimatedGhost />
+            {/* <AnimatedGhost /> */}
             <div className="space-y-2">
               <h3 className="text-lg font-medium">You?</h3>
               <p className="text-muted-foreground text-sm">

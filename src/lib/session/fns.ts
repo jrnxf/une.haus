@@ -4,6 +4,7 @@ import { useServerSession } from "~/lib/session/hooks";
 import {
   hausSessionSchema,
   setFlashSchema,
+  setThemeSchema,
   type HausSession,
 } from "~/lib/session/schema";
 
@@ -30,7 +31,7 @@ export const getSessionServerFn = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const setFlashServerFn = createServerFn({
+export const setSessionFlashServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(setFlashSchema)
@@ -39,23 +40,20 @@ export const setFlashServerFn = createServerFn({
     await session.update({ flash: input.message });
   });
 
-export const clearSesslionServerFn = createServerFn({ method: "POST" }).handler(
+export const clearSessionServerFn = createServerFn({ method: "POST" }).handler(
   async () => {
     const session = await useServerSession();
     await session.clear();
   },
 );
 
-export const toggleThemeServerFn = createServerFn({ method: "POST" }).handler(
-  async () => {
+export const setSessionThemeServerFn = createServerFn({ method: "POST" })
+  .inputValidator(setThemeSchema)
+  .handler(async ({ data: theme }) => {
     const session = await useServerSession();
 
-    const currentTheme = session.data.theme;
-
-    const nextTheme = currentTheme === "light" ? "dark" : "light";
-
     await session.update({
-      theme: nextTheme,
+      ...session.data,
+      theme,
     });
-  },
-);
+  });

@@ -21,7 +21,7 @@ export function getRouter() {
       routeTree,
       context: {
         queryClient,
-        session: {},
+        session: { theme: "dark" },
       },
       // I had this set to "intent" but it doesn't seem to be as helpful on
       // mobile since there's no hover on mobile and it uses touch start events

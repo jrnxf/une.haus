@@ -10,12 +10,11 @@ import { type ReactNode } from "react";
 
 import { AuthButton } from "~/components/auth-button";
 import { CommandMenu } from "~/components/command-menu";
-import { ThemeToggle } from "~/components/theme-toggle";
 import { Button } from "~/components/ui/button";
 import { Toaster } from "~/components/ui/sonner";
-import { useSessionTheme } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
+import { ThemeProvider } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 import appCss from "~/styles.css?url";
 
@@ -65,63 +64,62 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const { theme } = useSessionTheme();
-
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
-      <body
-        className={cn(
-          theme,
-          "bg-background text-foreground overflow-hidden font-mono",
-        )}
-      >
-        <CommandMenu />
+      <body>
+        <ThemeProvider>
+          <div className="bg-background text-foreground overflow-hidden font-mono">
+            <CommandMenu />
 
-        <div
-          className="grid h-dvh grid-rows-[auto_1fr]"
-          data-vaul-drawer-wrapper
-        >
-          <nav className="flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/chat">
-                chat
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/posts">
-                posts
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/users">
-                users
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/games/rius/active">
-                games
-              </Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link className="[&.active]:bg-secondary" to="/vault">
-                vault
-              </Link>
-            </Button>
-            <ThemeToggle />
-            <div className="grow" />
-            <AuthButton />
-          </nav>
-          <main className="overflow-hidden">
-            {/* overflow should be managed at the layout level */}
-            {children}
-          </main>
-        </div>
-        {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
+            <div
+              className="grid h-dvh grid-rows-[auto_1fr]"
+              data-vaul-drawer-wrapper
+            >
+              <nav className="flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
+                <Button asChild variant="ghost">
+                  <Link className="[&.active]:bg-secondary" to="/chat">
+                    chat
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link className="[&.active]:bg-secondary" to="/posts">
+                    posts
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link className="[&.active]:bg-secondary" to="/users">
+                    users
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link
+                    className="[&.active]:bg-secondary"
+                    to="/games/rius/active"
+                  >
+                    games
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link className="[&.active]:bg-secondary" to="/vault">
+                    vault
+                  </Link>
+                </Button>
+                <div className="grow" />
+                <AuthButton />
+              </nav>
+              <main className="overflow-hidden">
+                {/* overflow should be managed at the layout level */}
+                {children}
+              </main>
+            </div>
+            {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
+            <Toaster />
+          </div>
+        </ThemeProvider>
 
-        <Toaster />
         <Scripts />
       </body>
     </html>

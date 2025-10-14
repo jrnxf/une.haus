@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const hausSessionSchema = z.object({
   flash: z.string().optional(),
-  theme: z.enum(["light", "dark"]).default("dark"),
+  theme: z.enum(["light", "dark", "system"]).default("system"),
   user: z
     .object({
       avatarUrl: z.string().nullable(),
@@ -19,3 +19,5 @@ export type HausSessionUser = HausSession["user"];
 export const setFlashSchema = z.object({
   message: z.string(),
 });
+
+export const setThemeSchema = z.enum(["light", "dark", "system"]);

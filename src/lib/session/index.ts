@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import {
-  clearSesslionServerFn,
+  clearSessionServerFn,
   getSessionServerFn,
-  setFlashServerFn,
-  toggleThemeServerFn,
+  setSessionFlashServerFn,
+  setSessionThemeServerFn,
 } from "~/lib/session/fns";
 
 export const HAUS_SESSION_KEY = "haus_session";
@@ -20,16 +20,16 @@ export const session = {
     },
   },
   clear: {
-    fn: clearSesslionServerFn,
-  },
-  theme: {
-    toggle: {
-      fn: toggleThemeServerFn,
-    },
+    fn: clearSessionServerFn,
   },
   flash: {
     set: {
-      fn: setFlashServerFn,
+      fn: setSessionFlashServerFn,
+    },
+  },
+  theme: {
+    set: {
+      fn: setSessionThemeServerFn,
     },
   },
 };

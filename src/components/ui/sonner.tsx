@@ -3,12 +3,12 @@ import { useEffect } from "react";
 import { Toaster as Sonner, toast } from "sonner";
 
 import { useSessionFlash } from "~/lib/session/hooks";
+import { useTheme } from "~/lib/theme/context";
 
 type ToasterProperties = React.ComponentProps<typeof Sonner>;
 
 export function Toaster(properties: ToasterProperties) {
-  // const { theme = "system" } = useTheme();
-  const theme = "system";
+  const { theme } = useTheme();
 
   useFlashToaster();
 
