@@ -15,7 +15,6 @@ import { Toaster } from "~/components/ui/sonner";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
-import { cn } from "~/lib/utils";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -69,9 +68,14 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body>
-        <ThemeProvider>
-          <div className="bg-background text-foreground overflow-hidden font-mono">
+      <body className="overflow-hidden font-mono">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="bg-background text-foreground">
             <CommandMenu />
 
             <div
