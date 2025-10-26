@@ -84,7 +84,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="overflow-hidden font-mono">
+      <body className="overflow-hidden bg-blue-200 font-mono">
         <ThemeProvider>
           <CommandMenu />
           <SidebarProvider>
