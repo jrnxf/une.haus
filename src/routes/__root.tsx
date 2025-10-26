@@ -60,13 +60,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       // dark system
       {
         name: "apple-mobile-web-app-status-bar-style",
-        content: "#000000",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        name: "theme-color",
-        content: "#000000",
-        media: "(prefers-color-scheme: dark)",
+        content: "black-translucent",
       },
     ],
   }),
