@@ -9,7 +9,8 @@ export const Route = createFileRoute("/api/mux/url")({
   server: {
     handlers: {
       GET: async () => {
-        const session = await useServerSession();
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const session = await useServerSession(); // this isn't a react hook
 
         invariant(session.data.user, "Unauthorized");
 

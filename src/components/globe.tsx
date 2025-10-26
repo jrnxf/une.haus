@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import createGlobe from "cobe";
 
@@ -27,9 +27,7 @@ export function Globe(properties: {
 
   const { resolvedTheme } = useTheme();
   const globeReference = useRef<null | ReturnType<typeof createGlobe>>(null);
-  const [noLocation, setNoLocation] = useState(
-    properties.location === undefined,
-  );
+  const noLocation = properties.location === undefined;
   const nextLocation = useRef<Coordinates>(
     properties.location ?? { lat: 0, lng: 0 },
   );
@@ -125,13 +123,6 @@ export function Globe(properties: {
   // Handle location updates
   useEffect(() => {
     if (!properties.location) {
-      setNoLocation(true);
-      return;
-    }
-
-    if (noLocation) {
-      setNoLocation(false);
-      nextLocation.current = properties.location;
       return;
     }
 
@@ -142,9 +133,7 @@ export function Globe(properties: {
     if (locationChanged) {
       nextLocation.current = properties.location;
     }
-
-    setNoLocation(false);
-  }, [properties.location, noLocation]);
+  }, [properties.location]);
 
   return (
     <div className="relative aspect-square size-full">

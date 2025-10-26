@@ -277,7 +277,13 @@ const UsersCommandDialog = withUserSelector<{
           setQuery("");
         }}
       >
-        <UsersCommand {...props} onSelect={() => setOpen(false)} />
+        <UsersCommand
+          {...props}
+          onSelect={(args) => {
+            props.onSelect(args);
+            setOpen(false);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

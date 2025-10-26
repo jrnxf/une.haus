@@ -1,3 +1,4 @@
+import { ClientOnly } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,21 +8,19 @@ import { invariant } from "~/lib/invariant";
 export function MatrixText({
   text,
   dropHeight,
+  className,
 }: {
   text: string;
   dropHeight: number;
+  className?: string;
 }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
   return (
-    <div className="flex w-[68px] justify-center">
+    <div className="flex justify-center">
       {/* the randomness of this component means the server and client will never
       render the same thing – causing a hydration warning. So in the server
       render and first client render we use the sr-only class to hide the element
       but keep it around for SEO */}
-      {mounted ? (
+      <ClientOnly fallback={<span className="sr-only">{text}</span>}>
         <AnimatePresence mode="popLayout">
           {[...text].map((char, index) => (
             <motion.span
@@ -29,14 +28,13 @@ export function MatrixText({
               initial={{ opacity: 0, y: -dropHeight }}
               key={`${char}-${index}`}
               transition={{ delay: 0.035 * index, type: "spring" }}
+              className={className}
             >
               <Char finalChar={char} idx={index} />
             </motion.span>
           ))}
         </AnimatePresence>
-      ) : (
-        <span className="sr-only">{text}</span>
-      )}
+      </ClientOnly>
     </div>
   );
 }

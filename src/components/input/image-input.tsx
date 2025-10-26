@@ -53,7 +53,7 @@ export const ImageInput = ({
         }
       }
     },
-    [onChange, setImageUploadStatus],
+    [createPresignedS3Url, onChange, setImageUploadStatus],
   );
 
   const { getInputProps, getRootProps } = useDropzone({

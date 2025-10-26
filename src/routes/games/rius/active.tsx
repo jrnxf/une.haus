@@ -114,6 +114,9 @@ function SetCard({ set }: { set: SetType }) {
 function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions());
 
+  // Group sets by user elegantly
+  const groupedSets = useMemo(() => groupSetsByUser(data.sets), [data.sets]);
+
   if (!data?.sets.length) {
     return (
       <div className="text-center">
@@ -122,9 +125,6 @@ function RouteComponent() {
       </div>
     );
   }
-
-  // Group sets by user elegantly
-  const groupedSets = useMemo(() => groupSetsByUser(data.sets), [data.sets]);
 
   return (
     <div className="flex flex-col gap-8 p-4">

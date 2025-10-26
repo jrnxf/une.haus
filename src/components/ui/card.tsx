@@ -1,63 +1,54 @@
-import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
->(({ asChild = false, className, ...properties }, reference) => {
-  const Comp = asChild ? Slot : "div";
-  return (
-    <Comp
-      className={cn(
-        "text-card-foreground rounded-lg border p-4 shadow-xs",
-        "ring-offset-background focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-        className,
-      )}
-      ref={reference}
-      {...properties}
-    />
-  );
-});
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "bg-card text-card-foreground rounded-xl border shadow",
+      className,
+    )}
+    {...props}
+  />
+));
 Card.displayName = "Card";
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...properties }, reference) => (
+>(({ className, ...props }, ref) => (
   <div
+    ref={ref}
     className={cn("flex flex-col space-y-1.5 p-6", className)}
-    ref={reference}
-    {...properties}
+    {...props}
   />
 ));
 CardHeader.displayName = "CardHeader";
 
 const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...properties }, reference) => (
-  // eslint-disable-next-line jsx-a11y/heading-has-content
-  <h3
-    className={cn(
-      "text-2xl leading-none font-semibold tracking-tight",
-      className,
-    )}
-    ref={reference}
-    {...properties}
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("leading-none font-semibold tracking-tight", className)}
+    {...props}
   />
 ));
 CardTitle.displayName = "CardTitle";
 
 const CardDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...properties }, reference) => (
-  <p
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
     className={cn("text-muted-foreground text-sm", className)}
-    ref={reference}
-    {...properties}
+    {...props}
   />
 ));
 CardDescription.displayName = "CardDescription";
@@ -65,32 +56,28 @@ CardDescription.displayName = "CardDescription";
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...properties }, reference) => (
-  <div
-    className={cn("pt-4 break-words whitespace-pre-wrap", className)}
-    ref={reference}
-    {...properties}
-  />
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
 ));
 CardContent.displayName = "CardContent";
 
 const CardFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...properties }, reference) => (
+>(({ className, ...props }, ref) => (
   <div
+    ref={ref}
     className={cn("flex items-center p-6 pt-0", className)}
-    ref={reference}
-    {...properties}
+    {...props}
   />
 ));
 CardFooter.displayName = "CardFooter";
 
 export {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
+  CardFooter,
   CardTitle,
+  CardDescription,
+  CardContent,
 };

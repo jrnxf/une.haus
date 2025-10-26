@@ -1,22 +1,13 @@
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
-export function Skeleton({
-  children,
-  className,
-  ready,
-  ...properties
-}: React.HTMLAttributes<HTMLDivElement> & {
-  ready?: boolean;
-}) {
-  if (ready) {
-    return children;
-  }
+function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("bg-muted animate-pulse rounded-md", className)}
-      {...properties}
-    >
-      <div className="invisible">{children}</div>
-    </div>
-  );
+      data-slot="skeleton"
+      className={cn("bg-accent animate-pulse rounded-md", className)}
+      {...props}
+    />
+  )
 }
+
+export { Skeleton }

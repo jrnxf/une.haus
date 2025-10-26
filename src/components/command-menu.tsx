@@ -12,14 +12,16 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
-import { Separator } from "~/components/ui/separator";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import { useTheme } from "~/lib/theme/context";
 
 type Page = "games" | "posts" | "root" | "theme" | "users";
 
 export function CommandMenu() {
   const sessionUser = useSessionUser();
   const isAuthenticated = Boolean(sessionUser);
+
+  const { setTheme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -43,10 +45,10 @@ export function CommandMenu() {
     setOpen(false);
   };
 
-  // const pushPage = (page: Page) => {
-  //   setPages((pages) => [...pages, page]);
-  //   setInput("");
-  // };
+  const pushPage = (page: Page) => {
+    setPages((pages) => [...pages, page]);
+    setInput("");
+  };
 
   const popPage = () => {
     setPages((pages) => pages.slice(0, -1));
@@ -64,6 +66,7 @@ export function CommandMenu() {
       onOpenChange={setOpen}
       open={open}
       title="Command Menu"
+      showCloseButton={false}
     >
       <CommandInput
         onKeyDown={(e) => {
@@ -75,7 +78,6 @@ export function CommandMenu() {
         placeholder="Search for anything..."
         value={input}
       />
-      <Separator />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
 
@@ -98,8 +100,7 @@ export function CommandMenu() {
                   </CommandItem>
                   <CommandItem
                     onSelect={() => {
-                      // toggle();
-                      setOpen(false);
+                      pushPage("theme");
                     }}
                   >
                     Theme
@@ -126,7 +127,7 @@ export function CommandMenu() {
             </CommandGroup>
           </>
         )}
-        {/* 
+
         {activePage === "theme" && (
           <CommandGroup heading="Theme">
             <CommandItem
@@ -154,7 +155,7 @@ export function CommandMenu() {
               System
             </CommandItem>
           </CommandGroup>
-        )} */}
+        )}
       </CommandList>
     </CommandDialog>
   );

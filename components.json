@@ -4,7 +4,7 @@
   "rsc": false,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
+    "config": "",
     "css": "src/styles.css",
     "baseColor": "zinc",
     "cssVariables": true,
@@ -17,6 +17,5 @@
     "ui": "~/components/ui",
     "lib": "~/lib",
     "hooks": "~/hooks"
-  },
-  "registries": {}
+  }
 }

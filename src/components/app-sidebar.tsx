@@ -1,67 +1,102 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+"use client";
 
+import { Link } from "@tanstack/react-router";
+import {
+  ClipboardPenIcon,
+  EarthIcon,
+  KeySquareIcon,
+  MedalIcon,
+  MessagesSquareIcon,
+  Send,
+  SquareTerminal,
+} from "lucide-react";
+import * as React from "react";
+
+import { MatrixText } from "~/components/matrix-text";
+import { NavMain } from "~/components/nav-main";
+import { NavSecondary } from "~/components/nav-secondary";
+import { NavUser } from "~/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarFooter,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "~/components/ui/sidebar";
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+const data = {
+  navMain: [
+    {
+      title: "Games",
+      url: "/games/rius/active",
+      icon: MedalIcon,
+      isActive: true,
+    },
+    {
+      title: "Users",
+      url: "/users",
+      icon: EarthIcon,
+    },
+    {
+      title: "Posts",
+      url: "/posts",
+      icon: ClipboardPenIcon,
+    },
+    {
+      title: "Chat",
+      url: "/chat",
+      icon: MessagesSquareIcon,
+    },
+    {
+      title: "Vault",
+      url: "/vault",
+      icon: KeySquareIcon,
+    },
+  ],
+  navSecondary: [
+    {
+      title: "Feedback",
+      url: "#",
+      icon: Send,
+    },
+  ],
+};
 
-export function AppSidebar() {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar>
+    <Sidebar variant="inset" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link to="/">
+                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-zinc-700">
+                  <SquareTerminal className="size-4" />
+                </div>
+                <div className="flex flex-col items-start leading-tight">
+                  <MatrixText text="une.haus" dropHeight={24} />
+                  <MatrixText
+                    text="jrnxf"
+                    dropHeight={24}
+                    className="text-[.6rem]"
+                  />
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain items={data.navMain} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

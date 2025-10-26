@@ -52,7 +52,7 @@ function AvatarFallback({
       )}
       {...props}
     >
-      {getUserInitials(name)}
+      {getUserInitials(name ?? "")}
     </AvatarPrimitive.Fallback>
   );
 }

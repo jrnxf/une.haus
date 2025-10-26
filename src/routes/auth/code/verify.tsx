@@ -5,7 +5,8 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
+import { useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
@@ -14,13 +15,13 @@ import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import { Form } from "~/components/ui/form";
 import {
   InputOTP,
   InputOTPGroup,
@@ -47,6 +48,7 @@ export const Route = createFileRoute("/auth/code/verify")({
 function RouteComponent() {
   const search = useSearch({ from: "/auth/code/verify" });
 
+  const inputOTPRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const enterCodeForm = useForm<z.infer<typeof auth.enterCode.schema>>({
@@ -66,65 +68,65 @@ function RouteComponent() {
         navigate({ to: "/auth/register" });
       }
     },
-    onError: (error) => {
+    onError: () => {
       enterCodeForm.setError("code", { message: "Invalid code" });
-      enterCodeForm.setFocus("code");
-      toast.error(error.message);
-      enterCodeForm.reset();
+      enterCodeForm.setValue("code", "");
+      inputOTPRef.current?.focus();
     },
   });
 
   return (
-    <Form
-      rhf={enterCodeForm}
-      className="mx-auto w-full max-w-xl space-y-4 p-8"
-      id="main-content"
-      onSubmit={(event) => {
-        event.preventDefault();
-        enterCodeForm.handleSubmit((data) => {
-          enterCodeMutation.mutate({ data });
-        })(event);
-      }}
-    >
-      <FormField
-        control={enterCodeForm.control}
-        name="code"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Code</FormLabel>
-            <FormControl>
-              <InputOTP
-                maxLength={4}
-                {...field}
-                value={field.value}
-                onChange={(value) => {
-                  field.onChange(value);
+    <div className="grid h-full place-items-center p-6">
+      <Form
+        rhf={enterCodeForm}
+        className="bg-card mx-auto w-full max-w-xl rounded-xl border p-6"
+        id="main-content"
+        onSubmit={(event) => {
+          event.preventDefault();
+          enterCodeForm.handleSubmit((data) => {
+            enterCodeMutation.mutate({ data });
+          })(event);
+        }}
+      >
+        <FieldGroup>
+          <Controller
+            name="code"
+            control={enterCodeForm.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel>Enter verification code</FieldLabel>
+                <FieldDescription>
+                  We sent a 4-digit code to your email.
+                </FieldDescription>
+                <InputOTP
+                  maxLength={4}
+                  {...field}
+                  pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                  autoComplete="off"
+                  autoFocus
+                  ref={inputOTPRef}
+                >
+                  <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                  </InputOTPGroup>
+                </InputOTP>
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
 
-                  if (value.length === 4) {
-                    enterCodeForm.handleSubmit((data) => {
-                      enterCodeMutation.mutate({ data });
-                    })();
-                  }
-                }}
-                pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-                autoComplete="off"
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} autoFocus />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <Button variant="link" type="button" asChild>
-        <Link to="/auth/code/send">Need a code?</Link>
-      </Button>
-    </Form>
+          <FieldGroup>
+            <Button type="submit">Verify</Button>
+            <FieldDescription className="text-center">
+              Didn&apos;t receive the code?{" "}
+              <Link to="/auth/code/send">Resend</Link>
+            </FieldDescription>
+          </FieldGroup>
+        </FieldGroup>
+      </Form>
+    </div>
   );
 }

@@ -1,15 +1,12 @@
 import type { Config } from "tailwindcss";
 
-import containerQueriesPlugin from "@tailwindcss/container-queries";
-import animatePlugin from "tailwindcss-animate";
-
 const config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   darkMode: "class",
   future: {
     hoverOnlyWhenSupported: true,
   },
-  plugins: [animatePlugin, containerQueriesPlugin],
+  plugins: [],
   prefix: "",
   theme: {
     container: {

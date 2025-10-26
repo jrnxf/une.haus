@@ -1,15 +1,18 @@
 // @ts-check
 
+import reactHooks from "eslint-plugin-react-hooks";
+
 import eslint from "@eslint/js";
+import pluginRouter from "@tanstack/eslint-plugin-router";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import unicornPlugin from "eslint-plugin-unicorn";
 import tseslint from "typescript-eslint";
-import pluginRouter from "@tanstack/eslint-plugin-router";
 
 export default tseslint.config(
   {
     ignores: ["**/routeTree.gen.ts"],
   },
+  reactHooks.configs.flat.recommended,
   eslint.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.stylistic,

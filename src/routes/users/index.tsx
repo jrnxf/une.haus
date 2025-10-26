@@ -1,7 +1,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { FilterIcon } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
 
 import { Badges } from "~/components/badges";
@@ -49,11 +49,11 @@ function RouteComponent() {
   } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(searchParams));
 
   const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
 
   return (
-    <div className="h-full overflow-y-auto" ref={scrollRef}>
-      <div className="mx-auto grid h-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
+    <div className="overflow-y-auto" ref={setScrollRoot}>
+      <div className="mx-auto grid max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
         <div className="flex items-end justify-between gap-4">
           <div className="sticky top-3 z-10 self-end">
             <FiltersTray />
@@ -109,7 +109,7 @@ function RouteComponent() {
         })}
         {hasNextPage && !isFetchingNextPage && (
           <InView
-            root={scrollRef.current}
+            root={scrollRoot}
             rootMargin="1000px"
             onChange={(inView) => inView && fetchNextPage()}
           />
@@ -141,7 +141,9 @@ function FiltersTray() {
           <label htmlFor="user-selector">User</label>
           <UserSelector
             initialSelectedUserId={searchParams.id}
-            onSelect={(user) => setSelectedUserId(user?.id)}
+            onSelect={(user) => {
+              setSelectedUserId(user?.id);
+            }}
           />
 
           <label htmlFor="disciplines">Disciplines</label>

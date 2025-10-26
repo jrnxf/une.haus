@@ -4,7 +4,6 @@ import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
@@ -42,7 +41,6 @@ function RouteComponent() {
   const sendCodeMutation = useMutation({
     mutationFn: auth.sendCode.fn,
     onSuccess: async () => {
-      toast.success(`Email sent! Check your inbox for a code.`);
       navigate({ to: "/auth/code/verify" });
     },
   });
@@ -76,7 +74,7 @@ function RouteComponent() {
               You'll receive an email with a code to authenticate
             </FormDescription>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} autoFocus />
             </FormControl>
             <FormMessage />
           </FormItem>

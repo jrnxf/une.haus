@@ -6,7 +6,7 @@ import {
   MessageCircleIcon,
   PaperclipIcon,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
 
 import { Badges } from "~/components/badges";
@@ -52,13 +52,13 @@ function RouteComponent() {
   } = useSuspenseInfiniteQuery(posts.list.infiniteQueryOptions(searchParams));
 
   const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages]);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
 
   // NOTE: opting to not virtualize this bc in 99% of cases it's probably
   // unnecessary and it means we can't have scroll restoration
 
   return (
-    <div className="h-full overflow-y-auto" ref={scrollRef}>
+    <div className="h-full overflow-y-auto" ref={setScrollRoot}>
       <div className="mx-auto grid h-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
         <div className="flex items-end justify-between gap-4">
           <Button asChild>
@@ -127,7 +127,7 @@ function RouteComponent() {
         })}
         {hasNextPage && !isFetchingNextPage && (
           <InView
-            root={scrollRef.current}
+            root={scrollRoot}
             rootMargin="1000px"
             onChange={(inView) => inView && fetchNextPage()}
           />
