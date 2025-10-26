@@ -52,25 +52,25 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       // light system
       {
         name: "apple-mobile-web-app-status-bar-style",
-        content: "default",
-        media: "(prefers-color-scheme: light)",
+        content: "black-translucent",
+        // media: "(prefers-color-scheme: light)",
       },
       {
         name: "theme-color",
         content: "#ffffff",
-        media: "(prefers-color-scheme: light)",
+        // media: "(prefers-color-scheme: light)",
       },
-      // dark system
-      {
-        name: "theme-color",
-        content: "#000000",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        name: "apple-mobile-web-app-status-bar-style",
-        content: "black",
-        media: "(prefers-color-scheme: dark)",
-      },
+      // // dark system
+      // {
+      //   name: "theme-color",
+      //   content: "#000000",
+      //   media: "(prefers-color-scheme: dark)",
+      // },
+      // {
+      //   name: "apple-mobile-web-app-status-bar-style",
+      //   content: "black",
+      //   media: "(prefers-color-scheme: dark)",
+      // },
     ],
   }),
 });
@@ -93,7 +93,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="overflow-hidden font-mono">
+      <body className="overflow-hidden bg-zinc-200 font-mono">
         <ThemeProvider>
           <CommandMenu />
           <SidebarProvider>
