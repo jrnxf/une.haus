@@ -49,19 +49,25 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         content: "width=device-width, initial-scale=1",
         name: "viewport",
       },
-      // {
-      //   name: "apple-mobile-web-app-status-bar-style",
-      //   content: "default",
-      // },
-      // {
-      //   name: "theme-color",
-      //   content: "#ffffff",
-      // },
-      // {
-      //   name: "theme-color",
-      //   content: "#000000",
-      //   media: "(prefers-color-scheme: dark)",
-      // },
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "#ffffff",
+      },
+      {
+        name: "theme-color",
+        content: "#ffffff",
+      },
+      // dark system
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "#000000",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        name: "theme-color",
+        content: "#000000",
+        media: "(prefers-color-scheme: dark)",
+      },
     ],
   }),
 });
