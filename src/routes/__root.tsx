@@ -98,8 +98,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="overflow-hidden bg-zinc-200 font-mono">
-        <ThemeProvider>
+      <ThemeProvider>
+        <body className="bg-background overflow-hidden font-mono">
           <CommandMenu />
 
           <SidebarProvider
@@ -116,9 +116,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               {children}
             </SidebarInset>
           </SidebarProvider>
-        </ThemeProvider>
-        <Scripts />
-      </body>
+        </body>
+      </ThemeProvider>
+      <Scripts />
     </html>
   );
 }
