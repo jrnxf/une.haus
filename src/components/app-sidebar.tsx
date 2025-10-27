@@ -1,6 +1,3 @@
-"use client";
-
-import { Link } from "@tanstack/react-router";
 import {
   ClipboardPenIcon,
   EarthIcon,
@@ -8,7 +5,6 @@ import {
   MedalIcon,
   MessagesSquareIcon,
   Send,
-  SquareTerminal,
 } from "lucide-react";
 import * as React from "react";
 
@@ -24,7 +20,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "~/components/ui/sidebar";
 
 const data = {
@@ -67,24 +62,17 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
-                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-zinc-700">
-                  <SquareTerminal className="size-4" />
-                </div>
-                <div className="flex flex-col items-start leading-tight">
-                  <MatrixText text="une.haus" dropHeight={24} />
-                  <MatrixText
-                    text="jrnxf"
-                    dropHeight={24}
-                    className="text-[.6rem]"
-                  />
-                </div>
-              </Link>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <div>
+                <MatrixText text="une.haus" dropHeight={24} />
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -96,7 +84,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

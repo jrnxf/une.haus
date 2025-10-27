@@ -9,12 +9,9 @@ import { type ReactNode } from "react";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { CommandMenu } from "~/components/command-menu";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarRail,
-} from "~/components/ui/sidebar";
-import { Toaster } from "~/components/ui/sonner";
+import { SectionCards } from "~/components/section-cards";
+import { SiteHeader } from "~/components/site-header";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -104,51 +101,19 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="overflow-hidden bg-zinc-200 font-mono">
         <ThemeProvider>
           <CommandMenu />
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarRail />
+
+          <SidebarProvider
+            style={
+              {
+                "--sidebar-width": "calc(var(--spacing) * 72)",
+                "--header-height": "calc(var(--spacing) * 12)",
+              } as React.CSSProperties
+            }
+          >
+            <AppSidebar variant="inset" />
             <SidebarInset>
-              {/* <nav className="flex w-full items-center gap-2 border-b bg-white px-4 py-1.5 dark:bg-[#0a0a0a]">
-                    <Button asChild variant="ghost">
-                      <Link className="[&.active]:bg-secondary" to="/chat">
-                        c
-                      </Link>
-                    </Button>
-                    <Button asChild variant="ghost">
-                      <Link className="[&.active]:bg-secondary" to="/posts">
-                        p
-                      </Link>
-                    </Button>
-                    <Button asChild variant="ghost">
-                      <Link className="[&.active]:bg-secondary" to="/users">
-                        u
-                      </Link>
-                    </Button>
-                    <Button asChild variant="ghost">
-                      <Link
-                        className="[&.active]:bg-secondary"
-                        to="/games/rius/active"
-                      >
-                        g
-                      </Link>
-                    </Button>
-                    <Button asChild variant="ghost">
-                      <Link className="[&.active]:bg-secondary" to="/vault">
-                        v
-                      </Link>
-                    </Button>
-                    <Button asChild variant="ghost">
-                      <Link className="[&.active]:bg-secondary" to="/sandbox">
-                        s
-                      </Link>
-                    </Button>
-                    <div className="grow" />
-                    <AuthButton />
-                  </nav> */}
-              {/* overflow should be managed at the layout level */}
+              <SiteHeader />
               {children}
-              {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
-              <Toaster />
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
