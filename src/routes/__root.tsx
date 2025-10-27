@@ -30,7 +30,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
   head: () => ({
     links: [
-      { href: appCss, rel: "stylesheet" },
+      {
+        href: appCss,
+        rel: "stylesheet",
+      },
       {
         as: "font",
         crossOrigin: "anonymous",
@@ -39,13 +42,34 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         type: "font/woff2",
       },
       {
-        rel: "apple-touch-startup-image",
-        href: "icon512_maskable.png",
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-touch-icon.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        size: "16x16",
+        href: "/favicon-16x16.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        size: "32x32",
+        href: "/favicon-32x32.png",
+      },
+      {
+        rel: "manifest",
+        href: "/manifest.json",
       },
     ],
     meta: [
-      { title: "une.haus" },
-      { charSet: "utf8" },
+      {
+        title: "une.haus",
+      },
+      {
+        charSet: "utf8",
+      },
       {
         content: "width=device-width, initial-scale=1",
         name: "viewport",

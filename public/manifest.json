@@ -1,6 +1,7 @@
 {
-  "short_name": "une.haus",
-  "name": "une.haus",
+  "background_color": "#000000",
+  "dir": "auto",
+  "display": "fullscreen",
   "icons": [
     {
       "purpose": "maskable",
@@ -15,10 +16,32 @@
       "type": "image/png"
     }
   ],
-  "orientation": "portrait",
   "lang": "en-US",
-  "dir": "auto",
-  "display": "fullscreen",
-  "theme_color": "#000000",
-  "background_color": "#000000"
+  "name": "une.haus",
+  "orientation": "portrait",
+  "short_name": "une.haus",
+  "shortcuts": [
+    {
+      "name": "Games",
+      "short_name": "Games",
+      "url": "/games/rius/active?source=pwa"
+    },
+    {
+      "name": "Posts",
+      "short_name": "Games",
+      "url": "/posts?source=pwa"
+    },
+    {
+      "name": "Chat",
+      "short_name": "Chat",
+      "url": "/chat?source=pwa"
+    },
+    {
+      "name": "Users",
+      "short_name": "Users",
+      "url": "/users?source=pwa"
+    }
+  ],
+  "start_url": "/",
+  "theme_color": "#000000"
 }
