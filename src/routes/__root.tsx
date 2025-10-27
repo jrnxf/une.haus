@@ -38,6 +38,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         rel: "preload",
         type: "font/woff2",
       },
+      {
+        rel: "apple-touch-startup-image",
+        href: "icon512_maskable.png",
+      },
     ],
     meta: [
       { title: "une.haus" },
@@ -54,28 +58,14 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         name: "mobile-web-app-capable",
         content: "yes",
       },
-      // light system
       {
         name: "apple-mobile-web-app-status-bar-style",
         content: "black-translucent",
-        // media: "(prefers-color-scheme: light)",
       },
       {
         name: "theme-color",
         content: "#ffffff",
-        // media: "(prefers-color-scheme: light)",
       },
-      // // dark system
-      // {
-      //   name: "theme-color",
-      //   content: "#000000",
-      //   media: "(prefers-color-scheme: dark)",
-      // },
-      // {
-      //   name: "apple-mobile-web-app-status-bar-style",
-      //   content: "black",
-      //   media: "(prefers-color-scheme: dark)",
-      // },
     ],
   }),
 });
