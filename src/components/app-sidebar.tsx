@@ -71,7 +71,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <div>
-                <MatrixText text="une.haus" dropHeight={24} />
+                <MatrixText
+                  text="une.haus"
+                  dropHeight={24}
+                  className="text-xl sm:text-sm"
+                />
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

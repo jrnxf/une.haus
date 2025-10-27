@@ -1,4 +1,5 @@
 import { Slot, Slottable } from "@radix-ui/react-slot";
+import { createClientOnlyFn } from "@tanstack/react-start";
 import * as React from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
@@ -86,3 +87,32 @@ function Button({
 }
 
 export { Button, buttonVariants };
+
+export const vibrate = createClientOnlyFn(() => {
+  if (navigator.vibrate) {
+    navigator.vibrate(200);
+  } else {
+    /*
+      iOS fallback: WebKit browsers do not support the Vibration API.
+      However, you can trigger a light haptic feedback by associating
+      a label to an invisible switch input and toggling it programmatically. 
+      */
+    const el = document.createElement("div");
+    const id = Math.random().toString(36).slice(2);
+    el.innerHTML =
+      `<input type="checkbox" id="` +
+      id +
+      `" switch /><label for="` +
+      id +
+      `"></label>`;
+    el.setAttribute(
+      "style",
+      "display:none !important;opacity:0 !important;visibility:hidden !important;",
+    );
+    document.querySelector("body")?.append(el);
+    el.querySelector("label")?.click();
+    setTimeout(function () {
+      el.remove();
+    }, 1500);
+  }
+});

@@ -6,7 +6,7 @@ import * as React from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Button } from "~/components/ui/button";
+import { Button, vibrate } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import {
@@ -29,7 +29,7 @@ import { cn } from "~/lib/utils";
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
-const SIDEBAR_WIDTH_MOBILE = "12rem";
+const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
@@ -269,6 +269,7 @@ function SidebarTrigger({
       size="icon"
       className={cn("size-7", className)}
       onClick={(event) => {
+        vibrate();
         onClick?.(event);
         toggleSidebar();
       }}
@@ -310,7 +311,7 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "relative",
+        "relative flex w-full flex-1 flex-col",
         "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
         className,
       )}
@@ -484,9 +485,9 @@ const sidebarMenuButtonVariants = cva(
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
       size: {
-        default: "h-8 text-sm",
-        sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+        default: "h-8 text-xl sm:text-sm",
+        sm: "h-7 text-xl sm:text-xs",
+        lg: "h-12 text-xl sm:text-sm group-data-[collapsible=icon]:p-0!",
       },
     },
     defaultVariants: {
