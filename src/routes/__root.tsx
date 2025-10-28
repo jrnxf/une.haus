@@ -48,15 +48,8 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
       {
         rel: "icon",
-        type: "image/png",
-        size: "16x16",
-        href: "/favicon-16x16.png",
-      },
-      {
-        rel: "icon",
-        type: "image/png",
-        size: "32x32",
-        href: "/favicon-32x32.png",
+        href: "/icons/favicon.svg",
+        sizes: "any",
       },
       {
         rel: "manifest",
@@ -89,6 +82,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       {
         name: "theme-color",
         content: "#ffffff",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        name: "theme-color",
+        content: "#000000",
+        media: "(prefers-color-scheme: dark)",
       },
     ],
   }),
