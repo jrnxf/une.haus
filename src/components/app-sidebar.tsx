@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
   ClipboardPenIcon,
   EarthIcon,
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
+import { Logo } from "~/components/logo";
 import { MatrixText } from "~/components/matrix-text";
 import { NavMain } from "~/components/nav-main";
 import { NavSecondary } from "~/components/nav-secondary";
@@ -68,15 +70,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="w-fit data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <div>
-                <MatrixText
-                  text="une.haus"
-                  dropHeight={24}
-                  className="text-xl sm:text-sm"
-                />
-              </div>
+              <Link to="/" className="h-fit">
+                <div>
+                  <Logo className="h-10 fill-black stroke-zinc-300 dark:fill-white dark:stroke-zinc-900" />
+                </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

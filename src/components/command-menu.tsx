@@ -93,17 +93,17 @@ export function CommandMenu() {
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Manage">
+              <CommandItem
+                onSelect={() => {
+                  pushPage("theme");
+                }}
+              >
+                Theme
+              </CommandItem>
               {isAuthenticated ? (
                 <>
                   <CommandItem onSelect={() => goTo("/auth/me")}>
                     Profile
-                  </CommandItem>
-                  <CommandItem
-                    onSelect={() => {
-                      pushPage("theme");
-                    }}
-                  >
-                    Theme
                   </CommandItem>
                   <CommandItem
                     onSelect={() => {

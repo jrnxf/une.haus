@@ -42,7 +42,7 @@ export function MessageBubble({
       <TrayTrigger asChild>
         <button
           className={cn(
-            "relative flex w-max max-w-[80%] cursor-pointer items-center gap-1 rounded-md border bg-white px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap dark:bg-[#0a0a0a]",
+            "bg-card relative flex w-max max-w-[80%] cursor-pointer items-center gap-1 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap",
             "ring-offset-background focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
           )}
           style={{ wordBreak: "break-word" }}
