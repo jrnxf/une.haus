@@ -306,17 +306,24 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   );
 }
 
-function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
+function SidebarInset({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"main">) {
   return (
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-background relative h-dvh w-full overflow-hidden",
-        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+        "bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-2",
         className,
       )}
       {...props}
-    />
+    >
+      <div className="bg-background flex grow flex-col overflow-auto rounded-xl border">
+        {children}
+      </div>
+    </main>
   );
 }
 

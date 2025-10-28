@@ -37,27 +37,17 @@ function RouteComponent() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="h-full overflow-y-auto" ref={scrollRef}>
-      <div className="mx-auto grid max-w-4xl grid-cols-1 grid-rows-[auto_1fr] p-4">
-        <Input
-          id="vault-search"
-          value={query}
-          onChange={(evt) => setQuery(evt.target.value)}
-          placeholder="Search vault"
-          className="mx-auto max-w-2xl"
-        />
+    <div className="grow overflow-y-auto" ref={scrollRef}>
+      <div className="mx-auto max-w-4xl p-4">
         <Accordion collapsible type="single">
-          <Virtualizer
-            scrollRef={scrollRef}
-            overscan={12}
-            startMargin={
-              // math to properly virtualize without this, the top element will
-              // disappear before it has actually been scrolled out of view
-              44 + // input height
-              16 + // layout padding
-              12 // first accordion item top margin
-            }
-          >
+          <Virtualizer scrollRef={scrollRef} overscan={12}>
+            <Input
+              id="vault-search"
+              value={query}
+              onChange={(evt) => setQuery(evt.target.value)}
+              placeholder="Search vault"
+              className="mx-auto max-w-2xl"
+            />
             {filteredVault.map(({ item: video }) => (
               <AccordionItem
                 value={String(video.id)}

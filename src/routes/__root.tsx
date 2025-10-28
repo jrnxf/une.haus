@@ -116,7 +116,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-background font-mono">
+      <body className="bg-sidebar font-mono">
         <ThemeProvider>
           <CommandMenu />
 
