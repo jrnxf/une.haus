@@ -11,6 +11,7 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { CommandMenu } from "~/components/command-menu";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { APPLE_SPLASH_SCREENS } from "~/lib/pwa/apple-splash-screens";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -43,23 +44,28 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
       {
         rel: "apple-touch-icon",
-        href: "/icons/logo.png",
-        sizes: "any",
-      },
-      {
-        rel: "apple-touch-startup-image",
-        href: "/icons/logo.png",
+        href: "/icons/apple-touch-icon-180x180.png",
         sizes: "any",
       },
       {
         rel: "icon",
-        href: "/icons/logo.png",
-        sizes: "any",
+        href: "/icons/favicon.ico",
+        sizes: "48x48",
+      },
+      {
+        rel: "icon",
+        href: "/icons/logo.svg",
+        type: "image/svg+xml",
       },
       {
         rel: "manifest",
         href: "/manifest.json",
       },
+      ...APPLE_SPLASH_SCREENS.map(([media, href]) => ({
+        rel: "apple-touch-startup-image",
+        href,
+        media,
+      })),
     ],
     meta: [
       {
