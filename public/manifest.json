@@ -4,9 +4,9 @@
   "display": "fullscreen",
   "icons": [
     {
-      "src": "/icons/logo.svg",
+      "src": "/icons/logo.png",
       "purpose": "maskable any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "sizes": "any"
     }
   ],

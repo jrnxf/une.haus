@@ -40,41 +40,21 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       //   rel: "preload",
       //   type: "font/woff2",
       // },
+
       {
         rel: "apple-touch-icon",
-        href: "https://une.haus/icons/light/logo.png",
+        href: "/icons/logo.png",
         sizes: "any",
-        media: "(prefers-color-scheme: light)",
       },
       {
         rel: "apple-touch-startup-image",
-        href: "https://une.haus/icons/light/logo.png",
+        href: "/icons/logo.png",
         sizes: "any",
-        media: "(prefers-color-scheme: light)",
       },
       {
         rel: "icon",
-        href: "https://une.haus/icons/light/logo.png",
+        href: "/icons/logo.png",
         sizes: "any",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        rel: "apple-touch-icon",
-        href: "https://une.haus/icons/dark/logo.png",
-        sizes: "any",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        rel: "apple-touch-startup-image",
-        href: "https://une.haus/icons/dark/logo.png",
-        sizes: "any",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        rel: "icon",
-        href: "https://une.haus/icons/dark/logo.png",
-        sizes: "any",
-        media: "(prefers-color-scheme: dark)",
       },
       {
         rel: "manifest",
