@@ -9,7 +9,6 @@ import { type ReactNode } from "react";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { CommandMenu } from "~/components/command-menu";
-import { SectionCards } from "~/components/section-cards";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { session } from "~/lib/session/index";
@@ -41,19 +40,20 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         rel: "preload",
         type: "font/woff2",
       },
+
       {
         rel: "apple-touch-icon",
-        href: "/icons/favicon.svg",
+        href: "/icons/logo.svg",
         sizes: "any",
       },
       {
         rel: "apple-touch-startup-image",
-        href: "/icons/favicon.svg",
+        href: "/icons/logo.svg",
         sizes: "any",
       },
       {
         rel: "icon",
-        href: "/icons/favicon.svg",
+        href: "/icons/logo.svg",
         sizes: "any",
       },
       {
