@@ -16,7 +16,6 @@
     "db:seed": "bun src/db/scripts/wipe.ts && bunx drizzle-kit push && bun src/db/scripts/seed.ts",
     "db:migrate": "bunx drizzle-kit push",
     "email:dev": "email dev",
-    "generate-pwa-assets": "pwa-assets-generator",
     "format": "prettier --write \"**/*.{tsx,tx,md,json,yml}\"",
     "lint": "eslint src --fix",
     "typecheck": "tsc --noEmit",
@@ -130,7 +129,6 @@
     "virtua": "^0.40.3",
     "vite": "^6.3.5",
     "vite-plugin-beasties": "^0.3.3",
-    "vite-plugin-pwa": "^1.1.0",
     "vite-tsconfig-paths": "^5.1.4",
     "yoctocolors": "^2.1.1",
     "zod": "^4.1.12"
@@ -148,7 +146,6 @@
     "@types/pg": "^8.11.14",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vite-pwa/assets-generator": "^1.0.2",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.25.1",

@@ -35,7 +35,6 @@ const config = defineConfig({
     tanstackStart(),
     nitroV2Plugin({ preset: "bun", compatibilityDate: "latest" }),
     viteReact(),
-    VitePWA({ registerType: "autoUpdate" }),
   ],
 });
 

@@ -61,11 +61,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         rel: "manifest",
         href: "/manifest.json",
       },
-      ...APPLE_SPLASH_SCREENS.map(([media, href]) => ({
-        rel: "apple-touch-startup-image",
-        href,
-        media,
-      })),
     ],
     meta: [
       {
