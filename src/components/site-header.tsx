@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 
 import { MatrixText } from "~/components/matrix-text";
 import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 
 export function SiteHeader() {

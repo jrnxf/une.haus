@@ -11,7 +11,6 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { CommandMenu } from "~/components/command-menu";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { APPLE_SPLASH_SCREENS } from "~/lib/pwa/apple-splash-screens";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -117,7 +116,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-sidebar font-mono">
+      <body className="bg-sidebar font-mono antialiased">
         <ThemeProvider>
           <CommandMenu />
 

@@ -267,6 +267,27 @@ export const listArchivedRiusServerFn = createServerFn({
               playbackId: true,
             },
           },
+          messages: {
+            columns: {
+              id: true,
+              content: true,
+              createdAt: true,
+              userId: true,
+              riuSetId: true,
+            },
+            with: {
+              likes: {
+                columns: {
+                  userId: true,
+                  riuSetMessageId: true,
+                },
+                with: {
+                  user: true,
+                },
+              },
+              user: true,
+            },
+          },
         },
       },
     },

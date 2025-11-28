@@ -5,7 +5,6 @@ import tailwindcss from "@tailwindcss/vite";
 import { nitroV2Plugin } from "@tanstack/nitro-v2-vite-plugin";
 import { defineConfig } from "vite";
 import { beasties } from "vite-plugin-beasties";
-import { VitePWA } from "vite-plugin-pwa";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const config = defineConfig({

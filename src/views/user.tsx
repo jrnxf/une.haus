@@ -108,7 +108,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           )}
 
           {user.bio && (
-            <p className="max-w-full leading-tight break-words whitespace-pre-wrap">
+            <p className="max-w-full leading-tight wrap-break-word whitespace-pre-wrap">
               {user.bio}
             </p>
           )}

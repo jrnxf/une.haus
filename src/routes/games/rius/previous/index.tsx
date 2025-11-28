@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ChevronDown,
   CornerDownLeftIcon,
@@ -22,8 +22,10 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
-import { VideoPlayer } from "~/components/video-player";
+import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { games, groupSetsByUser } from "~/lib/games";
+import { useCreateMessage } from "~/lib/messages/hooks";
+import { MessagesView } from "~/views/messages";
 
 const formatRiuDate = (createdAt: Date | string) => {
   const date = typeof createdAt === "string" ? new Date(createdAt) : createdAt;
@@ -122,19 +124,14 @@ function RouteComponent() {
               </AccordionTrigger>
 
               <AccordionContent className="px-4 pb-3">
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="rounded-md border"
-                  defaultValue={sets[0]?.id.toString()}
-                >
-                  {sets.map((set) => (
-                    <AccordionItem
-                      key={set.id}
-                      value={set.id.toString()}
-                      className="border-b last:border-b-0"
+                {/* inner accordion concept */}
+                {sets.map((set) => (
+                  <button key={set.id} asChild className="aspect-video w-full">
+                    <Link
+                      to="/games/rius/sets/$setId"
+                      params={{ setId: set.id }}
                     >
-                      <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                      <div>
                         <div className="flex w-full items-center justify-between pr-4">
                           <h3 className="text-sm font-medium">{set.name}</h3>
                           <div className="text-muted-foreground flex items-center gap-3 text-xs">
@@ -148,44 +145,17 @@ function RouteComponent() {
                             </div>
                           </div>
                         </div>
-                      </AccordionTrigger>
-
-                      <AccordionContent className="px-3 pb-3">
-                        <div className="space-y-4">
-                          {/* Video player */}
-                          {set.video?.playbackId && (
-                            <VideoPlayer playbackId={set.video.playbackId} />
-                          )}
-
-                          {/* Instructions below video */}
-                          {set.instructions && (
-                            <p className="text-muted-foreground text-xs">
-                              {set.instructions}
-                            </p>
-                          )}
-
-                          {/* Message form */}
-                          <form className="bg-background focus-within:ring-ring border-input relative w-full overflow-clip rounded-md border px-2 focus-within:ring-2">
-                            <div className="flex items-center gap-2">
-                              <Input
-                                className="h-9 border-0 px-1 shadow-none focus-visible:ring-0"
-                                placeholder="Quick message..."
-                              />
-                              <Button
-                                iconRight={
-                                  <CornerDownLeftIcon className="size-3" />
-                                }
-                                size="sm"
-                                type="submit"
-                                variant="secondary"
-                              />
-                            </div>
-                          </form>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+                        <img
+                          alt={`Set by ${set.user.name}`}
+                          className="aspect-video"
+                          src={getMuxPoster({
+                            playbackId: set.video.playbackId,
+                          })}
+                        />
+                      </div>
+                    </Link>
+                  </button>
+                ))}
               </AccordionContent>
             </AccordionItem>
           ))}

@@ -1,5 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import { startTransition } from "react";
+
+import { toast } from "sonner";
 
 import {
   Collapsible,
@@ -15,6 +18,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "~/components/ui/sidebar";
 
 export function NavMain({
@@ -31,13 +35,23 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const { toggleSidebar, isMobile } = useSidebar();
   return (
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title} size="lg">
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                size="lg"
+                onClick={() => {
+                  if (isMobile) {
+                    startTransition(toggleSidebar);
+                  }
+                }}
+              >
                 <Link to={item.url}>
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
@@ -56,9 +70,9 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
+                            <Link to={subItem.url}>
                               <span>{subItem.title}</span>
-                            </a>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}

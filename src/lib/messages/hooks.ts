@@ -25,6 +25,7 @@ export function useCreateMessage(record: MessageParent) {
       const prev = qc.getQueryData(listOptions.queryKey);
 
       qc.setQueryData(listOptions.queryKey, (prev) => {
+        console.log({ prev });
         if (!prev) return prev;
 
         return {

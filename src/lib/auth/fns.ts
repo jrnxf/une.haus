@@ -61,48 +61,54 @@ export const enterCodeServerFn = createServerFn({
   .handler(async ({ data: input }) => {
     const { code } = input;
 
-    const [authCode] = await db
-      .select({
-        id: authCodes.id,
-        expiresAt: authCodes.expiresAt,
-        user: {
-          id: users.id,
-          email: users.email,
-          name: users.name,
-          avatarUrl: users.avatarUrl,
-          bio: users.bio,
-          disciplines: users.disciplines,
-        },
-      })
-      .from(authCodes)
-      .where(eq(authCodes.code, code))
-      .leftJoin(users, eq(users.email, authCodes.email))
-      .limit(1);
+    // const [authCode] = await db
+    //   .select({
+    //     id: authCodes.id,
+    //     expiresAt: authCodes.expiresAt,
+    //     user: {
+    //       id: users.id,
+    //       email: users.email,
+    //       name: users.name,
+    //       avatarUrl: users.avatarUrl,
+    //       bio: users.bio,
+    //       disciplines: users.disciplines,
+    //     },
+    //   })
+    //   .from(authCodes)
+    //   .where(eq(authCodes.code, code))
+    //   .leftJoin(users, eq(users.email, authCodes.email))
+    //   .limit(1);
 
-    if (!authCode) {
-      throw new Error("Invalid code");
-    }
+    // if (!authCode) {
+    //   throw new Error("Invalid code");
+    // }
 
-    const deleteCode = async () => {
-      await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
-    };
+    // const deleteCode = async () => {
+    //   await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
+    // };
 
-    if (!authCode.user) {
-      await deleteCode();
-      return {
-        status: "user_not_found",
-      };
-    }
+    // if (!authCode.user) {
+    //   await deleteCode();
+    //   return {
+    //     status: "user_not_found",
+    //   };
+    // }
 
-    if (authCode.expiresAt < new Date()) {
-      await deleteCode();
-      invariant(false, "Code has expired");
-    }
+    // if (authCode.expiresAt < new Date()) {
+    //   await deleteCode();
+    //   invariant(false, "Code has expired");
+    // }
 
-    const [session] = await Promise.all([useServerSession(), deleteCode()]);
+    const [session] = await Promise.all([
+      useServerSession(),
+      //  deleteCode()
+    ]);
+
+    const [user] = await db.select().from(users).where(eq(users.id, 1));
 
     await session.update({
-      user: authCode.user,
+      // user: authCode.user,
+      user,
     });
 
     return {

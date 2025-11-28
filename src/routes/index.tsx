@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Logo } from "~/components/logo";
+import { LogoOptionC } from "~/components/logo-option-c";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -9,8 +9,8 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <div className="grid h-full place-items-center">
-      <div className="w-[min(80vw,300px)]">
-        <Logo />
+      <div className="w-[min(80vw,270px)]">
+        <LogoOptionC />
       </div>
     </div>
   );
