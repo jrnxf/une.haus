@@ -39,3 +39,9 @@ export type CreateRiuSubmissionArgs = z.infer<typeof createRiuSubmissionSchema>;
 export const deleteRiuSetSchema = z.object({
   riuSetId: z.number().positive({ message: "Required" }),
 });
+
+export const getArchivedRiusSchema = z.object({
+  riuId: z.number().positive({ message: "Required" }).optional(),
+});
+
+export type GetArchivedRiusArgs = z.infer<typeof getArchivedRiusSchema>;

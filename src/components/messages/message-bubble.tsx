@@ -1,6 +1,7 @@
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { HeartIcon, TrendingUpIcon } from "lucide-react";
 
+import { UsersPopover } from "~/components/users-popover";
 import { Tray, TrayContent, TrayTrigger } from "~/components/tray";
 import { Button } from "~/components/ui/button";
 import { messages } from "~/lib/messages";
@@ -102,9 +103,15 @@ export function MessageBubble({
               )}
             />
           </Button>
-          <Button size="icon-sm" variant="outline">
-            <TrendingUpIcon className="size-4" />
-          </Button>
+          <UsersPopover
+            users={message.likes.map((like) => like.user)}
+            title={`${message.likes.length} ${message.likes.length === 1 ? "Like" : "Likes"}`}
+            trigger={
+              <Button size="icon-sm" variant="outline">
+                <TrendingUpIcon className="size-4" />
+              </Button>
+            }
+          />
         </div>
         <p className="leading-relaxed">{preprocessText(message.content)}</p>
       </TrayContent>

@@ -10,6 +10,7 @@ import {
 
 import { z } from "zod";
 
+import { UsersPopover } from "~/components/users-popover";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { flashMessage } from "~/lib/flash";
@@ -73,7 +74,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
   const isOwner = submission.user.id === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
+    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
       <div className="flex items-center gap-3">
         <div className="w-full space-y-1">
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
@@ -93,9 +94,16 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               )}
             />
           </Button>
-          <Button size="icon-sm" variant="outline" disabled>
-            <TrendingUpIcon className="size-4" />
-          </Button>
+          <UsersPopover
+            users={[]}
+            title="0 Likes"
+            trigger={
+              <Button size="icon-sm" variant="outline" disabled>
+                <TrendingUpIcon className="size-4" />
+              </Button>
+            }
+            disabled
+          />
           <Button size="icon-sm" variant="outline" disabled>
             <Share2Icon className="size-4" />
           </Button>

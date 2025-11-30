@@ -11,6 +11,7 @@ import {
 
 import { Badges } from "~/components/badges";
 import { Button } from "~/components/ui/button";
+import { UsersPopover } from "~/components/users-popover";
 import { VideoPlayer } from "~/components/video-player";
 import { YoutubeIframe } from "~/components/youtube-iframe";
 import { invariant } from "~/lib/invariant";
@@ -58,7 +59,7 @@ export function PostView({ postId }: { postId: number }) {
   const isOwner = post.userId === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
+    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
       <div className="flex items-center gap-3">
         <div className="w-full space-y-1">
           <div className="flex w-full items-center justify-between">
@@ -79,9 +80,15 @@ export function PostView({ postId }: { postId: number }) {
               )}
             />
           </Button>
-          <Button size="icon-sm" variant="outline">
-            <TrendingUpIcon className="size-4" />
-          </Button>
+          <UsersPopover
+            users={post.likes.map((like) => like.user)}
+            title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
+            trigger={
+              <Button size="icon-sm" variant="outline">
+                <TrendingUpIcon className="size-4" />
+              </Button>
+            }
+          />
           <Button size="icon-sm" variant="outline">
             <Share2Icon className="size-4" />
           </Button>

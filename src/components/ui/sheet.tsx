@@ -30,7 +30,12 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-5000 data-[state=open]:duration-5000",
+  cn(
+    // z-[51] instead of z-50 to prevent overlay from covering content during rapid toggles
+    // (fixes race condition where animation states can desync)
+    "z-[51]",
+    "fixed  gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-200",
+  ),
   {
     defaultVariants: {
       side: "right",

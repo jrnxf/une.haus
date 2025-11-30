@@ -1,9 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon, UploadIcon } from "lucide-react";
 import { useMemo } from "react";
 
-import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray";
+import { z } from "zod";
+
 import {
   Accordion,
   AccordionContent,
@@ -11,22 +12,24 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import { VideoPlayer } from "~/components/video-player";
 import { Json } from "~/lib/dx/json";
 import { games, groupSetsByUser } from "~/lib/games";
 import { messages } from "~/lib/messages";
-import { useCreateMessage } from "~/lib/messages/hooks";
 import { type ServerFnReturn } from "~/lib/types";
-import { MessagesView } from "~/views/messages";
+
+const searchSchema = z.object({
+  open: z.number().optional(), // userId of open accordion
+});
 
 export const Route = createFileRoute("/games/rius/active")({
   component: RouteComponent,
+  validateSearch: searchSchema,
   loader: async ({ context }) => {
     const activeRiuData = await context.queryClient.ensureQueryData(
       games.rius.active.list.queryOptions(),
     );
 
-    // Prefetch messages for all sets
+    // Prefetch messages for all sets to show accurate counts
     const messagePromises = activeRiuData.sets.map((set) =>
       context.queryClient.ensureQueryData(
         messages.list.queryOptions({ type: "riuSet", id: set.id }),
@@ -42,15 +45,20 @@ type SetType = ServerFnReturn<typeof games.rius.active.list.fn>["sets"][number];
 function SetCard({ set }: { set: SetType }) {
   const record = { type: "riuSet" as const, id: set.id };
   const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record));
-  const createMessage = useCreateMessage(record);
 
   return (
-    <Tray>
-      <TrayTrigger asChild>
-        <Button
-          variant="outline"
-          className="h-auto w-full flex-col items-start justify-start gap-1 p-3 text-left whitespace-normal"
-        >
+    <Link
+      to="/games/rius/sets/$setId"
+      params={{ setId: set.id }}
+      className="block"
+      preload="intent"
+    >
+      <Button
+        variant="outline"
+        className="h-auto w-full flex-col items-start justify-start gap-1 p-3 text-left whitespace-normal"
+        asChild
+      >
+        <div>
           {/* Content */}
           <div className="flex w-full items-start justify-between gap-6">
             <h3 className="truncate text-sm font-medium">{set.name}</h3>
@@ -76,42 +84,15 @@ function SetCard({ set }: { set: SetType }) {
               {set.instructions}
             </p>
           )}
-        </Button>
-      </TrayTrigger>
-
-      <TrayContent className="flex h-[90vh] max-h-[90vh] max-w-4xl flex-col">
-        <TrayTitle>{set.name}</TrayTitle>
-
-        <div className="flex flex-1 flex-col gap-3 overflow-hidden">
-          {/* Video player */}
-          {set.video?.playbackId && (
-            <div className="shrink-0">
-              <VideoPlayer playbackId={set.video.playbackId} />
-            </div>
-          )}
-
-          {/* Instructions */}
-          {set.instructions && (
-            <p className="text-muted-foreground shrink-0 text-sm">
-              {set.instructions}
-            </p>
-          )}
-
-          {/* Messages */}
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <MessagesView
-              record={record}
-              messages={messagesQuery.data.messages}
-              handleCreateMessage={(content) => createMessage.mutate(content)}
-            />
-          </div>
         </div>
-      </TrayContent>
-    </Tray>
+      </Button>
+    </Link>
   );
 }
 
 function RouteComponent() {
+  const { open } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions());
 
   // Group sets by user elegantly
@@ -130,7 +111,20 @@ function RouteComponent() {
     <div className="flex flex-col gap-8 p-4">
       <h2 className="text-lg font-semibold">RIU #{data.id}</h2>
 
-      <Accordion type="single" collapsible className="w-full rounded-lg border">
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full rounded-lg border"
+        value={open?.toString()}
+        onValueChange={(value) => {
+          navigate({
+            search: (prev) => ({
+              ...prev,
+              open: value ? Number.parseInt(value, 10) : undefined,
+            }),
+          });
+        }}
+      >
         {Object.entries(groupedSets).map(([userId, { user, sets }]) => (
           <AccordionItem
             key={userId}

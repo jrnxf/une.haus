@@ -5,6 +5,7 @@ import {
   createRiuSetServerFn,
   createRiuSubmissionServerFn,
   deleteRiuSetServerFn,
+  getArchivedRiusServerFn,
   getRiuSetServerFn,
   getRiuSubmissionServerFn,
   listActiveRiusServerFn,
@@ -16,6 +17,7 @@ import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
   deleteRiuSetSchema,
+  getArchivedRiusSchema,
   getRiuSetSchema,
   getRiuSubmissionSchema,
   updateRiuSetSchema,
@@ -41,6 +43,16 @@ export const games = {
       },
     },
     archived: {
+      get: {
+        fn: getArchivedRiusServerFn,
+        schema: getArchivedRiusSchema,
+        queryOptions: (data: ServerFnData<typeof getArchivedRiusServerFn>) => {
+          return queryOptions({
+            queryKey: ["games.rius.archived.get", data],
+            queryFn: () => getArchivedRiusServerFn({ data }),
+          });
+        },
+      },
       list: {
         fn: listArchivedRiusServerFn,
         queryOptions: () => {

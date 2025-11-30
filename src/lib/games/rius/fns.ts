@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
@@ -15,6 +15,7 @@ import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
   deleteRiuSetSchema,
+  getArchivedRiusSchema,
   getRiuSetSchema,
   getRiuSubmissionSchema,
   updateRiuSetSchema,
@@ -241,59 +242,89 @@ export const listActiveRiusServerFn = createServerFn({
     return activeRius;
   });
 
-export const listArchivedRiusServerFn = createServerFn({
+export const getArchivedRiusServerFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  const archivedRius = await db.query.rius.findMany({
-    where: eq(rius.status, "archived"),
-    orderBy: (rius, { desc }) => [desc(rius.createdAt)],
-    with: {
-      sets: {
-        columns: {
-          id: true,
-          name: true,
-          instructions: true,
-        },
-        with: {
-          user: {
-            columns: {
-              id: true,
-              name: true,
-              avatarUrl: true,
-            },
+})
+  .inputValidator(getArchivedRiusSchema)
+  .handler(async ({ data: input }) => {
+    const riu = await db.query.rius.findFirst({
+      where: input.riuId
+        ? and(eq(rius.status, "archived"), eq(rius.id, input.riuId))
+        : eq(rius.status, "archived"),
+      orderBy: (rius, { desc }) => [desc(rius.createdAt)],
+      with: {
+        sets: {
+          columns: {
+            id: true,
+            name: true,
+            instructions: true,
           },
-          video: {
-            columns: {
-              playbackId: true,
-            },
-          },
-          messages: {
-            columns: {
-              id: true,
-              content: true,
-              createdAt: true,
-              userId: true,
-              riuSetId: true,
-            },
-            with: {
-              likes: {
-                columns: {
-                  userId: true,
-                  riuSetMessageId: true,
-                },
-                with: {
-                  user: true,
-                },
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarUrl: true,
               },
-              user: true,
+            },
+            video: {
+              columns: {
+                playbackId: true,
+              },
+            },
+            messages: {
+              columns: {
+                id: true,
+                content: true,
+                createdAt: true,
+                userId: true,
+                riuSetId: true,
+              },
+              with: {
+                likes: {
+                  columns: {
+                    userId: true,
+                    riuSetMessageId: true,
+                  },
+                  with: {
+                    user: true,
+                  },
+                },
+                user: true,
+              },
             },
           },
         },
       },
-    },
+    });
+
+    return riu;
   });
 
-  return archivedRius;
+export const listArchivedRiusServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  // Get all archived RIUs with the number of sets attached to each using Drizzle
+  const archivedRius = await db
+    .select({
+      id: rius.id,
+      createdAt: rius.createdAt,
+      setsCount: sql<number>`COUNT(${riuSets.id})`.as("setsCount"),
+    })
+    .from(rius)
+    .leftJoin(riuSets, eq(rius.id, riuSets.riuId))
+    .where(eq(rius.status, "archived"))
+    .groupBy(rius.id, rius.createdAt);
+
+  // Only return RIUs that have at least one set, casting setsCount as a number
+  const riusWithSets = archivedRius
+    .map((riu) => ({
+      ...riu,
+      setsCount: Number(riu.setsCount),
+    }))
+    .filter((riu) => riu.setsCount > 0);
+
+  return riusWithSets;
 });
 
 export const listUpcomingRiuRosterServerFn = createServerFn({

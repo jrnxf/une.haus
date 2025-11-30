@@ -12,10 +12,10 @@ import { Link } from "@tanstack/react-router";
 import { Badges } from "~/components/badges";
 import { Globe } from "~/components/globe";
 import { SocialLink } from "~/components/social-link";
+import { UsersPopover } from "~/components/users-popover";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
-import { UsersDropdownMenu } from "~/components/users-dropdown-menu";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersWithFollowsData } from "~/lib/users";
 import { useFollowMutations } from "~/lib/users/hooks";
@@ -156,16 +156,26 @@ function Follows(props: UsersWithFollowsData) {
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-2">
         {followers.count > 0 && (
-          <UsersDropdownMenu
+          <UsersPopover
             users={followers.users}
-            triggerText={`${followers.count} followers`}
+            title={`${followers.count} ${followers.count === 1 ? "Follower" : "Followers"}`}
+            trigger={
+              <Button variant="secondary" size="sm">
+                {followers.count} {followers.count === 1 ? "follower" : "followers"}
+              </Button>
+            }
           />
         )}
 
         {following.count > 0 && (
-          <UsersDropdownMenu
+          <UsersPopover
             users={following.users}
-            triggerText={`${following.count} following`}
+            title={`${following.count} Following`}
+            trigger={
+              <Button variant="secondary" size="sm">
+                {following.count} following
+              </Button>
+            }
           />
         )}
       </div>

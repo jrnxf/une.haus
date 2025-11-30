@@ -11,13 +11,17 @@ import {
 import { z } from "zod";
 
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
+import { UsersPopover } from "~/components/users-popover";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
+import { messages } from "~/lib/messages";
+import { useCreateMessage } from "~/lib/messages/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { cn } from "~/lib/utils";
+import { MessagesView } from "~/views/messages";
 
 const pathParametersSchema = z.object({
   setId: z.coerce.number(),
@@ -33,6 +37,10 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
       try {
         await context.queryClient.ensureQueryData(
           games.rius.sets.get.queryOptions({ setId }),
+        );
+        // Prefetch messages for the set
+        await context.queryClient.ensureQueryData(
+          messages.list.queryOptions({ type: "riuSet", id: setId }),
         );
       } catch {
         await session.flash.set.fn({ data: { message: "Set not found" } });
@@ -66,6 +74,10 @@ function SetView({ setId }: { setId: number }) {
 
   invariant(set, "Set not found");
 
+  const record = { type: "riuSet" as const, id: setId };
+  const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record));
+  const createMessage = useCreateMessage(record);
+
   const sessionUser = useSessionUser();
 
   // TODO: Add like/unlike functionality for sets if needed
@@ -74,7 +86,7 @@ function SetView({ setId }: { setId: number }) {
   const isOwner = set.user.id === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-3">
+    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
       <div className="flex items-center gap-3">
         <div className="w-full space-y-1">
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
@@ -92,16 +104,23 @@ function SetView({ setId }: { setId: number }) {
               )}
             />
           </Button>
-          <Button size="icon-sm" variant="outline" disabled>
-            <TrendingUpIcon className="size-4" />
-          </Button>
+          <UsersPopover
+            users={[]}
+            title="0 Likes"
+            trigger={
+              <Button size="icon-sm" variant="outline" disabled>
+                <TrendingUpIcon className="size-4" />
+              </Button>
+            }
+            disabled
+          />
           <Button size="icon-sm" variant="outline" disabled>
             <Share2Icon className="size-4" />
           </Button>
         </div>
       </div>
 
-      <div className="break-words whitespace-pre-wrap">
+      <div className="wrap-break-word whitespace-pre-wrap">
         <p>{set.instructions}</p>
       </div>
 
@@ -126,9 +145,21 @@ function SetView({ setId }: { setId: number }) {
       {set.video && set.video.playbackId && (
         <VideoPlayer playbackId={set.video.playbackId} />
       )}
-      {sessionUser && <CreateRiuSubmissionForm riuSetId={setId} />}
 
-      {/* Sets don't have messages yet - could be added later */}
+      {sessionUser && (
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
+            <h3 className="text-lg font-semibold">Discussion</h3>
+            <MessagesView
+              record={record}
+              messages={messagesQuery.data.messages}
+              handleCreateMessage={(content) => createMessage.mutate(content)}
+            />
+          </div>
+
+          <CreateRiuSubmissionForm riuSetId={setId} />
+        </div>
+      )}
     </div>
   );
 }
