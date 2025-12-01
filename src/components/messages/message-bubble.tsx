@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import { HeartIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { CopyIcon, HeartIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import React from "react";
 import { isMobile } from "react-device-detect";
 
@@ -8,6 +8,12 @@ import { toast } from "sonner";
 
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import {
   Drawer,
   DrawerClose,
@@ -34,6 +40,7 @@ export function MessageBubble({
 }) {
   const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
+  const [actionsOpen, setActionsOpen] = React.useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -51,6 +58,48 @@ export function MessageBubble({
     refetchQueryKey: messages.list.queryOptions(parent).queryKey,
   });
 
+  const queryClient = useQueryClient();
+  const { mutate: deleteMessage } = useMutation({
+    mutationFn: messages.delete.fn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: messages.list.queryOptions(parent).queryKey,
+      });
+      toast.success("Message deleted");
+      setActionsOpen(false);
+    },
+    onError: () => {
+      toast.error("Failed to delete message");
+    },
+  });
+
+  const handleLikeUnlike = () => {
+    likeUnlike();
+    setActionsOpen(false);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message.content);
+    toast.success("Message copied");
+    setActionsOpen(false);
+  };
+
+  const handleEdit = () => {
+    setActionsOpen(false);
+    setEditDrawerOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this message?")) {
+      deleteMessage({
+        data: {
+          id: message.id,
+          type: parent.type,
+        },
+      });
+    }
+  };
+
   return (
     <>
       <div
@@ -66,8 +115,9 @@ export function MessageBubble({
             isOwnMessage ? "flex-row-reverse" : "flex-row",
           )}
         >
-          <div
-            className="bg-card relative z-10 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
+          <button
+            onClick={() => setActionsOpen(true)}
+            className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all active:scale-[0.995]"
             style={{ wordBreak: "break-word" }}
           >
             {/* Like Count Badge - Absolutely Positioned */}
@@ -93,52 +143,121 @@ export function MessageBubble({
             )}
 
             <p className="leading-relaxed">{preprocessText(message.content)}</p>
-          </div>
-          <div
-            className={cn(
-              "flex items-center opacity-0 transition-all duration-200",
-              isOwnMessage
-                ? "translate-x-2 group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 focus-within:translate-x-0 focus-within:scale-100 focus-within:opacity-100"
-                : "-translate-x-2 group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 focus-within:translate-x-0 focus-within:scale-100 focus-within:opacity-100",
-              isMobile && "translate-x-0 scale-100 opacity-100",
-            )}
-          >
-            {isOwnMessage && (
-              <Button
-                size="icon-xs"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditDrawerOpen(true);
-                }}
-                className="shrink-0"
-              >
-                <PencilIcon className="size-4 opacity-15" />
-              </Button>
-            )}
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                likeUnlike();
-              }}
-              className="shrink-0"
-            >
-              <HeartIcon
-                className={cn(
-                  "size-4",
-                  authUserLiked
-                    ? "fill-red-700/50 stroke-red-700"
-                    : "opacity-15",
-                )}
-              />
-            </Button>
-          </div>
+          </button>
         </div>
       </div>
 
-      {/* Edit/Delete Drawer */}
+      {/* Actions Dialog/Drawer */}
+      {isMobile ? (
+        <Drawer open={actionsOpen} onOpenChange={setActionsOpen}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Message Actions</DrawerTitle>
+            </DrawerHeader>
+            <div className="flex flex-col gap-2 p-4">
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={handleLikeUnlike}
+              >
+                <HeartIcon
+                  className={cn(
+                    "size-4",
+                    authUserLiked && "fill-red-700/50 stroke-red-700",
+                  )}
+                />
+                {authUserLiked ? "Unlike" : "Like"}
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={handleCopy}
+              >
+                <CopyIcon className="size-4" />
+                Copy Message
+              </Button>
+              {isOwnMessage && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="justify-start"
+                    onClick={handleEdit}
+                  >
+                    <PencilIcon className="size-4" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="justify-start"
+                    onClick={handleDelete}
+                  >
+                    <Trash2Icon className="size-4" />
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
+            <DrawerFooter>
+              <DrawerClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={actionsOpen} onOpenChange={setActionsOpen}>
+          <DialogContent className="sm:max-w-[300px]">
+            <DialogHeader>
+              <DialogTitle>Message Actions</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={handleLikeUnlike}
+              >
+                <HeartIcon
+                  className={cn(
+                    "size-4",
+                    authUserLiked && "fill-red-700/50 stroke-red-700",
+                  )}
+                />
+                {authUserLiked ? "Unlike" : "Like"}
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={handleCopy}
+              >
+                <CopyIcon className="size-4" />
+                Copy Message
+              </Button>
+              {isOwnMessage && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="justify-start"
+                    onClick={handleEdit}
+                  >
+                    <PencilIcon className="size-4" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="justify-start"
+                    onClick={handleDelete}
+                  >
+                    <Trash2Icon className="size-4" />
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit Drawer */}
       {isOwnMessage && (
         <EditMessageDrawer
           message={message}
