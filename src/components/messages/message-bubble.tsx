@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
+import { ButtonGroup } from "~/components/ui/button-group";
 import {
   Drawer,
   DrawerClose,
@@ -58,19 +59,29 @@ export function MessageBubble({
     <>
       <div
         ref={containerRef}
-        className="group relative max-w-full items-center gap-2"
+        className={cn(
+          "group relative flex w-full items-center gap-2",
+          isOwnMessage ? "justify-end" : "justify-start",
+        )}
       >
         <div className="relative w-max max-w-[80%]">
-          <div
+          <ButtonGroup
             className={cn(
-              "absolute top-1/2 right-0 z-0 flex -translate-y-1/2 items-center gap-1 transition-all duration-200 group-hover:-right-8",
-              mobileActionsVisible ? "-right-8" : "-right-0",
+              "absolute top-1/2 z-0 flex -translate-y-1/2 scale-90 items-center opacity-0 transition-all duration-200",
+              isOwnMessage
+                ? "-left-12 group-hover:-left-16 group-hover:scale-100 group-hover:opacity-100 focus-within:-left-16 focus-within:scale-100 focus-within:opacity-100"
+                : "-right-6 group-hover:-right-8 group-hover:scale-100 group-hover:opacity-100 focus-within:-right-8 focus-within:scale-100 focus-within:opacity-100",
+              mobileActionsVisible
+                ? isOwnMessage
+                  ? "-left-16"
+                  : "-right-8"
+                : "",
             )}
           >
             {isOwnMessage && (
               <Button
                 size="icon-xs"
-                variant="ghost"
+                variant="outline"
                 onClick={(e) => {
                   e.stopPropagation();
                   setEditDrawerOpen(true);
@@ -83,7 +94,7 @@ export function MessageBubble({
             )}
             <Button
               size="icon-xs"
-              variant="ghost"
+              variant="outline"
               onClick={(e) => {
                 e.stopPropagation();
                 setMobileActionsVisible(false);
@@ -100,8 +111,9 @@ export function MessageBubble({
                 )}
               />
             </Button>
-          </div>
+          </ButtonGroup>
 
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
           <div
             role={isMobile ? "button" : undefined}
             tabIndex={isMobile ? 0 : undefined}
