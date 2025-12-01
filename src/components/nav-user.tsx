@@ -31,7 +31,17 @@ export function NavUser() {
   const sessionUser = useSessionUser();
 
   if (!sessionUser) {
-    return null;
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" asChild>
+            <Link to="/auth/code/send">
+              Log in
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
   }
 
   return (

@@ -35,7 +35,16 @@ export type MessageParentType = MessageParent["type"];
 
 export const listMessagesSchema = messageParentSchema;
 
-export const deleteMessageSchema = messageParentSchema;
+export const messageIdSchema = z.object({
+  id: z.number().positive().int(), // the message id
+});
+
+export const deleteMessageSchema = z.intersection(
+  messageIdSchema,
+  z.object({
+    type: z.enum(["chat", ...recordWithMessagesTypes]),
+  }),
+);
 
 export const createMessageSchema = z.intersection(
   messageFormSchema,
@@ -44,5 +53,10 @@ export const createMessageSchema = z.intersection(
 
 export const updateMessageSchema = z.intersection(
   messageFormSchema,
-  messageParentSchema,
+  z.intersection(
+    messageIdSchema,
+    z.object({
+      type: z.enum(["chat", ...recordWithMessagesTypes]),
+    }),
+  ),
 );

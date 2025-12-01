@@ -86,14 +86,7 @@ export function MessagesView({
                     <MessageAuthor message={message} />
                   </div>
                 )}
-                <div
-                  className={cn(
-                    "flex w-full",
-                    isAuthUserMessage && "justify-end",
-                  )}
-                >
-                  <MessageBubble parent={record} message={message} />
-                </div>
+                <MessageBubble parent={record} message={message} />
               </div>
             );
           })}

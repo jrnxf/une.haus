@@ -11,7 +11,7 @@ import {
 import { z } from "zod";
 
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
-import { UsersPopover } from "~/components/users-popover";
+import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
@@ -104,7 +104,7 @@ function SetView({ setId }: { setId: number }) {
               )}
             />
           </Button>
-          <UsersPopover
+          <UsersDialog
             users={[]}
             title="0 Likes"
             trigger={

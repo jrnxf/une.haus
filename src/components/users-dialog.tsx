@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { type ReactNode, useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
@@ -43,14 +43,14 @@ export function UsersPopover({
   }
 
   const userList = (
-    <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto">
+    <div className="flex flex-col gap-1 overflow-y-auto">
       {users.map((user) => (
         <Link
           key={user.id}
           to="/users/$userId"
           params={{ userId: user.id }}
           onClick={() => setOpen(false)}
-          className="flex items-center gap-2 rounded-md p-1.5 hover:bg-accent transition-colors"
+          className="hover:bg-accent flex items-center gap-2 rounded-md p-1.5 transition-colors"
         >
           <Avatar className="size-7">
             <AvatarImage src={user.avatarUrl} />
@@ -84,4 +84,3 @@ export function UsersPopover({
     </DropdownMenu>
   );
 }
-

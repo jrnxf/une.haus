@@ -193,13 +193,14 @@ function RouteComponent() {
           type="single"
           collapsible
           className="w-full rounded-lg border"
-          value={open?.toString()}
+          value={open?.toString() ?? ""}
           onValueChange={(value) => {
             navigate({
               search: (prev) => ({
                 ...prev,
                 open: value ? Number.parseInt(value, 10) : undefined,
               }),
+              replace: true,
             });
           }}
         >

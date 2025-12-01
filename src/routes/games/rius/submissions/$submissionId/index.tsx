@@ -10,7 +10,7 @@ import {
 
 import { z } from "zod";
 
-import { UsersPopover } from "~/components/users-popover";
+import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { flashMessage } from "~/lib/flash";
@@ -94,7 +94,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               )}
             />
           </Button>
-          <UsersPopover
+          <UsersDialog
             users={[]}
             title="0 Likes"
             trigger={

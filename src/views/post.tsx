@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 
 import { Badges } from "~/components/badges";
+import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
-import { UsersPopover } from "~/components/users-popover";
 import { VideoPlayer } from "~/components/video-player";
 import { YoutubeIframe } from "~/components/youtube-iframe";
 import { invariant } from "~/lib/invariant";
@@ -80,7 +80,7 @@ export function PostView({ postId }: { postId: number }) {
               )}
             />
           </Button>
-          <UsersPopover
+          <UsersDialog
             users={post.likes.map((like) => like.user)}
             title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
             trigger={

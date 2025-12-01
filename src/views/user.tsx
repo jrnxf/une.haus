@@ -11,8 +11,8 @@ import { Link } from "@tanstack/react-router";
 
 import { Badges } from "~/components/badges";
 import { Globe } from "~/components/globe";
+import { UsersDialog } from "~/components/likes-dialog";
 import { SocialLink } from "~/components/social-link";
-import { UsersPopover } from "~/components/users-popover";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
@@ -156,19 +156,21 @@ function Follows(props: UsersWithFollowsData) {
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-2">
         {followers.count > 0 && (
-          <UsersPopover
+          <UsersDialog
             users={followers.users}
             title={`${followers.count} ${followers.count === 1 ? "Follower" : "Followers"}`}
             trigger={
               <Button variant="secondary" size="sm">
-                {followers.count} {followers.count === 1 ? "follower" : "followers"}
+                {followers.count}{" "}
+                {followers.count === 1 ? "follower" : "followers"}
               </Button>
             }
+            withSearch={true}
           />
         )}
 
         {following.count > 0 && (
-          <UsersPopover
+          <UsersDialog
             users={following.users}
             title={`${following.count} Following`}
             trigger={
@@ -176,6 +178,7 @@ function Follows(props: UsersWithFollowsData) {
                 {following.count} following
               </Button>
             }
+            withSearch={true}
           />
         )}
       </div>

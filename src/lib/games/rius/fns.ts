@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
