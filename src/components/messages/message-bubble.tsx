@@ -73,8 +73,8 @@ export function MessageBubble({
                 : "-right-6 group-hover:-right-8 group-hover:scale-100 group-hover:opacity-100 focus-within:-right-8 focus-within:scale-100 focus-within:opacity-100",
               mobileActionsVisible
                 ? isOwnMessage
-                  ? "-left-16"
-                  : "-right-8"
+                  ? "-left-16 scale-100 opacity-100"
+                  : "-right-8 scale-100 opacity-100"
                 : "",
             )}
           >
