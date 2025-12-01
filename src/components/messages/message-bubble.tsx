@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { HeartIcon, PencilIcon, Trash2Icon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import React from "react";
 import { isMobile } from "react-device-detect";
 
 import { toast } from "sonner";
 
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
-import { ButtonGroup } from "~/components/ui/button-group";
 import {
   Drawer,
   DrawerClose,
@@ -18,7 +17,6 @@ import {
   DrawerTitle,
 } from "~/components/ui/drawer";
 import { Textarea } from "~/components/ui/textarea";
-import { useIsMobile } from "~/hooks/use-mobile";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -36,10 +34,8 @@ export function MessageBubble({
 }) {
   const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
-  const isMobile = useIsMobile();
-  const [mobileActionsVisible, setMobileActionsVisible] = useState(false);
-  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const isOwnMessage = sessionUser && message.user.id === sessionUser.id;
 
@@ -60,70 +56,19 @@ export function MessageBubble({
       <div
         ref={containerRef}
         className={cn(
-          "group relative flex w-full items-center gap-2",
+          "relative flex w-full items-center gap-2",
           isOwnMessage ? "justify-end" : "justify-start",
         )}
       >
-        <div className="relative w-max max-w-[80%]">
-          <ButtonGroup
-            className={cn(
-              "absolute top-1/2 z-0 flex -translate-y-1/2 scale-90 items-center opacity-0 transition-all duration-200",
-              isOwnMessage
-                ? "-left-12 group-hover:-left-16 group-hover:scale-100 group-hover:opacity-100 focus-within:-left-16 focus-within:scale-100 focus-within:opacity-100"
-                : "-right-6 group-hover:-right-8 group-hover:scale-100 group-hover:opacity-100 focus-within:-right-8 focus-within:scale-100 focus-within:opacity-100",
-              mobileActionsVisible
-                ? isOwnMessage
-                  ? "-left-16 scale-100 opacity-100"
-                  : "-right-8 scale-100 opacity-100"
-                : "",
-            )}
-          >
-            {isOwnMessage && (
-              <Button
-                size="icon-xs"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditDrawerOpen(true);
-                  setMobileActionsVisible(false);
-                }}
-                className="shrink-0"
-              >
-                <PencilIcon className="size-4 opacity-60" />
-              </Button>
-            )}
-            <Button
-              size="icon-xs"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                setMobileActionsVisible(false);
-                likeUnlike();
-              }}
-              className="shrink-0"
-            >
-              <HeartIcon
-                className={cn(
-                  "size-4",
-                  authUserLiked
-                    ? "fill-red-700/50 stroke-red-700"
-                    : "opacity-60",
-                )}
-              />
-            </Button>
-          </ButtonGroup>
-
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
+        <div
+          className={cn(
+            "group flex w-max max-w-[80%] items-center gap-2",
+            isOwnMessage ? "flex-row-reverse" : "flex-row",
+          )}
+        >
           <div
-            role={isMobile ? "button" : undefined}
-            tabIndex={isMobile ? 0 : undefined}
             className="bg-card relative z-10 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
             style={{ wordBreak: "break-word" }}
-            onClick={() => {
-              if (isMobile) {
-                setMobileActionsVisible((prev) => !prev);
-              }
-            }}
           >
             {/* Like Count Badge - Absolutely Positioned */}
             {message.likes.length > 0 && (
@@ -148,6 +93,47 @@ export function MessageBubble({
             )}
 
             <p className="leading-relaxed">{preprocessText(message.content)}</p>
+          </div>
+          <div
+            className={cn(
+              "flex items-center opacity-0 transition-all duration-200",
+              isOwnMessage
+                ? "translate-x-2 group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 focus-within:translate-x-0 focus-within:scale-100 focus-within:opacity-100"
+                : "-translate-x-2 group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100 focus-within:translate-x-0 focus-within:scale-100 focus-within:opacity-100",
+              isMobile && "scale-100 opacity-100",
+            )}
+          >
+            {isOwnMessage && (
+              <Button
+                size="icon-xs"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditDrawerOpen(true);
+                }}
+                className="shrink-0"
+              >
+                <PencilIcon className="size-4 opacity-60" />
+              </Button>
+            )}
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                likeUnlike();
+              }}
+              className="shrink-0"
+            >
+              <HeartIcon
+                className={cn(
+                  "size-4",
+                  authUserLiked
+                    ? "fill-red-700/50 stroke-red-700"
+                    : "opacity-25",
+                )}
+              />
+            </Button>
           </div>
         </div>
       </div>
@@ -177,7 +163,7 @@ function EditMessageDrawer({
   onOpenChange: (open: boolean) => void;
 }) {
   const queryClient = useQueryClient();
-  const [content, setContent] = useState(message.content);
+  const [content, setContent] = React.useState(message.content);
 
   const { mutate: updateMessage, isPending: isUpdating } = useMutation({
     mutationFn: messages.update.fn,
