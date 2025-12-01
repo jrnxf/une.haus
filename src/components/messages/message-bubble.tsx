@@ -1,6 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import { HeartIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  HeartIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react";
 import React from "react";
 import { isMobile } from "react-device-detect";
 
@@ -16,6 +21,12 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Textarea } from "~/components/ui/textarea";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
@@ -103,37 +114,80 @@ export function MessageBubble({
               isMobile && "scale-100 opacity-100",
             )}
           >
-            {isOwnMessage && (
-              <Button
-                size="icon-xs"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditDrawerOpen(true);
-                }}
-                className="shrink-0"
-              >
-                <PencilIcon className="size-4 opacity-60" />
-              </Button>
-            )}
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                likeUnlike();
-              }}
-              className="shrink-0"
-            >
-              <HeartIcon
-                className={cn(
-                  "size-4",
-                  authUserLiked
-                    ? "fill-red-700/50 stroke-red-700"
-                    : "opacity-25",
+            {isMobile && isOwnMessage ? (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon-xs" variant="ghost" className="shrink-0">
+                      <ChevronDownIcon className="size-4 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="left">
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        likeUnlike();
+                      }}
+                    >
+                      <HeartIcon
+                        className={cn(
+                          "mr-2 size-4",
+                          authUserLiked
+                            ? "fill-red-700/50 stroke-red-700"
+                            : "opacity-25",
+                        )}
+                      />
+                      Like
+                    </DropdownMenuItem>
+                    {isOwnMessage && (
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setEditDrawerOpen(true);
+                        }}
+                      >
+                        <PencilIcon className="mr-2 size-4 opacity-60" />
+                        Edit
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                {isOwnMessage && (
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditDrawerOpen(true);
+                    }}
+                    className="shrink-0"
+                  >
+                    <PencilIcon className="size-4 opacity-60" />
+                  </Button>
                 )}
-              />
-            </Button>
+                <Button
+                  size="icon-xs"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    likeUnlike();
+                  }}
+                  className="shrink-0"
+                >
+                  <HeartIcon
+                    className={cn(
+                      "size-4",
+                      authUserLiked
+                        ? "fill-red-700/50 stroke-red-700"
+                        : "opacity-25",
+                    )}
+                  />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
