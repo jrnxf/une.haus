@@ -1,2 +1,1 @@
-export { ConfirmDialogProvider, useConfirmDialog } from './context';
-
+export { ConfirmDialog_, confirm } from "./context";

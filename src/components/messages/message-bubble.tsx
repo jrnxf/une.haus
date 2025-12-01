@@ -22,7 +22,7 @@ import {
   DrawerFooter,
 } from "~/components/ui/drawer";
 import { Textarea } from "~/components/ui/textarea";
-import { useConfirmDialog } from "~/lib/confirm-dialog";
+import { confirm } from "~/lib/confirm-dialog";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -73,21 +73,6 @@ export function MessageBubble({
     },
   });
 
-  const deleteDialogHandle = useConfirmDialog({
-    title: "Delete message?",
-    description: "This action cannot be undone.",
-    confirmText: "Delete",
-    variant: "destructive",
-    onConfirm: () => {
-      deleteMessage({
-        data: {
-          id: message.id,
-          type: parent.type,
-        },
-      });
-    },
-  });
-
   const handleLikeUnlike = () => {
     likeUnlike();
     setActionsOpen(false);
@@ -105,7 +90,20 @@ export function MessageBubble({
   };
 
   const handleDelete = () => {
-    deleteDialogHandle.open(null);
+    confirm.open({
+      title: "Delete message?",
+      description: "This action cannot be undone.",
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: () => {
+        deleteMessage({
+          data: {
+            id: message.id,
+            type: parent.type,
+          },
+        });
+      },
+    });
   };
 
   return (
@@ -299,21 +297,6 @@ function EditMessageDrawer({
     },
   });
 
-  const deleteDialogHandle = useConfirmDialog({
-    title: "Delete message?",
-    description: "This action cannot be undone.",
-    confirmText: "Delete",
-    variant: "destructive",
-    onConfirm: () => {
-      deleteMessage({
-        data: {
-          id: message.id,
-          type: parent.type,
-        },
-      });
-    },
-  });
-
   const handleUpdate = () => {
     if (!content.trim()) {
       toast.error("Message cannot be empty");
@@ -329,7 +312,20 @@ function EditMessageDrawer({
   };
 
   const handleDelete = () => {
-    deleteDialogHandle.open(null);
+    confirm.open({
+      title: "Delete message?",
+      description: "This action cannot be undone.",
+      confirmText: "Delete",
+      variant: "destructive",
+      onConfirm: () => {
+        deleteMessage({
+          data: {
+            id: message.id,
+            type: parent.type,
+          },
+        });
+      },
+    });
   };
 
   return (

@@ -13,7 +13,7 @@ import { z } from "zod";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
-import { useConfirmDialog } from "~/lib/confirm-dialog";
+import { confirm } from "~/lib/confirm-dialog";
 import { flashMessage } from "~/lib/flash";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
@@ -72,17 +72,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
   // TODO: Add like/unlike functionality for sets if needed
   const authUserLiked = false; // Sets don't have likes yet
 
-  const deleteDialogHandle = useConfirmDialog({
-    title: "Delete Submission",
-    description:
-      "Are you sure you want to delete this submission? This action cannot be undone.",
-    confirmText: "Delete",
-    onConfirm: () => {
-      // TODO: Implement delete submission functionality
-      console.log("Delete submission", submission.id);
-    },
-  });
-
   const isOwner = submission.user.id === sessionUser?.id;
 
   return (
@@ -128,7 +117,18 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
             <PencilIcon className="size-4" />
           </Button>
           <Button
-            onClick={() => deleteDialogHandle.open(null)}
+            onClick={() =>
+              confirm.open({
+                title: "Delete Submission",
+                description:
+                  "Are you sure you want to delete this submission? This action cannot be undone.",
+                confirmText: "Delete",
+                onConfirm: () => {
+                  // TODO: Implement delete submission functionality
+                  console.log("Delete submission", submission.id);
+                },
+              })
+            }
             size="icon-sm"
             variant="outline"
           >

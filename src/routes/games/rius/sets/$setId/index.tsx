@@ -14,7 +14,7 @@ import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
-import { useConfirmDialog } from "~/lib/confirm-dialog";
+import { confirm } from "~/lib/confirm-dialog";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
@@ -84,17 +84,6 @@ function SetView({ setId }: { setId: number }) {
   // TODO: Add like/unlike functionality for sets if needed
   const authUserLiked = false; // Sets don't have likes yet
 
-  const deleteDialogHandle = useConfirmDialog({
-    title: "Delete Set",
-    description:
-      "Are you sure you want to delete this set? This action cannot be undone.",
-    confirmText: "Delete",
-    onConfirm: () => {
-      // TODO: Implement delete set functionality
-      console.log("Delete set", set.id);
-    },
-  });
-
   const isOwner = set.user.id === sessionUser?.id;
 
   return (
@@ -142,7 +131,18 @@ function SetView({ setId }: { setId: number }) {
             <PencilIcon className="size-4" />
           </Button>
           <Button
-            onClick={() => deleteDialogHandle.open(null)}
+            onClick={() =>
+              confirm.open({
+                title: "Delete Set",
+                description:
+                  "Are you sure you want to delete this set? This action cannot be undone.",
+                confirmText: "Delete",
+                onConfirm: () => {
+                  // TODO: Implement delete set functionality
+                  console.log("Delete set", set.id);
+                },
+              })
+            }
             size="icon-sm"
             variant="outline"
           >
