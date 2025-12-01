@@ -12,6 +12,7 @@ import { CommandMenu } from "~/components/command-menu";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
+import { ConfirmDialogProvider } from "~/lib/confirm-dialog";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -119,23 +120,25 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="bg-sidebar font-mono antialiased">
         <ThemeProvider>
-          <Toaster />
-          <CommandMenu />
+          <ConfirmDialogProvider>
+            <Toaster />
+            <CommandMenu />
 
-          <SidebarProvider
-            style={
-              {
-                "--sidebar-width": "calc(var(--spacing) * 72)",
-                "--header-height": "calc(var(--spacing) * 12)",
-              } as React.CSSProperties
-            }
-          >
-            <AppSidebar variant="inset" />
-            <SidebarInset>
-              <SiteHeader />
-              {children}
-            </SidebarInset>
-          </SidebarProvider>
+            <SidebarProvider
+              style={
+                {
+                  "--sidebar-width": "calc(var(--spacing) * 72)",
+                  "--header-height": "calc(var(--spacing) * 12)",
+                } as React.CSSProperties
+              }
+            >
+              <AppSidebar variant="inset" />
+              <SidebarInset>
+                <SiteHeader />
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
+          </ConfirmDialogProvider>
         </ThemeProvider>
         <Scripts />
       </body>

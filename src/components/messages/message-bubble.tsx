@@ -22,6 +22,7 @@ import {
   DrawerFooter,
 } from "~/components/ui/drawer";
 import { Textarea } from "~/components/ui/textarea";
+import { useConfirmDialog } from "~/lib/confirm-dialog";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -72,6 +73,21 @@ export function MessageBubble({
     },
   });
 
+  const deleteDialogHandle = useConfirmDialog({
+    title: "Delete message?",
+    description: "This action cannot be undone.",
+    confirmText: "Delete",
+    variant: "destructive",
+    onConfirm: () => {
+      deleteMessage({
+        data: {
+          id: message.id,
+          type: parent.type,
+        },
+      });
+    },
+  });
+
   const handleLikeUnlike = () => {
     likeUnlike();
     setActionsOpen(false);
@@ -79,24 +95,17 @@ export function MessageBubble({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
-    toast.success("Message copied");
+    toast.success("Message copied", { duration: 1000 });
     setActionsOpen(false);
   };
 
   const handleEdit = () => {
-    setActionsOpen(false);
+    // setActionsOpen(false);
     setEditDrawerOpen(true);
   };
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this message?")) {
-      deleteMessage({
-        data: {
-          id: message.id,
-          type: parent.type,
-        },
-      });
-    }
+    deleteDialogHandle.open(null);
   };
 
   return (
@@ -135,26 +144,22 @@ export function MessageBubble({
                 </p>
               </MenuTrigger>
               <MenuContent
+                showBackdrop={true}
                 side={isOwnMessage ? "left" : "right"}
                 align="start"
                 sideOffset={5}
                 alignOffset={0}
                 collisionPadding={8}
-                sticky={true}
+                sticky={false}
                 collisionAvoidance={{
                   side: "shift",
                   align: "shift",
                 }}
               >
-                <MenuItem onClick={handleLikeUnlike}>
-                  <HeartIcon
-                    className={cn(
-                      "size-4",
-                      authUserLiked && "fill-red-700/50 stroke-red-700",
-                    )}
-                  />
-                  {authUserLiked ? "Unlike" : "Like"}
-                </MenuItem>
+                <ReactionMenuItem
+                  handleLikeUnlike={handleLikeUnlike}
+                  authUserLiked={authUserLiked}
+                />
                 <MenuItem onClick={handleCopy}>
                   <CopyIcon className="size-4" />
                   Copy Message
@@ -294,6 +299,21 @@ function EditMessageDrawer({
     },
   });
 
+  const deleteDialogHandle = useConfirmDialog({
+    title: "Delete message?",
+    description: "This action cannot be undone.",
+    confirmText: "Delete",
+    variant: "destructive",
+    onConfirm: () => {
+      deleteMessage({
+        data: {
+          id: message.id,
+          type: parent.type,
+        },
+      });
+    },
+  });
+
   const handleUpdate = () => {
     if (!content.trim()) {
       toast.error("Message cannot be empty");
@@ -309,14 +329,7 @@ function EditMessageDrawer({
   };
 
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this message?")) {
-      deleteMessage({
-        data: {
-          id: message.id,
-          type: parent.type,
-        },
-      });
-    }
+    deleteDialogHandle.open(null);
   };
 
   return (
@@ -446,3 +459,26 @@ function EditMessageDrawer({
 //     </Tray>
 //   );
 // }
+
+/**
+ * uses state so the text does not flicker when the like is toggled
+ * @param param0
+ * @returns
+ */
+function ReactionMenuItem({
+  handleLikeUnlike,
+  authUserLiked,
+}: {
+  handleLikeUnlike: () => void;
+  authUserLiked: boolean;
+}) {
+  const [isLiked] = React.useState<boolean>(authUserLiked);
+  return (
+    <MenuItem onClick={handleLikeUnlike}>
+      <HeartIcon
+        className={cn("size-4", isLiked && "fill-red-700/50 stroke-red-700")}
+      />
+      <span>{isLiked ? "Unlike" : "Like"}</span>
+    </MenuItem>
+  );
+}

@@ -14,6 +14,7 @@ import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { YoutubeIframe } from "~/components/youtube-iframe";
+import { useConfirmDialog } from "~/lib/confirm-dialog";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
@@ -55,6 +56,18 @@ export function PostView({ postId }: { postId: number }) {
   });
 
   const { mutate: deletePost } = useDeletePost();
+
+  const deleteDialogHandle = useConfirmDialog({
+    title: "Delete Post",
+    description:
+      "Are you sure you want to delete this post? This action cannot be undone.",
+    confirmText: "Delete",
+    onConfirm: () => {
+      deletePost({
+        data: post.id,
+      });
+    },
+  });
 
   const isOwner = post.userId === sessionUser?.id;
 
@@ -114,11 +127,7 @@ export function PostView({ postId }: { postId: number }) {
             </Link>
           </Button>
           <Button
-            onClick={() => {
-              deletePost({
-                data: post.id,
-              });
-            }}
+            onClick={() => deleteDialogHandle.open(null)}
             size="icon-sm"
             variant="outline"
           >

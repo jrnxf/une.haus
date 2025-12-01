@@ -27,9 +27,21 @@ function MenuPortal({
 
 // Backdrop - An overlay displayed beneath the menu popup
 function MenuBackdrop({
+  className,
   ...props
 }: React.ComponentProps<typeof MenuPrimitive.Backdrop>) {
-  return <MenuPrimitive.Backdrop data-slot="menu-backdrop" {...props} />;
+  return (
+    <MenuPrimitive.Backdrop
+      data-slot="menu-backdrop"
+      className={cn(
+        "fixed inset-0 z-50 bg-black/20",
+        "transition-opacity duration-150",
+        "data-ending-style:opacity-0 data-starting-style:opacity-0",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 // Positioner - Positions the menu popup against the trigger
@@ -301,7 +313,7 @@ function MenuSubmenuTrigger({
       className={cn(
         "flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-hidden select-none",
         "focus:bg-accent focus:text-foreground",
-        "[&[data-popup-open]]:bg-accent [&[data-popup-open]]:text-foreground",
+        "data-popup-open:bg-accent data-popup-open:text-foreground",
         "[&_svg:not([role=img]):not([class*=text-])]:opacity-60 [&>svg]:pointer-events-none [&>svg]:shrink-0 [&>svg:not([class*=size-])]:size-4",
         inset && "ps-7",
         className,
