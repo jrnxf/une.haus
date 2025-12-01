@@ -9,12 +9,6 @@ import { toast } from "sonner";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
-import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -22,6 +16,13 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "~/components/ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Textarea } from "~/components/ui/textarea";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
@@ -111,44 +112,95 @@ export function MessageBubble({
       >
         <div
           className={cn(
-            "group flex w-max max-w-[80%] items-center gap-2",
+            "group relative flex w-max max-w-[80%] items-center gap-2",
             isOwnMessage ? "flex-row-reverse" : "flex-row",
           )}
         >
-          <button
-            onClick={() => setActionsOpen(true)}
-            className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all active:scale-[0.995]"
-            style={{ wordBreak: "break-word" }}
-          >
-            {/* Like Count Badge - Absolutely Positioned */}
-            {message.likes.length > 0 && (
-              <UsersDialog
-                users={message.likes.map((like) => like.user)}
-                title={`${message.likes.length} ${message.likes.length === 1 ? "Like" : "Likes"}`}
-                trigger={
-                  <button
+          {isMobile ? (
+            <button
+              onClick={() => setActionsOpen(true)}
+              className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
+              style={{ wordBreak: "break-word" }}
+            >
+              <p className="leading-relaxed">
+                {preprocessText(message.content)}
+              </p>
+            </button>
+          ) : (
+            <DropdownMenu open={actionsOpen} onOpenChange={setActionsOpen}>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
+                  style={{ wordBreak: "break-word" }}
+                >
+                  <p className="leading-relaxed">
+                    {preprocessText(message.content)}
+                  </p>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side={isOwnMessage ? "left" : "right"}
+                align="start"
+              >
+                <DropdownMenuItem onClick={handleLikeUnlike}>
+                  <HeartIcon
                     className={cn(
-                      "absolute top-0 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
-                      isOwnMessage
-                        ? "left-0 -translate-x-1/3"
-                        : "right-0 translate-x-1/3",
+                      "size-4",
+                      authUserLiked && "fill-red-700/50 stroke-red-700",
                     )}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <HeartIcon className="mr-1 size-2 fill-white" />
-                    {message.likes.length}
-                  </button>
-                }
-              />
-            )}
+                  />
+                  {authUserLiked ? "Unlike" : "Like"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopy}>
+                  <CopyIcon className="size-4" />
+                  Copy Message
+                </DropdownMenuItem>
+                {isOwnMessage && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleEdit}>
+                      <PencilIcon className="size-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={handleDelete}
+                    >
+                      <Trash2Icon className="size-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
-            <p className="leading-relaxed">{preprocessText(message.content)}</p>
-          </button>
+          {/* Like Count Badge - Absolutely Positioned */}
+          {message.likes.length > 0 && (
+            <UsersDialog
+              users={message.likes.map((like) => like.user)}
+              title={`${message.likes.length} ${message.likes.length === 1 ? "Like" : "Likes"}`}
+              trigger={
+                <button
+                  className={cn(
+                    "absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
+                    isOwnMessage
+                      ? "left-0 -translate-x-1/3"
+                      : "right-0 translate-x-1/3",
+                  )}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <HeartIcon className="mr-1 size-2 fill-white" />
+                  {message.likes.length}
+                </button>
+              }
+            />
+          )}
         </div>
       </div>
 
-      {/* Actions Dialog/Drawer */}
-      {isMobile ? (
+      {/* Actions Drawer (Mobile Only) */}
+      {isMobile && (
         <Drawer open={actionsOpen} onOpenChange={setActionsOpen}>
           <DrawerContent>
             <DrawerHeader>
@@ -204,57 +256,6 @@ export function MessageBubble({
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
-      ) : (
-        <Dialog open={actionsOpen} onOpenChange={setActionsOpen}>
-          <DialogContent className="sm:max-w-[300px]">
-            <DialogHeader>
-              <DialogTitle>Message Actions</DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col gap-2">
-              <Button
-                variant="outline"
-                className="justify-start"
-                onClick={handleLikeUnlike}
-              >
-                <HeartIcon
-                  className={cn(
-                    "size-4",
-                    authUserLiked && "fill-red-700/50 stroke-red-700",
-                  )}
-                />
-                {authUserLiked ? "Unlike" : "Like"}
-              </Button>
-              <Button
-                variant="outline"
-                className="justify-start"
-                onClick={handleCopy}
-              >
-                <CopyIcon className="size-4" />
-                Copy Message
-              </Button>
-              {isOwnMessage && (
-                <>
-                  <Button
-                    variant="outline"
-                    className="justify-start"
-                    onClick={handleEdit}
-                  >
-                    <PencilIcon className="size-4" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="justify-start"
-                    onClick={handleDelete}
-                  >
-                    <Trash2Icon className="size-4" />
-                    Delete
-                  </Button>
-                </>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
       )}
 
       {/* Edit Drawer */}
