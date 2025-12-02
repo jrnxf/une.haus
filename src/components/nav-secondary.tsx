@@ -21,7 +21,11 @@ export function NavSecondary({
     icon: LucideIcon;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-  const { toggleSidebar } = useSidebar();
+  const { setOpenMobile } = useSidebar();
+
+  const handleMobileNav = (_evt: React.MouseEvent) => {
+    setOpenMobile(false);
+  };
 
   return (
     <SidebarGroup {...props}>
@@ -29,7 +33,7 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild size="sm" onClick={toggleSidebar}>
+              <SidebarMenuButton asChild size="sm" onClick={handleMobileNav}>
                 <Link to={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

@@ -4,6 +4,7 @@ import { useServerSession } from "~/lib/session/hooks";
 import {
   hausSessionSchema,
   setFlashSchema,
+  setSidebarSchema,
   setThemeSchema,
   type HausSession,
 } from "~/lib/session/schema";
@@ -55,5 +56,16 @@ export const setSessionThemeServerFn = createServerFn({ method: "POST" })
     await session.update({
       ...session.data,
       theme,
+    });
+  });
+
+export const setSessionSidebarServerFn = createServerFn({ method: "POST" })
+  .inputValidator(setSidebarSchema)
+  .handler(async ({ data: sidebarOpen }) => {
+    const session = await useServerSession();
+
+    await session.update({
+      ...session.data,
+      sidebarOpen,
     });
   });

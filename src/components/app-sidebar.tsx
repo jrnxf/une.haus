@@ -63,7 +63,12 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { toggleSidebar } = useSidebar();
+  const { setOpenMobile } = useSidebar();
+
+  const handleLogoClick = (_evt: React.MouseEvent) => {
+    setOpenMobile(false);
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -72,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               asChild
               className="w-fit data-[slot=sidebar-menu-button]:p-1.5!"
-              onClick={toggleSidebar}
+              onClick={handleLogoClick}
             >
               <Link to="/" className="h-fit">
                 <div>

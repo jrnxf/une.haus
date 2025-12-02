@@ -3,6 +3,7 @@ import { z } from "zod";
 export const hausSessionSchema = z.object({
   flash: z.string().optional(),
   theme: z.enum(["light", "dark", "system"]).default("system"),
+  sidebarOpen: z.boolean().default(true),
   user: z
     .object({
       avatarUrl: z.string().nullable(),
@@ -21,3 +22,5 @@ export const setFlashSchema = z.object({
 });
 
 export const setThemeSchema = z.enum(["light", "dark", "system"]);
+
+export const setSidebarSchema = z.boolean();

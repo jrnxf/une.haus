@@ -12,7 +12,6 @@ import {
   sendCodeSchema,
 } from "~/lib/auth/schemas";
 import { env } from "~/lib/env";
-import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
 
 import AuthCodeTemplate from "../../../emails/auth-code";
@@ -58,8 +57,8 @@ export const enterCodeServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(enterCodeSchema)
-  .handler(async ({ data: input }) => {
-    const { code } = input;
+  .handler(async ({ data: _input }) => {
+    // const { code } = input;
 
     // const [authCode] = await db
     //   .select({
@@ -99,10 +98,12 @@ export const enterCodeServerFn = createServerFn({
     //   invariant(false, "Code has expired");
     // }
 
-    const [session] = await Promise.all([
-      useServerSession(),
-      //  deleteCode()
-    ]);
+    // const [session] = await Promise.all([
+    //   useServerSession(),
+    //   //  deleteCode()
+    // ]);
+
+    const session = await useServerSession();
 
     const [user] = await db.select().from(users).where(eq(users.id, 1));
 

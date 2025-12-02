@@ -39,6 +39,10 @@ export function useSessionFlash() {
   return session.flash;
 }
 
+export function useRootRouteContext() {
+  return useRouteContext({ from: rootRouteId });
+}
+
 export function useLogout() {
   const navigate = useNavigate();
 

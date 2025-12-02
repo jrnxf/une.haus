@@ -4,6 +4,7 @@ import {
   clearSessionServerFn,
   getSessionServerFn,
   setSessionFlashServerFn,
+  setSessionSidebarServerFn,
   setSessionThemeServerFn,
 } from "~/lib/session/fns";
 
@@ -30,6 +31,11 @@ export const session = {
   theme: {
     set: {
       fn: setSessionThemeServerFn,
+    },
+  },
+  sidebar: {
+    set: {
+      fn: setSessionSidebarServerFn,
     },
   },
 };
