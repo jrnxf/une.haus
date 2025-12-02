@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { CopyIcon, HeartIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import React from "react";
-import { isMobile } from "react-device-detect";
 
 import { toast } from "sonner";
 
@@ -22,6 +21,7 @@ import {
   DrawerFooter,
 } from "~/components/ui/drawer";
 import { Textarea } from "~/components/ui/textarea";
+import { useIsMobile } from "~/hooks/use-mobile";
 import { confirm } from "~/lib/confirm-dialog";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
@@ -38,6 +38,7 @@ export function MessageBubble({
   parent: MessageParent;
   message: Message;
 }) {
+  const isMobile = useIsMobile();
   const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
   const [actionsOpen, setActionsOpen] = React.useState(false);

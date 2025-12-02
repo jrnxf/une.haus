@@ -12,6 +12,7 @@ import { CommandMenu } from "~/components/command-menu";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
+import { getIsMobileSSR, useIsMobile } from "~/hooks/use-mobile";
 import { ConfirmDialog_ } from "~/lib/confirm-dialog";
 import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
@@ -22,12 +23,18 @@ import appCss from "~/styles.css?url";
 export interface RouterAppContext {
   session: HausSession;
   queryClient: QueryClient;
+  isMobile: boolean;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
-  beforeLoad: async () => {
-    const sessionData = await session.get.fn();
-    return { session: sessionData };
+  beforeLoad: async ({ context }) => {
+    const [sessionData, ssrIsMobile] = await Promise.all([
+      session.get.fn(),
+      getIsMobileSSR(),
+    ]);
+    // On server: use UA detection. On client: preserve existing context value
+    const isMobile = ssrIsMobile ?? context.isMobile;
+    return { session: sessionData, isMobile };
   },
   component: RootComponent,
   head: () => ({
@@ -111,6 +118,8 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const { session } = useRootRouteContext();
+  const isMobile = useIsMobile();
+
   return (
     <html
       lang="en"
@@ -126,21 +135,25 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <ConfirmDialog_ />
           <CommandMenu />
 
-          <SidebarProvider
-            defaultOpen={session.sidebarOpen}
-            style={
-              {
-                "--sidebar-width": "calc(var(--spacing) * 72)",
-                "--header-height": "calc(var(--spacing) * 12)",
-              } as React.CSSProperties
-            }
-          >
-            <AppSidebar variant="inset" />
-            <SidebarInset>
-              <SiteHeader />
-              {children}
-            </SidebarInset>
-          </SidebarProvider>
+          {isMobile ? (
+            children
+          ) : (
+            <SidebarProvider
+              defaultOpen={session.sidebarOpen}
+              style={
+                {
+                  "--sidebar-width": "calc(var(--spacing) * 72)",
+                  "--header-height": "calc(var(--spacing) * 12)",
+                } as React.CSSProperties
+              }
+            >
+              <AppSidebar variant="inset" />
+              <SidebarInset>
+                <SiteHeader />
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
+          )}
         </ThemeProvider>
         <Scripts />
       </body>

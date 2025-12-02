@@ -22,6 +22,7 @@ export function getRouter() {
       context: {
         queryClient,
         session: { theme: "dark", sidebarOpen: false },
+        isMobile: true, // SSR default, will be overridden by beforeLoad
       },
       // I had this set to "intent" but it doesn't seem to be as helpful on
       // mobile since there's no hover on mobile and it uses touch start events
