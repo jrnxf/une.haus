@@ -15,7 +15,7 @@ import {
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
 
-type Page = "games" | "posts" | "root" | "theme" | "users";
+type Page = "games" | "posts" | "root" | "theme" | "users" | "vault";
 
 export function CommandMenu() {
   const sessionUser = useSessionUser();
@@ -84,15 +84,16 @@ export function CommandMenu() {
         {activePage === "root" && (
           <>
             <CommandGroup heading="Pages">
-              <CommandItem onSelect={() => goTo("/users")}>Users</CommandItem>
-              <CommandItem onSelect={() => goTo("/posts")}>Posts</CommandItem>
               <CommandItem onSelect={() => goTo("/games/rius/active")}>
                 Games
               </CommandItem>
+              <CommandItem onSelect={() => goTo("/users")}>Users</CommandItem>
+              <CommandItem onSelect={() => goTo("/posts")}>Posts</CommandItem>
               <CommandItem onSelect={() => goTo("/chat")}>Chat</CommandItem>
+              <CommandItem onSelect={() => goTo("/vault")}>Vault</CommandItem>
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup heading="Manage">
+            <CommandGroup heading="Settings">
               <CommandItem
                 onSelect={() => {
                   pushPage("theme");

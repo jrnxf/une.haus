@@ -13,6 +13,7 @@ import { z } from "zod";
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { VideoPlayer } from "~/components/video-player";
 import { confirm } from "~/lib/confirm-dialog";
 import { games } from "~/lib/games";
@@ -155,20 +156,24 @@ function SetView({ setId }: { setId: number }) {
         <VideoPlayer playbackId={set.video.playbackId} />
       )}
 
-      {sessionUser && (
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-4">
-            <h3 className="text-lg font-semibold">Discussion</h3>
-            <MessagesView
-              record={record}
-              messages={messagesQuery.data.messages}
-              handleCreateMessage={(content) => createMessage.mutate(content)}
-            />
-          </div>
+      <Tabs>
+        <TabsList>
+          <TabsTrigger value="messages">Messages</TabsTrigger>
+          <TabsTrigger value="submissions">Submissions</TabsTrigger>
+        </TabsList>
 
+        <TabsContent value="messages">
+          <MessagesView
+            record={record}
+            messages={messagesQuery.data.messages}
+            handleCreateMessage={(content) => createMessage.mutate(content)}
+          />
+        </TabsContent>
+
+        <TabsContent value="submissions">
           <CreateRiuSubmissionForm riuSetId={setId} />
-        </div>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

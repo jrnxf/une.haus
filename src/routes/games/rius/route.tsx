@@ -21,7 +21,7 @@ function RouteComponent() {
       <div className="overflow-y-auto" id="main-content">
         <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-3 p-3">
           <Outlet />
-          <div className="absolute top-0 right-0 flex gap-2">
+          <div className="absolute top-2 right-2 flex gap-2">
             <Button
               asChild
               variant={isActive("/previous") ? "default" : "outline"}

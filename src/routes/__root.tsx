@@ -9,10 +9,10 @@ import { type ReactNode } from "react";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { CommandMenu } from "~/components/command-menu";
-import { SiteHeader } from "~/components/site-header";
+import { SiteHeaderMobile, SiteHeaderWeb } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { getIsMobileSSR, useIsMobile } from "~/hooks/use-mobile";
+import { getIsMobileSSR } from "~/hooks/use-mobile";
 import { ConfirmDialog_ } from "~/lib/confirm-dialog";
 import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
@@ -118,7 +118,6 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const { session } = useRootRouteContext();
-  const isMobile = useIsMobile();
 
   return (
     <html
@@ -135,9 +134,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <ConfirmDialog_ />
           <CommandMenu />
 
-          {isMobile ? (
-            children
-          ) : (
+          <div className="hidden sm:block">
             <SidebarProvider
               defaultOpen={session.sidebarOpen}
               style={
@@ -149,11 +146,18 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             >
               <AppSidebar variant="inset" />
               <SidebarInset>
-                <SiteHeader />
+                <SiteHeaderWeb />
                 {children}
               </SidebarInset>
             </SidebarProvider>
-          )}
+          </div>
+
+          <main className="bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-all sm:p-2">
+            <div className="bg-background flex grow flex-col overflow-auto transition-all sm:rounded-xl sm:border">
+              <SiteHeaderMobile />
+              {children}
+            </div>
+          </main>
         </ThemeProvider>
         <Scripts />
       </body>

@@ -66,7 +66,7 @@ export function BaseMessageForm({
         })(event);
       }}
     >
-      <div className="flex items-center px-2">
+      <div className="flex items-end px-2">
         <div className="w-full space-y-2">
           {/* <Textarea
             {...register("content")}
@@ -107,7 +107,12 @@ export function BaseMessageForm({
             }}
           />
         </div>
-        <Button type="submit" size="icon-sm" variant="secondary">
+        <Button
+          type="submit"
+          size="icon-sm"
+          variant="secondary"
+          className="mb-2"
+        >
           <CornerDownLeftIcon className="size-4" />
         </Button>
       </div>
