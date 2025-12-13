@@ -44,8 +44,10 @@ export function CommandMenu() {
 
   const goTo = (route: string) => {
     incrementKey();
-    navigate({ to: route });
     setOpen(false);
+    setTimeout(() => {
+      navigate({ to: route });
+    }, 100);
   };
 
   const pushPage = (page: Page) => {
