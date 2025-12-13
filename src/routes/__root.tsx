@@ -5,6 +5,7 @@ import {
   HeadContent,
   Outlet,
   Scripts,
+  useRouter,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -106,6 +107,17 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
+  const router = useRouter();
+  useEffect(() => {
+    // This fires on router navigation (including back button within your SPA)
+    const unsubscribe = router.subscribe("onBeforeLoad", () => {
+      console.log("Router navigation starting");
+      // Close your sidebar here
+    });
+
+    return unsubscribe;
+  }, [router]);
+
   useEffect(() => {
     const handlePageHide = () => {
       console.log("page hide");
