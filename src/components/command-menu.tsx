@@ -34,7 +34,6 @@ export function CommandMenu() {
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
-  const { incrementKey } = useNavigationKey();
   useEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
@@ -43,7 +42,6 @@ export function CommandMenu() {
   });
 
   const goTo = (route: string) => {
-    incrementKey();
     setOpen(false);
     setTimeout(() => {
       navigate({ to: route });

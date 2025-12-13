@@ -107,36 +107,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
-  const router = useRouter();
-  useEffect(() => {
-    // This fires on router navigation (including back button within your SPA)
-    const unsubscribe = router.subscribe("onBeforeLoad", () => {
-      console.log("Router navigation starting");
-      // Close your sidebar here
-    });
-
-    return unsubscribe;
-  }, [router]);
-
-  useEffect(() => {
-    const handlePageHide = () => {
-      console.log("page hide");
-      toast.info("page hide");
-    };
-
-    const handlePageReveal = () => {
-      console.log("page reveal");
-      toast.info("page reveal");
-    };
-
-    window.addEventListener("pagehide", handlePageHide);
-    window.addEventListener("pagereveal", handlePageReveal);
-
-    return () => {
-      window.removeEventListener("pagehide", handlePageHide);
-      window.removeEventListener("pagereveal", handlePageReveal);
-    };
-  }, []);
   return (
     <RootDocument>
       <Outlet />
@@ -175,7 +145,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           >
             <AppSidebar variant="inset" />
             <SidebarInset>
-              <SiteHeaderWeb />
+              {/* <SiteHeaderWeb /> */}
               <SiteHeaderMobile />
 
               {children}
