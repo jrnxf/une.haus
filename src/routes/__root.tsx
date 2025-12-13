@@ -6,7 +6,11 @@ import {
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+
+import { toast } from "sonner";
+
+// import "./inline";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { SiteHeaderMobile, SiteHeaderWeb } from "~/components/site-header";
@@ -102,6 +106,25 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
+  useEffect(() => {
+    const handlePageHide = () => {
+      console.log("page hide");
+      toast.info("page hide");
+    };
+
+    const handlePageReveal = () => {
+      console.log("page reveal");
+      toast.info("page reveal");
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("pagereveal", handlePageReveal);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("pagereveal", handlePageReveal);
+    };
+  }, []);
   return (
     <RootDocument>
       <Outlet />
