@@ -3,6 +3,7 @@ import * as React from "react";
 
 import { useEventListener } from "usehooks-ts";
 
+import { useNavigationKey } from "~/components/site-header";
 import {
   CommandDialog,
   CommandEmpty,
@@ -33,6 +34,7 @@ export function CommandMenu() {
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
+  const { incrementKey } = useNavigationKey();
   useEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
@@ -41,6 +43,7 @@ export function CommandMenu() {
   });
 
   const goTo = (route: string) => {
+    incrementKey();
     navigate({ to: route });
     setOpen(false);
   };
