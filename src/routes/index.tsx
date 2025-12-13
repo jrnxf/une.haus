@@ -11,7 +11,6 @@ import {
 import { Logo } from "~/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { useIsMobile } from "~/hooks/use-mobile";
 import { useSessionUser } from "~/lib/session/hooks";
 
 export const Route = createFileRoute("/")({
@@ -47,23 +46,6 @@ const navItems = [
 ];
 
 function RouteComponent() {
-  const isMobile = useIsMobile();
-  console.log("isMobile", isMobile);
-  return <MobileHome />;
-  // if (isMobile) {
-  //   return <MobileHome />;
-  // }
-
-  // return (
-  //   <div className="grid h-full place-items-center">
-  //     <div className="w-[min(80vw,270px)]">
-  //       <Logo />
-  //     </div>
-  //   </div>
-  // );
-}
-
-function MobileHome() {
   const sessionUser = useSessionUser();
 
   return (

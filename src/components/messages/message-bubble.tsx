@@ -21,7 +21,7 @@ import {
   DrawerFooter,
 } from "~/components/ui/drawer";
 import { Textarea } from "~/components/ui/textarea";
-import { useIsMobile } from "~/hooks/use-mobile";
+import { useIsTablet } from "~/hooks/use-mobile";
 import { confirm } from "~/lib/confirm-dialog";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
@@ -38,7 +38,7 @@ export function MessageBubble({
   parent: MessageParent;
   message: Message;
 }) {
-  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
   const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
   const [actionsOpen, setActionsOpen] = React.useState(false);
@@ -122,7 +122,7 @@ export function MessageBubble({
             isOwnMessage ? "flex-row-reverse" : "flex-row",
           )}
         >
-          {isMobile ? (
+          {isTablet ? (
             <button
               onClick={() => setActionsOpen(true)}
               className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
@@ -205,7 +205,7 @@ export function MessageBubble({
       </div>
 
       {/* Actions Drawer (Mobile Only) */}
-      {isMobile && (
+      {isTablet && (
         <Drawer open={actionsOpen} onOpenChange={setActionsOpen}>
           <DrawerContent>
             <div className="flex w-full items-center justify-center gap-4 p-6 pt-0">

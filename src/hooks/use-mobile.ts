@@ -1,36 +1,35 @@
-import { rootRouteId, useRouteContext } from "@tanstack/react-router";
-import { createIsomorphicFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import * as React from "react";
 
-const MOBILE_BREAKPOINT = 768;
+const TABLET_BREAKPOINT = 768;
 
-// Regex to match common mobile user agents
-const MOBILE_UA_REGEX =
-  /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|tablet/i;
+export function useIsTablet() {
+  const [isTablet, setIsTablet] = React.useState<boolean | undefined>(
+    undefined,
+  );
 
-/**
- * Isomorphic function to detect mobile.
- * Server: reads User-Agent header
- * Client: returns undefined (we already have the value from SSR context)
- */
-export const getIsMobileSSR = createIsomorphicFn()
-  .server(() => {
-    const userAgent = getRequestHeader("user-agent") ?? "";
-    return MOBILE_UA_REGEX.test(userAgent);
-  })
-  .client(() => undefined);
+  React.useEffect(() => {
+    const mql = globalThis.matchMedia(
+      `(max-width: ${TABLET_BREAKPOINT - 1}px)`,
+    );
+    const onChange = () => {
+      setIsTablet(window.innerWidth < TABLET_BREAKPOINT);
+    };
+    mql.addEventListener("change", onChange);
+    setIsTablet(window.innerWidth < TABLET_BREAKPOINT);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
 
-/**
- * Hook that returns whether the current device is mobile.
- * Uses SSR detection on initial render, then switches to client-side
- * media query for accurate viewport-based detection.
- */
+  return Boolean(isTablet);
+}
+
+const MOBILE_BREAKPOINT = 640;
+
 export function useIsMobile() {
-  const { isMobile: ssrIsMobile } = useRouteContext({ from: rootRouteId });
-  const [isMobile, setIsMobile] = React.useState(ssrIsMobile);
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined,
+  );
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const mql = globalThis.matchMedia(
       `(max-width: ${MOBILE_BREAKPOINT - 1}px)`,
     );
@@ -42,5 +41,5 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  return isMobile;
+  return Boolean(isMobile);
 }

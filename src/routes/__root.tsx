@@ -1,4 +1,5 @@
 import { type QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -8,11 +9,9 @@ import {
 import { type ReactNode } from "react";
 
 import { AppSidebar } from "~/components/app-sidebar";
-import { CommandMenu } from "~/components/command-menu";
 import { SiteHeaderMobile, SiteHeaderWeb } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { getIsMobileSSR } from "~/hooks/use-mobile";
 import { ConfirmDialog_ } from "~/lib/confirm-dialog";
 import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
@@ -23,18 +22,12 @@ import appCss from "~/styles.css?url";
 export interface RouterAppContext {
   session: HausSession;
   queryClient: QueryClient;
-  isMobile: boolean;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
-  beforeLoad: async ({ context }) => {
-    const [sessionData, ssrIsMobile] = await Promise.all([
-      session.get.fn(),
-      getIsMobileSSR(),
-    ]);
-    // On server: use UA detection. On client: preserve existing context value
-    const isMobile = ssrIsMobile ?? context.isMobile;
-    return { session: sessionData, isMobile };
+  beforeLoad: async () => {
+    const sessionData = await session.get.fn();
+    return { session: sessionData };
   },
   component: RootComponent,
   head: () => ({
@@ -132,32 +125,34 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog_ />
-          <CommandMenu />
 
-          <div className="hidden sm:block">
-            <SidebarProvider
-              defaultOpen={session.sidebarOpen}
-              style={
-                {
-                  "--sidebar-width": "calc(var(--spacing) * 72)",
-                  "--header-height": "calc(var(--spacing) * 12)",
-                } as React.CSSProperties
-              }
-            >
-              <AppSidebar variant="inset" />
-              <SidebarInset>
-                <SiteHeaderWeb />
-                {children}
-              </SidebarInset>
-            </SidebarProvider>
-          </div>
+          <ReactQueryDevtools initialIsOpen={false} />
 
-          <main className="bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-all sm:p-2">
-            <div className="bg-background flex grow flex-col overflow-auto transition-all sm:rounded-xl sm:border">
+          {/* <div className="hidden sm:block"> */}
+          <SidebarProvider
+            defaultOpen={session.sidebarOpen}
+            style={
+              {
+                "--sidebar-width": "calc(var(--spacing) * 72)",
+                "--header-height": "calc(var(--spacing) * 12)",
+              } as React.CSSProperties
+            }
+          >
+            <AppSidebar variant="inset" />
+            <SidebarInset>
+              <SiteHeaderWeb />
               <SiteHeaderMobile />
+
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
+          {/* </div> */}
+          {/* 
+          <main className="bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-all sm:hidden sm:p-2">
+            <div className="bg-background flex grow flex-col overflow-auto transition-all sm:rounded-xl sm:border">
               {children}
             </div>
-          </main>
+          </main> */}
         </ThemeProvider>
         <Scripts />
       </body>

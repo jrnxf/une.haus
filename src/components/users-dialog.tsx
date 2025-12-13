@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { useIsMobile } from "~/hooks/use-mobile";
+import { useIsTablet } from "~/hooks/use-mobile";
 
 type User = {
   id: number;
@@ -36,7 +36,7 @@ export function UsersPopover({
   disabled = false,
 }: UsersPopoverProps) {
   const [open, setOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
 
   if (disabled || users.length === 0) {
     return <>{trigger}</>;
@@ -62,7 +62,7 @@ export function UsersPopover({
     </div>
   );
 
-  if (isMobile) {
+  if (isTablet) {
     return (
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>

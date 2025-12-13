@@ -1,14 +1,16 @@
-import { Loader2Icon, SearchIcon } from "lucide-react";
+import { CommandIcon, Loader2Icon, SearchIcon } from "lucide-react";
 import * as React from "react";
 
 import { Command as CommandPrimitive } from "cmdk";
 
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/dialog";
 import { cn } from "~/lib/utils";
 
@@ -50,15 +52,20 @@ function CommandDialog({
   }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className={cn("size-7", className)}>
+          <CommandIcon className="size-4" />
+        </Button>
+      </DialogTrigger>
       <DialogContent
         className={cn("overflow-hidden p-0", className)}
         showCloseButton={showCloseButton}
         onCloseAutoFocus={onCloseAutoFocus}
       >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
         <Command className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5">
           {children}
         </Command>

@@ -32,10 +32,10 @@ export function NavMain({
     }[];
   }[];
 }) {
-  const { setOpenMobile } = useSidebar();
+  const { setIsTabletSidebarOpen } = useSidebar();
 
   const handleMobileNav = (_evt: React.MouseEvent) => {
-    setOpenMobile(false);
+    setIsTabletSidebarOpen(false);
   };
 
   return (

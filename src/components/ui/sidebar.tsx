@@ -1,6 +1,7 @@
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
+import { useNavigate } from "@tanstack/react-router";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
@@ -23,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useIsMobile } from "~/hooks/use-mobile";
+import { useIsMobile, useIsTablet } from "~/hooks/use-mobile";
 import { session } from "~/lib/session/index";
 import { cn } from "~/lib/utils";
 
@@ -38,8 +39,8 @@ type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
   setOpen: (open: boolean) => void;
-  openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
+  isTabletSidebarOpen: boolean;
+  setIsTabletSidebarOpen: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
 };
@@ -69,7 +70,8 @@ function SidebarProvider({
   onOpenChange?: (open: boolean) => void;
 }) {
   const isMobile = useIsMobile();
-  const [openMobile, setOpenMobile] = React.useState(false);
+  const isTablet = useIsTablet();
+  const [isTabletSidebarOpen, setIsTabletSidebarOpen] = React.useState(false);
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -91,9 +93,19 @@ function SidebarProvider({
   );
 
   // Helper to toggle the sidebar.
+
+  const navigate = useNavigate();
+
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+    if (isMobile) {
+      // if triggered on mobile breakpoint take them to mobile home screen
+      return navigate({ to: "/" });
+    }
+
+    return isTablet
+      ? setIsTabletSidebarOpen((open) => !open)
+      : setOpen((open) => !open);
+  }, [isMobile, isTablet, setOpen, navigate]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -120,12 +132,20 @@ function SidebarProvider({
       state,
       open,
       setOpen,
-      isMobile,
-      openMobile,
-      setOpenMobile,
+      isMobile: isTablet,
+      isTabletSidebarOpen,
+      setIsTabletSidebarOpen,
       toggleSidebar,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+    [
+      state,
+      open,
+      setOpen,
+      isTablet,
+      isTabletSidebarOpen,
+      setIsTabletSidebarOpen,
+      toggleSidebar,
+    ],
   );
 
   return (
@@ -165,7 +185,8 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, isTabletSidebarOpen, setIsTabletSidebarOpen } =
+    useSidebar();
 
   if (collapsible === "none") {
     return (
@@ -184,7 +205,11 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+      <Sheet
+        open={isTabletSidebarOpen}
+        onOpenChange={setIsTabletSidebarOpen}
+        {...props}
+      >
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"
@@ -270,13 +295,12 @@ function SidebarTrigger({
       size="icon"
       className={cn("size-7", className)}
       onClick={(event) => {
-        vibrate();
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeftIcon className="size-5" />
+      <PanelLeftIcon className="size-4" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

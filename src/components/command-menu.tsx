@@ -3,6 +3,7 @@ import * as React from "react";
 
 import { useEventListener } from "usehooks-ts";
 
+import { Button } from "~/components/ui/button";
 import {
   CommandDialog,
   CommandEmpty,

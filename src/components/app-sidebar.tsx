@@ -63,10 +63,10 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setOpenMobile } = useSidebar();
+  const { setIsTabletSidebarOpen } = useSidebar();
 
   const handleLogoClick = (_evt: React.MouseEvent) => {
-    setOpenMobile(false);
+    setIsTabletSidebarOpen(false);
   };
 
   return (

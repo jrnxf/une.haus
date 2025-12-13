@@ -21,10 +21,10 @@ export function NavSecondary({
     icon: LucideIcon;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-  const { setOpenMobile } = useSidebar();
+  const { setIsTabletSidebarOpen } = useSidebar();
 
   const handleMobileNav = (_evt: React.MouseEvent) => {
-    setOpenMobile(false);
+    setIsTabletSidebarOpen(false);
   };
 
   return (
