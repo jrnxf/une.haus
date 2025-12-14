@@ -126,7 +126,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-sidebar font-mono antialiased">
+      <body className="font-mono antialiased">
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog_ />
