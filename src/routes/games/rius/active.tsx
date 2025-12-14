@@ -51,7 +51,6 @@ function SetCard({ set }: { set: SetType }) {
       to="/games/rius/sets/$setId"
       params={{ setId: set.id }}
       className="block"
-      preload="intent"
     >
       <Button
         variant="outline"

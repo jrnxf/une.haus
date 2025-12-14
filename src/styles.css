@@ -3,11 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html,
-body {
-  overscroll-behavior-x: none;
-}
-
 @theme {
   --animate-accordion-up: accordion-up
     var(--tw-animation-duration, var(--tw-duration, 0.2s))

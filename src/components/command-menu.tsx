@@ -1,9 +1,15 @@
-import { useNavigate } from "@tanstack/react-router";
+import {
+  Link,
+  rootRouteId,
+  useNavigate,
+  useRouter,
+  useSearch,
+} from "@tanstack/react-router";
 import * as React from "react";
 
+import { useCommandState } from "cmdk";
 import { useEventListener } from "usehooks-ts";
 
-import { useNavigationKey } from "~/components/site-header";
 import {
   CommandDialog,
   CommandEmpty,
@@ -22,30 +28,45 @@ export function CommandMenu() {
   const sessionUser = useSessionUser();
   const isAuthenticated = Boolean(sessionUser);
 
+  const { search } = useSearch({ from: rootRouteId });
+
+  const open = search === 1;
+
   const { setTheme } = useTheme();
 
+  const router = useRouter();
   const navigate = useNavigate();
 
   const logout = useLogout();
 
-  const [open, setOpen] = React.useState(false);
   const [pages, setPages] = React.useState<Page[]>(["root"]);
 
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        navigate({
+          to: ".",
+          search: (prev) => ({ ...prev, search: nextOpen ? 1 : undefined }),
+        });
+      } else {
+        router.history.back();
+      }
+    },
+    [navigate, router],
+  );
+
   useEventListener("keydown", (event: KeyboardEvent) => {
     if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
-      setOpen((open) => !open);
+      setOpen(!open);
     }
   });
 
-  const goTo = (route: string) => {
-    setOpen(false);
-    setTimeout(() => {
-      navigate({ to: route });
-    }, 100);
+  const goTo = async (route: string) => {
+    navigate({ to: route, replace: true });
   };
 
   const pushPage = (page: Page) => {
@@ -87,13 +108,48 @@ export function CommandMenu() {
         {activePage === "root" && (
           <>
             <CommandGroup heading="Pages">
-              <CommandItem onSelect={() => goTo("/games/rius/active")}>
-                Games
+              <CommandItem
+                value="/games/rius/active"
+                onSelect={() => goTo("/games/rius/active")}
+                asChild
+              >
+                <Link to="/games/rius/active" replace>
+                  Games
+                </Link>
               </CommandItem>
-              <CommandItem onSelect={() => goTo("/users")}>Users</CommandItem>
-              <CommandItem onSelect={() => goTo("/posts")}>Posts</CommandItem>
-              <CommandItem onSelect={() => goTo("/chat")}>Chat</CommandItem>
-              <CommandItem onSelect={() => goTo("/vault")}>Vault</CommandItem>
+              <CommandItem
+                value="/users"
+                onSelect={() => goTo("/users")}
+                asChild
+              >
+                <Link to="/users" replace>
+                  Users
+                </Link>
+              </CommandItem>
+              <CommandItem
+                value="/posts"
+                onSelect={() => goTo("/posts")}
+                asChild
+              >
+                <Link to="/posts" replace>
+                  Posts
+                </Link>
+              </CommandItem>
+              <CommandItem value="/chat" onSelect={() => goTo("/chat")} asChild>
+                <Link to="/chat" replace>
+                  Chat
+                </Link>
+              </CommandItem>
+              <CommandItem
+                value="/vault"
+                id="vault"
+                onSelect={() => goTo("/vault")}
+                asChild
+              >
+                <Link to="/vault" replace>
+                  Vault
+                </Link>
+              </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Settings">
@@ -106,8 +162,18 @@ export function CommandMenu() {
               </CommandItem>
               {isAuthenticated ? (
                 <>
-                  <CommandItem onSelect={() => goTo("/auth/me")}>
-                    Profile
+                  <CommandItem
+                    value="/auth/me"
+                    onSelect={() => goTo("/auth/me")}
+                    asChild
+                  >
+                    <Link
+                      replace
+                      //
+                      to="/auth/me"
+                    >
+                      Profile
+                    </Link>
                   </CommandItem>
                   <CommandItem
                     onSelect={() => {
@@ -123,8 +189,18 @@ export function CommandMenu() {
                   {/* <CommandItem onSelect={() => pushPage("theme")}>
                     Theme
                   </CommandItem> */}
-                  <CommandItem onSelect={() => goTo("/auth/code/send")}>
-                    Login
+                  <CommandItem
+                    value="/auth/code/send"
+                    onSelect={() => goTo("/auth/code/send")}
+                    asChild
+                  >
+                    <Link
+                      replace
+                      //
+                      to="/auth/code/send"
+                    >
+                      Login
+                    </Link>
                   </CommandItem>
                 </>
               )}

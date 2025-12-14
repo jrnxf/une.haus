@@ -5,20 +5,16 @@ import {
   HeadContent,
   Outlet,
   Scripts,
-  useRouter,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-import { toast } from "sonner";
-
-// import "./inline";
+import { z } from "zod";
 
 import { AppSidebar } from "~/components/app-sidebar";
-import { SiteHeaderMobile, SiteHeaderWeb } from "~/components/site-header";
+import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { ConfirmDialog_ } from "~/lib/confirm-dialog";
-import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -29,7 +25,13 @@ export interface RouterAppContext {
   queryClient: QueryClient;
 }
 
+const rootSearchSchema = z.object({
+  sidebar: z.coerce.number().optional(),
+  search: z.coerce.number().optional(),
+});
+
 export const Route = createRootRouteWithContext<RouterAppContext>()({
+  validateSearch: rootSearchSchema,
   beforeLoad: async () => {
     const sessionData = await session.get.fn();
     return { session: sessionData };
@@ -115,8 +117,6 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const { session } = useRootRouteContext();
-
   return (
     <html
       lang="en"
@@ -133,9 +133,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 
           <ReactQueryDevtools initialIsOpen={false} />
 
-          {/* <div className="hidden sm:block"> */}
           <SidebarProvider
-            defaultOpen={session.sidebarOpen}
             style={
               {
                 "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -145,19 +143,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           >
             <AppSidebar variant="inset" />
             <SidebarInset>
-              {/* <SiteHeaderWeb /> */}
-              <SiteHeaderMobile />
+              <SiteHeader />
 
               {children}
             </SidebarInset>
           </SidebarProvider>
-          {/* </div> */}
-          {/* 
-          <main className="bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-all sm:hidden sm:p-2">
-            <div className="bg-background flex grow flex-col overflow-auto transition-all sm:rounded-xl sm:border">
-              {children}
-            </div>
-          </main> */}
         </ThemeProvider>
         <Scripts />
       </body>

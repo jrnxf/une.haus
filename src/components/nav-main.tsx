@@ -15,7 +15,6 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  useSidebar,
 } from "~/components/ui/sidebar";
 
 export function NavMain({
@@ -32,25 +31,21 @@ export function NavMain({
     }[];
   }[];
 }) {
-  const { setIsTabletSidebarOpen } = useSidebar();
-
-  const handleMobileNav = (_evt: React.MouseEvent) => {
-    setIsTabletSidebarOpen(false);
-  };
-
   return (
     <SidebarGroup>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.title}
-                size="lg"
-                onClick={handleMobileNav}
-              >
-                <Link to={item.url}>
+              <SidebarMenuButton asChild tooltip={item.title} size="lg">
+                <Link
+                  to={item.url}
+                  search={(prev) => {
+                    const { sidebar: _, ...rest } = prev;
+                    return rest;
+                  }}
+                  replace
+                >
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
                 </Link>
@@ -67,10 +62,7 @@ export function NavMain({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            onClick={handleMobileNav}
-                          >
+                          <SidebarMenuSubButton asChild>
                             <Link to={subItem.url}>
                               <span>{subItem.title}</span>
                             </Link>

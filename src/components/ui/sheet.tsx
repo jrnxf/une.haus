@@ -34,7 +34,7 @@ const sheetVariants = cva(
     // z-[51] instead of z-50 to prevent overlay from covering content during rapid toggles
     // (fixes race condition where animation states can desync)
     "z-[51]",
-    "fixed  gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-200",
+    "fixed gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-200",
   ),
   {
     defaultVariants: {

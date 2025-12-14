@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "~/components/ui/sidebar";
 
 export function NavSecondary({
@@ -21,19 +20,13 @@ export function NavSecondary({
     icon: LucideIcon;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-  const { setIsTabletSidebarOpen } = useSidebar();
-
-  const handleMobileNav = (_evt: React.MouseEvent) => {
-    setIsTabletSidebarOpen(false);
-  };
-
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild size="sm" onClick={handleMobileNav}>
+              <SidebarMenuButton asChild size="sm">
                 <Link to={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

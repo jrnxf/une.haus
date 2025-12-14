@@ -1,13 +1,18 @@
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
-import { useNavigate } from "@tanstack/react-router";
+import {
+  rootRouteId,
+  useNavigate,
+  useRouter,
+  useSearch,
+} from "@tanstack/react-router";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { Button, vibrate } from "~/components/ui/button";
+import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import {
@@ -24,8 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useIsMobile, useIsTablet } from "~/hooks/use-mobile";
-import { session } from "~/lib/session/index";
+import { useIsTablet } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_WIDTH = "16rem";
@@ -39,8 +43,6 @@ type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
   setOpen: (open: boolean) => void;
-  isTabletSidebarOpen: boolean;
-  setIsTabletSidebarOpen: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
 };
@@ -57,55 +59,38 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = true,
-  open: openProp,
-  onOpenChange: setOpenProp,
   className,
   style,
   children,
   ...props
-}: React.ComponentProps<"div"> & {
-  defaultOpen?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}) {
-  const isMobile = useIsMobile();
+}: React.ComponentProps<"div">) {
   const isTablet = useIsTablet();
-  const [isTabletSidebarOpen, setIsTabletSidebarOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const router = useRouter();
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
-  const open = openProp ?? _open;
+  // Sidebar state is URL-driven via ?sidebar=1
+  const { sidebar } = useSearch({ from: rootRouteId });
+  const open = sidebar === 1;
+
   const setOpen = React.useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) : value;
-      if (setOpenProp) {
-        setOpenProp(openState);
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        // Push new history entry with ?sidebar=1
+        navigate({
+          to: ".",
+          search: (prev) => ({ ...prev, sidebar: 1 }),
+        });
       } else {
-        _setOpen(openState);
+        // Go back in history (removes the ?sidebar=1 entry)
+        router.history.back();
       }
-
-      // Persist sidebar state to session
-      session.sidebar.set.fn({ data: openState });
     },
-    [setOpenProp, open],
+    [navigate, router],
   );
 
-  // Helper to toggle the sidebar.
-
-  const navigate = useNavigate();
-
   const toggleSidebar = React.useCallback(() => {
-    if (isMobile) {
-      // if triggered on mobile breakpoint take them to mobile home screen
-      return navigate({ to: "/" });
-    }
-
-    return isTablet
-      ? setIsTabletSidebarOpen((open) => !open)
-      : setOpen((open) => !open);
-  }, [isMobile, isTablet, setOpen, navigate]);
+    setOpen(!open);
+  }, [open, setOpen]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -133,19 +118,9 @@ function SidebarProvider({
       open,
       setOpen,
       isMobile: isTablet,
-      isTabletSidebarOpen,
-      setIsTabletSidebarOpen,
       toggleSidebar,
     }),
-    [
-      state,
-      open,
-      setOpen,
-      isTablet,
-      isTabletSidebarOpen,
-      setIsTabletSidebarOpen,
-      toggleSidebar,
-    ],
+    [state, open, setOpen, isTablet, toggleSidebar],
   );
 
   return (
@@ -185,8 +160,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
-  const { isMobile, state, isTabletSidebarOpen, setIsTabletSidebarOpen } =
-    useSidebar();
+  const { isMobile, state, open, setOpen } = useSidebar();
 
   if (collapsible === "none") {
     return (
@@ -205,11 +179,7 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet
-        open={isTabletSidebarOpen}
-        onOpenChange={setIsTabletSidebarOpen}
-        {...props}
-      >
+      <Sheet open={open} onOpenChange={setOpen} {...props}>
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"
