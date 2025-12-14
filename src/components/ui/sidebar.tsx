@@ -59,45 +59,84 @@ function useSidebar() {
 }
 
 function SidebarProvider({
+  deviceType,
+  defaultOpen = false,
   className,
   style,
   children,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  deviceType: "mobile" | "desktop";
+  defaultOpen?: boolean;
+}) {
   const isTablet = useIsTablet();
   const navigate = useNavigate();
   const router = useRouter();
 
-  // Sidebar state is URL-driven via ?sidebar=1
-  const { sidebar } = useSearch({ from: rootRouteId });
-  const open = sidebar === 1;
+  // Mobile: URL-driven state (fixes iOS swipe-back caching)
+  const { p } = useSearch({ from: rootRouteId });
+  const urlOpen = Boolean(p?.includes("sidebar"));
+
+  // Desktop: simple React state
+  const [reactOpen, setReactOpen] = React.useState(defaultOpen);
+
+  // Responsive mobile state (when desktop viewport shrinks to mobile size)
+  // This starts closed and is independent of desktop state
+  const [responsiveMobileOpen, setResponsiveMobileOpen] = React.useState(false);
+
+  // Use the appropriate state based on current viewport and device type
+  // - If currently mobile viewport: use URL state for true mobile, local state for responsive
+  // - Otherwise: use desktop state
+  const open = isTablet
+    ? deviceType === "mobile"
+      ? urlOpen
+      : responsiveMobileOpen
+    : reactOpen;
 
   const setOpen = React.useCallback(
     (nextOpen: boolean) => {
-      if (nextOpen) {
-        // Push new history entry with ?sidebar=1
-        navigate({
-          to: ".",
-          search: (prev) => ({ ...prev, sidebar: 1 }),
-        });
+      if (isTablet) {
+        // Mobile viewport
+        if (deviceType === "mobile") {
+          // True mobile: URL-based navigation
+          if (nextOpen) {
+            navigate({
+              to: ".",
+              search: (prev) => ({ ...prev, p: "sidebar" }),
+            });
+          } else {
+            router.history.back();
+          }
+        } else {
+          // Responsive mobile (desktop shrunk): local state
+          setResponsiveMobileOpen(nextOpen);
+        }
       } else {
-        // Go back in history (removes the ?sidebar=1 entry)
-        router.history.back();
+        // Desktop: simple React state
+        setReactOpen(nextOpen);
       }
     },
-    [navigate, router],
+    [deviceType, isTablet, navigate, router],
   );
 
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);
   }, [open, setOpen]);
 
+  // Reset mobile state when viewport expands back to desktop
+  React.useEffect(() => {
+    if (!isTablet) {
+      setResponsiveMobileOpen(false);
+    }
+  }, [isTablet]);
+
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-        (event.metaKey || event.ctrlKey)
+        (event.metaKey || event.ctrlKey) &&
+        !event.repeat
       ) {
         event.preventDefault();
         toggleSidebar();

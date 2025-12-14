@@ -15,6 +15,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "~/components/ui/sidebar";
 
 export function NavMain({
@@ -31,6 +32,15 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const { isMobile, setOpen } = useSidebar();
+
+  const handleNavClick = () => {
+    // Close sidebar on small viewports
+    if (isMobile) {
+      setOpen(false);
+    }
+  };
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -41,10 +51,11 @@ export function NavMain({
                 <Link
                   to={item.url}
                   search={(prev) => {
-                    const { sidebar: _, ...rest } = prev;
+                    const { p: _, ...rest } = prev;
                     return rest;
                   }}
                   replace
+                  onClick={handleNavClick}
                 >
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
@@ -63,7 +74,7 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <Link to={subItem.url}>
+                            <Link to={subItem.url} onClick={handleNavClick}>
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

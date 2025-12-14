@@ -7,9 +7,6 @@ import {
 } from "@tanstack/react-router";
 import * as React from "react";
 
-import { useCommandState } from "cmdk";
-import { useEventListener } from "usehooks-ts";
-
 import {
   CommandDialog,
   CommandEmpty,
@@ -19,6 +16,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
+import { useSidebar } from "~/components/ui/sidebar";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
 
@@ -28,10 +26,6 @@ export function CommandMenu() {
   const sessionUser = useSessionUser();
   const isAuthenticated = Boolean(sessionUser);
 
-  const { search } = useSearch({ from: rootRouteId });
-
-  const open = search === 1;
-
   const { setTheme } = useTheme();
 
   const router = useRouter();
@@ -39,33 +33,63 @@ export function CommandMenu() {
 
   const logout = useLogout();
 
-  const [pages, setPages] = React.useState<Page[]>(["root"]);
+  const { isMobile, setOpen: setSidebarOpen } = useSidebar();
 
+  const [pages, setPages] = React.useState<Page[]>(["root"]);
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
+  // Mobile: URL-driven state (for back-swipe support)
+  const { p } = useSearch({ from: rootRouteId });
+  const urlOpen = Boolean(p?.includes("search"));
+
+  // Desktop: simple React state
+  const [reactOpen, setReactOpen] = React.useState(false);
+
+  const open = isMobile ? urlOpen : reactOpen;
+
   const setOpen = React.useCallback(
     (nextOpen: boolean) => {
-      if (nextOpen) {
-        navigate({
-          to: ".",
-          search: (prev) => ({ ...prev, search: nextOpen ? 1 : undefined }),
-        });
+      if (isMobile) {
+        // Mobile: URL-based navigation
+        if (nextOpen) {
+          navigate({
+            to: ".",
+            search: (prev) => ({ ...prev, p: "search" }),
+          });
+        } else {
+          router.history.back();
+        }
       } else {
-        router.history.back();
+        // Desktop: simple React state
+        setReactOpen(nextOpen);
       }
     },
-    [navigate, router],
+    [isMobile, navigate, router],
   );
 
-  useEventListener("keydown", (event: KeyboardEvent) => {
-    if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-      event.preventDefault();
-      setOpen(!open);
-    }
-  });
+  // Keyboard shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === "k" &&
+        (event.metaKey || event.ctrlKey) &&
+        !event.repeat
+      ) {
+        event.preventDefault();
+        setOpen(!open);
+      }
+    };
+
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
+  }, [open, setOpen]);
 
   const goTo = async (route: string) => {
+    // Close sidebar on small viewports
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
     navigate({ to: route, replace: true });
   };
 

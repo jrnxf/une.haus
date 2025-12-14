@@ -6,7 +6,7 @@ import {
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { z } from "zod";
 
@@ -15,6 +15,7 @@ import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { ConfirmDialog_ } from "~/lib/confirm-dialog";
+import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -26,8 +27,9 @@ export interface RouterAppContext {
 }
 
 const rootSearchSchema = z.object({
-  sidebar: z.coerce.number().optional(),
-  search: z.coerce.number().optional(),
+  si: z.coerce.number().optional(),
+  se: z.coerce.number().optional(),
+  p: z.string().optional(),
 });
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
@@ -117,6 +119,8 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  const { session } = useRootRouteContext();
+
   return (
     <html
       lang="en"
@@ -134,6 +138,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <ReactQueryDevtools initialIsOpen={false} />
 
           <SidebarProvider
+            deviceType={session.deviceType ?? "desktop"}
+            defaultOpen={session.deviceType !== "mobile"}
             style={
               {
                 "--sidebar-width": "calc(var(--spacing) * 72)",

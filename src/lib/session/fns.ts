@@ -1,4 +1,5 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
+import { getRequestHeaders } from "@tanstack/react-start/server";
 
 import { useServerSession } from "~/lib/session/hooks";
 import {
@@ -22,8 +23,11 @@ export const getSessionServerFn = createServerFn({ method: "GET" }).handler(
       await session.update({ flash: undefined });
     }
 
+    const deviceType = getDeviceTypeServerFn();
+
     const sessionData = {
       ...parsedSession,
+      deviceType,
       // return the flash
       flash,
     };
@@ -69,3 +73,23 @@ export const setSessionSidebarServerFn = createServerFn({ method: "POST" })
       sidebarOpen,
     });
   });
+
+const getDeviceTypeServerFn = createServerOnlyFn((): "mobile" | "desktop" => {
+  const headers = getRequestHeaders();
+
+  // Client Hints (Chromium-based browsers)
+  const uaMobile = headers.get("Sec-CH-UA-Mobile");
+  if (uaMobile === "?1") {
+    return "mobile";
+  }
+
+  // Fallback to User-Agent parsing (Safari, Firefox, etc.)
+  const ua = headers.get("User-Agent") ?? "";
+  if (
+    /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+  ) {
+    return "mobile";
+  }
+
+  return "desktop";
+});
