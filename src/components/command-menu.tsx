@@ -10,6 +10,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
+import { useSidebar } from "~/components/ui/sidebar";
 import { useResponsiveOpenState } from "~/hooks/use-responsive-open-state";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
@@ -48,7 +49,9 @@ export function CommandMenu() {
   }, [open, setOpen]);
 
   const goTo = async (route: string) => {
-    navigate({ to: route, replace: true });
+    // Close sidebar on small viewports
+    setOpen(false);
+    navigate({ to: route });
   };
 
   const pushPage = (page: Page) => {
@@ -95,32 +98,24 @@ export function CommandMenu() {
                 onSelect={() => goTo("/games/rius/active")}
                 asChild
               >
-                <Link to="/games/rius/active" replace>
-                  Games
-                </Link>
+                <Link to="/games/rius/active">Games</Link>
               </CommandItem>
               <CommandItem
                 value="/users"
                 onSelect={() => goTo("/users")}
                 asChild
               >
-                <Link to="/users" replace>
-                  Users
-                </Link>
+                <Link to="/users">Users</Link>
               </CommandItem>
               <CommandItem
                 value="/posts"
                 onSelect={() => goTo("/posts")}
                 asChild
               >
-                <Link to="/posts" replace>
-                  Posts
-                </Link>
+                <Link to="/posts">Posts</Link>
               </CommandItem>
               <CommandItem value="/chat" onSelect={() => goTo("/chat")} asChild>
-                <Link to="/chat" replace>
-                  Chat
-                </Link>
+                <Link to="/chat">Chat</Link>
               </CommandItem>
               <CommandItem
                 value="/vault"
@@ -128,9 +123,7 @@ export function CommandMenu() {
                 onSelect={() => goTo("/vault")}
                 asChild
               >
-                <Link to="/vault" replace>
-                  Vault
-                </Link>
+                <Link to="/vault">Vault</Link>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />

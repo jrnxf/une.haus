@@ -10,11 +10,11 @@ import {
 } from "lucide-react";
 
 import { Badges } from "~/components/badges";
+import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { YoutubeIframe } from "~/components/youtube-iframe";
-import { confirm } from "~/lib/confirm-dialog";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";

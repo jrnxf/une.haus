@@ -10,10 +10,10 @@ import {
 
 import { z } from "zod";
 
+import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
-import { confirm } from "~/lib/confirm-dialog";
 import { flashMessage } from "~/lib/flash";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";

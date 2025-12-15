@@ -10,12 +10,12 @@ import {
 
 import { z } from "zod";
 
+import { confirm } from "~/components/confirm-dialog";
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { VideoPlayer } from "~/components/video-player";
-import { confirm } from "~/lib/confirm-dialog";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";

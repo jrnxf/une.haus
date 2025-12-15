@@ -1,7 +1,7 @@
 import { Loader2Icon, TrashIcon } from "lucide-react";
 
+import { confirm } from "~/components/confirm-dialog";
 import { Button } from "~/components/ui/button";
-import { confirm } from "~/lib/confirm-dialog";
 import { useDeleteSet } from "~/lib/games/rius/hooks";
 
 export function DeleteSetButton({ setId }: { setId: number }) {
@@ -13,7 +13,8 @@ export function DeleteSetButton({ setId }: { setId: number }) {
       onClick={() =>
         confirm.open({
           title: "Delete Set",
-          description: "Are you sure you want to delete this set? This action cannot be undone.",
+          description:
+            "Are you sure you want to delete this set? This action cannot be undone.",
           confirmText: "Delete",
           onConfirm: () => {
             deleteSet.mutate({

@@ -5,6 +5,7 @@ import React from "react";
 
 import { toast } from "sonner";
 
+import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
 import {
   Menu,
@@ -22,7 +23,6 @@ import {
 } from "~/components/ui/drawer";
 import { Textarea } from "~/components/ui/textarea";
 import { useIsTablet } from "~/hooks/use-mobile";
-import { confirm } from "~/lib/confirm-dialog";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";

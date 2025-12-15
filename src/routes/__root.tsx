@@ -12,10 +12,10 @@ import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
 
 import { AppSidebar } from "~/components/app-sidebar";
+import { ConfirmDialog } from "~/components/confirm-dialog";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { ConfirmDialog_ } from "~/lib/confirm-dialog";
 import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
@@ -136,7 +136,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="font-mono antialiased">
         <ThemeProvider>
           <Toaster />
-          <ConfirmDialog_ />
+          <ConfirmDialog />
 
           <ReactQueryDevtools initialIsOpen={false} />
 

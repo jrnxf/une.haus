@@ -4,7 +4,7 @@ import { AlertDialog } from "@base-ui-components/react/alert-dialog";
 import * as React from "react";
 
 import {
-  ConfirmDialog,
+  ConfirmDialog as BaseConfirmDialog,
   type ConfirmDialogConfig,
 } from "~/components/ui/base-alert-dialog";
 
@@ -22,7 +22,7 @@ export const confirm = {
   },
 };
 
-export function ConfirmDialog_() {
+export function ConfirmDialog() {
   const [config, setConfig] = React.useState<ConfirmDialogConfig>({
     title: "Confirm",
     onConfirm: () => {},
@@ -35,5 +35,5 @@ export function ConfirmDialog_() {
     };
   }, []);
 
-  return <ConfirmDialog handle={internalHandle} {...config} />;
+  return <BaseConfirmDialog handle={internalHandle} {...config} />;
 }
