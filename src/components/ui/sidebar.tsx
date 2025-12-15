@@ -1,12 +1,6 @@
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
-import {
-  rootRouteId,
-  useNavigate,
-  useRouter,
-  useSearch,
-} from "@tanstack/react-router";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
@@ -29,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useIsTablet } from "~/hooks/use-mobile";
+import { useResponsiveOpenState } from "~/hooks/use-responsive-open-state";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_WIDTH = "16rem";
@@ -59,76 +53,21 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  deviceType,
   defaultOpen = false,
   className,
   style,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
-  deviceType: "mobile" | "desktop";
   defaultOpen?: boolean;
 }) {
-  const isTablet = useIsTablet();
-  const navigate = useNavigate();
-  const router = useRouter();
-
-  // Mobile: URL-driven state (fixes iOS swipe-back caching)
-  const { p } = useSearch({ from: rootRouteId });
-  const urlOpen = Boolean(p?.includes("sidebar"));
-
-  // Desktop: simple React state
-  const [reactOpen, setReactOpen] = React.useState(defaultOpen);
-
-  // Responsive mobile state (when desktop viewport shrinks to mobile size)
-  // This starts closed and is independent of desktop state
-  const [responsiveMobileOpen, setResponsiveMobileOpen] = React.useState(false);
-
-  // Use the appropriate state based on current viewport and device type
-  // - If currently mobile viewport: use URL state for true mobile, local state for responsive
-  // - Otherwise: use desktop state
-  const open = isTablet
-    ? deviceType === "mobile"
-      ? urlOpen
-      : responsiveMobileOpen
-    : reactOpen;
-
-  const setOpen = React.useCallback(
-    (nextOpen: boolean) => {
-      if (isTablet) {
-        // Mobile viewport
-        if (deviceType === "mobile") {
-          // True mobile: URL-based navigation
-          if (nextOpen) {
-            navigate({
-              to: ".",
-              search: (prev) => ({ ...prev, p: "sidebar" }),
-            });
-          } else {
-            router.history.back();
-          }
-        } else {
-          // Responsive mobile (desktop shrunk): local state
-          setResponsiveMobileOpen(nextOpen);
-        }
-      } else {
-        // Desktop: simple React state
-        setReactOpen(nextOpen);
-      }
-    },
-    [deviceType, isTablet, navigate, router],
-  );
+  const [open, setOpen, isTablet] = useResponsiveOpenState("sidebar", {
+    defaultOpen,
+  });
 
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);
   }, [open, setOpen]);
-
-  // Reset mobile state when viewport expands back to desktop
-  React.useEffect(() => {
-    if (!isTablet) {
-      setResponsiveMobileOpen(false);
-    }
-  }, [isTablet]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
 
 import { AppSidebar } from "~/components/app-sidebar";
@@ -28,7 +29,7 @@ export interface RouterAppContext {
 
 const rootSearchSchema = z.object({
   si: z.coerce.number().optional(),
-  se: z.coerce.number().optional(),
+  // p (peripherals) is managed by nuqs - array with - delimiter (e.g., ?p=sidebar-search)
   p: z.string().optional(),
 });
 
@@ -112,9 +113,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <NuqsAdapter>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </NuqsAdapter>
   );
 }
 
@@ -138,7 +141,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <ReactQueryDevtools initialIsOpen={false} />
 
           <SidebarProvider
-            deviceType={session.deviceType ?? "desktop"}
             defaultOpen={session.deviceType !== "mobile"}
             style={
               {

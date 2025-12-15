@@ -1,10 +1,4 @@
-import {
-  Link,
-  rootRouteId,
-  useNavigate,
-  useRouter,
-  useSearch,
-} from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 
 import {
@@ -16,7 +10,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
-import { useSidebar } from "~/components/ui/sidebar";
+import { useResponsiveOpenState } from "~/hooks/use-responsive-open-state";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
 
@@ -27,46 +21,14 @@ export function CommandMenu() {
   const isAuthenticated = Boolean(sessionUser);
 
   const { setTheme } = useTheme();
-
-  const router = useRouter();
   const navigate = useNavigate();
-
   const logout = useLogout();
-
-  const { isMobile, setOpen: setSidebarOpen } = useSidebar();
 
   const [pages, setPages] = React.useState<Page[]>(["root"]);
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
-  // Mobile: URL-driven state (for back-swipe support)
-  const { p } = useSearch({ from: rootRouteId });
-  const urlOpen = Boolean(p?.includes("search"));
-
-  // Desktop: simple React state
-  const [reactOpen, setReactOpen] = React.useState(false);
-
-  const open = isMobile ? urlOpen : reactOpen;
-
-  const setOpen = React.useCallback(
-    (nextOpen: boolean) => {
-      if (isMobile) {
-        // Mobile: URL-based navigation
-        if (nextOpen) {
-          navigate({
-            to: ".",
-            search: (prev) => ({ ...prev, p: "search" }),
-          });
-        } else {
-          router.history.back();
-        }
-      } else {
-        // Desktop: simple React state
-        setReactOpen(nextOpen);
-      }
-    },
-    [isMobile, navigate, router],
-  );
+  const [open, setOpen] = useResponsiveOpenState("search");
 
   // Keyboard shortcut
   React.useEffect(() => {
@@ -86,10 +48,6 @@ export function CommandMenu() {
   }, [open, setOpen]);
 
   const goTo = async (route: string) => {
-    // Close sidebar on small viewports
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
     navigate({ to: route, replace: true });
   };
 
