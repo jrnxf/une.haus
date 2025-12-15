@@ -32,15 +32,6 @@ export function NavMain({
     }[];
   }[];
 }) {
-  const { isMobile, setOpen } = useSidebar();
-
-  const handleNavClick = () => {
-    // Close sidebar on small viewports
-    if (isMobile) {
-      setOpen(false);
-    }
-  };
-
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -48,7 +39,7 @@ export function NavMain({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title} size="lg">
-                <Link to={item.url} onClick={handleNavClick}>
+                <Link to={item.url}>
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
                 </Link>
