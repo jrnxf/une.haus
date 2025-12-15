@@ -15,7 +15,6 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  useSidebar,
 } from "~/components/ui/sidebar";
 
 export function NavMain({
@@ -39,7 +38,7 @@ export function NavMain({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title} size="lg">
-                <Link to={item.url}>
+                <Link to={item.url} replace>
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
                 </Link>
@@ -57,7 +56,7 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <Link to={subItem.url} onClick={handleNavClick}>
+                            <Link to={subItem.url} replace>
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

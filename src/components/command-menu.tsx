@@ -10,8 +10,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "~/components/ui/command";
-import { useSidebar } from "~/components/ui/sidebar";
-import { useResponsiveOpenState } from "~/hooks/use-responsive-open-state";
+import { usePeripherals } from "~/hooks/use-peripherals";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
 
@@ -29,7 +28,7 @@ export function CommandMenu() {
   const [input, setInput] = React.useState("");
   const activePage = pages.at(-1);
 
-  const [open, setOpen] = useResponsiveOpenState("search");
+  const [open, setOpen] = usePeripherals("search");
 
   // Keyboard shortcut
   React.useEffect(() => {
@@ -47,12 +46,6 @@ export function CommandMenu() {
     globalThis.addEventListener("keydown", handleKeyDown);
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
   }, [open, setOpen]);
-
-  const goTo = async (route: string) => {
-    // Close sidebar on small viewports
-    setOpen(false);
-    navigate({ to: route });
-  };
 
   const pushPage = (page: Page) => {
     setPages((pages) => [...pages, page]);
@@ -95,35 +88,51 @@ export function CommandMenu() {
             <CommandGroup heading="Pages">
               <CommandItem
                 value="/games/rius/active"
-                onSelect={() => goTo("/games/rius/active")}
+                onSelect={() =>
+                  navigate({ to: "/games/rius/active", replace: true })
+                }
                 asChild
               >
-                <Link to="/games/rius/active">Games</Link>
+                <Link to="/games/rius/active" replace>
+                  Games
+                </Link>
               </CommandItem>
               <CommandItem
                 value="/users"
-                onSelect={() => goTo("/users")}
+                onSelect={() => navigate({ to: "/users", replace: true })}
                 asChild
               >
-                <Link to="/users">Users</Link>
+                <Link to="/users" replace>
+                  Users
+                </Link>
               </CommandItem>
               <CommandItem
                 value="/posts"
-                onSelect={() => goTo("/posts")}
+                onSelect={() => navigate({ to: "/posts", replace: true })}
                 asChild
               >
-                <Link to="/posts">Posts</Link>
+                <Link to="/posts" replace>
+                  Posts
+                </Link>
               </CommandItem>
-              <CommandItem value="/chat" onSelect={() => goTo("/chat")} asChild>
-                <Link to="/chat">Chat</Link>
+              <CommandItem
+                value="/chat"
+                onSelect={() => navigate({ to: "/chat", replace: true })}
+                asChild
+              >
+                <Link to="/chat" replace>
+                  Chat
+                </Link>
               </CommandItem>
               <CommandItem
                 value="/vault"
                 id="vault"
-                onSelect={() => goTo("/vault")}
+                onSelect={() => navigate({ to: "/vault", replace: true })}
                 asChild
               >
-                <Link to="/vault">Vault</Link>
+                <Link to="/vault" replace>
+                  Vault
+                </Link>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
@@ -139,14 +148,10 @@ export function CommandMenu() {
                 <>
                   <CommandItem
                     value="/auth/me"
-                    onSelect={() => goTo("/auth/me")}
+                    onSelect={() => navigate({ to: "/auth/me", replace: true })}
                     asChild
                   >
-                    <Link
-                      replace
-                      //
-                      to="/auth/me"
-                    >
+                    <Link replace to="/auth/me">
                       Profile
                     </Link>
                   </CommandItem>
@@ -166,14 +171,12 @@ export function CommandMenu() {
                   </CommandItem> */}
                   <CommandItem
                     value="/auth/code/send"
-                    onSelect={() => goTo("/auth/code/send")}
+                    onSelect={() =>
+                      navigate({ to: "/auth/code/send", replace: true })
+                    }
                     asChild
                   >
-                    <Link
-                      replace
-                      //
-                      to="/auth/code/send"
-                    >
+                    <Link replace to="/auth/code/send">
                       Login
                     </Link>
                   </CommandItem>

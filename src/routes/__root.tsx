@@ -16,7 +16,6 @@ import { ConfirmDialog } from "~/components/confirm-dialog";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -122,8 +121,6 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const { session } = useRootRouteContext();
-
   return (
     <html
       lang="en"
@@ -141,7 +138,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <ReactQueryDevtools initialIsOpen={false} />
 
           <SidebarProvider
-            defaultOpen={session.deviceType !== "mobile"}
             style={
               {
                 "--sidebar-width": "calc(var(--spacing) * 72)",

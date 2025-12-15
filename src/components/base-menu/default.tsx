@@ -1,4 +1,6 @@
-import { Button } from '~/components/ui/base-button';
+import { LogOut, Mail, Settings, User } from "lucide-react";
+
+import { Button } from "~/components/ui/base-button";
 import {
   Menu,
   MenuContent,
@@ -8,8 +10,7 @@ import {
   MenuSeparator,
   MenuShortcut,
   MenuTrigger,
-} from '~/components/ui/base-menu';
-import { LogOut, Mail, Settings, User } from 'lucide-react';
+} from "~/components/ui/base-menu";
 
 export default function MenuDemo() {
   return (

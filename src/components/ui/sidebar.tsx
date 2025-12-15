@@ -23,7 +23,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useResponsiveOpenState } from "~/hooks/use-responsive-open-state";
+import { useIsTablet } from "~/hooks/use-mobile";
+import { usePeripherals } from "~/hooks/use-peripherals";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_WIDTH = "16rem";
@@ -53,23 +54,30 @@ function useSidebar() {
 }
 
 function SidebarProvider({
-  defaultOpen = false,
   className,
   style,
   children,
   ...props
-}: React.ComponentProps<"div"> & {
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen, isTablet] = useResponsiveOpenState("sidebar", {
-    defaultOpen,
-  });
+}: React.ComponentProps<"div">) {
+  const [urlOpen, setUrlOpen] = usePeripherals("sidebar");
+  const isMobile = useIsTablet();
+
+  // Desktop: always open, Mobile: URL-driven
+  const open = isMobile ? urlOpen : true;
+
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      // Only affects mobile (Sheet) - desktop sidebar is always visible
+      setUrlOpen(nextOpen);
+    },
+    [setUrlOpen],
+  );
 
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);
   }, [open, setOpen]);
 
-  // Adds a keyboard shortcut to toggle the sidebar.
+  // Keyboard shortcut to toggle sidebar (only on mobile)
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -78,13 +86,15 @@ function SidebarProvider({
         !event.repeat
       ) {
         event.preventDefault();
-        toggleSidebar();
+        if (isMobile) {
+          toggleSidebar();
+        }
       }
     };
 
     globalThis.addEventListener("keydown", handleKeyDown);
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [toggleSidebar]);
+  }, [isMobile, toggleSidebar]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
@@ -95,10 +105,10 @@ function SidebarProvider({
       state,
       open,
       setOpen,
-      isMobile: isTablet,
+      isMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, isTablet, toggleSidebar],
+    [state, open, setOpen, isMobile, toggleSidebar],
   );
 
   return (
