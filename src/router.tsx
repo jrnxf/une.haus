@@ -1,9 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import {
-  createRouter,
-  defaultParseSearch,
-  defaultStringifySearch,
-} from "@tanstack/react-router";
+import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
 import superjson from "superjson";
@@ -41,10 +37,6 @@ export function getRouter() {
     defaultNotFoundComponent: () => <NotFound />,
 
     defaultStructuralSharing: true,
-
-    parseSearch: defaultParseSearch,
-    stringifySearch: (search) =>
-      decodeURIComponent(defaultStringifySearch(search)),
   });
 
   setupRouterSsrQueryIntegration({ router, queryClient });

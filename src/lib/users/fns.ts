@@ -1,6 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 
-import { and, asc, eq, gt, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import { userFollows, userLocations, users, userSocials } from "~/db/schema";
@@ -65,7 +65,6 @@ export const listUsersServerFn = createServerFn({
         and(
           input.name ? ilike(users.name, `%${input.name}%`) : undefined,
           input.id ? eq(users.id, input.id) : undefined,
-          input.ids ? inArray(users.id, input.ids.map(Number)) : undefined,
           input.disciplines && input.disciplines.length > 0
             ? sql`${users.disciplines}::jsonb @> ${sql.raw(`'${JSON.stringify(input.disciplines)}'`)}::jsonb`
             : undefined,
