@@ -129,7 +129,7 @@ function TrayOverlay() {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 duration-200",
+        "fixed inset-0 z-50 bg-black/30 duration-200",
         open ? "opacity-100" : "pointer-events-none opacity-0",
       )}
     />

@@ -31,7 +31,12 @@ const config = defineConfig({
         },
       },
     }),
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        // @ts-expect-error - autoCodeSplitting is not typed - but it works
+        autoCodeSplitting: true,
+      },
+    }),
     nitroV2Plugin({ preset: "bun", compatibilityDate: "latest" }),
     viteReact(),
   ],

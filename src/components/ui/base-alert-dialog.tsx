@@ -1,5 +1,3 @@
-"use client";
-
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui-components/react/alert-dialog";
 import { X } from "lucide-react";
 import * as React from "react";
@@ -251,16 +249,16 @@ function ConfirmDialog({
 // Exports with proper naming to match Base UI pattern
 export {
   AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogAction,
+  AlertDialogBackdrop,
   AlertDialogClose,
-  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPortal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   ConfirmDialog,
 };
 

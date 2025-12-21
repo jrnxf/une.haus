@@ -1,7 +1,7 @@
 {
   "background_color": "#000000",
   "dir": "auto",
-  "display": "fullscreen",
+  "display": "standalone",
   "icons": [
     {
       "src": "/icons/logo.png",

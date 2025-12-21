@@ -1,5 +1,3 @@
-"use client";
-
 import { Menu as MenuPrimitive } from "@base-ui-components/react/menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
 import * as React from "react";
@@ -34,7 +32,7 @@ function MenuBackdrop({
     <MenuPrimitive.Backdrop
       data-slot="menu-backdrop"
       className={cn(
-        "fixed inset-0 z-50 bg-black/20",
+        "fixed inset-0 z-50 bg-black/30",
         "transition-opacity duration-150",
         "data-ending-style:opacity-0 data-starting-style:opacity-0",
         className,
@@ -344,23 +342,23 @@ function MenuShortcut({
 
 export {
   Menu,
-  MenuContent,
-  MenuTrigger,
-  MenuPortal,
-  MenuBackdrop,
-  MenuPositioner,
-  MenuPopup,
   MenuArrow,
-  MenuItem,
-  MenuSeparator,
+  MenuBackdrop,
+  MenuCheckboxItem,
+  MenuCheckboxItemIndicator,
+  MenuContent,
   MenuGroup,
   MenuGroupLabel,
+  MenuItem,
+  MenuPopup,
+  MenuPortal,
+  MenuPositioner,
   MenuRadioGroup,
   MenuRadioItem,
   MenuRadioItemIndicator,
-  MenuCheckboxItem,
-  MenuCheckboxItemIndicator,
+  MenuSeparator,
+  MenuShortcut,
   MenuSubmenuRoot,
   MenuSubmenuTrigger,
-  MenuShortcut,
+  MenuTrigger,
 };

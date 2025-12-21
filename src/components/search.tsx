@@ -16,7 +16,7 @@ import { useTheme } from "~/lib/theme/context";
 
 type Page = "games" | "posts" | "root" | "theme" | "users" | "vault";
 
-export function CommandMenu() {
+export function Search() {
   const sessionUser = useSessionUser();
   const isAuthenticated = Boolean(sessionUser);
 

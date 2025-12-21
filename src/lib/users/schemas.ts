@@ -10,6 +10,7 @@ export const listUsersSchema = z.object({
   // it thinks this is a promise .catch lol
   // eslint-disable-next-line unicorn/prefer-top-level-await
   id: z.number().optional().catch(undefined),
+  ids: z.array(z.coerce.number()).optional().catch(undefined),
 });
 
 export const getUserSchema = z.object({

@@ -1,5 +1,3 @@
-"use client";
-
 import { AlertDialog } from "@base-ui-components/react/alert-dialog";
 import * as React from "react";
 

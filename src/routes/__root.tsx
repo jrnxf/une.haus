@@ -1,12 +1,14 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import { type QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { type ReactNode } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
@@ -19,6 +21,7 @@ import { Toaster } from "~/components/ui/sonner";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
+import { cn } from "~/lib/utils";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -81,8 +84,8 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         charSet: "utf8",
       },
       {
-        content: "width=device-width, initial-scale=1",
         name: "viewport",
+        content: "width=device-width, initial-scale=1",
       },
       {
         name: "apple-mobile-web-app-capable",
@@ -131,12 +134,10 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="font-mono antialiased">
+        <SafariSafeAreaFix />
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog />
-
-          <ReactQueryDevtools initialIsOpen={false} />
-
           <SidebarProvider
             style={
               {
@@ -148,13 +149,43 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             <AppSidebar variant="inset" />
             <SidebarInset>
               <SiteHeader />
-
               {children}
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
+        <TanStackDevtools
+          config={{
+            position: "bottom-right",
+          }}
+          plugins={[
+            {
+              name: "Tanstack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+            {
+              name: "React Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>
+  );
+}
+
+/**
+ * Safari bug workaround: Forces compositor to respect safe-area-inset on fixed elements.
+ * Without this, fixed overlays incorrectly render into the status bar area.œ
+ */
+function SafariSafeAreaFix() {
+  return (
+    <div
+      className={cn(
+        "pointer-events-none fixed inset-0",
+        "backdrop-blur-[0px]", // this is the fix. Using 0px so it doesn't actually blur anything
+      )}
+      aria-hidden="true"
+    />
   );
 }

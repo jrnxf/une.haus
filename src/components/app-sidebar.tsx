@@ -68,8 +68,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
               asChild
-              className="w-fit data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <Link to="/" className="h-fit">
                 <div>
