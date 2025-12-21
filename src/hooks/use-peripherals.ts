@@ -17,7 +17,7 @@ export function usePeripherals(key: string) {
   const router = useRouter();
   const [peripherals, setPeripherals] = useQueryState("p", {
     ...peripheralsParser,
-    history: "push",
+    history: "replace",
   });
 
   const open = peripherals?.includes(key) ?? false;
