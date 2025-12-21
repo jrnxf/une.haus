@@ -15,6 +15,7 @@ import { SocialLink } from "~/components/social-link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
+import { UsersCombobox } from "~/components/users-combobox";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersWithFollowsData } from "~/lib/users";
 import { useFollowMutations } from "~/lib/users/hooks";
@@ -154,28 +155,20 @@ function Follows(props: UsersWithFollowsData) {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-2">
-        {followers.count > 0 && (
-          <Button variant="secondary" size="sm" asChild>
-            <Link
-              to="/users"
-              search={{ ids: followers.users.map((u) => u.id) }}
-            >
-              {followers.count}{" "}
-              {followers.count === 1 ? "follower" : "followers"}
-            </Link>
+        <UsersCombobox
+          id="followers"
+          users={followers.users}
+          label={followers.count === 1 ? "follower" : "followers"}
+        >
+          <Button variant="secondary" size="sm">
+            {followers.count} {followers.count === 1 ? "follower" : "followers"}
           </Button>
-        )}
-
-        {following.count > 0 && (
-          <Button variant="secondary" size="sm" asChild>
-            <Link
-              to="/users"
-              search={{ ids: following.users.map((u) => u.id) }}
-            >
-              {following.count} following
-            </Link>
+        </UsersCombobox>
+        <UsersCombobox id="following" users={following.users} label="following">
+          <Button variant="secondary" size="sm">
+            {following.count} following
           </Button>
-        )}
+        </UsersCombobox>
       </div>
       {showActionButton && (
         <Button onClick={() => action({ data: { userId } })}>
