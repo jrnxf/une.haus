@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-
+import { zodValidator } from "@tanstack/zod-adapter";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { Resend } from "resend";
@@ -21,7 +21,7 @@ const resendClient = new Resend(env.RESEND_API_KEY);
 export const sendAuthCodeServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(sendCodeSchema)
+  .inputValidator(zodValidator(sendCodeSchema))
   .handler(async ({ data: input }) => {
     const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5);
 
@@ -56,7 +56,7 @@ export const sendAuthCodeServerFn = createServerFn({
 export const enterCodeServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(enterCodeSchema)
+  .inputValidator(zodValidator(enterCodeSchema))
   .handler(async ({ data: _input }) => {
     // const { code } = input;
 
@@ -120,7 +120,7 @@ export const enterCodeServerFn = createServerFn({
 export const registerServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(registerSchema)
+  .inputValidator(zodValidator(registerSchema))
   .handler(async ({ data: input }) => {
     const {
       // TODO use code

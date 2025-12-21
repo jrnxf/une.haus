@@ -1,5 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 
+import { zodValidator } from "@tanstack/zod-adapter";
 import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -33,7 +34,7 @@ export const allUsersServerFn = createServerFn({
 export const listUsersServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(listUsersSchema)
+  .inputValidator(zodValidator(listUsersSchema))
   .handler(async ({ data: input }) => {
     return await db
       .select({
@@ -78,7 +79,7 @@ export const listUsersServerFn = createServerFn({
 export const getUserServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(getUserSchema)
+  .inputValidator(zodValidator(getUserSchema))
   .handler(async ({ data }) => {
     return await getUser(data.userId);
   });
@@ -86,7 +87,7 @@ export const getUserServerFn = createServerFn({
 export const getUserWithFollowsServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(getUserSchema)
+  .inputValidator(zodValidator(getUserSchema))
   .handler(async ({ data }) => {
     const [user, follows] = await Promise.all([
       getUser(data.userId),
@@ -102,7 +103,7 @@ export const getUserWithFollowsServerFn = createServerFn({
 export const updateUserServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(updateUserSchema)
+  .inputValidator(zodValidator(updateUserSchema))
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
     const { location, socials, ...updateData } = data;
@@ -153,7 +154,7 @@ export const updateUserServerFn = createServerFn({
 export const getUserFollowsServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(getUserFollowsSchema)
+  .inputValidator(zodValidator(getUserFollowsSchema))
   .handler(async ({ data: input }) => {
     return await getUserFollows(input.userId);
   });
@@ -161,7 +162,7 @@ export const getUserFollowsServerFn = createServerFn({
 export const followUserServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(followUserSchema)
+  .inputValidator(zodValidator(followUserSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     await db.insert(userFollows).values({
@@ -173,7 +174,7 @@ export const followUserServerFn = createServerFn({
 export const unfollowUserServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(unfollowUserSchema)
+  .inputValidator(zodValidator(unfollowUserSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     await db

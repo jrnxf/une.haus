@@ -1,5 +1,5 @@
 import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 const booleanEnvVar = z
   .enum(["true", "false"])

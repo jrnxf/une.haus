@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-
+import { zodValidator } from "@tanstack/zod-adapter";
 import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -30,7 +30,7 @@ import {
 export const getRiuSetServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(getRiuSetSchema)
+  .inputValidator(zodValidator(getRiuSetSchema))
   .handler(async ({ data: input }) => {
     const [set] = await db
       .select({
@@ -59,7 +59,7 @@ export const getRiuSetServerFn = createServerFn({
 export const createRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(createRiuSetSchema)
+  .inputValidator(zodValidator(createRiuSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -86,7 +86,7 @@ export const createRiuSetServerFn = createServerFn({
 export const updateRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(updateRiuSetSchema)
+  .inputValidator(zodValidator(updateRiuSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const [riuSet] = await db
@@ -106,7 +106,7 @@ export const updateRiuSetServerFn = createServerFn({
 export const deleteRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(deleteRiuSetSchema)
+  .inputValidator(zodValidator(deleteRiuSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -130,7 +130,7 @@ export const deleteRiuSetServerFn = createServerFn({
 export const getRiuSubmissionServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(getRiuSubmissionSchema)
+  .inputValidator(zodValidator(getRiuSubmissionSchema))
   .handler(async ({ data: input }) => {
     const [submission] = await db
       .select({
@@ -155,7 +155,7 @@ export const getRiuSubmissionServerFn = createServerFn({
 export const createRiuSubmissionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(createRiuSubmissionSchema)
+  .inputValidator(zodValidator(createRiuSubmissionSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -245,7 +245,7 @@ export const listActiveRiusServerFn = createServerFn({
 export const getArchivedRiusServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(getArchivedRiusSchema)
+  .inputValidator(zodValidator(getArchivedRiusSchema))
   .handler(async ({ data: input }) => {
     const riu = await db.query.rius.findFirst({
       where: input.riuId

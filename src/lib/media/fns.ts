@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -19,7 +20,7 @@ import { isDefined } from "~/lib/utils";
 export const createPresignedS3UrlServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(createPresignedS3UrlSchema)
+  .inputValidator(zodValidator(createPresignedS3UrlSchema))
   .handler(async ({ data: input }) => {
     const key = `${input.prefix}/${Date.now()}__${input.fileName}`;
 
@@ -57,9 +58,11 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(
-    z.object({
-      uploadId: z.string(),
-    }),
+    zodValidator(
+      z.object({
+        uploadId: z.string(),
+      }),
+    ),
   )
   .handler(async ({ data: input }) => {
     const session = await useServerSession();
@@ -124,9 +127,11 @@ export const getMuxVideoServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(
-    z.object({
-      assetId: z.string(),
-    }),
+    zodValidator(
+      z.object({
+        assetId: z.string(),
+      }),
+    ),
   )
   .handler(async ({ data: input }) => {
     const video = await db.query.muxVideos.findFirst({

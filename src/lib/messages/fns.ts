@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-
+import { zodValidator } from "@tanstack/zod-adapter";
 import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -23,7 +23,7 @@ import { authMiddleware } from "~/lib/middleware";
 export const listMessagesServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(listMessagesSchema)
+  .inputValidator(zodValidator(listMessagesSchema))
   .handler(async ({ data: input }) => {
     if (input.type === "chat") {
       const twentyEightDaysAgo = new Date(
@@ -194,7 +194,7 @@ export const listMessagesServerFn = createServerFn({
 export const createMessageServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(createMessageSchema)
+  .inputValidator(zodValidator(createMessageSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -248,7 +248,7 @@ export const createMessageServerFn = createServerFn({
 export const updateMessageServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(updateMessageSchema)
+  .inputValidator(zodValidator(updateMessageSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -266,7 +266,7 @@ export const updateMessageServerFn = createServerFn({
 export const deleteMessageServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(deleteMessageSchema)
+  .inputValidator(zodValidator(deleteMessageSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;

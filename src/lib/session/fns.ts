@@ -1,5 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
+import { zodValidator } from "@tanstack/zod-adapter";
 
 import { useServerSession } from "~/lib/session/hooks";
 import {
@@ -39,7 +40,7 @@ export const getSessionServerFn = createServerFn({ method: "GET" }).handler(
 export const setSessionFlashServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(setFlashSchema)
+  .inputValidator(zodValidator(setFlashSchema))
   .handler(async ({ data: input }) => {
     const session = await useServerSession();
     await session.update({ flash: input.message });
@@ -53,7 +54,7 @@ export const clearSessionServerFn = createServerFn({ method: "POST" }).handler(
 );
 
 export const setSessionThemeServerFn = createServerFn({ method: "POST" })
-  .inputValidator(setThemeSchema)
+  .inputValidator(zodValidator(setThemeSchema))
   .handler(async ({ data: theme }) => {
     const session = await useServerSession();
 
@@ -64,7 +65,7 @@ export const setSessionThemeServerFn = createServerFn({ method: "POST" })
   });
 
 export const setSessionSidebarServerFn = createServerFn({ method: "POST" })
-  .inputValidator(setSidebarSchema)
+  .inputValidator(zodValidator(setSidebarSchema))
   .handler(async ({ data: sidebarOpen }) => {
     const session = await useServerSession();
 

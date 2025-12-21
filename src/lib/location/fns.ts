@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-
+import { zodValidator } from "@tanstack/zod-adapter";
 import {
   AddressType,
   PlaceAutocompleteType,
@@ -15,7 +15,7 @@ import {
 export const searchCitiesGoogleMapsServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(searchCitiesGoogleMapsSchema)
+  .inputValidator(zodValidator(searchCitiesGoogleMapsSchema))
   .handler(async ({ data: input }) => {
     const { data } = await google.maps.placeAutocomplete({
       adapter: "fetch",
@@ -36,7 +36,7 @@ export const searchCitiesGoogleMapsServerFn = createServerFn({
 export const placeGoogleMapsServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(placeGoogleMapsSchema)
+  .inputValidator(zodValidator(placeGoogleMapsSchema))
   .handler(async ({ data: input }) => {
     const { data } = await google.maps.placeDetails({
       adapter: "fetch",

@@ -358,3 +358,4 @@ The Instagram-like swipe-back behavior works because:
 4. **Closing via navigation REPLACES** the entry (removes it from history)
 
 The history stack never contains a stale "modal open" entry that iOS could show during swipe-back preview.
+

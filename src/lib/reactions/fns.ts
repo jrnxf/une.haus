@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { zodValidator } from "@tanstack/zod-adapter";
 import {
   likeRecordSchema,
   recordTypeWithLikes,
@@ -22,7 +23,7 @@ import { authMiddleware } from "~/lib/middleware";
 export const likeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(likeRecordSchema)
+  .inputValidator(zodValidator(likeRecordSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
@@ -45,7 +46,7 @@ export const likeRecordServerFn = createServerFn({
 export const unlikeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(unlikeRecordSchema)
+  .inputValidator(zodValidator(unlikeRecordSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id;
