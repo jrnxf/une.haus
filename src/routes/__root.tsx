@@ -15,13 +15,13 @@ import { z } from "zod";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { ConfirmDialog } from "~/components/confirm-dialog";
+import { SafariSafeAreaFix } from "~/components/safari-safe-area-fix";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
-import { cn } from "~/lib/utils";
 import appCss from "~/styles.css?url";
 
 export interface RouterAppContext {
@@ -171,21 +171,5 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
-  );
-}
-
-/**
- * Safari bug workaround: Forces compositor to respect safe-area-inset on fixed elements.
- * Without this, fixed overlays incorrectly render into the status bar area.œ
- */
-function SafariSafeAreaFix() {
-  return (
-    <div
-      className={cn(
-        "pointer-events-none fixed inset-0",
-        "backdrop-blur-[0px]", // this is the fix. Using 0px so it doesn't actually blur anything
-      )}
-      aria-hidden="true"
-    />
   );
 }
