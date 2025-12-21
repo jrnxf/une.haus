@@ -25,11 +25,9 @@ type User = UsersWithFollowsData["followers"]["users"][number];
 function UsersCommandContent({
   users,
   label,
-  onSelect,
 }: {
   users: User[];
   label: string;
-  onSelect: (user: User) => void;
 }) {
   const navigate = useNavigate();
 
@@ -44,7 +42,6 @@ function UsersCommandContent({
               key={user.id}
               value={user.name}
               onSelect={() => {
-                onSelect(user);
                 navigate({
                   to: "/users/$userId",
                   params: { userId: user.id },
