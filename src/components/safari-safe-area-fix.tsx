@@ -4,7 +4,7 @@
  */
 export function SafariSafeAreaFix() {
   return (
-    <span
+    <div
       className="pointer-events-none fixed inset-0 backdrop-blur-[0px]"
       aria-hidden="true"
     />
