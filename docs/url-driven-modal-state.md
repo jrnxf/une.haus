@@ -359,3 +359,4 @@ The Instagram-like swipe-back behavior works because:
 
 The history stack never contains a stale "modal open" entry that iOS could show during swipe-back preview.
 
+

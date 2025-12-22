@@ -45,6 +45,7 @@ function UsersCommandContent({
                 navigate({
                   to: "/users/$userId",
                   params: { userId: user.id },
+                  replace: true,
                 });
               }}
               asChild
@@ -52,6 +53,7 @@ function UsersCommandContent({
               <Link
                 to="/users/$userId"
                 params={{ userId: user.id }}
+                replace
                 className="flex items-center gap-2"
               >
                 <Avatar className="size-6">
