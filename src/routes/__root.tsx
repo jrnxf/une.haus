@@ -15,7 +15,6 @@ import { z } from "zod";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { ConfirmDialog } from "~/components/confirm-dialog";
-import { SafariSafeAreaFix } from "~/components/safari-safe-area-fix";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
@@ -134,7 +133,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="font-mono antialiased">
-        <SafariSafeAreaFix />
+        {/* <SafariSafeAreaFix /> */}
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog />
