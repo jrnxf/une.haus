@@ -1,13 +1,10 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import { type QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { type ReactNode } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
@@ -32,6 +29,9 @@ const rootSearchSchema = z.object({
   si: z.coerce.number().optional(),
   // p (peripherals) is managed by nuqs - array with - delimiter (e.g., ?p=sidebar-search)
   p: z.string().optional(),
+  // Globe state restoration
+  phi: z.coerce.number().optional(),
+  theta: z.coerce.number().optional(),
 });
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
@@ -98,16 +98,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         name: "apple-mobile-web-app-status-bar-style",
         content: "black-translucent",
       },
-      {
-        name: "theme-color",
-        content: "#ffffff",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        name: "theme-color",
-        content: "#000000",
-        media: "(prefers-color-scheme: dark)",
-      },
     ],
   }),
 });
@@ -133,7 +123,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body className="font-mono antialiased">
-        {/* <SafariSafeAreaFix /> */}
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog />
@@ -152,21 +141,21 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             </SidebarInset>
           </SidebarProvider>
         </ThemeProvider>
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            {
-              name: "React Query",
-              render: <ReactQueryDevtoolsPanel />,
-            },
-          ]}
-        />
+        {/* <TanStackDevtools
+        config={{
+          position: "bottom-right",
+        }}
+        plugins={[
+          {
+            name: "Tanstack Router",
+            render: <TanStackRouterDevtoolsPanel />,
+          },
+          {
+            name: "React Query",
+            render: <ReactQueryDevtoolsPanel />,
+          },
+        ]}
+      /> */}
         <Scripts />
       </body>
     </html>
