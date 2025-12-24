@@ -29,12 +29,12 @@ function UsersCommandContent({
 }: {
   users: User[];
   label: string;
-  onSelect: (user: User) => void;
+  onSelect?: (user: User) => void;
 }) {
   const navigate = useNavigate();
 
   return (
-    <Command>
+    <Command className="max-h-full min-h-0">
       <CommandInput placeholder={`Search ${label}...`} />
       <CommandList>
         <CommandEmpty>No users found.</CommandEmpty>
@@ -44,12 +44,12 @@ function UsersCommandContent({
               key={user.id}
               value={user.name}
               onSelect={() => {
+                onSelect?.(user);
                 navigate({
                   to: "/users/$userId",
                   params: { userId: user.id },
                   replace: true,
                 });
-                onSelect(user);
               }}
               asChild
             >
@@ -98,11 +98,7 @@ export function UsersCombobox({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="p-0" showCloseButton={false}>
-          <UsersCommandContent
-            users={users}
-            label={label}
-            onSelect={() => setOpen(false)}
-          />
+          <UsersCommandContent users={users} label={label} />
         </DialogContent>
       </Dialog>
     );
@@ -111,12 +107,11 @@ export function UsersCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="p-0" align="center">
-        <UsersCommandContent
-          users={users}
-          label={label}
-          onSelect={() => setOpen(false)}
-        />
+      <PopoverContent
+        className="flex max-h-72 flex-col overflow-hidden p-0"
+        align="center"
+      >
+        <UsersCommandContent users={users} label={label} />
       </PopoverContent>
     </Popover>
   );

@@ -75,7 +75,6 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             // issues in Safari
           )}
           id="main-content"
-          key={user.id}
         >
           <Avatar
             className="relative size-28"
