@@ -7,7 +7,7 @@ import {
   SiX,
   SiYoutube,
 } from "@icons-pack/react-simple-icons";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 import { Badges } from "~/components/badges";
 import { Globe } from "~/components/globe";
@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { UsersCombobox } from "~/components/users-combobox";
-import { Json } from "~/lib/dx/json";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersWithFollowsData } from "~/lib/users";
 import { useFollowMutations } from "~/lib/users/hooks";
@@ -25,8 +24,6 @@ import { cn, isDefined } from "~/lib/utils";
 export function UserView({ user }: { user: UsersWithFollowsData }) {
   const { disciplines, socials } = user;
   const sessionUser = useSessionUser();
-
-  const router = useRouter();
 
   return (
     <div className="h-full overflow-y-auto">
@@ -96,7 +93,6 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             />
           </Avatar>
 
-          <Json data={router.state} />
           <h1 className="truncate text-2xl font-semibold tracking-tight">
             <span className="truncate">{user.name}</span>
           </h1>
@@ -162,7 +158,6 @@ function Follows(props: UsersWithFollowsData) {
       <div className="flex items-center gap-2">
         <UsersCombobox
           id="followers"
-          state={{ userId }}
           users={followers.users}
           label={followers.count === 1 ? "follower" : "followers"}
         >
@@ -170,12 +165,7 @@ function Follows(props: UsersWithFollowsData) {
             {followers.count} {followers.count === 1 ? "follower" : "followers"}
           </Button>
         </UsersCombobox>
-        <UsersCombobox
-          id="following"
-          state={{ userId }}
-          users={following.users}
-          label="following"
-        >
+        <UsersCombobox id="following" users={following.users} label="following">
           <Button variant="secondary" size="sm">
             {following.count} following
           </Button>

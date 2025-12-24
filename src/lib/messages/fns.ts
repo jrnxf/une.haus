@@ -258,7 +258,7 @@ export const updateMessageServerFn = createServerFn({
 
     const table = getTableByType(type);
 
-    return await db
+    await db
       .update(table)
       .set({ content, userId })
       .where(and(eq(table.id, id), eq(table.userId, userId)));

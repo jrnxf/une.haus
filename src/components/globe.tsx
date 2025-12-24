@@ -98,7 +98,6 @@ export function Globe(properties: {
         state.phi = currentPhi;
         state.theta = currentTheta;
 
-        aoeustnh; // Always animate to target unless we're already there
         if (hasReachedTarget) {
           // If at target, sync with target (should already be there)
           currentPhi = round3(targetPhi);

@@ -25,11 +25,11 @@ type User = UsersWithFollowsData["followers"]["users"][number];
 function UsersCommandContent({
   users,
   label,
-  state,
+  onSelect,
 }: {
   users: User[];
   label: string;
-  state: Record<string, unknown>;
+  onSelect: (user: User) => void;
 }) {
   const navigate = useNavigate();
 
@@ -48,15 +48,14 @@ function UsersCommandContent({
                   to: "/users/$userId",
                   params: { userId: user.id },
                   replace: true,
-                  state,
                 });
+                onSelect(user);
               }}
               asChild
             >
               <Link
                 to="/users/$userId"
                 params={{ userId: user.id }}
-                state={state}
                 replace
                 className="flex items-center gap-2"
               >
@@ -83,13 +82,11 @@ export function UsersCombobox({
   label,
   children,
   id,
-  state,
 }: {
   users: UsersWithFollowsData["followers"]["users"];
   label: string;
   children: ReactNode;
   id: string;
-  state: Record<string, unknown>;
 }) {
   const [open, setOpen] = usePeripherals(id);
   const isMobile = useIsMobile();
@@ -104,7 +101,6 @@ export function UsersCombobox({
           <UsersCommandContent
             users={users}
             label={label}
-            state={state}
             onSelect={() => setOpen(false)}
           />
         </DialogContent>
@@ -119,7 +115,6 @@ export function UsersCombobox({
         <UsersCommandContent
           users={users}
           label={label}
-          state={state}
           onSelect={() => setOpen(false)}
         />
       </PopoverContent>

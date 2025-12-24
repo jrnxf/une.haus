@@ -49,7 +49,7 @@ export function MessageBubble({
 
   const authUserLiked = Boolean(
     sessionUser &&
-      message.likes.some((like) => like.user.id === sessionUser.id),
+    message.likes.some((like) => like.user.id === sessionUser.id),
   );
 
   const { mutate: likeUnlike } = useLikeUnlikeRecord({
