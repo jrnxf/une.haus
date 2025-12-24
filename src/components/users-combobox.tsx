@@ -22,6 +22,46 @@ import { type UsersWithFollowsData } from "~/lib/users";
 
 type User = UsersWithFollowsData["followers"]["users"][number];
 
+export function UsersCombobox({
+  users,
+  label,
+  children,
+  id,
+}: {
+  users: UsersWithFollowsData["followers"]["users"];
+  label: string;
+  children: ReactNode;
+  id: string;
+}) {
+  const [open, setOpen] = usePeripherals(id);
+  const isMobile = useIsMobile();
+
+  if (users.length === 0) return null;
+
+  if (isMobile) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogContent className="p-0" showCloseButton={false}>
+          <UsersCommandContent users={users} label={label} />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent
+        className="flex max-h-72 flex-col overflow-hidden p-0"
+        align="center"
+      >
+        <UsersCommandContent users={users} label={label} />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function UsersCommandContent({
   users,
   label,
@@ -74,45 +114,5 @@ function UsersCommandContent({
         </CommandGroup>
       </CommandList>
     </Command>
-  );
-}
-
-export function UsersCombobox({
-  users,
-  label,
-  children,
-  id,
-}: {
-  users: UsersWithFollowsData["followers"]["users"];
-  label: string;
-  children: ReactNode;
-  id: string;
-}) {
-  const [open, setOpen] = usePeripherals(id);
-  const isMobile = useIsMobile();
-
-  if (users.length === 0) return null;
-
-  if (isMobile) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="p-0" showCloseButton={false}>
-          <UsersCommandContent users={users} label={label} />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent
-        className="flex max-h-72 flex-col overflow-hidden p-0"
-        align="center"
-      >
-        <UsersCommandContent users={users} label={label} />
-      </PopoverContent>
-    </Popover>
   );
 }

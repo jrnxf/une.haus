@@ -29,15 +29,14 @@ const rootSearchSchema = z.object({
   si: z.coerce.number().optional(),
   // p (peripherals) is managed by nuqs - array with - delimiter (e.g., ?p=sidebar-search)
   p: z.string().optional(),
-  // Globe state restoration
-  phi: z.coerce.number().optional(),
-  theta: z.coerce.number().optional(),
 });
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   validateSearch: rootSearchSchema,
-  beforeLoad: async () => {
-    const sessionData = await session.get.fn();
+  beforeLoad: async ({ context }) => {
+    const sessionData = await context.queryClient.ensureQueryData(
+      session.get.queryOptions(),
+    );
     return { session: sessionData };
   },
   component: RootComponent,
