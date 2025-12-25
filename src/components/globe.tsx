@@ -29,6 +29,7 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
   const nextLocation = useRef<Coordinates>(
     props.location ?? { lat: 0, lng: 0 },
   );
+  const skipAnimation = useRef(false);
 
   // Handle globe initialization and animation
   useEffect(() => {
@@ -63,23 +64,31 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
             size: 0.1,
           },
         ];
-        state.phi = currentPhi;
-        state.theta = currentTheta;
+
         const [focusPhi, focusTheta] = locationToPhiTheta(nextLocation.current);
 
-        // Calculate shortest rotation path
-        const distributionPositive =
-          (focusPhi - currentPhi + DOUBLE_PI) % DOUBLE_PI;
-        const distributionNegative =
-          (currentPhi - focusPhi + DOUBLE_PI) % DOUBLE_PI;
+        // Skip animation on back navigation (popstate)
+        if (skipAnimation.current) {
+          currentPhi = focusPhi;
+          currentTheta = focusTheta;
+          skipAnimation.current = false;
+        } else {
+          // Calculate shortest rotation path
+          const distributionPositive =
+            (focusPhi - currentPhi + DOUBLE_PI) % DOUBLE_PI;
+          const distributionNegative =
+            (currentPhi - focusPhi + DOUBLE_PI) % DOUBLE_PI;
 
-        // Smoothly rotate to target
-        currentPhi +=
-          (distributionPositive < distributionNegative
-            ? distributionPositive
-            : -distributionNegative) * 0.08;
-        currentTheta = currentTheta * 0.92 + focusTheta * 0.08;
+          // Smoothly rotate to target
+          currentPhi +=
+            (distributionPositive < distributionNegative
+              ? distributionPositive
+              : -distributionNegative) * 0.08;
+          currentTheta = currentTheta * 0.92 + focusTheta * 0.08;
+        }
 
+        state.phi = currentPhi;
+        state.theta = currentTheta;
         state.width = width * 2;
         state.height = width * 2;
       },
@@ -132,6 +141,15 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
       nextLocation.current = props.location;
     }
   }, [props.location]);
+
+  // Skip animation on back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      skipAnimation.current = true;
+    };
+    globalThis.addEventListener("popstate", handlePopState);
+    return () => globalThis.removeEventListener("popstate", handlePopState);
+  }, []);
 
   return (
     <div className="relative aspect-square size-full">
