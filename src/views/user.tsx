@@ -10,7 +10,6 @@ import {
 import { Link } from "@tanstack/react-router";
 
 import { Badges } from "~/components/badges";
-import { Globe } from "~/components/globe";
 import { SocialLink } from "~/components/social-link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -28,7 +27,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
   return (
     <div className="h-full overflow-y-auto">
       <div className="@container relative mx-auto w-full max-w-2xl">
-        {user.location && (
+        {/* {user.location && (
           <>
             <div
               className={cn(
@@ -58,7 +57,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
               )}
             />
           </>
-        )}
+        )} */}
 
         <div
           className={cn(
@@ -66,7 +65,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             // going absolute from the top instead of static with negative margin
             // because of tiny but annoying layout shifting when users have long
             // bios
-            user.location && "absolute top-[calc(min(200px,30vw))]",
+            // user.location && "absolute top-[calc(min(200px,30vw))]",
 
             // uncommenting this out for now because it crops the overlay of
             // dialogs. This transform-gpu doesn't seem to be necessary but
