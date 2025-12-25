@@ -1,118 +1,68 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
+import React, { type ReactNode } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "~/components/ui/command";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { useIsMobile } from "~/hooks/use-mobile";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { type UsersWithFollowsData } from "~/lib/users";
 
-type User = UsersWithFollowsData["followers"]["users"][number];
-
 export function UsersCombobox({
   users,
-  label,
   children,
-  id,
+  peripheralKey,
 }: {
   users: UsersWithFollowsData["followers"]["users"];
-  label: string;
   children: ReactNode;
-  id: string;
+  peripheralKey: "followers" | "following";
 }) {
-  const [open, setOpen] = usePeripherals(id);
-  const isMobile = useIsMobile();
+  const [open, setOpen] = usePeripherals(peripheralKey);
+
+  const isNavigatingRef = React.useRef(false);
 
   if (users.length === 0) return null;
 
-  if (isMobile) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="p-0" showCloseButton={false}>
-          <UsersCommandContent users={users} label={label} />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent
-        className="flex max-h-72 flex-col overflow-hidden p-0"
+    <DropdownMenu
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (isNavigatingRef.current) {
+          // setOpen(false);
+          // navigation will cause it to close
+          isNavigatingRef.current = false;
+        } else {
+          setOpen(nextOpen);
+        }
+      }}
+    >
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuContent
         align="center"
+        // modify the 6 below to be the number of users to show before overflow
+        className="max-h-[calc((var(--spacing)*8)*6+10px)]"
       >
-        <UsersCommandContent users={users} label={label} />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function UsersCommandContent({
-  users,
-  label,
-  onSelect,
-}: {
-  users: User[];
-  label: string;
-  onSelect?: (user: User) => void;
-}) {
-  const navigate = useNavigate();
-
-  return (
-    <Command className="max-h-full min-h-0">
-      <CommandInput placeholder={`Search ${label}...`} />
-      <CommandList>
-        <CommandEmpty>No users found.</CommandEmpty>
-        <CommandGroup>
-          {users.map((user) => (
-            <CommandItem
-              key={user.id}
-              value={user.name}
-              onSelect={() => {
-                onSelect?.(user);
-                navigate({
-                  to: "/users/$userId",
-                  params: { userId: user.id },
-                  replace: true,
-                });
-              }}
-              asChild
+        {users.map((user) => (
+          <DropdownMenuItem
+            key={user.id}
+            asChild
+            onSelect={() => {
+              isNavigatingRef.current = true;
+            }}
+          >
+            <Link
+              to="/users/$userId"
+              params={{ userId: user.id }}
+              replace
+              className="flex items-center gap-2"
             >
-              <Link
-                to="/users/$userId"
-                params={{ userId: user.id }}
-                replace
-                className="flex items-center gap-2"
-              >
-                <Avatar className="size-6">
-                  <AvatarImage
-                    src={user.avatarUrl}
-                    alt={user.name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-xs" name={user.name} />
-                </Avatar>
-                <span>{user.name}</span>
-              </Link>
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
+              <span>{user.name}</span>
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

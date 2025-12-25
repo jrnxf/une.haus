@@ -10,6 +10,7 @@ import {
 import { Link } from "@tanstack/react-router";
 
 import { Badges } from "~/components/badges";
+import { Globe } from "~/components/globe";
 import { SocialLink } from "~/components/social-link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -18,26 +19,67 @@ import { UsersCombobox } from "~/components/users-combobox";
 import { useSessionUser } from "~/lib/session/hooks";
 import { type UsersWithFollowsData } from "~/lib/users";
 import { useFollowMutations } from "~/lib/users/hooks";
-import { isDefined } from "~/lib/utils";
+import { cn, isDefined } from "~/lib/utils";
 
 export function UserView({ user }: { user: UsersWithFollowsData }) {
   const { disciplines, socials } = user;
   const sessionUser = useSessionUser();
 
   return (
-    <div
-      className="h-full overflow-y-auto"
-      key={user.id}
-      // keyed to reset state below
-    >
+    <div className="h-full overflow-y-auto">
       <div className="@container relative mx-auto w-full max-w-2xl">
+        {user.location && (
+          <>
+            <div
+              className={cn(
+                "mx-auto w-5/6 overflow-clip",
+                user.location &&
+                  cn(
+                    // "transform-gpu",
+                    "h-[calc(min(300px,44vw))]",
+                  ),
+              )}
+            >
+              <div>
+                <Globe location={user.location} />
+              </div>
+            </div>
+            <div
+              className={cn(
+                // -bottom-2 because when the drawer slides up if it's right at the
+                // bottom you see little glitches during the animation - this helps
+                // make sure the gradient starts below the actual bottom cutoff of
+                // the globe
+                "absolute -bottom-2",
+                "h-8 w-full",
+                "from-background via-background/90 bg-gradient-to-t via-35% to-transparent",
+
+                // "transform-gpu", // eek out performance - also fixes layout issues in Safari
+              )}
+            />
+          </>
+        )}
+
         <div
-          className="flex w-full grow basis-0 flex-col items-center gap-4 p-8"
+          className={cn(
+            "flex w-full grow basis-0 flex-col items-center gap-4 p-8",
+            // going absolute from the top instead of static with negative margin
+            // because of tiny but annoying layout shifting when users have long
+            // bios
+            user.location && "absolute top-[calc(min(200px,30vw))]",
+
+            // uncommenting this out for now because it crops the overlay of
+            // dialogs. This transform-gpu doesn't seem to be necessary but
+            // keeping this around for posterity in case something comes up
+            // "transform-gpu", // eek out performance - also fixes layout
+            // issues in Safari
+          )}
           id="main-content"
         >
           <Avatar
             className="relative size-28"
             // keyed so image swap is snappy
+            key={user.id}
           >
             <AvatarImage
               alt={user.name}
@@ -113,12 +155,22 @@ function FollowersFollowing(props: UsersWithFollowsData) {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex items-center gap-2">
-        <UsersCombobox users={followers.users} peripheralKey="followers">
+        <UsersCombobox
+          key={`followers-${userId}`}
+          id="followers"
+          users={followers.users}
+          label={followers.count === 1 ? "follower" : "followers"}
+        >
           <Button variant="secondary" size="sm">
             {followers.count} {followers.count === 1 ? "follower" : "followers"}
           </Button>
         </UsersCombobox>
-        <UsersCombobox users={following.users} peripheralKey="following">
+        <UsersCombobox
+          key={`following-${userId}`}
+          id="following"
+          users={following.users}
+          label="following"
+        >
           <Button variant="secondary" size="sm">
             {following.count} following
           </Button>
