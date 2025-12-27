@@ -58,6 +58,14 @@ export function UsersCombobox({
               replace
               className="flex items-center gap-2"
             >
+              {/* <Avatar className="size-5">
+                <AvatarImage
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="object-cover"
+                />
+                <AvatarFallback className="text-xs" name={user.name} />
+              </Avatar> */}
               <span>{user.name}</span>
             </Link>
           </DropdownMenuItem>

@@ -46,27 +46,28 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         href: appCss,
         rel: "stylesheet",
       },
-      // {
-      //   as: "font",
-      //   crossOrigin: "anonymous",
-      //   href: "/fonts/geist-mono-variable.woff2",
-      //   rel: "preload",
-      //   type: "font/woff2",
-      // },
-
+      {
+        as: "font",
+        crossOrigin: "anonymous",
+        href: "/fonts/geist-mono-variable.woff2",
+        rel: "preload",
+        type: "font/woff2",
+      },
       {
         rel: "apple-touch-icon",
-        href: "/icons/apple-touch-icon-180x180.png",
+        href: "/icons/apple-touch-icon.png",
         sizes: "any",
       },
       {
         rel: "icon",
-        href: "/icons/favicon.ico",
-        sizes: "48x48",
+        href: "/icons/logo-white.svg",
+        media: "(prefers-color-scheme: dark)",
+        type: "image/svg+xml",
       },
       {
         rel: "icon",
-        href: "/icons/logo.svg",
+        href: "/icons/logo-black.svg",
+        media: "(prefers-color-scheme: light)",
         type: "image/svg+xml",
       },
       {

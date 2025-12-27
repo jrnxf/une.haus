@@ -10,7 +10,7 @@ function RouteComponent() {
   return (
     <div className="grid size-full place-items-center">
       <div className="space-y-4 p-4">
-        <Logo className="h-14 shrink-0 fill-black stroke-zinc-300 dark:fill-white dark:stroke-zinc-900" />
+        <Logo className="h-14" />
       </div>
     </div>
   );

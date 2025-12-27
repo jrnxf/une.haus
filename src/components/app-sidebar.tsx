@@ -73,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link to="/" className="h-fit">
                 <div>
-                  <Logo className="h-10 fill-black stroke-zinc-300 dark:fill-white dark:stroke-zinc-900" />
+                  <Logo className="h-10" />
                 </div>
               </Link>
             </SidebarMenuButton>

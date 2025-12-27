@@ -1,7 +1,7 @@
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import * as React from "react";
 
-import { cn, getUserInitials, preferCdn } from "~/lib/utils";
+import { cn, getUserInitials } from "~/lib/utils";
 
 function Avatar({
   className,
@@ -30,7 +30,12 @@ function AvatarImage({
     <AvatarPrimitive.Image
       data-slot="avatar-image"
       className={cn("aspect-square size-full object-cover", className)}
-      src={src ? preferCdn(src) : undefined}
+      rel="preload"
+      src={
+        src
+          ? `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${src}/width=72,quality=low`
+          : undefined
+      }
       {...props}
     />
   );
@@ -57,4 +62,4 @@ function AvatarFallback({
   );
 }
 
-export { Avatar, AvatarImage, AvatarFallback };
+export { Avatar, AvatarFallback, AvatarImage };

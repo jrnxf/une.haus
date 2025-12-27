@@ -3,7 +3,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Geist Mono Variable";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/geist-mono-variable.woff2") format("woff2");
+}
+
 @theme {
+  --font-mono: "Geist Mono Variable", "monospace";
+
   --animate-accordion-up: accordion-up
     var(--tw-animation-duration, var(--tw-duration, 0.2s))
     var(--tw-ease, ease-out) var(--tw-animation-delay, 0s)
@@ -162,6 +172,8 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  :root,
   html,
   body {
     @apply bg-background text-foreground;
