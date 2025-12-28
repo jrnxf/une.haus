@@ -12,7 +12,7 @@
 }
 
 @theme {
-  --font-mono: "Geist Mono Variable", "monospace";
+  --font-mono: "Geist Mono Variable", "ui-monospace";
 
   --animate-accordion-up: accordion-up
     var(--tw-animation-duration, var(--tw-duration, 0.2s))
