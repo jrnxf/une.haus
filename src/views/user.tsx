@@ -11,7 +11,6 @@ import { Link } from "@tanstack/react-router";
 
 import { Badges } from "~/components/badges";
 import { SocialLink } from "~/components/social-link";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { FlagEmoji } from "~/components/ui/flag-emoji";
 import { UsersCombobox } from "~/components/users-combobox";
@@ -35,20 +34,13 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           className="flex w-full grow basis-0 flex-col items-center gap-4 p-8"
           id="main-content"
         >
-          <Avatar
-            className="relative size-28"
-            // keyed so image swap is snappy
-          >
-            <AvatarImage
-              alt={user.name}
-              className="object-cover"
-              src={user.avatarUrl}
-            />
-            <AvatarFallback
-              className="flex w-full items-center justify-center text-3xl font-semibold"
-              name={user.name}
-            />
-          </Avatar>
+          <img
+            src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarUrl}/width=448,quality=60`}
+            alt={user.name}
+            fetchPriority="high"
+            loading="eager"
+            className="size-28 rounded-full object-cover"
+          />
 
           <h1 className="truncate text-2xl font-semibold tracking-tight">
             <span className="truncate">{user.name}</span>

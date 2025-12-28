@@ -11,9 +11,11 @@ export const Route = createFileRoute("/users/$userId")({
   params: users.get.schema,
   loader: async ({ context, params: { userId } }) => {
     try {
-      await context.queryClient.ensureQueryData(
+      const y = await context.queryClient.ensureQueryData(
         users.get.queryOptions({ userId }),
       );
+
+      return y;
     } catch (error) {
       await session.flash.set.fn({ data: { message: errorFmt(error) } });
       throw redirect({ to: "/users" });

@@ -65,10 +65,7 @@ export function Search() {
   return (
     <CommandDialog
       onCloseAutoFocus={reset}
-      onOpenChange={(x) => {
-        console.log("x", x);
-        setOpen(x);
-      }}
+      onOpenChange={setOpen}
       open={open}
       title="Command Menu"
       showCloseButton={false}

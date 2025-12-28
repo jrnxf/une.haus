@@ -14,7 +14,6 @@ import {
   TrayTitle,
   TrayTrigger,
 } from "~/components/tray";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -31,7 +30,7 @@ export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
-    await context.queryClient.ensureInfiniteQueryData(
+    return await context.queryClient.ensureInfiniteQueryData(
       users.list.infiniteQueryOptions(deps),
     );
   },
@@ -74,7 +73,7 @@ function RouteComponent() {
           </Empty>
         )}
 
-        {displayedUsers.map((user) => {
+        {displayedUsers.map((user, idx) => {
           return (
             <Link
               key={user.id}
@@ -88,10 +87,19 @@ function RouteComponent() {
               <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
                 <div className="flex w-full flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <Avatar className="size-6 rounded-full">
+                    {/* <Avatar className="size-6 rounded-full">
                       <AvatarImage alt={user.name} src={user.avatarUrl} />
                       <AvatarFallback className="text-xs" name={user.name} />
-                    </Avatar>
+                    </Avatar> */}
+                    {user.avatarUrl && (
+                      <img
+                        src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarUrl}/width=72,quality=70`}
+                        alt={user.name}
+                        fetchPriority="high"
+                        loading={idx < 6 ? "eager" : "lazy"}
+                        className="size-6 rounded-full"
+                      />
+                    )}
                     <p className="truncate text-base font-semibold">
                       {user.name}
                     </p>

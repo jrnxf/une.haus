@@ -30,10 +30,9 @@ function AvatarImage({
     <AvatarPrimitive.Image
       data-slot="avatar-image"
       className={cn("aspect-square size-full object-cover", className)}
-      rel="preload"
       src={
         src
-          ? `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${src}/width=72,quality=low`
+          ? `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${src}/width=67,quality=70`
           : undefined
       }
       {...props}
