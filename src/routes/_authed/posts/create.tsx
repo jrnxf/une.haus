@@ -46,7 +46,7 @@ function RouteComponent() {
 
   const [mediaOption, setMediaOption] = useState<MediaOption>("none");
 
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: posts.create.fn,
     onSuccess: async (data) => {
       // no need to await - fire and forget. will almost definitely finish
@@ -63,7 +63,7 @@ function RouteComponent() {
     },
   });
 
-  const rhf = useForm<z.infer<typeof posts.create.schema>>({
+  const rhf = useForm<z.input<typeof posts.create.schema>>({
     resolver: zodResolver(posts.create.schema),
     shouldUnregister: false,
   });
@@ -82,9 +82,14 @@ function RouteComponent() {
       method="post"
       onSubmit={(event) => {
         event.preventDefault();
-        handleSubmit((data) => {
-          mutate({ data });
-        })(event);
+        handleSubmit(
+          async (data) => {
+            await mutateAsync({ data });
+          },
+          (errors) => {
+            console.log({ errors });
+          },
+        )(event);
       }}
     >
       <FormField
@@ -203,7 +208,6 @@ function RouteComponent() {
           );
         }}
       />
-
       <div className="flex justify-end">
         <FormSubmitButton busy={isSubmitting} />
       </div>

@@ -1,7 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -9,32 +7,20 @@ import { z } from "zod";
 import { db } from "~/db";
 import { muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
-import { s3Client } from "~/lib/clients/s3";
+import { client } from "~/lib/cloudflare";
 import { sleep } from "~/lib/dx/utils";
 import { env } from "~/lib/env";
 import { assertFound, invariant } from "~/lib/invariant";
-import { createPresignedS3UrlSchema } from "~/lib/media/schemas";
 import { useServerSession } from "~/lib/session/hooks";
 import { isDefined } from "~/lib/utils";
 
-export const createPresignedS3UrlServerFn = createServerFn({
+export const createCloudflareImagesDirectUploadServerFn = createServerFn({
   method: "POST",
-})
-  .inputValidator(zodValidator(createPresignedS3UrlSchema))
-  .handler(async ({ data: input }) => {
-    const key = `${input.prefix}/${Date.now()}__${input.fileName}`;
-
-    const command = new PutObjectCommand({
-      Bucket: env.HAUS_AWS_BUCKET_NAME,
-      Key: key,
-    });
-
-    const url = await getSignedUrl(s3Client, command, {
-      expiresIn: 60 * 5, // 5 minutes
-    });
-
-    return url;
+}).handler(async () => {
+  return await client.images.v2.directUploads.create({
+    account_id: env.CLOUDFLARE_ACCOUNT_ID,
   });
+});
 
 export const createPresignedMuxUrlServerFn = createServerFn({
   method: "POST",

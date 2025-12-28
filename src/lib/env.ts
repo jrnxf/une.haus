@@ -42,6 +42,8 @@ export const env = createEnv({
   runtimeEnv: process.env,
 
   server: {
+    CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
+    CLOUDFLARE_ACCOUNT_ID: z.string(),
     HAUS_AWS_ACCESS_KEY_ID: z.string(),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     HAUS_AWS_BUCKET_NAME: z.string(),

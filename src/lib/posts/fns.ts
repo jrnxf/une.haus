@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, countDistinct, desc, eq, ilike, lt, or } from "drizzle-orm";
 
@@ -131,16 +132,17 @@ export const createPostServerFn = createServerFn({
 
     const { media, ...rest } = input;
 
-    const [post] = await db
-      .insert(posts)
-      .values({
-        ...rest,
-        imageUrl: media && media.type === "image" ? media.value : null,
-        muxAssetId: media && media.type === "video" ? media.value : null,
-        youtubeVideoId: media && media.type === "youtube" ? media.value : null,
-        userId,
-      })
-      .returning();
+    const x = {
+      ...rest,
+      imageUrl: media && media.type === "image" ? media.value : null,
+      muxAssetId: media && media.type === "video" ? media.value : null,
+      youtubeVideoId: media && media.type === "youtube" ? media.value : null,
+      userId,
+    };
+
+    console.log({ x });
+
+    const [post] = await db.insert(posts).values(x).returning();
 
     invariant(post, "Failed to create post");
 

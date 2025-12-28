@@ -21,7 +21,7 @@ export const createPostSchema = z.object({
     .discriminatedUnion("type", [
       z.object({
         type: z.literal("image"),
-        value: z.string().url(),
+        value: z.string(),
       }),
       z.object({
         type: z.literal("video"),

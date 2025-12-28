@@ -31,7 +31,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@googlemaps/google-maps-services-js": "^3.4.0",
-    "@hookform/resolvers": "^3.8.0",
+    "@hookform/resolvers": "^5.2.2",
     "@icons-pack/react-simple-icons": "^12.8.0",
     "@mux/mux-node": "^8.8.0",
     "@mux/mux-player-react": "^3.6.0",
@@ -85,6 +85,7 @@
     "autoprefixer": "^10.4.20",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
+    "cloudflare": "^5.2.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "cobe": "^0.6.5",
@@ -113,7 +114,7 @@
     "react-dom": "^19.2.0",
     "react-dropzone-esm": "^15.2.0",
     "react-focus-lock": "^2.13.6",
-    "react-hook-form": "^7.56.1",
+    "react-hook-form": "^7.69.0",
     "react-intersection-observer": "^9.16.0",
     "recharts": "2.15.4",
     "resend": "^4.5.1",
@@ -129,7 +130,7 @@
     "vite-plugin-beasties": "^0.3.3",
     "vite-tsconfig-paths": "^5.1.4",
     "yoctocolors": "^2.1.1",
-    "zod": "^4.1.12"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",

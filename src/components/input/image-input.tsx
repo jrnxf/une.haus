@@ -3,10 +3,20 @@ import { Loader2Icon, TrashIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
+import z from "zod";
+
 import { Button } from "~/components/ui/button";
 import { useFormField, useFormMedia } from "~/components/ui/form";
+import { invariant } from "~/lib/invariant";
 import { media } from "~/lib/media";
+import { nano } from "~/lib/nanoid";
 import { cn } from "~/lib/utils";
+
+const cloudflareDirectUploadResponseSchema = z.object({
+  result: z.object({
+    id: z.string(),
+  }),
+});
 
 export const ImageInput = ({
   value,
@@ -21,8 +31,8 @@ export const ImageInput = ({
 
   const [file, setFile] = useState<File>();
 
-  const createPresignedS3Url = useMutation({
-    mutationFn: media.createPresignedS3Url.fn,
+  const createCloudflareImagesDirectUpload = useMutation({
+    mutationFn: media.createCloudflareImagesDirectUpload.fn,
   });
 
   const { imageUploadStatus, setImageUploadStatus } = useFormMedia();
@@ -34,18 +44,26 @@ export const ImageInput = ({
         setFile(file);
         try {
           setImageUploadStatus("pending");
-          const presignedS3Url = await createPresignedS3Url.mutateAsync({
-            data: {
-              fileName: file.name,
-            },
+          const directUpload =
+            await createCloudflareImagesDirectUpload.mutateAsync({});
+
+          invariant(directUpload.uploadURL, "Failed to create direct upload");
+
+          const ext = file.name.split(".").pop();
+          const newFileName = `${nano()}.${ext}`;
+
+          const formData = new FormData();
+          formData.append("file", file, newFileName);
+
+          const response = await fetch(directUpload.uploadURL, {
+            body: formData,
+            method: "POST",
           });
-          const { href, origin, pathname } = new URL(presignedS3Url);
 
-          await fetch(href, { body: file, method: "PUT" });
+          const data = await response.json();
+          const parsedData = cloudflareDirectUploadResponseSchema.parse(data);
 
-          const imageUrl = origin + pathname;
-
-          onChange(imageUrl);
+          onChange(parsedData.result.id);
         } catch {
           setFile(undefined);
         } finally {
@@ -53,7 +71,7 @@ export const ImageInput = ({
         }
       }
     },
-    [createPresignedS3Url, onChange, setImageUploadStatus],
+    [createCloudflareImagesDirectUpload, onChange, setImageUploadStatus],
   );
 
   const { getInputProps, getRootProps } = useDropzone({
