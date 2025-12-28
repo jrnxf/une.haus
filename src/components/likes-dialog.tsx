@@ -21,7 +21,7 @@ import {
 type User = {
   id: number;
   name: string;
-  avatarUrl: string | null;
+  avatarId: string | null;
 };
 
 type UsersDialogProps = {
@@ -96,7 +96,7 @@ export function UsersDialog({
               className="hover:bg-accent flex items-center gap-3 rounded-md p-2 transition-colors"
             >
               <Avatar className="size-10">
-                <AvatarImage src={user.avatarUrl} />
+                <AvatarImage src={user.avatarId} />
                 <AvatarFallback name={user.name} />
               </Avatar>
               <span className="text-sm font-medium">{user.name}</span>

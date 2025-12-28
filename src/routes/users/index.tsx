@@ -88,12 +88,12 @@ function RouteComponent() {
                 <div className="flex w-full flex-col gap-2">
                   <div className="flex items-center gap-2">
                     {/* <Avatar className="size-6 rounded-full">
-                      <AvatarImage alt={user.name} src={user.avatarUrl} />
+                      <AvatarImage alt={user.name} src={user.avatarId} />
                       <AvatarFallback className="text-xs" name={user.name} />
                     </Avatar> */}
-                    {user.avatarUrl && (
+                    {user.avatarId && (
                       <img
-                        src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarUrl}/width=72,quality=70`}
+                        src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarId}/width=72,quality=70`}
                         alt={user.name}
                         fetchPriority="high"
                         loading={idx < 6 ? "eager" : "lazy"}

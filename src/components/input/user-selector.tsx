@@ -25,7 +25,7 @@ const api = {
 };
 
 type User = {
-  avatarUrl: null | string;
+  avatarId: null | string;
   id: number;
   name: string;
 };
@@ -258,7 +258,7 @@ const UsersCommandDialog = withUserSelector<{
               >
                 <AvatarImage
                   alt={selectedUser.name}
-                  src={selectedUser.avatarUrl}
+                  src={selectedUser.avatarId}
                 />
                 <AvatarFallback className="text-xs" name={selectedUser.name} />
               </Avatar>

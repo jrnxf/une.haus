@@ -30,7 +30,7 @@ export function useFollowMutations({ userId }: { userId: number }) {
                 users: [
                   ...previous.followers.users,
                   {
-                    avatarUrl: sessionUser.avatarUrl,
+                    avatarId: sessionUser.avatarId,
                     id: sessionUser.id,
                     name: sessionUser.name,
                     location: null, // this doesn't really matter

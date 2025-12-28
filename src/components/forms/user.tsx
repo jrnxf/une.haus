@@ -222,7 +222,7 @@ export function UserForm({
 
       <FormField
         control={control}
-        name="avatarUrl"
+        name="avatarId"
         render={({ field }) => {
           return (
             <FormItem>

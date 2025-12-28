@@ -7,7 +7,7 @@ export const hausSessionSchema = z.object({
   deviceType: z.enum(["mobile", "desktop"]).optional(),
   user: z
     .object({
-      avatarUrl: z.string().nullable(),
+      avatarId: z.string().nullable(),
       email: z.string().email(),
       id: z.number(),
       name: z.string(),

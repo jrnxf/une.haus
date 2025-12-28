@@ -83,7 +83,7 @@ function RouteComponent() {
         )}
         {displayedPosts.map((post) => {
           const posterUrl =
-            post.imageUrl ||
+            post.imageId ||
             (post.video?.playbackId &&
               getMuxPoster({ playbackId: post.video.playbackId })) ||
             (post.youtubeVideoId &&

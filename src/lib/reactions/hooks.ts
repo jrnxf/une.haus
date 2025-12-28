@@ -74,7 +74,7 @@ export function useLikeRecord({
                       user: {
                         id: sessionUser.id,
                         name: sessionUser.name,
-                        avatarUrl: sessionUser.avatarUrl,
+                        avatarId: sessionUser.avatarId,
                       },
                     },
                   ],
@@ -94,7 +94,7 @@ export function useLikeRecord({
               user: {
                 id: sessionUser.id,
                 name: sessionUser.name,
-                avatarUrl: sessionUser.avatarUrl,
+                avatarId: sessionUser.avatarId,
               },
             },
           ],

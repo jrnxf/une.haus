@@ -84,7 +84,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             <AvatarImage
               alt={user.name}
               className="object-cover"
-              src={user.avatarUrl}
+              src={user.avatarId}
             />
             <AvatarFallback
               className="flex w-full items-center justify-center text-3xl font-semibold"

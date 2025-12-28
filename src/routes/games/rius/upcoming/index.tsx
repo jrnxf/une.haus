@@ -51,7 +51,7 @@ function RouteComponent() {
               >
                 <div className="flex items-center gap-2">
                   <Avatar className="size-6 rounded-full">
-                    <AvatarImage alt={user.name} src={user.avatarUrl} />
+                    <AvatarImage alt={user.name} src={user.avatarId} />
                     <AvatarFallback className="text-xs" name={user.name} />
                   </Avatar>
                   <p className="truncate text-base">{user.name}</p>

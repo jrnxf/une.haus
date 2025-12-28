@@ -30,7 +30,7 @@ export const listPostsServerFn = createServerFn({
         },
         createdAt: posts.createdAt,
         id: posts.id,
-        imageUrl: posts.imageUrl,
+        imageId: posts.imageId,
         tags: posts.tags,
         title: posts.title,
         user: {
@@ -77,7 +77,7 @@ export const getPostServerFn = createServerFn({
           with: {
             user: {
               columns: {
-                avatarUrl: true,
+                avatarId: true,
                 id: true,
                 name: true,
               },
@@ -90,7 +90,7 @@ export const getPostServerFn = createServerFn({
               with: {
                 user: {
                   columns: {
-                    avatarUrl: true,
+                    avatarId: true,
                     id: true,
                     name: true,
                   },
@@ -99,7 +99,7 @@ export const getPostServerFn = createServerFn({
             },
             user: {
               columns: {
-                avatarUrl: true,
+                avatarId: true,
                 id: true,
                 name: true,
               },
@@ -108,7 +108,7 @@ export const getPostServerFn = createServerFn({
         },
         user: {
           columns: {
-            avatarUrl: true,
+            avatarId: true,
             id: true,
             name: true,
           },
@@ -134,7 +134,7 @@ export const createPostServerFn = createServerFn({
 
     const x = {
       ...rest,
-      imageUrl: media && media.type === "image" ? media.value : null,
+      imageId: media && media.type === "image" ? media.value : null,
       muxAssetId: media && media.type === "video" ? media.value : null,
       youtubeVideoId: media && media.type === "youtube" ? media.value : null,
       userId,

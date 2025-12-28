@@ -443,7 +443,7 @@ function EditMessageDrawer({
 //                   alt={like.user.name}
 //                   height={28}
 //                   quality={70}
-//                   src={like.user.avatarUrl}
+//                   src={like.user.avatarId}
 //                   width={28}
 //                 />
 //                 <AvatarFallback className="text-xs" name={like.user.name} />

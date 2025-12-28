@@ -38,7 +38,7 @@ export function AuthButton() {
             <AvatarImage
               alt={`Avatar for ${sessionUser.name}`}
               className="rounded-full object-cover"
-              src={sessionUser.avatarUrl}
+              src={sessionUser.avatarId}
             />
             <AvatarFallback
               className="flex w-full items-center justify-center"
@@ -60,7 +60,7 @@ export function AuthButton() {
                 alt={`Avatar for ${sessionUser.name}`}
                 className="rounded-full object-cover"
                 height={40}
-                src={sessionUser.avatarUrl}
+                src={sessionUser.avatarId}
                 width={40}
               />
               <AvatarFallback

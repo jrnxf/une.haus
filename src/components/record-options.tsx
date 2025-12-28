@@ -25,7 +25,7 @@ export function RecordOptions({
   record: {
     likes: {
       user: {
-        avatarUrl: null | string;
+        avatarId: null | string;
         id: number;
         name: string;
       };

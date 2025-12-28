@@ -60,7 +60,7 @@ export function UsersCombobox({
             >
               {/* <Avatar className="size-5">
                 <AvatarImage
-                  src={user.avatarUrl}
+                  src={user.avatarId}
                   alt={user.name}
                   className="object-cover"
                 />

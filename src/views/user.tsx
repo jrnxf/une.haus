@@ -35,7 +35,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           id="main-content"
         >
           <img
-            src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarUrl}/width=448,quality=60`}
+            src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarId}/width=448,quality=60`}
             alt={user.name}
             fetchPriority="high"
             loading="eager"

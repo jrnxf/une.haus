@@ -137,7 +137,7 @@ async function fetchAllCloudflareImages(): Promise<CloudflareImage[]> {
   return allImages;
 }
 
-function generateImageUrl(imageId: string, variant = "public"): string {
+function generateimageId(imageId: string, variant = "public"): string {
   if (CLOUDFLARE_ACCOUNT_HASH) {
     // Custom domain format: https://une.haus/cdn-cgi/imagedelivery/{hash}/{id}/{variant}
     return `https://une.haus/cdn-cgi/imagedelivery/${CLOUDFLARE_ACCOUNT_HASH}/${imageId}/${variant}`;
@@ -166,7 +166,7 @@ async function main() {
       // Generate URL for the public variant (or first variant if available)
       const variant = image.variants[0] || "public";
       const url = CLOUDFLARE_ACCOUNT_HASH
-        ? generateImageUrl(image.id, variant)
+        ? generateimageId(image.id, variant)
         : `https://imagedelivery.net/{account_hash}/${image.id}/${variant}`;
 
       mappings.push({

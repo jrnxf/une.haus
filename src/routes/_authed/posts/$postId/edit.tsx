@@ -188,10 +188,10 @@ function RouteComponent() {
 function buildDefaultValues(post: ServerFnReturn<typeof posts.get.fn>) {
   return {
     content: post.content,
-    media: post.imageUrl
+    media: post.imageId
       ? {
           type: "image" as const,
-          value: post.imageUrl,
+          value: post.imageId,
         }
       : post.video && post.video.playbackId
         ? {

@@ -46,7 +46,7 @@ export const listMessagesServerFn = createServerFn({
             with: {
               user: {
                 columns: {
-                  avatarUrl: true,
+                  avatarId: true,
                   id: true,
                   name: true,
                 },
@@ -55,7 +55,7 @@ export const listMessagesServerFn = createServerFn({
           },
           user: {
             columns: {
-              avatarUrl: true,
+              avatarId: true,
               id: true,
               name: true,
             },
@@ -85,7 +85,7 @@ export const listMessagesServerFn = createServerFn({
             with: {
               user: {
                 columns: {
-                  avatarUrl: true,
+                  avatarId: true,
                   id: true,
                   name: true,
                 },
@@ -94,7 +94,7 @@ export const listMessagesServerFn = createServerFn({
           },
           user: {
             columns: {
-              avatarUrl: true,
+              avatarId: true,
               id: true,
               name: true,
             },
@@ -125,7 +125,7 @@ export const listMessagesServerFn = createServerFn({
             with: {
               user: {
                 columns: {
-                  avatarUrl: true,
+                  avatarId: true,
                   id: true,
                   name: true,
                 },
@@ -134,7 +134,7 @@ export const listMessagesServerFn = createServerFn({
           },
           user: {
             columns: {
-              avatarUrl: true,
+              avatarId: true,
               id: true,
               name: true,
             },
@@ -165,7 +165,7 @@ export const listMessagesServerFn = createServerFn({
             with: {
               user: {
                 columns: {
-                  avatarUrl: true,
+                  avatarId: true,
                   id: true,
                   name: true,
                 },
@@ -174,7 +174,7 @@ export const listMessagesServerFn = createServerFn({
           },
           user: {
             columns: {
-              avatarUrl: true,
+              avatarId: true,
               id: true,
               name: true,
             },

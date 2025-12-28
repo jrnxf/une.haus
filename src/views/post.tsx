@@ -97,13 +97,13 @@ export function PostView({ postId }: { postId: number }) {
       </div>
 
       <div className="wrap-break-word whitespace-pre-wrap">
-        {post.imageUrl && (
+        {post.imageId && (
           <img
             alt=""
             fetchPriority="high"
             loading="eager"
             className="max-h-96 max-w-96 rounded-md object-cover"
-            src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${post.imageUrl}/width=1152,quality=70`}
+            src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${post.imageId}/width=1152,quality=70`}
           />
         )}
         <p>{post.content}</p>

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, eq, sql } from "drizzle-orm";
 
@@ -39,7 +40,7 @@ export const getRiuSetServerFn = createServerFn({
         name: riuSets.name,
         setPlaybackId: muxVideos.playbackId,
         user: {
-          avatarUrl: users.avatarUrl,
+          avatarId: users.avatarId,
           id: users.id,
           name: users.name,
         },
@@ -136,7 +137,7 @@ export const getRiuSubmissionServerFn = createServerFn({
       .select({
         id: riuSubmissions.id,
         user: {
-          avatarUrl: users.avatarUrl,
+          avatarId: users.avatarId,
           id: users.id,
           name: users.name,
         },
@@ -210,7 +211,7 @@ export const listActiveRiusServerFn = createServerFn({
               columns: {
                 id: true,
                 name: true,
-                avatarUrl: true,
+                avatarId: true,
               },
             },
             video: {
@@ -227,7 +228,7 @@ export const listActiveRiusServerFn = createServerFn({
                   columns: {
                     id: true,
                     name: true,
-                    avatarUrl: true,
+                    avatarId: true,
                   },
                 },
               },
@@ -264,7 +265,7 @@ export const getArchivedRiusServerFn = createServerFn({
               columns: {
                 id: true,
                 name: true,
-                avatarUrl: true,
+                avatarId: true,
               },
             },
             video: {
@@ -338,7 +339,7 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
         id: riuSets.id,
         name: riuSets.name,
         user: {
-          avatarUrl: users.avatarUrl,
+          avatarId: users.avatarId,
           id: users.id,
           name: users.name,
           bio: users.bio,
@@ -358,7 +359,7 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
     const map = new Map<
       number,
       {
-        avatarUrl: null | string;
+        avatarId: null | string;
         count: number;
         id: number;
         name: string;

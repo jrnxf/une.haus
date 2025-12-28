@@ -29,7 +29,7 @@ export const unfollowUserSchema = z.object({
 });
 
 export const updateUserSchema = z.object({
-  avatarUrl: z.string().nullable(),
+  avatarId: z.string().nullable(),
   bio: z.string().trim().nullable(),
   email: z.string().trim().email(),
   location: z

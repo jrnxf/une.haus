@@ -19,7 +19,7 @@ import { useIsTablet } from "~/hooks/use-mobile";
 type User = {
   id: number;
   name: string;
-  avatarUrl: string | null;
+  avatarId: string | null;
 };
 
 type UsersPopoverProps = {
@@ -53,7 +53,7 @@ export function UsersPopover({
           className="hover:bg-accent flex items-center gap-2 rounded-md p-1.5 transition-colors"
         >
           <Avatar className="size-7">
-            <AvatarImage src={user.avatarUrl} />
+            <AvatarImage src={user.avatarId} />
             <AvatarFallback name={user.name} />
           </Avatar>
           <span className="text-xs font-medium">{user.name}</span>

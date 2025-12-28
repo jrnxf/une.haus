@@ -50,7 +50,7 @@ type PostTag = (typeof POST_TAGS)[number];
 export const postTagEnum = pgEnum("post_tag", POST_TAGS);
 
 export const users = pgTable("users", {
-  avatarUrl: text("avatar_url"),
+  avatarId: text("avatar_id"),
   bio: text("bio"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   disciplines: json("disciplines").$type<UserDiscipline[]>(),
@@ -97,7 +97,7 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   id: serial("id").primaryKey(),
-  imageUrl: text("image_url"),
+  imageId: text("image_id"),
   tags: json("tags").$type<PostTag[]>().default([]),
 
   title: text("title").notNull(),

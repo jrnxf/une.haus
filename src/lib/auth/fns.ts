@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -68,7 +69,7 @@ export const enterCodeServerFn = createServerFn({
     //       id: users.id,
     //       email: users.email,
     //       name: users.name,
-    //       avatarUrl: users.avatarUrl,
+    //       avatarId: users.avatarId,
     //       bio: users.bio,
     //       disciplines: users.disciplines,
     //     },

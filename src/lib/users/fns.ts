@@ -23,7 +23,7 @@ export const allUsersServerFn = createServerFn({
 }).handler(async () => {
   return await db
     .select({
-      avatarUrl: users.avatarUrl,
+      avatarId: users.avatarId,
       id: users.id,
       name: users.name,
     })
@@ -38,7 +38,7 @@ export const listUsersServerFn = createServerFn({
   .handler(async ({ data: input }) => {
     return await db
       .select({
-        avatarUrl: users.avatarUrl,
+        avatarId: users.avatarId,
         bio: users.bio,
         disciplines: users.disciplines,
         email: users.email,
@@ -190,7 +190,7 @@ export const unfollowUserServerFn = createServerFn({
 const getUser = createServerOnlyFn(async (userId: number) => {
   const [user] = await db
     .select({
-      avatarUrl: users.avatarUrl,
+      avatarId: users.avatarId,
       bio: users.bio,
       disciplines: users.disciplines,
       email: users.email,
@@ -229,7 +229,7 @@ const getUserFollows = createServerOnlyFn(async (userId: number) => {
       // Users that this user follows (followedByUserId = userId, join on followedUserId)
       db
         .select({
-          avatarUrl: users.avatarUrl,
+          avatarId: users.avatarId,
           id: users.id,
           name: users.name,
           location: {
@@ -245,7 +245,7 @@ const getUserFollows = createServerOnlyFn(async (userId: number) => {
       // Users that follow this user (followedUserId = userId, join on followedByUserId)
       db
         .select({
-          avatarUrl: users.avatarUrl,
+          avatarId: users.avatarId,
           id: users.id,
           name: users.name,
           location: {
