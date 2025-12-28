@@ -112,7 +112,7 @@ export function PostView({ postId }: { postId: number }) {
       {isOwner && (
         <div className="flex items-center gap-1">
           <Button asChild size="icon-sm" variant="outline">
-            <Link params={{ postId }} to={`/posts/$postId/edit`}>
+            <Link params={{ postId }} to="/posts/$postId/edit">
               <PencilIcon className="size-4" />
             </Link>
           </Button>

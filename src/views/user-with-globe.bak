@@ -157,7 +157,6 @@ function FollowersFollowing(props: UsersWithFollowsData) {
       <div className="flex items-center gap-2">
         <UsersCombobox
           key={`followers-${userId}`}
-          id="followers"
           users={followers.users}
           label={followers.count === 1 ? "follower" : "followers"}
         >
@@ -167,7 +166,6 @@ function FollowersFollowing(props: UsersWithFollowsData) {
         </UsersCombobox>
         <UsersCombobox
           key={`following-${userId}`}
-          id="following"
           users={following.users}
           label="following"
         >

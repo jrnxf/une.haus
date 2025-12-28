@@ -56,7 +56,7 @@ function RouteComponent() {
 
   const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }));
 
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: posts.update.fn,
     onMutate: ({ data }) => {
       qc.cancelQueries({
@@ -105,7 +105,7 @@ function RouteComponent() {
     },
   });
 
-  const rhf = useForm<z.infer<typeof posts.create.schema>>({
+  const rhf = useForm<z.input<typeof posts.create.schema>>({
     defaultValues: buildDefaultValues(post),
     resolver: zodResolver(posts.create.schema),
     shouldUnregister: false,
@@ -128,14 +128,8 @@ function RouteComponent() {
       id="main-content"
       method="post"
       onSubmit={(event) => {
-        event.preventDefault();
-        handleSubmit((data) => {
-          mutate({
-            data: {
-              ...data,
-              postId,
-            },
-          });
+        handleSubmit(async (data) => {
+          await mutateAsync({ data: { ...data, postId } });
         })(event);
       }}
     >
@@ -184,8 +178,9 @@ function RouteComponent() {
           </FormItem>
         )}
       />
-
-      <FormSubmitButton busy={isSubmitting} />
+      <div className="flex justify-end">
+        <FormSubmitButton busy={isSubmitting} />
+      </div>
     </Form>
   );
 }

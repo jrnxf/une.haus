@@ -145,6 +145,7 @@
     "@types/pg": "^8.11.14",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@typescript/native-preview": "^7.0.0-dev.20251228.1",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.1",
     "eslint": "^9.25.1",

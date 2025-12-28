@@ -10,9 +10,9 @@ const client = postgres(env.DATABASE_URL);
 export const db = drizzle(client, {
   logger: {
     logQuery: (query, params) => {
-      // if (env.LOG_SQL) {
-      // console.log("(sql)", query, params);
-      // }
+      if (env.LOG_SQL) {
+        console.log("(sql)", query, params);
+      }
     },
   },
   schema,

@@ -12,7 +12,9 @@ export const createPostSchema = z.object({
     .string()
     .min(1, { message: "Title is required" })
     .max(60, { message: "Title must be less than 60 characters" }),
-  content: z.string({ message: "Content is required" }).min(1),
+  content: z
+    .string({ message: "Content is required" })
+    .min(1, { message: "Content is required" }),
   tags: z
     .array(z.enum(POST_TAGS), { message: "At least one tag is required" })
     .min(1, { message: "At least one tag is required" })

@@ -1,12 +1,15 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import path from "node:path";
 
-const BASE_DIR = join(homedir(), "skrrrt");
-const TO_REUPLOAD_DIR = join(BASE_DIR, "to_reupload");
-const MAPPINGS_FILE = join(TO_REUPLOAD_DIR, "mappings.json");
-const CLOUDFLARE_MAPPINGS_FILE = join(TO_REUPLOAD_DIR, "cloudflare-mappings.json");
-const META_MAPPINGS_FILE = join(TO_REUPLOAD_DIR, "meta-mappings.json");
+const BASE_DIR = path.join(homedir(), "skrrrt");
+const TO_REUPLOAD_DIR = path.join(BASE_DIR, "to_reupload");
+const MAPPINGS_FILE = path.join(TO_REUPLOAD_DIR, "mappings.json");
+const CLOUDFLARE_MAPPINGS_FILE = path.join(
+  TO_REUPLOAD_DIR,
+  "cloudflare-mappings.json",
+);
+const META_MAPPINGS_FILE = path.join(TO_REUPLOAD_DIR, "meta-mappings.json");
 
 interface LocalMapping {
   oldPath: string;
@@ -88,7 +91,11 @@ async function combineMappings() {
   }
 
   // Write combined mappings
-  await writeFile(META_MAPPINGS_FILE, JSON.stringify(metaMappings, null, 2), "utf8");
+  await writeFile(
+    META_MAPPINGS_FILE,
+    JSON.stringify(metaMappings, null, 2),
+    "utf8",
+  );
 
   console.log(`\n✅ Combined ${metaMappings.length} mappings`);
   console.log(`  Matched with Cloudflare: ${matched}`);
@@ -101,12 +108,10 @@ async function combineMappings() {
   }
 
   if (unmatched > 0) {
-    console.log(`\n⚠️  ${unmatched} files not found in Cloudflare. These may not have been uploaded yet.`);
+    console.log(
+      `\n⚠️  ${unmatched} files not found in Cloudflare. These may not have been uploaded yet.`,
+    );
   }
 }
 
 await combineMappings();
-
-
-
-

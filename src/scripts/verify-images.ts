@@ -1,15 +1,15 @@
 import { constants } from "node:fs";
 import { access, copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { extname, join } from "node:path";
+import path from "node:path";
 
 import { customAlphabet } from "nanoid";
 
 const IMAGES_FILE = "src/bak/images.md";
-const BASE_DIR = join(homedir(), "skrrrt");
-const TO_REUPLOAD_DIR = join(BASE_DIR, "to_reupload");
-const MISSING_FILE = join(TO_REUPLOAD_DIR, "missing.txt");
-const MAPPINGS_FILE = join(TO_REUPLOAD_DIR, "mappings.json");
+const BASE_DIR = path.join(homedir(), "skrrrt");
+const TO_REUPLOAD_DIR = path.join(BASE_DIR, "to_reupload");
+const MISSING_FILE = path.join(TO_REUPLOAD_DIR, "missing.txt");
+const MAPPINGS_FILE = path.join(TO_REUPLOAD_DIR, "mappings.json");
 
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const generateId = customAlphabet(alphabet, 12);
@@ -45,18 +45,18 @@ async function verifyImages() {
       // - https://skrrrt.s3.us-east-1.amazonaws.com/media/...
       // - https://skrrrt.s3.us-east-1.amazonaws.com/v2/...
       const urlObj = new URL(url.trim());
-      let path = urlObj.pathname;
+      let pathname = urlObj.pathname;
 
       // Remove leading slash
-      if (path.startsWith("/")) {
-        path = path.slice(1);
+      if (pathname.startsWith("/")) {
+        pathname = pathname.slice(1);
       }
 
       // URL decode the path
-      const decodedPath = decodeURIComponent(path);
+      const decodedPath = decodeURIComponent(pathname);
 
       // Construct local file path
-      const localPath = join(BASE_DIR, decodedPath);
+      const localPath = path.join(BASE_DIR, decodedPath);
 
       // Check if file exists
       let fileExists = false;
@@ -69,13 +69,13 @@ async function verifyImages() {
 
       if (fileExists) {
         // Generate nanoid for the file
-        const fileExtension = extname(decodedPath);
+        const fileExtension = path.extname(decodedPath);
         const newId = generateId();
 
         const newFileName = `${newId}${fileExtension}`;
 
         // Copy file to to_reupload directory with new nanoid name
-        const destPath = join(TO_REUPLOAD_DIR, newFileName);
+        const destPath = path.join(TO_REUPLOAD_DIR, newFileName);
 
         // Copy the file
         await copyFile(localPath, destPath);

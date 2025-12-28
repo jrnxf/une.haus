@@ -1,10 +1,10 @@
 import { writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import path from "node:path";
 
-const BASE_DIR = join(homedir(), "skrrrt");
-const TO_REUPLOAD_DIR = join(BASE_DIR, "to_reupload");
-const CLOUDFLARE_MAPPINGS_FILE = join(
+const BASE_DIR = path.join(homedir(), "skrrrt");
+const TO_REUPLOAD_DIR = path.join(BASE_DIR, "to_reupload");
+const CLOUDFLARE_MAPPINGS_FILE = path.join(
   TO_REUPLOAD_DIR,
   "cloudflare-mappings.json",
 );

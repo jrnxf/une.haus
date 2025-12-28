@@ -3,8 +3,8 @@ import { z } from "zod";
 
 const booleanEnvVar = z
   .enum(["true", "false"])
-  .transform((value) => value === "true")
-  .default("false");
+  .default("false")
+  .transform((value) => value === "true");
 
 export const env = createEnv({
   client: {

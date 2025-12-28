@@ -81,15 +81,9 @@ function RouteComponent() {
       id="main-content"
       method="post"
       onSubmit={(event) => {
-        event.preventDefault();
-        handleSubmit(
-          async (data) => {
-            await mutateAsync({ data });
-          },
-          (errors) => {
-            console.log({ errors });
-          },
-        )(event);
+        handleSubmit(async (data) => {
+          await mutateAsync({ data });
+        })(event);
       }}
     >
       <FormField
