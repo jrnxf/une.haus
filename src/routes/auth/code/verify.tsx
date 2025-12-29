@@ -83,8 +83,8 @@ function RouteComponent() {
         id="main-content"
         onSubmit={(event) => {
           event.preventDefault();
-          enterCodeForm.handleSubmit((data) => {
-            enterCodeMutation.mutate({ data });
+          enterCodeForm.handleSubmit(async (data) => {
+            await enterCodeMutation.mutateAsync({ data });
           })(event);
         }}
       >

@@ -140,8 +140,6 @@ export const createPostServerFn = createServerFn({
       userId,
     };
 
-    console.log({ x });
-
     const [post] = await db.insert(posts).values(x).returning();
 
     invariant(post, "Failed to create post");

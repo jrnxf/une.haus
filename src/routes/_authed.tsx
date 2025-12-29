@@ -1,9 +1,13 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
+import { session } from "~/lib/session";
+
 export const Route = createFileRoute("/_authed")({
-  beforeLoad: ({ context, location }) => {
-    const session = context.session;
-    if (!session.user) {
+  beforeLoad: async ({ context, location }) => {
+    const sessionData = await context.queryClient.ensureQueryData(
+      session.get.queryOptions(),
+    );
+    if (!sessionData.user) {
       throw redirect({
         to: "/auth/code/send",
         search: {
@@ -13,7 +17,7 @@ export const Route = createFileRoute("/_authed")({
     }
 
     return {
-      user: session.user,
+      user: sessionData.user,
     };
   },
   errorComponent: ({ error }) => {

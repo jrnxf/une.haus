@@ -1,7 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { type ServerFnReturn } from "~/lib/types";
-import { allUtvVideosServerFn } from "~/lib/utv/fns";
+import {
+  allUtvVideosServerFn,
+  updateUtvScaleServerFn,
+  updateUtvThumbnailSecondsServerFn,
+  updateUtvTitleServerFn,
+} from "~/lib/utv/fns";
 
 export const utv = {
   all: {
@@ -12,6 +17,15 @@ export const utv = {
         queryFn: allUtvVideosServerFn,
       });
     },
+  },
+  updateScale: {
+    fn: updateUtvScaleServerFn,
+  },
+  updateThumbnailSeconds: {
+    fn: updateUtvThumbnailSecondsServerFn,
+  },
+  updateTitle: {
+    fn: updateUtvTitleServerFn,
   },
 };
 

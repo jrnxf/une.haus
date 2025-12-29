@@ -1,6 +1,8 @@
+import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
+
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { MonitorIcon, TvIcon } from "lucide-react";
+import { MonitorIcon, ShieldIcon, TvIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Virtualizer } from "virtua";
@@ -14,7 +16,13 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster, VideoPlayer } from "~/components/video-player";
+import { useIsAdmin } from "~/lib/session/hooks";
 import { utv } from "~/lib/utv";
+import {
+  useUpdateScale,
+  useUpdateThumbnailSeconds,
+  useUpdateTitle,
+} from "~/lib/utv/hooks";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
 export const Route = createFileRoute("/vault/")({
@@ -27,6 +35,9 @@ export const Route = createFileRoute("/vault/")({
 function RouteComponent() {
   const { data } = useSuspenseQuery(utv.all.queryOptions());
   const [query, setQuery] = useState("");
+  const [adminMode, setAdminMode] = useState(false);
+
+  const isAdmin = useIsAdmin();
 
   const lowercasedQuery = query.toLowerCase();
 
@@ -37,17 +48,33 @@ function RouteComponent() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="grow overflow-y-auto" ref={scrollRef}>
-      <div className="mx-auto max-w-4xl p-4">
-        <Accordion collapsible type="single">
-          <Virtualizer scrollRef={scrollRef} overscan={12}>
-            <Input
-              id="vault-search"
-              value={query}
-              onChange={(evt) => setQuery(evt.target.value)}
-              placeholder="Search vault"
-              className="mx-auto max-w-2xl"
-            />
+    <div className="flex grow flex-col overflow-hidden">
+      {isAdmin && (
+        <Button
+          variant={adminMode ? "default" : "secondary"}
+          size="sm"
+          onClick={() => setAdminMode(!adminMode)}
+          className="sticky top-0 z-50 ml-auto mr-4 mt-4"
+        >
+          <ShieldIcon className="size-4" />
+          Admin
+        </Button>
+      )}
+      <div className="mx-auto w-full max-w-4xl shrink-0 px-4 pt-4 pb-0">
+        <div className="flex items-center gap-2">
+          <Input
+            id="vault-search"
+            value={query}
+            onChange={(evt) => setQuery(evt.target.value)}
+            placeholder="Search vault"
+            className="max-w-2xl"
+          />
+        </div>
+      </div>
+      <div className="grow overflow-y-auto" ref={scrollRef}>
+        <div className="mx-auto max-w-4xl px-4 pb-4">
+          <Accordion collapsible type="single">
+            <Virtualizer scrollRef={scrollRef} overscan={12}>
             {filteredVault.map(({ item: video }) => (
               <AccordionItem
                 value={String(video.id)}
@@ -60,12 +87,15 @@ function RouteComponent() {
                       <img
                         src={getMuxPoster({
                           playbackId: video.playbackId,
-                          time: 30, // 30 seconds into the video - usually enough to have the intro over
-                          width: 104 * 2, // 104 is the width of the thumbnail + double for better quality
+                          time: video.thumbnailSeconds,
+                          width: 104 * 2,
                         })}
                         alt={String(video.id)}
                         aria-label={video.title}
-                        // className="scale-150" // hide the ugly yellow lol - might create a ui for scaling this and saving the results as well as scrubbing timestamps
+                        className="h-full w-full object-cover"
+                        style={{
+                          transform: `scale(${video.scale})`,
+                        }}
                       />
                     </div>
                     <h2 className="truncate font-semibold">{video.title}</h2>
@@ -91,21 +121,145 @@ function RouteComponent() {
                 </AccordionTrigger>
 
                 <AccordionContent className="p-0">
-                  {video.playbackId ? (
+                  {adminMode ? (
+                    <AdminScaleEditor
+                      videoId={video.id}
+                      playbackId={video.playbackId}
+                      initialScale={video.scale}
+                      thumbnailSeconds={video.thumbnailSeconds}
+                      title={video.title}
+                    />
+                  ) : video.playbackId ? (
                     <VideoPlayer
                       playbackId={video.playbackId}
                       className="rounded-none"
                     />
                   ) : (
-                    // TODO fix the types here
-                    <p>No playback id</p>
+                    <p className="p-4">No playback id</p>
                   )}
                 </AccordionContent>
               </AccordionItem>
             ))}
-          </Virtualizer>
-        </Accordion>
+            </Virtualizer>
+          </Accordion>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function AdminScaleEditor({
+  videoId,
+  playbackId,
+  initialScale,
+  thumbnailSeconds: initialThumbnailSeconds,
+  title: initialTitle,
+}: {
+  videoId: number;
+  playbackId: string | null;
+  initialScale: number;
+  thumbnailSeconds: number;
+  title: string;
+}) {
+  const [localScale, setLocalScale] = useState(initialScale);
+  const [localSeconds, setLocalSeconds] = useState(initialThumbnailSeconds);
+  const [localTitle, setLocalTitle] = useState(initialTitle);
+  const playerRef = useRef<MuxPlayerRefAttributes>(null);
+  const updateScale = useUpdateScale();
+  const updateThumbnailSeconds = useUpdateThumbnailSeconds();
+  const updateTitle = useUpdateTitle();
+
+  const handleSliderRelease = () => {
+    if (localScale !== initialScale) {
+      updateScale.mutate({
+        data: { id: videoId, scale: localScale },
+      });
+    }
+  };
+
+  const handleTitleBlur = () => {
+    if (localTitle !== initialTitle) {
+      updateTitle.mutate({
+        data: { id: videoId, title: localTitle },
+      });
+    }
+  };
+
+  const handleSaveTimestamp = () => {
+    const currentTime = playerRef.current?.currentTime;
+    if (currentTime !== undefined) {
+      const seconds = Math.floor(currentTime);
+      setLocalSeconds(seconds);
+      updateThumbnailSeconds.mutate({
+        data: { id: videoId, thumbnailSeconds: seconds },
+      });
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      {/* Row 1: Thumbnail + Title */}
+      <div className="flex items-center gap-4">
+        {playbackId && (
+          <div className="relative aspect-video h-20 shrink-0 overflow-clip rounded-md">
+            <img
+              src={getMuxPoster({
+                playbackId,
+                time: localSeconds,
+                width: 160,
+              })}
+              alt="Thumbnail preview"
+              className="h-full w-full object-cover"
+              style={{
+                transform: `scale(${localScale})`,
+              }}
+            />
+          </div>
+        )}
+        <Input
+          type="text"
+          value={localTitle}
+          onChange={(e) => setLocalTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          placeholder="Title"
+          className="grow"
+        />
+      </div>
+
+      {/* Row 2: Scale slider */}
+      <div className="flex items-center gap-4">
+        <span className="text-muted-foreground w-12 shrink-0 text-sm font-medium">
+          Scale
+        </span>
+        <input
+          type="range"
+          min={1}
+          max={3}
+          step={0.01}
+          value={localScale}
+          onChange={(e) => setLocalScale(Number.parseFloat(e.target.value))}
+          onMouseUp={handleSliderRelease}
+          onTouchEnd={handleSliderRelease}
+          className="accent-primary h-2 grow cursor-pointer"
+        />
+        <span className="text-muted-foreground w-12 text-sm tabular-nums">
+          {(localScale * 100).toFixed(0)}%
+        </span>
+      </div>
+
+      {/* Video player */}
+      {playbackId && (
+        <>
+          <VideoPlayer
+            ref={playerRef}
+            playbackId={playbackId}
+            className="rounded-md"
+          />
+          <Button variant="secondary" onClick={handleSaveTimestamp}>
+            Save Timestamp ({localSeconds}s)
+          </Button>
+        </>
+      )}
     </div>
   );
 }

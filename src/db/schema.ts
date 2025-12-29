@@ -242,8 +242,11 @@ export const riuSubmissionMessageLikes = pgTable(
 export const utvVideos = pgTable("utv_videos", {
   id: serial("id").primaryKey(),
   legacyUrl: text("legacy_url").notNull(),
+  legacyTitle: text("legacy_title").notNull(),
   title: text("title").notNull().default(""),
-  confidenceScore: integer("confidence_score").notNull().default(-1),
+  thumbnailScale: real("thumbnail_scale").notNull().default(1),
+  thumbnailSeconds: integer("thumbnail_seconds").notNull().default(30),
+  titleConfidenceScore: integer("title_confidence_score").notNull().default(-1),
   muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
     onDelete: "set null",
   }),

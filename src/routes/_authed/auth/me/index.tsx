@@ -7,13 +7,13 @@ import { UserView } from "~/views/user";
 export const Route = createFileRoute("/_authed/auth/me/")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
+    const authUser = await context.queryClient.ensureQueryData(
       users.get.queryOptions({
         userId: context.user.id,
       }),
     );
     return {
-      authUser: context.user,
+      authUser,
     };
   },
 });

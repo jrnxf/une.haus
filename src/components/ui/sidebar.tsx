@@ -296,12 +296,12 @@ function SidebarInset({
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-all sm:p-2",
+        "bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-[padding] sm:p-2",
         className,
       )}
       {...props}
     >
-      <div className="bg-background flex grow flex-col overflow-auto transition-all sm:rounded-xl sm:border">
+      <div className="bg-background flex grow flex-col overflow-auto sm:rounded-xl sm:border">
         {children}
       </div>
     </main>

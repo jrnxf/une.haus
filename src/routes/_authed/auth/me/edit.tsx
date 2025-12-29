@@ -7,11 +7,11 @@ import { users } from "~/lib/users";
 export const Route = createFileRoute("/_authed/auth/me/edit")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
+    const authUser = await context.queryClient.ensureQueryData(
       users.get.queryOptions({ userId: context.user.id }),
     );
     return {
-      authUser: context.user,
+      authUser,
     };
   },
 });

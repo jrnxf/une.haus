@@ -1,6 +1,7 @@
-import MuxPlayer from "@mux/mux-player-react";
+import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
 
 import queryString from "query-string";
+import { forwardRef } from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -29,17 +30,17 @@ export function getMuxPoster({
   });
 }
 
-export function VideoPlayer({
-  playbackId,
-  className,
-  ...props
-}: { playbackId: string } & React.ComponentProps<"div">) {
+export const VideoPlayer = forwardRef<
+  MuxPlayerRefAttributes,
+  { playbackId: string } & React.ComponentProps<"div">
+>(function VideoPlayer({ playbackId, className, ...props }, ref) {
   return (
     <div
       className={cn("aspect-video overflow-hidden rounded-lg", className)}
       {...props}
     >
       <MuxPlayer
+        ref={ref}
         accentColor="#000000"
         className="aspect-video"
         playbackId={playbackId}
@@ -51,4 +52,6 @@ export function VideoPlayer({
       />
     </div>
   );
-}
+});
+
+export type { MuxPlayerRefAttributes };
