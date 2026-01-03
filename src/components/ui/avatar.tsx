@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn, getUserInitials } from "~/lib/utils";
+import { cn, getCloudflareImageUrl, getUserInitials } from "~/lib/utils";
 
 type ImageStatus = "loading" | "error" | "success" | "no-image";
 const AvatarContext = React.createContext<{
@@ -54,7 +54,7 @@ function AvatarImage({
   ...props
 }: Omit<React.ComponentProps<"img">, "src" | "alt"> & {
   width: number;
-  quality?: number;
+  quality: number;
 }) {
   const { cloudflareId, alt, setImageStatus, imageStatus } = useAvatar();
 
@@ -66,7 +66,7 @@ function AvatarImage({
     <img
       data-slot="avatar-image"
       className={cn("aspect-square size-full object-cover", className)}
-      src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${cloudflareId}/width=${width},quality=${quality}`}
+      src={getCloudflareImageUrl(cloudflareId, { width, quality })}
       onError={() => setImageStatus("error")}
       onLoad={() => setImageStatus("success")}
       alt={alt}

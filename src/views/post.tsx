@@ -21,7 +21,7 @@ import { useCreateMessage } from "~/lib/messages/hooks";
 import { posts } from "~/lib/posts";
 import { useDeletePost } from "~/lib/posts/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
-import { cn } from "~/lib/utils";
+import { cn, getCloudflareImageUrl } from "~/lib/utils";
 import { MessagesView } from "~/views/messages";
 
 export function PostView({ postId }: { postId: number }) {
@@ -103,7 +103,10 @@ export function PostView({ postId }: { postId: number }) {
             fetchPriority="high"
             loading="eager"
             className="max-h-96 max-w-96 rounded-md object-cover"
-            src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${post.imageId}/width=1152,quality=70`}
+            src={getCloudflareImageUrl(post.imageId, {
+              width: 1152,
+              quality: 70,
+            })}
           />
         )}
         <p>{post.content}</p>

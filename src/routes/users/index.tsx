@@ -2,6 +2,7 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
 
 import { Badges } from "~/components/badges";
@@ -24,7 +25,7 @@ import {
 } from "~/components/ui/empty";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
-import { cn } from "~/lib/utils";
+import { cn, getCloudflareImageUrl } from "~/lib/utils";
 
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
@@ -79,6 +80,17 @@ function RouteComponent() {
               key={user.id}
               to="/users/$userId"
               params={{ userId: user.id }}
+              onMouseEnter={() => {
+                if (user.avatarId) {
+                  preload(
+                    getCloudflareImageUrl(user.avatarId, {
+                      width: 448,
+                      quality: 60,
+                    }),
+                    { as: "image", fetchPriority: "high" },
+                  );
+                }
+              }}
               className={cn(
                 "ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
               )}
@@ -88,12 +100,15 @@ function RouteComponent() {
                 <div className="flex w-full flex-col gap-2">
                   <div className="flex items-center gap-2">
                     {/* <Avatar className="size-6 rounded-full">
-                      <AvatarImage alt={user.name} src={user.avatarId} />
-                      <AvatarFallback className="text-xs" name={user.name} />
-                    </Avatar> */}
+                    <AvatarImage alt={user.name} src={user.avatarId} />
+                    <AvatarFallback className="text-xs" name={user.name} />
+                  </Avatar> */}
                     {user.avatarId && (
                       <img
-                        src={`https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${user.avatarId}/width=72,quality=70`}
+                        src={getCloudflareImageUrl(user.avatarId, {
+                          width: 72,
+                          quality: 70,
+                        })}
                         alt={user.name}
                         fetchPriority="high"
                         loading={idx < 6 ? "eager" : "lazy"}

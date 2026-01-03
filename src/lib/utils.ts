@@ -51,3 +51,10 @@ export function preprocessText(text: string) {
 export function isDefined<T>(x: T): x is NonNullable<T> {
   return x !== null && x !== undefined;
 }
+
+export function getCloudflareImageUrl(
+  id: string,
+  options: { width: number; quality: number },
+) {
+  return `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${id}/width=${options.width},quality=${options.quality}`;
+}
