@@ -57,7 +57,12 @@ export function useLikeRecord({
         if (!prev) return prev;
 
         // chat message schemas are a little different so they need to be handled differently
-        if (record.type === "chatMessage" || record.type === "postMessage") {
+        if (
+          record.type === "chatMessage" ||
+          record.type === "postMessage" ||
+          record.type === "riuSetMessage" ||
+          record.type === "riuSubmissionMessage"
+        ) {
           return {
             ...prev,
 
@@ -155,7 +160,12 @@ export function useUnlikeRecord({
         if (!prev) return prev;
 
         // chat message schemas are a little different so they need to be handled differently
-        if (record.type === "chatMessage" || record.type === "postMessage") {
+        if (
+          record.type === "chatMessage" ||
+          record.type === "postMessage" ||
+          record.type === "riuSetMessage" ||
+          record.type === "riuSubmissionMessage"
+        ) {
           return {
             ...prev,
             // TODO COLBY

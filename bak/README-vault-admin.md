@@ -42,6 +42,7 @@ The `utvVideos` table has a `scale` column (default: 1.0) that stores the comput
 ## Current Implementation
 
 The admin functionality is integrated into the main `/vault` route:
+
 - Admin toggle button (top right, visible to admins only)
 - When admin mode is ON, accordion content shows:
   - Scale slider (starts at current DB value)
@@ -49,4 +50,3 @@ The admin functionality is integrated into the main `/vault` route:
   - Auto-saves to DB on slider release
 - When admin mode is OFF, accordion content shows video player as normal
 - Uses `useUpdateScale()` mutation with optimistic updates
-

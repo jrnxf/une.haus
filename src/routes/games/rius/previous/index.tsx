@@ -73,11 +73,11 @@ function SetCard({ set }: { set: SetType }) {
               </div>
               <div className="flex items-center gap-1">
                 <HeartIcon className="size-3" />
-                <span>0</span>
+                <span>{set.likes?.length ?? 0}</span>
               </div>
               <div className="flex items-center gap-1">
                 <UploadIcon className="size-3" />
-                <span>0</span>
+                <span>{set.submissions?.length ?? 0}</span>
               </div>
             </div>
           </div>

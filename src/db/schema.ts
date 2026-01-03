@@ -239,6 +239,19 @@ export const riuSubmissionMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.riuSubmissionMessageId, t.userId] })],
 );
 
+export const riuSubmissionLikes = pgTable(
+  "riu_submission_likes",
+  {
+    riuSubmissionId: integer("riu_submission_id")
+      .notNull()
+      .references(() => riuSubmissions.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.riuSubmissionId, t.userId] })],
+);
+
 export const utvVideos = pgTable("utv_videos", {
   id: serial("id").primaryKey(),
   legacyUrl: text("legacy_url").notNull(),
@@ -325,6 +338,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   followedByUsers: many(userFollows, { relationName: "followedByUsers" }),
   followingUsers: many(userFollows, { relationName: "followingUsers" }),
   likedPosts: many(postLikes),
+  likedRiuSubmissions: many(riuSubmissionLikes),
   location: one(userLocations),
   posts: many(posts),
   riuSetMessages: many(riuSetMessages),
@@ -383,6 +397,7 @@ export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
 export const riuSubmissionsRelations = relations(
   riuSubmissions,
   ({ one, many }) => ({
+    likes: many(riuSubmissionLikes),
     messages: many(riuSubmissionMessages),
     riuSet: one(riuSets, {
       fields: [riuSubmissions.riuSetId],
@@ -516,6 +531,20 @@ export const riuSubmissionMessageLikesRelations = relations(
     }),
     user: one(users, {
       fields: [riuSubmissionMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const riuSubmissionLikesRelations = relations(
+  riuSubmissionLikes,
+  ({ one }) => ({
+    riuSubmission: one(riuSubmissions, {
+      fields: [riuSubmissionLikes.riuSubmissionId],
+      references: [riuSubmissions.id],
+    }),
+    user: one(users, {
+      fields: [riuSubmissionLikes.userId],
       references: [users.id],
     }),
   }),

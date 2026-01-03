@@ -1,7 +1,7 @@
 import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
+import { forwardRef } from "react";
 
 import queryString from "query-string";
-import { forwardRef } from "react";
 
 import { cn } from "~/lib/utils";
 

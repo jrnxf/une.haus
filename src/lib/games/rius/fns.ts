@@ -33,26 +33,34 @@ export const getRiuSetServerFn = createServerFn({
 })
   .inputValidator(zodValidator(getRiuSetSchema))
   .handler(async ({ data: input }) => {
-    const [set] = await db
-      .select({
-        instructions: riuSets.instructions,
-        id: riuSets.id,
-        name: riuSets.name,
-        setPlaybackId: muxVideos.playbackId,
+    const set = await db.query.riuSets.findFirst({
+      where: eq(riuSets.id, input.setId),
+      with: {
         user: {
-          avatarId: users.avatarId,
-          id: users.id,
-          name: users.name,
+          columns: {
+            avatarId: true,
+            id: true,
+            name: true,
+          },
         },
         video: {
-          playbackId: muxVideos.playbackId,
+          columns: {
+            playbackId: true,
+          },
         },
-      })
-      .from(riuSets)
-      .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
-      .innerJoin(users, eq(riuSets.userId, users.id))
-      .innerJoin(rius, eq(riuSets.riuId, rius.id))
-      .where(eq(riuSets.id, input.setId));
+        likes: {
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarId: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     return set;
   });
@@ -133,22 +141,34 @@ export const getRiuSubmissionServerFn = createServerFn({
 })
   .inputValidator(zodValidator(getRiuSubmissionSchema))
   .handler(async ({ data: input }) => {
-    const [submission] = await db
-      .select({
-        id: riuSubmissions.id,
+    const submission = await db.query.riuSubmissions.findFirst({
+      where: eq(riuSubmissions.id, input.submissionId),
+      with: {
         user: {
-          avatarId: users.avatarId,
-          id: users.id,
-          name: users.name,
+          columns: {
+            avatarId: true,
+            id: true,
+            name: true,
+          },
         },
         video: {
-          playbackId: muxVideos.playbackId,
+          columns: {
+            playbackId: true,
+          },
         },
-      })
-      .from(riuSubmissions)
-      .innerJoin(muxVideos, eq(riuSubmissions.muxAssetId, muxVideos.assetId))
-      .innerJoin(users, eq(riuSubmissions.userId, users.id))
-      .where(eq(riuSubmissions.id, input.submissionId));
+        likes: {
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarId: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     return submission;
   });
@@ -233,6 +253,33 @@ export const listActiveRiusServerFn = createServerFn({
                 },
               },
             },
+            submissions: {
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarId: true,
+                  },
+                },
+                video: {
+                  columns: {
+                    playbackId: true,
+                  },
+                },
+                likes: {
+                  with: {
+                    user: {
+                      columns: {
+                        id: true,
+                        name: true,
+                        avatarId: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -271,6 +318,44 @@ export const getArchivedRiusServerFn = createServerFn({
             video: {
               columns: {
                 playbackId: true,
+              },
+            },
+            likes: {
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarId: true,
+                  },
+                },
+              },
+            },
+            submissions: {
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarId: true,
+                  },
+                },
+                video: {
+                  columns: {
+                    playbackId: true,
+                  },
+                },
+                likes: {
+                  with: {
+                    user: {
+                      columns: {
+                        id: true,
+                        name: true,
+                        avatarId: true,
+                      },
+                    },
+                  },
+                },
               },
             },
             messages: {

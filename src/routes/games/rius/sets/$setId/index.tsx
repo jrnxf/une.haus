@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   HeartIcon,
   PencilIcon,
@@ -82,8 +83,16 @@ function SetView({ setId }: { setId: number }) {
 
   const sessionUser = useSessionUser();
 
-  // TODO: Add like/unlike functionality for sets if needed
-  const authUserLiked = false; // Sets don't have likes yet
+  const authUserLiked = set.likes.some(
+    (like) => like.userId === sessionUser?.id,
+  );
+
+  const likeUnlike = useLikeUnlikeRecord({
+    record,
+    authUserLiked,
+    optimisticUpdateQueryKey: games.rius.sets.get.queryOptions({ setId })
+      .queryKey,
+  });
 
   const isOwner = set.user.id === sessionUser?.id;
 
@@ -98,7 +107,7 @@ function SetView({ setId }: { setId: number }) {
 
         <div className="text-muted-foreground text-sm">{set.user.name}</div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" disabled>
+          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
             <HeartIcon
               className={cn(
                 "size-4",
@@ -106,16 +115,17 @@ function SetView({ setId }: { setId: number }) {
               )}
             />
           </Button>
-          <UsersDialog
-            users={[]}
-            title="0 Likes"
-            trigger={
-              <Button size="icon-sm" variant="outline" disabled>
-                <TrendingUpIcon className="size-4" />
-              </Button>
-            }
-            disabled
-          />
+          {set.likes.length > 0 && (
+            <UsersDialog
+              users={set.likes?.map((l) => l.user) ?? []}
+              title={`${set.likes?.length ?? 0} Likes`}
+              trigger={
+                <Button size="icon-sm" variant="outline">
+                  <TrendingUpIcon className="size-4" />
+                </Button>
+              }
+            />
+          )}
           <Button size="icon-sm" variant="outline" disabled>
             <Share2Icon className="size-4" />
           </Button>

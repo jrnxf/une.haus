@@ -15,6 +15,9 @@ import {
   postLikes,
   postMessageLikes,
   riuSetLikes,
+  riuSetMessageLikes,
+  riuSubmissionLikes,
+  riuSubmissionMessageLikes,
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
@@ -76,7 +79,13 @@ export const getTableByType = (type: RecordWithLikesType) => {
           ? postMessageLikes
           : type === "riuSet"
             ? riuSetLikes
-            : undefined;
+            : type === "riuSetMessage"
+              ? riuSetMessageLikes
+              : type === "riuSubmission"
+                ? riuSubmissionLikes
+                : type === "riuSubmissionMessage"
+                  ? riuSubmissionMessageLikes
+                  : undefined;
 
   invariant(
     table,

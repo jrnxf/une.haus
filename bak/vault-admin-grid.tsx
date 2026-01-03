@@ -1,6 +1,6 @@
 /**
  * BACKUP: Original admin grid view for vault thumbnail scaling
- * 
+ *
  * This was a dedicated /vault/admin route that displayed all vault videos
  * in a grid layout, allowing admins to:
  * - Select multiple videos (click to toggle, shift+click for range)
@@ -379,7 +379,3 @@ function RouteComponent() {
     </div>
   );
 }
-
-
-
-

@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   HeartIcon,
   PencilIcon,
@@ -69,8 +70,19 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
 
   const sessionUser = useSessionUser();
 
-  // TODO: Add like/unlike functionality for sets if needed
-  const authUserLiked = false; // Sets don't have likes yet
+  const authUserLiked = submission.likes.some(
+    (like) => like.userId === sessionUser?.id,
+  );
+
+  const record = { type: "riuSubmission" as const, id: submissionId };
+
+  const likeUnlike = useLikeUnlikeRecord({
+    record,
+    authUserLiked,
+    optimisticUpdateQueryKey: games.rius.submissions.get.queryOptions({
+      submissionId,
+    }).queryKey,
+  });
 
   const isOwner = submission.user.id === sessionUser?.id;
 
@@ -87,7 +99,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
           {submission.user.name}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" disabled>
+          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
             <HeartIcon
               className={cn(
                 "size-4",
@@ -95,16 +107,17 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               )}
             />
           </Button>
-          <UsersDialog
-            users={[]}
-            title="0 Likes"
-            trigger={
-              <Button size="icon-sm" variant="outline" disabled>
-                <TrendingUpIcon className="size-4" />
-              </Button>
-            }
-            disabled
-          />
+          {submission.likes.length > 0 && (
+            <UsersDialog
+              users={submission.likes.map((l) => l.user)}
+              title={`${submission.likes.length} Likes`}
+              trigger={
+                <Button size="icon-sm" variant="outline">
+                  <TrendingUpIcon className="size-4" />
+                </Button>
+              }
+            />
+          )}
           <Button size="icon-sm" variant="outline" disabled>
             <Share2Icon className="size-4" />
           </Button>
