@@ -1,15 +1,8 @@
 @import "tailwindcss" source("../");
 @import "tw-animate-css";
+@import "@fontsource-variable/geist-mono";
 
 @custom-variant dark (&:is(.dark *));
-
-@font-face {
-  font-family: "Geist Mono Variable";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/geist-mono-variable.woff2") format("woff2");
-}
 
 @theme {
   --font-mono: "Geist Mono Variable", "ui-monospace";
@@ -176,6 +169,7 @@
   :root,
   html,
   body {
+    font-family: "Geist Mono Variable", monospace;
     @apply bg-background text-foreground;
   }
 }

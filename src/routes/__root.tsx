@@ -47,13 +47,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         rel: "stylesheet",
       },
       {
-        as: "font",
-        crossOrigin: "anonymous",
-        href: "/fonts/geist-mono-variable.woff2",
-        rel: "preload",
-        type: "font/woff2",
-      },
-      {
         rel: "apple-touch-icon",
         href: "/icons/apple-touch-icon.png",
         sizes: "any",

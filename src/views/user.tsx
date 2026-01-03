@@ -39,7 +39,12 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             cloudflareId={user.avatarId}
             alt={user.name}
           >
-            <AvatarImage width={448} quality={60} />
+            <AvatarImage
+              width={448}
+              quality={60}
+              fetchPriority="high"
+              loading="eager"
+            />
             <AvatarFallback name={user.name} />
           </Avatar>
 
