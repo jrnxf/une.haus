@@ -40,6 +40,8 @@ export function UserForm({
           queryKey: users.get.queryOptions({ userId: user.id }).queryKey,
         });
       }
+      // Reset session so sidebar user info updates
+      await qc.resetQueries({ queryKey: ["session.get"] });
       toast.success("Profile updated");
 
       navigate({ to: "/auth/me" });

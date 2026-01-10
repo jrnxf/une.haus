@@ -17,11 +17,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { useSessionUser } from "~/lib/session/hooks";
+import { useLogout, useSessionUser } from "~/lib/session/hooks";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const sessionUser = useSessionUser();
+  const logout = useLogout();
 
   if (!sessionUser) {
     return (
@@ -103,7 +104,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => logout({})}>
               <LogOut />
               Log out
             </DropdownMenuItem>

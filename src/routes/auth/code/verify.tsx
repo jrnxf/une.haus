@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createFileRoute,
   Link,
@@ -50,6 +50,7 @@ function RouteComponent() {
 
   const inputOTPRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const enterCodeForm = useForm<z.infer<typeof auth.enterCode.schema>>({
     defaultValues: {
@@ -62,9 +63,11 @@ function RouteComponent() {
     mutationFn: auth.enterCode.fn,
     onSuccess: async (data) => {
       if (data.status === "success") {
+        await queryClient.resetQueries({ queryKey: ["session.get"] });
         toast.success("Welcome back to une.haus!");
         navigate({ to: search.redirect ?? "/auth/me" });
       } else if (data.status === "user_not_found") {
+        await queryClient.resetQueries({ queryKey: ["session.get"] });
         navigate({ to: "/auth/register" });
       }
     },

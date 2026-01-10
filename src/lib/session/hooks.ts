@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   rootRouteId,
   useNavigate,
@@ -45,10 +45,12 @@ export function useRootRouteContext() {
 
 export function useLogout() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
     mutationFn: session.clear.fn,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.resetQueries({ queryKey: ["session.get"] });
       navigate({ to: "/auth/code/send" });
     },
   });

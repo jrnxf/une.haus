@@ -1,5 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 
@@ -37,11 +42,12 @@ export const Route = createFileRoute("/auth/code/send")({
 
 function RouteComponent() {
   const navigate = useNavigate();
+  const search = useSearch({ from: "/auth/code/send" });
 
   const sendCodeMutation = useMutation({
     mutationFn: auth.sendCode.fn,
     onSuccess: async () => {
-      navigate({ to: "/auth/code/verify" });
+      navigate({ to: "/auth/code/verify", search: { redirect: search.redirect } });
     },
   });
 
