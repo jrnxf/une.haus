@@ -31,6 +31,26 @@ export const allUsersServerFn = createServerFn({
     .orderBy(asc(users.id));
 });
 
+export const usersWithLocationsServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  return await db
+    .select({
+      avatarId: users.avatarId,
+      id: users.id,
+      name: users.name,
+      location: {
+        lat: userLocations.lat,
+        lng: userLocations.lng,
+        label: userLocations.label,
+        countryCode: userLocations.countryCode,
+      },
+    })
+    .from(users)
+    .innerJoin(userLocations, eq(userLocations.userId, users.id))
+    .orderBy(asc(users.id));
+});
+
 export const listUsersServerFn = createServerFn({
   method: "GET",
 })

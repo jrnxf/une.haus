@@ -10,6 +10,7 @@ import {
   listUsersServerFn,
   unfollowUserServerFn,
   updateUserServerFn,
+  usersWithLocationsServerFn,
   type getUserServerFn,
 } from "~/lib/users/fns";
 import {
@@ -28,6 +29,15 @@ export const users = {
       return queryOptions({
         queryKey: ["users.all"],
         queryFn: allUsersServerFn,
+      });
+    },
+  },
+  withLocations: {
+    fn: usersWithLocationsServerFn,
+    queryOptions: () => {
+      return queryOptions({
+        queryKey: ["users.withLocations"],
+        queryFn: usersWithLocationsServerFn,
       });
     },
   },
@@ -97,3 +107,6 @@ export type UsersWithFollowsData = ServerFnReturn<
 >;
 export type UsersFollowsData = ServerFnReturn<typeof getUserFollowsServerFn>;
 export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>;
+export type UsersWithLocationsData = ServerFnReturn<
+  typeof usersWithLocationsServerFn
+>;

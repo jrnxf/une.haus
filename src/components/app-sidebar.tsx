@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import {
   ClipboardPenIcon,
   EarthIcon,
+  GlobeIcon,
   KeySquareIcon,
   MedalIcon,
   MessagesSquareIcon,
@@ -45,6 +46,11 @@ const data = {
       title: "Chat",
       url: "/chat",
       icon: MessagesSquareIcon,
+    },
+    {
+      title: "Map",
+      url: "/map",
+      icon: GlobeIcon,
     },
     {
       title: "Vault",

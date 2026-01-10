@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
@@ -56,6 +57,11 @@ const UsersIndexRoute = UsersIndexRouteImport.update({
 const PostsIndexRoute = PostsIndexRouteImport.update({
   id: '/posts/',
   path: '/posts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapIndexRoute = MapIndexRouteImport.update({
+  id: '/map/',
+  path: '/map/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
+  '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
+  '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat/': typeof ChatIndexRoute
+  '/map/': typeof MapIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/users/$userId'
     | '/chat'
+    | '/map'
     | '/posts'
     | '/users'
     | '/vault'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/users/$userId'
     | '/chat'
+    | '/map'
     | '/posts'
     | '/users'
     | '/vault'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/users/$userId'
     | '/chat/'
+    | '/map/'
     | '/posts/'
     | '/users/'
     | '/vault/'
@@ -319,6 +331,7 @@ export interface RootRouteChildren {
   AuthRegisterRoute: typeof AuthRegisterRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  MapIndexRoute: typeof MapIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/posts'
       fullPath: '/posts'
       preLoaderRoute: typeof PostsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map/': {
+      id: '/map/'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -549,6 +569,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegisterRoute: AuthRegisterRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ChatIndexRoute: ChatIndexRoute,
+  MapIndexRoute: MapIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
