@@ -4,31 +4,37 @@ import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
-const RadioGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...properties }, reference) => {
+function RadioGroup({
+  className,
+  ref,
+  ...properties
+}: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> & {
+  ref?: React.Ref<React.ElementRef<typeof RadioGroupPrimitive.Root>>;
+}) {
   return (
     <RadioGroupPrimitive.Root
       className={cn("grid gap-2", className)}
       {...properties}
-      ref={reference}
+      ref={ref}
     />
   );
-});
+}
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
-const RadioGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
->(({ className, ...properties }, reference) => {
+function RadioGroupItem({
+  className,
+  ref,
+  ...properties
+}: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
+  ref?: React.Ref<React.ElementRef<typeof RadioGroupPrimitive.Item>>;
+}) {
   return (
     <RadioGroupPrimitive.Item
       className={cn(
         "border-primary text-primary ring-offset-background focus-visible:ring-ring aspect-square h-4 w-4 rounded-full border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
-      ref={reference}
+      ref={ref}
       {...properties}
     >
       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
@@ -36,7 +42,7 @@ const RadioGroupItem = React.forwardRef<
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );
-});
+}
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
 export { RadioGroup, RadioGroupItem };

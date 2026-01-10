@@ -8,22 +8,18 @@ const Popover = PopoverPrimitive.Root;
 const PopoverTrigger = PopoverPrimitive.Trigger;
 const PopoverClose = PopoverPrimitive.Close;
 
-const PopoverContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
-    animateClose?: boolean;
-  }
->(
-  (
-    {
-      align = "center",
-      animateClose = true,
-      className,
-      sideOffset = 4,
-      ...properties
-    },
-    reference,
-  ) => (
+function PopoverContent({
+  align = "center",
+  animateClose = true,
+  className,
+  sideOffset = 4,
+  ref,
+  ...properties
+}: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
+  animateClose?: boolean;
+  ref?: React.Ref<React.ElementRef<typeof PopoverPrimitive.Content>>;
+}) {
+  return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
         align={align}
@@ -35,13 +31,13 @@ const PopoverContent = React.forwardRef<
             "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
         )}
-        ref={reference}
+        ref={ref}
         sideOffset={sideOffset}
         {...properties}
       />
     </PopoverPrimitive.Portal>
-  ),
-);
+  );
+}
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
 const PopoverAnchor = PopoverPrimitive.Anchor;
