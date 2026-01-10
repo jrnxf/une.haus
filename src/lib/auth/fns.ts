@@ -13,6 +13,7 @@ import {
   sendCodeSchema,
 } from "~/lib/auth/schemas";
 import { env } from "~/lib/env";
+import { invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
 
 import AuthCodeTemplate from "../../../emails/auth-code";
@@ -57,60 +58,52 @@ export const sendAuthCodeServerFn = createServerFn({
 export const enterCodeServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(enterCodeSchema))
-  .handler(async ({ data: _input }) => {
-    // const { code } = input;
+  .inputValidator(enterCodeSchema)
+  .handler(async ({ data: input }) => {
+    const { code } = input;
 
-    // const [authCode] = await db
-    //   .select({
-    //     id: authCodes.id,
-    //     expiresAt: authCodes.expiresAt,
-    //     user: {
-    //       id: users.id,
-    //       email: users.email,
-    //       name: users.name,
-    //       avatarId: users.avatarId,
-    //       bio: users.bio,
-    //       disciplines: users.disciplines,
-    //     },
-    //   })
-    //   .from(authCodes)
-    //   .where(eq(authCodes.code, code))
-    //   .leftJoin(users, eq(users.email, authCodes.email))
-    //   .limit(1);
+    const [authCode] = await db
+      .select({
+        id: authCodes.id,
+        expiresAt: authCodes.expiresAt,
+        user: {
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          avatarId: users.avatarId,
+          bio: users.bio,
+          disciplines: users.disciplines,
+        },
+      })
+      .from(authCodes)
+      .where(eq(authCodes.code, code))
+      .leftJoin(users, eq(users.email, authCodes.email))
+      .limit(1);
 
-    // if (!authCode) {
-    //   throw new Error("Invalid code");
-    // }
+    if (!authCode) {
+      throw new Error("Invalid code");
+    }
 
-    // const deleteCode = async () => {
-    //   await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
-    // };
+    const deleteCode = async () => {
+      await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
+    };
 
-    // if (!authCode.user) {
-    //   await deleteCode();
-    //   return {
-    //     status: "user_not_found",
-    //   };
-    // }
+    if (!authCode.user) {
+      await deleteCode();
+      return {
+        status: "user_not_found",
+      };
+    }
 
-    // if (authCode.expiresAt < new Date()) {
-    //   await deleteCode();
-    //   invariant(false, "Code has expired");
-    // }
+    if (authCode.expiresAt < new Date()) {
+      await deleteCode();
+      invariant(false, "Code has expired");
+    }
 
-    // const [session] = await Promise.all([
-    //   useServerSession(),
-    //   //  deleteCode()
-    // ]);
-
-    const session = await useServerSession();
-
-    const [user] = await db.select().from(users).where(eq(users.id, 1));
+    const [session] = await Promise.all([useServerSession(), deleteCode()]);
 
     await session.update({
-      // user: authCode.user,
-      user,
+      user: authCode.user,
     });
 
     return {
