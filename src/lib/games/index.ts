@@ -5,6 +5,7 @@ import {
   createRiuSetServerFn,
   createRiuSubmissionServerFn,
   deleteRiuSetServerFn,
+  deleteRiuSubmissionServerFn,
   getArchivedRiusServerFn,
   getRiuSetServerFn,
   getRiuSubmissionServerFn,
@@ -17,6 +18,7 @@ import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
   deleteRiuSetSchema,
+  deleteRiuSubmissionSchema,
   getArchivedRiusSchema,
   getRiuSetSchema,
   getRiuSubmissionSchema,
@@ -112,6 +114,10 @@ export const games = {
       create: {
         fn: createRiuSubmissionServerFn,
         schema: createRiuSubmissionSchema,
+      },
+      delete: {
+        fn: deleteRiuSubmissionServerFn,
+        schema: deleteRiuSubmissionSchema,
       },
     },
   },

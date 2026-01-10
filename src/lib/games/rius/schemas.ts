@@ -40,6 +40,10 @@ export const deleteRiuSetSchema = z.object({
   riuSetId: z.number().positive({ message: "Required" }),
 });
 
+export const deleteRiuSubmissionSchema = z.object({
+  submissionId: z.number().positive({ message: "Required" }),
+});
+
 export const getArchivedRiusSchema = z.object({
   riuId: z.number().positive({ message: "Required" }).optional(),
 });

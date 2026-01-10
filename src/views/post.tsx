@@ -154,6 +154,7 @@ export function PostView({ postId }: { postId: number }) {
           record={{ id: postId, type: "post" }}
           messages={messagesData.messages}
           handleCreateMessage={createMessage}
+          scrollTargetId="main-content"
         />
       </div>
     </div>

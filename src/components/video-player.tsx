@@ -40,7 +40,7 @@ export function VideoPlayer({
 } & React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("aspect-video overflow-hidden rounded-lg", className)}
+      className={cn("aspect-video shrink-0 overflow-hidden rounded-lg", className)}
       {...props}
     >
       <MuxPlayer

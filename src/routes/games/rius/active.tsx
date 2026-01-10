@@ -73,7 +73,7 @@ function SetCard({ set }: { set: SetType }) {
               </div>
               <div className="flex items-center gap-1">
                 <UploadIcon className="size-3" />
-                <span>0</span>
+                <span>{set.submissions.length}</span>
               </div>
             </div>
           </div>

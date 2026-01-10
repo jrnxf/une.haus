@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   HeartIcon,
+  MessageCircleIcon,
   PencilIcon,
   Share2Icon,
   TrashIcon,
@@ -23,6 +24,7 @@ import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
+import { type ServerFnReturn } from "~/lib/types";
 import { cn } from "~/lib/utils";
 import { MessagesView } from "~/views/messages";
 
@@ -177,21 +179,72 @@ function SetView({ setId }: { setId: number }) {
             record={record}
             messages={messagesQuery.data.messages}
             handleCreateMessage={(content) => createMessage.mutate(content)}
+            scrollTargetId="main-content"
           />
         </TabsContent>
 
         <TabsContent value="submissions">
-          {set.riu.status === "active" && !isOwner ? (
-            <CreateRiuSubmissionForm riuSetId={setId} />
+          {set.riu.status === "active" && !isOwner && (
+            <div className="mb-4">
+              <CreateRiuSubmissionForm riuSetId={setId} />
+            </div>
+          )}
+
+          {set.submissions && set.submissions.length > 0 ? (
+            <SubmissionsList submissions={set.submissions} />
           ) : (
             <p className="text-muted-foreground py-4 text-sm">
-              {set.riu.status === "active"
-                ? "You cannot submit to your own set."
-                : "Submissions can only be added to sets in the active game."}
+              No submissions yet.
             </p>
           )}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+type SubmissionType = NonNullable<
+  ServerFnReturn<typeof games.rius.sets.get.fn>
+>["submissions"][number];
+
+function SubmissionCard({ submission }: { submission: SubmissionType }) {
+  return (
+    <Link
+      to="/games/rius/submissions/$submissionId"
+      params={{ submissionId: submission.id }}
+      className="block"
+    >
+      <Button
+        variant="outline"
+        className="h-auto w-full justify-between gap-6 p-3 text-left"
+        asChild
+      >
+        <div>
+          <span className="truncate text-sm font-medium">
+            {submission.user.name}
+          </span>
+          <div className="text-muted-foreground flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-1">
+              <HeartIcon className="size-3" />
+              <span>{submission.likes.length}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MessageCircleIcon className="size-3" />
+              <span>{submission.messages.length}</span>
+            </div>
+          </div>
+        </div>
+      </Button>
+    </Link>
+  );
+}
+
+function SubmissionsList({ submissions }: { submissions: SubmissionType[] }) {
+  return (
+    <div className="flex flex-col gap-2">
+      {submissions.map((submission) => (
+        <SubmissionCard key={submission.id} submission={submission} />
+      ))}
     </div>
   );
 }

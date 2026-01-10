@@ -38,10 +38,15 @@ export function useCreateSet() {
 }
 
 export function useAdminRotateRius() {
+  const qc = useQueryClient();
+
   return useMutation({
     mutationFn: games.rius.admin.rotate.fn,
     onSuccess: () => {
       toast.success("Rius rotated");
+      qc.invalidateQueries({ queryKey: ["games.rius.active.list"] });
+      qc.invalidateQueries({ queryKey: ["games.rius.upcoming.roster"] });
+      qc.invalidateQueries({ queryKey: ["games.rius.archived.list"] });
     },
   });
 }
@@ -108,6 +113,25 @@ export function useDeleteSet() {
       }),
     onSuccess: () => {
       toast.success("Set deleted");
+    },
+  });
+}
+
+export function useDeleteSubmission({ setId }: { setId: number }) {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: games.rius.submissions.delete.fn,
+    onSuccess: () => {
+      toast.success("Submission deleted");
+      qc.invalidateQueries({ queryKey: ["games.rius.active.list"] });
+      qc.invalidateQueries({ queryKey: ["games.rius.sets.get", { setId }] });
+      navigate({ to: "/games/rius/sets/$setId", params: { setId } });
+    },
+    onError: (error) => {
+      toast.error("Failed to delete submission");
+      console.error(error);
     },
   });
 }

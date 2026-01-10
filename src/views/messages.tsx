@@ -16,21 +16,34 @@ export function MessagesView({
   record,
   messages,
   handleCreateMessage: handleCreateMessage,
+  scrollTargetId,
 }: {
   record: MessageParent;
   messages: Message[];
   handleCreateMessage: (newMessage: string) => void;
+  scrollTargetId?: string;
 }) {
   const scrollCountReference = useRef(0);
+  const pendingScrollRef = useRef(false);
 
   const sessionUser = useSessionUser();
 
-  const { ref, scrollTo } = useScroll();
+  const { ref, scrollTo } = useScroll({ scrollTargetId });
 
   const lastChatMessageByUserId = messages.at(-1)?.userId;
   const chatMessageCount = messages.length;
 
   useLayoutEffect(() => {
+    // For external scroll targets, only scroll if user just submitted
+    if (scrollTargetId) {
+      if (pendingScrollRef.current) {
+        pendingScrollRef.current = false;
+        const target = document.getElementById(scrollTargetId);
+        if (target) target.scrollTop = target.scrollHeight;
+      }
+      return;
+    }
+
     const initialLoad = scrollCountReference.current === 0;
 
     if (initialLoad) {
@@ -57,7 +70,7 @@ export function MessagesView({
 
     scrollTo("bottom", threshold);
     scrollCountReference.current++;
-  }, [scrollTo, lastChatMessageByUserId, chatMessageCount, sessionUser]);
+  }, [scrollTo, scrollTargetId, lastChatMessageByUserId, chatMessageCount, sessionUser]);
 
   return (
     <div className="h-full overflow-y-auto" ref={ref}>
@@ -93,8 +106,13 @@ export function MessagesView({
         </div>
         <div className="mx-auto w-full max-w-4xl shrink-0 p-3">
           <BaseMessageForm
+            onFocus={scrollTargetId ? undefined : () => scrollTo("bottom", Infinity)}
             onSubmit={(newMessage) => {
-              scrollTo("bottom", Infinity);
+              if (scrollTargetId) {
+                pendingScrollRef.current = true;
+              } else {
+                scrollTo("bottom", Infinity);
+              }
               handleCreateMessage(newMessage);
             }}
           />

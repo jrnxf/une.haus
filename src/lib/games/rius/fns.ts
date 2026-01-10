@@ -16,6 +16,7 @@ import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
   deleteRiuSetSchema,
+  deleteRiuSubmissionSchema,
   getArchivedRiusSchema,
   getRiuSetSchema,
   getRiuSubmissionSchema,
@@ -60,6 +61,38 @@ export const getRiuSetServerFn = createServerFn({
                 id: true,
                 name: true,
                 avatarId: true,
+              },
+            },
+          },
+        },
+        submissions: {
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarId: true,
+              },
+            },
+            video: {
+              columns: {
+                playbackId: true,
+              },
+            },
+            likes: {
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarId: true,
+                  },
+                },
+              },
+            },
+            messages: {
+              columns: {
+                id: true,
               },
             },
           },
@@ -172,10 +205,67 @@ export const getRiuSubmissionServerFn = createServerFn({
             },
           },
         },
+        riuSet: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+        messages: {
+          columns: {
+            id: true,
+            content: true,
+            createdAt: true,
+          },
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarId: true,
+              },
+            },
+            likes: {
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarId: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
     return submission;
+  });
+
+export const deleteRiuSubmissionServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(deleteRiuSubmissionSchema))
+  .middleware([authMiddleware])
+  .handler(async ({ data: input, context }) => {
+    const userId = context.user.id;
+
+    const submission = await db.query.riuSubmissions.findFirst({
+      where: eq(riuSubmissions.id, input.submissionId),
+    });
+
+    invariant(submission, "Submission not found");
+
+    invariant(submission.userId === userId, "Access denied");
+
+    const [deletedSubmission] = await db
+      .delete(riuSubmissions)
+      .where(eq(riuSubmissions.id, input.submissionId))
+      .returning();
+
+    return deletedSubmission;
   });
 
 export const createRiuSubmissionServerFn = createServerFn({
@@ -286,6 +376,11 @@ export const listActiveRiusServerFn = createServerFn({
                         avatarId: true,
                       },
                     },
+                  },
+                },
+                messages: {
+                  columns: {
+                    id: true,
                   },
                 },
               },

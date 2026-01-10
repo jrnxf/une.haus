@@ -18,9 +18,11 @@ import { useSessionUser } from "~/lib/session/hooks";
 export function BaseMessageForm({
   initialContent,
   onSubmit,
+  onFocus,
 }: {
   initialContent?: string;
   onSubmit: (content: string) => void;
+  onFocus?: () => void;
 }) {
   const location = useLocation();
   const sessionUser = useSessionUser();
@@ -93,6 +95,7 @@ export function BaseMessageForm({
             id="content"
             rows={3}
             placeholder="quick message..."
+            onFocus={onFocus}
             onKeyDown={(event) => {
               if (event.code === "Enter" && (event.metaKey || event.ctrlKey)) {
                 event.preventDefault();
