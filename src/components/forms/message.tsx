@@ -91,10 +91,10 @@ export function BaseMessageForm({
 
           <Textarea
             {...register("content")}
-            className="resize-none rounded-none border-0 px-1.5 shadow-none focus-visible:ring-0"
+            className="[field-sizing:content] min-h-11 resize-none rounded-none border-0 px-1.5 py-2 shadow-none focus-visible:ring-0"
             id="content"
-            rows={3}
-            placeholder="quick message..."
+            rows={1}
+            placeholder="Write a message..."
             onFocus={onFocus}
             onKeyDown={(event) => {
               if (event.code === "Enter" && (event.metaKey || event.ctrlKey)) {
@@ -114,7 +114,7 @@ export function BaseMessageForm({
           type="submit"
           size="icon-sm"
           variant="secondary"
-          className="mb-2"
+          className="mb-1.5"
         >
           <CornerDownLeftIcon className="size-4" />
         </Button>

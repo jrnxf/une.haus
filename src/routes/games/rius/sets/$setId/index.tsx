@@ -2,6 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   HeartIcon,
   MessageCircleIcon,
   PencilIcon,
@@ -9,14 +11,17 @@ import {
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import { useState } from "react";
 
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
+import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
+import { MessageAuthor } from "~/components/messages/message-author";
+import { MessageBubble } from "~/components/messages/message-bubble";
 import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
@@ -26,7 +31,6 @@ import { useSessionUser } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type ServerFnReturn } from "~/lib/types";
 import { cn } from "~/lib/utils";
-import { MessagesView } from "~/views/messages";
 
 const pathParametersSchema = z.object({
   setId: z.coerce.number(),
@@ -168,37 +172,27 @@ function SetView({ setId }: { setId: number }) {
         <VideoPlayer playbackId={set.video.playbackId} />
       )}
 
-      <Tabs>
-        <TabsList>
-          <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions</TabsTrigger>
-        </TabsList>
+      <CollapsibleMessages
+        record={record}
+        messages={messagesQuery.data.messages}
+        onCreateMessage={(content) => createMessage.mutate(content)}
+      />
 
-        <TabsContent value="messages">
-          <MessagesView
-            record={record}
-            messages={messagesQuery.data.messages}
-            handleCreateMessage={(content) => createMessage.mutate(content)}
-            scrollTargetId="main-content"
-          />
-        </TabsContent>
+      <div className="space-y-3">
+        <h3 className="text-muted-foreground text-sm font-medium">
+          Submissions
+        </h3>
 
-        <TabsContent value="submissions">
-          {set.riu.status === "active" && !isOwner && (
-            <div className="mb-4">
-              <CreateRiuSubmissionForm riuSetId={setId} />
-            </div>
-          )}
+        {set.riu.status === "active" && !isOwner && (
+          <CreateRiuSubmissionForm riuSetId={setId} />
+        )}
 
-          {set.submissions && set.submissions.length > 0 ? (
-            <SubmissionsList submissions={set.submissions} />
-          ) : (
-            <p className="text-muted-foreground py-4 text-sm">
-              No submissions yet.
-            </p>
-          )}
-        </TabsContent>
-      </Tabs>
+        {set.submissions && set.submissions.length > 0 ? (
+          <SubmissionsList submissions={set.submissions} />
+        ) : (
+          <p className="text-muted-foreground text-sm">No submissions yet.</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -245,6 +239,90 @@ function SubmissionsList({ submissions }: { submissions: SubmissionType[] }) {
       {submissions.map((submission) => (
         <SubmissionCard key={submission.id} submission={submission} />
       ))}
+    </div>
+  );
+}
+
+type MessageType = ServerFnReturn<typeof messages.list.fn>["messages"][number];
+
+const INITIAL_VISIBLE_COUNT = 2;
+
+function CollapsibleMessages({
+  record,
+  messages: messageList,
+  onCreateMessage,
+}: {
+  record: { type: "riuSet"; id: number };
+  messages: MessageType[];
+  onCreateMessage: (content: string) => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const sessionUser = useSessionUser();
+
+  const hasMoreMessages = messageList.length > INITIAL_VISIBLE_COUNT;
+  const visibleMessages = isExpanded
+    ? messageList
+    : messageList.slice(-INITIAL_VISIBLE_COUNT);
+  const hiddenCount = messageList.length - INITIAL_VISIBLE_COUNT;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-muted-foreground text-sm font-medium">Messages</h3>
+        {hasMoreMessages && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground gap-1 text-xs"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? (
+              <>
+                Show less
+                <ChevronUpIcon className="size-3" />
+              </>
+            ) : (
+              <>
+                Show {hiddenCount} more
+                <ChevronDownIcon className="size-3" />
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+
+      {messageList.length === 0 ? (
+        <p className="text-muted-foreground text-sm">No messages yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {visibleMessages.map((message, index) => {
+            const isAuthUserMessage = Boolean(
+              sessionUser && sessionUser.id === message.user.id,
+            );
+            const prevMessage = visibleMessages[index - 1];
+            const isNewSection = prevMessage?.user.id !== message.user.id;
+
+            return (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex max-w-full flex-col",
+                  isAuthUserMessage && "items-end",
+                )}
+              >
+                {isNewSection && (
+                  <div className={cn("mb-1", index !== 0 && "mt-3")}>
+                    <MessageAuthor message={message} />
+                  </div>
+                )}
+                <MessageBubble parent={record} message={message} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <BaseMessageForm onSubmit={onCreateMessage} />
     </div>
   );
 }

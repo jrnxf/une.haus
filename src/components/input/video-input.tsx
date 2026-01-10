@@ -87,7 +87,7 @@ export const VideoInput = ({
   }
 
   return (
-    <div className="flex h-32 items-center gap-2">
+    <div className="flex h-16 items-center gap-2">
       <Button
         aria-label="file upload"
         className="border-border relative h-full w-full overflow-hidden rounded-md border-2 border-dashed"
@@ -100,8 +100,8 @@ export const VideoInput = ({
           disabled={isUploading || isProcessing}
           id={formItemId}
         />
-        <span className="w-64 leading-relaxed text-wrap sm:w-auto">
-          {fileName ?? "Click to select a video or drag and drop one here"}
+        <span className="text-muted-foreground text-sm">
+          {fileName ?? "Select a video to upload"}
         </span>
 
         {isUploading && (
