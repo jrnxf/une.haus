@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git worktree:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nremove forwardRef for React 19 compatibility\n\nMigrated all components from React.forwardRef to regular functions with\nref as a prop, following React 19''s new ref handling pattern. This\naligns with the official shadcn/ui approach for React 19.\n\nChanges:\n- Removed forwardRef usage from all UI components\n- Updated type signatures to accept ref as an optional prop\n- Kept displayName assignments for better DevTools experience\n- Components now use: ref?: React.Ref<ElementRef<...>>\n\nUpdated components:\n- AlertDialog \\(6 components\\)\n- Checkbox\n- Form \\(5 components\\)\n- HoverCard\n- Label\n- Menubar \\(9 components\\)\n- Popover\n- Progress\n- RadioGroup \\(2 components\\)\n- Tabs \\(3 components\\)\n- VideoPlayer\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

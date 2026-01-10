@@ -181,7 +181,15 @@ function SetView({ setId }: { setId: number }) {
         </TabsContent>
 
         <TabsContent value="submissions">
-          <CreateRiuSubmissionForm riuSetId={setId} />
+          {set.riu.status === "active" && !isOwner ? (
+            <CreateRiuSubmissionForm riuSetId={setId} />
+          ) : (
+            <p className="text-muted-foreground py-4 text-sm">
+              {set.riu.status === "active"
+                ? "You cannot submit to your own set."
+                : "Submissions can only be added to sets in the active game."}
+            </p>
+          )}
         </TabsContent>
       </Tabs>
     </div>

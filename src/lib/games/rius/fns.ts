@@ -36,6 +36,11 @@ export const getRiuSetServerFn = createServerFn({
     const set = await db.query.riuSets.findFirst({
       where: eq(riuSets.id, input.setId),
       with: {
+        riu: {
+          columns: {
+            status: true,
+          },
+        },
         user: {
           columns: {
             avatarId: true,
@@ -184,6 +189,7 @@ export const createRiuSubmissionServerFn = createServerFn({
     const [riuSet] = await db
       .select({
         id: riuSets.id,
+        userId: riuSets.userId,
         riu: {
           status: rius.status,
         },
@@ -198,6 +204,10 @@ export const createRiuSubmissionServerFn = createServerFn({
 
     if (riuSet.riu.status !== "active") {
       throw new Error("RIU set is not from an active RIU");
+    }
+
+    if (riuSet.userId === userId) {
+      throw new Error("You cannot submit to your own set");
     }
 
     const [riuSubmission] = await db
