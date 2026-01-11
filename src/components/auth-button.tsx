@@ -34,11 +34,15 @@ export function AuthButton() {
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2" asChild>
         <Button size="icon-sm" variant="ghost" className="rounded-full">
-          <Avatar className="size-8">
+          <Avatar
+            className="size-8"
+            cloudflareId={sessionUser.avatarId}
+            alt={sessionUser.name}
+          >
             <AvatarImage
-              alt={`Avatar for ${sessionUser.name}`}
               className="rounded-full object-cover"
-              src={sessionUser.avatarId}
+              width={32}
+              quality={85}
             />
             <AvatarFallback
               className="flex w-full items-center justify-center"
@@ -55,13 +59,15 @@ export function AuthButton() {
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="size-8">
+            <Avatar
+              className="size-8"
+              cloudflareId={sessionUser.avatarId}
+              alt={sessionUser.name}
+            >
               <AvatarImage
-                alt={`Avatar for ${sessionUser.name}`}
                 className="rounded-full object-cover"
-                height={40}
-                src={sessionUser.avatarId}
                 width={40}
+                quality={85}
               />
               <AvatarFallback
                 className="flex w-full items-center justify-center"

@@ -95,8 +95,12 @@ export function UsersDialog({
               onClick={() => setOpen(false)}
               className="hover:bg-accent flex items-center gap-3 rounded-md p-2 transition-colors"
             >
-              <Avatar className="size-10">
-                <AvatarImage src={user.avatarId} />
+              <Avatar
+                className="size-10"
+                cloudflareId={user.avatarId}
+                alt={user.name}
+              >
+                <AvatarImage width={40} quality={85} />
                 <AvatarFallback name={user.name} />
               </Avatar>
               <span className="text-sm font-medium">{user.name}</span>

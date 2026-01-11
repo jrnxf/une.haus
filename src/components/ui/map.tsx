@@ -1,6 +1,8 @@
-import MapLibreGL, { type PopupOptions, type MarkerOptions } from "maplibre-gl";
+import MapLibreGL, { type MarkerOptions, type PopupOptions } from "maplibre-gl";
+
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useTheme } from "~/lib/theme/context";
+
+import { Loader2, Locate, Maximize, Minus, Plus, X } from "lucide-react";
 import {
   createContext,
   forwardRef,
@@ -15,8 +17,8 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
+import { useTheme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 
 type MapContextValue = {
@@ -51,7 +53,7 @@ type MapProps = {
   /** Transform the style before it's applied. Useful for modifying layer colors. */
   transformStyle?: (
     style: MapLibreGL.StyleSpecification,
-    theme: "light" | "dark"
+    theme: "light" | "dark",
   ) => MapLibreGL.StyleSpecification;
   /** Map projection type. Use `{ type: "globe" }` for 3D globe view. */
   projection?: MapLibreGL.ProjectionSpecification;
@@ -61,12 +63,11 @@ type MapProps = {
 
 type MapRef = MapLibreGL.Map;
 
-
 // Helper to fetch and transform a style
 async function fetchAndTransformStyle(
   styleUrl: string,
   theme: "light" | "dark",
-  transformStyle?: MapProps["transformStyle"]
+  transformStyle?: MapProps["transformStyle"],
 ): Promise<MapLibreGL.StyleSpecification> {
   const response = await fetch(styleUrl);
   const style = (await response.json()) as MapLibreGL.StyleSpecification;
@@ -75,7 +76,7 @@ async function fetchAndTransformStyle(
 
 const Map = forwardRef<MapRef, MapProps>(function Map(
   { children, styles, transformStyle, projection, onLoad, ...props },
-  ref
+  ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null);
@@ -88,7 +89,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       dark: styles?.dark ?? defaultStyles.dark,
       light: styles?.light ?? defaultStyles.light,
     }),
-    [styles]
+    [styles],
   );
 
   useImperativeHandle(ref, () => mapInstance as MapLibreGL.Map, [mapInstance]);
@@ -100,7 +101,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     let cancelled = false;
     let map: MapLibreGL.Map | null = null;
 
-    const theme = (resolvedTheme === "dark" ? "dark" : "light") as "light" | "dark";
+    const theme = (resolvedTheme === "dark" ? "dark" : "light") as
+      | "light"
+      | "dark";
     const styleOption = theme === "dark" ? mapStyles.dark : mapStyles.light;
     currentThemeRef.current = theme;
 
@@ -109,7 +112,11 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
 
       // If it's a URL and we have a transform function, fetch and transform
       if (typeof styleOption === "string" && transformStyle) {
-        style = await fetchAndTransformStyle(styleOption, theme, transformStyle);
+        style = await fetchAndTransformStyle(
+          styleOption,
+          theme,
+          transformStyle,
+        );
       }
 
       if (cancelled) return;
@@ -153,7 +160,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   useEffect(() => {
     if (!mapInstance || !resolvedTheme) return;
 
-    const theme = (resolvedTheme === "dark" ? "dark" : "light") as "light" | "dark";
+    const theme = (resolvedTheme === "dark" ? "dark" : "light") as
+      | "light"
+      | "dark";
     if (currentThemeRef.current === theme) return;
     currentThemeRef.current = theme;
 
@@ -163,7 +172,11 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       let style: MapStyleOption = styleOption;
 
       if (typeof styleOption === "string" && transformStyle) {
-        style = await fetchAndTransformStyle(styleOption, theme, transformStyle);
+        style = await fetchAndTransformStyle(
+          styleOption,
+          theme,
+          transformStyle,
+        );
       }
 
       const handleStyleLoad = () => {
@@ -178,20 +191,27 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     };
 
     applyStyle();
-  }, [mapInstance, resolvedTheme, mapStyles, transformStyle, projection, onLoad]);
+  }, [
+    mapInstance,
+    resolvedTheme,
+    mapStyles,
+    transformStyle,
+    projection,
+    onLoad,
+  ]);
 
   const contextValue = useMemo(
     () => ({
       map: mapInstance,
       isLoaded,
     }),
-    [mapInstance, isLoaded]
+    [mapInstance, isLoaded],
   );
 
   return (
     <MapContext.Provider value={contextValue}>
-      <div className="relative w-full h-full font-mono">
-        <div ref={containerRef} className="w-full h-full">
+      <div className="relative h-full w-full font-mono">
+        <div ref={containerRef} className="h-full w-full">
           {mapInstance && children}
         </div>
       </div>
@@ -353,7 +373,7 @@ function MarkerContent({ children, className }: MarkerContentProps) {
     <div className={cn("relative cursor-pointer", className)}>
       {children || <DefaultMarkerIcon />}
     </div>,
-    marker.getElement()
+    marker.getElement(),
   );
 }
 
@@ -425,15 +445,15 @@ function MarkerPopup({
   return createPortal(
     <div
       className={cn(
-        "relative rounded-md border bg-popover p-3 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
+        className,
       )}
     >
       {closeButton && (
         <button
           type="button"
           onClick={handleClose}
-          className="absolute top-1 right-1 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="ring-offset-background focus:ring-ring absolute top-1 right-1 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
           aria-label="Close popup"
         >
           <X className="h-4 w-4" />
@@ -442,7 +462,7 @@ function MarkerPopup({
       )}
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -511,13 +531,13 @@ function MarkerTooltip({
   return createPortal(
     <div
       className={cn(
-        "rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        "bg-foreground text-background animate-in fade-in-0 zoom-in-95 rounded-md px-2 py-1 text-xs shadow-md",
+        className,
       )}
     >
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -544,9 +564,9 @@ function MarkerLabel({
     <div
       className={cn(
         "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
-        "text-[10px] font-medium text-foreground",
+        "text-foreground text-[10px] font-medium",
         positionClasses[position],
-        className
+        className,
       )}
     >
       {children}
@@ -580,7 +600,7 @@ const positionClasses = {
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-md border border-border bg-background shadow-sm overflow-hidden [&>button:not(:last-child)]:border-b [&>button:not(:last-child)]:border-border">
+    <div className="border-border bg-background [&>button:not(:last-child)]:border-border flex flex-col overflow-hidden rounded-md border shadow-sm [&>button:not(:last-child)]:border-b">
       {children}
     </div>
   );
@@ -603,8 +623,8 @@ function ControlButton({
       aria-label={label}
       type="button"
       className={cn(
-        "flex items-center justify-center size-8 hover:bg-accent dark:hover:bg-accent/40 transition-colors",
-        disabled && "opacity-50 pointer-events-none cursor-not-allowed"
+        "hover:bg-accent dark:hover:bg-accent/40 flex size-8 items-center justify-center transition-colors",
+        disabled && "pointer-events-none cursor-not-allowed opacity-50",
       )}
       disabled={disabled}
     >
@@ -657,7 +677,7 @@ function MapControls({
         (error) => {
           console.error("Error getting location:", error);
           setWaitingForLocation(false);
-        }
+        },
       );
     }
   }, [map, onLocate]);
@@ -679,7 +699,7 @@ function MapControls({
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],
-        className
+        className,
       )}
     >
       {showZoom && (
@@ -851,15 +871,15 @@ function MapPopup({
   return createPortal(
     <div
       className={cn(
-        "relative rounded-md border bg-popover p-3 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
+        className,
       )}
     >
       {closeButton && (
         <button
           type="button"
           onClick={handleClose}
-          className="absolute top-1 right-1 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="ring-offset-background focus:ring-ring absolute top-1 right-1 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
           aria-label="Close popup"
         >
           <X className="h-4 w-4" />
@@ -868,7 +888,7 @@ function MapPopup({
       )}
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -1014,7 +1034,7 @@ function MapRoute({
 }
 
 type MapClusterLayerProps<
-  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties
+  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
 > = {
   /** GeoJSON FeatureCollection data or URL to fetch GeoJSON from */
   data: string | GeoJSON.FeatureCollection<GeoJSON.Point, P>;
@@ -1031,18 +1051,18 @@ type MapClusterLayerProps<
   /** Callback when an unclustered point is clicked */
   onPointClick?: (
     feature: GeoJSON.Feature<GeoJSON.Point, P>,
-    coordinates: [number, number]
+    coordinates: [number, number],
   ) => void;
   /** Callback when a cluster is clicked. If not provided, zooms into the cluster */
   onClusterClick?: (
     clusterId: number,
     coordinates: [number, number],
-    pointCount: number
+    pointCount: number,
   ) => void;
 };
 
 function MapClusterLayer<
-  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties
+  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
 >({
   data,
   clusterMaxZoom = 14,
@@ -1068,7 +1088,9 @@ function MapClusterLayer<
 
   // Store latest data ref for use in style.load handler
   const dataRef = useRef(data);
-  dataRef.current = data;
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   // Function to add source and layers
   const addSourceAndLayers = useCallback(() => {
@@ -1076,7 +1098,8 @@ function MapClusterLayer<
 
     // Remove existing if present (for style changes)
     try {
-      if (map.getLayer(clusterCountLayerId)) map.removeLayer(clusterCountLayerId);
+      if (map.getLayer(clusterCountLayerId))
+        map.removeLayer(clusterCountLayerId);
       if (map.getLayer(unclusteredLayerId)) map.removeLayer(unclusteredLayerId);
       if (map.getLayer(clusterLayerId)) map.removeLayer(clusterLayerId);
       if (map.getSource(sourceId)) map.removeSource(sourceId);
@@ -1149,7 +1172,15 @@ function MapClusterLayer<
         "circle-radius": 6,
       },
     });
-  }, [map, sourceId, clusterLayerId, clusterCountLayerId, unclusteredLayerId, clusterMaxZoom, clusterRadius]);
+  }, [
+    map,
+    sourceId,
+    clusterLayerId,
+    clusterCountLayerId,
+    unclusteredLayerId,
+    clusterMaxZoom,
+    clusterRadius,
+  ]);
 
   // Add source and layers on mount and re-add on style changes
   useEffect(() => {
@@ -1178,7 +1209,15 @@ function MapClusterLayer<
         // ignore
       }
     };
-  }, [isLoaded, map, sourceId, clusterLayerId, clusterCountLayerId, unclusteredLayerId, addSourceAndLayers]);
+  }, [
+    isLoaded,
+    map,
+    sourceId,
+    clusterLayerId,
+    clusterCountLayerId,
+    unclusteredLayerId,
+    addSourceAndLayers,
+  ]);
 
   // Update source data when data prop changes (only for non-URL data)
   useEffect(() => {
@@ -1245,21 +1284,21 @@ function MapClusterLayer<
     const handleClusterClick = async (
       e: MapLibreGL.MapMouseEvent & {
         features?: MapLibreGL.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       e.originalEvent?.stopPropagation();
 
       const features = map.queryRenderedFeatures(e.point, {
         layers: [clusterLayerId],
       });
-      if (!features.length) return;
+      if (features.length === 0) return;
 
       const feature = features[0];
       const clusterId = feature.properties?.cluster_id as number;
       const pointCount = feature.properties?.point_count as number;
       const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [
         number,
-        number
+        number,
       ];
 
       if (onClusterClick) {
@@ -1290,16 +1329,16 @@ function MapClusterLayer<
     const handlePointClick = (
       e: MapLibreGL.MapMouseEvent & {
         features?: MapLibreGL.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       e.originalEvent?.stopPropagation();
 
       if (!onPointClick || !e.features?.length) return;
 
       const feature = e.features[0];
-      const coordinates = (
-        feature.geometry as GeoJSON.Point
-      ).coordinates.slice() as [number, number];
+      const coordinates = [
+        ...(feature.geometry as GeoJSON.Point).coordinates,
+      ] as [number, number];
 
       // Handle world copies
       while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
@@ -1308,7 +1347,7 @@ function MapClusterLayer<
 
       onPointClick(
         feature as unknown as GeoJSON.Feature<GeoJSON.Point, P>,
-        coordinates
+        coordinates,
       );
     };
 

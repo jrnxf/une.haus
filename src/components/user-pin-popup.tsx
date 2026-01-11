@@ -22,7 +22,11 @@ export function UserPinPopup({ users }: UserPinPopupProps) {
     <div className="flex flex-col gap-3">
       {users.map((user) => (
         <div key={user.id} className="flex items-center gap-3">
-          <Avatar cloudflareId={user.avatarId} alt={user.name} className="size-10">
+          <Avatar
+            cloudflareId={user.avatarId}
+            alt={user.name}
+            className="size-10"
+          >
             <AvatarImage width={80} quality={80} className="object-cover" />
             <AvatarFallback
               className="flex items-center justify-center text-sm font-medium"

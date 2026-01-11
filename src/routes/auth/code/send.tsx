@@ -47,7 +47,10 @@ function RouteComponent() {
   const sendCodeMutation = useMutation({
     mutationFn: auth.sendCode.fn,
     onSuccess: async () => {
-      navigate({ to: "/auth/code/verify", search: { redirect: search.redirect } });
+      navigate({
+        to: "/auth/code/verify",
+        search: { redirect: search.redirect },
+      });
     },
   });
 

@@ -41,7 +41,10 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
           games.rius.submissions.get.queryOptions({ submissionId }),
         );
         await context.queryClient.ensureQueryData(
-          messages.list.queryOptions({ type: "riuSubmission", id: submissionId }),
+          messages.list.queryOptions({
+            type: "riuSubmission",
+            id: submissionId,
+          }),
         );
       } catch {
         await flashMessage("Submission not found");

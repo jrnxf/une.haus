@@ -9,7 +9,7 @@ export function useScroll({
     (place: "bottom" | "top", threshold: number) => {
       // If a target ID is provided, scroll that element
       if (scrollTargetId) {
-        const target = document.getElementById(scrollTargetId);
+        const target = document.querySelector<HTMLElement>(`#${scrollTargetId}`);
         if (!target) return;
 
         const { clientHeight, scrollHeight, scrollTop } = target;

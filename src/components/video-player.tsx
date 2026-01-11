@@ -37,10 +37,13 @@ export function VideoPlayer({
 }: {
   playbackId: string;
   ref?: React.Ref<MuxPlayerRefAttributes>;
-} & React.ComponentProps<"div">) {
+} & Omit<React.ComponentProps<"div">, "ref">) {
   return (
     <div
-      className={cn("aspect-video shrink-0 overflow-hidden rounded-lg", className)}
+      className={cn(
+        "aspect-video shrink-0 overflow-hidden rounded-lg",
+        className,
+      )}
       {...props}
     >
       <MuxPlayer

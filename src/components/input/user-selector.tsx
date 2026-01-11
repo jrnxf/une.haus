@@ -250,16 +250,15 @@ const UsersCommandDialog = withUserSelector<{
             <div className="flex items-center gap-2">
               <Avatar
                 className="size-5.5 rounded-md"
+                cloudflareId={selectedUser.avatarId}
+                alt={selectedUser.name}
                 // key is necessary because if you select a user with no avatar,
                 // it will render the fallback and stay there even if you select a
                 // new user that does have an avatar, so the component needs to be
                 // reset
                 key={selectedUser.id}
               >
-                <AvatarImage
-                  alt={selectedUser.name}
-                  src={selectedUser.avatarId}
-                />
+                <AvatarImage width={22} quality={85} />
                 <AvatarFallback className="text-xs" name={selectedUser.name} />
               </Avatar>
               <p className="grow truncate text-left">{selectedUser.name}</p>

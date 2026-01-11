@@ -40,7 +40,7 @@ export function usersToGeoJSON(users: UserWithLocation[]): LocationGeoJSON {
 
   return {
     type: "FeatureCollection",
-    features: Array.from(grouped.entries()).map(([coords, groupedUsers]) => {
+    features: [...grouped.entries()].map(([coords, groupedUsers]) => {
       const [lng, lat] = coords.split(",").map(Number);
       return {
         type: "Feature" as const,

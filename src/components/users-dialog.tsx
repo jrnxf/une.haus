@@ -52,8 +52,12 @@ export function UsersPopover({
           onClick={() => setOpen(false)}
           className="hover:bg-accent flex items-center gap-2 rounded-md p-1.5 transition-colors"
         >
-          <Avatar className="size-7">
-            <AvatarImage src={user.avatarId} />
+          <Avatar
+            className="size-7"
+            cloudflareId={user.avatarId}
+            alt={user.name}
+          >
+            <AvatarImage width={28} quality={85} />
             <AvatarFallback name={user.name} />
           </Avatar>
           <span className="text-xs font-medium">{user.name}</span>

@@ -38,7 +38,9 @@ export function MessagesView({
     if (scrollTargetId) {
       if (pendingScrollRef.current) {
         pendingScrollRef.current = false;
-        const target = document.getElementById(scrollTargetId);
+        const target = document.querySelector<HTMLElement>(
+          `#${scrollTargetId}`,
+        );
         if (target) target.scrollTop = target.scrollHeight;
       }
       return;
@@ -70,7 +72,13 @@ export function MessagesView({
 
     scrollTo("bottom", threshold);
     scrollCountReference.current++;
-  }, [scrollTo, scrollTargetId, lastChatMessageByUserId, chatMessageCount, sessionUser]);
+  }, [
+    scrollTo,
+    scrollTargetId,
+    lastChatMessageByUserId,
+    chatMessageCount,
+    sessionUser,
+  ]);
 
   return (
     <div className="h-full overflow-y-auto" ref={ref}>
@@ -106,7 +114,9 @@ export function MessagesView({
         </div>
         <div className="mx-auto w-full max-w-4xl shrink-0 p-3">
           <BaseMessageForm
-            onFocus={scrollTargetId ? undefined : () => scrollTo("bottom", Infinity)}
+            onFocus={
+              scrollTargetId ? undefined : () => scrollTo("bottom", Infinity)
+            }
             onSubmit={(newMessage) => {
               if (scrollTargetId) {
                 pendingScrollRef.current = true;

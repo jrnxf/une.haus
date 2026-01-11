@@ -1,13 +1,14 @@
-import type MapLibreGL from "maplibre-gl";
 import { useCallback, useMemo, useState } from "react";
 
-import { UserPinPopup } from "~/components/user-pin-popup";
+import type MapLibreGL from "maplibre-gl";
+
 import {
   Map,
   MapClusterLayer,
   MapControls,
   MapPopup,
 } from "~/components/ui/map";
+import { UserPinPopup } from "~/components/user-pin-popup";
 import { usersToGeoJSON } from "~/lib/location/geo-json";
 import { useTheme } from "~/lib/theme/context";
 import { type UsersWithLocationsData } from "~/lib/users";
@@ -48,7 +49,7 @@ const themeColors = {
 // Transform style to customize water color in dark mode (no flash)
 function handleTransformStyle(
   style: MapLibreGL.StyleSpecification,
-  theme: "light" | "dark"
+  theme: "light" | "dark",
 ): MapLibreGL.StyleSpecification {
   if (theme !== "dark") return style;
 
@@ -80,11 +81,12 @@ export function UserGlobe({
 }: UserGlobeProps) {
   const { resolvedTheme } = useTheme();
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(
-    null
+    null,
   );
 
   const geoJSON = useMemo(() => usersToGeoJSON(users), [users]);
-  const colors = resolvedTheme === "dark" ? themeColors.dark : themeColors.light;
+  const colors =
+    resolvedTheme === "dark" ? themeColors.dark : themeColors.light;
 
   const handleMapLoad = useCallback(
     (map: MapLibreGL.Map) => {
@@ -105,13 +107,13 @@ export function UserGlobe({
 
       map.on("moveend", handleMoveEnd);
     },
-    [onMapMove]
+    [onMapMove],
   );
 
   const handlePointClick = useCallback(
     (
       feature: GeoJSON.Feature<GeoJSON.Point, GeoJSON.GeoJsonProperties>,
-      coordinates: [number, number]
+      coordinates: [number, number],
     ) => {
       // MapLibre serializes nested objects as JSON strings, so we need to parse them
       const usersData = feature.properties?.users;
@@ -125,7 +127,7 @@ export function UserGlobe({
         users: parsedUsers,
       });
     },
-    []
+    [],
   );
 
   const handlePopupClose = useCallback(() => {

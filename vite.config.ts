@@ -16,7 +16,6 @@ const config = defineConfig({
     ],
   },
   plugins: [
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     nitro({
       preset: "bun",
       compatibilityDate: "latest",
@@ -41,6 +40,7 @@ const config = defineConfig({
         // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
         "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- types here are not yet updated for nitro
     } as any),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({

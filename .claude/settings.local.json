@@ -21,7 +21,8 @@
       "Bash(bun run dev:*)",
       "Bash(pkill:*)",
       "Bash(bun run:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(npm run lint:*)"
     ]
   }
 }
