@@ -1,10 +1,22 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, eq, gt, ilike, sql } from "drizzle-orm";
+import { and, asc, count, eq, gt, ilike, sql } from "drizzle-orm";
 
 import { db } from "~/db";
-import { userFollows, userLocations, users, userSocials } from "~/db/schema";
+import {
+  biuSets,
+  chatMessages,
+  postLikes,
+  postMessages,
+  posts,
+  riuSets,
+  riuSubmissions,
+  userFollows,
+  userLocations,
+  users,
+  userSocials,
+} from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
 import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
@@ -109,14 +121,16 @@ export const getUserWithFollowsServerFn = createServerFn({
 })
   .inputValidator(zodValidator(getUserSchema))
   .handler(async ({ data }) => {
-    const [user, follows] = await Promise.all([
+    const [user, follows, stats] = await Promise.all([
       getUser(data.userId),
       getUserFollows(data.userId),
+      getUserStats(data.userId),
     ]);
 
     return {
       ...user,
       ...follows,
+      stats,
     };
   });
 
@@ -297,5 +311,103 @@ const getUserFollows = createServerOnlyFn(async (userId: number) => {
       count: followedUsers.length,
       users: followedUsers,
     },
+  };
+});
+
+const getUserStats = createServerOnlyFn(async (userId: number) => {
+  const [
+    postsResult,
+    likesReceivedResult,
+    commentsReceivedResult,
+    submissionsResult,
+    likesGivenResult,
+    commentsMadeResult,
+    activityByMonthResult,
+    riuSetsResult,
+    biuSetsResult,
+    chatMessagesResult,
+  ] = await Promise.all([
+    // Count posts by this user
+    db.select({ count: count() }).from(posts).where(eq(posts.userId, userId)),
+    // Count likes received on this user's posts
+    db
+      .select({ count: count() })
+      .from(postLikes)
+      .innerJoin(posts, eq(postLikes.postId, posts.id))
+      .where(eq(posts.userId, userId)),
+    // Count comments received on this user's posts
+    db
+      .select({ count: count() })
+      .from(postMessages)
+      .innerJoin(posts, eq(postMessages.postId, posts.id))
+      .where(eq(posts.userId, userId)),
+    // Count RIU submissions by this user
+    db
+      .select({ count: count() })
+      .from(riuSubmissions)
+      .where(eq(riuSubmissions.userId, userId)),
+    // Count likes given by this user
+    db
+      .select({ count: count() })
+      .from(postLikes)
+      .where(eq(postLikes.userId, userId)),
+    // Count comments made by this user
+    db
+      .select({ count: count() })
+      .from(postMessages)
+      .where(eq(postMessages.userId, userId)),
+    // Activity by month for this user
+    db.execute<{ month: string; activityCount: number }>(sql`
+      WITH monthly_activity AS (
+        SELECT DATE_TRUNC('month', created_at) as month FROM posts WHERE user_id = ${userId}
+        UNION ALL
+        SELECT DATE_TRUNC('month', created_at) as month FROM post_messages WHERE user_id = ${userId}
+        UNION ALL
+        SELECT DATE_TRUNC('month', created_at) as month FROM riu_submissions WHERE user_id = ${userId}
+        UNION ALL
+        SELECT DATE_TRUNC('month', created_at) as month FROM riu_sets WHERE user_id = ${userId}
+        UNION ALL
+        SELECT DATE_TRUNC('month', created_at) as month FROM biu_sets WHERE user_id = ${userId}
+        UNION ALL
+        SELECT DATE_TRUNC('month', created_at) as month FROM chat_messages WHERE user_id = ${userId}
+      )
+      SELECT
+        TO_CHAR(month, 'YYYY-MM') as month,
+        COUNT(*) as "activityCount"
+      FROM monthly_activity
+      GROUP BY month
+      ORDER BY month ASC
+    `),
+    // Count RIU sets created by this user
+    db
+      .select({ count: count() })
+      .from(riuSets)
+      .where(eq(riuSets.userId, userId)),
+    // Count BIU sets created by this user
+    db
+      .select({ count: count() })
+      .from(biuSets)
+      .where(eq(biuSets.userId, userId)),
+    // Count chat messages by this user
+    db
+      .select({ count: count() })
+      .from(chatMessages)
+      .where(eq(chatMessages.userId, userId)),
+  ]);
+
+  return {
+    posts: postsResult[0]?.count ?? 0,
+    likesReceived: likesReceivedResult[0]?.count ?? 0,
+    commentsReceived: commentsReceivedResult[0]?.count ?? 0,
+    gameSubmissions: submissionsResult[0]?.count ?? 0,
+    likesGiven: likesGivenResult[0]?.count ?? 0,
+    commentsMade: commentsMadeResult[0]?.count ?? 0,
+    activityByMonth: activityByMonthResult.map((row) => ({
+      month: row.month,
+      activityCount: Number(row.activityCount),
+    })),
+    gameSets: riuSetsResult[0]?.count ?? 0,
+    biuSets: biuSetsResult[0]?.count ?? 0,
+    chatMessages: chatMessagesResult[0]?.count ?? 0,
   };
 });
