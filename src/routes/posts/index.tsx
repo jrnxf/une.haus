@@ -5,19 +5,15 @@ import {
   HeartIcon,
   MessageCircleIcon,
   PaperclipIcon,
+  XIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
+import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
+import { BadgeInput } from "~/components/input/badge-input";
 import { TimeAgo } from "~/components/time-ago";
-import {
-  Tray,
-  TrayClose,
-  TrayContent,
-  TrayTitle,
-  TrayTrigger,
-} from "~/components/tray";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -28,6 +24,7 @@ import {
 } from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
+import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
 
 export const Route = createFileRoute("/posts/")({
@@ -43,6 +40,43 @@ export const Route = createFileRoute("/posts/")({
 
 function RouteComponent() {
   const searchParams = Route.useSearch();
+  const router = useRouter();
+
+  const [query, setQuery] = useState(searchParams.q ?? "");
+  const [filtersOpen, setFiltersOpen] = useState(
+    Boolean(searchParams.q || searchParams.tags?.length),
+  );
+
+  const hasActiveFilters = Boolean(
+    searchParams.q || searchParams.tags?.length,
+  );
+
+  const debouncedNavigate = useDebounceCallback((q: string) => {
+    router.navigate({
+      to: "/posts",
+      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
+      replace: true,
+      resetScroll: true,
+    });
+  }, 300);
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    debouncedNavigate(value);
+  };
+
+  const handleTagsChange = (tags: (typeof POST_TAGS)[number][]) => {
+    router.navigate({
+      to: "/posts",
+      search: (prev) => ({
+        ...prev,
+        tags: tags.length > 0 ? tags : undefined,
+        cursor: undefined,
+      }),
+      replace: true,
+      resetScroll: true,
+    });
+  };
 
   const {
     data: postsPages,
@@ -60,13 +94,49 @@ function RouteComponent() {
   return (
     <div className="h-full overflow-y-auto" ref={setScrollRoot}>
       <div className="mx-auto grid h-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
-        <div className="flex items-end justify-between gap-4">
-          <Button asChild>
-            <Link to="/posts/create">Create</Link>
-          </Button>
-          <div className="sticky top-3 z-10 self-end">
-            <FiltersTray />
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <Button asChild>
+              <Link to="/posts/create">Create</Link>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="relative"
+            >
+              <FilterIcon className="size-4" />
+              Filters
+              {hasActiveFilters && !filtersOpen && (
+                <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary" />
+              )}
+            </Button>
           </div>
+          {filtersOpen && (
+            <div className="flex flex-col gap-3">
+              <div className="relative">
+                <Input
+                  value={query}
+                  onChange={(e) => handleQueryChange(e.target.value)}
+                  placeholder="Search posts..."
+                  className="pr-8"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => handleQueryChange("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <XIcon className="size-4" />
+                  </button>
+                )}
+              </div>
+              <BadgeInput
+                defaultSelections={searchParams.tags}
+                onChange={handleTagsChange}
+                options={POST_TAGS}
+              />
+            </div>
+          )}
         </div>
         {displayedPosts.length === 0 && (
           <Empty>
@@ -134,64 +204,5 @@ function RouteComponent() {
         )}
       </div>
     </div>
-  );
-}
-
-function FiltersTray() {
-  const searchParams = Route.useSearch();
-  const router = useRouter();
-
-  const [query, setQuery] = useState(searchParams.q);
-
-  return (
-    <Tray>
-      <TrayTrigger asChild>
-        <Button variant="outline">
-          Filters <FilterIcon className="size-4" />
-        </Button>
-      </TrayTrigger>
-      <TrayContent>
-        <TrayTitle>Filters</TrayTitle>
-        <div className="flex flex-col items-start gap-3">
-          <Input
-            className="w-64"
-            id="search"
-            onChange={(evt) => setQuery(evt.target.value)}
-            placeholder="Search users"
-            value={query}
-            tabIndex={undefined}
-          />
-
-          <div className="flex w-full justify-end gap-2">
-            <TrayClose asChild>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  router.navigate({ to: "/posts", replace: true });
-                }}
-              >
-                Reset
-              </Button>
-            </TrayClose>
-            <TrayClose asChild>
-              <Button
-                onClick={() => {
-                  router.navigate({
-                    to: "/posts",
-                    search: {
-                      q: query,
-                    },
-                    replace: true,
-                    resetScroll: true,
-                  });
-                }}
-              >
-                Apply
-              </Button>
-            </TrayClose>
-          </div>
-        </div>
-      </TrayContent>
-    </Tray>
   );
 }

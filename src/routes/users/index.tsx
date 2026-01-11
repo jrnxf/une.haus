@@ -1,20 +1,13 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { EarthIcon, FilterIcon } from "lucide-react";
+import { EarthIcon, FilterIcon, UsersIcon, XIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
+import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
 import { BadgeInput } from "~/components/input/badge-input";
-import { UserSelector } from "~/components/input/user-selector";
-import {
-  Tray,
-  TrayClose,
-  TrayContent,
-  TrayTitle,
-  TrayTrigger,
-} from "~/components/tray";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -23,6 +16,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { Input } from "~/components/ui/input";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn, getCloudflareImageUrl } from "~/lib/utils";
@@ -40,6 +34,48 @@ export const Route = createFileRoute("/users/")({
 
 function RouteComponent() {
   const searchParams = Route.useSearch();
+  const router = useRouter();
+
+  const [query, setQuery] = useState(searchParams.name ?? "");
+  const [filtersOpen, setFiltersOpen] = useState(
+    Boolean(searchParams.name || searchParams.disciplines?.length),
+  );
+
+  const hasActiveFilters = Boolean(
+    searchParams.name || searchParams.disciplines?.length,
+  );
+
+  const debouncedNavigate = useDebounceCallback((name: string) => {
+    router.navigate({
+      to: "/users",
+      search: (prev) => ({
+        ...prev,
+        name: name || undefined,
+        id: undefined,
+        cursor: undefined,
+      }),
+      replace: true,
+    });
+  }, 300);
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    debouncedNavigate(value);
+  };
+
+  const handleDisciplinesChange = (
+    disciplines: (typeof USER_DISCIPLINES)[number][],
+  ) => {
+    router.navigate({
+      to: "/users",
+      search: (prev) => ({
+        ...prev,
+        disciplines: disciplines.length > 0 ? disciplines : undefined,
+        cursor: undefined,
+      }),
+      replace: true,
+    });
+  };
 
   const {
     data: usersPages,
@@ -54,23 +90,59 @@ function RouteComponent() {
   return (
     <div className="overflow-y-auto" ref={setScrollRoot}>
       <div className="mx-auto grid max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="sticky top-3 z-10">
-            <FiltersTray />
-          </div>
-          <Link to="/map">
-            <Button variant="outline" size="sm">
-              <EarthIcon className="size-4" />
-              Map
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className="relative"
+            >
+              <FilterIcon className="size-4" />
+              Filters
+              {hasActiveFilters && !filtersOpen && (
+                <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary" />
+              )}
             </Button>
-          </Link>
+            <Link to="/map">
+              <Button variant="outline" size="sm">
+                <EarthIcon className="size-4" />
+                Map
+              </Button>
+            </Link>
+          </div>
+          {filtersOpen && (
+            <div className="flex flex-col gap-3">
+              <div className="relative">
+                <Input
+                  value={query}
+                  onChange={(e) => handleQueryChange(e.target.value)}
+                  placeholder="Search users..."
+                  className="pr-8"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => handleQueryChange("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <XIcon className="size-4" />
+                  </button>
+                )}
+              </div>
+              <BadgeInput
+                defaultSelections={searchParams.disciplines}
+                onChange={handleDisciplinesChange}
+                options={USER_DISCIPLINES}
+              />
+            </div>
+          )}
         </div>
 
         {displayedUsers.length === 0 && (
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <FilterIcon />
+                <UsersIcon />
               </EmptyMedia>
               <EmptyTitle>No users</EmptyTitle>
               <EmptyDescription>
@@ -147,93 +219,3 @@ function RouteComponent() {
     </div>
   );
 }
-
-function FiltersTray() {
-  const searchParams = Route.useSearch();
-  const router = useRouter();
-
-  const [disciplines, setDisciplines] = useState(searchParams.disciplines);
-  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
-    searchParams.id,
-  );
-
-  return (
-    <Tray>
-      <TrayTrigger asChild>
-        <Button variant="outline">
-          Filters <FilterIcon className="size-4" />
-        </Button>
-      </TrayTrigger>
-      <TrayContent>
-        <div className="flex flex-col items-start gap-3">
-          <TrayTitle className="text-lg">Filters</TrayTitle>
-          <label htmlFor="user-selector">User</label>
-          <UserSelector
-            initialSelectedUserId={searchParams.id}
-            onSelect={(user) => {
-              setSelectedUserId(user?.id);
-            }}
-          />
-
-          <label htmlFor="disciplines">Disciplines</label>
-          <BadgeInput
-            defaultSelections={disciplines}
-            onChange={setDisciplines}
-            options={USER_DISCIPLINES}
-          />
-
-          <div className="flex w-full justify-end gap-2">
-            <TrayClose asChild>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  router.navigate({ to: "/users", replace: true });
-                }}
-              >
-                Reset
-              </Button>
-            </TrayClose>
-            <TrayClose asChild>
-              <Button asChild>
-                <Link
-                  to="/users"
-                  replace
-                  search={{ id: selectedUserId, disciplines }}
-                >
-                  Apply
-                </Link>
-              </Button>
-            </TrayClose>
-          </div>
-        </div>
-      </TrayContent>
-    </Tray>
-  );
-}
-
-// function UpDownArrows({
-//   goToNext,
-//   goToPrevious,
-// }: React.HTMLAttributes<HTMLDivElement> & {
-//   goToNext: () => void;
-//   goToPrevious: () => void;
-// }) {
-//   useEventListener("keydown", (e) => {
-//     if (e.key === "ArrowDown") {
-//       goToNext();
-//     } else if (e.key === "ArrowUp") {
-//       goToPrevious();
-//     }
-//   });
-
-//   return (
-//     <>
-//       <Button onClick={goToNext} size="icon" variant="outline">
-//         <ArrowDownIcon className="size-4" />
-//       </Button>
-//       <Button onClick={goToPrevious} size="icon" variant="outline">
-//         <ArrowUpIcon className="size-4" />
-//       </Button>
-//     </>
-//   );
-// }

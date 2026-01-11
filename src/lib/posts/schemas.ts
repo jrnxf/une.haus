@@ -76,4 +76,5 @@ export type DeletePostArgs = z.infer<typeof deletePostSchema>;
 export const listPostsSchema = z.object({
   cursor: z.number().nullish(),
   q: z.string().optional(),
+  tags: z.array(z.enum(POST_TAGS)).optional(),
 });

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { and, countDistinct, desc, eq, ilike, lt, or } from "drizzle-orm";
+import { and, countDistinct, desc, eq, ilike, lt, or, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
@@ -55,7 +55,12 @@ export const listPostsServerFn = createServerFn({
             input.q ? ilike(posts.content, `%${input.q}%`) : undefined,
             input.q ? ilike(users.name, `%${input.q}%`) : undefined,
           ),
-
+          input.tags && input.tags.length > 0
+            ? sql`${posts.tags}::jsonb ?| array[${sql.join(
+                input.tags.map((tag) => sql`${tag}`),
+                sql`, `,
+              )}]`
+            : undefined,
           input.cursor ? lt(posts.id, input.cursor) : undefined,
         ),
       )
