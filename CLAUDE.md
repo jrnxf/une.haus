@@ -1,5 +1,9 @@
 # Project Guidelines
 
+## TypeScript Style
+
+- Always use `type` instead of `interface` for type definitions
+
 ## Session & Authentication
 
 This project uses TanStack Router with TanStack Query (react-query) for data fetching.

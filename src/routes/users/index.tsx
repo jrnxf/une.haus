@@ -1,6 +1,6 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { FilterIcon } from "lucide-react";
+import { EarthIcon, FilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
@@ -54,10 +54,16 @@ function RouteComponent() {
   return (
     <div className="overflow-y-auto" ref={setScrollRoot}>
       <div className="mx-auto grid max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
-        <div className="flex items-end justify-between gap-4">
-          <div className="sticky top-3 z-10 self-end">
+        <div className="flex items-center justify-between gap-4">
+          <div className="sticky top-3 z-10">
             <FiltersTray />
           </div>
+          <Link to="/map">
+            <Button variant="outline" size="sm">
+              <EarthIcon className="size-4" />
+              Map
+            </Button>
+          </Link>
         </div>
 
         {displayedUsers.length === 0 && (

@@ -70,25 +70,6 @@ export function BaseMessageForm({
     >
       <div className="flex items-end px-2">
         <div className="w-full space-y-2">
-          {/* <Textarea
-            {...register("content")}
-            className="resize-none rounded-none border-0 shadow-none focus-visible:ring-0"
-            id="content"
-            onKeyDown={(event) => {
-              if (event.code === "Enter" && (event.metaKey || event.ctrlKey)) {
-                event.preventDefault();
-                // hitting enter submits, enter while holding shift gives you a
-                // new line
-                const message = getValues().content;
-                if (message) {
-                  onSubmit(message);
-                  reset();
-                }
-              }
-            }}
-            rows={1}
-          /> */}
-
           <Textarea
             {...register("content")}
             className="[field-sizing:content] min-h-11 resize-none rounded-none border-0 px-1.5 py-2 shadow-none focus-visible:ring-0"
