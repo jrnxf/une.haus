@@ -1,3 +1,4 @@
+import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 
@@ -16,6 +17,17 @@ const config = defineConfig({
     ],
   },
   plugins: [
+    devtools({
+      editor: {
+        name: "Cursor",
+        open: async (path, lineNumber, columnNumber) => {
+          const { exec } = await import("node:child_process");
+          exec(
+            `cursor -g "${path.replaceAll("$", "\\$")}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}"`,
+          );
+        },
+      },
+    }),
     nitro({
       preset: "bun",
       compatibilityDate: "latest",
