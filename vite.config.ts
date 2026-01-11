@@ -7,6 +7,8 @@ import { defineConfig } from "vite";
 // import { beasties } from "vite-plugin-beasties";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
+import { TASK_NAMES } from "./src/lib/tasks/constants";
+
 const config = defineConfig({
   server: {
     allowedHosts: [
@@ -14,7 +16,32 @@ const config = defineConfig({
     ],
   },
   plugins: [
-    nitro({ preset: "bun", compatibilityDate: "latest" }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    nitro({
+      preset: "bun",
+      compatibilityDate: "latest",
+      experimental: {
+        tasks: true,
+      },
+      tasks: {
+        [TASK_NAMES.RIUS_ROTATE]: {
+          handler: "~/lib/tasks/rius/rotate",
+          description:
+            "Rotate RIUs: archive active, activate upcoming, create new upcoming",
+        },
+        [TASK_NAMES.TEST_GREETING]: {
+          handler: "~/lib/tasks/test/greeting",
+          description: "Test task that logs a greeting with timestamp",
+        },
+      },
+      scheduledTasks: {
+        // Test: run greeting every 10 seconds
+        "*/10 * * * * *": [TASK_NAMES.TEST_GREETING],
+        // Run RIU rotation at midnight (00:00) every Monday (server timezone)
+        // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
+        "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
+      },
+    } as any),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],
