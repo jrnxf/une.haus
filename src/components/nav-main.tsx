@@ -15,6 +15,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "~/components/ui/sidebar";
 
 export function NavMain({
@@ -31,6 +32,8 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const { isMobile } = useSidebar();
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -38,7 +41,7 @@ export function NavMain({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title} size="lg">
-                <Link to={item.url} replace>
+                <Link to={item.url} replace={isMobile}>
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
                 </Link>
@@ -56,7 +59,7 @@ export function NavMain({
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <Link to={subItem.url} replace>
+                            <Link to={subItem.url} replace={isMobile}>
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>
