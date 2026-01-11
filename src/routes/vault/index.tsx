@@ -1,11 +1,25 @@
 import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { MonitorIcon, ShieldIcon, TvIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
+import {
+  ArrowUpRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  HeartIcon,
+  MessageCircleIcon,
+  MonitorIcon,
+  ShieldIcon,
+  TvIcon,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Virtualizer } from "virtua";
 
+import { BaseMessageForm } from "~/components/forms/message";
+import { MessageAuthor } from "~/components/messages/message-author";
+import { MessageBubble } from "~/components/messages/message-bubble";
 import {
   Accordion,
   AccordionContent,
@@ -14,19 +28,25 @@ import {
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { getMuxPoster, VideoPlayer } from "~/components/video-player";
-import { useIsAdmin } from "~/lib/session/hooks";
-import { utv } from "~/lib/utv";
+import { messages } from "~/lib/messages";
+import { useCreateMessage } from "~/lib/messages/hooks";
+import { useIsAdmin, useSessionUser } from "~/lib/session/hooks";
+import { utv, type UtvVideosData } from "~/lib/utv";
 import {
   useUpdateScale,
   useUpdateThumbnailSeconds,
   useUpdateTitle,
 } from "~/lib/utv/hooks";
+import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
+import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 
 export const Route = createFileRoute("/vault/")({
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(utv.all.queryOptions());
+    await Promise.all([
+      context.queryClient.ensureQueryData(utv.all.queryOptions()),
+      context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
+    ]);
   },
   component: RouteComponent,
 });
@@ -35,6 +55,7 @@ function RouteComponent() {
   const { data } = useSuspenseQuery(utv.all.queryOptions());
   const [query, setQuery] = useState("");
   const [adminMode, setAdminMode] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const isAdmin = useIsAdmin();
 
@@ -59,16 +80,71 @@ function RouteComponent() {
           Admin
         </Button>
       )}
-      <div className="mx-auto w-full max-w-4xl shrink-0 px-4 pt-4 pb-0">
-        <div className="flex items-center gap-2">
-          <Input
-            id="vault-search"
-            value={query}
-            onChange={(evt) => setQuery(evt.target.value)}
-            placeholder="Search vault"
-            className="max-w-2xl"
-          />
+      <div className="mx-auto w-full max-w-4xl shrink-0 space-y-4 px-4 pt-4 pb-0">
+        <div className="space-y-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setHistoryOpen(!historyOpen)}
+            className="text-muted-foreground -ml-2 gap-1.5 text-sm font-medium"
+          >
+            History
+            <motion.div
+              animate={{ rotate: historyOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDownIcon className="size-4" />
+            </motion.div>
+          </Button>
+
+          <motion.div
+            initial={false}
+            animate={{
+              height: historyOpen ? "auto" : 0,
+              opacity: historyOpen ? 1 : 0,
+            }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="bg-muted/50 space-y-4 rounded-lg border p-4">
+              <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
+                <p>
+                  In December 2005, Olaf Schlote launched{" "}
+                  <span className="text-foreground font-medium">
+                    unicycle.tv
+                  </span>{" "}
+                  — a pioneering video platform built specifically for the
+                  unicycling community. Before YouTube became mainstream and
+                  years before social media made video sharing effortless,
+                  unicycle.tv provided riders around the world a dedicated space
+                  to upload, share, and preserve their footage.
+                </p>
+                <p>
+                  The platform captured countless historic moments: competition
+                  runs, groundbreaking tricks, and the raw progression of
+                  street, trials, and freestyle riding. When videos disappeared
+                  from other platforms, unicycle.tv remained as an archive. This
+                  vault preserves that legacy.
+                </p>
+                <p className="text-foreground font-medium">
+                  We are deeply grateful to Olaf for his vision and the
+                  incredible contribution he made to documenting our sport's
+                  history.
+                </p>
+              </div>
+
+              <ClapButton />
+            </div>
+          </motion.div>
         </div>
+
+        <Input
+          id="vault-search"
+          value={query}
+          onChange={(evt) => setQuery(evt.target.value)}
+          placeholder="Search vault"
+          className="max-w-2xl"
+        />
       </div>
       <div className="grow overflow-y-auto" ref={scrollRef}>
         <div className="mx-auto max-w-4xl px-4 pb-4">
@@ -99,23 +175,30 @@ function RouteComponent() {
                       </div>
                       <h2 className="truncate font-semibold">{video.title}</h2>
                       <div className="grow" />
-                      <div className="flex shrink-0 gap-2">
-                        <Button variant="secondary" asChild size="sm">
-                          <a
-                            href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.assetId}/monitor`}
-                            target="_blank"
-                          >
-                            <MonitorIcon className="size-3" />
-                            mux
-                          </a>
-                        </Button>
-                        <Button variant="secondary" asChild size="sm">
-                          <a href={video.legacyUrl} target="_blank">
-                            <TvIcon className="size-3" />
-                            utv
-                          </a>
-                        </Button>
+                      <div className="text-muted-foreground flex shrink-0 items-center gap-2.5 text-xs">
+                        <div
+                          className="flex items-center gap-1"
+                          title={`${video.messagesCount} messages`}
+                        >
+                          <MessageCircleIcon className="size-3.5" />
+                          <span>{video.messagesCount}</span>
+                        </div>
+                        <div
+                          className="flex items-center gap-1"
+                          title={`${video.likesCount} likes`}
+                        >
+                          <HeartIcon className="size-3.5" />
+                          <span>{video.likesCount}</span>
+                        </div>
                       </div>
+                      <Button variant="ghost" asChild size="icon-sm">
+                        <Link
+                          to="/vault/$videoId"
+                          params={{ videoId: video.id }}
+                        >
+                          <ArrowUpRightIcon className="size-4" />
+                        </Link>
+                      </Button>
                     </div>
                   </AccordionTrigger>
 
@@ -128,13 +211,8 @@ function RouteComponent() {
                         thumbnailSeconds={video.thumbnailSeconds}
                         title={video.title}
                       />
-                    ) : video.playbackId ? (
-                      <VideoPlayer
-                        playbackId={video.playbackId}
-                        className="rounded-none"
-                      />
                     ) : (
-                      <p className="p-4">No playback id</p>
+                      <ExpandedVideoContent video={video} isAdmin={!!isAdmin} />
                     )}
                   </AccordionContent>
                 </AccordionItem>
@@ -142,6 +220,216 @@ function RouteComponent() {
             </Virtualizer>
           </Accordion>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ClapButton() {
+  const qc = useQueryClient();
+  const { data: serverCount } = useQuery(utv.claps.get.queryOptions());
+  const [localClicks, setLocalClicks] = useState(0);
+  const pendingClicksRef = useRef(0);
+  const isMutatingRef = useRef(false);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const flushClicks = useCallback(async () => {
+    // Don't start a new request if one is already in flight
+    if (isMutatingRef.current || pendingClicksRef.current === 0) return;
+
+    isMutatingRef.current = true;
+    const amount = pendingClicksRef.current;
+    pendingClicksRef.current = 0;
+
+    try {
+      const newCount = await utv.claps.add.fn({ data: { amount } });
+      qc.setQueryData(utv.claps.get.queryOptions().queryKey, newCount);
+      // Only subtract the clicks that were in this batch
+      setLocalClicks((c) => c - amount);
+    } finally {
+      isMutatingRef.current = false;
+      // If more clicks accumulated during the request, flush again
+      if (pendingClicksRef.current > 0) {
+        flushClicks();
+      }
+    }
+  }, [qc]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      // Fire off any pending clicks on unmount
+      if (pendingClicksRef.current > 0 && !isMutatingRef.current) {
+        utv.claps.add.fn({ data: { amount: pendingClicksRef.current } });
+      }
+    };
+  }, []);
+
+  const handleClick = () => {
+    setLocalClicks((c) => c + 1);
+    pendingClicksRef.current += 1;
+
+    // Fire clapping emoji confetti from the button
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+      confetti({
+        particleCount: 6,
+        spread: 40,
+        origin: { x, y },
+        shapes: ["circle"],
+        colors: ["#f59e0b", "#fbbf24", "#fcd34d"],
+        scalar: 0.8,
+        gravity: 1.5,
+        ticks: 40,
+      });
+    }
+
+    // Debounce: only flush 500ms after last click
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(flushClicks, 500);
+  };
+
+  const displayCount = (serverCount ?? 0) + localClicks;
+
+  return (
+    <div className="flex items-center gap-3">
+      <motion.button
+        ref={buttonRef}
+        onClick={handleClick}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors"
+      >
+        <span className="text-base">👏</span>
+        Clap for Olaf
+      </motion.button>
+      <span className="text-muted-foreground text-sm tabular-nums">
+        {displayCount.toLocaleString()} {displayCount === 1 ? "clap" : "claps"}
+      </span>
+    </div>
+  );
+}
+
+const INITIAL_VISIBLE_COUNT = 2;
+
+function ExpandedVideoContent({
+  video,
+  isAdmin,
+}: {
+  video: UtvVideosData[number];
+  isAdmin: boolean;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const sessionUser = useSessionUser();
+
+  const record = { type: "utvVideo" as const, id: video.id };
+
+  const { data: messagesData } = useQuery(messages.list.queryOptions(record));
+
+  const { mutate: createMessage } = useCreateMessage(record);
+
+  const messageList = messagesData?.messages ?? [];
+  const hasMoreMessages = messageList.length > INITIAL_VISIBLE_COUNT;
+  const visibleMessages = isExpanded
+    ? messageList
+    : messageList.slice(-INITIAL_VISIBLE_COUNT);
+  const hiddenCount = messageList.length - INITIAL_VISIBLE_COUNT;
+
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      {video.playbackId ? (
+        <VideoPlayer playbackId={video.playbackId} className="rounded-md" />
+      ) : (
+        <p className="text-muted-foreground text-sm">No video available</p>
+      )}
+
+      {isAdmin && (
+        <div className="flex gap-2">
+          <Button variant="secondary" asChild size="sm">
+            <a
+              href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.assetId}/monitor`}
+              target="_blank"
+            >
+              <MonitorIcon className="size-3" />
+              mux
+            </a>
+          </Button>
+          <Button variant="secondary" asChild size="sm">
+            <a href={video.legacyUrl} target="_blank">
+              <TvIcon className="size-3" />
+              utv
+            </a>
+          </Button>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-muted-foreground text-sm font-medium">
+            Messages
+          </h3>
+          {hasMoreMessages && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground gap-1 text-xs"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              {isExpanded ? (
+                <>
+                  Show less
+                  <ChevronUpIcon className="size-3" />
+                </>
+              ) : (
+                <>
+                  Show {hiddenCount} more
+                  <ChevronDownIcon className="size-3" />
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+
+        {messageList.length === 0 ? (
+          <p className="text-muted-foreground text-sm">No messages yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {visibleMessages.map((message, index) => {
+              const isAuthUserMessage = Boolean(
+                sessionUser && sessionUser.id === message.user.id,
+              );
+              const prevMessage = visibleMessages[index - 1];
+              const isNewSection = prevMessage?.user.id !== message.user.id;
+
+              return (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "flex max-w-full flex-col",
+                    isAuthUserMessage && "items-end",
+                  )}
+                >
+                  {isNewSection && (
+                    <div className={cn("mb-1", index !== 0 && "mt-3")}>
+                      <MessageAuthor message={message} />
+                    </div>
+                  )}
+                  <MessageBubble parent={record} message={message} />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <BaseMessageForm onSubmit={createMessage} />
       </div>
     </div>
   );
