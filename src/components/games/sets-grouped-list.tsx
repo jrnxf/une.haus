@@ -77,7 +77,7 @@ export function SetsGroupedList({
         <AccordionItem
           key={userId}
           value={userId}
-          className="bg-card overflow-hidden rounded-lg border"
+          className="bg-card overflow-hidden rounded-lg border last:border-b"
         >
           <AccordionTrigger className="px-4 py-3 hover:no-underline [&[data-state=open]]:border-b">
             <div className="flex items-center gap-3">
