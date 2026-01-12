@@ -5,7 +5,7 @@ import { PlusIcon, RotateCcwIcon } from "lucide-react";
 import { BackUpSetForm } from "~/components/forms/games/bius";
 import { ChainStatusBanner, SetLineage } from "~/components/games/bius";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { games } from "~/lib/games";
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks";
 
@@ -52,57 +57,56 @@ function RouteComponent() {
         chainLength={sets.length}
       />
 
-      {/* Latest set to back up */}
+      {/* Back up action */}
       {latestSet && chain.status === "active" && (
-        <Card className="border-primary/30">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Back This Set Up</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-full">
-                  <RotateCcwIcon className="size-5" />
-                </div>
-                <div>
-                  <p className="font-medium">{latestSet.name}</p>
-                  <p className="text-muted-foreground text-sm">
-                    by {latestSet.user.name}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {canBackUp ? (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full">
-                    <RotateCcwIcon className="mr-2 size-4" />
-                    Back It Up
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Back Up: {latestSet.name}</DialogTitle>
-                  </DialogHeader>
-                  <BackUpSetForm parentSetId={latestSet.id} />
-                </DialogContent>
-              </Dialog>
-            ) : !sessionUser ? (
-              <p className="text-muted-foreground text-center text-sm">
-                Sign in to back up this set
-              </p>
-            ) : latestSet.user.id === sessionUser.id ? (
-              <p className="text-muted-foreground text-center text-sm">
-                You can&apos;t back up your own set. Wait for someone else!
-              </p>
-            ) : latestSet.flaggedAt ? (
-              <p className="text-muted-foreground text-center text-sm">
-                This set is flagged and under review
-              </p>
-            ) : null}
-          </CardContent>
-        </Card>
+        <div className="flex items-center gap-2">
+          {canBackUp ? (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <RotateCcwIcon className="mr-2 size-4" />
+                  Back It Up
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Back Up: {latestSet.name}</DialogTitle>
+                </DialogHeader>
+                <BackUpSetForm parentSetId={latestSet.id} />
+              </DialogContent>
+            </Dialog>
+          ) : !sessionUser ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled>
+                  <RotateCcwIcon className="mr-2 size-4" />
+                  Back It Up
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Sign in to back it up</TooltipContent>
+            </Tooltip>
+          ) : latestSet.user.id === sessionUser.id ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled>
+                  <RotateCcwIcon className="mr-2 size-4" />
+                  Back It Up
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>You can&apos;t back up your own set</TooltipContent>
+            </Tooltip>
+          ) : latestSet.flaggedAt ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled>
+                  <RotateCcwIcon className="mr-2 size-4" />
+                  Back It Up
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Set is flagged and under review</TooltipContent>
+            </Tooltip>
+          ) : null}
+        </div>
       )}
 
       {/* Chain lineage */}

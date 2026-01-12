@@ -1,16 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangleIcon, HeartIcon, MessageCircleIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
 
-type BiuSetCardProps = {
-  set: {
+type SiuStackCardProps = {
+  stack: {
     id: number;
     name: string;
     position: number;
-    flaggedAt: Date | null;
     user: {
       id: number;
       name: string;
@@ -18,7 +17,7 @@ type BiuSetCardProps = {
     };
     likes?: unknown[];
     messages?: unknown[];
-    parentSet?: {
+    parentStack?: {
       id: number;
       name: string;
       user?: {
@@ -31,50 +30,43 @@ type BiuSetCardProps = {
   className?: string;
 };
 
-export function BiuSetCard({
-  set,
+export function SiuStackCard({
+  stack,
   isLatest = false,
   className,
-}: BiuSetCardProps) {
-  const likeCount = Array.isArray(set.likes) ? set.likes.length : 0;
-  const messageCount = Array.isArray(set.messages) ? set.messages.length : 0;
-  const isFlagged = !!set.flaggedAt;
+}: SiuStackCardProps) {
+  const likeCount = Array.isArray(stack.likes) ? stack.likes.length : 0;
+  const messageCount = Array.isArray(stack.messages) ? stack.messages.length : 0;
 
   return (
     <Link
-      to="/games/bius/sets/$setId"
-      params={{ setId: set.id }}
+      to="/games/sius/stacks/$stackId"
+      params={{ stackId: stack.id }}
       className={cn("group block", className)}
     >
       <div
         className={cn(
           "bg-card rounded-md border p-3 transition-colors",
           "hover:bg-muted/50",
-          isFlagged && "border-destructive/50",
         )}
       >
         <div className="flex items-start gap-2.5">
           <Avatar
             className="size-8 shrink-0 rounded-full"
-            cloudflareId={set.user.avatarId}
-            alt={set.user.name}
+            cloudflareId={stack.user.avatarId}
+            alt={stack.user.name}
           >
             <AvatarImage width={32} quality={85} />
-            <AvatarFallback className="text-xs" name={set.user.name} />
+            <AvatarFallback className="text-xs" name={stack.user.name} />
           </Avatar>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-2">
-                <h3 className="truncate text-sm font-medium">{set.name}</h3>
+                <h3 className="truncate text-sm font-medium">{stack.name}</h3>
                 {isLatest && (
                   <Badge variant="outline" className="text-[10px]">
                     Latest
-                  </Badge>
-                )}
-                {isFlagged && (
-                  <Badge variant="destructive" className="text-[10px]">
-                    Flagged
                   </Badge>
                 )}
               </div>
@@ -92,7 +84,7 @@ export function BiuSetCard({
             </div>
 
             <p className="text-muted-foreground text-xs">
-              #{set.position} · {set.user.name}
+              #{stack.position} · {stack.user.name}
             </p>
           </div>
         </div>

@@ -24,6 +24,8 @@ export const Route = createFileRoute("/games/")({
       context.queryClient.ensureQueryData(
         games.rius.upcoming.roster.queryOptions(),
       ),
+      context.queryClient.ensureQueryData(games.bius.chain.active.queryOptions()),
+      context.queryClient.ensureQueryData(games.sius.chain.active.queryOptions()),
     ]);
   },
 });
@@ -38,6 +40,7 @@ type GameCardProps = {
   icon: React.ComponentType<{ className?: string }>;
   stats?: {
     activeSets?: number;
+    chainLength?: number;
     participants?: number;
     upcomingPlayers?: number;
   };
@@ -54,10 +57,10 @@ function GameCard({
   const isActive = status === "active";
 
   return (
-    <Link to={href} className="block">
+    <Link to={href} className="block h-full">
       <Card
         className={cn(
-          "group relative overflow-hidden transition-all",
+          "group relative flex h-full flex-col overflow-hidden transition-all",
           "cursor-pointer border-dashed",
           "focus-within:scale-[1.01] hover:scale-[1.01]",
           !isActive && "opacity-70",
@@ -79,48 +82,65 @@ function GameCard({
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="flex grow flex-col space-y-4">
           <p className="text-muted-foreground text-sm leading-relaxed">
             {description}
           </p>
 
-          {isActive && stats && (
-            <div className="flex flex-col gap-2 border-t pt-4">
-              {stats.activeSets !== undefined && (
-                <div className="flex items-center gap-2">
-                  <PlayIcon className="text-muted-foreground size-4" />
-                  <p className="text-muted-foreground text-xs">
-                    <span className="text-foreground font-medium">
-                      {stats.activeSets}
-                    </span>{" "}
-                    active sets
-                  </p>
-                </div>
-              )}
-              {stats.participants !== undefined && (
-                <div className="flex items-center gap-2">
-                  <UsersIcon className="text-muted-foreground size-4" />
-                  <p className="text-muted-foreground text-xs">
-                    <span className="text-foreground font-medium">
-                      {stats.participants}
-                    </span>{" "}
-                    players
-                  </p>
-                </div>
-              )}
-              {stats.upcomingPlayers !== undefined && (
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="text-muted-foreground size-4" />
-                  <p className="text-muted-foreground text-xs">
-                    <span className="text-foreground font-medium">
-                      {stats.upcomingPlayers}
-                    </span>{" "}
-                    in next round
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="flex grow flex-col gap-2 border-t pt-4">
+            {isActive && stats ? (
+              <>
+                {stats.activeSets !== undefined && (
+                  <div className="flex items-center gap-2">
+                    <PlayIcon className="text-muted-foreground size-4" />
+                    <p className="text-muted-foreground text-xs">
+                      <span className="text-foreground font-medium">
+                        {stats.activeSets}
+                      </span>{" "}
+                      active sets
+                    </p>
+                  </div>
+                )}
+                {stats.chainLength !== undefined && (
+                  <div className="flex items-center gap-2">
+                    <LayersIcon className="text-muted-foreground size-4" />
+                    <p className="text-muted-foreground text-xs">
+                      <span className="text-foreground font-medium">
+                        {stats.chainLength}
+                      </span>{" "}
+                      {stats.chainLength === 1 ? "trick" : "tricks"} in chain
+                    </p>
+                  </div>
+                )}
+                {stats.participants !== undefined && (
+                  <div className="flex items-center gap-2">
+                    <UsersIcon className="text-muted-foreground size-4" />
+                    <p className="text-muted-foreground text-xs">
+                      <span className="text-foreground font-medium">
+                        {stats.participants}
+                      </span>{" "}
+                      {stats.participants === 1 ? "player" : "players"}
+                    </p>
+                  </div>
+                )}
+                {stats.upcomingPlayers !== undefined && (
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="text-muted-foreground size-4" />
+                    <p className="text-muted-foreground text-xs">
+                      <span className="text-foreground font-medium">
+                        {stats.upcomingPlayers}
+                      </span>{" "}
+                      in next round
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-muted-foreground text-xs italic">
+                Coming soon
+              </p>
+            )}
+          </div>
 
           <div className="flex items-center justify-end">
             <span className="text-muted-foreground group-hover:text-foreground flex items-center gap-1 text-sm transition-colors">
@@ -141,9 +161,21 @@ function RouteComponent() {
   const { data: upcomingRoster } = useSuspenseQuery(
     games.rius.upcoming.roster.queryOptions(),
   );
+  const { data: biusChain } = useSuspenseQuery(
+    games.bius.chain.active.queryOptions(),
+  );
+  const { data: siusChain } = useSuspenseQuery(
+    games.sius.chain.active.queryOptions(),
+  );
 
   const riuParticipants = new Set(activeRiu.sets.map((s) => s.user.id)).size;
   const upcomingPlayers = Object.keys(upcomingRoster.roster).length;
+
+  const biusSets = biusChain?.sets ?? [];
+  const biusParticipants = new Set(biusSets.map((s) => s.user.id)).size;
+
+  const siusStacks = siusChain?.stacks ?? [];
+  const siusParticipants = new Set(siusStacks.map((s) => s.user.id)).size;
 
   return (
     <div className="flex grow flex-col overflow-hidden">
@@ -173,17 +205,25 @@ function RouteComponent() {
             <GameCard
               name="Back It Up"
               description="Land the previous trick, then set a new one. Chain your skills in an evolving line of creativity."
-              status="coming-soon"
+              status="active"
               href="/games/bius"
               icon={RotateCcwIcon}
+              stats={{
+                chainLength: biusSets.length,
+                participants: biusParticipants,
+              }}
             />
 
             <GameCard
               name="Stack It Up"
               description="Complete the full stack of tricks, then add your own to the end. Build on what came before."
-              status="coming-soon"
+              status="active"
               href="/games/sius"
               icon={LayersIcon}
+              stats={{
+                chainLength: siusStacks.length,
+                participants: siusParticipants,
+              }}
             />
           </div>
         </div>
