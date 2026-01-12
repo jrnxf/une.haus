@@ -29,6 +29,7 @@ import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/ind
 import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
 import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
+import { Route as GamesSiusStartRouteImport } from './routes/games/sius/start'
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
 import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
 import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
@@ -42,6 +43,7 @@ import { Route as GamesRiusPreviousIndexRouteImport } from './routes/games/rius/
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
+import { Route as GamesSiusStacksStackIdIndexRouteImport } from './routes/games/sius/stacks/$stackId/index'
 import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './routes/games/rius/submissions/$submissionId/index'
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
 import { Route as GamesBiusSetsSetIdIndexRouteImport } from './routes/games/bius/sets/$setId/index'
@@ -147,6 +149,11 @@ const AuthedNotificationsIndexRoute =
     path: '/notifications/',
     getParentRoute: () => AuthedRoute,
   } as any)
+const GamesSiusStartRoute = GamesSiusStartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => GamesSiusRouteRoute,
+} as any)
 const GamesRiusActiveRoute = GamesRiusActiveRouteImport.update({
   id: '/active',
   path: '/active',
@@ -213,6 +220,12 @@ const AuthedAuthMeEditRoute = AuthedAuthMeEditRouteImport.update({
   path: '/auth/me/edit',
   getParentRoute: () => AuthedRoute,
 } as any)
+const GamesSiusStacksStackIdIndexRoute =
+  GamesSiusStacksStackIdIndexRouteImport.update({
+    id: '/stacks/$stackId/',
+    path: '/stacks/$stackId/',
+    getParentRoute: () => GamesSiusRouteRoute,
+  } as any)
 const GamesRiusSubmissionsSubmissionIdIndexRoute =
   GamesRiusSubmissionsSubmissionIdIndexRouteImport.update({
     id: '/submissions/$submissionId/',
@@ -259,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/sius/start': typeof GamesSiusStartRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
@@ -273,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -295,6 +310,7 @@ export interface FileRoutesByTo {
   '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/sius/start': typeof GamesSiusStartRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
   '/games/bius': typeof GamesBiusIndexRoute
   '/games/sius': typeof GamesSiusIndexRoute
@@ -309,6 +325,7 @@ export interface FileRoutesByTo {
   '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -335,6 +352,7 @@ export interface FileRoutesById {
   '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/sius/start': typeof GamesSiusStartRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
@@ -349,6 +367,7 @@ export interface FileRoutesById {
   '/games/bius/sets/$setId/': typeof GamesBiusSetsSetIdIndexRoute
   '/games/rius/sets/$setId/': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId/': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId/': typeof GamesSiusStacksStackIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -375,6 +394,7 @@ export interface FileRouteTypes {
     | '/auth/code/verify'
     | '/games/bius/start'
     | '/games/rius/active'
+    | '/games/sius/start'
     | '/notifications'
     | '/games/bius/'
     | '/games/sius/'
@@ -389,6 +409,7 @@ export interface FileRouteTypes {
     | '/games/bius/sets/$setId'
     | '/games/rius/sets/$setId'
     | '/games/rius/submissions/$submissionId'
+    | '/games/sius/stacks/$stackId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -411,6 +432,7 @@ export interface FileRouteTypes {
     | '/auth/code/verify'
     | '/games/bius/start'
     | '/games/rius/active'
+    | '/games/sius/start'
     | '/notifications'
     | '/games/bius'
     | '/games/sius'
@@ -425,6 +447,7 @@ export interface FileRouteTypes {
     | '/games/bius/sets/$setId'
     | '/games/rius/sets/$setId'
     | '/games/rius/submissions/$submissionId'
+    | '/games/sius/stacks/$stackId'
   id:
     | '__root__'
     | '/'
@@ -450,6 +473,7 @@ export interface FileRouteTypes {
     | '/auth/code/verify'
     | '/games/bius/start'
     | '/games/rius/active'
+    | '/games/sius/start'
     | '/_authed/notifications/'
     | '/games/bius/'
     | '/games/sius/'
@@ -464,6 +488,7 @@ export interface FileRouteTypes {
     | '/games/bius/sets/$setId/'
     | '/games/rius/sets/$setId/'
     | '/games/rius/submissions/$submissionId/'
+    | '/games/sius/stacks/$stackId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -632,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotificationsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/games/sius/start': {
+      id: '/games/sius/start'
+      path: '/start'
+      fullPath: '/games/sius/start'
+      preLoaderRoute: typeof GamesSiusStartRouteImport
+      parentRoute: typeof GamesSiusRouteRoute
+    }
     '/games/rius/active': {
       id: '/games/rius/active'
       path: '/active'
@@ -722,6 +754,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/me/edit'
       preLoaderRoute: typeof AuthedAuthMeEditRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/games/sius/stacks/$stackId/': {
+      id: '/games/sius/stacks/$stackId/'
+      path: '/stacks/$stackId'
+      fullPath: '/games/sius/stacks/$stackId'
+      preLoaderRoute: typeof GamesSiusStacksStackIdIndexRouteImport
+      parentRoute: typeof GamesSiusRouteRoute
     }
     '/games/rius/submissions/$submissionId/': {
       id: '/games/rius/submissions/$submissionId/'
@@ -815,11 +854,15 @@ const GamesRiusRouteRouteWithChildren = GamesRiusRouteRoute._addFileChildren(
 )
 
 interface GamesSiusRouteRouteChildren {
+  GamesSiusStartRoute: typeof GamesSiusStartRoute
   GamesSiusIndexRoute: typeof GamesSiusIndexRoute
+  GamesSiusStacksStackIdIndexRoute: typeof GamesSiusStacksStackIdIndexRoute
 }
 
 const GamesSiusRouteRouteChildren: GamesSiusRouteRouteChildren = {
+  GamesSiusStartRoute: GamesSiusStartRoute,
   GamesSiusIndexRoute: GamesSiusIndexRoute,
+  GamesSiusStacksStackIdIndexRoute: GamesSiusStacksStackIdIndexRoute,
 }
 
 const GamesSiusRouteRouteWithChildren = GamesSiusRouteRoute._addFileChildren(

@@ -29,8 +29,9 @@ export async function createNotification(
   });
 
   // If settings exist, check if this notification type is enabled
-  if (settings) {
-    const typeToSetting: Record<NotificationType, keyof typeof settings> = {
+  // Note: archive_request and chain_archived bypass preference checks as they are important admin/system notifications
+  if (settings && input.type !== "archive_request" && input.type !== "chain_archived") {
+    const typeToSetting: Partial<Record<NotificationType, keyof typeof settings>> = {
       like: "likesEnabled",
       comment: "commentsEnabled",
       follow: "followsEnabled",
@@ -149,6 +150,17 @@ export async function getContentOwner(
         columns: { userId: true },
       });
       return set?.userId ?? null;
+    }
+    case "siuStack": {
+      const stack = await db.query.siuStacks.findFirst({
+        where: (stacks, { eq: eqOp }) => eqOp(stacks.id, entityId),
+        columns: { userId: true },
+      });
+      return stack?.userId ?? null;
+    }
+    case "siuChain": {
+      // SIU chains don't have a single owner
+      return null;
     }
     case "utvVideo": {
       // UTV videos don't have owners (legacy content)

@@ -10,6 +10,7 @@ import {
   postMessages,
   riuSetMessages,
   riuSubmissionMessages,
+  siuStackMessages,
   utvVideoMessages,
   type NotificationEntityType,
 } from "~/db/schema";
@@ -273,6 +274,46 @@ export const listMessagesServerFn = createServerFn({
       };
     }
 
+    if (input.type === "siuStack") {
+      const messages = await db.query.siuStackMessages.findMany({
+        orderBy: asc(siuStackMessages.createdAt),
+        where: eq(siuStackMessages.siuStackId, input.id),
+        columns: {
+          siuStackId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              siuStackMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "siuStackMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
     invariant(false, "Invalid type");
   });
 
@@ -282,6 +323,7 @@ const MESSAGE_ENTITY_TYPES: Partial<Record<MessageParentType, NotificationEntity
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",
   biuSet: "biuSet",
+  siuStack: "siuStack",
   utvVideo: "utvVideo",
 };
 
@@ -360,6 +402,17 @@ export const createMessageServerFn = createServerFn({
         .returning();
     }
 
+    if (type === "siuStack") {
+      await db
+        .insert(siuStackMessages)
+        .values({
+          content,
+          siuStackId: id,
+          userId,
+        })
+        .returning();
+    }
+
     // Create notification for the content owner (skip chat as it has no owner)
     const entityType = MESSAGE_ENTITY_TYPES[type];
     if (entityType) {
@@ -428,7 +481,9 @@ export const getTableByType = (type: MessageParentType) => {
               ? utvVideoMessages
               : type === "biuSet"
                 ? biuSetMessages
-                : undefined;
+                : type === "siuStack"
+                  ? siuStackMessages
+                  : undefined;
 
   invariant(
     table,

@@ -20,6 +20,9 @@ export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES);
 export const BIU_CHAIN_STATUSES = ["active", "completed", "flagged"] as const;
 export const biuChainStatusEnum = pgEnum("biu_chain_status", BIU_CHAIN_STATUSES);
 
+export const SIU_CHAIN_STATUSES = ["active", "archived"] as const;
+export const siuChainStatusEnum = pgEnum("siu_chain_status", SIU_CHAIN_STATUSES);
+
 export const USER_TYPES = ["user", "admin", "test"] as const;
 export const userTypeEnum = pgEnum("user_type", USER_TYPES);
 
@@ -60,6 +63,8 @@ export const NOTIFICATION_TYPES = [
   "comment",
   "follow",
   "new_content",
+  "archive_request",
+  "chain_archived",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -71,6 +76,8 @@ export const NOTIFICATION_ENTITY_TYPES = [
   "riuSet",
   "riuSubmission",
   "biuSet",
+  "siuStack",
+  "siuChain",
   "utvVideo",
   "user",
 ] as const;
@@ -465,6 +472,86 @@ export const biuSetMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.biuSetMessageId, t.userId] })],
 );
 
+// SIU (Stack It Up) Game Tables
+export const siuChains = pgTable("siu_chains", {
+  id: serial("id").primaryKey(),
+  status: siuChainStatusEnum("status").default("active"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  endedAt: timestamp("ended_at"),
+});
+
+export const siuStacks = pgTable("siu_stacks", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+
+  chainId: integer("chain_id")
+    .notNull()
+    .references(() => siuChains.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  muxAssetId: text("mux_asset_id")
+    .references(() => muxVideos.assetId, { onDelete: "set null" })
+    .notNull(),
+
+  name: text("name").notNull(),
+  position: integer("position").notNull(),
+  parentStackId: integer("parent_stack_id"),
+});
+
+export const siuStackArchiveVotes = pgTable(
+  "siu_stack_archive_votes",
+  {
+    chainId: integer("chain_id")
+      .notNull()
+      .references(() => siuChains.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.chainId, t.userId] })],
+);
+
+export const siuStackLikes = pgTable(
+  "siu_stack_likes",
+  {
+    siuStackId: integer("siu_stack_id")
+      .notNull()
+      .references(() => siuStacks.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.siuStackId, t.userId] })],
+);
+
+export const siuStackMessages = pgTable("siu_stack_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  siuStackId: integer("siu_stack_id")
+    .notNull()
+    .references(() => siuStacks.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const siuStackMessageLikes = pgTable(
+  "siu_stack_message_likes",
+  {
+    siuStackMessageId: integer("siu_stack_message_id")
+      .notNull()
+      .references(() => siuStackMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.siuStackMessageId, t.userId] })],
+);
+
 export const userFollows = pgTable(
   "user_follows",
   {
@@ -855,6 +942,89 @@ export const biuSetMessageLikesRelations = relations(
     }),
     user: one(users, {
       fields: [biuSetMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+// SIU Relations
+export const siuChainsRelations = relations(siuChains, ({ many }) => ({
+  stacks: many(siuStacks),
+  archiveVotes: many(siuStackArchiveVotes),
+}));
+
+export const siuStacksRelations = relations(siuStacks, ({ one, many }) => ({
+  chain: one(siuChains, {
+    fields: [siuStacks.chainId],
+    references: [siuChains.id],
+  }),
+  user: one(users, {
+    fields: [siuStacks.userId],
+    references: [users.id],
+  }),
+  video: one(muxVideos, {
+    fields: [siuStacks.muxAssetId],
+    references: [muxVideos.assetId],
+  }),
+  parentStack: one(siuStacks, {
+    fields: [siuStacks.parentStackId],
+    references: [siuStacks.id],
+    relationName: "parentChild",
+  }),
+  childStacks: many(siuStacks, { relationName: "parentChild" }),
+  likes: many(siuStackLikes),
+  messages: many(siuStackMessages),
+}));
+
+export const siuStackArchiveVotesRelations = relations(
+  siuStackArchiveVotes,
+  ({ one }) => ({
+    chain: one(siuChains, {
+      fields: [siuStackArchiveVotes.chainId],
+      references: [siuChains.id],
+    }),
+    user: one(users, {
+      fields: [siuStackArchiveVotes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const siuStackLikesRelations = relations(siuStackLikes, ({ one }) => ({
+  siuStack: one(siuStacks, {
+    fields: [siuStackLikes.siuStackId],
+    references: [siuStacks.id],
+  }),
+  user: one(users, {
+    fields: [siuStackLikes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const siuStackMessagesRelations = relations(
+  siuStackMessages,
+  ({ one, many }) => ({
+    siuStack: one(siuStacks, {
+      fields: [siuStackMessages.siuStackId],
+      references: [siuStacks.id],
+    }),
+    user: one(users, {
+      fields: [siuStackMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(siuStackMessageLikes),
+  }),
+);
+
+export const siuStackMessageLikesRelations = relations(
+  siuStackMessageLikes,
+  ({ one }) => ({
+    message: one(siuStackMessages, {
+      fields: [siuStackMessageLikes.siuStackMessageId],
+      references: [siuStackMessages.id],
+    }),
+    user: one(users, {
+      fields: [siuStackMessageLikes.userId],
       references: [users.id],
     }),
   }),

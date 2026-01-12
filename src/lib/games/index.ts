@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { bius } from "./bius";
+import { sius } from "./sius";
 import {
   adminOnlyRotateRiusServerFn,
   createRiuSetServerFn,
@@ -123,6 +124,7 @@ export const games = {
     },
   },
   bius,
+  sius,
 };
 
 export function groupSetsByUser<T extends { user: { id: number } }>(sets: T[]) {

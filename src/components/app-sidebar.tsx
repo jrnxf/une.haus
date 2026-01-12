@@ -28,7 +28,7 @@ const data = {
   navMain: [
     {
       title: "Games",
-      url: "/games/rius/active",
+      url: "/games",
       icon: MedalIcon,
       isActive: true,
     },

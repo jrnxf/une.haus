@@ -20,6 +20,8 @@ import {
   riuSetMessageLikes,
   riuSubmissionLikes,
   riuSubmissionMessageLikes,
+  siuStackLikes,
+  siuStackMessageLikes,
   utvVideoLikes,
   utvVideoMessageLikes,
   type NotificationEntityType,
@@ -34,6 +36,7 @@ const LIKEABLE_ENTITY_TYPES: Partial<Record<RecordWithLikesType, NotificationEnt
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",
   biuSet: "biuSet",
+  siuStack: "siuStack",
   utvVideo: "utvVideo",
 };
 
@@ -129,7 +132,11 @@ export const getTableByType = (type: RecordWithLikesType) => {
                         ? biuSetLikes
                         : type === "biuSetMessage"
                           ? biuSetMessageLikes
-                          : undefined;
+                          : type === "siuStack"
+                            ? siuStackLikes
+                            : type === "siuStackMessage"
+                              ? siuStackMessageLikes
+                              : undefined;
 
   invariant(
     table,
