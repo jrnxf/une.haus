@@ -61,7 +61,7 @@ const data = {
   navSecondary: [
     {
       title: "Feedback",
-      url: "#",
+      url: "/feedback",
       icon: Send,
     },
   ],

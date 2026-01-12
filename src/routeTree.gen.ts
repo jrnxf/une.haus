@@ -21,6 +21,7 @@ import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as StatsContributorsRouteImport } from './routes/stats/contributors'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
+import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
 import { Route as GamesSiusRouteRouteImport } from './routes/games/sius/route'
 import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
 import { Route as GamesBiusRouteRouteImport } from './routes/games/bius/route'
@@ -107,6 +108,11 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedFeedbackRoute = AuthedFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AuthedRoute,
 } as any)
 const GamesSiusRouteRoute = GamesSiusRouteRouteImport.update({
   id: '/games/sius',
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/games/bius': typeof GamesBiusRouteRouteWithChildren
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/games/sius': typeof GamesSiusRouteRouteWithChildren
+  '/feedback': typeof AuthedFeedbackRoute
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/users/$userId': typeof UsersUserIdRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/feedback': typeof AuthedFeedbackRoute
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/users/$userId': typeof UsersUserIdRoute
@@ -334,6 +342,7 @@ export interface FileRoutesById {
   '/games/bius': typeof GamesBiusRouteRouteWithChildren
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/games/sius': typeof GamesSiusRouteRouteWithChildren
+  '/_authed/feedback': typeof AuthedFeedbackRoute
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/users/$userId': typeof UsersUserIdRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/games/bius'
     | '/games/rius'
     | '/games/sius'
+    | '/feedback'
     | '/auth/register'
     | '/stats/contributors'
     | '/users/$userId'
@@ -414,6 +424,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/games/rius'
+    | '/feedback'
     | '/auth/register'
     | '/stats/contributors'
     | '/users/$userId'
@@ -455,6 +466,7 @@ export interface FileRouteTypes {
     | '/games/bius'
     | '/games/rius'
     | '/games/sius'
+    | '/_authed/feedback'
     | '/auth/register'
     | '/stats/contributors'
     | '/users/$userId'
@@ -600,6 +612,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/register'
       preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authed/feedback': {
+      id: '/_authed/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof AuthedFeedbackRouteImport
+      parentRoute: typeof AuthedRoute
     }
     '/games/sius': {
       id: '/games/sius'
@@ -794,6 +813,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
+  AuthedFeedbackRoute: typeof AuthedFeedbackRoute
   AuthedNotificationsSettingsRoute: typeof AuthedNotificationsSettingsRoute
   AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute
   AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute
@@ -804,6 +824,7 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedFeedbackRoute: AuthedFeedbackRoute,
   AuthedNotificationsSettingsRoute: AuthedNotificationsSettingsRoute,
   AuthedPostsCreateRoute: AuthedPostsCreateRoute,
   AuthedNotificationsIndexRoute: AuthedNotificationsIndexRoute,
