@@ -4,15 +4,98 @@ import {
   Outlet,
   useLocation,
 } from "@tanstack/react-router";
-import { RefreshCwIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  ArrowLeftIcon,
+  BarChart3Icon,
+  CalendarIcon,
+  PlayCircleIcon,
+  RefreshCwIcon,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "~/components/ui/button";
 import { useAdminRotateRius } from "~/lib/games/rius/hooks";
 import { useIsAdmin } from "~/lib/session/hooks";
+import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/games/rius")({
   component: RouteComponent,
 });
+
+type TabConfig = {
+  path: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const tabs: TabConfig[] = [
+  { path: "/games/rius/active", label: "Active", icon: PlayCircleIcon },
+  { path: "/games/rius/upcoming", label: "Upcoming", icon: CalendarIcon },
+  { path: "/games/rius/previous", label: "Archive", icon: ArchiveIcon },
+];
+
+const pad = (n: number) => n.toString().padStart(2, "0");
+
+function getNextMondayMidnightUTC(): Date {
+  const now = new Date();
+  const dayOfWeek = now.getUTCDay();
+  // Days until Monday (0 = Sunday, 1 = Monday, etc.)
+  // If today is Monday (1), we want next Monday (7 days)
+  // If today is Sunday (0), we want tomorrow (1 day)
+  const daysUntilMonday =
+    dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 7 : 8 - dayOfWeek;
+
+  const nextMonday = new Date(now);
+  nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday);
+  nextMonday.setUTCHours(0, 0, 0, 0);
+
+  return nextMonday;
+}
+
+function useCountdown() {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const target = getNextMondayMidnightUTC();
+    return Math.max(0, target.getTime() - Date.now());
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const target = getNextMondayMidnightUTC();
+      const remaining = Math.max(0, target.getTime() - Date.now());
+      setTimeLeft(remaining);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const totalSeconds = Math.floor(timeLeft / 1000);
+  const days = Math.floor(totalSeconds / 86_400);
+  const hours = Math.floor((totalSeconds % 86_400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    days,
+    hours,
+    minutes,
+    seconds,
+    formatted: `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
+  };
+}
+
+function Countdown() {
+  const { formatted } = useCountdown();
+
+  return (
+    <div className="text-muted-foreground flex items-center gap-1.5 text-xs tabular-nums">
+      <span className="hidden sm:inline">Next round in</span>
+      <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
+        {formatted}
+      </code>
+    </div>
+  );
+}
 
 function RouteComponent() {
   const location = useLocation();
@@ -22,44 +105,91 @@ function RouteComponent() {
   const isActive = (path: string) => location.pathname.includes(path);
 
   return (
-    <div className="flex grow flex-col overflow-hidden px-1">
-      <div className="overflow-y-auto" id="main-content">
-        <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-3 p-3">
-          <Outlet />
-          <div className="absolute top-2 right-2 flex gap-2">
-            {isAdmin && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => rotateRius.mutate({})}
-                disabled={rotateRius.isPending}
-              >
-                <RefreshCwIcon className="size-4" />
-                Rotate
-              </Button>
-            )}
+    <div className="flex grow flex-col overflow-hidden">
+      {/* Header */}
+      <div className="border-b">
+        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-3">
             <Button
-              asChild
-              variant={isActive("/previous") ? "default" : "outline"}
+              variant="ghost"
               size="sm"
-            >
-              <Link to="/games/rius/previous">Previous</Link>
-            </Button>
-            <Button
+              className="text-muted-foreground hover:text-foreground -ml-2 gap-1.5"
               asChild
-              variant={isActive("/active") ? "default" : "outline"}
-              size="sm"
             >
-              <Link to="/games/rius/active">Active</Link>
+              <Link to="/games">
+                <ArrowLeftIcon className="size-4" />
+                Games
+              </Link>
             </Button>
-            <Button
-              asChild
-              variant={isActive("/upcoming") ? "default" : "outline"}
-              size="sm"
-            >
-              <Link to="/games/rius/upcoming">Upcoming</Link>
-            </Button>
+            <div className="bg-border h-4 w-px" />
+            <div className="flex items-center gap-2">
+              <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                <BarChart3Icon className="size-3.5" />
+              </div>
+              <h1 className="text-sm font-semibold">Rack It Up</h1>
+            </div>
+            <div className="bg-border hidden h-4 w-px sm:block" />
+            <div className="hidden sm:block">
+              <Countdown />
+            </div>
           </div>
+
+          {/* Tabs + Admin */}
+          <div className="flex items-center gap-2">
+            <nav className="flex gap-1" aria-label="Game sections">
+              {tabs.map((tab) => {
+                const active = isActive(tab.path);
+                const Icon = tab.icon;
+                return (
+                  <Link
+                    key={tab.path}
+                    to={tab.path}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                      active
+                        ? "bg-secondary text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                    )}
+                  >
+                    <Icon className="size-3.5" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {isAdmin && (
+              <>
+                <div className="bg-border h-4 w-px" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => rotateRius.mutate({})}
+                  disabled={rotateRius.isPending}
+                  className="text-muted-foreground hover:text-foreground gap-1 px-2"
+                >
+                  <RefreshCwIcon
+                    className={cn(
+                      "size-3.5",
+                      rotateRius.isPending && "animate-spin",
+                    )}
+                  />
+                  <span className="hidden text-xs sm:inline">Rotate</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+        {/* Mobile countdown */}
+        <div className="border-t px-4 py-2 sm:hidden">
+          <Countdown />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto" id="main-content">
+        <div className="mx-auto w-full max-w-4xl p-4">
+          <Outlet />
         </div>
       </div>
     </div>

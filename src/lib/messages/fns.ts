@@ -5,10 +5,13 @@ import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
+  biuSetMessages,
   chatMessages,
   postMessages,
   riuSetMessages,
   riuSubmissionMessages,
+  utvVideoMessages,
+  type NotificationEntityType,
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import {
@@ -20,6 +23,7 @@ import {
   type MessageParentType,
 } from "~/lib/messages/schemas";
 import { authMiddleware } from "~/lib/middleware";
+import { createNotification, getContentOwner } from "~/lib/notifications/helpers";
 
 export const listMessagesServerFn = createServerFn({
   method: "GET",
@@ -189,8 +193,97 @@ export const listMessagesServerFn = createServerFn({
       };
     }
 
+    if (input.type === "utvVideo") {
+      const messages = await db.query.utvVideoMessages.findMany({
+        orderBy: asc(utvVideoMessages.createdAt),
+        where: eq(utvVideoMessages.utvVideoId, input.id),
+        columns: {
+          utvVideoId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              utvVideoMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "utvVideoMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
+    if (input.type === "biuSet") {
+      const messages = await db.query.biuSetMessages.findMany({
+        orderBy: asc(biuSetMessages.createdAt),
+        where: eq(biuSetMessages.biuSetId, input.id),
+        columns: {
+          biuSetId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              biuSetMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "biuSetMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
     invariant(false, "Invalid type");
   });
+
+// Map message parent types to notification entity types
+const MESSAGE_ENTITY_TYPES: Partial<Record<MessageParentType, NotificationEntityType>> = {
+  post: "post",
+  riuSet: "riuSet",
+  riuSubmission: "riuSubmission",
+  biuSet: "biuSet",
+  utvVideo: "utvVideo",
+};
 
 export const createMessageServerFn = createServerFn({
   method: "POST",
@@ -244,6 +337,48 @@ export const createMessageServerFn = createServerFn({
         })
         .returning();
     }
+
+    if (type === "utvVideo") {
+      await db
+        .insert(utvVideoMessages)
+        .values({
+          content,
+          utvVideoId: id,
+          userId,
+        })
+        .returning();
+    }
+
+    if (type === "biuSet") {
+      await db
+        .insert(biuSetMessages)
+        .values({
+          content,
+          biuSetId: id,
+          userId,
+        })
+        .returning();
+    }
+
+    // Create notification for the content owner (skip chat as it has no owner)
+    const entityType = MESSAGE_ENTITY_TYPES[type];
+    if (entityType) {
+      const ownerId = await getContentOwner(entityType, id);
+      if (ownerId && ownerId !== userId) {
+        createNotification({
+          userId: ownerId,
+          actorId: userId,
+          type: "comment",
+          entityType,
+          entityId: id,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+            entityPreview: content.slice(0, 100),
+          },
+        }).catch(console.error);
+      }
+    }
   });
 
 export const updateMessageServerFn = createServerFn({
@@ -289,7 +424,11 @@ export const getTableByType = (type: MessageParentType) => {
           ? riuSetMessages
           : type === "riuSubmission"
             ? riuSubmissionMessages
-            : undefined;
+            : type === "utvVideo"
+              ? utvVideoMessages
+              : type === "biuSet"
+                ? biuSetMessages
+                : undefined;
 
   invariant(
     table,

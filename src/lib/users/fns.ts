@@ -21,6 +21,7 @@ import { PAGE_SIZE } from "~/lib/constants";
 import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
 import { useServerSession } from "~/lib/session/hooks";
+import { createNotification } from "~/lib/notifications/helpers";
 import {
   followUserSchema,
   getUserFollowsSchema,
@@ -203,6 +204,19 @@ export const followUserServerFn = createServerFn({
       followedByUserId: context.user.id,
       followedUserId: input.userId,
     });
+
+    // Notify the followed user
+    createNotification({
+      userId: input.userId,
+      actorId: context.user.id,
+      type: "follow",
+      entityType: "user",
+      entityId: context.user.id, // The actor is the entity (link to their profile)
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+      },
+    }).catch(console.error);
   });
 
 export const unfollowUserServerFn = createServerFn({

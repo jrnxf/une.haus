@@ -61,7 +61,8 @@ export function useLikeRecord({
           record.type === "chatMessage" ||
           record.type === "postMessage" ||
           record.type === "riuSetMessage" ||
-          record.type === "riuSubmissionMessage"
+          record.type === "riuSubmissionMessage" ||
+          record.type === "utvVideoMessage"
         ) {
           return {
             ...prev,
@@ -164,7 +165,8 @@ export function useUnlikeRecord({
           record.type === "chatMessage" ||
           record.type === "postMessage" ||
           record.type === "riuSetMessage" ||
-          record.type === "riuSubmissionMessage"
+          record.type === "riuSubmissionMessage" ||
+          record.type === "utvVideoMessage"
         ) {
           return {
             ...prev,

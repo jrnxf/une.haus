@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
+  BarChart3Icon,
   ClipboardPenIcon,
   EarthIcon,
   KeySquareIcon,
@@ -50,6 +51,11 @@ const data = {
       title: "Vault",
       url: "/vault",
       icon: KeySquareIcon,
+    },
+    {
+      title: "Stats",
+      url: "/stats",
+      icon: BarChart3Icon,
     },
   ],
   navSecondary: [

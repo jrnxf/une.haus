@@ -1,12 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PlusIcon, UsersIcon } from "lucide-react";
 
 import { Badges } from "~/components/badges";
 import { DeleteSetButton } from "~/components/delete-set-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
-import { Separator } from "~/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -28,118 +28,174 @@ function RouteComponent() {
   const playerRoster = Object.values(data.roster);
   const isUserInGame = user && data.roster[user.id];
   const hasUserSets = data.authUserSets && data.authUserSets.length > 0;
-  const shouldShowEmptyState = (!user || !isUserInGame) && !hasUserSets;
+  const userSetsCount = data.authUserSets?.length ?? 0;
+  const canUploadMore = userSetsCount < 3;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h2 className="text-lg font-semibold">Next Game Roster</h2>
+    <div className="space-y-8">
+      {/* My Sets Section - Show first if user has sets */}
+      {hasUserSets && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Your Sets</h2>
+              <p className="text-muted-foreground text-sm">
+                {userSetsCount} of 3 uploaded
+              </p>
+            </div>
+            {canUploadMore && (
+              <Button size="sm" variant="outline" className="gap-1.5" asChild>
+                <Link to="/games/rius/upcoming/join">
+                  <PlusIcon className="size-4" />
+                  Add Set
+                </Link>
+              </Button>
+            )}
+          </div>
+
+          <div className="grid gap-4">
+            {data.authUserSets?.map((set) => (
+              <Card key={set.id} className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <CardTitle className="truncate text-base">
+                        {set.name}
+                      </CardTitle>
+                      {set.instructions && (
+                        <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                          {set.instructions}
+                        </p>
+                      )}
+                    </div>
+                    <DeleteSetButton setId={set.id} />
+                  </div>
+                </CardHeader>
+                {set.video.playbackId && (
+                  <CardContent className="pt-0">
+                    <VideoPlayer playbackId={set.video.playbackId} />
+                  </CardContent>
+                )}
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Roster Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <UsersIcon className="text-muted-foreground size-5" />
+          <div>
+            <h2 className="text-lg font-semibold">Next Round Roster</h2>
+            <p className="text-muted-foreground text-sm">
+              {playerRoster.length}{" "}
+              {playerRoster.length === 1 ? "player" : "players"} joined
+            </p>
+          </div>
+        </div>
+
         {playerRoster.length === 0 ? (
-          <p className="text-muted-foreground mt-1">No players yet</p>
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+              <div className="bg-muted flex size-12 items-center justify-center rounded-full">
+                <UsersIcon className="text-muted-foreground size-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-medium">No players yet</h3>
+                <p className="text-muted-foreground text-sm">
+                  Be the first to join the next round!
+                </p>
+              </div>
+              {user && !isUserInGame && (
+                <Button asChild>
+                  <Link to="/games/rius/upcoming/join">Join Game</Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
         ) : (
-          <div className="mt-4 flex flex-col gap-3">
-            {playerRoster.map((user) => (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {playerRoster.map((player) => (
               <Link
-                key={user.id}
+                key={player.id}
                 to="/users/$userId"
-                params={{ userId: user.id }}
+                params={{ userId: player.id }}
                 className={cn(
-                  "w-full space-y-2 rounded-md border bg-white p-3 text-left dark:bg-[#0a0a0a]",
-                  "ring-offset-background",
-                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+                  "group bg-card flex items-start gap-3 rounded-lg border p-3 transition-all",
+                  "hover:border-primary/30 hover:shadow-sm",
                 )}
               >
-                <div className="flex items-center gap-2">
-                  <Avatar
-                    className="size-6 rounded-full"
-                    cloudflareId={user.avatarId}
-                    alt={user.name}
-                  >
-                    <AvatarImage width={24} quality={85} />
-                    <AvatarFallback className="text-xs" name={user.name} />
-                  </Avatar>
-                  <p className="truncate text-base">{user.name}</p>
-                  {user.count > 1 && (
-                    <span className="text-muted-foreground text-xs">
-                      {user.count} sets
-                    </span>
+                <Avatar
+                  className="size-10 shrink-0 rounded-full"
+                  cloudflareId={player.avatarId}
+                  alt={player.name}
+                >
+                  <AvatarImage width={40} quality={85} />
+                  <AvatarFallback className="text-sm" name={player.name} />
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="group-hover:text-primary truncate font-medium">
+                      {player.name}
+                    </p>
+                    {player.count > 1 && (
+                      <span className="text-muted-foreground shrink-0 text-xs">
+                        {player.count} sets
+                      </span>
+                    )}
+                  </div>
+                  {player.bio && (
+                    <p className="text-muted-foreground mt-0.5 line-clamp-1 text-sm">
+                      {player.bio}
+                    </p>
+                  )}
+                  {player.disciplines && (
+                    <div className="mt-1.5">
+                      <Badges content={player.disciplines} />
+                    </div>
                   )}
                 </div>
-                {user.bio && (
-                  <p className="text-muted-foreground line-clamp-3 text-sm">
-                    {user.bio}
-                  </p>
-                )}
-                <Badges content={user.disciplines} />
               </Link>
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      {data.authUserSets?.map((set) => (
-        <div
-          className="rounded-lg border bg-white p-4 dark:bg-[#0a0a0a]"
-          key={set.id}
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="line-clamp-1 text-lg">{set.name}</h3>
-              {set.instructions && (
-                <p className="text-muted-foreground line-clamp-2 text-sm">
-                  {set.instructions}
-                </p>
-              )}
-            </div>
-            <div className="flex shrink-0 justify-end gap-1">
-              <Button asChild size="icon-sm" variant="ghost">
-                {/* <Link to="/games/rius/sets/$setId/edit" params={{ setId: set.id }}>
-                  <PenIcon className="size-4" />
-                </Link> */}
-              </Button>
-              <DeleteSetButton setId={set.id} />
-            </div>
-          </div>
-          <div className="mt-4">
-            {set.video.playbackId && (
-              <VideoPlayer playbackId={set.video.playbackId} />
-            )}
-          </div>
-        </div>
-      ))}
-
-      {data.authUserSets && data.authUserSets.length === 3 ? (
-        <p>You have already uploaded all the allowable sets!</p>
-      ) : (
-        <div className="flex items-center justify-between gap-2">
-          <Separator className="shrink" />
-          <Button asChild className="border-dashed" variant="outline">
-            <Link to="/games/rius/upcoming/join">
-              Upload set {(data.authUserSets?.length ?? 0) + 1} of 3
-            </Link>
-          </Button>
-          <Separator className="shrink" />
-        </div>
-      )}
-
-      {shouldShowEmptyState && (
-        <Card className="border-dashed p-8 text-center">
-          <div className="flex flex-col items-center gap-4">
-            {/* <AnimatedGhost /> */}
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium">You?</h3>
+      {/* Join CTA - Show if user isn't in game */}
+      {user && !isUserInGame && !hasUserSets && (
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+            <div className="space-y-1">
+              <h3 className="text-lg font-medium">Ready to play?</h3>
               <p className="text-muted-foreground text-sm">
-                {user
-                  ? "Join the game to be part of the next RIU"
-                  : "Sign in to join the upcoming game"}
+                Upload a set to join the next round
               </p>
             </div>
             <Button asChild>
-              <Link to={user ? "/games/rius/upcoming/join" : "/auth/code/send"}>
-                {user ? "Join Game" : "Sign In"}
+              <Link to="/games/rius/upcoming/join">
+                <PlusIcon className="mr-1.5 size-4" />
+                Upload Your First Set
               </Link>
             </Button>
-          </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sign In CTA - Show if not logged in */}
+      {!user && (
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+            <div className="space-y-1">
+              <h3 className="text-lg font-medium">Want to join?</h3>
+              <p className="text-muted-foreground text-sm">
+                Sign in to participate in the next round
+              </p>
+            </div>
+            <Button asChild>
+              <Link to="/auth/code/send">Sign In</Link>
+            </Button>
+          </CardContent>
         </Card>
       )}
     </div>

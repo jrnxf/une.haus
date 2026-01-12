@@ -28,6 +28,7 @@ import {
   authMiddleware,
   authOptionalMiddleware,
 } from "~/lib/middleware";
+import { notifyFollowers } from "~/lib/notifications/helpers";
 
 export const getRiuSetServerFn = createServerFn({
   method: "GET",
@@ -126,6 +127,17 @@ export const createRiuSetServerFn = createServerFn({
         userId,
       })
       .returning();
+
+    // Notify followers about the new RIU set
+    notifyFollowers({
+      actorId: userId,
+      actorName: context.user.name,
+      actorAvatarId: context.user.avatarId,
+      type: "new_content",
+      entityType: "riuSet",
+      entityId: riuSet.id,
+      entityTitle: riuSet.name,
+    }).catch(console.error);
 
     return riuSet;
   });

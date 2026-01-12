@@ -4,6 +4,8 @@ export const recordWithMessagesTypes = [
   "post",
   "riuSet",
   "riuSubmission",
+  "utvVideo",
+  "biuSet",
 ] as const;
 
 export const messageFormSchema = z.object({

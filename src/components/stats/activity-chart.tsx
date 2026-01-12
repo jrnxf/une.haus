@@ -53,7 +53,10 @@ export function ActivityChart({ data }: ActivityChartProps) {
         </Tooltip>
       </CardHeader>
       <CardContent className="flex-1 px-4">
-        <ChartContainer config={chartConfig} className="h-full min-h-[200px] w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="h-full min-h-[200px] w-full"
+        >
           <AreaChart
             data={formattedData}
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

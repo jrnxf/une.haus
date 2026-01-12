@@ -2,10 +2,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRightIcon,
+  BarChart3Icon,
   CalendarIcon,
   LayersIcon,
   PlayIcon,
-  BarChart3Icon,
   RotateCcwIcon,
   UsersIcon,
 } from "lucide-react";
@@ -18,7 +18,9 @@ export const Route = createFileRoute("/games/")({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(games.rius.active.list.queryOptions()),
+      context.queryClient.ensureQueryData(
+        games.rius.active.list.queryOptions(),
+      ),
       context.queryClient.ensureQueryData(
         games.rius.upcoming.roster.queryOptions(),
       ),
@@ -56,8 +58,8 @@ function GameCard({
       <Card
         className={cn(
           "group relative overflow-hidden transition-all",
-          "border-dashed cursor-pointer",
-          "hover:scale-[1.01] focus-within:scale-[1.01]",
+          "cursor-pointer border-dashed",
+          "focus-within:scale-[1.01] hover:scale-[1.01]",
           !isActive && "opacity-70",
         )}
       >

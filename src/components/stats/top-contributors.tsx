@@ -29,7 +29,9 @@ export function TopContributors({ data }: TopContributorsProps) {
     return (
       <Card className="border-dashed py-4">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">top contributors</CardTitle>
+          <CardTitle className="text-sm font-medium">
+            top contributors
+          </CardTitle>
         </CardHeader>
         <CardContent className="px-4">
           <p className="text-muted-foreground text-sm">no contributors yet</p>
@@ -72,7 +74,10 @@ export function TopContributors({ data }: TopContributorsProps) {
                 alt={contributor.name}
               >
                 <AvatarImage width={48} quality={80} />
-                <AvatarFallback name={contributor.name} className="text-[10px]" />
+                <AvatarFallback
+                  name={contributor.name}
+                  className="text-[10px]"
+                />
               </Avatar>
             </Link>
             <Link

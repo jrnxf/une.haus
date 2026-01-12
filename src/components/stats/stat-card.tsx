@@ -25,7 +25,7 @@ export function StatCard({
     <Card
       className={cn(
         "border-dashed py-4 transition-colors",
-        description && "cursor-help hover:border-primary/30",
+        description && "hover:border-primary/30 cursor-help",
         className,
       )}
     >

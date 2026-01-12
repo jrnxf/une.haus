@@ -2,7 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { type ServerFnReturn } from "~/lib/types";
 import {
+  addUtvClapsServerFn,
   allUtvVideosServerFn,
+  getUtvClapsServerFn,
+  getUtvVideoServerFn,
   updateUtvScaleServerFn,
   updateUtvThumbnailSecondsServerFn,
   updateUtvTitleServerFn,
@@ -18,6 +21,29 @@ export const utv = {
       });
     },
   },
+  get: {
+    fn: getUtvVideoServerFn,
+    queryOptions: (id: number) => {
+      return queryOptions({
+        queryKey: ["utv.video", id],
+        queryFn: () => getUtvVideoServerFn({ data: { id } }),
+      });
+    },
+  },
+  claps: {
+    get: {
+      fn: getUtvClapsServerFn,
+      queryOptions: () => {
+        return queryOptions({
+          queryKey: ["utv.claps"],
+          queryFn: getUtvClapsServerFn,
+        });
+      },
+    },
+    add: {
+      fn: addUtvClapsServerFn,
+    },
+  },
   updateScale: {
     fn: updateUtvScaleServerFn,
   },
@@ -30,3 +56,4 @@ export const utv = {
 };
 
 export type UtvVideosData = ServerFnReturn<typeof allUtvVideosServerFn>;
+export type UtvVideoData = ServerFnReturn<typeof getUtvVideoServerFn>;

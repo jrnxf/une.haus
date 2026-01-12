@@ -8,6 +8,7 @@ import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
 import { invariant } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
+import { notifyFollowers } from "~/lib/notifications/helpers";
 import {
   createPostSchema,
   deletePostSchema,
@@ -148,6 +149,17 @@ export const createPostServerFn = createServerFn({
     const [post] = await db.insert(posts).values(x).returning();
 
     invariant(post, "Failed to create post");
+
+    // Notify followers about the new post
+    notifyFollowers({
+      actorId: userId,
+      actorName: context.user.name,
+      actorAvatarId: context.user.avatarId,
+      type: "new_content",
+      entityType: "post",
+      entityId: post.id,
+      entityTitle: post.title,
+    }).catch(console.error);
 
     return post;
   });

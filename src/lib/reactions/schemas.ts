@@ -8,6 +8,10 @@ export const recordTypeWithLikes = [
   "riuSetMessage",
   "riuSubmission",
   "riuSubmissionMessage",
+  "utvVideo",
+  "utvVideoMessage",
+  "biuSet",
+  "biuSetMessage",
 ] as const;
 
 export const recordTypeToLabel: Record<RecordWithLikesType, string> = {
@@ -18,6 +22,10 @@ export const recordTypeToLabel: Record<RecordWithLikesType, string> = {
   riuSetMessage: "riuSetMessage",
   riuSubmission: "submission",
   riuSubmissionMessage: "submissionMessage",
+  utvVideo: "video",
+  utvVideoMessage: "message",
+  biuSet: "set",
+  biuSetMessage: "biuSetMessage",
 };
 
 export const baseSchema = z.object({

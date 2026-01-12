@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
+
 import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
@@ -47,9 +48,7 @@ function RouteComponent() {
     Boolean(searchParams.q || searchParams.tags?.length),
   );
 
-  const hasActiveFilters = Boolean(
-    searchParams.q || searchParams.tags?.length,
-  );
+  const hasActiveFilters = Boolean(searchParams.q || searchParams.tags?.length);
 
   const debouncedNavigate = useDebounceCallback((q: string) => {
     router.navigate({
@@ -107,7 +106,7 @@ function RouteComponent() {
               <FilterIcon className="size-4" />
               Filters
               {hasActiveFilters && !filtersOpen && (
-                <span className="absolute -top-1 -right-1 size-2 rounded-full bg-primary" />
+                <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
               )}
             </Button>
           </div>
@@ -124,7 +123,7 @@ function RouteComponent() {
                   <button
                     type="button"
                     onClick={() => handleQueryChange("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
                   >
                     <XIcon className="size-4" />
                   </button>

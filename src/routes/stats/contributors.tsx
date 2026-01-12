@@ -20,7 +20,9 @@ import { stats } from "~/lib/stats";
 
 export const Route = createFileRoute("/stats/contributors")({
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(stats.contributors.queryOptions());
+    await context.queryClient.ensureQueryData(
+      stats.contributors.queryOptions(),
+    );
   },
   component: RouteComponent,
 });
@@ -47,7 +49,9 @@ function RouteComponent() {
               back to stats
             </Link>
             <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">contributors</h1>
+              <h1 className="text-2xl font-bold tracking-tight">
+                contributors
+              </h1>
               <p className="text-muted-foreground text-sm">
                 all community members ranked by total activity
               </p>
@@ -148,7 +152,8 @@ function RouteComponent() {
                           <div className="flex items-center gap-2">
                             <div className="size-2 rounded-full bg-[var(--chart-1)]" />
                             <span>
-                              {contributor.setsCount + contributor.submissionsCount}{" "}
+                              {contributor.setsCount +
+                                contributor.submissionsCount}{" "}
                               game
                             </span>
                           </div>
@@ -179,7 +184,9 @@ function RouteComponent() {
           <div className="mt-4 flex flex-wrap justify-center gap-4">
             <div className="flex items-center gap-1.5 text-xs">
               <div className="size-2 rounded-full bg-[var(--chart-1)]" />
-              <span className="text-muted-foreground">game (sets + submissions)</span>
+              <span className="text-muted-foreground">
+                game (sets + submissions)
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-xs">
               <div className="size-2 rounded-full bg-[var(--chart-3)]" />

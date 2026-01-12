@@ -4,16 +4,74 @@ import * as fs from "node:fs/promises";
 import path from "node:path";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { asc, eq } from "drizzle-orm";
+import { asc, count, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "~/db";
-import { muxVideos, utvVideos } from "~/db/schema";
+import {
+  muxVideos,
+  utvClaps,
+  utvVideoLikes,
+  utvVideoMessages,
+  utvVideos,
+} from "~/db/schema";
 import { adminOnlyMiddleware } from "~/lib/middleware";
+
+const getUtvVideoSchema = z.object({
+  id: z.number(),
+});
+
+export const getUtvVideoServerFn = createServerFn({
+  method: "GET",
+})
+  .inputValidator(zodValidator(getUtvVideoSchema))
+  .handler(async ({ data: { id } }) => {
+    const video = await db.query.utvVideos.findFirst({
+      where: eq(utvVideos.id, id),
+      with: {
+        video: true,
+        likes: {
+          with: {
+            user: {
+              columns: {
+                avatarId: true,
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!video) {
+      throw new Error("Video not found");
+    }
+
+    return video;
+  });
 
 export const allUtvVideosServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
+  const likesSubquery = db
+    .select({
+      utvVideoId: utvVideoLikes.utvVideoId,
+      count: count().as("likes_count"),
+    })
+    .from(utvVideoLikes)
+    .groupBy(utvVideoLikes.utvVideoId)
+    .as("likes_sq");
+
+  const messagesSubquery = db
+    .select({
+      utvVideoId: utvVideoMessages.utvVideoId,
+      count: count().as("messages_count"),
+    })
+    .from(utvVideoMessages)
+    .groupBy(utvVideoMessages.utvVideoId)
+    .as("messages_sq");
+
   return await db
     .select({
       id: utvVideos.id,
@@ -23,9 +81,13 @@ export const allUtvVideosServerFn = createServerFn({
       thumbnailSeconds: utvVideos.thumbnailSeconds,
       assetId: muxVideos.assetId,
       playbackId: muxVideos.playbackId,
+      likesCount: sql<number>`COALESCE(${likesSubquery.count}, 0)`,
+      messagesCount: sql<number>`COALESCE(${messagesSubquery.count}, 0)`,
     })
     .from(utvVideos)
     .leftJoin(muxVideos, eq(utvVideos.muxAssetId, muxVideos.assetId))
+    .leftJoin(likesSubquery, eq(utvVideos.id, likesSubquery.utvVideoId))
+    .leftJoin(messagesSubquery, eq(utvVideos.id, messagesSubquery.utvVideoId))
     .orderBy(asc(utvVideos.id));
 });
 
@@ -126,4 +188,33 @@ export const updateUtvTitleServerFn = createServerFn({
       .where(eq(utvVideos.id, data.id));
 
     return { id: data.id, title: data.title };
+  });
+
+export const getUtvClapsServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const result = await db.query.utvClaps.findFirst();
+  return result?.count ?? 0;
+});
+
+const addUtvClapsSchema = z.object({
+  amount: z.number().int().positive(),
+});
+
+export const addUtvClapsServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(addUtvClapsSchema))
+  .handler(async ({ data }) => {
+    // Upsert: insert if not exists, otherwise increment
+    await db
+      .insert(utvClaps)
+      .values({ id: 1, count: data.amount })
+      .onConflictDoUpdate({
+        target: utvClaps.id,
+        set: { count: sql`${utvClaps.count} + ${data.amount}` },
+      });
+
+    const result = await db.query.utvClaps.findFirst();
+    return result?.count ?? 0;
   });

@@ -40,14 +40,14 @@ const config = defineConfig({
           description:
             "Rotate RIUs: archive active, activate upcoming, create new upcoming",
         },
-        [TASK_NAMES.TEST_GREETING]: {
-          handler: "~/lib/tasks/test/greeting",
-          description: "Test task that logs a greeting with timestamp",
+        [TASK_NAMES.HEARTBEAT]: {
+          handler: "~/lib/tasks/heartbeat",
+          description: "Heartbeat task that logs the current time every minute",
         },
       },
       scheduledTasks: {
-        // Test: run greeting every 10 seconds
-        "*/10 * * * * *": [TASK_NAMES.TEST_GREETING],
+        // Heartbeat: run every minute
+        "* * * * *": [TASK_NAMES.HEARTBEAT],
         // Run RIU rotation at midnight (00:00) every Monday (server timezone)
         // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
         "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],

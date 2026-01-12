@@ -16,6 +16,7 @@ import {
   PlayCircleIcon,
   SendIcon,
 } from "lucide-react";
+
 import {
   Area,
   AreaChart,
@@ -168,11 +169,7 @@ function FollowersFollowing(props: UsersWithFollowsData) {
   );
 }
 
-function UserStatsGrid({
-  stats,
-}: {
-  stats: UsersWithFollowsData["stats"];
-}) {
+function UserStatsGrid({ stats }: { stats: UsersWithFollowsData["stats"] }) {
   const hasContentStats =
     stats.posts > 0 ||
     stats.gameSets > 0 ||
@@ -407,7 +404,12 @@ function UserEngagementChart({
         >
           <BarChart data={chartData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-            <XAxis type="number" tickLine={false} axisLine={false} fontSize={10} />
+            <XAxis
+              type="number"
+              tickLine={false}
+              axisLine={false}
+              fontSize={10}
+            />
             <YAxis
               dataKey="category"
               type="category"
@@ -416,10 +418,7 @@ function UserEngagementChart({
               fontSize={10}
               width={60}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent />}
-            />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Bar
               dataKey="given"
               fill="var(--color-given)"

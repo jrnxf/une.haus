@@ -1,4 +1,6 @@
 import {
+  boolean,
+  index,
   integer,
   json,
   pgEnum,
@@ -14,6 +16,9 @@ import { relations } from "drizzle-orm/relations";
 export const RIU_STATUSES = ["archived", "active", "upcoming"] as const;
 // enums
 export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES);
+
+export const BIU_CHAIN_STATUSES = ["active", "completed", "flagged"] as const;
+export const biuChainStatusEnum = pgEnum("biu_chain_status", BIU_CHAIN_STATUSES);
 
 export const USER_TYPES = ["user", "admin", "test"] as const;
 export const userTypeEnum = pgEnum("user_type", USER_TYPES);
@@ -48,6 +53,34 @@ export const POST_TAGS = [
 type PostTag = (typeof POST_TAGS)[number];
 
 export const postTagEnum = pgEnum("post_tag", POST_TAGS);
+
+// Notification enums
+export const NOTIFICATION_TYPES = [
+  "like",
+  "comment",
+  "follow",
+  "new_content",
+] as const;
+
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+export const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES);
+
+export const NOTIFICATION_ENTITY_TYPES = [
+  "post",
+  "riuSet",
+  "riuSubmission",
+  "biuSet",
+  "utvVideo",
+  "user",
+] as const;
+
+export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number];
+
+export const notificationEntityTypeEnum = pgEnum(
+  "notification_entity_type",
+  NOTIFICATION_ENTITY_TYPES,
+);
 
 export const users = pgTable("users", {
   avatarId: text("avatar_id"),
@@ -265,6 +298,49 @@ export const utvVideos = pgTable("utv_videos", {
   }),
 });
 
+export const utvVideoLikes = pgTable(
+  "utv_video_likes",
+  {
+    utvVideoId: integer("utv_video_id")
+      .notNull()
+      .references(() => utvVideos.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.utvVideoId, t.userId] })],
+);
+
+export const utvVideoMessages = pgTable("utv_video_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  utvVideoId: integer("utv_video_id")
+    .notNull()
+    .references(() => utvVideos.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const utvVideoMessageLikes = pgTable(
+  "utv_video_message_likes",
+  {
+    utvVideoMessageId: integer("utv_video_message_id")
+      .notNull()
+      .references(() => utvVideoMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.utvVideoMessageId, t.userId] })],
+);
+
+export const utvClaps = pgTable("utv_claps", {
+  id: serial("id").primaryKey(),
+  count: integer("count").notNull().default(0),
+});
+
 export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
@@ -316,6 +392,79 @@ export const riuSubmissions = pgTable("riu_submissions", {
     .notNull(),
 });
 
+// BIU (Back It Up) Game Tables
+export const biuChains = pgTable("biu_chains", {
+  id: serial("id").primaryKey(),
+  status: biuChainStatusEnum("status").default("active"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  endedAt: timestamp("ended_at"),
+});
+
+export const biuSets = pgTable("biu_sets", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+
+  chainId: integer("chain_id")
+    .notNull()
+    .references(() => biuChains.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  muxAssetId: text("mux_asset_id")
+    .references(() => muxVideos.assetId, { onDelete: "set null" })
+    .notNull(),
+
+  name: text("name").notNull(),
+  position: integer("position").notNull(),
+  parentSetId: integer("parent_set_id"),
+
+  flaggedAt: timestamp("flagged_at"),
+  flaggedByUserId: integer("flagged_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  flagReason: text("flag_reason"),
+  flagResolvedAt: timestamp("flag_resolved_at"),
+});
+
+export const biuSetLikes = pgTable(
+  "biu_set_likes",
+  {
+    biuSetId: integer("biu_set_id")
+      .notNull()
+      .references(() => biuSets.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.biuSetId, t.userId] })],
+);
+
+export const biuSetMessages = pgTable("biu_set_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  biuSetId: integer("biu_set_id")
+    .notNull()
+    .references(() => biuSets.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const biuSetMessageLikes = pgTable(
+  "biu_set_message_likes",
+  {
+    biuSetMessageId: integer("biu_set_message_id")
+      .notNull()
+      .references(() => biuSetMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.biuSetMessageId, t.userId] })],
+);
+
 export const userFollows = pgTable(
   "user_follows",
   {
@@ -329,6 +478,51 @@ export const userFollows = pgTable(
   (t) => [primaryKey({ columns: [t.followedUserId, t.followedByUserId] })],
 );
 
+// Notifications
+export type NotificationData = {
+  actorName?: string;
+  actorAvatarId?: string | null;
+  entityTitle?: string;
+  entityPreview?: string;
+};
+
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    actorId: integer("actor_id").references(() => users.id, {
+      onDelete: "cascade",
+    }),
+    type: notificationTypeEnum("type").notNull(),
+    entityType: notificationEntityTypeEnum("entity_type").notNull(),
+    entityId: integer("entity_id").notNull(),
+    data: json("data").$type<NotificationData>(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    readAt: timestamp("read_at"),
+    emailedAt: timestamp("emailed_at"),
+  },
+  (t) => [
+    index("notifications_user_id_idx").on(t.userId),
+    index("notifications_user_unread_idx").on(t.userId, t.readAt),
+    index("notifications_grouping_idx").on(t.userId, t.entityType, t.entityId),
+    index("notifications_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const userNotificationSettings = pgTable("user_notification_settings", {
+  userId: integer("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  likesEnabled: boolean("likes_enabled").notNull().default(true),
+  commentsEnabled: boolean("comments_enabled").notNull().default(true),
+  followsEnabled: boolean("follows_enabled").notNull().default(true),
+  newContentEnabled: boolean("new_content_enabled").notNull().default(true),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 /**
  * Relations
  */
@@ -340,6 +534,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   likedPosts: many(postLikes),
   likedRiuSubmissions: many(riuSubmissionLikes),
   location: one(userLocations),
+  notifications: many(notifications),
+  notificationSettings: one(userNotificationSettings),
   posts: many(posts),
   riuSetMessages: many(riuSetMessages),
   riuSubmissionMessages: many(riuSubmissionMessages),
@@ -370,12 +566,54 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
   }),
 }));
 
-export const utvVideosRelations = relations(utvVideos, ({ one }) => ({
+export const utvVideosRelations = relations(utvVideos, ({ one, many }) => ({
   video: one(muxVideos, {
     fields: [utvVideos.muxAssetId],
     references: [muxVideos.assetId],
   }),
+  likes: many(utvVideoLikes),
+  messages: many(utvVideoMessages),
 }));
+
+export const utvVideoLikesRelations = relations(utvVideoLikes, ({ one }) => ({
+  utvVideo: one(utvVideos, {
+    fields: [utvVideoLikes.utvVideoId],
+    references: [utvVideos.id],
+  }),
+  user: one(users, {
+    fields: [utvVideoLikes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const utvVideoMessagesRelations = relations(
+  utvVideoMessages,
+  ({ one, many }) => ({
+    utvVideo: one(utvVideos, {
+      fields: [utvVideoMessages.utvVideoId],
+      references: [utvVideos.id],
+    }),
+    user: one(users, {
+      fields: [utvVideoMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(utvVideoMessageLikes),
+  }),
+);
+
+export const utvVideoMessageLikesRelations = relations(
+  utvVideoMessageLikes,
+  ({ one }) => ({
+    message: one(utvVideoMessages, {
+      fields: [utvVideoMessageLikes.utvVideoMessageId],
+      references: [utvVideoMessages.id],
+    }),
+    user: one(users, {
+      fields: [utvVideoMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const riusRelations = relations(rius, ({ many }) => ({
   // likes: many(postLikes),
@@ -545,6 +783,101 @@ export const riuSubmissionLikesRelations = relations(
     }),
     user: one(users, {
       fields: [riuSubmissionLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+// BIU Relations
+export const biuChainsRelations = relations(biuChains, ({ many }) => ({
+  sets: many(biuSets),
+}));
+
+export const biuSetsRelations = relations(biuSets, ({ one, many }) => ({
+  chain: one(biuChains, {
+    fields: [biuSets.chainId],
+    references: [biuChains.id],
+  }),
+  user: one(users, {
+    fields: [biuSets.userId],
+    references: [users.id],
+  }),
+  video: one(muxVideos, {
+    fields: [biuSets.muxAssetId],
+    references: [muxVideos.assetId],
+  }),
+  parentSet: one(biuSets, {
+    fields: [biuSets.parentSetId],
+    references: [biuSets.id],
+    relationName: "parentChild",
+  }),
+  childSets: many(biuSets, { relationName: "parentChild" }),
+  likes: many(biuSetLikes),
+  messages: many(biuSetMessages),
+  flaggedByUser: one(users, {
+    fields: [biuSets.flaggedByUserId],
+    references: [users.id],
+  }),
+}));
+
+export const biuSetLikesRelations = relations(biuSetLikes, ({ one }) => ({
+  biuSet: one(biuSets, {
+    fields: [biuSetLikes.biuSetId],
+    references: [biuSets.id],
+  }),
+  user: one(users, {
+    fields: [biuSetLikes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const biuSetMessagesRelations = relations(
+  biuSetMessages,
+  ({ one, many }) => ({
+    biuSet: one(biuSets, {
+      fields: [biuSetMessages.biuSetId],
+      references: [biuSets.id],
+    }),
+    user: one(users, {
+      fields: [biuSetMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(biuSetMessageLikes),
+  }),
+);
+
+export const biuSetMessageLikesRelations = relations(
+  biuSetMessageLikes,
+  ({ one }) => ({
+    message: one(biuSetMessages, {
+      fields: [biuSetMessageLikes.biuSetMessageId],
+      references: [biuSetMessages.id],
+    }),
+    user: one(users, {
+      fields: [biuSetMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+// Notification Relations
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+  actor: one(users, {
+    fields: [notifications.actorId],
+    references: [users.id],
+    relationName: "notificationActor",
+  }),
+}));
+
+export const userNotificationSettingsRelations = relations(
+  userNotificationSettings,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userNotificationSettings.userId],
       references: [users.id],
     }),
   }),

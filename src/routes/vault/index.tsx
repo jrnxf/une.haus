@@ -1,8 +1,10 @@
 import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
-import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import confetti from "canvas-confetti";
-import { motion } from "framer-motion";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
@@ -15,6 +17,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
 import { Virtualizer } from "virtua";
 
 import { BaseMessageForm } from "~/components/forms/message";
@@ -28,18 +32,18 @@ import {
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks";
+import { cn } from "~/lib/utils";
 import { utv, type UtvVideosData } from "~/lib/utv";
 import {
   useUpdateScale,
   useUpdateThumbnailSeconds,
   useUpdateTitle,
 } from "~/lib/utv/hooks";
-import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
-import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 
 export const Route = createFileRoute("/vault/")({
   loader: async ({ context }) => {

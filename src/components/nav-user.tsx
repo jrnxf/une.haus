@@ -1,5 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react";
+import {
+  BadgeCheck,
+  Bell,
+  ChevronsUpDown,
+  LogOut,
+  UserIcon,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
@@ -17,12 +24,18 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
+import { notifications } from "~/lib/notifications";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const sessionUser = useSessionUser();
   const logout = useLogout();
+
+  const { data: unreadCount = 0 } = useQuery({
+    ...notifications.unreadCount.queryOptions(),
+    enabled: !!sessionUser,
+  });
 
   if (!sessionUser) {
     return (
@@ -43,7 +56,7 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground relative overflow-visible"
             >
               <Avatar
                 className="h-8 w-8 rounded-lg"
@@ -63,6 +76,11 @@ export function NavUser() {
                 <span className="truncate text-xs">{sessionUser.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
+              {unreadCount > 0 && (
+                <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-medium">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -95,14 +113,27 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
+                <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
+                  <UserIcon />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link to="/auth/me">
                   <BadgeCheck />
                   Account
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
+              <DropdownMenuItem asChild>
+                <Link to="/notifications">
+                  <Bell />
+                  Notifications
+                  {unreadCount > 0 && (
+                    <span className="bg-primary text-primary-foreground ml-auto rounded-full px-1.5 py-0.5 text-xs">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

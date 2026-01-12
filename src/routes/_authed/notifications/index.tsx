@@ -1,0 +1,163 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Bell, Check, Loader2, Settings } from "lucide-react";
+import { useState } from "react";
+
+import { NotificationItem } from "~/components/notifications";
+import { Button } from "~/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { notifications } from "~/lib/notifications";
+import {
+  useMarkAllNotificationsRead,
+  useMarkGroupRead,
+} from "~/lib/notifications/hooks";
+
+export const Route = createFileRoute("/_authed/notifications/")({
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        notifications.grouped.queryOptions({ limit: 50, unreadOnly: false }),
+      ),
+      context.queryClient.ensureQueryData(
+        notifications.unreadCount.queryOptions(),
+      ),
+    ]);
+  },
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+
+  const { data: unreadCount = 0 } = useSuspenseQuery(
+    notifications.unreadCount.queryOptions(),
+  );
+
+  const { data: groupedNotifications } = useSuspenseQuery(
+    notifications.grouped.queryOptions({
+      limit: 50,
+      unreadOnly: filter === "unread",
+    }),
+  );
+
+  const markAllRead = useMarkAllNotificationsRead();
+  const markGroupRead = useMarkGroupRead();
+
+  return (
+    <div className="h-full overflow-y-auto">
+      <div className="mx-auto max-w-2xl p-4">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Notifications</h1>
+            {unreadCount > 0 && (
+              <p className="text-muted-foreground text-sm">
+                {unreadCount} unread
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => markAllRead.mutate({ data: {} })}
+                disabled={markAllRead.isPending}
+              >
+                {markAllRead.isPending ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Check className="mr-2 size-4" />
+                )}
+                Mark all as read
+              </Button>
+            )}
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/notifications/settings">
+                <Settings className="size-5" />
+                <span className="sr-only">Notification settings</span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tabs
+          value={filter}
+          onValueChange={(v) => setFilter(v as "all" | "unread")}
+          className="mb-4"
+        >
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="unread">
+              Unread
+              {unreadCount > 0 && (
+                <span className="bg-primary text-primary-foreground ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
+                  {unreadCount}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* Notification list */}
+        {groupedNotifications && groupedNotifications.length > 0 ? (
+          <div className="divide-y rounded-lg border">
+            {groupedNotifications.map((notification) => (
+              <NotificationItem
+                key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
+                type={notification.type}
+                entityType={notification.entityType}
+                entityId={notification.entityId}
+                count={notification.count}
+                actors={
+                  notification.actors as {
+                    id: number;
+                    name: string;
+                    avatarId: string | null;
+                  }[]
+                }
+                data={notification.data}
+                latestAt={notification.latestAt}
+                onMarkRead={() =>
+                  markGroupRead.mutate({
+                    data: {
+                      type: notification.type,
+                      entityType: notification.entityType,
+                      entityId: notification.entityId,
+                    },
+                  })
+                }
+              />
+            ))}
+          </div>
+        ) : (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Bell />
+              </EmptyMedia>
+              <EmptyTitle>
+                {filter === "unread"
+                  ? "All caught up!"
+                  : "No notifications yet"}
+              </EmptyTitle>
+              <EmptyDescription>
+                {filter === "unread"
+                  ? "You've read all your notifications."
+                  : "When someone interacts with your content, you'll see it here."}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        )}
+      </div>
+    </div>
+  );
+}
