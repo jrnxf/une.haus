@@ -1,14 +1,31 @@
-import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
-import { defineConfig } from "vite";
+import { defineConfig, type PluginOption } from "vite";
 // import { beasties } from "vite-plugin-beasties";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 import { TASK_NAMES } from "./src/lib/tasks/constants";
+
+const devtoolsPlugin = async (): Promise<PluginOption> => {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+  const { devtools } = await import("@tanstack/devtools-vite");
+  return devtools({
+    editor: {
+      name: "Cursor",
+      open: async (path, lineNumber, columnNumber) => {
+        const { exec } = await import("node:child_process");
+        exec(
+          `cursor -g "${path.replaceAll("$", "\\$")}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}"`,
+        );
+      },
+    },
+  });
+};
 
 const config = defineConfig({
   server: {
@@ -17,17 +34,7 @@ const config = defineConfig({
     ],
   },
   plugins: [
-    devtools({
-      editor: {
-        name: "Cursor",
-        open: async (path, lineNumber, columnNumber) => {
-          const { exec } = await import("node:child_process");
-          exec(
-            `cursor -g "${path.replaceAll("$", "\\$")}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}"`,
-          );
-        },
-      },
-    }),
+    devtoolsPlugin(),
     nitro({
       preset: "bun",
       compatibilityDate: "latest",
