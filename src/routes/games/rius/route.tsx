@@ -7,14 +7,21 @@ import {
 import {
   ArchiveIcon,
   ArrowLeftIcon,
-  BarChart3Icon,
   CalendarIcon,
   PlayCircleIcon,
   RefreshCwIcon,
+  RotateCcwIcon,
+  ShieldIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { useAdminRotateRius } from "~/lib/games/rius/hooks";
 import { useIsAdmin } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
@@ -123,8 +130,8 @@ function RouteComponent() {
             </Button>
             <div className="bg-border h-4 w-px" />
             <div className="flex items-center gap-2">
-              <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                <BarChart3Icon className="size-3.5" />
+              <div className="bg-muted text-muted-foreground flex size-6 items-center justify-center rounded-md">
+                <RotateCcwIcon className="size-3.5" />
               </div>
               <h1 className="text-sm font-semibold">Rack It Up</h1>
             </div>
@@ -161,21 +168,27 @@ function RouteComponent() {
             {isAdmin && (
               <>
                 <div className="bg-border h-4 w-px" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => rotateRius.mutate({})}
-                  disabled={rotateRius.isPending}
-                  className="text-muted-foreground hover:text-foreground gap-1 px-2"
-                >
-                  <RefreshCwIcon
-                    className={cn(
-                      "size-3.5",
-                      rotateRius.isPending && "animate-spin",
-                    )}
-                  />
-                  <span className="hidden text-xs sm:inline">Rotate</span>
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" size="icon-xs">
+                      <ShieldIcon className="size-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => rotateRius.mutate({})}
+                      disabled={rotateRius.isPending}
+                    >
+                      <RefreshCwIcon
+                        className={cn(
+                          "size-4",
+                          rotateRius.isPending && "animate-spin",
+                        )}
+                      />
+                      Rotate
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
           </div>

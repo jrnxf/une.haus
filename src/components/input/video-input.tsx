@@ -69,8 +69,8 @@ export const VideoInput = ({
     }
     return (
       <div className="flex flex-col gap-2">
-        <div className="relative flex overflow-clip rounded-md border">
-          <VideoPlayer playbackId={playbackId} />
+        <div className="relative overflow-clip rounded-md border">
+          <VideoPlayer className="w-full" playbackId={playbackId} />
 
           <Button
             className="absolute top-2 right-2"

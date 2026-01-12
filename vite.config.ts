@@ -40,6 +40,9 @@ const config = defineConfig({
       compatibilityDate: "latest",
       experimental: {
         tasks: true,
+        vite: {
+          serverReload: true,
+        },
       },
       tasks: {
         [TASK_NAMES.RIUS_ROTATE]: {

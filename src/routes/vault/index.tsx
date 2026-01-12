@@ -73,33 +73,33 @@ function RouteComponent() {
 
   return (
     <div className="flex grow flex-col overflow-hidden">
-      {isAdmin && (
-        <Button
-          variant={adminMode ? "default" : "secondary"}
-          size="sm"
-          onClick={() => setAdminMode(!adminMode)}
-          className="sticky top-0 z-50 mt-4 mr-4 ml-auto"
-        >
-          <ShieldIcon className="size-4" />
-          Admin
-        </Button>
-      )}
       <div className="mx-auto w-full max-w-4xl shrink-0 space-y-4 px-4 pt-4 pb-0">
         <div className="space-y-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setHistoryOpen(!historyOpen)}
-            className="text-muted-foreground -ml-2 gap-1.5 text-sm font-medium"
-          >
-            History
-            <motion.div
-              animate={{ rotate: historyOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setHistoryOpen(!historyOpen)}
+              className="text-muted-foreground -ml-2 gap-1.5 text-sm font-medium"
             >
-              <ChevronDownIcon className="size-4" />
-            </motion.div>
-          </Button>
+              History
+              <motion.div
+                animate={{ rotate: historyOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDownIcon className="size-4" />
+              </motion.div>
+            </Button>
+            {isAdmin && (
+              <Button
+                variant={adminMode ? "default" : "secondary"}
+                size="icon-xs"
+                onClick={() => setAdminMode(!adminMode)}
+              >
+                <ShieldIcon className="size-3.5" />
+              </Button>
+            )}
+          </div>
 
           <motion.div
             initial={false}
@@ -110,7 +110,7 @@ function RouteComponent() {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="bg-muted/50 space-y-4 rounded-lg border p-4">
+            <div className="bg-sidebar space-y-4 rounded-lg border p-4">
               <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
                 <p>
                   In December 2005, Olaf Schlote launched{" "}

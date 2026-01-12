@@ -1,5 +1,6 @@
 import { CommandIcon, Loader2Icon, SearchIcon } from "lucide-react";
 import * as React from "react";
+import { createContext, useContext } from "react";
 
 import { Command as CommandPrimitive } from "cmdk";
 
@@ -42,6 +43,9 @@ function CommandDialog({
   className,
   onCloseAutoFocus,
   showCloseButton = true,
+  footer,
+  onValueChange,
+  value,
   ...props
 }: React.ComponentProps<typeof Dialog> &
   Pick<React.ComponentProps<typeof DialogContent>, "onCloseAutoFocus"> & {
@@ -49,6 +53,9 @@ function CommandDialog({
     description?: string;
     className?: string;
     showCloseButton?: boolean;
+    footer?: React.ReactNode;
+    onValueChange?: (value: string) => void;
+    value?: string;
   }) {
   return (
     <Dialog {...props}>
@@ -58,7 +65,7 @@ function CommandDialog({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className={cn("overflow-hidden p-0", className)}
+        className={cn("overflow-hidden p-0 flex flex-col max-h-[min(400px,calc(100vh-100px))]", className)}
         showCloseButton={showCloseButton}
         onCloseAutoFocus={onCloseAutoFocus}
       >
@@ -66,9 +73,14 @@ function CommandDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <Command className="**:[[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2">
+        <Command
+          value={value}
+          onValueChange={onValueChange}
+          className="flex-1 min-h-0 **:[[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2"
+        >
           {children}
         </Command>
+        {footer}
       </DialogContent>
     </Dialog>
   );
@@ -103,13 +115,12 @@ function CommandGroup({
   );
 }
 
-function CommandInput({
-  className,
-  isFetching,
-  ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input> & {
-  isFetching?: boolean;
-}) {
+const CommandInput = React.forwardRef<
+  React.ComponentRef<typeof CommandPrimitive.Input>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+    isFetching?: boolean;
+  }
+>(({ className, isFetching, ...props }, ref) => {
   return (
     <div
       className={cn(
@@ -125,6 +136,7 @@ function CommandInput({
         <SearchIcon className="size-4 shrink-0 opacity-50" />
       )}
       <CommandPrimitive.Input
+        ref={ref}
         data-slot="command-input"
         className={cn(
           "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
@@ -134,7 +146,8 @@ function CommandInput({
       />
     </div>
   );
-}
+});
+CommandInput.displayName = "CommandInput";
 
 function CommandItem({
   className,
@@ -197,10 +210,124 @@ function CommandShortcut({
   );
 }
 
+// Action system types
+type CommandAction = {
+  id: string;
+  label: string;
+  shortcut?: {
+    key: string;
+    meta?: boolean;
+    shift?: boolean;
+    ctrl?: boolean;
+  };
+  onAction: () => void;
+};
+
+type CommandActionsContextValue = {
+  actions: CommandAction[];
+  setActions: (actions: CommandAction[]) => void;
+};
+
+const CommandActionsContext = createContext<CommandActionsContextValue | null>(
+  null,
+);
+
+function useCommandActions() {
+  const context = useContext(CommandActionsContext);
+  if (!context) {
+    throw new Error(
+      "useCommandActions must be used within CommandActionsProvider",
+    );
+  }
+  return context;
+}
+
+function CommandActionsProvider({ children }: { children: React.ReactNode }) {
+  const [actions, setActions] = React.useState<CommandAction[]>([]);
+
+  return (
+    <CommandActionsContext.Provider value={{ actions, setActions }}>
+      {children}
+    </CommandActionsContext.Provider>
+  );
+}
+
+function Kbd({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <kbd
+      className={cn(
+        "bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded px-1 font-mono text-[11px] font-medium",
+        className,
+      )}
+    >
+      {children}
+    </kbd>
+  );
+}
+
+function CommandFooter({ className }: { className?: string }) {
+  const { actions } = useCommandActions();
+
+  if (actions.length === 0) return null;
+
+  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
+  const metaKey = isMac ? "⌘" : "Ctrl";
+
+  const formatShortcut = (shortcut: CommandAction["shortcut"]) => {
+    if (!shortcut) return null;
+    const parts: string[] = [];
+    if (shortcut.meta) parts.push(metaKey);
+    if (shortcut.ctrl) parts.push("Ctrl");
+    if (shortcut.shift) parts.push("⇧");
+    parts.push(shortcut.key.toUpperCase());
+    return parts;
+  };
+
+  return (
+    <div
+      data-slot="command-footer"
+      className={cn(
+        "border-t bg-background flex items-center justify-end gap-3 px-3 py-2",
+        className,
+      )}
+    >
+      {actions.map((action, index) => {
+        const shortcutParts = formatShortcut(action.shortcut);
+        const isPrimary = index === 0;
+
+        return (
+          <button
+            key={action.id}
+            type="button"
+            onClick={action.onAction}
+            className={cn(
+              "flex items-center gap-1.5 text-xs transition-colors",
+              isPrimary
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <span>{action.label}</span>
+            {shortcutParts && (
+              <span className="flex items-center gap-0.5">
+                {shortcutParts.map((part, i) => (
+                  <Kbd key={i}>{part}</Kbd>
+                ))}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export {
   Command,
+  CommandActionsProvider,
   CommandDialog,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -208,4 +335,7 @@ export {
   CommandLoading,
   CommandSeparator,
   CommandShortcut,
+  Kbd,
+  useCommandActions,
 };
+export type { CommandAction };
