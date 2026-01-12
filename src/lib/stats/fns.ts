@@ -146,18 +146,28 @@ export const getStatsServerFn = createServerFn({
       ORDER BY count DESC
     `),
 
-    // Top contributors (by total activity: sets + submissions + posts + messages + likes)
+    // Top contributors (by points: sets*5 + submissions*5 + posts*5 + messages*2 + likes*1)
     db.execute<{
       id: number;
       name: string;
       avatarId: string | null;
-      totalContributions: number;
+      setsCount: number;
+      submissionsCount: number;
+      postsCount: number;
+      messagesCount: number;
+      likesCount: number;
+      totalPoints: number;
     }>(sql`
       SELECT
         u.id,
         u.name,
         u.avatar_id as "avatarId",
-        COALESCE(sets.count, 0) + COALESCE(subs.count, 0) + COALESCE(posts.count, 0) + COALESCE(msgs.count, 0) + COALESCE(likes.count, 0) as "totalContributions"
+        COALESCE(sets.count, 0) as "setsCount",
+        COALESCE(subs.count, 0) as "submissionsCount",
+        COALESCE(posts.count, 0) as "postsCount",
+        COALESCE(msgs.count, 0) as "messagesCount",
+        COALESCE(likes.count, 0) as "likesCount",
+        (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
       FROM users u
       LEFT JOIN (
         SELECT user_id, COUNT(*) as count FROM riu_sets GROUP BY user_id
@@ -186,8 +196,8 @@ export const getStatsServerFn = createServerFn({
           UNION ALL SELECT user_id FROM utv_video_likes
         ) all_likes GROUP BY user_id
       ) likes ON u.id = likes.user_id
-      WHERE COALESCE(sets.count, 0) + COALESCE(subs.count, 0) + COALESCE(posts.count, 0) + COALESCE(msgs.count, 0) + COALESCE(likes.count, 0) > 0
-      ORDER BY "totalContributions" DESC
+      WHERE (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
+      ORDER BY "totalPoints" DESC
       LIMIT 5
     `),
   ]);
@@ -236,13 +246,18 @@ export const getStatsServerFn = createServerFn({
       id: row.id,
       name: row.name,
       avatarId: row.avatarId,
-      totalContributions: Number(row.totalContributions),
+      setsCount: Number(row.setsCount),
+      submissionsCount: Number(row.submissionsCount),
+      postsCount: Number(row.postsCount),
+      messagesCount: Number(row.messagesCount),
+      likesCount: Number(row.likesCount),
+      totalPoints: Number(row.totalPoints),
     })),
     usersOnline: null, // Stub for future WebSocket feature
   };
 });
 
-// Get all contributors with detailed breakdown
+// Get all contributors with detailed breakdown (points: sets*5 + submissions*5 + posts*5 + messages*2 + likes*1)
 export const getContributorsServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
@@ -255,7 +270,7 @@ export const getContributorsServerFn = createServerFn({
     postsCount: number;
     messagesCount: number;
     likesCount: number;
-    totalContributions: number;
+    totalPoints: number;
   }>(sql`
     SELECT
       u.id,
@@ -266,7 +281,7 @@ export const getContributorsServerFn = createServerFn({
       COALESCE(posts.count, 0) as "postsCount",
       COALESCE(msgs.count, 0) as "messagesCount",
       COALESCE(likes.count, 0) as "likesCount",
-      COALESCE(sets.count, 0) + COALESCE(subs.count, 0) + COALESCE(posts.count, 0) + COALESCE(msgs.count, 0) + COALESCE(likes.count, 0) as "totalContributions"
+      (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
     FROM users u
     LEFT JOIN (
       SELECT user_id, COUNT(*) as count FROM riu_sets GROUP BY user_id
@@ -295,8 +310,8 @@ export const getContributorsServerFn = createServerFn({
         UNION ALL SELECT user_id FROM utv_video_likes
       ) all_likes GROUP BY user_id
     ) likes ON u.id = likes.user_id
-    WHERE COALESCE(sets.count, 0) + COALESCE(subs.count, 0) + COALESCE(posts.count, 0) + COALESCE(msgs.count, 0) + COALESCE(likes.count, 0) > 0
-    ORDER BY "totalContributions" DESC
+    WHERE (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
+    ORDER BY "totalPoints" DESC
   `);
 
   return contributorsResult.map((row) => ({
@@ -308,6 +323,6 @@ export const getContributorsServerFn = createServerFn({
     postsCount: Number(row.postsCount),
     messagesCount: Number(row.messagesCount),
     likesCount: Number(row.likesCount),
-    totalContributions: Number(row.totalContributions),
+    totalPoints: Number(row.totalPoints),
   }));
 });
