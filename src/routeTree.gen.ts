@@ -13,6 +13,7 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
+import { Route as TricksIndexRouteImport } from './routes/tricks/index'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as MapIndexRouteImport } from './routes/map/index'
@@ -30,6 +31,7 @@ import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/ind
 import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
 import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
+import { Route as VaultValutBakRouteImport } from './routes/vault/valut.bak'
 import { Route as GamesSiusStartRouteImport } from './routes/games/sius/start'
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
 import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
@@ -67,6 +69,11 @@ const VaultIndexRoute = VaultIndexRouteImport.update({
 const UsersIndexRoute = UsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TricksIndexRoute = TricksIndexRouteImport.update({
+  id: '/tricks/',
+  path: '/tricks/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StatsIndexRoute = StatsIndexRouteImport.update({
@@ -155,6 +162,11 @@ const AuthedNotificationsIndexRoute =
     path: '/notifications/',
     getParentRoute: () => AuthedRoute,
   } as any)
+const VaultValutBakRoute = VaultValutBakRouteImport.update({
+  id: '/vault/valut/bak',
+  path: '/vault/valut/bak',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesSiusStartRoute = GamesSiusStartRouteImport.update({
   id: '/start',
   path: '/start',
@@ -269,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
   '/stats': typeof StatsIndexRoute
+  '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
@@ -280,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
+  '/vault/valut/bak': typeof VaultValutBakRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
@@ -308,6 +322,7 @@ export interface FileRoutesByTo {
   '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
   '/stats': typeof StatsIndexRoute
+  '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
@@ -319,6 +334,7 @@ export interface FileRoutesByTo {
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
+  '/vault/valut/bak': typeof VaultValutBakRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
   '/games/bius': typeof GamesBiusIndexRoute
   '/games/sius': typeof GamesSiusIndexRoute
@@ -351,6 +367,7 @@ export interface FileRoutesById {
   '/map/': typeof MapIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/stats/': typeof StatsIndexRoute
+  '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
   '/_authed/notifications/settings': typeof AuthedNotificationsSettingsRoute
@@ -362,6 +379,7 @@ export interface FileRoutesById {
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
+  '/vault/valut/bak': typeof VaultValutBakRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
@@ -394,6 +412,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/posts'
     | '/stats'
+    | '/tricks'
     | '/users'
     | '/vault'
     | '/notifications/settings'
@@ -405,6 +424,7 @@ export interface FileRouteTypes {
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
+    | '/vault/valut/bak'
     | '/notifications'
     | '/games/bius/'
     | '/games/sius/'
@@ -433,6 +453,7 @@ export interface FileRouteTypes {
     | '/map'
     | '/posts'
     | '/stats'
+    | '/tricks'
     | '/users'
     | '/vault'
     | '/notifications/settings'
@@ -444,6 +465,7 @@ export interface FileRouteTypes {
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
+    | '/vault/valut/bak'
     | '/notifications'
     | '/games/bius'
     | '/games/sius'
@@ -475,6 +497,7 @@ export interface FileRouteTypes {
     | '/map/'
     | '/posts/'
     | '/stats/'
+    | '/tricks/'
     | '/users/'
     | '/vault/'
     | '/_authed/notifications/settings'
@@ -486,6 +509,7 @@ export interface FileRouteTypes {
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
+    | '/vault/valut/bak'
     | '/_authed/notifications/'
     | '/games/bius/'
     | '/games/sius/'
@@ -517,12 +541,14 @@ export interface RootRouteChildren {
   MapIndexRoute: typeof MapIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
+  TricksIndexRoute: typeof TricksIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
   ApiMuxUrlRoute: typeof ApiMuxUrlRoute
   ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   AuthCodeSendRoute: typeof AuthCodeSendRoute
   AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
+  VaultValutBakRoute: typeof VaultValutBakRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
   VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
 }
@@ -555,6 +581,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/users'
       preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/': {
+      id: '/tricks/'
+      path: '/tricks'
+      fullPath: '/tricks'
+      preLoaderRoute: typeof TricksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stats/': {
@@ -675,6 +708,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/notifications'
       preLoaderRoute: typeof AuthedNotificationsIndexRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/vault/valut/bak': {
+      id: '/vault/valut/bak'
+      path: '/vault/valut/bak'
+      fullPath: '/vault/valut/bak'
+      preLoaderRoute: typeof VaultValutBakRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/games/sius/start': {
       id: '/games/sius/start'
@@ -904,12 +944,14 @@ const rootRouteChildren: RootRouteChildren = {
   MapIndexRoute: MapIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
+  TricksIndexRoute: TricksIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
   ApiMuxUrlRoute: ApiMuxUrlRoute,
   ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   AuthCodeSendRoute: AuthCodeSendRoute,
   AuthCodeVerifyRoute: AuthCodeVerifyRoute,
+  VaultValutBakRoute: VaultValutBakRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
 }
