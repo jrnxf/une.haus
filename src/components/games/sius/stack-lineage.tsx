@@ -39,7 +39,10 @@ export function StackLineage({ stacks }: StackLineageProps) {
     <div className="space-y-3">
       {stacks.map((stack, index) => (
         <div key={stack.id}>
-          <SiuStackCard stack={stack} isLatest={stack.position === latestPosition} />
+          <SiuStackCard
+            stack={stack}
+            isLatest={stack.position === latestPosition}
+          />
 
           {/* Show arrow between stacks (not after the last one) */}
           {index < stacks.length - 1 && (

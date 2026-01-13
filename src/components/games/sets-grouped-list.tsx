@@ -71,11 +71,13 @@ function RiderStats({ ranking }: { ranking: RiderScore }) {
   const parts: string[] = [];
 
   if (ranking.setsCount > 0) {
-    parts.push(`${ranking.setsCount} ${ranking.setsCount === 1 ? "set" : "sets"}`);
+    parts.push(
+      `${ranking.setsCount} ${ranking.setsCount === 1 ? "set" : "sets"}`,
+    );
   }
   if (ranking.submissionsCount > 0) {
     parts.push(
-      `${ranking.submissionsCount} ${ranking.submissionsCount === 1 ? "submission" : "submissions"}`
+      `${ranking.submissionsCount} ${ranking.submissionsCount === 1 ? "submission" : "submissions"}`,
     );
   }
 
@@ -128,7 +130,7 @@ export function SetsGroupedList({
           value={user.id.toString()}
           className="bg-card overflow-hidden rounded-lg border last:border-b"
         >
-          <AccordionTrigger className="border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none [&[data-state=open]]:border-border">
+          <AccordionTrigger className="[&[data-state=open]]:border-border border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none">
             <div className="flex items-center gap-3">
               <Avatar
                 className="size-8 rounded-full"

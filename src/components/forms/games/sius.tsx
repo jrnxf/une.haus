@@ -1,8 +1,8 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { type z } from "zod";
 
 import { TrickLine } from "~/components/games/sius/trick-line";
@@ -167,7 +167,9 @@ export function StackUpForm({ parentStackId }: { parentStackId: number }) {
         <Button asChild type="button" variant="outline">
           <Link to="/games/sius">cancel</Link>
         </Button>
-        <FormSubmitButton busy={stackUp.isPending}>Stack It Up</FormSubmitButton>
+        <FormSubmitButton busy={stackUp.isPending}>
+          Stack It Up
+        </FormSubmitButton>
       </div>
     </Form>
   );

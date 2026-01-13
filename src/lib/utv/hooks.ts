@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { utv, type UtvVideosData } from "~/lib/utv";
+import { utv, type UtvVideosData } from "~/lib/utv/core";
 
 export function useUpdateScale() {
   const qc = useQueryClient();
@@ -100,4 +100,3 @@ export function useUpdateTitle() {
     },
   });
 }
-

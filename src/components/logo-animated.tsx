@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+
 import { cn } from "~/lib/utils";
 
 const paths = [
@@ -56,7 +57,8 @@ export function LogoRandomScatter({ className }: { className?: string }) {
               ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
               : "translate(0, 0) rotate(0deg)",
             opacity: isHovered ? 0.8 : 1,
-            transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
+            transition:
+              "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
             transitionDelay: `${i * 0.03}s`,
           }}
         />

@@ -1,14 +1,13 @@
-import { ReactFlowProvider } from "@xyflow/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { ReactFlowProvider } from "@xyflow/react";
 import { useState } from "react";
-
-import type { Trick } from "~/lib/tricks";
 
 import { TrickDetail } from "~/components/tricks/trick-detail";
 import { TricksGraph } from "~/components/tricks/tricks-graph";
 import { TricksSearch } from "~/components/tricks/tricks-search";
 import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
+import type { Trick } from "~/lib/tricks";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/")({

@@ -1,10 +1,7 @@
 import { ArchiveIcon, Loader2Icon } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import {
-  useRemoveArchiveVote,
-  useVoteToArchive,
-} from "~/lib/games/sius/hooks";
+import { useRemoveArchiveVote, useVoteToArchive } from "~/lib/games/sius/hooks";
 import { cn } from "~/lib/utils";
 
 type ArchiveVoteButtonProps = {

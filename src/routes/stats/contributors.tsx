@@ -74,7 +74,10 @@ function RouteComponent() {
                   </TooltipTrigger>
                   <TooltipContent side="left" className="text-xs">
                     <div className="space-y-1">
-                      <p>sets/submissions/posts (5pts), messages (2pts), likes (1pt)</p>
+                      <p>
+                        sets/submissions/posts (5pts), messages (2pts), likes
+                        (1pt)
+                      </p>
                     </div>
                   </TooltipContent>
                 </Tooltip>
@@ -83,7 +86,8 @@ function RouteComponent() {
             <CardContent className="divide-y p-0">
               {contributors.map((contributor, index) => {
                 const riuSetsPoints = contributor.riuSetsCount * 5;
-                const riuSubmissionsPoints = contributor.riuSubmissionsCount * 5;
+                const riuSubmissionsPoints =
+                  contributor.riuSubmissionsCount * 5;
                 const biuSetsPoints = contributor.biuSetsCount * 5;
                 const siuStacksPoints = contributor.siuStacksCount * 5;
                 const postsPoints = contributor.postsCount * 5;

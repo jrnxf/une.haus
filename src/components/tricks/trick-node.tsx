@@ -1,9 +1,8 @@
 import { Handle, Position } from "@xyflow/react";
 import { memo } from "react";
 
-import type { Trick } from "~/lib/tricks";
-
 import { Badge } from "~/components/ui/badge";
+import type { Trick } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
 export type TrickNodeData = {
@@ -76,21 +75,21 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
 
       <div
         className={cn(
-          "rounded-lg border-2 bg-background px-3.5 py-2.5 shadow-sm transition-all",
-          "min-w-[160px] max-w-[220px]",
+          "bg-background rounded-lg border-2 px-3.5 py-2.5 shadow-sm transition-all",
+          "max-w-[220px] min-w-[160px]",
           RELATIONSHIP_STYLES[relationshipType],
-          selected && "ring-2 ring-ring",
+          selected && "ring-ring ring-2",
         )}
       >
         {/* Relationship label */}
         {RELATIONSHIP_LABELS[relationshipType] && (
-          <span className="text-muted-foreground mb-1 block text-[11px] uppercase tracking-wide">
+          <span className="text-muted-foreground mb-1 block text-[11px] tracking-wide uppercase">
             {RELATIONSHIP_LABELS[relationshipType]}
           </span>
         )}
 
         {/* Trick name */}
-        <p className="font-medium leading-tight">{trick.name}</p>
+        <p className="leading-tight font-medium">{trick.name}</p>
 
         {/* Categories */}
         <div className="mt-1.5 flex flex-wrap gap-1">

@@ -1,8 +1,6 @@
 import { SearchIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import type { Trick, TricksData } from "~/lib/tricks";
-
 import { Badge } from "~/components/ui/badge";
 import {
   Command,
@@ -13,6 +11,7 @@ import {
   CommandList,
 } from "~/components/ui/command";
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
+import type { Trick, TricksData } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
 type TricksSearchProps = {

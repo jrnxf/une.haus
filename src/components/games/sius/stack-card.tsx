@@ -36,7 +36,9 @@ export function SiuStackCard({
   className,
 }: SiuStackCardProps) {
   const likeCount = Array.isArray(stack.likes) ? stack.likes.length : 0;
-  const messageCount = Array.isArray(stack.messages) ? stack.messages.length : 0;
+  const messageCount = Array.isArray(stack.messages)
+    ? stack.messages.length
+    : 0;
 
   return (
     <Link

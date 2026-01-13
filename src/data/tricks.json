@@ -2,13 +2,8 @@
   {
     "id": "1080-side-spin",
     "name": "1080 Side Spin",
-    "alternateNames": [
-      "1080 Side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["1080 Side"],
+    "categories": ["spin", "wrap"],
     "definition": "1080 unispin + leg wrap in same direction as unispin",
     "inventedBy": null,
     "yearLanded": null,
@@ -24,12 +19,8 @@
   {
     "id": "1080-unispin",
     "name": "1080 Unispin",
-    "alternateNames": [
-      "1080"
-    ],
-    "categories": [
-      "spin"
-    ],
+    "alternateNames": ["1080"],
+    "categories": ["spin"],
     "definition": "feet leave pedals, unicycle turns 1080 degrees relative to ground, feet land on pedals",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2009,
@@ -46,9 +37,7 @@
     "id": "1170-unispin-up",
     "name": "1170 Unispin Up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -64,13 +53,8 @@
   {
     "id": "1260-side-spin",
     "name": "1260 Side Spin",
-    "alternateNames": [
-      "1260 Side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["1260 Side"],
+    "categories": ["spin", "wrap"],
     "definition": "1260 unispin + leg wrap in same direction as unispin",
     "inventedBy": "Eli Brill",
     "yearLanded": 2024,
@@ -87,9 +71,7 @@
     "id": "1260-unispin",
     "name": "1260 Unispin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "feet leave pedals, unicycle turns 1260 degrees relative to ground, feet land on pedals",
     "inventedBy": "Eli Brill",
     "yearLanded": 2012,
@@ -106,10 +88,7 @@
     "id": "180-antiside-spin",
     "name": "180 antiside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "180 unispin with a leg wrap in the opposite direction of the spin (if you do the wrap with your back leg, spin toward your front foot. If you do the wrap with your front leg, spin away from your front foot) *see note for the handpass variations 180 antisides",
     "inventedBy": null,
     "yearLanded": null,
@@ -126,10 +105,7 @@
     "id": "180-anti-backside-spin",
     "name": "180 anti backside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "180 backside spin but it spins the opposite direction (if you do the backside wrap around your back leg, then spin toward your front foot. if you do the backside wrap around your front leg, then spin away from your front foot)",
     "inventedBy": null,
     "yearLanded": null,
@@ -146,11 +122,7 @@
     "id": "180-anti-backside-flip",
     "name": "180 anti backside flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "180 anti backside spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -167,11 +139,7 @@
     "id": "180-anti-backside-double-flip",
     "name": "180 anti backside double flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "180 anti backside spin + double flip",
     "inventedBy": "Scott Julian",
     "yearLanded": null,
@@ -188,11 +156,7 @@
     "id": "180-antiside-overflip",
     "name": "180 antiside overflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "180 antiside spin followed by an overflip",
     "inventedBy": "Lorenz Poham?",
     "yearLanded": null,
@@ -209,10 +173,7 @@
     "id": "180-back-flip",
     "name": "180 Back Flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "180 flip with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -228,13 +189,8 @@
   {
     "id": "180-body-varial",
     "name": "180 body varial",
-    "alternateNames": [
-      "body varial"
-    ],
-    "categories": [
-      "varial",
-      "spin"
-    ],
+    "alternateNames": ["body varial"],
+    "categories": ["varial", "spin"],
     "definition": "your body spins 180 around the unicycle (so you are spinning a 180 unispin relative to you, but the unicycle stays in place relative to the ground)",
     "inventedBy": null,
     "yearLanded": null,
@@ -250,13 +206,8 @@
   {
     "id": "180-double-back-flip",
     "name": "180 double back flip",
-    "alternateNames": [
-      "180 double back"
-    ],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "alternateNames": ["180 double back"],
+    "categories": ["twist", "flip"],
     "definition": "180 double flip with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -273,10 +224,7 @@
     "id": "180-double-flip",
     "name": "180 Double Flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "180 twist + double flip",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -293,10 +241,7 @@
     "id": "180-flip",
     "name": "180 Flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "180 twist + crank flip",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -313,9 +258,7 @@
     "id": "180-no-handed-unispin",
     "name": "180 no-handed unispin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "180 unispin without using your hands (seat in to seat in)",
     "inventedBy": null,
     "yearLanded": null,
@@ -332,10 +275,7 @@
     "id": "180-secret-side-spin",
     "name": "180 secret side spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "180 unispin that wraps in front of one leg, behind both legs, and out from behind your other leg",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2024,
@@ -352,10 +292,7 @@
     "id": "180-quad-flip",
     "name": "180 Quad Flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "180 twist + quad flip",
     "inventedBy": "Krisz Kovacs",
     "yearLanded": null,
@@ -372,10 +309,7 @@
     "id": "180-rev",
     "name": "180 Rev",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "rev"
-    ],
+    "categories": ["twist", "rev"],
     "definition": "180 twist + rev",
     "inventedBy": null,
     "yearLanded": null,
@@ -392,10 +326,7 @@
     "id": "180-scissor-side-spin",
     "name": "180 Scissor Side Spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "180 side around one leg followed by a side jump around the other leg",
     "inventedBy": "Clement Pujol",
     "yearLanded": 2025,
@@ -411,13 +342,8 @@
   {
     "id": "180-side-spin",
     "name": "180 side spin",
-    "alternateNames": [
-      "180 side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["180 side"],
+    "categories": ["spin", "wrap"],
     "definition": "180 unispin where one leg wraps around the seat in the same direction as the spin",
     "inventedBy": null,
     "yearLanded": null,
@@ -433,14 +359,8 @@
   {
     "id": "180-stepover-legaround",
     "name": "180 stepover legaround",
-    "alternateNames": [
-      "Standup legaround body varial"
-    ],
-    "categories": [
-      "jam",
-      "footjam",
-      "crownjam"
-    ],
+    "alternateNames": ["Standup legaround body varial"],
+    "categories": ["jam", "footjam", "crownjam"],
     "definition": "One foot on tire/crown, twist around body and make a wrap round the saddle with your foot at the same time",
     "inventedBy": "Bobousse?",
     "yearLanded": null,
@@ -457,10 +377,7 @@
     "id": "180-superman",
     "name": "180 Superman",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wild"
-    ],
+    "categories": ["spin", "wild"],
     "definition": "Superman ending in a 180 unispin",
     "inventedBy": "Eli Brill",
     "yearLanded": 2012,
@@ -476,13 +393,8 @@
   {
     "id": "180-triple-back-flip",
     "name": "180 triple back flip",
-    "alternateNames": [
-      "180 triple back"
-    ],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "alternateNames": ["180 triple back"],
+    "categories": ["twist", "flip"],
     "definition": "180 triple flip with backwards wheel rotation",
     "inventedBy": "Eli Brill",
     "yearLanded": 2011,
@@ -499,10 +411,7 @@
     "id": "180-triple-flip",
     "name": "180 Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "180 twist + triple flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -518,13 +427,8 @@
   {
     "id": "180-twist",
     "name": "180 Twist",
-    "alternateNames": [
-      "180 Hop Twist",
-      "180"
-    ],
-    "categories": [
-      "twist"
-    ],
+    "alternateNames": ["180 Hop Twist", "180"],
+    "categories": ["twist"],
     "definition": "body and unicycle turn 180 degrees in the air relative to direction of travel",
     "inventedBy": null,
     "yearLanded": null,
@@ -540,12 +444,8 @@
   {
     "id": "180-unispin",
     "name": "180 Unispin",
-    "alternateNames": [
-      "1 Spin"
-    ],
-    "categories": [
-      "spin"
-    ],
+    "alternateNames": ["1 Spin"],
+    "categories": ["spin"],
     "definition": "feet leave pedals, unicycle turns 180 degrees relative to ground, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -562,10 +462,7 @@
     "id": "270-antiside-spin",
     "name": "270 antiside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "270 unispin with a leg wrap in the opposite direction of the spin (either from pedals to seat-in-back on tire, or from seat-in-front on tire down to pedals)",
     "inventedBy": null,
     "yearLanded": null,
@@ -581,13 +478,8 @@
   {
     "id": "270-twist",
     "name": "270 Twist",
-    "alternateNames": [
-      "270 Hop Twist",
-      "270"
-    ],
-    "categories": [
-      "twist"
-    ],
+    "alternateNames": ["270 Hop Twist", "270"],
+    "categories": ["twist"],
     "definition": "body and unicycle turn 270 degrees in the air relative to direction of travel",
     "inventedBy": null,
     "yearLanded": null,
@@ -604,9 +496,7 @@
     "id": "270-unispin-down",
     "name": "270 Unispin down",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "Spin the unicycle 270 degrees, land on unicycle (either from pedals up to tire, or, from tire down to pedals)",
     "inventedBy": null,
     "yearLanded": null,
@@ -640,10 +530,7 @@
     "id": "360-antiside-spin",
     "name": "360 antiside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "360 unispin with a leg wrap in the opposite direction of the spin *see note for the two handpass variations",
     "inventedBy": null,
     "yearLanded": null,
@@ -660,10 +547,7 @@
     "id": "360-anti-backside-spin",
     "name": "360 anti backside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "360 backside spin but it spins the opposite direction (if you do the backside wrap around your back leg, then spin toward your front foot. if you do the backside wrap around your front leg, then spin away from your front foot)",
     "inventedBy": "Sean Minter",
     "yearLanded": null,
@@ -680,10 +564,7 @@
     "id": "360-back-flip",
     "name": "360 back flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "360 hop twist + back flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -700,10 +581,7 @@
     "id": "360-back-rev",
     "name": "360 back rev",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "rev"
-    ],
+    "categories": ["twist", "rev"],
     "definition": "360 hop twist + back rev",
     "inventedBy": "Eddie Ducol",
     "yearLanded": 2012,
@@ -720,10 +598,7 @@
     "id": "360-body-varial-double-flip",
     "name": "360 body varial double flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "categories": ["varial", "flip"],
     "definition": "360 body varial + double flip",
     "inventedBy": "Emile Mathieu",
     "yearLanded": 2013,
@@ -740,9 +615,7 @@
     "id": "360-body-varial",
     "name": "360 body varial",
     "alternateNames": [],
-    "categories": [
-      "varial"
-    ],
+    "categories": ["varial"],
     "definition": "feet leave pedals, body turns 360 degree relative to unicycle, feet land on pedals",
     "inventedBy": "Spencer Hochberg",
     "yearLanded": null,
@@ -759,10 +632,7 @@
     "id": "360-body-varial-flip",
     "name": "360 body varial flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "categories": ["varial", "flip"],
     "definition": "360 body varial + flip",
     "inventedBy": "Emile Mathieu",
     "yearLanded": 2013,
@@ -778,12 +648,8 @@
   {
     "id": "360-dan-heaton",
     "name": "360 Dan Heaton",
-    "alternateNames": [
-      "360 DH"
-    ],
-    "categories": [
-      "handstepover"
-    ],
+    "alternateNames": ["360 DH"],
+    "categories": ["handstepover"],
     "definition": "Dan Heaton trick, except with a 360 body varial",
     "inventedBy": "Ivar Christenson",
     "yearLanded": 2017,
@@ -800,10 +666,7 @@
     "id": "360-flip",
     "name": "360 flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "flip"
-    ],
+    "categories": ["twist", "flip"],
     "definition": "360 twist + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -820,9 +683,7 @@
     "id": "360-no-handed-unispin",
     "name": "360 no-handed unispin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "360 unispin without using your hands",
     "inventedBy": "Tim Desmet",
     "yearLanded": 2010,
@@ -839,10 +700,7 @@
     "id": "360-rev",
     "name": "360 Rev",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "rev"
-    ],
+    "categories": ["twist", "rev"],
     "definition": "360 twist + rev",
     "inventedBy": null,
     "yearLanded": null,
@@ -859,10 +717,7 @@
     "id": "360-secret-side-spin",
     "name": "360 Secret side spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "360 unispin that wraps in front of one leg, behind both legs, and out from behind your other leg",
     "inventedBy": null,
     "yearLanded": null,
@@ -878,14 +733,8 @@
   {
     "id": "360-side-spin",
     "name": "360 Side Spin",
-    "alternateNames": [
-      "3 Side",
-      "Side Spin"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["3 Side", "Side Spin"],
+    "categories": ["spin", "wrap"],
     "definition": "360 unispin where one leg wraps around seat in same direction unicycle spins",
     "inventedBy": "Kevin McMullin",
     "yearLanded": null,
@@ -901,13 +750,8 @@
   {
     "id": "360-twist",
     "name": "360 Twist",
-    "alternateNames": [
-      "360 Hop Twist",
-      "360"
-    ],
-    "categories": [
-      "twist"
-    ],
+    "alternateNames": ["360 Hop Twist", "360"],
+    "categories": ["twist"],
     "definition": "body and unicycle turn 360 degrees in the air relative to direction of travel",
     "inventedBy": null,
     "yearLanded": null,
@@ -923,13 +767,8 @@
   {
     "id": "360-unispin",
     "name": "360 Unispin",
-    "alternateNames": [
-      "360",
-      "3 Spin"
-    ],
-    "categories": [
-      "spin"
-    ],
+    "alternateNames": ["360", "3 Spin"],
+    "categories": ["spin"],
     "definition": "feet leave pedals, unicycle turns 360 degrees relative to ground, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -946,10 +785,7 @@
     "id": "450-secret-side-down",
     "name": "450 secret side down",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "450 unispin that wraps in front of one leg, behind both legs, and out from behind your other leg",
     "inventedBy": null,
     "yearLanded": null,
@@ -983,9 +819,7 @@
     "id": "450-unispin-down",
     "name": "450 Unispin down",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "450 degree unispin from tire to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1002,9 +836,7 @@
     "id": "450-unispin-up",
     "name": "450 Unispin up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "450 degree unispin from pedals to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1021,10 +853,7 @@
     "id": "540-antiside-spin",
     "name": "540 antiside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "540 unispin with a leg wrap in the spin in the opposite direction of the wrap",
     "inventedBy": "Trey Haun",
     "yearLanded": 2024,
@@ -1058,10 +887,7 @@
     "id": "540-secret-side-spin",
     "name": "540 secret side spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "540 unispin that wraps in front of one leg, behind both legs, and out from behind your other leg",
     "inventedBy": null,
     "yearLanded": null,
@@ -1077,13 +903,8 @@
   {
     "id": "540-side-spin",
     "name": "540 Side Spin",
-    "alternateNames": [
-      "540 Side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["540 Side"],
+    "categories": ["spin", "wrap"],
     "definition": "540 unispin where one leg wraps around the seat in the same direction that the unicycle spins",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": null,
@@ -1100,10 +921,7 @@
     "id": "540-suicide-spin",
     "name": "540 Suicide Spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "540 degree unispin out from behind one leg, in front of both legs, and around in front of the other leg (basically a backside followed by a side spin). the last 180 around the leg is slapped",
     "inventedBy": "Scott Julian",
     "yearLanded": null,
@@ -1120,9 +938,7 @@
     "id": "540-twist",
     "name": "540 Twist",
     "alternateNames": [],
-    "categories": [
-      "twist"
-    ],
+    "categories": ["twist"],
     "definition": "body and unicycle turn 540 degrees in the air relative to direction of travel",
     "inventedBy": null,
     "yearLanded": null,
@@ -1139,9 +955,7 @@
     "id": "540-unispin",
     "name": "540 Unispin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "feet leave pedals, unicycle turns 540 degrees relative to ground (1.5 revolutions of unicycle spinning around vertical axis), feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1158,10 +972,7 @@
     "id": "630-secret-side-spin-down",
     "name": "630 Secret Side spin down",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "630 unispin starting from pedals that wraps in front of one leg, behind both legs, and out from behind your other leg, then you land on the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1178,10 +989,7 @@
     "id": "630-secret-side-spin-up",
     "name": "630 secret side spin up",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "630 unispin starting on tire that wraps in front of one leg, behind both legs, and out from behind your other leg, then you land on the pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1198,10 +1006,7 @@
     "id": "630-side-spin-down",
     "name": "630 side spin down",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "630 unispin around in front of one leg, from tire down to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1218,10 +1023,7 @@
     "id": "630-side-spin-up",
     "name": "630 side spin up",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "630 unispin around in front of one leg, from pedals up to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1238,9 +1040,7 @@
     "id": "630-unispin-down",
     "name": "630 Unispin Down",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "630 degree unispin from pedals to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1257,9 +1057,7 @@
     "id": "630-unispin-up",
     "name": "630 Unispin Up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "630 degree unispin from tire to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1293,10 +1091,7 @@
     "id": "720-secret-side-spin",
     "name": "720 Secret side spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "720 unispin that wraps in front of one leg, behind both legs, and out from behind your other leg (always done with a half flip, physically impossible to do without the half flip)",
     "inventedBy": null,
     "yearLanded": null,
@@ -1312,13 +1107,8 @@
   {
     "id": "720-side-spin",
     "name": "720 Side Spin",
-    "alternateNames": [
-      "7 side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["7 side"],
+    "categories": ["spin", "wrap"],
     "definition": "720 degree spin of the unicycle while it also travels around your leg",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2009,
@@ -1335,9 +1125,7 @@
     "id": "720-twist",
     "name": "720 Twist",
     "alternateNames": [],
-    "categories": [
-      "twist"
-    ],
+    "categories": ["twist"],
     "definition": "body and unicycle turn 720 degrees in the air relative to direction of travel",
     "inventedBy": "Max Schulze",
     "yearLanded": 2011,
@@ -1353,12 +1141,8 @@
   {
     "id": "720-unispin",
     "name": "720 Unispin",
-    "alternateNames": [
-      "7"
-    ],
-    "categories": [
-      "spin"
-    ],
+    "alternateNames": ["7"],
+    "categories": ["spin"],
     "definition": "Two full revolutions of unicycle spinning around a vertical axel",
     "inventedBy": null,
     "yearLanded": null,
@@ -1375,9 +1159,7 @@
     "id": "810-unipsin-down",
     "name": "810 Unipsin down",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "810 degree unispin from tire down to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1394,9 +1176,7 @@
     "id": "810-unispin-up",
     "name": "810 Unispin up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "810 degree unispin from pedals to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1413,9 +1193,7 @@
     "id": "90-unispin-down",
     "name": "90 unispin down",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "spin unicycle 90 degrees from tire to down to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1432,9 +1210,7 @@
     "id": "90-unispin-up",
     "name": "90 unispin up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "spin unicycle 90 degrees from pedals up to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1450,14 +1226,8 @@
   {
     "id": "900-side-spin",
     "name": "900 Side Spin",
-    "alternateNames": [
-      "900 Side",
-      "9 Side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["900 Side", "9 Side"],
+    "categories": ["spin", "wrap"],
     "definition": "900 degree unispin around your leg",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2008,
@@ -1473,13 +1243,8 @@
   {
     "id": "900-unispin",
     "name": "900 Unispin",
-    "alternateNames": [
-      "9 spin",
-      "niner"
-    ],
-    "categories": [
-      "spin"
-    ],
+    "alternateNames": ["9 spin", "niner"],
+    "categories": ["spin"],
     "definition": "900 unispin",
     "inventedBy": "Loic Baud",
     "yearLanded": 2008,
@@ -1496,10 +1261,7 @@
     "id": "990-side-spin-up",
     "name": "990 side spin up",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "990 degree unispin + side jump, from pedals to tire",
     "inventedBy": "Matthias Schober?",
     "yearLanded": null,
@@ -1516,9 +1278,7 @@
     "id": "990-unispin-down",
     "name": "990 unispin down",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "990 degree unispin from tire to pedals",
     "inventedBy": "Matthias Schober",
     "yearLanded": null,
@@ -1535,9 +1295,7 @@
     "id": "900-unispin-up",
     "name": "900 unispin up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "990 degree unispin from pedals to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -1554,9 +1312,7 @@
     "id": "anti",
     "name": "Anti",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "Anti added in front of side spin means the spin goes in the oposite direction as the wrap (clockwise spin for left leg front side, anticlockwise spin for left leg back side, and the oposites for the right leg)",
     "inventedBy": null,
     "yearLanded": null,
@@ -1573,9 +1329,7 @@
     "id": "ayrton-kick",
     "name": "Ayrton kick",
     "alternateNames": [],
-    "categories": [
-      "pedal push"
-    ],
+    "categories": ["pedal push"],
     "definition": "Outside pedalkick",
     "inventedBy": "Ayrton Vasquez",
     "yearLanded": 2016,
@@ -1591,13 +1345,8 @@
   {
     "id": "back-crank-flip",
     "name": "Back Crank Flip",
-    "alternateNames": [
-      "Back flip",
-      "backflip"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Back flip", "backflip"],
+    "categories": ["flip"],
     "definition": "feet leave pedals, wheel does 1 rotation backwards, feet land on pedals",
     "inventedBy": "Brian Lundgren",
     "yearLanded": null,
@@ -1613,12 +1362,8 @@
   {
     "id": "back-flip-over-flip",
     "name": "Back Flip Over Flip",
-    "alternateNames": [
-      "Back Over Flip"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Back Over Flip"],
+    "categories": ["flip"],
     "definition": "back flip + over flip",
     "inventedBy": "Will Riley",
     "yearLanded": null,
@@ -1635,10 +1380,7 @@
     "id": "back-flip-over-hick-flip",
     "name": "Back Flip Over Hick Flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "spin"
-    ],
+    "categories": ["flip", "spin"],
     "definition": "back flip, then kick front pedal and turn uni 180 to initiate hickflip",
     "inventedBy": "Dan Colvin",
     "yearLanded": null,
@@ -1655,9 +1397,7 @@
     "id": "back-rev",
     "name": "Back Rev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "wheel leaves ground, feet pedal the wheel through one backward revolution, wheel lands on ground",
     "inventedBy": null,
     "yearLanded": null,
@@ -1674,9 +1414,7 @@
     "id": "back-rev-rev",
     "name": "Back Rev Rev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "Back Rev then forward Rev before landing on the ground",
     "inventedBy": "Tore Juncher Jørgensen",
     "yearLanded": 2015,
@@ -1692,12 +1430,8 @@
   {
     "id": "back-roll",
     "name": "Back Roll",
-    "alternateNames": [
-      "inside roll"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["inside roll"],
+    "categories": ["roll"],
     "definition": "back foot is on crank, free foot pushes back side of wheel 1/2 revolution on ground, free foot kicks/pushes tire so wheel revolves additional 1/2 revolution backwards while back foot leaves crarnk, both feet land on pedals/cranks",
     "inventedBy": "Xavier Collos",
     "yearLanded": null,
@@ -1713,13 +1447,8 @@
   {
     "id": "back-roll-flip",
     "name": "Back roll flip",
-    "alternateNames": [
-      "back roll 1.5 flip"
-    ],
-    "categories": [
-      "roll",
-      "flip"
-    ],
+    "alternateNames": ["back roll 1.5 flip"],
+    "categories": ["roll", "flip"],
     "definition": "starts as a back roll but the second half revolution is replaced with a jump where the release of the foot on the tire and the foot on the crank creates a back crankflip, most oftenly 1,5 revolutions but also more and less happens (examples: backroll 3.5 flip, backroll double flip, or backrollflip refering to a one single revolution flip)",
     "inventedBy": "Spencer Hochberg",
     "yearLanded": 2007,
@@ -1735,13 +1464,8 @@
   {
     "id": "back-roll-25-flip",
     "name": "Back roll 2.5 flip",
-    "alternateNames": [
-      "back roll 2.5",
-      "back roll double flip"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["back roll 2.5", "back roll double flip"],
+    "categories": ["roll"],
     "definition": "Back roll with 2.5 wheel rotation instead",
     "inventedBy": null,
     "yearLanded": null,
@@ -1757,13 +1481,8 @@
   {
     "id": "back-roll-35-flip",
     "name": "Back roll 3.5 flip",
-    "alternateNames": [
-      "back roll 3.5",
-      "back roll triple flip"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["back roll 3.5", "back roll triple flip"],
+    "categories": ["roll"],
     "definition": "Back roll with 3.5 wheel rotation instead",
     "inventedBy": null,
     "yearLanded": null,
@@ -1779,13 +1498,8 @@
   {
     "id": "back-roll-forward-flip",
     "name": "Back roll forward flip",
-    "alternateNames": [
-      "back roll 1.5 forward flip"
-    ],
-    "categories": [
-      "roll",
-      "flip"
-    ],
+    "alternateNames": ["back roll 1.5 forward flip"],
+    "categories": ["roll", "flip"],
     "definition": "starts as a back roll but the second half revolution is replaced with a jump where the release of the foot on the tire and the foot on the crank creates a forward crankflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -1801,13 +1515,8 @@
   {
     "id": "back-roll-forward-25-flip",
     "name": "Back roll forward 2.5 flip",
-    "alternateNames": [
-      "back roll forward double flip"
-    ],
-    "categories": [
-      "roll",
-      "flip"
-    ],
+    "alternateNames": ["back roll forward double flip"],
+    "categories": ["roll", "flip"],
     "definition": "starts as a back roll but the second half revolution is replaced witha. jump where the release of the foot on the tire and the foot on the crank creates a forward crankflip that goes 2.5 revolutions",
     "inventedBy": null,
     "yearLanded": null,
@@ -1824,9 +1533,7 @@
     "id": "back-roll-step-over",
     "name": "Back roll step over",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "starts as a back roll but after the first half revolution, front foot is placed behind the crown of the tire and the back foot is lifted over the seat and comes down to the opposite crank as the second half revolution is completed",
     "inventedBy": null,
     "yearLanded": null,
@@ -1842,13 +1549,8 @@
   {
     "id": "back-scuff-coast",
     "name": "Back scuff coast",
-    "alternateNames": [
-      "back scuff",
-      "scuff coast"
-    ],
-    "categories": [
-      "coast"
-    ],
+    "alternateNames": ["back scuff", "scuff coast"],
+    "categories": ["coast"],
     "definition": "One footed seat in front backward coasting (this one is generally easier than forward)",
     "inventedBy": null,
     "yearLanded": null,
@@ -1865,9 +1567,7 @@
     "id": "backside",
     "name": "Backside",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "Opposite leg than a regular side",
     "inventedBy": null,
     "yearLanded": null,
@@ -1884,9 +1584,7 @@
     "id": "back-slide",
     "name": "Back Slide",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind in which rider is facing backward",
     "inventedBy": "Dan Heaton",
     "yearLanded": null,
@@ -1903,9 +1601,7 @@
     "id": "back-tire-grab",
     "name": "Back tire grab",
     "alternateNames": [],
-    "categories": [
-      "grab"
-    ],
+    "categories": ["grab"],
     "definition": "Grabing the back of the tire with the hand during a hop",
     "inventedBy": "Dan Heaton",
     "yearLanded": null,
@@ -1922,9 +1618,7 @@
     "id": "backside-jump",
     "name": "Backside jump",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "jump up, wrap leg around in front of seat then behind and land back on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -1941,10 +1635,7 @@
     "id": "backside-double-flip",
     "name": "Backside double flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "wrap"
-    ],
+    "categories": ["flip", "wrap"],
     "definition": "backside jump + double crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -1961,10 +1652,7 @@
     "id": "backside-flip",
     "name": "Backside flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "wrap"
-    ],
+    "categories": ["flip", "wrap"],
     "definition": "backside jump + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -1981,9 +1669,7 @@
     "id": "backwards-coasting",
     "name": "Backwards coasting",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "Coasting but riding backwards",
     "inventedBy": null,
     "yearLanded": null,
@@ -2000,9 +1686,7 @@
     "id": "backwards-one-footed-coasting",
     "name": "Backwards one footed coasting",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "One footed coasting but backwards",
     "inventedBy": null,
     "yearLanded": null,
@@ -2018,12 +1702,8 @@
   {
     "id": "backwards-varial-roll",
     "name": "Backwards varial roll",
-    "alternateNames": [
-      "back varial roll"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["back varial roll"],
+    "categories": ["roll"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -2040,9 +1720,7 @@
     "id": "backwards-wheel-walk",
     "name": "Backwards wheel walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "Wheel walking but backwards",
     "inventedBy": null,
     "yearLanded": null,
@@ -2058,12 +1736,8 @@
   {
     "id": "backwards-x-roll",
     "name": "Backwards X Roll",
-    "alternateNames": [
-      "Back X roll"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["Back X roll"],
+    "categories": ["roll"],
     "definition": "start in outside position on back crank, half roll backward, cross free foot over the seat to outside position on the other crank, half roll backward, end on front crank in outside position",
     "inventedBy": null,
     "yearLanded": null,
@@ -2080,9 +1754,7 @@
     "id": "bay-coast",
     "name": "Bay Coast",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "feet leave pedals, wheel rolls on ground, feet land in bay position (feet on tire on either side of frame while rider remains seated), wheel rolls on ground, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -2098,12 +1770,8 @@
   {
     "id": "bay-flip",
     "name": "Bay Flip",
-    "alternateNames": [
-      "Baeflip"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Baeflip"],
+    "categories": ["flip"],
     "definition": "feet leave pedals, feet land in bay position (feet on tire on either side of frame while rider remains seated), wheel does 1 revolution, feet land on pedals",
     "inventedBy": "Justin Abbott",
     "yearLanded": null,
@@ -2120,9 +1788,7 @@
     "id": "bay-walk",
     "name": "Bay Walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "Side walk in bay seat position",
     "inventedBy": null,
     "yearLanded": null,
@@ -2139,11 +1805,7 @@
     "id": "beta-flip",
     "name": "Beta flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "twist"
-    ],
+    "categories": ["spin", "flip", "twist"],
     "definition": "180 twist + late outchange flip (rotating same direction)",
     "inventedBy": "Jack Sebben",
     "yearLanded": null,
@@ -2160,11 +1822,7 @@
     "id": "big-flip",
     "name": "Big flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin",
-      "flip"
-    ],
+    "categories": ["twist", "spin", "flip"],
     "definition": "Big spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -2181,11 +1839,7 @@
     "id": "big-side-flip",
     "name": "Big side flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin",
-      "flip"
-    ],
+    "categories": ["twist", "spin", "flip"],
     "definition": "Big side spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -2202,10 +1856,7 @@
     "id": "big-side-spin",
     "name": "Big side spin",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin"
-    ],
+    "categories": ["twist", "spin"],
     "definition": "Big spin + side",
     "inventedBy": null,
     "yearLanded": null,
@@ -2222,10 +1873,7 @@
     "id": "big-spin",
     "name": "Big Spin",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin"
-    ],
+    "categories": ["twist", "spin"],
     "definition": "360 unispin + 180 body varial in the same direction",
     "inventedBy": null,
     "yearLanded": null,
@@ -2242,9 +1890,7 @@
     "id": "blind-",
     "name": "Blind -",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "There are two definitions of Blind... 1) Twist, Spins, or Grinds opposite the rider's comfortable direction... 2) Twists or Spins in the direction away from the front foot",
     "inventedBy": null,
     "yearLanded": null,
@@ -2261,9 +1907,7 @@
     "id": "blunt-grind",
     "name": "Blunt Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "Grind where riders starts on one side of obstacle, jumps, and grinds the opposite side",
     "inventedBy": "Dan Doerksen",
     "yearLanded": null,
@@ -2279,12 +1923,8 @@
   {
     "id": "body-varial",
     "name": "Body Varial",
-    "alternateNames": [
-      "Century?"
-    ],
-    "categories": [
-      "varial"
-    ],
+    "alternateNames": ["Century?"],
+    "categories": ["varial"],
     "definition": "feet leave pedals, body turns 180 degree relative to unicycle, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -2301,9 +1941,7 @@
     "id": "boom-boom-flip",
     "name": "Boom Boom Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Flip, one footer, over flip",
     "inventedBy": "Raphael Pöham",
     "yearLanded": null,
@@ -2320,9 +1958,7 @@
     "id": "brake-coasting",
     "name": "Brake Coasting",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "riding forward with no feet on the pedals, but a brake engaged to maintain balance (requires unicycle with a brake)",
     "inventedBy": null,
     "yearLanded": null,
@@ -2339,9 +1975,7 @@
     "id": "branch-flip",
     "name": "Branch Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "flip with the hand while balancing with one foot on the seatpost and the saddle",
     "inventedBy": "(maybe) emile themelin",
     "yearLanded": 2018,
@@ -2358,9 +1992,7 @@
     "id": "brill-whip",
     "name": "Brill Whip",
     "alternateNames": [],
-    "categories": [
-      "whip"
-    ],
+    "categories": ["whip"],
     "definition": "From hop on tire, seat is thrown backward so that seat does one revolution around wheel in the plane perpendicular to the wheel, feet land on tire",
     "inventedBy": "Eli Brill",
     "yearLanded": 2015,
@@ -2377,9 +2009,7 @@
     "id": "brink-spin",
     "name": "Brink Spin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "rear tire grab followed by a unispin",
     "inventedBy": "Christian Brink Westergaard",
     "yearLanded": 2012,
@@ -2396,9 +2026,7 @@
     "id": "buda-flip",
     "name": "Buda Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "In to in x up outflip with a x up anti side trapped inside",
     "inventedBy": "Krisztián Kovács",
     "yearLanded": 2014,
@@ -2415,9 +2043,7 @@
     "id": "caught",
     "name": "Caught",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "feet land on pedals/cranks/tire and trick is completed while unicycle is still mid-air",
     "inventedBy": null,
     "yearLanded": null,
@@ -2434,9 +2060,7 @@
     "id": "caveman-mount",
     "name": "Caveman Mount",
     "alternateNames": [],
-    "categories": [
-      "mount"
-    ],
+    "categories": ["mount"],
     "definition": "rider runs holding uni saddle or saddle handle in one hand, and tire in other hand, jumps and lets go of wheel, lands on uni (can also be caught in air)",
     "inventedBy": null,
     "yearLanded": null,
@@ -2452,12 +2076,8 @@
   {
     "id": "clapper-grind",
     "name": "Clapper Grind",
-    "alternateNames": [
-      "The Clapper"
-    ],
-    "categories": [
-      "grind"
-    ],
+    "alternateNames": ["The Clapper"],
+    "categories": ["grind"],
     "definition": "grind where rider claps hands during grind",
     "inventedBy": null,
     "yearLanded": null,
@@ -2474,9 +2094,7 @@
     "id": "coasting",
     "name": "Coasting",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "Riding forward with no feet on the pedals, generally with one or both feet on the frame",
     "inventedBy": null,
     "yearLanded": null,
@@ -2492,14 +2110,8 @@
   {
     "id": "corona-flip",
     "name": "Corona Flip",
-    "alternateNames": [
-      "in-in antiside flip"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["in-in antiside flip"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "a seat-in to seat-in 180 antiside with a flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -2515,14 +2127,8 @@
   {
     "id": "corona-double-flip",
     "name": "Corona Double Flip",
-    "alternateNames": [
-      "in-in antiside double"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["in-in antiside double"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "a seat-in to seat-in 180 antiside with a double flip",
     "inventedBy": "Trey Haun?",
     "yearLanded": 2024,
@@ -2538,12 +2144,8 @@
   {
     "id": "crank-flip",
     "name": "Crank Flip",
-    "alternateNames": [
-      "Flip"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Flip"],
+    "categories": ["flip"],
     "definition": "feet leave pedals, wheel does 1 rotation forwards, feet land on pedals",
     "inventedBy": "Mike Clark",
     "yearLanded": null,
@@ -2560,9 +2162,7 @@
     "id": "crank-grab",
     "name": "Crank grab",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "Jumping up to tire on an obstacle from the crank",
     "inventedBy": null,
     "yearLanded": null,
@@ -2579,9 +2179,7 @@
     "id": "crank-idle",
     "name": "Crank Idle",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "idle with one foot on a pedal and the other foot on the crank on the same side of the unicycle",
     "inventedBy": null,
     "yearLanded": null,
@@ -2598,9 +2196,7 @@
     "id": "crank-stall",
     "name": "Crank Stall",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "landing on an object with the crank and spending a moment in this position",
     "inventedBy": null,
     "yearLanded": null,
@@ -2616,9 +2212,7 @@
   {
     "id": "cross-jumping",
     "name": "Cross Jumping",
-    "alternateNames": [
-      "X-hopping"
-    ],
+    "alternateNames": ["X-hopping"],
     "categories": [],
     "definition": "Jumping with crossed legs",
     "inventedBy": null,
@@ -2635,13 +2229,8 @@
   {
     "id": "cross-leg-riding",
     "name": "Cross Leg Riding",
-    "alternateNames": [
-      "X-riding",
-      "X-leg riding"
-    ],
-    "categories": [
-      "ride"
-    ],
+    "alternateNames": ["X-riding", "X-leg riding"],
+    "categories": ["ride"],
     "definition": "Riding with crossed legs",
     "inventedBy": null,
     "yearLanded": null,
@@ -2657,12 +2246,8 @@
   {
     "id": "crossover-flip",
     "name": "Crossover flip",
-    "alternateNames": [
-      "Hopscotch flip"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Hopscotch flip"],
+    "categories": ["flip"],
     "definition": "jump up, bring front foot behind/over the tire, kick back pedal with front foot to initiate back crank flip, land back on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -2678,14 +2263,8 @@
   {
     "id": "cross-hick-side-under-flip",
     "name": "Cross hick side under flip",
-    "alternateNames": [
-      "Scotty flip?"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["Scotty flip?"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "jump up, bring front foot behind/over the tire, kick back pedal with front foot to initiate back crank flip, then 180 side around front leg",
     "inventedBy": "Scott Julian",
     "yearLanded": 2024,
@@ -2701,14 +2280,8 @@
   {
     "id": "cross-hick-side-under-double-flip",
     "name": "Cross hick side under double flip",
-    "alternateNames": [
-      "Scotty Double flip?"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["Scotty Double flip?"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "scotty flip with an extra flip",
     "inventedBy": "Scott Julian",
     "yearLanded": 2024,
@@ -2724,12 +2297,8 @@
   {
     "id": "crossing-dolphins",
     "name": "Crossing dolphins",
-    "alternateNames": [
-      "ivarial"
-    ],
-    "categories": [
-      "handstepover"
-    ],
+    "alternateNames": ["ivarial"],
+    "categories": ["handstepover"],
     "definition": "Both feet doing dolphins but in oposite directions through the ring",
     "inventedBy": "Ivar Christenson",
     "yearLanded": 2017,
@@ -2745,13 +2314,8 @@
   {
     "id": "daiki-walk",
     "name": "Daiki Walk",
-    "alternateNames": [
-      "Daiki",
-      "seat on side stand up"
-    ],
-    "categories": [
-      "walk"
-    ],
+    "alternateNames": ["Daiki", "seat on side stand up"],
+    "categories": ["walk"],
     "definition": "stand up wheel walk seat on side (pushing foot is closer to the saddle)",
     "inventedBy": "*not Daiki Izumida*",
     "yearLanded": null,
@@ -2768,9 +2332,7 @@
     "id": "dan-heaton",
     "name": "Dan Heaton",
     "alternateNames": [],
-    "categories": [
-      "handstepover"
-    ],
+    "categories": ["handstepover"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -2787,10 +2349,7 @@
     "id": "decade",
     "name": "Decade",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "varial"
-    ],
+    "categories": ["wrap", "varial"],
     "definition": "Backside 360 body varial",
     "inventedBy": "Kelly Hickman",
     "yearLanded": null,
@@ -2807,11 +2366,7 @@
     "id": "decade-double-flip",
     "name": "Decade double flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "varial",
-      "flip"
-    ],
+    "categories": ["wrap", "varial", "flip"],
     "definition": "Decade + double flip",
     "inventedBy": "Emile Mathieu",
     "yearLanded": 2013,
@@ -2828,11 +2383,7 @@
     "id": "decade-flip",
     "name": "Decade flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "varial",
-      "flip"
-    ],
+    "categories": ["wrap", "varial", "flip"],
     "definition": "Decade + Flip",
     "inventedBy": "Emile Mathieu",
     "yearLanded": 2011,
@@ -2849,10 +2400,7 @@
     "id": "decade-secret-side",
     "name": "Decade secret side",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "varial"
-    ],
+    "categories": ["wrap", "varial"],
     "definition": "360 hoptwist + 360 secret side in opposite direction",
     "inventedBy": "Scott Julian?",
     "yearLanded": null,
@@ -2869,10 +2417,7 @@
     "id": "dolphin-flip",
     "name": "Dolphin flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "wrap"
-    ],
+    "categories": ["flip", "wrap"],
     "definition": "hold the front and back of the saddle. While doing a crankflip, pull one leg between your two arms, over the saddle, then land back on pedals/cranks",
     "inventedBy": "Casey Pappalardo",
     "yearLanded": null,
@@ -2889,10 +2434,7 @@
     "id": "dolphin-double-flip",
     "name": "Dolphin Double Flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "wrap"
-    ],
+    "categories": ["flip", "wrap"],
     "definition": "",
     "inventedBy": "Casey Pappalardo",
     "yearLanded": null,
@@ -2909,10 +2451,7 @@
     "id": "donkey-hick",
     "name": "donkey hick",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Donkey kick + 180 unispin",
     "inventedBy": "Jerad Glatt",
     "yearLanded": null,
@@ -2929,9 +2468,7 @@
     "id": "donkey-kick",
     "name": "donkey kick",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "SIF, one foot on the frame, one foot on the tire, kicking the tire to make the wheel rotate 1 revolution backward, land back to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -2948,10 +2485,7 @@
     "id": "donkey-trey",
     "name": "donkey trey",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Donkey kick + 360 unispin",
     "inventedBy": null,
     "yearLanded": null,
@@ -2968,9 +2502,7 @@
     "id": "double-back-flip",
     "name": "Double Back Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "feet leave pedals, wheel does 2 rotations backwards, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -2986,12 +2518,8 @@
   {
     "id": "double-flip",
     "name": "Double Flip",
-    "alternateNames": [
-      "Double"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Double"],
+    "categories": ["flip"],
     "definition": "Crank flip with 2 rotations",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": 2004,
@@ -3008,10 +2536,7 @@
     "id": "double-flip-over-rail",
     "name": "Double Flip Over Rail",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "grind"
-    ],
+    "categories": ["flip", "grind"],
     "definition": "grind on a rail to double crank flip occuring over the rail, rider lands on other side of rail",
     "inventedBy": "Noli",
     "yearLanded": 2018,
@@ -3028,9 +2553,7 @@
     "id": "double-leg-wrap",
     "name": "Double Leg Wrap",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "one foot leaves the pedal/crank/tire, wraps around seat twice, and lands back on pedal/crank/tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -3047,9 +2570,7 @@
     "id": "double-rev",
     "name": "Double Rev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "wheel leaves ground, feet pedal the wheel through two revolutions, wheel lands on ground",
     "inventedBy": null,
     "yearLanded": null,
@@ -3066,9 +2587,7 @@
     "id": "double-swivel-grind",
     "name": "Double Swivel Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "pedal grind where wheel does 2 full revolutions during grind",
     "inventedBy": "Pele Schramm",
     "yearLanded": null,
@@ -3085,9 +2604,7 @@
     "id": "early-flip",
     "name": "Early Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Walk the Dog except before the wheel rotation is completed, tire leaves ground and feet land on pedals in the air",
     "inventedBy": "Lars Anderson",
     "yearLanded": null,
@@ -3104,9 +2621,7 @@
     "id": "fakie",
     "name": "Fakie",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "indicates trick begins with unicycle traveling backward",
     "inventedBy": null,
     "yearLanded": null,
@@ -3123,10 +2638,7 @@
     "id": "fakie-change",
     "name": "Fakie Change",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "varial"
-    ],
+    "categories": ["flip", "varial"],
     "definition": "sex change while riding backwards",
     "inventedBy": null,
     "yearLanded": null,
@@ -3143,9 +2655,7 @@
     "id": "fakie-flip",
     "name": "Fakie Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "back flip while riding backwards",
     "inventedBy": null,
     "yearLanded": null,
@@ -3161,14 +2671,8 @@
   {
     "id": "fifth-antiside-flip",
     "name": "Fifth antiside flip",
-    "alternateNames": [
-      "fifth antiside"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["fifth antiside"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "540 antiside spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3184,14 +2688,8 @@
   {
     "id": "fifth-antiside-double-flip",
     "name": "Fifth antiside double flip",
-    "alternateNames": [
-      "fifth antiside double"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["fifth antiside double"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "540 antiside spin + double flip",
     "inventedBy": "Krisz Kovacs?",
     "yearLanded": null,
@@ -3207,13 +2705,8 @@
   {
     "id": "fifth-double-flip",
     "name": "Fifth Double Flip",
-    "alternateNames": [
-      "fifth double"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["fifth double"],
+    "categories": ["spin", "flip"],
     "definition": "540 unispin + double flip",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2008,
@@ -3229,13 +2722,8 @@
   {
     "id": "fifth-flip",
     "name": "Fifth Flip",
-    "alternateNames": [
-      "Fifth"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Fifth"],
+    "categories": ["spin", "flip"],
     "definition": "540 unispin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3252,10 +2740,7 @@
     "id": "fifth-kick-flip",
     "name": "Fifth kick flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "fifth flip but the wheel rotation is produced by your foot kicking the tire",
     "inventedBy": "Christian Brink",
     "yearLanded": 2012,
@@ -3271,13 +2756,8 @@
   {
     "id": "fifth-quad-flip",
     "name": "Fifth Quad Flip",
-    "alternateNames": [
-      "fifth quad"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["fifth quad"],
+    "categories": ["spin", "flip"],
     "definition": "540 unispin + quad flip",
     "inventedBy": "Colby Thomas",
     "yearLanded": null,
@@ -3293,13 +2773,8 @@
   {
     "id": "fifth-triple-flip",
     "name": "Fifth Triple Flip",
-    "alternateNames": [
-      "Friple"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Friple"],
+    "categories": ["spin", "flip"],
     "definition": "540 unispin + triple flip",
     "inventedBy": "Colby Thomas",
     "yearLanded": null,
@@ -3333,11 +2808,7 @@
     "id": "fifth-secret-side-flip",
     "name": "Fifth secret side flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "540 secret side spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3354,9 +2825,7 @@
     "id": "finger-backflip",
     "name": "Finger Backflip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "holding seat in front, jump off pedals, grab front pedal and pull it backwards to initiate backflip, then land back on pedals",
     "inventedBy": "Pierre Sturney",
     "yearLanded": 2025,
@@ -3372,13 +2841,8 @@
   {
     "id": "finger-flip",
     "name": "Finger flip",
-    "alternateNames": [
-      "Over Forward Finger Flip"
-    ],
-    "categories": [
-      "flip",
-      "pedal push"
-    ],
+    "alternateNames": ["Over Forward Finger Flip"],
+    "categories": ["flip", "pedal push"],
     "definition": "crankflip where you flip the wheel using your hand by pushing the front pedal forward",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -3394,14 +2858,8 @@
   {
     "id": "finger-inflip",
     "name": "Finger inflip",
-    "alternateNames": [
-      "Over Forward Finger Inflip"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "pedal push"
-    ],
+    "alternateNames": ["Over Forward Finger Inflip"],
+    "categories": ["spin", "flip", "pedal push"],
     "definition": "crankflip where you flip the wheel using your hand by pushing the front pedal forward, followed by an inspin",
     "inventedBy": "Jelle Dillen",
     "yearLanded": null,
@@ -3418,9 +2876,7 @@
     "id": "firecracker",
     "name": "Firecracker",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "riding down stairs quickly",
     "inventedBy": null,
     "yearLanded": null,
@@ -3437,11 +2893,7 @@
     "id": "flag-flip",
     "name": "Flag flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "jam"
-    ],
+    "categories": ["spin", "flip", "jam"],
     "definition": "270 unispin + crankflip to foot jam",
     "inventedBy": null,
     "yearLanded": null,
@@ -3458,10 +2910,7 @@
     "id": "flag-spin",
     "name": "Flag spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "jam"
-    ],
+    "categories": ["spin", "jam"],
     "definition": "270 unispin to footjam",
     "inventedBy": null,
     "yearLanded": null,
@@ -3478,10 +2927,7 @@
     "id": "flip-over-rail",
     "name": "Flip Over Rail",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "grind"
-    ],
+    "categories": ["flip", "grind"],
     "definition": "grind on a rail to crank flip occuring over the rail, rider lands on other side of rail",
     "inventedBy": null,
     "yearLanded": null,
@@ -3498,9 +2944,7 @@
     "id": "flip-under-flip",
     "name": "Flip Under Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "crank flip + under flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3517,9 +2961,7 @@
     "id": "flip-under-fulloutflip",
     "name": "Flip under fulloutflip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "crankflip + under fulloutflip",
     "inventedBy": "Waylon Batt",
     "yearLanded": null,
@@ -3536,9 +2978,7 @@
     "id": "flip-under-outflip",
     "name": "Flip under outflip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "crankflip + under outflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3554,12 +2994,8 @@
   {
     "id": "foot-plant",
     "name": "foot plant",
-    "alternateNames": [
-      "no comply"
-    ],
-    "categories": [
-      "basic"
-    ],
+    "alternateNames": ["no comply"],
+    "categories": ["basic"],
     "definition": "When a rider jumps off the unicycle takes a step on his foot and then jump back on the unicycle",
     "inventedBy": null,
     "yearLanded": null,
@@ -3576,9 +3012,7 @@
     "id": "forward-scuff-coast",
     "name": "Forward scuff coast",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "One footed seat in front forward coasting",
     "inventedBy": null,
     "yearLanded": null,
@@ -3595,9 +3029,7 @@
     "id": "forward-scuff-glide",
     "name": "Forward scuff glide",
     "alternateNames": [],
-    "categories": [
-      "glide"
-    ],
+    "categories": ["glide"],
     "definition": "One footed seat in front forward gliding",
     "inventedBy": null,
     "yearLanded": null,
@@ -3613,14 +3045,8 @@
   {
     "id": "frame-balance",
     "name": "Frame balance",
-    "alternateNames": [
-      "Frame stall"
-    ],
-    "categories": [
-      "basic",
-      "position",
-      "balance"
-    ],
+    "alternateNames": ["Frame stall"],
+    "categories": ["basic", "position", "balance"],
     "definition": "saddle and tyre touching ground (no pedals touching ground!!) standing on the frame",
     "inventedBy": null,
     "yearLanded": null,
@@ -3636,12 +3062,8 @@
   {
     "id": "front-roll",
     "name": "Front roll",
-    "alternateNames": [
-      "forward roll"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["forward roll"],
+    "categories": ["roll"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -3657,13 +3079,8 @@
   {
     "id": "full-out-back-flip",
     "name": "Full Out Back flip",
-    "alternateNames": [
-      "full out back"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["full out back"],
+    "categories": ["spin", "flip"],
     "definition": "full out flip with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -3680,11 +3097,7 @@
     "id": "full-out-backside-back-flip",
     "name": "Full out backside back flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin",
-      "flip"
-    ],
+    "categories": ["wrap", "spin", "flip"],
     "definition": "Full out side back flip + backside",
     "inventedBy": null,
     "yearLanded": null,
@@ -3701,11 +3114,7 @@
     "id": "full-out-backside-flip",
     "name": "Full out backside flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin",
-      "flip"
-    ],
+    "categories": ["wrap", "spin", "flip"],
     "definition": "Full out backside + crankflip",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2008,
@@ -3722,11 +3131,7 @@
     "id": "full-out-backside-kickflip",
     "name": "Full out backside kickflip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin",
-      "flip"
-    ],
+    "categories": ["wrap", "spin", "flip"],
     "definition": "Full out backside + kick flip",
     "inventedBy": "Tim Desmet",
     "yearLanded": null,
@@ -3743,11 +3148,7 @@
     "id": "full-out-backside-middle-flip",
     "name": "Full out backside middle flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin",
-      "flip"
-    ],
+    "categories": ["wrap", "spin", "flip"],
     "definition": "out backside spin, overflip, in spin, land back on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -3781,10 +3182,7 @@
     "id": "full-out-flip",
     "name": "Full Out Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Full out spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3801,10 +3199,7 @@
     "id": "full-out-middle-flip",
     "name": "Full out middle flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "outspin, overflip, in spin, land back on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -3821,11 +3216,7 @@
     "id": "full-out-side-double-flip",
     "name": "Full out side double flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin",
-      "flip"
-    ],
+    "categories": ["wrap", "spin", "flip"],
     "definition": "Full out side spin + double flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3842,11 +3233,7 @@
     "id": "full-out-side-flip",
     "name": "Full out side flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin",
-      "flip"
-    ],
+    "categories": ["wrap", "spin", "flip"],
     "definition": "Full out side spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -3863,10 +3250,7 @@
     "id": "full-out-side-spin",
     "name": "Full out side spin",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "spin"
-    ],
+    "categories": ["wrap", "spin"],
     "definition": "360 side spin starting seat in, ending seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -3883,10 +3267,7 @@
     "id": "full-out-spin",
     "name": "Full Out Spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin starting seat in, ending seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -3902,13 +3283,8 @@
   {
     "id": "full-varial-back-flip",
     "name": "Full Varial Back Flip",
-    "alternateNames": [
-      "full varial back"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["full varial back"],
+    "categories": ["spin", "flip"],
     "definition": "Full Varial Flip with backwards wheel rotation",
     "inventedBy": "Hugo Duguay",
     "yearLanded": null,
@@ -3925,11 +3301,7 @@
     "id": "full-varial-flip",
     "name": "Full Varial Flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin",
-      "flip"
-    ],
+    "categories": ["twist", "spin", "flip"],
     "definition": "Full out flip + 180 twist",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -3963,9 +3335,7 @@
     "id": "full-x-up",
     "name": "Full X Up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "jump off pedals, spin unicycle 360 degrees, spin 360 opposite direction, land back on pedals",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -3982,10 +3352,7 @@
     "id": "full-x-up-under-double",
     "name": "Full X Up Under Double",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "jump off pedals, spin unicycle 360 degrees, kick the back pedal to complete 2 full back revolutions (under double flip), spin 360 degrees in the opposite direction, land back on pedals",
     "inventedBy": "Jack Sebben",
     "yearLanded": null,
@@ -4002,10 +3369,7 @@
     "id": "gliding",
     "name": "Gliding",
     "alternateNames": [],
-    "categories": [
-      "walk",
-      "glide"
-    ],
+    "categories": ["walk", "glide"],
     "definition": "One foot wheel walk with enough speed that the tire glides under the rider's foot",
     "inventedBy": null,
     "yearLanded": null,
@@ -4022,9 +3386,7 @@
     "id": "goodnight-combo",
     "name": "Goodnight Combo",
     "alternateNames": [],
-    "categories": [
-      "combo"
-    ],
+    "categories": ["combo"],
     "definition": "360 unispin / rolling wrap / backstepover roll / foot change / varial roll / foot change / rolling wrap / back inward varial roll / back x roll / 360 unispin / inward varial roll / 540 unispin",
     "inventedBy": "Krisz Kovacs",
     "yearLanded": null,
@@ -4041,9 +3403,7 @@
     "id": "grind",
     "name": "Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "pedal/crank/bearing cap/frame slides on an object other than the ground (generally pedal and/or crank)",
     "inventedBy": null,
     "yearLanded": null,
@@ -4060,9 +3420,7 @@
     "id": "half-cab",
     "name": "Half Cab",
     "alternateNames": [],
-    "categories": [
-      "twist"
-    ],
+    "categories": ["twist"],
     "definition": "fakie 180 twist",
     "inventedBy": null,
     "yearLanded": null,
@@ -4079,9 +3437,7 @@
     "id": "hand-back-flip-seat-in",
     "name": "Hand Back flip (seat in)",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "seat in no footer, hand initiates one backwards wheel rotation either by grabbing or slapping the tire, feet land on pedals.",
     "inventedBy": null,
     "yearLanded": null,
@@ -4098,9 +3454,7 @@
     "id": "hand-back-flip-seat-out",
     "name": "Hand Back flip (seat out)",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "seat out no footer, hand initiates tire rotation, wheel does one backwards rotation, feet land on pedals. This version is done seat out, with the free hand grabbing the tire just behind the crown of the frame. See Hot Dog flip for a more advanced version of this trick.",
     "inventedBy": null,
     "yearLanded": null,
@@ -4117,9 +3471,7 @@
     "id": "hand-flip",
     "name": "Hand Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "seat in no footer, hand initiates tire rotation (usually by slapping the tire, not grabbing), wheel does one forward rotation, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -4136,10 +3488,7 @@
     "id": "hand-outflip",
     "name": "Hand outflip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "spin"
-    ],
+    "categories": ["flip", "spin"],
     "definition": "no footer, hand initiates tire rotation, wheel does one forward rotation + outspin, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -4156,10 +3505,7 @@
     "id": "hand-fulloutflip",
     "name": "Hand fulloutflip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "spin"
-    ],
+    "categories": ["flip", "spin"],
     "definition": "no footer, hand initiates tire rotation, wheel does one forward rotation + a fulloutspin , feet land on pedals",
     "inventedBy": "Edmund Leduc",
     "yearLanded": null,
@@ -4176,9 +3522,7 @@
     "id": "hand-plant",
     "name": "hand plant",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "When a rider used his hand to jump or push themselves",
     "inventedBy": null,
     "yearLanded": null,
@@ -4195,9 +3539,7 @@
     "id": "hand-wheel-walk",
     "name": "Hand Wheel Walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "Wheel is pushed with the hands, while feet are either on the frame or extended",
     "inventedBy": null,
     "yearLanded": null,
@@ -4214,9 +3556,7 @@
     "id": "handrail-grind",
     "name": "Handrail Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "wheel leaves ground, pedal or crank lands on a handrail (in a real urban environment, i.e. not a skatepark), pedal/crank slides down the rail",
     "inventedBy": "Dan Heaton",
     "yearLanded": null,
@@ -4233,9 +3573,7 @@
     "id": "hard-slide",
     "name": "Hard Slide",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind with cranks vertical such that only a small part of the upward-facing crank near the axle is in contact with the obstacle",
     "inventedBy": "Christian Huriwai",
     "yearLanded": null,
@@ -4251,13 +3589,8 @@
   {
     "id": "haunster-backflip",
     "name": "Haunster Backflip",
-    "alternateNames": [
-      "Back Pedal Finger back flip"
-    ],
-    "categories": [
-      "flip",
-      "pedal push"
-    ],
+    "alternateNames": ["Back Pedal Finger back flip"],
+    "categories": ["flip", "pedal push"],
     "definition": "no footer, push back pedal down with free hand to initiate back crankflip",
     "inventedBy": "Trey Haun",
     "yearLanded": 2025,
@@ -4273,13 +3606,8 @@
   {
     "id": "haunster-flip",
     "name": "Haunster Flip",
-    "alternateNames": [
-      "Back Pedal Finger Flip"
-    ],
-    "categories": [
-      "flip",
-      "pedal push"
-    ],
+    "alternateNames": ["Back Pedal Finger Flip"],
+    "categories": ["flip", "pedal push"],
     "definition": "no footer, then grab the back pedal with your hand and pull it forward to initiate a crankflip, land back on pedals/cranks with seat out",
     "inventedBy": "Trey Haun",
     "yearLanded": 2024,
@@ -4295,14 +3623,8 @@
   {
     "id": "haunster-inflip",
     "name": "Haunster Inflip",
-    "alternateNames": [
-      "Back Pedal Finger Inflip"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "pedal push"
-    ],
+    "alternateNames": ["Back Pedal Finger Inflip"],
+    "categories": ["spin", "flip", "pedal push"],
     "definition": "haunster flip followed by an inspin (no footer, then grab back pedal and pull up to initiate a crankflip, then inspin)",
     "inventedBy": "Trey Haun",
     "yearLanded": 2024,
@@ -4319,10 +3641,7 @@
     "id": "haunster-hot-dog-flip",
     "name": "Haunster Hot Dog Flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "pedal push"
-    ],
+    "categories": ["flip", "pedal push"],
     "definition": "haunster flip but you reach behind your back leg (no footer, then hand reaches behind back leg to grab back pedal, pull the pedal forward to initiate a crankflip)",
     "inventedBy": "Trey Haun",
     "yearLanded": 2024,
@@ -4339,11 +3658,7 @@
     "id": "hick-antiside-flip",
     "name": "Hick antiside flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "180 antiside spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4359,13 +3674,8 @@
   {
     "id": "hick-back-kick-flip",
     "name": "Hick Back kick flip",
-    "alternateNames": [
-      "hick back kick"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["hick back kick"],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin while kicking the tire to do a back flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4382,10 +3692,7 @@
     "id": "hick-back-stutter-flip",
     "name": "Hick Back Stutter Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "hick back + overflip",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2015,
@@ -4402,10 +3709,7 @@
     "id": "hick-double-flip",
     "name": "Hick Double Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + double flip starting seat in front",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -4421,14 +3725,8 @@
   {
     "id": "hick-flip",
     "name": "Hick Flip",
-    "alternateNames": [
-      "hick",
-      "inflip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["hick", "inflip"],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + crank flip starting and ending seat in front",
     "inventedBy": "Shaun Johanneson(CHECK NOTE)",
     "yearLanded": null,
@@ -4444,13 +3742,8 @@
   {
     "id": "hick-kick-flip",
     "name": "Hick Kick Flip",
-    "alternateNames": [
-      "Kick Flip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Kick Flip"],
+    "categories": ["spin", "flip"],
     "definition": "Hickflip but the wheel rotation speed is produced by a kick of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -4466,13 +3759,8 @@
   {
     "id": "hick-over-flip",
     "name": "Hick over flip",
-    "alternateNames": [
-      "hick over"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["hick over"],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + overflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4489,10 +3777,7 @@
     "id": "hick-quad-flip",
     "name": "Hick Quad Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + quad flip starting seat in front",
     "inventedBy": null,
     "yearLanded": null,
@@ -4509,10 +3794,7 @@
     "id": "hick-quint-flip",
     "name": "Hick Quint Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + quint flip starting seat in front",
     "inventedBy": "Krisz Kovacs",
     "yearLanded": null,
@@ -4529,11 +3811,7 @@
     "id": "hick-side-flip",
     "name": "Hick Side Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "180 side spin + crankflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4550,11 +3828,7 @@
     "id": "hick-side-double-flip",
     "name": "Hick Side Double Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "180 side spin + double flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4571,11 +3845,7 @@
     "id": "hick-side-triple-flip",
     "name": "Hick Side Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "180 side spin + triple flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4591,14 +3861,8 @@
   {
     "id": "hick-side-quad-flip",
     "name": "Hick Side Quad Flip",
-    "alternateNames": [
-      "hick side quad"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["hick side quad"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "180 side spin + quad flip",
     "inventedBy": "Christian Resch?",
     "yearLanded": null,
@@ -4615,10 +3879,7 @@
     "id": "hick-stutter-flip",
     "name": "Hick Stutter Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "hick flip + underflip",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2015,
@@ -4635,10 +3896,7 @@
     "id": "hick-triple-flip",
     "name": "Hick Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + triple flip starting seat in front",
     "inventedBy": null,
     "yearLanded": null,
@@ -4654,13 +3912,8 @@
   {
     "id": "hick-under-flip",
     "name": "Hick Under Flip",
-    "alternateNames": [
-      "hick under"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["hick under"],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + underflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4677,9 +3930,7 @@
     "id": "hop",
     "name": "Hop",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "tire leaves ground with rider on unicycle",
     "inventedBy": null,
     "yearLanded": null,
@@ -4695,13 +3946,8 @@
   {
     "id": "hop-on-wheel",
     "name": "Hop on Wheel",
-    "alternateNames": [
-      "HOW",
-      "Hop On Tire"
-    ],
-    "categories": [
-      "basic"
-    ],
+    "alternateNames": ["HOW", "Hop On Tire"],
+    "categories": ["basic"],
     "definition": "Hopping with the unicycle perpendicular to the rider, both feet on the tire, holding the seat",
     "inventedBy": null,
     "yearLanded": null,
@@ -4717,12 +3963,8 @@
   {
     "id": "hop-over-rail-grind",
     "name": "Hop Over Rail Grind",
-    "alternateNames": [
-      "grind to hop over rail"
-    ],
-    "categories": [
-      "grind"
-    ],
+    "alternateNames": ["grind to hop over rail"],
+    "categories": ["grind"],
     "definition": "grind where rider exits grind by hopping over the rail and riding out on the other side",
     "inventedBy": null,
     "yearLanded": null,
@@ -4738,12 +3980,8 @@
   {
     "id": "hot-dog-flip",
     "name": "Hot Dog Flip",
-    "alternateNames": [
-      "glizzy flip"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["glizzy flip"],
+    "categories": ["flip"],
     "definition": "starting seat out, hop off pedals, hand reaches behind front leg, grabs tire, and initiates a backflip, land back on pedals/cranks seat out",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -4759,14 +3997,8 @@
   {
     "id": "huge-flip",
     "name": "Huge flip",
-    "alternateNames": [
-      "fifth varial flip"
-    ],
-    "categories": [
-      "twist",
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["fifth varial flip"],
+    "categories": ["twist", "spin", "flip"],
     "definition": "Huge spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4783,10 +4015,7 @@
     "id": "huge-spin",
     "name": "Huge Spin",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin"
-    ],
+    "categories": ["twist", "spin"],
     "definition": "540 unispin + 180 body varial in the same direction",
     "inventedBy": null,
     "yearLanded": null,
@@ -4803,9 +4032,7 @@
     "id": "idling",
     "name": "Idling",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "staying in once place by moving the wheel back and forth less than one revolution",
     "inventedBy": null,
     "yearLanded": null,
@@ -4821,13 +4048,8 @@
   {
     "id": "in-fifth-over-flip",
     "name": "In fifth Over flip",
-    "alternateNames": [
-      "in fifth over"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["in fifth over"],
+    "categories": ["spin", "flip"],
     "definition": "a 540 inspin followed by an overflip",
     "inventedBy": "Stéphane Ranc",
     "yearLanded": null,
@@ -4844,10 +4066,7 @@
     "id": "in-over-out-flip",
     "name": "In Over Out Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "inspin, overflip, outspin",
     "inventedBy": "Michael Bachleda OR Manuel Vetter?",
     "yearLanded": null,
@@ -4863,12 +4082,8 @@
   {
     "id": "inside-crank-jam",
     "name": "inside crank jam",
-    "alternateNames": [
-      "crank jam"
-    ],
-    "categories": [
-      "jam"
-    ],
+    "alternateNames": ["crank jam"],
+    "categories": ["jam"],
     "definition": "When the rider jams his foot on the crank, with the inside of his foot towards the frame",
     "inventedBy": null,
     "yearLanded": null,
@@ -4885,9 +4100,7 @@
     "id": "inside-jam",
     "name": "inside jam",
     "alternateNames": [],
-    "categories": [
-      "jam"
-    ],
+    "categories": ["jam"],
     "definition": "When the rider jams his foot on the tire, with the inside of his foot towards the frame",
     "inventedBy": null,
     "yearLanded": null,
@@ -4903,13 +4116,8 @@
   {
     "id": "inward-big-spin",
     "name": "Inward Big Spin",
-    "alternateNames": [
-      "inward big"
-    ],
-    "categories": [
-      "spin",
-      "varial"
-    ],
+    "alternateNames": ["inward big"],
+    "categories": ["spin", "varial"],
     "definition": "360 unispin + 180 body varial in opposite directions",
     "inventedBy": null,
     "yearLanded": null,
@@ -4926,9 +4134,7 @@
     "id": "inward-rolling-wrap",
     "name": "Inward rolling wrap",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "when in a normal rollingwrap the seat starts its way around your two legs by going out in the front, the inward starts by going out back like it was a backsidespin, wraps then, in the oposite direction as a none inward starting on the same foot, around both of your legs and back in under your butt, unless you keep lining them in wich case it ends up being the same thing as lining switch rollingwraps",
     "inventedBy": null,
     "yearLanded": null,
@@ -4945,11 +4151,7 @@
     "id": "inward-small-double-flip",
     "name": "Inward Small double flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "varial"
-    ],
+    "categories": ["spin", "flip", "varial"],
     "definition": "Inward small flip with 2 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -4965,14 +4167,8 @@
   {
     "id": "inward-small-flip",
     "name": "Inward Small Flip",
-    "alternateNames": [
-      "inward small"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "varial"
-    ],
+    "alternateNames": ["inward small"],
+    "categories": ["spin", "flip", "varial"],
     "definition": "Inward small spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -4989,12 +4185,7 @@
     "id": "inward-small-side-double-flip",
     "name": "Inward small side double flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip",
-      "varial"
-    ],
+    "categories": ["spin", "wrap", "flip", "varial"],
     "definition": "Inward small side flip with 2 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -5010,15 +4201,8 @@
   {
     "id": "inward-small-side-flip",
     "name": "Inward small side flip",
-    "alternateNames": [
-      "inward small side"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip",
-      "varial"
-    ],
+    "alternateNames": ["inward small side"],
+    "categories": ["spin", "wrap", "flip", "varial"],
     "definition": "Inward small spin + side + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -5034,15 +4218,8 @@
   {
     "id": "inward-small-side-quadflip",
     "name": "Inward small side quadflip",
-    "alternateNames": [
-      "inward small side quad"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip",
-      "varial"
-    ],
+    "alternateNames": ["inward small side quad"],
+    "categories": ["spin", "wrap", "flip", "varial"],
     "definition": "Inward small side flip with 4 wheel rotations",
     "inventedBy": "Michael Bachleda",
     "yearLanded": null,
@@ -5058,14 +4235,8 @@
   {
     "id": "inward-small-side-spin",
     "name": "Inward small side spin",
-    "alternateNames": [
-      "inward small side"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "varial"
-    ],
+    "alternateNames": ["inward small side"],
+    "categories": ["spin", "wrap", "varial"],
     "definition": "Inward small spin + side (360 side spin + body varial in opposite direction)",
     "inventedBy": "Spencer Hochberg",
     "yearLanded": 2007,
@@ -5082,12 +4253,7 @@
     "id": "inward-small-side-triple-flip",
     "name": "Inward small side triple flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip",
-      "varial"
-    ],
+    "categories": ["spin", "wrap", "flip", "varial"],
     "definition": "Inward small side flip with 3 wheel rotations",
     "inventedBy": null,
     "yearLanded": null,
@@ -5103,14 +4269,8 @@
   {
     "id": "inward-small-spin",
     "name": "Inward Small Spin",
-    "alternateNames": [
-      "inward small"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "varial"
-    ],
+    "alternateNames": ["inward small"],
+    "categories": ["spin", "wrap", "varial"],
     "definition": "360 unispin + 180 body varial in opposite directions (uni spins 180 degrees relative to ground)",
     "inventedBy": null,
     "yearLanded": null,
@@ -5127,11 +4287,7 @@
     "id": "inward-small-triple-flip",
     "name": "Inward Small triple flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "varial"
-    ],
+    "categories": ["spin", "flip", "varial"],
     "definition": "Inward small flip with 3 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -5148,10 +4304,7 @@
     "id": "inward-varial-spin",
     "name": "inward varial spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "varial"
-    ],
+    "categories": ["spin", "varial"],
     "definition": "inward small spin from seat in (a fullout spin with a body varial in the opposite direction)",
     "inventedBy": null,
     "yearLanded": null,
@@ -5167,13 +4320,8 @@
   {
     "id": "inward-varial-back-flip",
     "name": "inward varial back flip",
-    "alternateNames": [
-      "inward varial back"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["inward varial back"],
+    "categories": ["spin", "flip"],
     "definition": "inward varial flip with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -5189,14 +4337,8 @@
   {
     "id": "inward-varial-double-flip",
     "name": "inward varial double flip",
-    "alternateNames": [
-      "inward varial double"
-    ],
-    "categories": [
-      "varial",
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["inward varial double"],
+    "categories": ["varial", "spin", "flip"],
     "definition": "Inward varial flip with 2 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -5213,10 +4355,7 @@
     "id": "inward-varial-flip",
     "name": "inward varial flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "inward varial spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -5233,10 +4372,7 @@
     "id": "inward-varial-kick-flip",
     "name": "Inward Varial kick flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Inward varial flip but the wheel rotation speed is produced by a kick of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -5252,13 +4388,8 @@
   {
     "id": "inward-varial-roll",
     "name": "Inward Varial Roll",
-    "alternateNames": [
-      "53s",
-      "transfer varial roll"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["53s", "transfer varial roll"],
+    "categories": ["roll"],
     "definition": "A varial roll where your back leg wraps around the seat during the motion of moving to the outside crank position",
     "inventedBy": "Arthur Caron",
     "yearLanded": null,
@@ -5275,9 +4406,7 @@
     "id": "inward-x-roll",
     "name": "Inward X Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "X roll but the foot crosses in front of the seat rather than over",
     "inventedBy": "Emile Mathieu",
     "yearLanded": null,
@@ -5296,9 +4425,7 @@
     "alternateNames": [
       "forward coast (as a sibbling to the sidecoast that is the same thing but body twisted so side faces traveling direction)"
     ],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "no feet straight forward, hands like in a scuff",
     "inventedBy": "Tim Desmet",
     "yearLanded": 2017,
@@ -5315,9 +4442,7 @@
     "id": "jelly-roll",
     "name": "Jelly Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Begin on your front crank in outside crank position. Roll forward half revolution and rotate your body away from the uni (e.g., if you ride right foot in front, you will turn to your right) Your free leg goes over the tire, between the frame and your other leg, and that foot will land on the other crank in the inside crank position (this foot will be facing the opposite direction as your other foot) then roll a half revolution backwards",
     "inventedBy": "Jelle Dillen",
     "yearLanded": null,
@@ -5334,9 +4459,7 @@
     "id": "jump-mount",
     "name": "Jump Mount",
     "alternateNames": [],
-    "categories": [
-      "mount"
-    ],
+    "categories": ["mount"],
     "definition": "jump onto your uni!",
     "inventedBy": null,
     "yearLanded": null,
@@ -5353,9 +4476,7 @@
     "id": "kick-flip",
     "name": "Kick Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "no footer, kick the tire with your foot to initiate 1 wheel rotation, land back on pedals/cranks",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2008,
@@ -5372,9 +4493,7 @@
     "id": "kick-up-mount",
     "name": "Kick Up Mount",
     "alternateNames": [],
-    "categories": [
-      "mount"
-    ],
+    "categories": ["mount"],
     "definition": "unicycle starts laying on ground, rider puts one foot on the pedal/crank and uses the other foot to kick/lift the saddle up to normal riding position, then rides away",
     "inventedBy": null,
     "yearLanded": null,
@@ -5391,11 +4510,7 @@
     "id": "king-flip",
     "name": "King Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "varial"
-    ],
+    "categories": ["spin", "flip", "varial"],
     "definition": "a full out flip and a 360 hoptwist in the same direction",
     "inventedBy": "Waylon Batt",
     "yearLanded": null,
@@ -5412,9 +4527,7 @@
     "id": "kinked-rail-grind",
     "name": "Kinked Rail Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind on a rail that changes from sloped to flat or sloped to a different degree of slope",
     "inventedBy": null,
     "yearLanded": null,
@@ -5430,12 +4543,8 @@
   {
     "id": "knee-bounce",
     "name": "Knee bounce",
-    "alternateNames": [
-      "Knee Brand"
-    ],
-    "categories": [
-      "wild"
-    ],
+    "alternateNames": ["Knee Brand"],
+    "categories": ["wild"],
     "definition": "Land with your upper shins on the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -5452,10 +4561,7 @@
     "id": "knee-jam",
     "name": "Knee jam",
     "alternateNames": [],
-    "categories": [
-      "jam",
-      "wild"
-    ],
+    "categories": ["jam", "wild"],
     "definition": "jam one of your shins between the crown of the frame and the top of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -5472,10 +4578,7 @@
     "id": "knee-kick-flip",
     "name": "Knee Kick Flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "spin"
-    ],
+    "categories": ["flip", "spin"],
     "definition": "hick kick flip where the wheel rotation is produced by kicking the tire with your knee (the spot just under your knee, above your shin)",
     "inventedBy": "Dan Colvin",
     "yearLanded": 2015,
@@ -5492,9 +4595,7 @@
     "id": "knee-step-over",
     "name": "Knee step over",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Like a traditional step over, but your knee touches the tire instead of your foot",
     "inventedBy": "David Moscoe",
     "yearLanded": null,
@@ -5511,9 +4612,7 @@
     "id": "lace-walk",
     "name": "Lace Walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -5530,9 +4629,7 @@
     "id": "late",
     "name": "Late",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "trick begins after the rider and/or unicycle have left the ground, preferably at the peak or after the peak of the jump",
     "inventedBy": null,
     "yearLanded": null,
@@ -5549,9 +4646,7 @@
     "id": "leg-wrap",
     "name": "Leg Wrap",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "one foot leaves the pedal/crank/tire, wraps around seat, and lands back on pedal/crank/tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -5568,10 +4663,7 @@
     "id": "leg-wrap-grind",
     "name": "Leg Wrap Grind",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "grind"
-    ],
+    "categories": ["wrap", "grind"],
     "definition": "grind where one of the legs wraps around the seat mid-grind",
     "inventedBy": null,
     "yearLanded": null,
@@ -5588,10 +4680,7 @@
     "id": "leg-wrap-swivel-grind",
     "name": "Leg Wrap Swivel Grind",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "grind"
-    ],
+    "categories": ["wrap", "grind"],
     "definition": "swivel grind with a leg wrap",
     "inventedBy": "Shaffer Nickel",
     "yearLanded": null,
@@ -5625,9 +4714,7 @@
     "id": "lollipop",
     "name": "Lollipop",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "crank stall where rider does a full wheel revolution with the crank and/or pedal constantly in contact with the obstacle; for half the revolution, the pedal is in contact with the obstacle, for the other half revolution, only a small portion of the crank is in contact as the wheel spins",
     "inventedBy": null,
     "yearLanded": null,
@@ -5644,9 +4731,7 @@
     "id": "ludwig-roll",
     "name": "Ludwig Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "a forward x roll where the seat is passing behind your back like in a rolling wrap, but your leg moves between the frame and the leg already standing on the crank",
     "inventedBy": "Ludwig Felhofer",
     "yearLanded": null,
@@ -5662,13 +4747,8 @@
   {
     "id": "in-flip-under-flip",
     "name": "In flip under flip",
-    "alternateNames": [
-      "Machleda"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Machleda"],
+    "categories": ["spin", "flip"],
     "definition": "In-flip + underflip",
     "inventedBy": "Michael Bachleda",
     "yearLanded": 2015,
@@ -5685,10 +4765,7 @@
     "id": "macro-spin",
     "name": "Macro Spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "varial"
-    ],
+    "categories": ["spin", "varial"],
     "definition": "900 unispin + 180 body varial in the same direction",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -5705,10 +4782,7 @@
     "id": "mammoth-spin",
     "name": "Mammoth Spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "varial"
-    ],
+    "categories": ["spin", "varial"],
     "definition": "720 unispin + 180 body varial in the same direction",
     "inventedBy": "Christian Huriwai",
     "yearLanded": null,
@@ -5725,9 +4799,7 @@
     "id": "maxwhip",
     "name": "Maxwhip",
     "alternateNames": [],
-    "categories": [
-      "whip"
-    ],
+    "categories": ["whip"],
     "definition": "feet leave pedals, seat is thrown backwards and whips around wheel one full revolution, feet land on pedals",
     "inventedBy": "Max Schulze",
     "yearLanded": 2010,
@@ -5743,12 +4815,8 @@
   {
     "id": "mega-backside-jump",
     "name": "Mega backside jump",
-    "alternateNames": [
-      "mega backside"
-    ],
-    "categories": [
-      "wrap"
-    ],
+    "alternateNames": ["mega backside"],
+    "categories": ["wrap"],
     "definition": "from the outside crank position, jump up, bring free leg in front of the seat and wrap around behind the seat like for a backside jump, land back on pedals/cranks (typically done after a roll)",
     "inventedBy": null,
     "yearLanded": null,
@@ -5764,12 +4832,8 @@
   {
     "id": "mega-side-jump",
     "name": "Mega side jump",
-    "alternateNames": [
-      "mega side"
-    ],
-    "categories": [
-      "wrap"
-    ],
+    "alternateNames": ["mega side"],
+    "categories": ["wrap"],
     "definition": "from the outside crank position, jump up, bring free leg behind the seat and wrap around in front of the seat like for a side jump, land back on pedals/cranks (typically done after a roll)",
     "inventedBy": null,
     "yearLanded": null,
@@ -5785,12 +4849,8 @@
   {
     "id": "monkey",
     "name": "Monkey",
-    "alternateNames": [
-      "monkey handstepover"
-    ],
-    "categories": [
-      "handstepover"
-    ],
+    "alternateNames": ["monkey handstepover"],
+    "categories": ["handstepover"],
     "definition": "Both feet passing between arms in same direction as one hand holds the tire and one the saddle",
     "inventedBy": "Ivar Christenson",
     "yearLanded": 2017,
@@ -5824,9 +4884,7 @@
     "id": "monkey-kick",
     "name": "monkey kick",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "HOW with one of the feet pushing on the tire to make the wheel rotate 1 revolution, land back to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -5843,9 +4901,7 @@
     "id": "monkey-kick-on-tire",
     "name": "monkey kick on tire",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Monkey kick but land back to tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -5861,13 +4917,8 @@
   {
     "id": "ninth-flip",
     "name": "Ninth Flip",
-    "alternateNames": [
-      "ninth"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["ninth"],
+    "categories": ["spin", "flip"],
     "definition": "900 Unispin + Crankflip",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": null,
@@ -5883,14 +4934,8 @@
   {
     "id": "ninth-side-flip",
     "name": "Ninth Side Flip",
-    "alternateNames": [
-      "Ninth side"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "alternateNames": ["Ninth side"],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "900 side spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -5907,9 +4952,7 @@
     "id": "no-footer",
     "name": "No Footer",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "feet leave pedals, feet return to pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -5926,9 +4969,7 @@
     "id": "no-footer-tire-grab",
     "name": "No Footer Tire Grab",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "no footer + tire grab",
     "inventedBy": null,
     "yearLanded": null,
@@ -5944,12 +4985,8 @@
   {
     "id": "no-hander",
     "name": "No Hander",
-    "alternateNames": [
-      "Condor"
-    ],
-    "categories": [
-      "basic"
-    ],
+    "alternateNames": ["Condor"],
+    "categories": ["basic"],
     "definition": "hop where seat hand is released and both arms are stretched out to the side while in mid-air",
     "inventedBy": null,
     "yearLanded": null,
@@ -5965,13 +5002,8 @@
   {
     "id": "one-foot",
     "name": "One foot",
-    "alternateNames": [
-      "One footed riding"
-    ],
-    "categories": [
-      "ride",
-      "basic"
-    ],
+    "alternateNames": ["One footed riding"],
+    "categories": ["ride", "basic"],
     "definition": "Ride with one foot",
     "inventedBy": null,
     "yearLanded": null,
@@ -5988,9 +5020,7 @@
     "id": "one-foot-coast",
     "name": "one foot coast",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "roll",
     "inventedBy": null,
     "yearLanded": null,
@@ -6006,12 +5036,8 @@
   {
     "id": "one-footed-wheel-walk",
     "name": "One footed wheel walk",
-    "alternateNames": [
-      "One foot wheel walk"
-    ],
-    "categories": [
-      "walk"
-    ],
+    "alternateNames": ["One foot wheel walk"],
+    "categories": ["walk"],
     "definition": "Wheel walk with one foot on the frame and the other one on the tire propelling the unicycle forward",
     "inventedBy": null,
     "yearLanded": null,
@@ -6028,9 +5054,7 @@
     "id": "one-footer",
     "name": "One Footer",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "hop, while in the air one foot leaves the pedal, return free foot to pedal upon landing",
     "inventedBy": null,
     "yearLanded": null,
@@ -6047,10 +5071,7 @@
     "id": "one-footer-overflip",
     "name": "One footer overflip",
     "alternateNames": [],
-    "categories": [
-      "basic",
-      "flip"
-    ],
+    "categories": ["basic", "flip"],
     "definition": "One footer + overflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6067,9 +5088,7 @@
     "id": "out",
     "name": "Out",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "spin trick that starts from seat in between the rider's legs (seat in)",
     "inventedBy": null,
     "yearLanded": null,
@@ -6086,9 +5105,7 @@
     "id": "out-540-unispin",
     "name": "Out 540 unispin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "540 unispin from seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6104,13 +5121,8 @@
   {
     "id": "out-720-unispin",
     "name": "Out 720 unispin",
-    "alternateNames": [
-      "out 7",
-      "out 7 spin"
-    ],
-    "categories": [
-      "spin"
-    ],
+    "alternateNames": ["out 7", "out 7 spin"],
+    "categories": ["spin"],
     "definition": "720 unispin from seat in",
     "inventedBy": "Eli Brill?",
     "yearLanded": null,
@@ -6127,11 +5139,7 @@
     "id": "out-antiside-over-flip",
     "name": "Out antiside over flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "outspin toward front foot, kick front pedal with front foot (over flip), wrap other leg around seat",
     "inventedBy": "Levi Prindle",
     "yearLanded": 2025,
@@ -6147,13 +5155,8 @@
   {
     "id": "out-back-flip",
     "name": "Out Back Flip",
-    "alternateNames": [
-      "out back"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["out back"],
+    "categories": ["spin", "flip"],
     "definition": "out flip with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -6170,10 +5173,7 @@
     "id": "out-backside-spin",
     "name": "Out backside spin",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "starting seat in, jump up, spin 180 degrees out from behind your leg, land back on pedals with seat out in front of you",
     "inventedBy": null,
     "yearLanded": null,
@@ -6190,11 +5190,7 @@
     "id": "out-backside-flip",
     "name": "out backside flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "out backside spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6211,11 +5207,7 @@
     "id": "out-backside-double-flip",
     "name": "out backside double flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "out backside spin + double flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6232,11 +5224,7 @@
     "id": "out-backside-triple-flip",
     "name": "out backside triple flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "out backside spin + triple flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6253,11 +5241,7 @@
     "id": "out-backside-overflip",
     "name": "out backside overflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "out backside spin followed by an over flip",
     "inventedBy": "Scott Julian",
     "yearLanded": 2024,
@@ -6274,10 +5258,7 @@
     "id": "out-double-back-flip",
     "name": "Out double back flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Out back flip with 2 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -6294,10 +5275,7 @@
     "id": "out-double-flip",
     "name": "Out double flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Out flip with 2 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -6313,13 +5291,8 @@
   {
     "id": "out-fifth-back-flip",
     "name": "Out Fifth Back Flip",
-    "alternateNames": [
-      "out fifth back"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["out fifth back"],
+    "categories": ["spin", "flip"],
     "definition": "Fifth back flip from seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6336,10 +5309,7 @@
     "id": "out-fifth-double-flip",
     "name": "Out Fifth Double Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "fifth double flip from seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6356,10 +5326,7 @@
     "id": "out-fifth-flip",
     "name": "Out Fifth Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "fifthflip from seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6376,10 +5343,7 @@
     "id": "out-fifth-triple-flip",
     "name": "Out Fifth Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "fifth triple flip from seat in",
     "inventedBy": "Michael Bachleda",
     "yearLanded": null,
@@ -6396,10 +5360,7 @@
     "id": "out-flip",
     "name": "Out Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "out spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6416,10 +5377,7 @@
     "id": "out-fourth-flip",
     "name": "Out Fourth flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "out 450 + crankflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6436,10 +5394,7 @@
     "id": "out-fourth-doubleflip",
     "name": "Out Fourth doubleflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "out 450 + doubleflip",
     "inventedBy": "Karel Dyselinck?",
     "yearLanded": 2021,
@@ -6455,13 +5410,8 @@
   {
     "id": "out-ninth-flip",
     "name": "Out ninth flip",
-    "alternateNames": [
-      "out ninth"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["out ninth"],
+    "categories": ["spin", "flip"],
     "definition": "ninth flip from seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6478,10 +5428,7 @@
     "id": "out-quad-flip",
     "name": "Out quad flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Out flip with 4 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -6498,10 +5445,7 @@
     "id": "out-over-in-flip",
     "name": "Out Over In Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "outspin, underflip, inspin opposite direction",
     "inventedBy": "Manuel Vetter?",
     "yearLanded": 2016,
@@ -6517,13 +5461,8 @@
   {
     "id": "out-sej-double-flip",
     "name": "Out Sej Double Flip",
-    "alternateNames": [
-      "out sej double"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["out sej double"],
+    "categories": ["spin", "flip"],
     "definition": "720 unipsin + double flip from seat in",
     "inventedBy": "Waylon Batt",
     "yearLanded": null,
@@ -6539,13 +5478,8 @@
   {
     "id": "out-sej-flip",
     "name": "Out Sej Flip",
-    "alternateNames": [
-      "out sej"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["out sej"],
+    "categories": ["spin", "flip"],
     "definition": "720 unipsin + flip from seat in",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -6561,13 +5495,8 @@
   {
     "id": "out-sex-change",
     "name": "Out sex change",
-    "alternateNames": [
-      "out change"
-    ],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "alternateNames": ["out change"],
+    "categories": ["varial", "flip"],
     "definition": "Sex change from seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6583,13 +5512,8 @@
   {
     "id": "out-sex-change-backflip",
     "name": "Out sex change backflip",
-    "alternateNames": [
-      "out change back"
-    ],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "alternateNames": ["out change back"],
+    "categories": ["varial", "flip"],
     "definition": "Sex change from seat in with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -6606,9 +5530,7 @@
     "id": "out-spin",
     "name": "Out Spin",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "180 unispin starting seat in",
     "inventedBy": null,
     "yearLanded": null,
@@ -6625,10 +5547,7 @@
     "id": "out-triple-flip",
     "name": "Out triple flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Out flip with 3 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -6645,9 +5564,7 @@
     "id": "outisde-crank-jam",
     "name": "outisde crank jam",
     "alternateNames": [],
-    "categories": [
-      "jam"
-    ],
+    "categories": ["jam"],
     "definition": "When the rider jams his foot on the crank, with the outside of his foot towards the frame",
     "inventedBy": null,
     "yearLanded": null,
@@ -6664,10 +5581,7 @@
     "id": "outside-inward-varial-stepover-roll",
     "name": "Outside inward varial stepover roll",
     "alternateNames": [],
-    "categories": [
-      "roll",
-      "stepover"
-    ],
+    "categories": ["roll", "stepover"],
     "definition": "First half outsideroll forward, then put free foot on tire/crown to step up on it as you twist your body 180 degrees, then finish like your standard back roll stepover",
     "inventedBy": "Bobousse perhaps?",
     "yearLanded": null,
@@ -6684,9 +5598,7 @@
     "id": "outside-jam",
     "name": "outside jam",
     "alternateNames": [],
-    "categories": [
-      "jam"
-    ],
+    "categories": ["jam"],
     "definition": "When the rider jams his foot on the tire, with the outside of his foot towards the frame",
     "inventedBy": null,
     "yearLanded": null,
@@ -6703,9 +5615,7 @@
     "id": "outside-push-mush",
     "name": "Outside Push Mush",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Ideling on crank, outside position, pushing wheel in both directions",
     "inventedBy": null,
     "yearLanded": null,
@@ -6722,9 +5632,7 @@
     "id": "outside-roll",
     "name": "Outside Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Standing on outside crank pointing forward, push tire once to move half rev forward, push tire second time and lift standing foot at the same time (little jump) half rev forward",
     "inventedBy": null,
     "yearLanded": null,
@@ -6741,9 +5649,7 @@
     "id": "outside-roll-flip",
     "name": "Outside roll flip",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Outside roll where the second half is a jump in where the wheel rotates, most standard 1,5 revolution crankflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -6760,9 +5666,7 @@
     "id": "over-blunt-grind",
     "name": "Over Blunt Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind where mid-grind the wheel goes over the obstacle and the opposite crank/pedal grinds the other side of the obstacle",
     "inventedBy": "Kevin McMullin",
     "yearLanded": null,
@@ -6779,9 +5683,7 @@
     "id": "over-double-flip",
     "name": "Over Double Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Over flip with 2 rotations",
     "inventedBy": null,
     "yearLanded": null,
@@ -6798,9 +5700,7 @@
     "id": "over-flip",
     "name": "Over Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "feet leave the pedals, while the unicycle wheel is in mid-air, the rider's front foot kicks the forward pedal causing the wheel to do one rotation forwards, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -6817,9 +5717,7 @@
     "id": "over-triple-flip",
     "name": "Over Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Over flip with 3 rotations",
     "inventedBy": "Maxime Peabody",
     "yearLanded": null,
@@ -6836,9 +5734,7 @@
     "id": "pedal-flip",
     "name": "Pedal Flip",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "pedal is spun on its axle by either foot or hand",
     "inventedBy": null,
     "yearLanded": null,
@@ -6855,9 +5751,7 @@
     "id": "pedal-grab",
     "name": "Pedal grab",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "Jumping with the pedal landing on an obstacle",
     "inventedBy": null,
     "yearLanded": null,
@@ -6874,9 +5768,7 @@
     "id": "pedal-stall",
     "name": "Pedal Stall",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "landing on an object with the pedal and spending a moment in this position",
     "inventedBy": null,
     "yearLanded": null,
@@ -6893,9 +5785,7 @@
     "id": "pick-up-mount",
     "name": "Pick Up Mount",
     "alternateNames": [],
-    "categories": [
-      "mount"
-    ],
+    "categories": ["mount"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -6912,9 +5802,7 @@
     "id": "popcorn-flip",
     "name": "Popcorn Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -6931,9 +5819,7 @@
     "id": "pre-hop",
     "name": "Pre-Hop",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "smaller hop made to compress the tire upon landing, enabling a larger second hop using the rebound of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -6950,9 +5836,7 @@
     "id": "pressure-flip",
     "name": "Pressure Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "feet leave pedals, push the unicycle forward on the ground to initiate wheel rotation, lift uni so that wheel completes rotation in the air, feet land on pedals",
     "inventedBy": "Dan Colvin",
     "yearLanded": 2014,
@@ -6969,11 +5853,7 @@
     "id": "prince-flip",
     "name": "Prince Flip",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "twist",
-      "spin"
-    ],
+    "categories": ["flip", "twist", "spin"],
     "definition": "360 hoptwist + out flip in the same direction",
     "inventedBy": null,
     "yearLanded": null,
@@ -6989,13 +5869,8 @@
   {
     "id": "the-prindle",
     "name": "The Prindle*",
-    "alternateNames": [
-      "Pringle",
-      "Prindle Backside"
-    ],
-    "categories": [
-      "wild"
-    ],
+    "alternateNames": ["Pringle", "Prindle Backside"],
+    "categories": ["wild"],
     "definition": "jump off the pedals and let the unicycle fall to one side, catching the seat with one foot and the other foot on the crank. Then launch the seat to the other side, behind your leg, so that it does a 180 backside spin. Then catch the seat when you land back on the pedals/cranks",
     "inventedBy": "Levi Prindle?",
     "yearLanded": null,
@@ -7012,9 +5887,7 @@
     "id": "push-mush",
     "name": "Push Mush",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Ideling on crank, inside position, pushing tire in both directions",
     "inventedBy": null,
     "yearLanded": null,
@@ -7031,9 +5904,7 @@
     "id": "quad-back-flip",
     "name": "Quad Back Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "crank flip where wheel does 4 revolutions forward",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2010,
@@ -7049,12 +5920,8 @@
   {
     "id": "quad-flip",
     "name": "Quad Flip",
-    "alternateNames": [
-      "Quad"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Quad"],
+    "categories": ["flip"],
     "definition": "Crank flip with 4 rotations",
     "inventedBy": "Loic Baud",
     "yearLanded": 2008,
@@ -7071,9 +5938,7 @@
     "id": "quad-leg-wrap",
     "name": "Quad Leg Wrap",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "four leg wraps in a row",
     "inventedBy": null,
     "yearLanded": null,
@@ -7090,9 +5955,7 @@
     "id": "quad-swivel-grind",
     "name": "Quad Swivel Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "pedal grind where wheel does 4 full revolutions during grind",
     "inventedBy": "Noli Ergas",
     "yearLanded": null,
@@ -7108,12 +5971,8 @@
   {
     "id": "quint-flip",
     "name": "Quint Flip",
-    "alternateNames": [
-      "Quint"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Quint"],
+    "categories": ["flip"],
     "definition": "Crank flip with 5 rotations",
     "inventedBy": "Christian Resch? or Eli Brill?",
     "yearLanded": null,
@@ -7130,9 +5989,7 @@
     "id": "quint-swivel-grind",
     "name": "Quint Swivel Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "pedal grind where wheel does 5 full revolutions during grind",
     "inventedBy": "Noli Ergas",
     "yearLanded": null,
@@ -7149,9 +6006,7 @@
     "id": "rail-ride",
     "name": "Rail Ride",
     "alternateNames": [],
-    "categories": [
-      "wild"
-    ],
+    "categories": ["wild"],
     "definition": "jump to sloped rail, tire lands on rail, rider rides the entirity or portion of the rail",
     "inventedBy": null,
     "yearLanded": null,
@@ -7168,11 +6023,7 @@
     "id": "the-rapture",
     "name": "The Rapture",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "start a full-out-backside-spin, then after 180 degrees you kick the front pedal with your back foot to initiate a crank flip, then complete the spin with the last 180 degrees and land back on pedals",
     "inventedBy": "Scott Julian",
     "yearLanded": null,
@@ -7189,9 +6040,7 @@
     "id": "rear-tire-grab",
     "name": "Rear Tire Grab",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "hop with free hand grabbing rear side of tire in mid-air",
     "inventedBy": null,
     "yearLanded": null,
@@ -7208,9 +6057,7 @@
     "id": "rev",
     "name": "Rev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "wheel leaves ground, feet pedal the wheel through one revolution, wheel lands on ground",
     "inventedBy": "Adam Ryznar",
     "yearLanded": null,
@@ -7227,9 +6074,7 @@
     "id": "rev-backrev",
     "name": "Rev Backrev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "Rev then back Rev before landing on the ground",
     "inventedBy": "Christian Huriwai",
     "yearLanded": null,
@@ -7245,13 +6090,8 @@
   {
     "id": "rev-double-flip",
     "name": "Rev double flip",
-    "alternateNames": [
-      "Revdouble"
-    ],
-    "categories": [
-      "rev",
-      "flip"
-    ],
+    "alternateNames": ["Revdouble"],
+    "categories": ["rev", "flip"],
     "definition": "Hop, do a half rev,then let go of the pedals so they flip 2,5 rotations, land",
     "inventedBy": null,
     "yearLanded": null,
@@ -7267,14 +6107,8 @@
   {
     "id": "rev-fullout-flip",
     "name": "Rev Fullout flip",
-    "alternateNames": [
-      "rev fullout"
-    ],
-    "categories": [
-      "rev",
-      "flip",
-      "spin"
-    ],
+    "alternateNames": ["rev fullout"],
+    "categories": ["rev", "flip", "spin"],
     "definition": "hop, do a half rev, then let go of the pedals so they flip 1.5 revolutions while spinning 360, land",
     "inventedBy": "Maxime Peabody",
     "yearLanded": null,
@@ -7291,10 +6125,7 @@
     "id": "rev-triple-flip",
     "name": "Rev triple flip",
     "alternateNames": [],
-    "categories": [
-      "rev",
-      "flip"
-    ],
+    "categories": ["rev", "flip"],
     "definition": "Hop, do a half rev, then let go fo the pedals so they flip 3,5 rotations, land",
     "inventedBy": "Mimo Seedler",
     "yearLanded": 2022,
@@ -7344,13 +6175,8 @@
   {
     "id": "reverse-rolling-wrap",
     "name": "Reverse Rolling Wrap",
-    "alternateNames": [
-      "back rolling wrap",
-      "backwards rolling wrap"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["back rolling wrap", "backwards rolling wrap"],
+    "categories": ["roll"],
     "definition": "starts similar to a backroll, but your hand should be on the handle of the seat. after the first half roll backward, the free foot (front foot) goes to the other crank. The seat is passed behind your back to your other hand and there will be a moment when both feet are on the cranks and both hands are on the seat. Then pass the seat to your other hand as your front foot rolls the second half revolution backward (this may sound like a very complicated explanation but just imagine a rolling wrap in reverse)",
     "inventedBy": null,
     "yearLanded": null,
@@ -7367,9 +6193,7 @@
     "id": "reverse-side-jump",
     "name": "Reverse Side Jump",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "both feet leave pedals, one leg wraps inward around seat, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -7386,10 +6210,7 @@
     "id": "reverse-side-flip",
     "name": "Reverse Side Flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "flip"
-    ],
+    "categories": ["wrap", "flip"],
     "definition": "reverse side jump + crankflip",
     "inventedBy": "Ludwig Felhofer",
     "yearLanded": 2012,
@@ -7406,9 +6227,7 @@
     "id": "reverse-storm-roll",
     "name": "Reverse Storm Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "storm roll done in the reverse order",
     "inventedBy": "Emile Mathieu",
     "yearLanded": 2013,
@@ -7425,10 +6244,7 @@
     "id": "revflip",
     "name": "Revflip",
     "alternateNames": [],
-    "categories": [
-      "rev",
-      "flip"
-    ],
+    "categories": ["rev", "flip"],
     "definition": "Hop, do a half rev,then let go of the pedals so they flip 1,5 rotations, land",
     "inventedBy": null,
     "yearLanded": null,
@@ -7445,9 +6261,7 @@
     "id": "rewind",
     "name": "Rewind",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "hop, wheel leaves ground and initiates a crankflip, then once the wheel is fully around use your free hand to pull the wheel in the opposite direction until it is back to where it started, land.",
     "inventedBy": "Forrest Rackard",
     "yearLanded": 2011,
@@ -7464,9 +6278,7 @@
     "id": "riding",
     "name": "Riding",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "pedaling while maintaining balance",
     "inventedBy": null,
     "yearLanded": null,
@@ -7483,9 +6295,7 @@
     "id": "rhythm-roll",
     "name": "Rhythm Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "with seat in front, roll forward a half revolution on the front crank, then place other foot on the other crank and roll the second half revolution forward",
     "inventedBy": null,
     "yearLanded": null,
@@ -7501,12 +6311,8 @@
   {
     "id": "robot-walk",
     "name": "Robot Walk",
-    "alternateNames": [
-      "Footed Swivel Grind"
-    ],
-    "categories": [
-      "grind"
-    ],
+    "alternateNames": ["Footed Swivel Grind"],
+    "categories": ["grind"],
     "definition": "pedal grind where wheel does one full revolution during grind and both feet stay on pedals at all times",
     "inventedBy": null,
     "yearLanded": null,
@@ -7523,9 +6329,7 @@
     "id": "rolling",
     "name": "Rolling",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "indicates trick is done while riding forward (as opposed to static)",
     "inventedBy": null,
     "yearLanded": null,
@@ -7542,9 +6346,7 @@
     "id": "rolling-mount",
     "name": "Rolling Mount",
     "alternateNames": [],
-    "categories": [
-      "mount"
-    ],
+    "categories": ["mount"],
     "definition": "mounting the unicycle while walking forward without stopping the wheel",
     "inventedBy": null,
     "yearLanded": null,
@@ -7560,12 +6362,8 @@
   {
     "id": "rolling-wrap",
     "name": "Rolling Wrap",
-    "alternateNames": [
-      "wrap roll"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["wrap roll"],
+    "categories": ["roll"],
     "definition": "a rhythm roll and seat wrap happening simultaneously (half roll forward while wrapping the seat away from your front foot, behind your back. As you switch the seat to your other hand behind your back, your free foot moves to the other crank. Do the second half roll with that other foot while wrapping the seat back around in the same direction, and end with the seat in front of you)",
     "inventedBy": "Dan Heaton",
     "yearLanded": null,
@@ -7581,14 +6379,8 @@
   {
     "id": "rolloroll",
     "name": "Rolloroll",
-    "alternateNames": [
-      "crankcoast"
-    ],
-    "categories": [
-      "roll",
-      "coast",
-      "toetwist"
-    ],
+    "alternateNames": ["crankcoast"],
+    "categories": ["roll", "coast", "toetwist"],
     "definition": "rolling through the half of the rev where the crank points upwards by standing on the rollodisc",
     "inventedBy": "Ivar Christenson",
     "yearLanded": 2017,
@@ -7605,9 +6397,7 @@
     "id": "schulze-walk",
     "name": "Schulze Walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "propell unicycle forward with feet on cranks and seat in back",
     "inventedBy": "Max Schulze",
     "yearLanded": null,
@@ -7623,14 +6413,8 @@
   {
     "id": "scissor-backside-flip",
     "name": "Scissor Backside Flip",
-    "alternateNames": [
-      "Scissor Backside"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["Scissor Backside"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "out backside spin around one leg followed by a backside jump around other leg, with a crankflip happening simultaneously",
     "inventedBy": "Eli Brill",
     "yearLanded": 2023,
@@ -7647,9 +6431,7 @@
     "id": "scissor-flip",
     "name": "Scissor Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -7665,13 +6447,8 @@
   {
     "id": "scissor-side-spin",
     "name": "Scissor Side Spin",
-    "alternateNames": [
-      "Scissor Side"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["Scissor Side"],
+    "categories": ["spin", "wrap"],
     "definition": "180 side spin around one leg followed by 180 side spin around the other leg (opposite spinning direction)",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -7688,9 +6465,7 @@
     "id": "scoop-flip",
     "name": "Scoop Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "foot plant on obstacle, hit pedal on an obstacle to initiate wheel rotation, wheel does one rotation, land on pedals",
     "inventedBy": "Connor Wurst",
     "yearLanded": null,
@@ -7707,9 +6482,7 @@
     "id": "scuff-coast",
     "name": "Scuff coast",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "One footed seat in front backwards coasting",
     "inventedBy": null,
     "yearLanded": null,
@@ -7726,9 +6499,7 @@
     "id": "scuff-coast-toetwist",
     "name": "Scuff coast toetwist",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "Transition between scuff backwards inside to outside forward or from backwards outside to inside forward by twisting around on your toes on the crown",
     "inventedBy": "Pablo Codes",
     "yearLanded": 2018,
@@ -7745,9 +6516,7 @@
     "id": "scuff-glide",
     "name": "Scuff glide",
     "alternateNames": [],
-    "categories": [
-      "glide"
-    ],
+    "categories": ["glide"],
     "definition": "One footed seat in front backwards gliding",
     "inventedBy": null,
     "yearLanded": null,
@@ -7764,9 +6533,7 @@
     "id": "scuff-walk",
     "name": "Scuff walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "Repeted short scuffglides powered by kicks on the wheel",
     "inventedBy": null,
     "yearLanded": null,
@@ -7783,9 +6550,7 @@
     "id": "seat-bounce",
     "name": "Seat bounce",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "starting seat out in front with feet on cranks or pedals, throw the seat forward so that the handle hits the ground and the seat bounces back up (SEE NOTE)",
     "inventedBy": null,
     "yearLanded": null,
@@ -7802,9 +6567,7 @@
     "id": "seat-drag",
     "name": "Seat drag",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "Riding with the seat dragging on the ground behind you",
     "inventedBy": null,
     "yearLanded": null,
@@ -7821,9 +6584,7 @@
     "id": "seat-drop",
     "name": "Seat drop",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "standing with feet on cranks, angle your front foot into the spokes/wheel a little bit, so that when you let go of the seat and allow it to drop forward, your foot stops it at about a 45° angle. See how long you can balance before grabbing the seat back up again",
     "inventedBy": null,
     "yearLanded": null,
@@ -7840,9 +6601,7 @@
     "id": "seat-drop-grind",
     "name": "Seat Drop Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind where a seat drop is performed mid-grind",
     "inventedBy": null,
     "yearLanded": null,
@@ -7859,9 +6618,7 @@
     "id": "seat-grab",
     "name": "Seat grab",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "lands on a object with the saddle, so it supports the rider, like a pedal or crank grab",
     "inventedBy": "Elias Pöham",
     "yearLanded": null,
@@ -7877,12 +6634,8 @@
   {
     "id": "seat-in",
     "name": "Seat In",
-    "alternateNames": [
-      "SI"
-    ],
-    "categories": [
-      "prefix"
-    ],
+    "alternateNames": ["SI"],
+    "categories": ["prefix"],
     "definition": "the seat is in between the rider's legs",
     "inventedBy": null,
     "yearLanded": null,
@@ -7898,12 +6651,8 @@
   {
     "id": "seat-in-back",
     "name": "Seat In Back",
-    "alternateNames": [
-      "SIB"
-    ],
-    "categories": [
-      "prefix"
-    ],
+    "alternateNames": ["SIB"],
+    "categories": ["prefix"],
     "definition": "seat in behind; seat not between the riders' legs",
     "inventedBy": null,
     "yearLanded": null,
@@ -7920,9 +6669,7 @@
     "id": "seat-in-front",
     "name": "Seat In Front",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "trick that initiates with the seat in front of the rider, not between the rider's legs",
     "inventedBy": null,
     "yearLanded": null,
@@ -7939,9 +6686,7 @@
     "id": "seat-in-front-hop",
     "name": "Seat In Front Hop",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "hop with the seat in front of the rider",
     "inventedBy": null,
     "yearLanded": null,
@@ -7957,13 +6702,8 @@
   {
     "id": "seat-out",
     "name": "Seat Out",
-    "alternateNames": [
-      "Seat in Front",
-      "SIF"
-    ],
-    "categories": [
-      "prefix"
-    ],
+    "alternateNames": ["Seat in Front", "SIF"],
+    "categories": ["prefix"],
     "definition": "seat is in front; seat is NOT in between the rider's legs",
     "inventedBy": null,
     "yearLanded": null,
@@ -7980,9 +6720,7 @@
     "id": "seat-pivot",
     "name": "Seat pivot",
     "alternateNames": [],
-    "categories": [
-      "pirouette"
-    ],
+    "categories": ["pirouette"],
     "definition": "Only seat is in ground and you spin",
     "inventedBy": null,
     "yearLanded": null,
@@ -7998,12 +6736,8 @@
   {
     "id": "seat-push",
     "name": "Seat push",
-    "alternateNames": [
-      "Drag seat in front"
-    ],
-    "categories": [
-      "basic"
-    ],
+    "alternateNames": ["Drag seat in front"],
+    "categories": ["basic"],
     "definition": "Riding with the seat being pushed on the ground in front of you",
     "inventedBy": null,
     "yearLanded": null,
@@ -8019,12 +6753,8 @@
   {
     "id": "seat-whip",
     "name": "Seat Whip",
-    "alternateNames": [
-      "Whip"
-    ],
-    "categories": [
-      "whip"
-    ],
+    "alternateNames": ["Whip"],
+    "categories": ["whip"],
     "definition": "When the seat(and frame) whips around the wheel, forward or back (the wheel is not rotating)",
     "inventedBy": null,
     "yearLanded": null,
@@ -8041,9 +6771,7 @@
     "id": "seat-whip-crank-grab",
     "name": "Seat Whip Crank Grab",
     "alternateNames": [],
-    "categories": [
-      "whip"
-    ],
+    "categories": ["whip"],
     "definition": "When the seat(and frame) whips around the wheel, forward or back, while one or both of the cranks are on an obstacle",
     "inventedBy": "Dan Heaton",
     "yearLanded": null,
@@ -8060,10 +6788,7 @@
     "id": "seat-whip-grind",
     "name": "Seat Whip Grind",
     "alternateNames": [],
-    "categories": [
-      "grind",
-      "whip"
-    ],
+    "categories": ["grind", "whip"],
     "definition": "grind with a seat whip done mid-grind while the cranks stays in contact with the ledge/rail",
     "inventedBy": "Matty Porter",
     "yearLanded": null,
@@ -8080,9 +6805,7 @@
     "id": "seat-wrap",
     "name": "Seat Wrap",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "leg around (leg 1) to seat in back to leg around (leg 2)",
     "inventedBy": null,
     "yearLanded": null,
@@ -8099,10 +6822,7 @@
     "id": "secret-side",
     "name": "Secret Side",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "categories": ["spin", "wrap"],
     "definition": "unispin where seat of the unicycle wraps around behind both legs (to the side, behind, other side, and back in front). Basically, a sidespin followed by a backside spin, in the same jump",
     "inventedBy": "Krisz Kovacs",
     "yearLanded": null,
@@ -8119,10 +6839,7 @@
     "id": "secret-side-flip",
     "name": "Secret side flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "flip"
-    ],
+    "categories": ["wrap", "flip"],
     "definition": "secret side jump + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8139,9 +6856,7 @@
     "id": "secret-side-jump",
     "name": "Secret side jump",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "jump off pedals, seat wraps around one leg, behind both legs, back in front (no spin of seat)",
     "inventedBy": "Mario Bel",
     "yearLanded": null,
@@ -8157,13 +6872,8 @@
   {
     "id": "sej-double-flip",
     "name": "Sej double flip",
-    "alternateNames": [
-      "Seventh Double flip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Seventh Double flip"],
+    "categories": ["spin", "flip"],
     "definition": "720 unispin + double flip",
     "inventedBy": "Felix Aspalter",
     "yearLanded": null,
@@ -8179,13 +6889,8 @@
   {
     "id": "sej-flip",
     "name": "Sej flip",
-    "alternateNames": [
-      "Seventh Flip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Seventh Flip"],
+    "categories": ["spin", "flip"],
     "definition": "720 unispin + crank flip",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -8201,13 +6906,8 @@
   {
     "id": "sej-quad-flip",
     "name": "Sej quad flip",
-    "alternateNames": [
-      "Seventh Quad Flip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Seventh Quad Flip"],
+    "categories": ["spin", "flip"],
     "definition": "720 unispin + quad flip",
     "inventedBy": "Colby Thomas",
     "yearLanded": null,
@@ -8223,13 +6923,8 @@
   {
     "id": "sej-triple-flip",
     "name": "sej triple flip",
-    "alternateNames": [
-      "Seventh Triple Flip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Seventh Triple Flip"],
+    "categories": ["spin", "flip"],
     "definition": "720 Unispin + triple crankflip",
     "inventedBy": "Colby Thomas",
     "yearLanded": null,
@@ -8245,14 +6940,8 @@
   {
     "id": "sej-secret-side-flip",
     "name": "sej secret side flip",
-    "alternateNames": [
-      "seventh secret side"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["seventh secret side"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "720 secret side + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8268,14 +6957,8 @@
   {
     "id": "sej-side-flip",
     "name": "sej side flip",
-    "alternateNames": [
-      "seventh side flip"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["seventh side flip"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "720 side spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8291,14 +6974,8 @@
   {
     "id": "sej-side-double-flip",
     "name": "Sej side double flip",
-    "alternateNames": [
-      "sej side double"
-    ],
-    "categories": [
-      "spin",
-      "flip",
-      "wrap"
-    ],
+    "alternateNames": ["sej side double"],
+    "categories": ["spin", "flip", "wrap"],
     "definition": "720 side spin + double flip",
     "inventedBy": "Stephane Ranc",
     "yearLanded": null,
@@ -8315,10 +6992,7 @@
     "id": "sex-change",
     "name": "Sex Change",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "categories": ["varial", "flip"],
     "definition": "body varial + crank flip",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -8334,13 +7008,8 @@
   {
     "id": "sex-change-back-flip",
     "name": "sex change back flip",
-    "alternateNames": [
-      "sex change back"
-    ],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "alternateNames": ["sex change back"],
+    "categories": ["varial", "flip"],
     "definition": "Sex change with backwards wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -8357,10 +7026,7 @@
     "id": "sex-change-double-flip",
     "name": "Sex Change Double Flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "categories": ["varial", "flip"],
     "definition": "body varial + double flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8377,10 +7043,7 @@
     "id": "sex-change-kick-flip",
     "name": "Sex change kick flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "Sex Change but the wheel rotation speed is produced by a kick of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -8397,10 +7060,7 @@
     "id": "sex-change-triple-flip",
     "name": "Sex Change Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "flip"
-    ],
+    "categories": ["varial", "flip"],
     "definition": "body varial + triple flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8417,9 +7077,7 @@
     "id": "sext-flip",
     "name": "Sext flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Hop, cranks flip for 6 revolutions, land",
     "inventedBy": "Kevin Gaudillère",
     "yearLanded": null,
@@ -8436,9 +7094,7 @@
     "id": "shiftie",
     "name": "Shiftie",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "hop where the wheel is twisted perpendicular to the direction of travel in mid-air and returned to the plane of travel upon landing",
     "inventedBy": null,
     "yearLanded": null,
@@ -8455,9 +7111,7 @@
     "id": "side",
     "name": "Side",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "both legs of rider are on one side of the unicycle during or at some point duirng the trick",
     "inventedBy": null,
     "yearLanded": null,
@@ -8474,9 +7128,7 @@
     "id": "side-coast",
     "name": "Side coast",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "hands on saddle, feet in air, side of body facing the direction coast is traveling",
     "inventedBy": null,
     "yearLanded": null,
@@ -8493,10 +7145,7 @@
     "id": "side-double-flip",
     "name": "Side Double Flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "flip"
-    ],
+    "categories": ["wrap", "flip"],
     "definition": "side jump + double crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8513,10 +7162,7 @@
     "id": "side-flip",
     "name": "Side Flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "flip"
-    ],
+    "categories": ["wrap", "flip"],
     "definition": "side jump + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8533,9 +7179,7 @@
     "id": "side-hop",
     "name": "Side Hop",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "Hopping with one foot on the opposite pedal. The other leg is crossed behind you on the tire, or ext.",
     "inventedBy": null,
     "yearLanded": null,
@@ -8552,9 +7196,7 @@
     "id": "side-jump",
     "name": "Side Jump",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "both feet leave pedals, one leg wraps around seat, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -8571,10 +7213,7 @@
     "id": "side-jump-mount",
     "name": "Side Jump Mount",
     "alternateNames": [],
-    "categories": [
-      "mount",
-      "wrap"
-    ],
+    "categories": ["mount", "wrap"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -8590,13 +7229,8 @@
   {
     "id": "side-mount",
     "name": "Side Mount",
-    "alternateNames": [
-      "Ladies mount",
-      "leg around mount"
-    ],
-    "categories": [
-      "mount"
-    ],
+    "alternateNames": ["Ladies mount", "leg around mount"],
+    "categories": ["mount"],
     "definition": "one feet on pedal in lowest position, step up and move leg via the front of your seat to the other pedal",
     "inventedBy": null,
     "yearLanded": null,
@@ -8612,13 +7246,8 @@
   {
     "id": "side-quad-flip",
     "name": "Side Quad Flip",
-    "alternateNames": [
-      "in-in side quad"
-    ],
-    "categories": [
-      "wrap",
-      "flip"
-    ],
+    "alternateNames": ["in-in side quad"],
+    "categories": ["wrap", "flip"],
     "definition": "quad flip + side jump",
     "inventedBy": "Levi Prindle",
     "yearLanded": null,
@@ -8635,9 +7264,7 @@
     "id": "side-ride",
     "name": "Side Ride",
     "alternateNames": [],
-    "categories": [
-      "ride"
-    ],
+    "categories": ["ride"],
     "definition": "on the side of unicycle riding one foot (with foot that is closest to the wheel)",
     "inventedBy": null,
     "yearLanded": null,
@@ -8654,10 +7281,7 @@
     "id": "side-triple-flip",
     "name": "Side Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "wrap",
-      "flip"
-    ],
+    "categories": ["wrap", "flip"],
     "definition": "side jump + triple crank flip",
     "inventedBy": "Stereim (real name?)",
     "yearLanded": null,
@@ -8673,13 +7297,8 @@
   {
     "id": "sideways-wheel-walk",
     "name": "Sideways Wheel Walk",
-    "alternateNames": [
-      "side walk",
-      "crab walk"
-    ],
-    "categories": [
-      "walk"
-    ],
+    "alternateNames": ["side walk", "crab walk"],
+    "categories": ["walk"],
     "definition": "Standing on the tire, unicycle perpendicular to the rider, wheel walk",
     "inventedBy": null,
     "yearLanded": null,
@@ -8696,11 +7315,7 @@
     "id": "small-flip",
     "name": "Small flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin",
-      "flip"
-    ],
+    "categories": ["twist", "spin", "flip"],
     "definition": "Small spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8717,11 +7332,7 @@
     "id": "small-side-flip",
     "name": "Small side flip",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin",
-      "flip"
-    ],
+    "categories": ["twist", "spin", "flip"],
     "definition": "Small side spin + flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -8738,10 +7349,7 @@
     "id": "small-side-spin",
     "name": "Small side spin",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin"
-    ],
+    "categories": ["twist", "spin"],
     "definition": "Small spin + side",
     "inventedBy": null,
     "yearLanded": null,
@@ -8758,10 +7366,7 @@
     "id": "small-spin",
     "name": "Small Spin",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "spin"
-    ],
+    "categories": ["twist", "spin"],
     "definition": "180 unispin + 180 body varial in the same direction",
     "inventedBy": null,
     "yearLanded": null,
@@ -8778,9 +7383,7 @@
     "id": "smiley-walk",
     "name": "Smiley Walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "Seat in back wheel walk, while supporting your weight in your arms",
     "inventedBy": "Ryan Woessner",
     "yearLanded": null,
@@ -8797,10 +7400,7 @@
     "id": "spencer-flip",
     "name": "Spencer Flip",
     "alternateNames": [],
-    "categories": [
-      "bc wheel",
-      "flip"
-    ],
+    "categories": ["bc wheel", "flip"],
     "definition": "On BC wheel, start riding upstairs, jump off the platforms, and land back on them after they've flipped down to the normal position",
     "inventedBy": "Spencer Hochberg",
     "yearLanded": null,
@@ -8816,12 +7416,8 @@
   {
     "id": "stand-up-backwards-wheel-walk",
     "name": "Stand up backwards wheel walk",
-    "alternateNames": [
-      "Stand up koosh"
-    ],
-    "categories": [
-      "walk"
-    ],
+    "alternateNames": ["Stand up koosh"],
+    "categories": ["walk"],
     "definition": "Standing on the frame while one foot pushes you backwards (the foot is behind the frame)",
     "inventedBy": null,
     "yearLanded": null,
@@ -8838,10 +7434,7 @@
     "id": "stand-up-gliding",
     "name": "Stand up gliding",
     "alternateNames": [],
-    "categories": [
-      "walk",
-      "coast"
-    ],
+    "categories": ["walk", "coast"],
     "definition": "Stand up wheel walk with enough speed that the tire glides underneath the rider's foot",
     "inventedBy": null,
     "yearLanded": null,
@@ -8857,12 +7450,8 @@
   {
     "id": "stand-up-wheel-walk",
     "name": "Stand up wheel walk",
-    "alternateNames": [
-      "Stand up"
-    ],
-    "categories": [
-      "walk"
-    ],
+    "alternateNames": ["Stand up"],
+    "categories": ["walk"],
     "definition": "Standing on the frame while one foot pushes you forwards (the foot is in front of the frame)",
     "inventedBy": null,
     "yearLanded": null,
@@ -8879,9 +7468,7 @@
     "id": "static",
     "name": "Static",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "indicates trick begins from a static position (i.e. the unicycle is not rolling forwards or backwards)",
     "inventedBy": null,
     "yearLanded": null,
@@ -8898,10 +7485,7 @@
     "id": "static-trey-quad",
     "name": "Static Trey Quad",
     "alternateNames": [],
-    "categories": [
-      "flip",
-      "spin"
-    ],
+    "categories": ["flip", "spin"],
     "definition": "360 unspin + Quad Crankflip (from static position)",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2023,
@@ -8918,9 +7502,7 @@
     "id": "steeze-coast",
     "name": "steeze coast",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "A coast started from the steeze jam position",
     "inventedBy": null,
     "yearLanded": null,
@@ -8937,9 +7519,7 @@
     "id": "steeze-hands",
     "name": "Steeze Hands",
     "alternateNames": [],
-    "categories": [
-      "wild"
-    ],
+    "categories": ["wild"],
     "definition": "placing the hands behind the head upon the completion of a trick, hence increasing the level of steaze",
     "inventedBy": null,
     "yearLanded": null,
@@ -8956,9 +7536,7 @@
     "id": "steeze-jam",
     "name": "steeze jam",
     "alternateNames": [],
-    "categories": [
-      "jam"
-    ],
+    "categories": ["jam"],
     "definition": "Basically an outside jam with 2 feet",
     "inventedBy": null,
     "yearLanded": null,
@@ -8975,10 +7553,7 @@
     "id": "stillstand",
     "name": "Stillstand",
     "alternateNames": [],
-    "categories": [
-      "basic",
-      "balance"
-    ],
+    "categories": ["basic", "balance"],
     "definition": "staying in one place on the unicycle without idling or hopping",
     "inventedBy": null,
     "yearLanded": null,
@@ -8995,10 +7570,7 @@
     "id": "stomach-balance",
     "name": "Stomach balance",
     "alternateNames": [],
-    "categories": [
-      "balance",
-      "position"
-    ],
+    "categories": ["balance", "position"],
     "definition": "saddle on your stomach hip or thighs, stay in balance sideways using your hands on the wheel and front to back by having your whole body doing like the arms in a normal stillstand",
     "inventedBy": null,
     "yearLanded": null,
@@ -9015,10 +7587,7 @@
     "id": "storm-roll",
     "name": "Storm Roll",
     "alternateNames": [],
-    "categories": [
-      "roll",
-      "stepover"
-    ],
+    "categories": ["roll", "stepover"],
     "definition": "Begin in outside roll position. After the first push (one half rev roll forward), with the seat in front of you, twist your body away from the unicycle in a 180 body varial and place your back foot on the other crank in the inside position. Then use your front foot and brace it against the tire while you continue the body varial to make it 360. during this transition you switch your back foot around on the same crank to be in the outside roll position. Then finish the roll by moving the last half rev forward on your back foot. Whew. That's a long description. Intimidated yet?",
     "inventedBy": "Nathan Miyachi",
     "yearLanded": null,
@@ -9035,10 +7604,7 @@
     "id": "stutter-360-backrev",
     "name": "Stutter 360 backrev",
     "alternateNames": [],
-    "categories": [
-      "twist",
-      "rev"
-    ],
+    "categories": ["twist", "rev"],
     "definition": "180 backrev to late 180",
     "inventedBy": "Kosma Roy",
     "yearLanded": null,
@@ -9055,9 +7621,7 @@
     "id": "stutterbackflip",
     "name": "Stutterbackflip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Backflip + underflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -9074,9 +7638,7 @@
     "id": "stutter-flip",
     "name": "Stutter Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "Crankflip + Over Flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -9093,9 +7655,7 @@
     "id": "stutter-grind",
     "name": "Stutter Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind where pedal/crank leaves obstacle mid-grind and then lands back on obstacle to continue grind",
     "inventedBy": null,
     "yearLanded": null,
@@ -9112,9 +7672,7 @@
     "id": "stutter-rev",
     "name": "Stutter rev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "Rev + late rev",
     "inventedBy": "Loïc Miara",
     "yearLanded": null,
@@ -9131,9 +7689,7 @@
     "id": "suicide-mount",
     "name": "Suicide Mount",
     "alternateNames": [],
-    "categories": [
-      "mount"
-    ],
+    "categories": ["mount"],
     "definition": "unicycle is balanced on ground, rider removes hands and feet from unicycle, riders jumps onto unicycle",
     "inventedBy": null,
     "yearLanded": null,
@@ -9149,13 +7705,8 @@
   {
     "id": "suicide-spin",
     "name": "Suicide Spin",
-    "alternateNames": [
-      "YouTube friendly name: Super-Side Spin"
-    ],
-    "categories": [
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["YouTube friendly name: Super-Side Spin"],
+    "categories": ["spin", "wrap"],
     "definition": "unispin where the seat comes out from behind one leg, wraps around in front of both legs, and around the other leg (Basically, a backside spin followed by a side spin, in the same jump)",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -9171,12 +7722,8 @@
   {
     "id": "super-roll",
     "name": "Super Roll",
-    "alternateNames": [
-      "Super Rolling Wrap"
-    ],
-    "categories": [
-      "roll"
-    ],
+    "alternateNames": ["Super Rolling Wrap"],
+    "categories": ["roll"],
     "definition": "Leg wrap to rolling wrap to leg wrap",
     "inventedBy": null,
     "yearLanded": null,
@@ -9193,9 +7740,7 @@
     "id": "superman",
     "name": "Superman",
     "alternateNames": [],
-    "categories": [
-      "wild"
-    ],
+    "categories": ["wild"],
     "definition": "one hand holds seat and other hand holds tire while legs are kicked out backwards, creating a horizontal body position like Superman flying",
     "inventedBy": null,
     "yearLanded": null,
@@ -9212,9 +7757,7 @@
     "id": "switch",
     "name": "Switch",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "With the less comfortable foot forward or hand on the seat (used by itself usually refers to foot position)",
     "inventedBy": null,
     "yearLanded": null,
@@ -9230,12 +7773,8 @@
   {
     "id": "switch-foot",
     "name": "Switch Foot",
-    "alternateNames": [
-      "switch"
-    ],
-    "categories": [
-      "prefix"
-    ],
+    "alternateNames": ["switch"],
+    "categories": ["prefix"],
     "definition": "When the rider's less comfortable foot is in front",
     "inventedBy": null,
     "yearLanded": null,
@@ -9252,9 +7791,7 @@
     "id": "switch-hand",
     "name": "Switch hand",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "When the rider's less comfortable hand is used",
     "inventedBy": null,
     "yearLanded": null,
@@ -9271,9 +7808,7 @@
     "id": "switcheroo-grind",
     "name": "Switcheroo Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "rider jumps from normal foot position, does a half rotation, grinds in a switch foot position",
     "inventedBy": null,
     "yearLanded": null,
@@ -9290,9 +7825,7 @@
     "id": "swivel-grind",
     "name": "Swivel Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "pedal grind where wheel does one full revolution during grind, generally by pumping the unicycle with the hand holding the handle",
     "inventedBy": "Pele Schramm",
     "yearLanded": null,
@@ -9309,9 +7842,7 @@
     "id": "swivel-rewind",
     "name": "Swivel Rewind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind where wheel rotates one direction, then rotates the opposite direction during the grind",
     "inventedBy": "Pele Schramm",
     "yearLanded": null,
@@ -9328,9 +7859,7 @@
     "id": "swivel-rewind-replay",
     "name": "Swivel Rewind Replay",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind where wheel rotates one direction, then rotates the opposite direction, then rotates the original direction during the grind",
     "inventedBy": "Noli Ergas",
     "yearLanded": null,
@@ -9346,15 +7875,8 @@
   {
     "id": "tenth-flip",
     "name": "Tenth Flip",
-    "alternateNames": [
-      "X flip",
-      "Tenth flip",
-      "10 flip"
-    ],
-    "categories": [
-      "flip",
-      "spin"
-    ],
+    "alternateNames": ["X flip", "Tenth flip", "10 flip"],
+    "categories": ["flip", "spin"],
     "definition": "1080 unispin + crank flip",
     "inventedBy": "Eli Brill",
     "yearLanded": 2017,
@@ -9370,15 +7892,8 @@
   {
     "id": "tenth-side-flip",
     "name": "Tenth Side Flip",
-    "alternateNames": [
-      "Tenth side",
-      "10 side flip"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "alternateNames": ["Tenth side", "10 side flip"],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "1080 side spin + crank flip",
     "inventedBy": "Michael Bachleda",
     "yearLanded": 2023,
@@ -9395,9 +7910,7 @@
     "id": "tic-out-tac",
     "name": "Tic Out-Tac",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "half crankflip + switch under out half flip",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2014,
@@ -9414,9 +7927,7 @@
     "id": "tic-tac",
     "name": "Tic Tac",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "half crankflip + switch under half flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -9433,9 +7944,7 @@
     "id": "tic-tac-double",
     "name": "Tic Tac Double",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "half crankflip + switch under 1.5 flip",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2013,
@@ -9452,9 +7961,7 @@
     "id": "tic-double-tac",
     "name": "Tic Double Tac",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "1.5 crankflip + switch under half flip",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2013,
@@ -9471,9 +7978,7 @@
     "id": "tico-tico",
     "name": "Tico Tico",
     "alternateNames": [],
-    "categories": [
-      "grab"
-    ],
+    "categories": ["grab"],
     "definition": "pedal grab to pedal grab",
     "inventedBy": null,
     "yearLanded": null,
@@ -9490,9 +7995,7 @@
     "id": "tic-x-tac",
     "name": "Tic X Tac",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "hick half flip + switch over hick half flip (spinning in opposite direction)",
     "inventedBy": "Jack Sebben",
     "yearLanded": 2015,
@@ -9508,14 +8011,8 @@
   {
     "id": "tiger-flip",
     "name": "Tiger flip",
-    "alternateNames": [
-      "out anti backside flip"
-    ],
-    "categories": [
-      "flip",
-      "spin",
-      "wrap"
-    ],
+    "alternateNames": ["out anti backside flip"],
+    "categories": ["flip", "spin", "wrap"],
     "definition": "",
     "inventedBy": "Dan Colvin? Josef Sjonneby?",
     "yearLanded": null,
@@ -9532,9 +8029,7 @@
     "id": "tire-grab",
     "name": "Tire grab",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "Grabing the front of the tire with the hand during a hop",
     "inventedBy": null,
     "yearLanded": null,
@@ -9550,13 +8045,8 @@
   {
     "id": "tire-grab-body-varial",
     "name": "Tire grab body varial",
-    "alternateNames": [
-      "Dan Heaton",
-      "DH"
-    ],
-    "categories": [
-      "handstepover"
-    ],
+    "alternateNames": ["Dan Heaton", "DH"],
+    "categories": ["handstepover"],
     "definition": "grabbing unicycle by the tire (and optionally also frame) and doing a 180 body varial",
     "inventedBy": "Dan Heaton",
     "yearLanded": null,
@@ -9573,9 +8063,7 @@
     "id": "tire-grab-grind",
     "name": "Tire Grab Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "grind + tire grab",
     "inventedBy": null,
     "yearLanded": null,
@@ -9592,9 +8080,7 @@
     "id": "toeslide",
     "name": "Toeslide",
     "alternateNames": [],
-    "categories": [
-      "prefix"
-    ],
+    "categories": ["prefix"],
     "definition": "Sliding the tip of your foot/feet over the ground or preferebly floor in stuff like onefootrides, forward scuffs, nopushrolls, seat pirouettes, etc",
     "inventedBy": null,
     "yearLanded": null,
@@ -9610,12 +8096,8 @@
   {
     "id": "travolta",
     "name": "Travolta",
-    "alternateNames": [
-      "X up 630/270"
-    ],
-    "categories": [
-      "wild"
-    ],
+    "alternateNames": ["X up 630/270"],
+    "categories": ["wild"],
     "definition": "Jump up, spin 630 degrees, catch the seat in the air, pull it back the other way 270° degrees, land back on pedals. You can't do it. Why even try.",
     "inventedBy": "Eli Brill",
     "yearLanded": null,
@@ -9632,11 +8114,7 @@
     "id": "trey-antiside-flip",
     "name": "Trey antiside flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "360 antiside spin + crank flip",
     "inventedBy": null,
     "yearLanded": null,
@@ -9653,10 +8131,7 @@
     "id": "trey-double-flip",
     "name": "Trey Double Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + double flip",
     "inventedBy": "Loic Baud",
     "yearLanded": 2007,
@@ -9673,10 +8148,7 @@
     "id": "trey-flip",
     "name": "Trey Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + crank flip",
     "inventedBy": "Shaun Johanneson",
     "yearLanded": null,
@@ -9692,14 +8164,8 @@
   {
     "id": "trey-flip-under-flip",
     "name": "Trey flip under flip",
-    "alternateNames": [
-      "Trey underflip",
-      "treyunder"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Trey underflip", "treyunder"],
+    "categories": ["spin", "flip"],
     "definition": "Trey flip + under flip",
     "inventedBy": "Christian Brink",
     "yearLanded": null,
@@ -9716,10 +8182,7 @@
     "id": "trey-flip-under-outflip",
     "name": "Trey flip under outflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "trey flip + underflip + 180 unispin (opposite direction)",
     "inventedBy": "Kevin Gaudilliere",
     "yearLanded": null,
@@ -9735,13 +8198,8 @@
   {
     "id": "trey-kick-flip",
     "name": "Trey kick flip",
-    "alternateNames": [
-      "trey kick"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["trey kick"],
+    "categories": ["spin", "flip"],
     "definition": "Treyflip but the wheel rotation speed is produced by a kick of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -9757,13 +8215,8 @@
   {
     "id": "trey-back-kick-flip",
     "name": "Trey back kick flip",
-    "alternateNames": [
-      "trey back kick"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["trey back kick"],
+    "categories": ["spin", "flip"],
     "definition": "Trey back flip but the wheel rotation is produced by a kick of the tire",
     "inventedBy": null,
     "yearLanded": null,
@@ -9780,10 +8233,7 @@
     "id": "trey-middleflip",
     "name": "Trey middleflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "180 unispin + overflip +180 unispin",
     "inventedBy": null,
     "yearLanded": null,
@@ -9799,13 +8249,8 @@
   {
     "id": "trey-over-double-flip",
     "name": "Trey over double flip",
-    "alternateNames": [
-      "trey over double"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["trey over double"],
+    "categories": ["spin", "flip"],
     "definition": "360 unispn + over double flip",
     "inventedBy": "Maxime Peabody",
     "yearLanded": null,
@@ -9821,13 +8266,8 @@
   {
     "id": "trey-over-flip",
     "name": "Trey over flip",
-    "alternateNames": [
-      "trey over"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["trey over"],
+    "categories": ["spin", "flip"],
     "definition": "360 Unispin + overflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -9844,10 +8284,7 @@
     "id": "trey-quad-flip",
     "name": "Trey Quad Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + quad flip",
     "inventedBy": "Krisz Kovacs",
     "yearLanded": null,
@@ -9864,10 +8301,7 @@
     "id": "trey-quint-flip",
     "name": "Trey Quint Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + quint flip",
     "inventedBy": "Michael Bachleda",
     "yearLanded": null,
@@ -9883,14 +8317,8 @@
   {
     "id": "trey-side-double-flip",
     "name": "Trey side double flip",
-    "alternateNames": [
-      "trey side double"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "alternateNames": ["trey side double"],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "Trey side flip with 2 rotations of the wheel",
     "inventedBy": null,
     "yearLanded": null,
@@ -9907,11 +8335,7 @@
     "id": "trey-side-flip",
     "name": "Trey side flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "360 side spin + flip",
     "inventedBy": "Luke Collalto",
     "yearLanded": null,
@@ -9928,11 +8352,7 @@
     "id": "trey-side-overflip",
     "name": "Trey side overflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "360 side spin + overflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -9948,14 +8368,8 @@
   {
     "id": "trey-side-quad-flip",
     "name": "Trey side quad flip",
-    "alternateNames": [
-      "trey side quad"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "alternateNames": ["trey side quad"],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "Trey side flip with 4 rotations of the wheel",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": null,
@@ -9971,14 +8385,8 @@
   {
     "id": "trey-side-triple-flip",
     "name": "Trey side triple flip",
-    "alternateNames": [
-      "trey side triple"
-    ],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "alternateNames": ["trey side triple"],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "Trey side flip with 3 rotations of the wheel",
     "inventedBy": "Loïc Baud",
     "yearLanded": 2008,
@@ -9995,11 +8403,7 @@
     "id": "trey-side-underflip",
     "name": "Trey side underflip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "wrap",
-      "flip"
-    ],
+    "categories": ["spin", "wrap", "flip"],
     "definition": "360 sidespin + underflip",
     "inventedBy": "Stéphane Ranc",
     "yearLanded": null,
@@ -10016,10 +8420,7 @@
     "id": "trey-triple-flip",
     "name": "Trey Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + triple flip",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2008,
@@ -10035,13 +8436,8 @@
   {
     "id": "trey-under-double-flip",
     "name": "Trey Under Double Flip",
-    "alternateNames": [
-      "Trey Under Double"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["Trey Under Double"],
+    "categories": ["spin", "flip"],
     "definition": "360 Unispin + under double flip",
     "inventedBy": "Christian Brink",
     "yearLanded": 2017,
@@ -10057,15 +8453,8 @@
   {
     "id": "trey-under-flip",
     "name": "Trey Under Flip",
-    "alternateNames": [
-      "trey under",
-      "360underflip",
-      "3spin underflip"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["trey under", "360underflip", "3spin underflip"],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + underflip",
     "inventedBy": null,
     "yearLanded": null,
@@ -10081,13 +8470,8 @@
   {
     "id": "trey-under-outflip",
     "name": "Trey under outflip",
-    "alternateNames": [
-      "trey under out"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["trey under out"],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + underflip + 180 unispin (opposite direction)",
     "inventedBy": null,
     "yearLanded": null,
@@ -10104,10 +8488,7 @@
     "id": "trey-under-trey",
     "name": "Trey under trey",
     "alternateNames": [],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "categories": ["spin", "flip"],
     "definition": "360 unispin + underflip + 360 unispin in opposite direction",
     "inventedBy": "Manuel Vetter?",
     "yearLanded": null,
@@ -10124,9 +8505,7 @@
     "id": "triple-back-flip",
     "name": "Triple Back Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "feet leave pedals, wheel does 3 rotations backwards, feet land on pedals",
     "inventedBy": "Mike Swarbrick",
     "yearLanded": null,
@@ -10142,12 +8521,8 @@
   {
     "id": "triple-flip",
     "name": "Triple Flip",
-    "alternateNames": [
-      "Triple"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Triple"],
+    "categories": ["flip"],
     "definition": "crank flip where wheel does 3 revolutions forward",
     "inventedBy": "Shaun Johannson",
     "yearLanded": null,
@@ -10164,9 +8539,7 @@
     "id": "triple-leg-wrap",
     "name": "Triple Leg Wrap",
     "alternateNames": [],
-    "categories": [
-      "wrap"
-    ],
+    "categories": ["wrap"],
     "definition": "",
     "inventedBy": null,
     "yearLanded": null,
@@ -10183,9 +8556,7 @@
     "id": "triple-rev",
     "name": "Triple Rev",
     "alternateNames": [],
-    "categories": [
-      "rev"
-    ],
+    "categories": ["rev"],
     "definition": "wheel leaves ground, feet pedal the wheel through 3 revolutions, wheel lands on ground",
     "inventedBy": "Loïc Miara",
     "yearLanded": null,
@@ -10202,9 +8573,7 @@
     "id": "triple-swivel-grind",
     "name": "Triple Swivel Grind",
     "alternateNames": [],
-    "categories": [
-      "grind"
-    ],
+    "categories": ["grind"],
     "definition": "pedal grind where wheel does 3 full revolutions during grind",
     "inventedBy": "Noli Ergas",
     "yearLanded": null,
@@ -10220,12 +8589,8 @@
   {
     "id": "under-flip",
     "name": "Under Flip",
-    "alternateNames": [
-      "Thunder Flip?"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["Thunder Flip?"],
+    "categories": ["flip"],
     "definition": "feet leave the pedals, while the unicycle wheel is in mid-air, the rider's back foot kicks the backward pedal causing the wheel to do one backward revolution, feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10241,12 +8606,8 @@
   {
     "id": "under-double-flip",
     "name": "Under Double Flip",
-    "alternateNames": [
-      "under double"
-    ],
-    "categories": [
-      "flip"
-    ],
+    "alternateNames": ["under double"],
+    "categories": ["flip"],
     "definition": "jump off pedals, then kick the back pedal with your back foot so that the wheel flips backward twice, then land back on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10262,9 +8623,7 @@
   {
     "id": "uni-front-roll",
     "name": "Uni front roll",
-    "alternateNames": [
-      "Uni somersault"
-    ],
+    "alternateNames": ["Uni somersault"],
     "categories": [],
     "definition": "to do a front roll (gymnastics) with uni, ride, dive forward, roll on back, when the wheel hits the ground use momentum to return to upright, ride",
     "inventedBy": null,
@@ -10282,9 +8641,7 @@
     "id": "uni-transfer",
     "name": "Uni Transfer",
     "alternateNames": [],
-    "categories": [
-      "wild"
-    ],
+    "categories": ["wild"],
     "definition": "jumping from one unicycle to another",
     "inventedBy": null,
     "yearLanded": null,
@@ -10301,9 +8658,7 @@
     "id": "uni-whip",
     "name": "Uni Whip",
     "alternateNames": [],
-    "categories": [
-      "whip"
-    ],
+    "categories": ["whip"],
     "definition": "When the whole unicycle flips (forward or back) on its vertical axis",
     "inventedBy": null,
     "yearLanded": null,
@@ -10319,12 +8674,8 @@
   {
     "id": "uni-somersault",
     "name": "Uni-Somersault",
-    "alternateNames": [
-      "Front flip"
-    ],
-    "categories": [
-      "wild"
-    ],
+    "alternateNames": ["Front flip"],
+    "categories": ["wild"],
     "definition": "Launch into air, become upside down, become rightside up again, land on ground, keep riding",
     "inventedBy": "Adrien Delecroix",
     "yearLanded": 2011,
@@ -10341,9 +8692,7 @@
     "id": "upstairs",
     "name": "Upstairs",
     "alternateNames": [],
-    "categories": [
-      "bc wheel"
-    ],
+    "categories": ["bc wheel"],
     "definition": "On a BC wheel, ride on the bottoms of the platforms, while they are flipped up from their normal position",
     "inventedBy": "Spencer Hochberg?",
     "yearLanded": null,
@@ -10360,9 +8709,7 @@
     "id": "vanflip",
     "name": "Vanflip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "riding seat in, feet leave pedals, one foot comes forward and pushes the tire, wheel flips once, land back on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10379,11 +8726,7 @@
     "id": "varial-double-flip",
     "name": "Varial Double Flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "spin",
-      "flip"
-    ],
+    "categories": ["varial", "spin", "flip"],
     "definition": "Varial flip with 2 wheel rotation",
     "inventedBy": null,
     "yearLanded": null,
@@ -10400,11 +8743,7 @@
     "id": "varial-flip",
     "name": "Varial Flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "spin",
-      "flip"
-    ],
+    "categories": ["varial", "spin", "flip"],
     "definition": "From seat in, 180 unispin + 180 twist (body and unicycle spin in same direction) + flip",
     "inventedBy": "Sabin Arditty",
     "yearLanded": null,
@@ -10421,9 +8760,7 @@
     "id": "varial-roll",
     "name": "Varial Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "Half rev rolling forward on the inside, twist free foot so you open to your front, place on the empty crank and roll a half rev backwards on the outside",
     "inventedBy": null,
     "yearLanded": null,
@@ -10440,11 +8777,7 @@
     "id": "varial-triple-flip",
     "name": "Varial Triple Flip",
     "alternateNames": [],
-    "categories": [
-      "varial",
-      "spin",
-      "flip"
-    ],
+    "categories": ["varial", "spin", "flip"],
     "definition": "Varial flip with 3 wheel rotation",
     "inventedBy": "Krisz Kovacs",
     "yearLanded": null,
@@ -10461,9 +8794,7 @@
     "id": "walk-the-dog",
     "name": "Walk the Dog",
     "alternateNames": [],
-    "categories": [
-      "coast"
-    ],
+    "categories": ["coast"],
     "definition": "Jump with speed and lead the uni rolling on the ground until you fall down back on it",
     "inventedBy": null,
     "yearLanded": null,
@@ -10480,9 +8811,7 @@
     "id": "wall-plant",
     "name": "wall plant",
     "alternateNames": [],
-    "categories": [
-      "plant"
-    ],
+    "categories": ["plant"],
     "definition": "Foot plant or Tire plant on a straight or slanted wall",
     "inventedBy": null,
     "yearLanded": null,
@@ -10499,9 +8828,7 @@
     "id": "wheel-walk",
     "name": "Wheel Walk",
     "alternateNames": [],
-    "categories": [
-      "walk"
-    ],
+    "categories": ["walk"],
     "definition": "both feet push forward alternately on the tire, propelling the unicycle forward",
     "inventedBy": null,
     "yearLanded": null,
@@ -10518,9 +8845,7 @@
     "id": "wolfgang-roll",
     "name": "Wolfgang roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "between outsiderolls you transition by passing the seat in front of you, and doing the crossing necessary for foot replacing on the side so that the new coming foot goes behind the leg you’re already standing on",
     "inventedBy": null,
     "yearLanded": null,
@@ -10537,9 +8862,7 @@
     "id": "worm-roll",
     "name": "Worm Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "longer version of a levitationroll, rolling your whole leg towards the wheel instead of just the foot",
     "inventedBy": "Pablo Codes",
     "yearLanded": 2017,
@@ -10556,9 +8879,7 @@
     "id": "wrap-roll",
     "name": "Wrap Roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "a rolling wrap with an extra leg wrap after the first half roll",
     "inventedBy": null,
     "yearLanded": null,
@@ -10575,9 +8896,7 @@
     "id": "x-roll",
     "name": "X roll",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "half outsideroll, cross free foot in front of standing foot (front of saddle) when at the other crank, free the other foot and roll on the outside on the new standing side",
     "inventedBy": null,
     "yearLanded": null,
@@ -10594,9 +8913,7 @@
     "id": "x-rolling-wrap",
     "name": "X rolling wrap",
     "alternateNames": [],
-    "categories": [
-      "roll"
-    ],
+    "categories": ["roll"],
     "definition": "a forward x roll where the seat transition happens behind your back like in a rolling wrap, and your transitioning leg moves in front of the tire and the leg already standing on the crank",
     "inventedBy": null,
     "yearLanded": null,
@@ -10613,9 +8930,7 @@
     "id": "x-up",
     "name": "X Up",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "hop, spin a 180 unispin that is reversed 180 degrees in the opposite direction, land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10632,9 +8947,7 @@
     "id": "x-up-360",
     "name": "X Up 360",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "hop, spin a 180 unispin, spin a 360 unispin in opposite direction, land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10651,9 +8964,7 @@
     "id": "x-up-540",
     "name": "X Up 540",
     "alternateNames": [],
-    "categories": [
-      "spin"
-    ],
+    "categories": ["spin"],
     "definition": "hop, spin a 180 unispin, spin a 540 unispin in opposite direction, land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10669,13 +8980,8 @@
   {
     "id": "x-up-over-flip",
     "name": "X up over flip",
-    "alternateNames": [
-      "x up over"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["x up over"],
+    "categories": ["spin", "flip"],
     "definition": "180, over flip, 180 opposite direction",
     "inventedBy": null,
     "yearLanded": null,
@@ -10691,13 +8997,8 @@
   {
     "id": "x-up-under-flip",
     "name": "X up under flip",
-    "alternateNames": [
-      "x up under"
-    ],
-    "categories": [
-      "spin",
-      "flip"
-    ],
+    "alternateNames": ["x up under"],
+    "categories": ["spin", "flip"],
     "definition": "180, under flip, 180 opposite direction",
     "inventedBy": null,
     "yearLanded": null,
@@ -10714,9 +9015,7 @@
     "id": "zero-flip",
     "name": "Zero Flip",
     "alternateNames": [],
-    "categories": [
-      "flip"
-    ],
+    "categories": ["flip"],
     "definition": "foot plant on the floor/ground with one foot, wheel does one rotation in the air, both feet land on pedals",
     "inventedBy": null,
     "yearLanded": null,
@@ -10733,9 +9032,7 @@
     "id": "zero-plant",
     "name": "Zero Plant",
     "alternateNames": [],
-    "categories": [
-      "basic"
-    ],
+    "categories": ["basic"],
     "definition": "foot plant on the floor, no obstacle",
     "inventedBy": null,
     "yearLanded": null,

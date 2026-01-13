@@ -125,10 +125,7 @@ function StackView({ stackId }: { stackId: number }) {
 
   // Can stack up if: user logged in, chain active, not own stack, is latest
   const canStackUp =
-    sessionUser &&
-    chain?.status === "active" &&
-    !isOwner &&
-    isLatest;
+    sessionUser && chain?.status === "active" && !isOwner && isLatest;
 
   // Can delete if: owner and latest (no one has continued it)
   const canDelete = isOwner && isLatest;
@@ -292,20 +289,21 @@ function StackView({ stackId }: { stackId: number }) {
               hasVoted={!!hasVoted}
             />
 
-            {stack.chain.archiveVotes && stack.chain.archiveVotes.length > 0 && (
-              <div className="mt-3 border-t pt-3">
-                <p className="text-muted-foreground mb-2 text-xs">
-                  Users who voted to archive:
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {stack.chain.archiveVotes.map((vote) => (
-                    <Badge key={vote.user.id} variant="secondary">
-                      {vote.user.name}
-                    </Badge>
-                  ))}
+            {stack.chain.archiveVotes &&
+              stack.chain.archiveVotes.length > 0 && (
+                <div className="mt-3 border-t pt-3">
+                  <p className="text-muted-foreground mb-2 text-xs">
+                    Users who voted to archive:
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {stack.chain.archiveVotes.map((vote) => (
+                      <Badge key={vote.user.id} variant="secondary">
+                        {vote.user.name}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Admin archive button */}
             {isAdmin && thresholdReached && (
@@ -323,7 +321,9 @@ function StackView({ stackId }: { stackId: number }) {
                         "Are you sure you want to archive this chain? All participants will be notified.",
                       confirmText: "Archive",
                       onConfirm: () => {
-                        archiveChain.mutate({ data: { chainId: stack.chain.id } });
+                        archiveChain.mutate({
+                          data: { chainId: stack.chain.id },
+                        });
                       },
                     })
                   }

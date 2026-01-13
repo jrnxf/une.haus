@@ -1,11 +1,10 @@
 import { SearchIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import type { Trick, TricksData } from "~/lib/tricks";
-
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import type { Trick, TricksData } from "~/lib/tricks";
 
 import { CategoryLane } from "./category-lane";
 import { TrickDetail } from "./trick-detail";
@@ -86,7 +85,7 @@ export function SkillTree({ data }: SkillTreeProps) {
         <div className="relative">
           <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
-            className="pl-9 pr-9"
+            className="pr-9 pl-9"
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search tricks..."
             type="search"

@@ -33,11 +33,11 @@ Components are organized in domain-specific folders. **Do NOT use barrel files (
 
 ```ts
 // Good - direct imports
-import { StatCard } from "~/components/stats/stat-card";
-import { ActivityChart } from "~/components/stats/activity-chart";
 
 // Bad - barrel imports (do not use)
 import { StatCard } from "~/components/stats";
+import { ActivityChart } from "~/components/stats/activity-chart";
+import { StatCard } from "~/components/stats/stat-card";
 ```
 
 ## Query Key Hierarchy

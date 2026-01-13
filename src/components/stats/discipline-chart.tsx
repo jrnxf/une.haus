@@ -64,9 +64,11 @@ export function DisciplineChart({ data }: DisciplineChartProps) {
         </ChartContainer>
         <div className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1">
           {chartData.slice(0, 6).map((item) => {
-            const key = item.discipline.toLowerCase() as keyof typeof chartConfig;
+            const key =
+              item.discipline.toLowerCase() as keyof typeof chartConfig;
             const config = chartConfig[key];
-            const color = config && "color" in config ? config.color : undefined;
+            const color =
+              config && "color" in config ? config.color : undefined;
             return (
               <Tooltip key={item.discipline}>
                 <TooltipTrigger asChild>

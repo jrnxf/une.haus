@@ -8,6 +8,7 @@ This document outlines the rules for the trick combination data in `src/data/tri
 - `src/data/tricks.json` - Original full tricks database (preserved for reference)
 
 To switch back to the original data, change the import in `src/lib/tricks/data.ts`:
+
 ```ts
 // Current: import rawTricks from "~/data/trick-combinations.json";
 // Original: import rawTricks from "~/data/tricks.json";
@@ -33,26 +34,29 @@ To switch back to the original data, change the import in `src/lib/tricks/data.t
 ## Naming Conventions
 
 ### Spin Levels (unispin rotation)
-| Degrees | Prefix | Example |
-|---------|--------|---------|
-| 180° | hick | hickflip |
-| 360° | trey | treyflip |
-| 540° | fifth | fifthflip |
-| 720° | sej | sejflip |
-| 900° | ninth | ninthflip |
-| 1080° | tenth | tenthflip |
+
+| Degrees | Prefix | Example   |
+| ------- | ------ | --------- |
+| 180°    | hick   | hickflip  |
+| 360°    | trey   | treyflip  |
+| 540°    | fifth  | fifthflip |
+| 720°    | sej    | sejflip   |
+| 900°    | ninth  | ninthflip |
+| 1080°   | tenth  | tenthflip |
 
 ### Flip Levels (crank rotations)
-| Rotations | Name |
-|-----------|------|
-| 1 | crankflip / flip |
-| 2 | doubleflip |
-| 3 | tripleflip |
-| 4 | quadflip |
-| 5 | quintflip |
-| 6 | sexflip |
+
+| Rotations | Name             |
+| --------- | ---------------- |
+| 1         | crankflip / flip |
+| 2         | doubleflip       |
+| 3         | tripleflip       |
+| 4         | quadflip         |
+| 5         | quintflip        |
+| 6         | sexflip          |
 
 ### Modifiers
+
 - **side** - Adds leg wrap in same direction as spin (e.g., hicksideflip)
 - **back** - Reverse crank rotation direction (e.g., hickbackflip)
 
@@ -89,12 +93,14 @@ A trick is one degree away if you can transform into it by making exactly ONE of
 ### Examples
 
 **hickdoublebackflip** related tricks:
+
 - `doublebackflip` - remove spin (one change)
 - `hickbackflip` - reduce flip level by one (one change)
 - `hickdoubleflip` - change flip direction (one change)
 - `treydoublebackflip` - increase spin level by one (one change)
 
 **NOT related:**
+
 - `crankflip` - too many steps (remove spin AND change flip)
 - `fifthdoublebackflip` - skips trey level
 - `180-unispin` - removes entire flip component AND back modifier
@@ -105,6 +111,7 @@ A trick is one degree away if you can transform into it by making exactly ONE of
 - **relatedTricks**: Graph connections for exploration (similar tricks to discover)
 
 The prerequisite chain follows skill progression:
+
 ```
 180-unispin → hickflip → hickdoubleflip → hicktripleflip → hickquadflip
 ```

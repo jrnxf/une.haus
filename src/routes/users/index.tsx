@@ -27,7 +27,9 @@ export const Route = createFileRoute("/users/")({
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) => {
     // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(users.list.infiniteQueryOptions(deps));
+    context.queryClient.prefetchInfiniteQuery(
+      users.list.infiniteQueryOptions(deps),
+    );
   },
   component: RouteComponent,
 });
@@ -38,7 +40,9 @@ function RouteComponent() {
 
   // React state drives the query - NOT the URL
   const [query, setQuery] = useState(searchParams.name ?? "");
-  const [disciplines, setDisciplines] = useState(searchParams.disciplines ?? []);
+  const [disciplines, setDisciplines] = useState(
+    searchParams.disciplines ?? [],
+  );
   const deferredQuery = useDeferredValue(query);
   const deferredDisciplines = useDeferredValue(disciplines);
 
@@ -89,7 +93,8 @@ function RouteComponent() {
   } = useSuspenseInfiniteQuery(
     users.list.infiniteQueryOptions({
       name: deferredQuery || undefined,
-      disciplines: deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
+      disciplines:
+        deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
     }),
   );
 

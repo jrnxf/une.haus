@@ -36,7 +36,7 @@ function RouteComponent() {
 
   const rankedRiders = useMemo(
     () => groupSetsByUserWithRankings(data.sets),
-    [data.sets]
+    [data.sets],
   );
 
   const participantCount = rankedRiders.length;

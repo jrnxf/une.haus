@@ -1,8 +1,6 @@
 import { SearchIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import type { Trick, TricksData } from "~/lib/tricks";
-
 import {
   Accordion,
   AccordionContent,
@@ -12,6 +10,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import type { Trick, TricksData } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
 type TricksSidebarProps = {
@@ -74,7 +73,7 @@ export function TricksSidebar({
         <div className="relative">
           <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
           <Input
-            className="h-9 pl-8 pr-8 text-sm"
+            className="h-9 pr-8 pl-8 text-sm"
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search tricks..."
             type="search"

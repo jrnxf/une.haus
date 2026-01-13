@@ -28,7 +28,16 @@ import { useTheme } from "~/lib/theme/context";
 import { users as usersApi } from "~/lib/users";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
-type Page = "games" | "games-menu" | "posts" | "root" | "search-users" | "theme" | "tricks" | "users" | "vault";
+type Page =
+  | "games"
+  | "games-menu"
+  | "posts"
+  | "root"
+  | "search-users"
+  | "theme"
+  | "tricks"
+  | "users"
+  | "vault";
 
 type SecondaryAction = {
   id: string;
@@ -75,7 +84,7 @@ export function Search() {
       setOpen(!open);
     },
     { enableOnFormTags: true },
-    [open, setOpen]
+    [open, setOpen],
   );
 
   const pushPage = (page: Page) => {
@@ -208,10 +217,11 @@ export function Search() {
 
   // Map selected value to item - cmdk lowercases values for matching
   const selectedItem = commandItems.find(
-    (item) => item.value.toLowerCase() === selectedValue.toLowerCase()
+    (item) => item.value.toLowerCase() === selectedValue.toLowerCase(),
   );
 
-  const hasSecondaryActions = selectedItem?.secondaryActions && selectedItem.secondaryActions.length > 0;
+  const hasSecondaryActions =
+    selectedItem?.secondaryActions && selectedItem.secondaryActions.length > 0;
 
   // Cmd+B to toggle actions dropdown
   useHotkeys(
@@ -221,11 +231,16 @@ export function Search() {
       e.preventDefault();
       setActionsOpen((prev) => !prev);
     },
-    { enableOnFormTags: true, enabled: open && activePage === "root" && hasSecondaryActions },
-    [open, activePage, hasSecondaryActions]
+    {
+      enableOnFormTags: true,
+      enabled: open && activePage === "root" && hasSecondaryActions,
+    },
+    [open, activePage, hasSecondaryActions],
   );
 
-  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPhone|iPad/.test(navigator.userAgent);
   const metaSymbol = isMac ? "⌘" : "Ctrl";
 
   const formatShortcut = (shortcut: SecondaryAction["shortcut"]) => {
@@ -261,7 +276,7 @@ export function Search() {
   };
 
   const footer = (
-    <div className="border-t bg-popover w-full flex items-center justify-end gap-1 px-2 py-1.5">
+    <div className="bg-popover flex w-full items-center justify-end gap-1 border-t px-2 py-1.5">
       {/* Back action for sub-pages */}
       {pages.length > 1 && (
         <Button
@@ -335,8 +350,15 @@ export function Search() {
             popPage();
           }
           // Handle meta+enter for secondary actions before cmdk processes it
-          if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && activePage === "root" && selectedItem) {
-            const enterAction = selectedItem.secondaryActions?.find((a) => a.hotkey === "mod+enter");
+          if (
+            e.key === "Enter" &&
+            (e.metaKey || e.ctrlKey) &&
+            activePage === "root" &&
+            selectedItem
+          ) {
+            const enterAction = selectedItem.secondaryActions?.find(
+              (a) => a.hotkey === "mod+enter",
+            );
             if (enterAction) {
               e.preventDefault();
               e.stopPropagation();
@@ -486,7 +508,13 @@ export function Search() {
         )}
 
         {activePage === "search-users" && (
-          <Suspense fallback={<div className="py-3 text-center text-sm text-muted-foreground">Loading users...</div>}>
+          <Suspense
+            fallback={
+              <div className="text-muted-foreground py-3 text-center text-sm">
+                Loading users...
+              </div>
+            }
+          >
             <SearchUsersPage
               query={input}
               onSelectUser={(userId) => {
@@ -527,7 +555,7 @@ function SearchUsersPage({
 
   if (filteredUsers.length === 0) {
     return (
-      <p className="py-3 text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground py-3 text-center text-sm">
         No users found.
       </p>
     );

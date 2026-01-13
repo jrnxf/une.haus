@@ -82,19 +82,21 @@ function RouteComponent() {
                 <StackUpForm parentStackId={latestStack.id} />
               </DialogContent>
             </Dialog>
-          ) : sessionUser ? latestStack.user.id === sessionUser.id ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled>
-                  <LayersIcon className="mr-2 size-4" />
-                  Stack It Up
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                You can&apos;t stack your own trick
-              </TooltipContent>
-            </Tooltip>
-          ) : null : (
+          ) : sessionUser ? (
+            latestStack.user.id === sessionUser.id ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button disabled>
+                    <LayersIcon className="mr-2 size-4" />
+                    Stack It Up
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  You can&apos;t stack your own trick
+                </TooltipContent>
+              </Tooltip>
+            ) : null
+          ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button disabled>
@@ -159,7 +161,9 @@ function NoActiveChain() {
               <li>1. An admin starts a stack with the first trick</li>
               <li>2. Someone lands that trick and adds a new one</li>
               <li>3. Next person lands BOTH tricks and adds another</li>
-              <li>4. Line grows - each person must land ALL previous tricks!</li>
+              <li>
+                4. Line grows - each person must land ALL previous tricks!
+              </li>
             </ol>
           </div>
 

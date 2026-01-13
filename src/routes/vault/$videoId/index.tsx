@@ -14,7 +14,7 @@ import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
 import { useSessionUser } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
-import { utv } from "~/lib/utv";
+import { utv } from "~/lib/utv/core";
 import { MessagesView } from "~/views/messages";
 
 const pathParametersSchema = z.object({

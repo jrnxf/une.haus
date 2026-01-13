@@ -24,8 +24,12 @@ export const Route = createFileRoute("/games/")({
       context.queryClient.ensureQueryData(
         games.rius.upcoming.roster.queryOptions(),
       ),
-      context.queryClient.ensureQueryData(games.bius.chain.active.queryOptions()),
-      context.queryClient.ensureQueryData(games.sius.chain.active.queryOptions()),
+      context.queryClient.ensureQueryData(
+        games.bius.chain.active.queryOptions(),
+      ),
+      context.queryClient.ensureQueryData(
+        games.sius.chain.active.queryOptions(),
+      ),
     ]);
   },
 });

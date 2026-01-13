@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { Bell, ChevronsUpDown, LogOut, UserIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { cn } from "~/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +20,7 @@ import {
 } from "~/components/ui/sidebar";
 import { notifications } from "~/lib/notifications";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import { cn } from "~/lib/utils";
 
 export function NavUser() {
   const { isMobile } = useSidebar();

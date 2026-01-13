@@ -46,7 +46,7 @@ import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
-import { utv, type UtvVideosData } from "~/lib/utv";
+import { utv, type UtvVideosData } from "~/lib/utv/core";
 import {
   useUpdateScale,
   useUpdateThumbnailSeconds,

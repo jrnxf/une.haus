@@ -7,7 +7,9 @@ import {
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
+
 import "@xyflow/react/dist/style.css";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Trick, TricksData } from "~/lib/tricks";
@@ -75,7 +77,11 @@ function getTrickBasePattern(name: string): string | null {
 }
 
 // Find related tricks - same base pattern but different trick
-function findRelatedTricks(centerTrick: Trick, data: TricksData, excludeIds: Set<string>): Trick[] {
+function findRelatedTricks(
+  centerTrick: Trick,
+  data: TricksData,
+  excludeIds: Set<string>,
+): Trick[] {
   const basePattern = getTrickBasePattern(centerTrick.name);
   if (!basePattern) return [];
 
@@ -92,9 +98,7 @@ function findRelatedTricks(centerTrick: Trick, data: TricksData, excludeIds: Set
   }
 
   // Sort by name similarity and limit
-  return related
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .slice(0, 4);
+  return related.sort((a, b) => a.name.localeCompare(b.name)).slice(0, 4);
 }
 
 const animationStyles = `
@@ -148,11 +152,15 @@ function getNodePositions(
   if (centerTrick.prerequisite && data.byId[centerTrick.prerequisite]) {
     beforeTricks.push(data.byId[centerTrick.prerequisite]);
   }
-  if (centerTrick.optionalPrerequisite && data.byId[centerTrick.optionalPrerequisite]) {
+  if (
+    centerTrick.optionalPrerequisite &&
+    data.byId[centerTrick.optionalPrerequisite]
+  ) {
     beforeTricks.push(data.byId[centerTrick.optionalPrerequisite]);
   }
 
-  const beforeStartX = -((beforeTricks.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
+  const beforeStartX =
+    -((beforeTricks.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
   for (const [index, trick] of beforeTricks.entries()) {
     positions.set(trick.id, {
       x: beforeStartX + index * (NODE_WIDTH + HORIZONTAL_GAP),
@@ -167,7 +175,8 @@ function getNodePositions(
     .map((id) => data.byId[id])
     .filter(Boolean) as Trick[];
 
-  const afterStartX = -((afterTricks.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
+  const afterStartX =
+    -((afterTricks.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
   for (const [index, trick] of afterTricks.entries()) {
     positions.set(trick.id, {
       x: afterStartX + index * (NODE_WIDTH + HORIZONTAL_GAP),
@@ -219,7 +228,10 @@ function buildGraphFromTrick(
   const positions = getNodePositions(centerTrick, data);
 
   // Track which handles are connected for each node
-  const connectedHandles = new Map<string, { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }>();
+  const connectedHandles = new Map<
+    string,
+    { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }
+  >();
 
   // Initialize all nodes with empty handles
   for (const id of positions.keys()) {
@@ -332,7 +344,10 @@ function GraphContent({
       return;
     }
 
-    const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(selectedTrick, data);
+    const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(
+      selectedTrick,
+      data,
+    );
     const isFirstLoad = prevSelectedIdRef.current === null;
     prevSelectedIdRef.current = selectedTrickId;
 
@@ -343,8 +358,12 @@ function GraphContent({
     } else {
       // Sidebar selection - fade everything out then in
       setIsTransitioning(true);
-      setNodes((current) => current.map((n) => ({ ...n, className: "node-exiting" })));
-      setEdges((current) => current.map((e) => ({ ...e, className: "edge-exiting" })));
+      setNodes((current) =>
+        current.map((n) => ({ ...n, className: "node-exiting" })),
+      );
+      setEdges((current) =>
+        current.map((e) => ({ ...e, className: "edge-exiting" })),
+      );
 
       setTimeout(() => {
         setNodes(newNodes.map((n) => ({ ...n, className: "node-entering" })));
@@ -370,16 +389,25 @@ function GraphContent({
       setIsTransitioning(true);
 
       // Build the new graph upfront so we have connectedHandles info for transitions
-      const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(clickedTrick, data);
+      const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(
+        clickedTrick,
+        data,
+      );
       const newNodesById = new Map(newNodes.map((n) => [n.id, n]));
 
       const currentNodeIds = new Set(nodes.map((n) => n.id));
       const newNodeIds = new Set(newNodes.map((n) => n.id));
 
       // Categorize nodes
-      const persistingIds = new Set([...currentNodeIds].filter((id) => newNodeIds.has(id)));
-      const exitingIds = new Set([...currentNodeIds].filter((id) => !newNodeIds.has(id)));
-      const enteringIds = new Set([...newNodeIds].filter((id) => !currentNodeIds.has(id)));
+      const persistingIds = new Set(
+        [...currentNodeIds].filter((id) => newNodeIds.has(id)),
+      );
+      const exitingIds = new Set(
+        [...currentNodeIds].filter((id) => !newNodeIds.has(id)),
+      );
+      const enteringIds = new Set(
+        [...newNodeIds].filter((id) => !currentNodeIds.has(id)),
+      );
 
       // Phase 1: Move persisting nodes to new positions, fade out exiting nodes
       setNodes((current) =>
@@ -401,11 +429,12 @@ function GraphContent({
       );
 
       // Fade out all edges immediately
-      setEdges((current) => current.map((e) => ({ ...e, className: "edge-exiting" })));
+      setEdges((current) =>
+        current.map((e) => ({ ...e, className: "edge-exiting" })),
+      );
 
       // Phase 2: After transition, add new nodes and edges
       setTimeout(() => {
-
         // Remove exiting nodes, keep persisting, add entering
         setNodes((current) => {
           const persistingNodes = current
@@ -432,7 +461,16 @@ function GraphContent({
         }, 50);
       }, TRANSITION_DURATION);
     },
-    [data, fitView, isTransitioning, nodes, onSelectTrick, selectedTrickId, setEdges, setNodes],
+    [
+      data,
+      fitView,
+      isTransitioning,
+      nodes,
+      onSelectTrick,
+      selectedTrickId,
+      setEdges,
+      setNodes,
+    ],
   );
 
   const handleNodeDoubleClick = useCallback(

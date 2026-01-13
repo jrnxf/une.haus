@@ -76,27 +76,31 @@ function RouteComponent() {
                 <BackUpSetForm parentSetId={latestSet.id} />
               </DialogContent>
             </Dialog>
-          ) : sessionUser ? latestSet.user.id === sessionUser.id ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled>
-                  <RotateCcwIcon className="mr-2 size-4" />
-                  Back It Up
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>You can&apos;t back up your own set</TooltipContent>
-            </Tooltip>
-          ) : latestSet.flaggedAt ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled>
-                  <RotateCcwIcon className="mr-2 size-4" />
-                  Back It Up
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Set is flagged and under review</TooltipContent>
-            </Tooltip>
-          ) : null : (
+          ) : sessionUser ? (
+            latestSet.user.id === sessionUser.id ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button disabled>
+                    <RotateCcwIcon className="mr-2 size-4" />
+                    Back It Up
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  You can&apos;t back up your own set
+                </TooltipContent>
+              </Tooltip>
+            ) : latestSet.flaggedAt ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button disabled>
+                    <RotateCcwIcon className="mr-2 size-4" />
+                    Back It Up
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Set is flagged and under review</TooltipContent>
+              </Tooltip>
+            ) : null
+          ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button disabled>

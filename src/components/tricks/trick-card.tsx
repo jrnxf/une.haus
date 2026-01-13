@@ -1,6 +1,5 @@
-import type { Trick } from "~/lib/tricks";
-
 import { Badge } from "~/components/ui/badge";
+import type { Trick } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
 type TrickCardProps = {
@@ -43,14 +42,14 @@ export function TrickCard({
         "flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors",
         "hover:bg-accent hover:border-accent-foreground/20",
         isSelected && "border-primary bg-primary/5",
-        compact ? "min-w-[140px] max-w-[180px]" : "min-w-[180px] max-w-[220px]",
+        compact ? "max-w-[180px] min-w-[140px]" : "max-w-[220px] min-w-[180px]",
       )}
       onClick={() => onSelect(trick)}
       type="button"
     >
       <span
         className={cn(
-          "font-medium leading-tight",
+          "leading-tight font-medium",
           compact ? "text-sm" : "text-base",
         )}
       >
