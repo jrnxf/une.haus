@@ -11,6 +11,12 @@ export type TrickNodeData = {
   isCenter: boolean;
   relationshipType: "center" | "before" | "after" | "related";
   relatedSide?: "left" | "right";
+  connectedHandles?: {
+    top?: boolean;
+    bottom?: boolean;
+    left?: boolean;
+    right?: boolean;
+  };
 };
 
 type TrickNodeProps = {
@@ -33,21 +39,23 @@ const RELATIONSHIP_LABELS = {
 };
 
 function TrickNodeComponent({ data, selected }: TrickNodeProps) {
-  const { trick, relationshipType, relatedSide } = data;
+  const { trick, relationshipType, connectedHandles } = data;
   const isCenter = relationshipType === "center";
 
   return (
     <>
       {/* Top handle - for vertical edges */}
-      <Handle
-        className="!bg-muted-foreground/50 !h-2 !w-2"
-        id="top"
-        position={Position.Top}
-        type="target"
-      />
+      {connectedHandles?.top && (
+        <Handle
+          className="!bg-muted-foreground/50 !h-2 !w-2"
+          id="top"
+          position={Position.Top}
+          type="target"
+        />
+      )}
 
       {/* Left handle - for center node and right-side related nodes */}
-      {(isCenter || relatedSide === "right") && (
+      {connectedHandles?.left && (
         <Handle
           className="!bg-muted-foreground/50 !h-2 !w-2"
           id="left"
@@ -57,7 +65,7 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
       )}
 
       {/* Right handle - for center node and left-side related nodes */}
-      {(isCenter || relatedSide === "left") && (
+      {connectedHandles?.right && (
         <Handle
           className="!bg-muted-foreground/50 !h-2 !w-2"
           id="right"
@@ -99,12 +107,14 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
       </div>
 
       {/* Bottom handle - for vertical edges */}
-      <Handle
-        className="!bg-muted-foreground/50 !h-2 !w-2"
-        id="bottom"
-        position={Position.Bottom}
-        type="source"
-      />
+      {connectedHandles?.bottom && (
+        <Handle
+          className="!bg-muted-foreground/50 !h-2 !w-2"
+          id="bottom"
+          position={Position.Bottom}
+          type="source"
+        />
+      )}
     </>
   );
 }

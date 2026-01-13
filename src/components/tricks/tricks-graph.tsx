@@ -218,21 +218,18 @@ function buildGraphFromTrick(
   const edges: FlowEdge[] = [];
   const positions = getNodePositions(centerTrick, data);
 
+  // Track which handles are connected for each node
+  const connectedHandles = new Map<string, { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }>();
+
+  // Initialize all nodes with empty handles
+  for (const id of positions.keys()) {
+    connectedHandles.set(id, {});
+  }
+
+  // First pass: create edges and track connected handles
   for (const [id, pos] of positions) {
     const trick = data.byId[id];
     if (!trick) continue;
-
-    nodes.push({
-      id: trick.id,
-      type: "trick",
-      position: { x: pos.x, y: pos.y },
-      data: {
-        trick,
-        isCenter: pos.relationshipType === "center",
-        relationshipType: pos.relationshipType,
-        relatedSide: pos.relatedSide,
-      },
-    });
 
     // Create edges for prerequisites pointing to center
     if (pos.relationshipType === "before") {
@@ -242,6 +239,9 @@ function buildGraphFromTrick(
         target: centerTrick.id,
         style: { stroke: "#3b82f6", strokeWidth: 2 },
       });
+      // Before node connects via bottom, center receives via top
+      connectedHandles.get(trick.id)!.bottom = true;
+      connectedHandles.get(centerTrick.id)!.top = true;
     }
 
     // Create edges from center to dependents
@@ -252,6 +252,9 @@ function buildGraphFromTrick(
         target: trick.id,
         style: { stroke: "#22c55e", strokeWidth: 2 },
       });
+      // Center connects via bottom, after node receives via top
+      connectedHandles.get(centerTrick.id)!.bottom = true;
+      connectedHandles.get(trick.id)!.top = true;
     }
 
     // Create dashed edges from related tricks to center using side handles
@@ -265,7 +268,34 @@ function buildGraphFromTrick(
         targetHandle: isLeft ? "left" : "right",
         style: { stroke: "#a855f7", strokeWidth: 1.5, strokeDasharray: "5 3" },
       });
+      // Related node connects via its side handle
+      if (isLeft) {
+        connectedHandles.get(trick.id)!.right = true;
+        connectedHandles.get(centerTrick.id)!.left = true;
+      } else {
+        connectedHandles.get(trick.id)!.left = true;
+        connectedHandles.get(centerTrick.id)!.right = true;
+      }
     }
+  }
+
+  // Second pass: create nodes with connected handles info
+  for (const [id, pos] of positions) {
+    const trick = data.byId[id];
+    if (!trick) continue;
+
+    nodes.push({
+      id: trick.id,
+      type: "trick",
+      position: { x: pos.x, y: pos.y },
+      data: {
+        trick,
+        isCenter: pos.relationshipType === "center",
+        relationshipType: pos.relationshipType,
+        relatedSide: pos.relatedSide,
+        connectedHandles: connectedHandles.get(id),
+      },
+    });
   }
 
   return { nodes, edges };
@@ -339,10 +369,12 @@ function GraphContent({
       isNodeClickRef.current = true;
       setIsTransitioning(true);
 
-      // Get the new positions for the clicked trick as center
-      const newPositions = getNodePositions(clickedTrick, data);
+      // Build the new graph upfront so we have connectedHandles info for transitions
+      const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(clickedTrick, data);
+      const newNodesById = new Map(newNodes.map((n) => [n.id, n]));
+
       const currentNodeIds = new Set(nodes.map((n) => n.id));
-      const newNodeIds = new Set(newPositions.keys());
+      const newNodeIds = new Set(newNodes.map((n) => n.id));
 
       // Categorize nodes
       const persistingIds = new Set([...currentNodeIds].filter((id) => newNodeIds.has(id)));
@@ -356,16 +388,11 @@ function GraphContent({
             return { ...n, className: "node-exiting" };
           }
           if (persistingIds.has(n.id)) {
-            const newPos = newPositions.get(n.id)!;
+            const newNode = newNodesById.get(n.id)!;
             return {
               ...n,
-              position: { x: newPos.x, y: newPos.y },
-              data: {
-                ...n.data,
-                isCenter: newPos.relationshipType === "center",
-                relationshipType: newPos.relationshipType,
-                relatedSide: newPos.relatedSide,
-              },
+              position: newNode.position,
+              data: newNode.data,
               className: "",
             };
           }
@@ -378,8 +405,6 @@ function GraphContent({
 
       // Phase 2: After transition, add new nodes and edges
       setTimeout(() => {
-        // Build the complete new graph
-        const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(clickedTrick, data);
 
         // Remove exiting nodes, keep persisting, add entering
         setNodes((current) => {
