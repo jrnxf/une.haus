@@ -4,7 +4,7 @@ import * as fs from "node:fs/promises";
 import path from "node:path";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { asc, count, eq, sql } from "drizzle-orm";
+import { and, asc, count, eq, gt, ilike, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "~/db";
@@ -15,7 +15,9 @@ import {
   utvVideoMessages,
   utvVideos,
 } from "~/db/schema";
+import { PAGE_SIZE } from "~/lib/constants";
 import { adminOnlyMiddleware } from "~/lib/middleware";
+import { listUtvVideosSchema } from "~/lib/utv/schemas";
 
 const getUtvVideoSchema = z.object({
   id: z.number(),
@@ -90,6 +92,55 @@ export const allUtvVideosServerFn = createServerFn({
     .leftJoin(messagesSubquery, eq(utvVideos.id, messagesSubquery.utvVideoId))
     .orderBy(asc(utvVideos.id));
 });
+
+export const listUtvVideosServerFn = createServerFn({
+  method: "GET",
+})
+  .inputValidator(zodValidator(listUtvVideosSchema))
+  .handler(async ({ data: input }) => {
+    const likesSubquery = db
+      .select({
+        utvVideoId: utvVideoLikes.utvVideoId,
+        count: count().as("likes_count"),
+      })
+      .from(utvVideoLikes)
+      .groupBy(utvVideoLikes.utvVideoId)
+      .as("likes_sq");
+
+    const messagesSubquery = db
+      .select({
+        utvVideoId: utvVideoMessages.utvVideoId,
+        count: count().as("messages_count"),
+      })
+      .from(utvVideoMessages)
+      .groupBy(utvVideoMessages.utvVideoId)
+      .as("messages_sq");
+
+    return await db
+      .select({
+        id: utvVideos.id,
+        title: utvVideos.title,
+        legacyUrl: utvVideos.legacyUrl,
+        scale: utvVideos.thumbnailScale,
+        thumbnailSeconds: utvVideos.thumbnailSeconds,
+        assetId: muxVideos.assetId,
+        playbackId: muxVideos.playbackId,
+        likesCount: sql<number>`COALESCE(${likesSubquery.count}, 0)`,
+        messagesCount: sql<number>`COALESCE(${messagesSubquery.count}, 0)`,
+      })
+      .from(utvVideos)
+      .leftJoin(muxVideos, eq(utvVideos.muxAssetId, muxVideos.assetId))
+      .leftJoin(likesSubquery, eq(utvVideos.id, likesSubquery.utvVideoId))
+      .leftJoin(messagesSubquery, eq(utvVideos.id, messagesSubquery.utvVideoId))
+      .where(
+        and(
+          input.q ? ilike(utvVideos.title, `%${input.q}%`) : undefined,
+          input.cursor ? gt(utvVideos.id, input.cursor) : undefined,
+        ),
+      )
+      .orderBy(asc(utvVideos.id))
+      .limit(PAGE_SIZE);
+  });
 
 const saveScalesSchema = z.object({
   scales: z.record(z.string(), z.number()),

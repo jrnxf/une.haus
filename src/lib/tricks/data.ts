@@ -1,5 +1,6 @@
 import type { Trick, TricksData } from "./types";
-import rawTricks from "~/data/tricks.json";
+// Original tricks data preserved at: ~/data/tricks.json
+import rawTricks from "~/data/trick-combinations.json";
 
 // Progression word order for sorting (single flip < double < triple...)
 const PROGRESSION_ORDER = [
@@ -64,8 +65,11 @@ function getTrickSortKey(name: string): {
   return { leadingNumber, baseWords, progressionRank, suffix };
 }
 
+// Export for testing
+export { getTrickSortKey };
+
 // Natural sort comparison for trick names
-function compareTrickNames(a: string, b: string): number {
+export function compareTrickNames(a: string, b: string): number {
   const keyA = getTrickSortKey(a);
   const keyB = getTrickSortKey(b);
 

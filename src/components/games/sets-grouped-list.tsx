@@ -7,6 +7,9 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import { type RankedRider } from "~/lib/games";
+import { type RiderScore } from "~/lib/games/rius/ranking";
 
 import { SetCard } from "./set-card";
 
@@ -23,32 +26,78 @@ type SetData = {
   submissions?: unknown[];
 };
 
-type GroupedSets = Record<
-  number,
-  {
-    user: SetData["user"];
-    sets: SetData[];
-  }
->;
-
 type SetsGroupedListProps = {
-  groupedSets: GroupedSets;
+  rankedRiders: RankedRider<SetData>[];
   openUserId?: number;
   basePath: string;
   searchParams?: Record<string, unknown>;
 };
 
+function RankBadge({ rank }: { rank: number }) {
+  if (rank === 1) {
+    return (
+      <Badge
+        variant="default"
+        className="bg-yellow-600 px-1.5 py-0 text-[10px] text-yellow-100 dark:bg-yellow-700"
+      >
+        1st
+      </Badge>
+    );
+  }
+  if (rank === 2) {
+    return (
+      <Badge
+        variant="default"
+        className="bg-gray-500 px-1.5 py-0 text-[10px] text-gray-100 dark:bg-gray-600"
+      >
+        2nd
+      </Badge>
+    );
+  }
+  if (rank === 3) {
+    return (
+      <Badge
+        variant="default"
+        className="bg-amber-700 px-1.5 py-0 text-[10px] text-amber-100 dark:bg-amber-800"
+      >
+        3rd
+      </Badge>
+    );
+  }
+  return null;
+}
+
+function RiderStats({ ranking }: { ranking: RiderScore }) {
+  const parts: string[] = [];
+
+  if (ranking.setsCount > 0) {
+    parts.push(`${ranking.setsCount} ${ranking.setsCount === 1 ? "set" : "sets"}`);
+  }
+  if (ranking.submissionsCount > 0) {
+    parts.push(
+      `${ranking.submissionsCount} ${ranking.submissionsCount === 1 ? "submission" : "submissions"}`
+    );
+  }
+
+  const statsText = parts.join(" · ");
+  const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "pts"}`;
+
+  return (
+    <p className="text-muted-foreground text-xs">
+      {statsText} · {pointsText}
+    </p>
+  );
+}
+
 export function SetsGroupedList({
-  groupedSets,
+  rankedRiders,
   openUserId,
   basePath,
   searchParams = {},
 }: SetsGroupedListProps) {
   const navigate = useNavigate();
 
-  const entries = Object.entries(groupedSets);
-
-  if (entries.length === 0) {
+  if (rankedRiders.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-8 text-center">
         <p className="text-muted-foreground">No sets available</p>
@@ -73,13 +122,13 @@ export function SetsGroupedList({
         });
       }}
     >
-      {entries.map(([userId, { user, sets }]) => (
+      {rankedRiders.map(({ user, sets, ranking }) => (
         <AccordionItem
-          key={userId}
-          value={userId}
+          key={user.id}
+          value={user.id.toString()}
           className="bg-card overflow-hidden rounded-lg border last:border-b"
         >
-          <AccordionTrigger className="px-4 py-3 hover:no-underline [&[data-state=open]]:border-b">
+          <AccordionTrigger className="border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none [&[data-state=open]]:border-border">
             <div className="flex items-center gap-3">
               <Avatar
                 className="size-8 rounded-full"
@@ -90,19 +139,24 @@ export function SetsGroupedList({
                 <AvatarFallback className="text-xs" name={user.name} />
               </Avatar>
               <div className="text-left">
-                <h3 className="text-sm font-medium">{user.name}</h3>
-                <p className="text-muted-foreground text-xs">
-                  {sets.length} {sets.length === 1 ? "set" : "sets"}
-                </p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium">{user.name}</h3>
+                  <RankBadge rank={ranking.rank} />
+                </div>
+                <RiderStats ranking={ranking} />
               </div>
             </div>
           </AccordionTrigger>
 
           <AccordionContent className="p-3 pt-0">
             <div className="flex flex-col gap-2 pt-3">
-              {sets.map((set) => (
-                <SetCard key={set.id} set={set} />
-              ))}
+              {sets.length > 0 ? (
+                sets.map((set) => <SetCard key={set.id} set={set} />)
+              ) : (
+                <p className="text-muted-foreground py-2 text-center text-sm">
+                  No sets uploaded (submissions only)
+                </p>
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>

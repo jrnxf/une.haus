@@ -122,92 +122,89 @@ export function Search() {
   };
 
   // Define command items with their actions
-  const commandItems: CommandItemConfig[] = React.useMemo(() => {
-    const items: CommandItemConfig[] = [
-      {
-        id: "games",
-        label: "Games",
-        value: "/games",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/games"),
-        },
-        secondaryActions: [
-          {
-            id: "games-menu",
-            label: "Choose Game",
-            shortcut: { key: "↵", meta: true },
-            hotkey: "mod+enter",
-            onAction: () => pushPage("games-menu"),
-          },
-        ],
+  const commandItems: CommandItemConfig[] = [
+    {
+      id: "games",
+      label: "Games",
+      value: "/games",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/games"),
       },
-      {
-        id: "users",
-        label: "Users",
-        value: "/users",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/users"),
+      secondaryActions: [
+        {
+          id: "games-menu",
+          label: "Choose Game",
+          shortcut: { key: "↵", meta: true },
+          hotkey: "mod+enter",
+          onAction: () => pushPage("games-menu"),
         },
-        secondaryActions: [
-          {
-            id: "search-users",
-            label: "Search Users",
-            shortcut: { key: "↵", meta: true },
-            hotkey: "mod+enter",
-            onAction: () => pushPage("search-users"),
-          },
-        ],
+      ],
+    },
+    {
+      id: "users",
+      label: "Users",
+      value: "/users",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/users"),
       },
-      {
-        id: "posts",
-        label: "Posts",
-        value: "/posts",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/posts"),
+      secondaryActions: [
+        {
+          id: "search-users",
+          label: "Search Users",
+          shortcut: { key: "↵", meta: true },
+          hotkey: "mod+enter",
+          onAction: () => pushPage("search-users"),
         },
+      ],
+    },
+    {
+      id: "posts",
+      label: "Posts",
+      value: "/posts",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/posts"),
       },
-      {
-        id: "chat",
-        label: "Chat",
-        value: "/chat",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/chat"),
-        },
+    },
+    {
+      id: "chat",
+      label: "Chat",
+      value: "/chat",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/chat"),
       },
-      {
-        id: "vault",
-        label: "Vault",
-        value: "/vault",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/vault"),
-        },
+    },
+    {
+      id: "vault",
+      label: "Vault",
+      value: "/vault",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/vault"),
       },
-      {
-        id: "tricks",
-        label: "Tricks",
-        value: "/tricks",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/tricks"),
-        },
+    },
+    {
+      id: "tricks",
+      label: "Tricks",
+      value: "/tricks",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/tricks"),
       },
-      {
-        id: "stats",
-        label: "Stats",
-        value: "/stats",
-        primaryAction: {
-          label: "Open",
-          onAction: () => closeAndNavigate("/stats"),
-        },
+    },
+    {
+      id: "stats",
+      label: "Stats",
+      value: "/stats",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/stats"),
       },
-    ];
-    return items;
-  }, [navigate, setOpen]);
+    },
+  ];
 
   // Map selected value to item - cmdk lowercases values for matching
   const selectedItem = commandItems.find(

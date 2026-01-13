@@ -19,6 +19,8 @@ export function BadgeInput<T extends string>({
         const isSelected = selections.includes(option);
         return (
           <Button
+            aria-label={isSelected ? `Remove ${option}` : `Select ${option}`}
+            aria-pressed={isSelected}
             className="bg-background rounded-xl"
             key={option}
             onClick={() => {

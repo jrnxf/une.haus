@@ -337,6 +337,7 @@ export const listActiveRiusServerFn = createServerFn({
             id: true,
             name: true,
             instructions: true,
+            createdAt: true,
           },
           with: {
             user: {
@@ -366,6 +367,10 @@ export const listActiveRiusServerFn = createServerFn({
               },
             },
             submissions: {
+              columns: {
+                id: true,
+                createdAt: true,
+              },
               with: {
                 user: {
                   columns: {
@@ -423,6 +428,7 @@ export const getArchivedRiusServerFn = createServerFn({
             id: true,
             name: true,
             instructions: true,
+            createdAt: true,
           },
           with: {
             user: {
@@ -449,6 +455,10 @@ export const getArchivedRiusServerFn = createServerFn({
               },
             },
             submissions: {
+              columns: {
+                id: true,
+                createdAt: true,
+              },
               with: {
                 user: {
                   columns: {

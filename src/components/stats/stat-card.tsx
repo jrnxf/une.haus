@@ -24,20 +24,20 @@ export function StatCard({
   const content = (
     <Card
       className={cn(
-        "border-dashed py-4 transition-colors",
+        "border-dashed py-2.5 transition-colors",
         description && "hover:border-primary/30 cursor-help",
         className,
       )}
     >
-      <CardContent className="flex items-center gap-3 px-4">
-        <div className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-lg">
-          <Icon className="text-muted-foreground size-5" />
+      <CardContent className="flex items-center gap-2.5 px-3">
+        <div className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+          <Icon className="text-muted-foreground size-4" />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-2xl font-bold tabular-nums">
+          <p className="truncate text-lg font-semibold tabular-nums">
             {typeof value === "number" ? value.toLocaleString() : value}
           </p>
-          <p className="text-muted-foreground truncate text-xs">{label}</p>
+          <p className="text-muted-foreground truncate text-[11px]">{label}</p>
         </div>
       </CardContent>
     </Card>

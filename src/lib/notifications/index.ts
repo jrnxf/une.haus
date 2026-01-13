@@ -52,7 +52,7 @@ export const notifications = {
         queryKey: ["notifications.unreadCount"],
         queryFn: getUnreadCountServerFn,
         // Refetch every 30 seconds for near-realtime updates
-        refetchInterval: 30000,
+        refetchInterval: 30_000,
       }),
   },
   markRead: {

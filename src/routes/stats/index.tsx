@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { StatsGrid } from "~/components/stats";
+import { StatsGrid } from "~/components/stats/stats-grid";
 import { stats } from "~/lib/stats";
 
 export const Route = createFileRoute("/stats/")({

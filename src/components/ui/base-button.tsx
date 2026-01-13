@@ -378,13 +378,11 @@ const buttonVariants = cva(
   },
 );
 
-export interface ButtonProps
-  extends
-    useRender.ComponentProps<"button">,
-    VariantProps<typeof buttonVariants> {
-  selected?: boolean;
-  asChild?: boolean;
-}
+export type ButtonProps = useRender.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    selected?: boolean;
+    asChild?: boolean;
+  };
 
 function Button({
   render,
@@ -446,9 +444,9 @@ function Button({
   return element;
 }
 
-interface ButtonArrowProps extends React.SVGProps<SVGSVGElement> {
+type ButtonArrowProps = React.SVGProps<SVGSVGElement> & {
   icon?: LucideIcon;
-}
+};
 
 function ButtonArrow({
   icon: Icon = ChevronDown,

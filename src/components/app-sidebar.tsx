@@ -7,6 +7,7 @@ import {
   MedalIcon,
   MessagesSquareIcon,
   Send,
+  SparklesIcon,
 } from "lucide-react";
 import * as React from "react";
 
@@ -57,6 +58,11 @@ const data = {
       url: "/stats",
       icon: BarChart3Icon,
     },
+    {
+      title: "Tricks",
+      url: "/tricks",
+      icon: SparklesIcon,
+    },
   ],
   navSecondary: [
     {
@@ -74,7 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              className="w-fit data-[slot=sidebar-menu-button]:p-1.5!"
               asChild
             >
               <Link to="/" className="h-fit">

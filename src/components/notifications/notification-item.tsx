@@ -41,18 +41,23 @@ type NotificationItemProps = {
   onDelete?: () => void;
 };
 
-function getNotificationIcon(type: NotificationType) {
+function NotificationIcon({ type }: { type: NotificationType }) {
   switch (type) {
-    case "like":
-      return Heart;
-    case "comment":
-      return MessageCircle;
-    case "follow":
-      return UserPlus;
-    case "new_content":
-      return Sparkles;
-    default:
-      return Sparkles;
+    case "like": {
+      return <Heart className="size-5" />;
+    }
+    case "comment": {
+      return <MessageCircle className="size-5" />;
+    }
+    case "follow": {
+      return <UserPlus className="size-5" />;
+    }
+    case "new_content": {
+      return <Sparkles className="size-5" />;
+    }
+    default: {
+      return <Sparkles className="size-5" />;
+    }
   }
 }
 
@@ -68,7 +73,6 @@ export function NotificationItem({
   onMarkRead,
   onDelete,
 }: NotificationItemProps) {
-  const Icon = getNotificationIcon(type);
   const url = getNotificationUrl(entityType, entityId);
   const actorNames = actors.map((a) => a.name);
   const message = getNotificationMessage(
@@ -109,7 +113,7 @@ export function NotificationItem({
             "bg-purple-100 text-purple-600 dark:bg-purple-900/30",
         )}
       >
-        <Icon className="size-5" />
+        <NotificationIcon type={type} />
       </div>
 
       {/* Content */}

@@ -63,24 +63,29 @@ export function DisciplineChart({ data }: DisciplineChartProps) {
           </RadialBarChart>
         </ChartContainer>
         <div className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1">
-          {chartData.slice(0, 6).map((item) => (
-            <Tooltip key={item.discipline}>
-              <TooltipTrigger asChild>
-                <div className="flex cursor-help items-center gap-1.5">
-                  <div
-                    className="size-2 rounded-full"
-                    style={{ backgroundColor: item.fill }}
-                  />
-                  <span className="text-muted-foreground text-xs">
-                    {item.discipline}
-                  </span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs">
-                {item.count} {item.count === 1 ? "user" : "users"}
-              </TooltipContent>
-            </Tooltip>
-          ))}
+          {chartData.slice(0, 6).map((item) => {
+            const key = item.discipline.toLowerCase() as keyof typeof chartConfig;
+            const config = chartConfig[key];
+            const color = config && "color" in config ? config.color : undefined;
+            return (
+              <Tooltip key={item.discipline}>
+                <TooltipTrigger asChild>
+                  <div className="flex cursor-help items-center gap-1.5">
+                    <div
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="text-muted-foreground text-xs">
+                      {item.discipline}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {item.count} {item.count === 1 ? "user" : "users"}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

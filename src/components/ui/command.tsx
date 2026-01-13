@@ -46,6 +46,7 @@ function CommandDialog({
   footer,
   onValueChange,
   value,
+  shouldFilter = true,
   ...props
 }: React.ComponentProps<typeof Dialog> &
   Pick<React.ComponentProps<typeof DialogContent>, "onCloseAutoFocus"> & {
@@ -56,16 +57,25 @@ function CommandDialog({
     footer?: React.ReactNode;
     onValueChange?: (value: string) => void;
     value?: string;
+    shouldFilter?: boolean;
   }) {
   return (
     <Dialog {...props}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className={cn("size-7", className)}>
+        <Button
+          aria-label="Open command menu"
+          className={cn("size-7", className)}
+          size="icon"
+          variant="ghost"
+        >
           <CommandIcon className="size-4" />
         </Button>
       </DialogTrigger>
       <DialogContent
-        className={cn("overflow-hidden p-0 flex flex-col max-h-[min(400px,calc(100vh-100px))]", className)}
+        className={cn(
+          "flex max-h-[min(400px,calc(100vh-100px))] flex-col gap-0 overflow-hidden p-0",
+          className,
+        )}
         showCloseButton={showCloseButton}
         onCloseAutoFocus={onCloseAutoFocus}
       >
@@ -76,7 +86,8 @@ function CommandDialog({
         <Command
           value={value}
           onValueChange={onValueChange}
-          className="flex-1 min-h-0 **:[[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2"
+          shouldFilter={shouldFilter}
+          className="**:[[cmdk-group-heading]]:text-muted-foreground min-h-0 flex-1 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input-wrapper]]:min-h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2"
         >
           {children}
         </Command>
@@ -124,7 +135,7 @@ const CommandInput = React.forwardRef<
   return (
     <div
       className={cn(
-        "flex h-9 items-center gap-2 px-3",
+        "flex h-9 min-h-9 items-center gap-2 px-3",
         "border-b",
         "group-data-[side=top]/popover-content:border-t group-data-[side=top]/popover-content:border-b-0",
       )}
@@ -139,7 +150,7 @@ const CommandInput = React.forwardRef<
         ref={ref}
         data-slot="command-input"
         className={cn(
-          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground h-full w-full bg-transparent outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         {...props}
@@ -165,21 +176,21 @@ function CommandItem({
   );
 }
 
-function CommandList({
-  className,
-  ...props
-}: React.ComponentProps<typeof CommandPrimitive.List>) {
-  return (
-    <CommandPrimitive.List
-      data-slot="command-list"
-      className={cn(
-        "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+const CommandList = React.forwardRef<
+  React.ComponentRef<typeof CommandPrimitive.List>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
+>(({ className, ...props }, ref) => (
+  <CommandPrimitive.List
+    ref={ref}
+    data-slot="command-list"
+    className={cn(
+      "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto",
+      className,
+    )}
+    {...props}
+  />
+));
+CommandList.displayName = "CommandList";
 
 function CommandSeparator({
   className,
@@ -252,7 +263,13 @@ function CommandActionsProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Kbd({ children, className }: { children: React.ReactNode; className?: string }) {
+function Kbd({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <kbd
       className={cn(
@@ -270,7 +287,9 @@ function CommandFooter({ className }: { className?: string }) {
 
   if (actions.length === 0) return null;
 
-  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
+  const isMac =
+    typeof navigator !== "undefined" &&
+    /Mac|iPhone|iPad/.test(navigator.userAgent);
   const metaKey = isMac ? "⌘" : "Ctrl";
 
   const formatShortcut = (shortcut: CommandAction["shortcut"]) => {
@@ -287,7 +306,7 @@ function CommandFooter({ className }: { className?: string }) {
     <div
       data-slot="command-footer"
       className={cn(
-        "border-t bg-background flex items-center justify-end gap-3 px-3 py-2",
+        "bg-background flex items-center justify-end gap-3 border-t px-3 py-2",
         className,
       )}
     >

@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, Check, Loader2, Settings } from "lucide-react";
 import { useState } from "react";
 
-import { NotificationItem } from "~/components/notifications";
+import { NotificationItem } from "~/components/notifications/notification-item";
 import { Button } from "~/components/ui/button";
 import {
   Empty,

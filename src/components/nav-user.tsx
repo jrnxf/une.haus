@@ -1,14 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  LogOut,
-  UserIcon,
-} from "lucide-react";
+import { Bell, ChevronsUpDown, LogOut, UserIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { cn } from "~/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,7 +70,7 @@ export function NavUser() {
                 </span>
                 <span className="truncate text-xs">{sessionUser.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown aria-hidden="true" className="ml-auto size-4" />
               {unreadCount > 0 && (
                 <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-medium">
                   {unreadCount > 9 ? "9+" : unreadCount}
@@ -84,7 +79,10 @@ export function NavUser() {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className={cn(
+              "w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg",
+              isMobile && "z-[52]",
+            )}
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -116,12 +114,6 @@ export function NavUser() {
                 <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
                   <UserIcon />
                   Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/auth/me">
-                  <BadgeCheck />
-                  Account
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

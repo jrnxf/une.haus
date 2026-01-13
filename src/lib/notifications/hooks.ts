@@ -1,17 +1,23 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { notifications } from "~/lib/notifications";
+
+function invalidateAllNotifications(qc: QueryClient) {
+  qc.invalidateQueries({ queryKey: ["notifications.list"] });
+  qc.invalidateQueries({ queryKey: ["notifications.grouped"] });
+  qc.invalidateQueries({ queryKey: ["notifications.unreadCount"] });
+}
 
 export function useMarkNotificationRead() {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: notifications.markRead.fn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["notifications.list"] });
-      qc.invalidateQueries({ queryKey: ["notifications.grouped"] });
-      qc.invalidateQueries({ queryKey: ["notifications.unreadCount"] });
-    },
+    onSuccess: () => invalidateAllNotifications(qc),
   });
 }
 
@@ -20,11 +26,7 @@ export function useMarkGroupRead() {
 
   return useMutation({
     mutationFn: notifications.markGroupRead.fn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["notifications.list"] });
-      qc.invalidateQueries({ queryKey: ["notifications.grouped"] });
-      qc.invalidateQueries({ queryKey: ["notifications.unreadCount"] });
-    },
+    onSuccess: () => invalidateAllNotifications(qc),
   });
 }
 
@@ -45,11 +47,7 @@ export function useMarkAllNotificationsRead() {
         qc.setQueryData(["notifications.unreadCount"], context.prev);
       }
     },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["notifications.list"] });
-      qc.invalidateQueries({ queryKey: ["notifications.grouped"] });
-      qc.invalidateQueries({ queryKey: ["notifications.unreadCount"] });
-    },
+    onSettled: () => invalidateAllNotifications(qc),
   });
 }
 
@@ -58,10 +56,6 @@ export function useDeleteNotification() {
 
   return useMutation({
     mutationFn: notifications.delete.fn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["notifications.list"] });
-      qc.invalidateQueries({ queryKey: ["notifications.grouped"] });
-      qc.invalidateQueries({ queryKey: ["notifications.unreadCount"] });
-    },
+    onSuccess: () => invalidateAllNotifications(qc),
   });
 }

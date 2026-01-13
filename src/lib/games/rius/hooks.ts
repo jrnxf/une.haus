@@ -135,28 +135,3 @@ export function useDeleteSubmission({ setId }: { setId: number }) {
     },
   });
 }
-
-// export function useEditSet() {
-//   const navigate = useNavigate()
-//   const utilities = api.useUtils();
-
-//   const qc = useQueryClient();
-
-//   return api.games.editRiuSet.useMutation({
-//     onMutate: () => {
-//       utilities.games.listUpcomingRiuRoster.cancel();
-//     },
-//     onSuccess: () => {
-//       toast.success("Set updated");
-//       // https://tanstack.com/query/latest/docs/framework/react/guides/migrating-to-v5#hydration-api-changes
-//       // https://github.com/TanStack/query/discussions/3169#discussioncomment-12437333
-//       // to avoid flashing stale data due to hydration now happening in an
-//       // effect, removing the query before redirecting means the prefetched
-//       // value in the RSC will be used immediately
-//       qc.removeQueries({
-//         queryKey: getQueryKey(api.games.listUpcomingRiuRoster),
-//       });
-//       navigate({ to: "/games/rius/upcoming" });
-//     },
-//   });
-// }

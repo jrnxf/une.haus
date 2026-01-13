@@ -27,14 +27,14 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
   });
 };
 
-const config = defineConfig({
+const config = defineConfig(async () => ({
   server: {
     allowedHosts: [
       // put ngrok url here
     ],
   },
   plugins: [
-    devtoolsPlugin(),
+    await devtoolsPlugin(),
     nitro({
       preset: "bun",
       compatibilityDate: "latest",
@@ -85,6 +85,6 @@ const config = defineConfig({
     // react's vite plugin must come after start's vite plugin
     viteReact(),
   ],
-});
+}));
 
 export default config;

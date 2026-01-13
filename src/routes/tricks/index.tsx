@@ -5,12 +5,10 @@ import { useState } from "react";
 
 import type { Trick } from "~/lib/tricks";
 
-import {
-  TrickDetail,
-  TricksGraph,
-  TricksSearch,
-  TricksSidebar,
-} from "~/components/tricks";
+import { TrickDetail } from "~/components/tricks/trick-detail";
+import { TricksGraph } from "~/components/tricks/tricks-graph";
+import { TricksSearch } from "~/components/tricks/tricks-search";
+import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/")({

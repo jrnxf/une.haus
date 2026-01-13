@@ -3,11 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayersIcon, PlusIcon } from "lucide-react";
 
 import { StackUpForm } from "~/components/forms/games/sius";
-import {
-  ArchiveVoteButton,
-  ChainStatusBanner,
-  StackLineage,
-} from "~/components/games/sius";
+import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button";
+import { ChainStatusBanner } from "~/components/games/sius/chain-status-banner";
+import { StackLineage } from "~/components/games/sius/stack-lineage";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import {
@@ -84,17 +82,7 @@ function RouteComponent() {
                 <StackUpForm parentStackId={latestStack.id} />
               </DialogContent>
             </Dialog>
-          ) : !sessionUser ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled>
-                  <LayersIcon className="mr-2 size-4" />
-                  Stack It Up
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Sign in to stack it up</TooltipContent>
-            </Tooltip>
-          ) : latestStack.user.id === sessionUser.id ? (
+          ) : sessionUser ? latestStack.user.id === sessionUser.id ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button disabled>
@@ -106,7 +94,17 @@ function RouteComponent() {
                 You can&apos;t stack your own trick
               </TooltipContent>
             </Tooltip>
-          ) : null}
+          ) : null : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled>
+                  <LayersIcon className="mr-2 size-4" />
+                  Stack It Up
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Sign in to stack it up</TooltipContent>
+            </Tooltip>
+          )}
 
           {sessionUser && (
             <>

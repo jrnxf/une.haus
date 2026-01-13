@@ -46,7 +46,7 @@ function RouteComponent() {
     Boolean(searchParams.name || searchParams.disciplines?.length),
   );
 
-  const hasActiveFilters = Boolean(query || disciplines.length);
+  const hasActiveFilters = Boolean(query || disciplines.length > 0);
 
   const debouncedNavigate = useDebounceCallback((name: string) => {
     router.navigate({

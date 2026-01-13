@@ -588,7 +588,7 @@ notifications.list.infiniteQueryOptions({ unreadOnly: false });
 Bell icon with unread badge and popover dropdown.
 
 ```tsx
-import { NotificationBell } from "~/components/notifications";
+import { NotificationBell } from "~/components/notifications/notification-bell";
 
 <NotificationBell className="..." />;
 ```
@@ -606,7 +606,7 @@ import { NotificationBell } from "~/components/notifications";
 Renders a single grouped notification.
 
 ```tsx
-import { NotificationItem } from "~/components/notifications";
+import { NotificationItem } from "~/components/notifications/notification-item";
 
 <NotificationItem
   type="like"

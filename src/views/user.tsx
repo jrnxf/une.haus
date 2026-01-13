@@ -29,7 +29,7 @@ import {
 
 import { Badges } from "~/components/badges";
 import { SocialLink } from "~/components/social-link";
-import { StatCard } from "~/components/stats";
+import { StatCard } from "~/components/stats/stat-card";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";

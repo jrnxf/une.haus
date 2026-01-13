@@ -4,8 +4,8 @@ import { useMemo } from "react";
 
 import { z } from "zod";
 
-import { SetsGroupedList } from "~/components/games";
-import { games, groupSetsByUser } from "~/lib/games";
+import { SetsGroupedList } from "~/components/games/sets-grouped-list";
+import { games, groupSetsByUserWithRankings } from "~/lib/games";
 import { messages } from "~/lib/messages";
 
 const searchSchema = z.object({
@@ -34,9 +34,12 @@ function RouteComponent() {
   const { open } = Route.useSearch();
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions());
 
-  const groupedSets = useMemo(() => groupSetsByUser(data.sets), [data.sets]);
+  const rankedRiders = useMemo(
+    () => groupSetsByUserWithRankings(data.sets),
+    [data.sets]
+  );
 
-  const participantCount = Object.keys(groupedSets).length;
+  const participantCount = rankedRiders.length;
   const setCount = data.sets.length;
 
   return (
@@ -61,7 +64,7 @@ function RouteComponent() {
         </div>
       ) : (
         <SetsGroupedList
-          groupedSets={groupedSets}
+          rankedRiders={rankedRiders}
           openUserId={open}
           basePath="/games/rius/active"
         />

@@ -8,20 +8,27 @@ export function getNotificationUrl(
   entityId: number,
 ): string {
   switch (entityType) {
-    case "post":
+    case "post": {
       return `/posts/${entityId}`;
-    case "riuSet":
+    }
+    case "riuSet": {
       return `/games/rius/sets/${entityId}`;
-    case "riuSubmission":
+    }
+    case "riuSubmission": {
       return `/games/rius/submissions/${entityId}`;
-    case "biuSet":
+    }
+    case "biuSet": {
       return `/games/bius/sets/${entityId}`;
-    case "utvVideo":
+    }
+    case "utvVideo": {
       return `/vault/${entityId}`;
-    case "user":
+    }
+    case "user": {
       return `/users/${entityId}`;
-    default:
+    }
+    default: {
       return "/";
+    }
   }
 }
 
@@ -38,16 +45,21 @@ export function getNotificationMessage(
   const actorText = formatActors(actorNames, count);
 
   switch (type) {
-    case "like":
+    case "like": {
       return `${actorText} liked your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`;
-    case "comment":
+    }
+    case "comment": {
       return `${actorText} commented on your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`;
-    case "follow":
+    }
+    case "follow": {
       return `${actorText} started following you`;
-    case "new_content":
+    }
+    case "new_content": {
       return `${actorText} ${count > 1 ? "created new content" : `posted ${formatEntityType(entityType)}`}${entityTitle ? `: "${entityTitle}"` : ""}`;
-    default:
+    }
+    default: {
       return "You have a new notification";
+    }
   }
 }
 
@@ -74,19 +86,26 @@ function formatActors(names: string[], totalCount: number): string {
 
 function formatEntityType(entityType: NotificationEntityType): string {
   switch (entityType) {
-    case "post":
+    case "post": {
       return "post";
-    case "riuSet":
+    }
+    case "riuSet": {
       return "RIU set";
-    case "riuSubmission":
+    }
+    case "riuSubmission": {
       return "RIU submission";
-    case "biuSet":
+    }
+    case "biuSet": {
       return "BIU set";
-    case "utvVideo":
+    }
+    case "utvVideo": {
       return "video";
-    case "user":
+    }
+    case "user": {
       return "profile";
-    default:
+    }
+    default: {
       return "content";
+    }
   }
 }

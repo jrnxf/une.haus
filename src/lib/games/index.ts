@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { bius } from "./bius";
+import { calculateRiderRankings, type RiderScore } from "./rius/ranking";
 import { sius } from "./sius";
 import {
   adminOnlyRotateRiusServerFn,
@@ -144,4 +145,76 @@ export function groupSetsByUser<T extends { user: { id: number } }>(sets: T[]) {
   }
 
   return groups;
+}
+
+type User = {
+  id: number;
+  name: string;
+  avatarId: string | null;
+};
+
+type SetWithSubmissions = {
+  id: number;
+  createdAt: Date;
+  user: User;
+  submissions?: {
+    id: number;
+    createdAt: Date;
+    user: User;
+  }[];
+};
+
+export type RankedRider<T> = {
+  user: User;
+  sets: T[];
+  ranking: RiderScore;
+};
+
+/**
+ * Groups sets by user and calculates rankings.
+ * Returns an array sorted by rank (1st place first).
+ */
+export function groupSetsByUserWithRankings<T extends SetWithSubmissions>(
+  sets: T[]
+): RankedRider<T>[] {
+  // Calculate rankings using the ranking module
+  const rankings = calculateRiderRankings(sets);
+
+  // Group sets by user
+  const groups = new Map<number, { user: User; sets: T[] }>();
+  for (const set of sets) {
+    const userId = set.user.id;
+    const existing = groups.get(userId);
+    if (existing) {
+      existing.sets.push(set);
+    } else {
+      groups.set(userId, {
+        user: set.user,
+        sets: [set],
+      });
+    }
+  }
+
+  // Combine groups with rankings and sort by rank
+  const result: RankedRider<T>[] = [];
+
+  for (const ranking of rankings) {
+    const group = groups.get(ranking.user.id);
+    if (group) {
+      result.push({
+        user: group.user,
+        sets: group.sets,
+        ranking,
+      });
+    } else {
+      // User only has submissions, no sets
+      result.push({
+        user: ranking.user,
+        sets: [],
+        ranking,
+      });
+    }
+  }
+
+  return result;
 }

@@ -3,6 +3,7 @@
 ## TypeScript Style
 
 - Always use `type` instead of `interface` for type definitions
+- Avoid `useEffect` - prefer derived state, event handlers, or keying components
 
 ## Library Organization (`src/lib/`)
 
@@ -28,16 +29,16 @@ export const messages = {
 
 ## Component Organization
 
-Components are organized in domain-specific folders with barrel exports:
+Components are organized in domain-specific folders. **Do NOT use barrel files (`index.ts`) in `src/components/`** - always use direct imports:
 
 ```ts
-// src/components/stats/index.ts
-export { ActivityChart } from "./activity-chart";
-export { StatCard } from "./stat-card";
-// ...
-```
+// Good - direct imports
+import { StatCard } from "~/components/stats/stat-card";
+import { ActivityChart } from "~/components/stats/activity-chart";
 
-Import from the barrel: `import { StatCard } from "~/components/stats"`
+// Bad - barrel imports (do not use)
+import { StatCard } from "~/components/stats";
+```
 
 ## Query Key Hierarchy
 

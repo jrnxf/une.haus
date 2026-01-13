@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { type z } from "zod";
 
-import { TrickLine } from "~/components/games/sius";
+import { TrickLine } from "~/components/games/sius/trick-line";
 import { VideoInput } from "~/components/input/video-input";
 import { Button } from "~/components/ui/button";
 import {

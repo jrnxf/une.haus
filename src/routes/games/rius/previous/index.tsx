@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 import { z } from "zod";
 
-import { SetsGroupedList } from "~/components/games";
+import { SetsGroupedList } from "~/components/games/sets-grouped-list";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { games, groupSetsByUser } from "~/lib/games";
+import { games, groupSetsByUserWithRankings } from "~/lib/games";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 
@@ -92,12 +92,12 @@ function ArchiveContent({
     games.rius.archived.get.queryOptions({ riuId: selectedRiuId }),
   );
 
-  const groupedSets = useMemo(() => {
-    if (!selectedRiu) return {};
-    return groupSetsByUser(selectedRiu.sets);
+  const rankedRiders = useMemo(() => {
+    if (!selectedRiu) return [];
+    return groupSetsByUserWithRankings(selectedRiu.sets);
   }, [selectedRiu]);
 
-  const participantCount = Object.keys(groupedSets).length;
+  const participantCount = rankedRiders.length;
   const setCount = selectedRiu?.sets.length ?? 0;
 
   return (
@@ -152,9 +152,9 @@ function ArchiveContent({
       </div>
 
       {/* Sets List */}
-      {selectedRiu && Object.keys(groupedSets).length > 0 && (
+      {selectedRiu && rankedRiders.length > 0 && (
         <SetsGroupedList
-          groupedSets={groupedSets}
+          rankedRiders={rankedRiders}
           openUserId={open}
           basePath="/games/rius/previous"
           searchParams={{ riuId: selectedRiuId }}

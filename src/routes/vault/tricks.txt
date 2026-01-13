@@ -1,0 +1,47 @@
+180 unispin
+360 unispin
+540 unispin
+720 unispon
+900 unispin
+1080 unispin
+1260 unispin
+
+
+you can add a side to any of those like
+
+180 sidespin
+360 sidespin
+etc
+
+
+crankflip
+doubleflip
+tripleflip
+quadflip
+quintflip
+sexflip
+
+
+
+when adding a crankflip to a unspin in goes
+
+
+hickflip, hickdoubleflip, hicktripleflip, hickquadflip
+treyflip, ^^
+fifthflip ^^
+sejflip ^^
+ninthflip
+tenthflip
+
+with a side it becomes 
+
+hicksideflip
+treysideflip
+etc
+
+
+all these tricks can also have a backflip (reverse crankflip) and would be called
+
+treybackflip, treydoublebackflip, etc
+
+you can add stuff too so treysidebackflip, etc

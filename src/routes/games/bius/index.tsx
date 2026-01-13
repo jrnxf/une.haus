@@ -3,7 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon, RotateCcwIcon } from "lucide-react";
 
 import { BackUpSetForm } from "~/components/forms/games/bius";
-import { ChainStatusBanner, SetLineage } from "~/components/games/bius";
+import { ChainStatusBanner } from "~/components/games/bius/chain-status-banner";
+import { SetLineage } from "~/components/games/bius/set-lineage";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import {
@@ -75,17 +76,7 @@ function RouteComponent() {
                 <BackUpSetForm parentSetId={latestSet.id} />
               </DialogContent>
             </Dialog>
-          ) : !sessionUser ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled>
-                  <RotateCcwIcon className="mr-2 size-4" />
-                  Back It Up
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Sign in to back it up</TooltipContent>
-            </Tooltip>
-          ) : latestSet.user.id === sessionUser.id ? (
+          ) : sessionUser ? latestSet.user.id === sessionUser.id ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button disabled>
@@ -105,7 +96,17 @@ function RouteComponent() {
               </TooltipTrigger>
               <TooltipContent>Set is flagged and under review</TooltipContent>
             </Tooltip>
-          ) : null}
+          ) : null : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button disabled>
+                  <RotateCcwIcon className="mr-2 size-4" />
+                  Back It Up
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Sign in to back it up</TooltipContent>
+            </Tooltip>
+          )}
         </div>
       )}
 

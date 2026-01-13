@@ -3,6 +3,8 @@ import { count, countDistinct, eq, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
+  biuSetLikes,
+  biuSetMessageLikes,
   chatMessageLikes,
   chatMessages,
   postLikes,
@@ -18,6 +20,8 @@ import {
   riuSubmissionMessageLikes,
   riuSubmissionMessages,
   riuSubmissions,
+  siuStackLikes,
+  siuStackMessageLikes,
   userLocations,
   users,
   utvVideoLikes,
@@ -44,11 +48,15 @@ export const getStatsServerFn = createServerFn({
     postLikesResult,
     riuSetLikesResult,
     riuSubmissionLikesResult,
+    biuSetLikesResult,
+    siuStackLikesResult,
     chatMessageLikesResult,
     utvVideoLikesResult,
     postMessageLikesResult,
     riuSetMessageLikesResult,
     riuSubmissionMessageLikesResult,
+    biuSetMessageLikesResult,
+    siuStackMessageLikesResult,
     utvVideoMessageLikesResult,
 
     // Message counts
@@ -101,11 +109,15 @@ export const getStatsServerFn = createServerFn({
     db.select({ count: count() }).from(postLikes),
     db.select({ count: count() }).from(riuSetLikes),
     db.select({ count: count() }).from(riuSubmissionLikes),
+    db.select({ count: count() }).from(biuSetLikes),
+    db.select({ count: count() }).from(siuStackLikes),
     db.select({ count: count() }).from(chatMessageLikes),
     db.select({ count: count() }).from(utvVideoLikes),
     db.select({ count: count() }).from(postMessageLikes),
     db.select({ count: count() }).from(riuSetMessageLikes),
     db.select({ count: count() }).from(riuSubmissionMessageLikes),
+    db.select({ count: count() }).from(biuSetMessageLikes),
+    db.select({ count: count() }).from(siuStackMessageLikes),
     db.select({ count: count() }).from(utvVideoMessageLikes),
 
     // Message counts from each table
@@ -151,8 +163,10 @@ export const getStatsServerFn = createServerFn({
       id: number;
       name: string;
       avatarId: string | null;
-      setsCount: number;
-      submissionsCount: number;
+      riuSetsCount: number;
+      riuSubmissionsCount: number;
+      biuSetsCount: number;
+      siuStacksCount: number;
       postsCount: number;
       messagesCount: number;
       likesCount: number;
@@ -162,19 +176,27 @@ export const getStatsServerFn = createServerFn({
         u.id,
         u.name,
         u.avatar_id as "avatarId",
-        COALESCE(sets.count, 0) as "setsCount",
-        COALESCE(subs.count, 0) as "submissionsCount",
+        COALESCE(riu_sets.count, 0) as "riuSetsCount",
+        COALESCE(riu_subs.count, 0) as "riuSubmissionsCount",
+        COALESCE(biu_sets.count, 0) as "biuSetsCount",
+        COALESCE(siu_stacks.count, 0) as "siuStacksCount",
         COALESCE(posts.count, 0) as "postsCount",
         COALESCE(msgs.count, 0) as "messagesCount",
         COALESCE(likes.count, 0) as "likesCount",
-        (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
+        (COALESCE(riu_sets.count, 0) * 5) + (COALESCE(riu_subs.count, 0) * 5) + (COALESCE(biu_sets.count, 0) * 5) + (COALESCE(siu_stacks.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
       FROM users u
       LEFT JOIN (
         SELECT user_id, COUNT(*) as count FROM riu_sets GROUP BY user_id
-      ) sets ON u.id = sets.user_id
+      ) riu_sets ON u.id = riu_sets.user_id
       LEFT JOIN (
         SELECT user_id, COUNT(*) as count FROM riu_submissions GROUP BY user_id
-      ) subs ON u.id = subs.user_id
+      ) riu_subs ON u.id = riu_subs.user_id
+      LEFT JOIN (
+        SELECT user_id, COUNT(*) as count FROM biu_sets GROUP BY user_id
+      ) biu_sets ON u.id = biu_sets.user_id
+      LEFT JOIN (
+        SELECT user_id, COUNT(*) as count FROM siu_stacks GROUP BY user_id
+      ) siu_stacks ON u.id = siu_stacks.user_id
       LEFT JOIN (
         SELECT user_id, COUNT(*) as count FROM posts GROUP BY user_id
       ) posts ON u.id = posts.user_id
@@ -184,6 +206,8 @@ export const getStatsServerFn = createServerFn({
           UNION ALL SELECT user_id FROM post_messages
           UNION ALL SELECT user_id FROM riu_set_messages
           UNION ALL SELECT user_id FROM riu_submission_messages
+          UNION ALL SELECT user_id FROM biu_set_messages
+          UNION ALL SELECT user_id FROM siu_stack_messages
           UNION ALL SELECT user_id FROM utv_video_messages
         ) all_msgs GROUP BY user_id
       ) msgs ON u.id = msgs.user_id
@@ -192,11 +216,19 @@ export const getStatsServerFn = createServerFn({
           SELECT user_id FROM post_likes
           UNION ALL SELECT user_id FROM riu_set_likes
           UNION ALL SELECT user_id FROM riu_submission_likes
+          UNION ALL SELECT user_id FROM biu_set_likes
+          UNION ALL SELECT user_id FROM siu_stack_likes
           UNION ALL SELECT user_id FROM chat_message_likes
           UNION ALL SELECT user_id FROM utv_video_likes
+          UNION ALL SELECT user_id FROM post_message_likes
+          UNION ALL SELECT user_id FROM riu_set_message_likes
+          UNION ALL SELECT user_id FROM riu_submission_message_likes
+          UNION ALL SELECT user_id FROM biu_set_message_likes
+          UNION ALL SELECT user_id FROM siu_stack_message_likes
+          UNION ALL SELECT user_id FROM utv_video_message_likes
         ) all_likes GROUP BY user_id
       ) likes ON u.id = likes.user_id
-      WHERE (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
+      WHERE (COALESCE(riu_sets.count, 0) * 5) + (COALESCE(riu_subs.count, 0) * 5) + (COALESCE(biu_sets.count, 0) * 5) + (COALESCE(siu_stacks.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
       ORDER BY "totalPoints" DESC
       LIMIT 5
     `),
@@ -207,11 +239,15 @@ export const getStatsServerFn = createServerFn({
     (postLikesResult[0]?.count ?? 0) +
     (riuSetLikesResult[0]?.count ?? 0) +
     (riuSubmissionLikesResult[0]?.count ?? 0) +
+    (biuSetLikesResult[0]?.count ?? 0) +
+    (siuStackLikesResult[0]?.count ?? 0) +
     (chatMessageLikesResult[0]?.count ?? 0) +
     (utvVideoLikesResult[0]?.count ?? 0) +
     (postMessageLikesResult[0]?.count ?? 0) +
     (riuSetMessageLikesResult[0]?.count ?? 0) +
     (riuSubmissionMessageLikesResult[0]?.count ?? 0) +
+    (biuSetMessageLikesResult[0]?.count ?? 0) +
+    (siuStackMessageLikesResult[0]?.count ?? 0) +
     (utvVideoMessageLikesResult[0]?.count ?? 0);
 
   // Aggregate total messages
@@ -246,8 +282,10 @@ export const getStatsServerFn = createServerFn({
       id: row.id,
       name: row.name,
       avatarId: row.avatarId,
-      setsCount: Number(row.setsCount),
-      submissionsCount: Number(row.submissionsCount),
+      riuSetsCount: Number(row.riuSetsCount),
+      riuSubmissionsCount: Number(row.riuSubmissionsCount),
+      biuSetsCount: Number(row.biuSetsCount),
+      siuStacksCount: Number(row.siuStacksCount),
       postsCount: Number(row.postsCount),
       messagesCount: Number(row.messagesCount),
       likesCount: Number(row.likesCount),
@@ -265,8 +303,10 @@ export const getContributorsServerFn = createServerFn({
     id: number;
     name: string;
     avatarId: string | null;
-    setsCount: number;
-    submissionsCount: number;
+    riuSetsCount: number;
+    riuSubmissionsCount: number;
+    biuSetsCount: number;
+    siuStacksCount: number;
     postsCount: number;
     messagesCount: number;
     likesCount: number;
@@ -276,19 +316,27 @@ export const getContributorsServerFn = createServerFn({
       u.id,
       u.name,
       u.avatar_id as "avatarId",
-      COALESCE(sets.count, 0) as "setsCount",
-      COALESCE(subs.count, 0) as "submissionsCount",
+      COALESCE(riu_sets.count, 0) as "riuSetsCount",
+      COALESCE(riu_subs.count, 0) as "riuSubmissionsCount",
+      COALESCE(biu_sets.count, 0) as "biuSetsCount",
+      COALESCE(siu_stacks.count, 0) as "siuStacksCount",
       COALESCE(posts.count, 0) as "postsCount",
       COALESCE(msgs.count, 0) as "messagesCount",
       COALESCE(likes.count, 0) as "likesCount",
-      (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
+      (COALESCE(riu_sets.count, 0) * 5) + (COALESCE(riu_subs.count, 0) * 5) + (COALESCE(biu_sets.count, 0) * 5) + (COALESCE(siu_stacks.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
     FROM users u
     LEFT JOIN (
       SELECT user_id, COUNT(*) as count FROM riu_sets GROUP BY user_id
-    ) sets ON u.id = sets.user_id
+    ) riu_sets ON u.id = riu_sets.user_id
     LEFT JOIN (
       SELECT user_id, COUNT(*) as count FROM riu_submissions GROUP BY user_id
-    ) subs ON u.id = subs.user_id
+    ) riu_subs ON u.id = riu_subs.user_id
+    LEFT JOIN (
+      SELECT user_id, COUNT(*) as count FROM biu_sets GROUP BY user_id
+    ) biu_sets ON u.id = biu_sets.user_id
+    LEFT JOIN (
+      SELECT user_id, COUNT(*) as count FROM siu_stacks GROUP BY user_id
+    ) siu_stacks ON u.id = siu_stacks.user_id
     LEFT JOIN (
       SELECT user_id, COUNT(*) as count FROM posts GROUP BY user_id
     ) posts ON u.id = posts.user_id
@@ -298,6 +346,8 @@ export const getContributorsServerFn = createServerFn({
         UNION ALL SELECT user_id FROM post_messages
         UNION ALL SELECT user_id FROM riu_set_messages
         UNION ALL SELECT user_id FROM riu_submission_messages
+        UNION ALL SELECT user_id FROM biu_set_messages
+        UNION ALL SELECT user_id FROM siu_stack_messages
         UNION ALL SELECT user_id FROM utv_video_messages
       ) all_msgs GROUP BY user_id
     ) msgs ON u.id = msgs.user_id
@@ -306,11 +356,19 @@ export const getContributorsServerFn = createServerFn({
         SELECT user_id FROM post_likes
         UNION ALL SELECT user_id FROM riu_set_likes
         UNION ALL SELECT user_id FROM riu_submission_likes
+        UNION ALL SELECT user_id FROM biu_set_likes
+        UNION ALL SELECT user_id FROM siu_stack_likes
         UNION ALL SELECT user_id FROM chat_message_likes
         UNION ALL SELECT user_id FROM utv_video_likes
+        UNION ALL SELECT user_id FROM post_message_likes
+        UNION ALL SELECT user_id FROM riu_set_message_likes
+        UNION ALL SELECT user_id FROM riu_submission_message_likes
+        UNION ALL SELECT user_id FROM biu_set_message_likes
+        UNION ALL SELECT user_id FROM siu_stack_message_likes
+        UNION ALL SELECT user_id FROM utv_video_message_likes
       ) all_likes GROUP BY user_id
     ) likes ON u.id = likes.user_id
-    WHERE (COALESCE(sets.count, 0) * 5) + (COALESCE(subs.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
+    WHERE (COALESCE(riu_sets.count, 0) * 5) + (COALESCE(riu_subs.count, 0) * 5) + (COALESCE(biu_sets.count, 0) * 5) + (COALESCE(siu_stacks.count, 0) * 5) + (COALESCE(posts.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
     ORDER BY "totalPoints" DESC
   `);
 
@@ -318,8 +376,10 @@ export const getContributorsServerFn = createServerFn({
     id: row.id,
     name: row.name,
     avatarId: row.avatarId,
-    setsCount: Number(row.setsCount),
-    submissionsCount: Number(row.submissionsCount),
+    riuSetsCount: Number(row.riuSetsCount),
+    riuSubmissionsCount: Number(row.riuSubmissionsCount),
+    biuSetsCount: Number(row.biuSetsCount),
+    siuStacksCount: Number(row.siuStacksCount),
     postsCount: Number(row.postsCount),
     messagesCount: Number(row.messagesCount),
     likesCount: Number(row.likesCount),

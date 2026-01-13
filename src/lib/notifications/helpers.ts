@@ -170,7 +170,8 @@ export async function getContentOwner(
       // For follow notifications, the entityId is the user being followed
       return entityId;
     }
-    default:
+    default: {
       return null;
+    }
   }
 }

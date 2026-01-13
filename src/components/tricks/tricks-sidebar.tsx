@@ -82,6 +82,7 @@ export function TricksSidebar({
           />
           {searchTerm && (
             <Button
+              aria-label="Clear search"
               className="absolute top-1/2 right-1 -translate-y-1/2"
               onClick={() => setSearchTerm("")}
               size="icon-xs"
@@ -94,7 +95,7 @@ export function TricksSidebar({
       </div>
 
       {/* Category list */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 overflow-hidden">
         <Accordion
           className="px-3"
           defaultValue={defaultOpenCategories}

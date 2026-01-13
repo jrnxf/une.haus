@@ -20,8 +20,10 @@ type TopContributorsProps = {
     id: number;
     name: string;
     avatarId: string | null;
-    setsCount: number;
-    submissionsCount: number;
+    riuSetsCount: number;
+    riuSubmissionsCount: number;
+    biuSetsCount: number;
+    siuStacksCount: number;
     postsCount: number;
     messagesCount: number;
     likesCount: number;
@@ -64,8 +66,10 @@ export function TopContributors({ data }: TopContributorsProps) {
       </CardHeader>
       <CardContent className="space-y-3 px-4">
         {data.map((contributor, index) => {
-          const setsPoints = contributor.setsCount * 5;
-          const submissionsPoints = contributor.submissionsCount * 5;
+          const riuSetsPoints = contributor.riuSetsCount * 5;
+          const riuSubmissionsPoints = contributor.riuSubmissionsCount * 5;
+          const biuSetsPoints = contributor.biuSetsCount * 5;
+          const siuStacksPoints = contributor.siuStacksCount * 5;
           const postsPoints = contributor.postsCount * 5;
           const messagesPoints = contributor.messagesCount * 2;
           const likesPoints = contributor.likesCount;
@@ -105,9 +109,27 @@ export function TopContributors({ data }: TopContributorsProps) {
                     <div className="bg-muted h-2 flex-1 cursor-help overflow-hidden rounded-full">
                       <div className="flex h-full">
                         <div
-                          className="h-full bg-[var(--chart-1)] transition-all"
+                          className="h-full bg-rose-500 transition-all"
                           style={{
-                            width: `${((setsPoints + submissionsPoints) / maxPoints) * 100}%`,
+                            width: `${(riuSetsPoints / maxPoints) * 100}%`,
+                          }}
+                        />
+                        <div
+                          className="h-full bg-orange-500 transition-all"
+                          style={{
+                            width: `${(riuSubmissionsPoints / maxPoints) * 100}%`,
+                          }}
+                        />
+                        <div
+                          className="h-full bg-amber-500 transition-all"
+                          style={{
+                            width: `${(biuSetsPoints / maxPoints) * 100}%`,
+                          }}
+                        />
+                        <div
+                          className="h-full bg-lime-500 transition-all"
+                          style={{
+                            width: `${(siuStacksPoints / maxPoints) * 100}%`,
                           }}
                         />
                         <div
@@ -134,11 +156,20 @@ export function TopContributors({ data }: TopContributorsProps) {
                   <TooltipContent side="top" className="text-xs">
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                       <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-[var(--chart-1)]" />
-                        <span>
-                          {contributor.setsCount + contributor.submissionsCount}{" "}
-                          game
-                        </span>
+                        <div className="size-2 rounded-full bg-rose-500" />
+                        <span>{contributor.riuSetsCount} riu sets</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="size-2 rounded-full bg-orange-500" />
+                        <span>{contributor.riuSubmissionsCount} riu subs</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="size-2 rounded-full bg-amber-500" />
+                        <span>{contributor.biuSetsCount} biu sets</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="size-2 rounded-full bg-lime-500" />
+                        <span>{contributor.siuStacksCount} siu stacks</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="size-2 rounded-full bg-[var(--chart-3)]" />

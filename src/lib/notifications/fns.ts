@@ -84,35 +84,39 @@ export const listGroupedNotificationsServerFn = createServerFn({
         latestId: sql<number>`MAX(${notifications.id})`,
         latestAt: sql<Date>`MAX(${notifications.createdAt})`,
         // Get the most recent unique actor IDs (up to 3)
-        actorIds: sql<number[]>`(
-          SELECT ARRAY_AGG(top_actors.actor_id)
-          FROM (
-            SELECT unique_actors.actor_id
-            FROM (
-              SELECT DISTINCT ON (n2.actor_id) n2.actor_id, n2.created_at
-              FROM ${notifications} n2
-              WHERE n2.user_id = ${userId}
-                AND n2.type = ${notifications.type}
-                AND n2.entity_type = ${notifications.entityType}
-                AND n2.entity_id = ${notifications.entityId}
-                ${unreadOnly ? sql`AND n2.read_at IS NULL` : sql``}
-              ORDER BY n2.actor_id, n2.created_at DESC
-            ) unique_actors
-            ORDER BY unique_actors.created_at DESC
-            LIMIT 3
-          ) top_actors
-        )`,
+        actorIds: sql<number[]>`
+          (
+                    SELECT ARRAY_AGG(top_actors.actor_id)
+                    FROM (
+                      SELECT unique_actors.actor_id
+                      FROM (
+                        SELECT DISTINCT ON (n2.actor_id) n2.actor_id, n2.created_at
+                        FROM ${notifications} n2
+                        WHERE n2.user_id = ${userId}
+                          AND n2.type = ${notifications.type}
+                          AND n2.entity_type = ${notifications.entityType}
+                          AND n2.entity_id = ${notifications.entityId}
+                          ${unreadOnly ? sql`AND n2.read_at IS NULL` : sql``}
+                        ORDER BY n2.actor_id, n2.created_at DESC
+                      ) unique_actors
+                      ORDER BY unique_actors.created_at DESC
+                      LIMIT 3
+                    ) top_actors
+                  )
+        `,
         // Get the data from the most recent notification
-        data: sql<string>`(
-          SELECT data::text
-          FROM ${notifications} n3
-          WHERE n3.user_id = ${userId}
-            AND n3.type = ${notifications.type}
-            AND n3.entity_type = ${notifications.entityType}
-            AND n3.entity_id = ${notifications.entityId}
-          ORDER BY created_at DESC
-          LIMIT 1
-        )`,
+        data: sql<string>`
+          (
+                    SELECT data::text
+                    FROM ${notifications} n3
+                    WHERE n3.user_id = ${userId}
+                      AND n3.type = ${notifications.type}
+                      AND n3.entity_type = ${notifications.entityType}
+                      AND n3.entity_id = ${notifications.entityId}
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                  )
+        `,
       })
       .from(notifications)
       .where(and(...whereConditions))
