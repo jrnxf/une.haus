@@ -10,6 +10,7 @@ export type TrickNodeData = {
   trick: Trick;
   isCenter: boolean;
   relationshipType: "center" | "before" | "after" | "related";
+  relatedSide?: "left" | "right";
 };
 
 type TrickNodeProps = {
@@ -32,16 +33,38 @@ const RELATIONSHIP_LABELS = {
 };
 
 function TrickNodeComponent({ data, selected }: TrickNodeProps) {
-  const { trick, relationshipType } = data;
+  const { trick, relationshipType, relatedSide } = data;
+  const isCenter = relationshipType === "center";
 
   return (
     <>
-      {/* Input handle (for edges coming in) */}
+      {/* Top handle - for vertical edges */}
       <Handle
         className="!bg-muted-foreground/50 !h-2 !w-2"
+        id="top"
         position={Position.Top}
         type="target"
       />
+
+      {/* Left handle - for center node and right-side related nodes */}
+      {(isCenter || relatedSide === "right") && (
+        <Handle
+          className="!bg-muted-foreground/50 !h-2 !w-2"
+          id="left"
+          position={Position.Left}
+          type={isCenter ? "target" : "source"}
+        />
+      )}
+
+      {/* Right handle - for center node and left-side related nodes */}
+      {(isCenter || relatedSide === "left") && (
+        <Handle
+          className="!bg-muted-foreground/50 !h-2 !w-2"
+          id="right"
+          position={Position.Right}
+          type={isCenter ? "target" : "source"}
+        />
+      )}
 
       <div
         className={cn(
@@ -75,9 +98,10 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
         </div>
       </div>
 
-      {/* Output handle (for edges going out) */}
+      {/* Bottom handle - for vertical edges */}
       <Handle
         className="!bg-muted-foreground/50 !h-2 !w-2"
+        id="bottom"
         position={Position.Bottom}
         type="source"
       />

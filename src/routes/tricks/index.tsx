@@ -5,7 +5,12 @@ import { useState } from "react";
 
 import type { Trick } from "~/lib/tricks";
 
-import { TrickDetail, TricksGraph, TricksSidebar } from "~/components/tricks";
+import {
+  TrickDetail,
+  TricksGraph,
+  TricksSearch,
+  TricksSidebar,
+} from "~/components/tricks";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/")({
@@ -37,26 +42,33 @@ function TricksPage() {
   }
 
   return (
-    <div className="flex h-full grow overflow-hidden">
-      {/* Sidebar */}
-      <div className="h-full w-64 shrink-0 overflow-hidden border-r">
-        <TricksSidebar
-          data={data}
-          onSelectTrick={handleSelectTrick}
-          selectedTrickId={selectedTrickId}
-        />
+    <div className="flex h-full grow flex-col overflow-hidden">
+      {/* Mobile search bar */}
+      <div className="shrink-0 border-b p-3 md:hidden">
+        <TricksSearch data={data} onSelectTrick={handleSelectTrick} />
       </div>
 
-      {/* Graph */}
-      <div className="flex-1">
-        <ReactFlowProvider>
-          <TricksGraph
+      <div className="flex min-h-0 flex-1">
+        {/* Sidebar - hidden on mobile */}
+        <div className="hidden h-full w-64 shrink-0 overflow-hidden border-r md:block">
+          <TricksSidebar
             data={data}
-            onOpenTrickDetail={handleOpenTrickDetail}
             onSelectTrick={handleSelectTrick}
             selectedTrickId={selectedTrickId}
           />
-        </ReactFlowProvider>
+        </div>
+
+        {/* Graph */}
+        <div className="flex-1">
+          <ReactFlowProvider>
+            <TricksGraph
+              data={data}
+              onOpenTrickDetail={handleOpenTrickDetail}
+              onSelectTrick={handleSelectTrick}
+              selectedTrickId={selectedTrickId}
+            />
+          </ReactFlowProvider>
+        </div>
       </div>
 
       {/* Detail dialog */}

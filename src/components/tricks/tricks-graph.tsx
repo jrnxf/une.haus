@@ -34,6 +34,8 @@ type FlowEdge = {
   id: string;
   source: string;
   target: string;
+  sourceHandle?: string;
+  targetHandle?: string;
   animated?: boolean;
   style?: React.CSSProperties;
   className?: string;
@@ -125,11 +127,18 @@ const animationStyles = `
   }
 `;
 
+type NodePosition = {
+  x: number;
+  y: number;
+  relationshipType: "center" | "before" | "after" | "related";
+  relatedSide?: "left" | "right";
+};
+
 function getNodePositions(
   centerTrick: Trick,
   data: TricksData,
-): Map<string, { x: number; y: number; relationshipType: "center" | "before" | "after" | "related" }> {
-  const positions = new Map<string, { x: number; y: number; relationshipType: "center" | "before" | "after" | "related" }>();
+): Map<string, NodePosition> {
+  const positions = new Map<string, NodePosition>();
 
   // Center node
   positions.set(centerTrick.id, { x: 0, y: 0, relationshipType: "center" });
@@ -183,6 +192,7 @@ function getNodePositions(
       x: -RELATED_HORIZONTAL_OFFSET,
       y: leftStartY + index * (NODE_HEIGHT + 20),
       relationshipType: "related",
+      relatedSide: "left",
     });
   }
 
@@ -193,6 +203,7 @@ function getNodePositions(
       x: RELATED_HORIZONTAL_OFFSET,
       y: rightStartY + index * (NODE_HEIGHT + 20),
       relationshipType: "related",
+      relatedSide: "right",
     });
   }
 
@@ -219,6 +230,7 @@ function buildGraphFromTrick(
         trick,
         isCenter: pos.relationshipType === "center",
         relationshipType: pos.relationshipType,
+        relatedSide: pos.relatedSide,
       },
     });
 
@@ -242,12 +254,15 @@ function buildGraphFromTrick(
       });
     }
 
-    // Create dashed edges from center to related
-    if (pos.relationshipType === "related") {
+    // Create dashed edges from related tricks to center using side handles
+    if (pos.relationshipType === "related" && pos.relatedSide) {
+      const isLeft = pos.relatedSide === "left";
       edges.push({
         id: `${centerTrick.id}<->${trick.id}`,
-        source: centerTrick.id,
-        target: trick.id,
+        source: trick.id,
+        target: centerTrick.id,
+        sourceHandle: isLeft ? "right" : "left",
+        targetHandle: isLeft ? "left" : "right",
         style: { stroke: "#a855f7", strokeWidth: 1.5, strokeDasharray: "5 3" },
       });
     }
@@ -349,6 +364,7 @@ function GraphContent({
                 ...n.data,
                 isCenter: newPos.relationshipType === "center",
                 relationshipType: newPos.relationshipType,
+                relatedSide: newPos.relatedSide,
               },
               className: "",
             };
