@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { UserIcon } from "lucide-react";
 import * as React from "react";
 import { Suspense, useMemo, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -29,7 +28,7 @@ import { useTheme } from "~/lib/theme/context";
 import { users as usersApi } from "~/lib/users";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
-type Page = "games" | "posts" | "root" | "search-users" | "theme" | "users" | "vault";
+type Page = "games" | "games-menu" | "posts" | "root" | "search-users" | "theme" | "tricks" | "users" | "vault";
 
 type SecondaryAction = {
   id: string;
@@ -48,7 +47,6 @@ type CommandItemConfig = {
     onAction: () => void;
   };
   secondaryActions?: SecondaryAction[];
-  icon?: React.ReactNode;
 };
 
 export function Search() {
@@ -65,6 +63,7 @@ export function Search() {
   const [actionsOpen, setActionsOpen] = React.useState(false);
   const activePage = pages.at(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const [open, setOpen] = usePeripherals("search");
 
@@ -82,11 +81,13 @@ export function Search() {
   const pushPage = (page: Page) => {
     setPages((pages) => [...pages, page]);
     setInput("");
+    setSelectedValue("");
   };
 
   const popPage = () => {
     setPages((pages) => pages.slice(0, -1));
     setInput("");
+    setSelectedValue("");
   };
 
   const reset = () => {
@@ -126,17 +127,25 @@ export function Search() {
       {
         id: "games",
         label: "Games",
-        value: "/games/rius/active",
+        value: "/games",
         primaryAction: {
           label: "Open",
-          onAction: () => closeAndNavigate("/games/rius/active"),
+          onAction: () => closeAndNavigate("/games"),
         },
+        secondaryActions: [
+          {
+            id: "games-menu",
+            label: "Choose Game",
+            shortcut: { key: "↵", meta: true },
+            hotkey: "mod+enter",
+            onAction: () => pushPage("games-menu"),
+          },
+        ],
       },
       {
         id: "users",
         label: "Users",
         value: "/users",
-        icon: <UserIcon className="size-4 opacity-50" />,
         primaryAction: {
           label: "Open",
           onAction: () => closeAndNavigate("/users"),
@@ -145,8 +154,8 @@ export function Search() {
           {
             id: "search-users",
             label: "Search Users",
-            shortcut: { key: "s", meta: true },
-            hotkey: "mod+s",
+            shortcut: { key: "↵", meta: true },
+            hotkey: "mod+enter",
             onAction: () => pushPage("search-users"),
           },
         ],
@@ -178,6 +187,24 @@ export function Search() {
           onAction: () => closeAndNavigate("/vault"),
         },
       },
+      {
+        id: "tricks",
+        label: "Tricks",
+        value: "/tricks",
+        primaryAction: {
+          label: "Open",
+          onAction: () => closeAndNavigate("/tricks"),
+        },
+      },
+      {
+        id: "stats",
+        label: "Stats",
+        value: "/stats",
+        primaryAction: {
+          label: "Open",
+          onAction: () => closeAndNavigate("/stats"),
+        },
+      },
     ];
     return items;
   }, [navigate, setOpen]);
@@ -199,25 +226,6 @@ export function Search() {
     },
     { enableOnFormTags: true, enabled: open && activePage === "root" && hasSecondaryActions },
     [open, activePage, hasSecondaryActions]
-  );
-
-  // Cmd+S for search users (when users is selected)
-  useHotkeys(
-    "mod+s",
-    (e) => {
-      if (!open || activePage !== "root") return;
-      const usersItem = commandItems.find((item) => item.id === "users");
-      const searchAction = usersItem?.secondaryActions?.find((a) => a.hotkey === "mod+s");
-      if (selectedItem?.id === "users" && searchAction) {
-        e.preventDefault();
-        searchAction.onAction();
-        setActionsOpen(false);
-        // Return focus to input after action
-        setTimeout(() => inputRef.current?.focus(), 0);
-      }
-    },
-    { enableOnFormTags: true, enabled: open && activePage === "root" },
-    [open, activePage, selectedItem, commandItems]
   );
 
   const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent);
@@ -249,11 +257,14 @@ export function Search() {
     if (activePage === "theme") {
       return "Set Theme";
     }
+    if (activePage === "games-menu") {
+      return "Open Game";
+    }
     return "Select";
   };
 
   const footer = (
-    <div className="border-t bg-background flex items-center justify-end gap-1 px-2 py-1.5">
+    <div className="border-t bg-popover w-full flex items-center justify-end gap-1 px-2 py-1.5">
       {/* Back action for sub-pages */}
       {pages.length > 1 && (
         <Button
@@ -318,6 +329,7 @@ export function Search() {
       footer={footer}
       value={selectedValue}
       onValueChange={setSelectedValue}
+      shouldFilter={activePage !== "search-users"}
     >
       <CommandInput
         ref={inputRef}
@@ -325,8 +337,23 @@ export function Search() {
           if (e.key === "Backspace" && input === "" && pages.length > 1) {
             popPage();
           }
+          // Handle meta+enter for secondary actions before cmdk processes it
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && activePage === "root" && selectedItem) {
+            const enterAction = selectedItem.secondaryActions?.find((a) => a.hotkey === "mod+enter");
+            if (enterAction) {
+              e.preventDefault();
+              e.stopPropagation();
+              enterAction.onAction();
+              setActionsOpen(false);
+            }
+          }
         }}
-        onValueChange={setInput}
+        onValueChange={(value) => {
+          setInput(value);
+          requestAnimationFrame(() => {
+            listRef.current?.scrollTo({ top: 0 });
+          });
+        }}
         placeholder={
           activePage === "search-users"
             ? "Search users..."
@@ -334,8 +361,10 @@ export function Search() {
         }
         value={input}
       />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+      <CommandList ref={listRef}>
+        {activePage !== "search-users" && (
+          <CommandEmpty>No results found.</CommandEmpty>
+        )}
 
         {activePage === "root" && (
           <>
@@ -349,8 +378,7 @@ export function Search() {
                   asChild
                 >
                   <Link to={item.value} replace>
-                    {item.icon}
-                    <span>{item.label}</span>
+                    {item.label}
                   </Link>
                 </CommandItem>
               ))}
@@ -428,8 +456,40 @@ export function Search() {
           </CommandGroup>
         )}
 
+        {activePage === "games-menu" && (
+          <CommandGroup heading="Games">
+            <CommandItem
+              value="/games/rius/active"
+              onSelect={() => closeAndNavigate("/games/rius/active")}
+              asChild
+            >
+              <Link to="/games/rius/active" replace>
+                Rack It Up
+              </Link>
+            </CommandItem>
+            <CommandItem
+              value="/games/bius"
+              onSelect={() => closeAndNavigate("/games/bius")}
+              asChild
+            >
+              <Link to="/games/bius" replace>
+                Back It Up
+              </Link>
+            </CommandItem>
+            <CommandItem
+              value="/games/sius"
+              onSelect={() => closeAndNavigate("/games/sius")}
+              asChild
+            >
+              <Link to="/games/sius" replace>
+                Stack It Up
+              </Link>
+            </CommandItem>
+          </CommandGroup>
+        )}
+
         {activePage === "search-users" && (
-          <Suspense fallback={<div className="py-6 text-center text-sm text-muted-foreground">Loading users...</div>}>
+          <Suspense fallback={<div className="py-3 text-center text-sm text-muted-foreground">Loading users...</div>}>
             <SearchUsersPage
               query={input}
               onSelectUser={(userId) => {
@@ -469,26 +529,24 @@ function SearchUsersPage({
   const filteredUsers = fzf.find(query.toLowerCase());
 
   if (filteredUsers.length === 0) {
-    return null; // CommandEmpty will handle this
+    return (
+      <p className="py-3 text-center text-sm text-muted-foreground">
+        No users found.
+      </p>
+    );
   }
 
   return (
     <CommandGroup heading="Users">
-      {filteredUsers.slice(0, 20).map(({ item: user }) => (
+      {filteredUsers.map(({ item: user }) => (
         <CommandItem
           key={user.id}
           value={`user-${user.id}-${user.name}`}
           onSelect={() => onSelectUser(user.id)}
         >
-          <UserIcon className="size-4 opacity-50" />
-          <span>{user.name}</span>
+          {user.name}
         </CommandItem>
       ))}
-      {filteredUsers.length > 20 && (
-        <div className="px-2 py-1.5 text-xs text-muted-foreground">
-          {filteredUsers.length - 20} more results...
-        </div>
-      )}
     </CommandGroup>
   );
 }
