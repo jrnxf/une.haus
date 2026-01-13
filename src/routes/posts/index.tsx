@@ -7,7 +7,7 @@ import {
   PaperclipIcon,
   XIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
 
 import { useDebounceCallback } from "usehooks-ts";
@@ -31,8 +31,9 @@ import { posts } from "~/lib/posts";
 export const Route = createFileRoute("/posts/")({
   validateSearch: posts.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: async ({ context, deps }) => {
-    await context.queryClient.ensureInfiniteQueryData(
+  loader: ({ context, deps }) => {
+    // Prefetch (non-blocking) - component handles suspense via useTransition
+    context.queryClient.prefetchInfiniteQuery(
       posts.list.infiniteQueryOptions(deps),
     );
   },
@@ -43,12 +44,17 @@ function RouteComponent() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
+  // React state drives the query - NOT the URL
   const [query, setQuery] = useState(searchParams.q ?? "");
+  const [tags, setTags] = useState(searchParams.tags ?? []);
+  const deferredQuery = useDeferredValue(query);
+  const deferredTags = useDeferredValue(tags);
+
   const [filtersOpen, setFiltersOpen] = useState(
     Boolean(searchParams.q || searchParams.tags?.length),
   );
 
-  const hasActiveFilters = Boolean(searchParams.q || searchParams.tags?.length);
+  const hasActiveFilters = Boolean(query || tags.length > 0);
 
   const debouncedNavigate = useDebounceCallback((q: string) => {
     router.navigate({
@@ -64,12 +70,13 @@ function RouteComponent() {
     debouncedNavigate(value);
   };
 
-  const handleTagsChange = (tags: (typeof POST_TAGS)[number][]) => {
+  const handleTagsChange = (newTags: (typeof POST_TAGS)[number][]) => {
+    setTags(newTags);
     router.navigate({
       to: "/posts",
       search: (prev) => ({
         ...prev,
-        tags: tags.length > 0 ? tags : undefined,
+        tags: newTags.length > 0 ? newTags : undefined,
         cursor: undefined,
       }),
       replace: true,
@@ -82,7 +89,12 @@ function RouteComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(posts.list.infiniteQueryOptions(searchParams));
+  } = useSuspenseInfiniteQuery(
+    posts.list.infiniteQueryOptions({
+      q: deferredQuery || undefined,
+      tags: deferredTags.length > 0 ? deferredTags : undefined,
+    }),
+  );
 
   const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages]);
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
@@ -92,12 +104,9 @@ function RouteComponent() {
 
   return (
     <div className="h-full overflow-y-auto" ref={setScrollRoot}>
-      <div className="mx-auto grid h-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
-            <Button asChild>
-              <Link to="/posts/create">Create</Link>
-            </Button>
             <Button
               variant="outline"
               onClick={() => setFiltersOpen(!filtersOpen)}
@@ -108,6 +117,9 @@ function RouteComponent() {
               {hasActiveFilters && !filtersOpen && (
                 <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
               )}
+            </Button>
+            <Button asChild>
+              <Link to="/posts/create">Create</Link>
             </Button>
           </div>
           {filtersOpen && (

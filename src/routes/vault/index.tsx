@@ -2,9 +2,9 @@ import type { MuxPlayerRefAttributes } from "@mux/mux-player-react";
 import {
   useQuery,
   useQueryClient,
-  useSuspenseQuery,
+  useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   ArrowUpRightIcon,
   ChevronDownIcon,
@@ -14,12 +14,21 @@ import {
   MonitorIcon,
   ShieldIcon,
   TvIcon,
+  XIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { InView } from "react-intersection-observer";
 
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
-import { Virtualizer } from "virtua";
+import { useDebounceCallback } from "usehooks-ts";
 
 import { BaseMessageForm } from "~/components/forms/message";
 import { MessageAuthor } from "~/components/messages/message-author";
@@ -43,187 +52,226 @@ import {
   useUpdateThumbnailSeconds,
   useUpdateTitle,
 } from "~/lib/utv/hooks";
-import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
 export const Route = createFileRoute("/vault/")({
-  loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(utv.all.queryOptions()),
-      context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
-    ]);
+  validateSearch: utv.list.schema,
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => {
+    // Prefetch (non-blocking) - component handles suspense via useTransition
+    context.queryClient.prefetchInfiniteQuery(
+      utv.list.infiniteQueryOptions(deps),
+    );
+    context.queryClient.prefetchQuery(utv.claps.get.queryOptions());
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data } = useSuspenseQuery(utv.all.queryOptions());
-  const [query, setQuery] = useState("");
+  const searchParams = Route.useSearch();
+  const router = useRouter();
+
+  // React state drives the query - NOT the URL
+  // This allows useDeferredValue to actually defer during suspense
+  const [query, setQuery] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(query);
+
   const [adminMode, setAdminMode] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const isAdmin = useIsAdmin();
 
-  const lowercasedQuery = query.toLowerCase();
+  const debouncedNavigate = useDebounceCallback((q: string) => {
+    // URL update is for bookmarking only - doesn't drive the query
+    router.navigate({
+      to: "/vault",
+      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
+      replace: true,
+    });
+  }, 300);
 
-  const fzf = useFzf([data, { selector: (video) => video.title }]);
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    debouncedNavigate(value);
+  };
 
-  const filteredVault = fzf.find(lowercasedQuery);
+  const {
+    data: videosPages,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useSuspenseInfiniteQuery(
+    utv.list.infiniteQueryOptions({ q: deferredQuery || undefined }),
+  );
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const displayedVideos = useMemo(
+    () => videosPages.pages.flat(),
+    [videosPages],
+  );
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
 
   return (
-    <div className="flex grow flex-col overflow-hidden">
-      <div className="mx-auto w-full max-w-4xl shrink-0 space-y-4 px-4 pt-4 pb-0">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setHistoryOpen(!historyOpen)}
-              className="text-muted-foreground -ml-2 gap-1.5 text-sm font-medium"
-            >
-              History
-              <motion.div
-                animate={{ rotate: historyOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+    <div className="flex grow flex-col gap-3 overflow-hidden">
+      <div className="mx-auto w-full max-w-4xl shrink-0 space-y-3 pt-4">
+        <motion.div
+          initial={false}
+          animate={{
+            height: historyOpen ? "auto" : 0,
+            opacity: historyOpen ? 1 : 0,
+          }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="overflow-hidden"
+        >
+          <div className="bg-sidebar mb-3 space-y-4 rounded-lg border p-4">
+            <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
+              <p>
+                In December 2005, Olaf Schlote launched{" "}
+                <span className="text-foreground font-medium">unicycle.tv</span>{" "}
+                — a pioneering video platform built specifically for the
+                unicycling community. Before YouTube became mainstream and years
+                before social media made video sharing effortless, unicycle.tv
+                provided riders around the world a dedicated space to upload,
+                share, and preserve their footage.
+              </p>
+              <p>
+                The platform captured countless historic moments: competition
+                runs, groundbreaking tricks, and the raw progression of street,
+                trials, and freestyle riding. When videos disappeared from other
+                platforms, unicycle.tv remained as an archive. This vault
+                preserves that legacy.
+              </p>
+              <p className="text-foreground font-medium">
+                We are deeply grateful to Olaf for his vision and the incredible
+                contribution he made to documenting une history.
+              </p>
+            </div>
+
+            <ClapButton />
+          </div>
+        </motion.div>
+
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-0 flex-1">
+            <Input
+              id="vault-search"
+              value={query}
+              onChange={(e) => handleQueryChange(e.target.value)}
+              placeholder="Search vault"
+              className="pr-8"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => handleQueryChange("")}
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
               >
-                <ChevronDownIcon className="size-4" />
-              </motion.div>
-            </Button>
-            {isAdmin && (
-              <Button
-                variant={adminMode ? "default" : "secondary"}
-                size="icon-xs"
-                onClick={() => setAdminMode(!adminMode)}
-              >
-                <ShieldIcon className="size-3.5" />
-              </Button>
+                <XIcon className="size-4" />
+              </button>
             )}
           </div>
-
-          <motion.div
-            initial={false}
-            animate={{
-              height: historyOpen ? "auto" : 0,
-              opacity: historyOpen ? 1 : 0,
-            }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setHistoryOpen(!historyOpen)}
+            className="text-muted-foreground shrink-0 gap-1.5 text-sm font-medium"
           >
-            <div className="bg-sidebar space-y-4 rounded-lg border p-4">
-              <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
-                <p>
-                  In December 2005, Olaf Schlote launched{" "}
-                  <span className="text-foreground font-medium">
-                    unicycle.tv
-                  </span>{" "}
-                  — a pioneering video platform built specifically for the
-                  unicycling community. Before YouTube became mainstream and
-                  years before social media made video sharing effortless,
-                  unicycle.tv provided riders around the world a dedicated space
-                  to upload, share, and preserve their footage.
-                </p>
-                <p>
-                  The platform captured countless historic moments: competition
-                  runs, groundbreaking tricks, and the raw progression of
-                  street, trials, and freestyle riding. When videos disappeared
-                  from other platforms, unicycle.tv remained as an archive. This
-                  vault preserves that legacy.
-                </p>
-                <p className="text-foreground font-medium">
-                  We are deeply grateful to Olaf for his vision and the
-                  incredible contribution he made to documenting our sport's
-                  history.
-                </p>
-              </div>
-
-              <ClapButton />
-            </div>
-          </motion.div>
+            History
+            <motion.div
+              animate={{ rotate: historyOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDownIcon className="size-4" />
+            </motion.div>
+          </Button>
+          {isAdmin && (
+            <Button
+              variant={adminMode ? "default" : "secondary"}
+              size="icon-xs"
+              onClick={() => setAdminMode(!adminMode)}
+              className="shrink-0"
+            >
+              <ShieldIcon className="size-3.5" />
+            </Button>
+          )}
         </div>
-
-        <Input
-          id="vault-search"
-          value={query}
-          onChange={(evt) => setQuery(evt.target.value)}
-          placeholder="Search vault"
-          className="max-w-2xl"
-        />
       </div>
-      <div className="grow overflow-y-auto" ref={scrollRef}>
-        <div className="mx-auto max-w-4xl px-4 pb-4">
-          <Accordion collapsible type="single">
-            <Virtualizer scrollRef={scrollRef} overscan={12}>
-              {filteredVault.map(({ item: video }) => (
-                <AccordionItem
-                  value={String(video.id)}
-                  key={video.id}
-                  className="group mt-3 overflow-clip rounded-md border last:border-b"
-                >
-                  <AccordionTrigger className="relative min-w-0 overflow-clip rounded-none py-0 pr-4 pl-0 hover:no-underline">
-                    <div className="flex min-h-12 w-full min-w-0 items-center gap-2 overflow-clip group-data-[state=open]:pl-4">
-                      <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
-                        <img
-                          src={getMuxPoster({
-                            playbackId: video.playbackId,
-                            time: video.thumbnailSeconds,
-                            width: 104 * 2,
-                          })}
-                          alt={String(video.id)}
-                          aria-label={video.title}
-                          className="h-full w-full object-cover"
-                          style={{
-                            transform: `scale(${video.scale})`,
-                          }}
-                        />
-                      </div>
-                      <h2 className="truncate font-semibold">{video.title}</h2>
-                      <div className="grow" />
-                      <div className="text-muted-foreground flex shrink-0 items-center gap-2.5 text-xs">
-                        <div
-                          className="flex items-center gap-1"
-                          title={`${video.messagesCount} messages`}
-                        >
-                          <MessageCircleIcon className="size-3.5" />
-                          <span>{video.messagesCount}</span>
-                        </div>
-                        <div
-                          className="flex items-center gap-1"
-                          title={`${video.likesCount} likes`}
-                        >
-                          <HeartIcon className="size-3.5" />
-                          <span>{video.likesCount}</span>
-                        </div>
-                      </div>
-                      <Button variant="ghost" asChild size="icon-sm">
-                        <Link
-                          to="/vault/$videoId"
-                          params={{ videoId: video.id }}
-                        >
-                          <ArrowUpRightIcon className="size-4" />
-                        </Link>
-                      </Button>
+      <div className="min-h-0 w-full grow overflow-y-auto" ref={setScrollRoot}>
+        <Accordion
+          collapsible
+          type="single"
+          className="mx-auto max-w-4xl space-y-3"
+        >
+          {displayedVideos.map((video) => (
+            <AccordionItem
+              value={String(video.id)}
+              key={video.id}
+              className="group overflow-clip rounded-md border last:border-b"
+            >
+              <AccordionTrigger className="relative min-w-0 overflow-clip rounded-none py-0 pr-4 pl-0 hover:no-underline">
+                <div className="flex min-h-12 w-full min-w-0 items-center gap-2 overflow-clip group-data-[state=open]:pl-4">
+                  <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
+                    <img
+                      src={getMuxPoster({
+                        playbackId: video.playbackId,
+                        time: video.thumbnailSeconds,
+                        width: 104 * 2,
+                      })}
+                      alt={String(video.id)}
+                      aria-label={video.title}
+                      className="h-full w-full object-cover"
+                      style={{
+                        transform: `scale(${video.scale})`,
+                      }}
+                    />
+                  </div>
+                  <h2 className="truncate font-semibold">{video.title}</h2>
+                  <div className="grow" />
+                  <div className="text-muted-foreground flex shrink-0 items-center gap-2.5 text-xs">
+                    <div
+                      className="flex items-center gap-1"
+                      title={`${video.messagesCount} messages`}
+                    >
+                      <MessageCircleIcon className="size-3.5" />
+                      <span>{video.messagesCount}</span>
                     </div>
-                  </AccordionTrigger>
+                    <div
+                      className="flex items-center gap-1"
+                      title={`${video.likesCount} likes`}
+                    >
+                      <HeartIcon className="size-3.5" />
+                      <span>{video.likesCount}</span>
+                    </div>
+                  </div>
+                  <Button variant="ghost" asChild size="icon-sm">
+                    <Link to="/vault/$videoId" params={{ videoId: video.id }}>
+                      <ArrowUpRightIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </AccordionTrigger>
 
-                  <AccordionContent className="p-0">
-                    {adminMode ? (
-                      <AdminScaleEditor
-                        videoId={video.id}
-                        playbackId={video.playbackId}
-                        initialScale={video.scale}
-                        thumbnailSeconds={video.thumbnailSeconds}
-                        title={video.title}
-                      />
-                    ) : (
-                      <ExpandedVideoContent video={video} isAdmin={!!isAdmin} />
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Virtualizer>
-          </Accordion>
-        </div>
+              <AccordionContent className="p-0">
+                {adminMode ? (
+                  <AdminScaleEditor
+                    videoId={video.id}
+                    playbackId={video.playbackId}
+                    initialScale={video.scale}
+                    thumbnailSeconds={video.thumbnailSeconds}
+                    title={video.title}
+                  />
+                ) : (
+                  <ExpandedVideoContent video={video} isAdmin={!!isAdmin} />
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+        {hasNextPage && !isFetchingNextPage && (
+          <InView
+            root={scrollRoot}
+            rootMargin="1000px"
+            onChange={(inView) => inView && fetchNextPage()}
+          />
+        )}
       </div>
     </div>
   );

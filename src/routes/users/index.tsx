@@ -1,7 +1,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { EarthIcon, FilterIcon, UsersIcon, XIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
 
@@ -25,10 +25,9 @@ import { cn, getCloudflareImageUrl } from "~/lib/utils";
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: async ({ context, deps }) => {
-    return await context.queryClient.ensureInfiniteQueryData(
-      users.list.infiniteQueryOptions(deps),
-    );
+  loader: ({ context, deps }) => {
+    // Prefetch (non-blocking) - component handles suspense via useTransition
+    context.queryClient.prefetchInfiniteQuery(users.list.infiniteQueryOptions(deps));
   },
   component: RouteComponent,
 });
@@ -37,14 +36,17 @@ function RouteComponent() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
+  // React state drives the query - NOT the URL
   const [query, setQuery] = useState(searchParams.name ?? "");
+  const [disciplines, setDisciplines] = useState(searchParams.disciplines ?? []);
+  const deferredQuery = useDeferredValue(query);
+  const deferredDisciplines = useDeferredValue(disciplines);
+
   const [filtersOpen, setFiltersOpen] = useState(
     Boolean(searchParams.name || searchParams.disciplines?.length),
   );
 
-  const hasActiveFilters = Boolean(
-    searchParams.name || searchParams.disciplines?.length,
-  );
+  const hasActiveFilters = Boolean(query || disciplines.length);
 
   const debouncedNavigate = useDebounceCallback((name: string) => {
     router.navigate({
@@ -65,13 +67,14 @@ function RouteComponent() {
   };
 
   const handleDisciplinesChange = (
-    disciplines: (typeof USER_DISCIPLINES)[number][],
+    newDisciplines: (typeof USER_DISCIPLINES)[number][],
   ) => {
+    setDisciplines(newDisciplines);
     router.navigate({
       to: "/users",
       search: (prev) => ({
         ...prev,
-        disciplines: disciplines.length > 0 ? disciplines : undefined,
+        disciplines: newDisciplines.length > 0 ? newDisciplines : undefined,
         cursor: undefined,
       }),
       replace: true,
@@ -83,14 +86,19 @@ function RouteComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(searchParams));
+  } = useSuspenseInfiniteQuery(
+    users.list.infiniteQueryOptions({
+      name: deferredQuery || undefined,
+      disciplines: deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
+    }),
+  );
 
   const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
 
   return (
     <div className="overflow-y-auto" ref={setScrollRoot}>
-      <div className="mx-auto grid max-w-4xl grid-cols-1 grid-rows-[auto_1fr] gap-4 p-4">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
             <Button
