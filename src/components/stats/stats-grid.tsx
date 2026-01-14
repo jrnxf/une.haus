@@ -42,7 +42,7 @@ export function StatsGrid({ data }: StatsGridProps) {
         description="posts shared in the feed"
       />
       <StatCard
-        label="total likes"
+        label="likes given"
         value={data.counts.totalLikes}
         icon={HeartIcon}
         description="likes given across posts, sets, submissions, messages, and vault videos"
@@ -50,7 +50,7 @@ export function StatsGrid({ data }: StatsGridProps) {
 
       {/* Row 2: Game stats + map stats */}
       <StatCard
-        label="game sets"
+        label="sets"
         value={data.counts.riuSets}
         icon={LayersIcon}
         description="challenge sets created in rack it up games"

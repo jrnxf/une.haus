@@ -17,7 +17,7 @@ import type {
   NotificationType,
 } from "~/db/schema";
 import {
-  getNotificationMessage,
+  getNotificationAction,
   getNotificationUrl,
 } from "~/lib/notifications/utils";
 import { cn } from "~/lib/utils";
@@ -44,21 +44,32 @@ type NotificationItemProps = {
 function NotificationIcon({ type }: { type: NotificationType }) {
   switch (type) {
     case "like": {
-      return <Heart className="size-5" />;
+      return <Heart className="size-3 text-red-500" />;
     }
     case "comment": {
-      return <MessageCircle className="size-5" />;
+      return <MessageCircle className="size-3 text-blue-500" />;
     }
     case "follow": {
-      return <UserPlus className="size-5" />;
+      return <UserPlus className="size-3 text-green-500" />;
     }
     case "new_content": {
-      return <Sparkles className="size-5" />;
+      return <Sparkles className="size-3 text-purple-500" />;
     }
     default: {
-      return <Sparkles className="size-5" />;
+      return <Sparkles className="size-3 text-purple-500" />;
     }
   }
+}
+
+function formatActorNames(names: string[], count: number): string {
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  const remaining = count - names.length;
+  if (remaining > 0) {
+    return `${names[0]}, ${names[1]} and ${remaining} other${remaining > 1 ? "s" : ""}`;
+  }
+  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
 }
 
 export function NotificationItem({
@@ -75,116 +86,87 @@ export function NotificationItem({
 }: NotificationItemProps) {
   const url = getNotificationUrl(entityType, entityId);
   const actorNames = actors.map((a) => a.name);
-  const message = getNotificationMessage(
-    type,
-    entityType,
-    count,
-    actorNames,
-    data?.entityTitle,
-  );
+  const formattedNames = formatActorNames(actorNames, count);
+  const action = getNotificationAction(type, entityType, data?.entityTitle);
 
-  // Show up to 3 actor avatars
-  const displayActors = actors.slice(0, 3);
-
-  // Count unique actors for the "+N" badge
-  const uniqueActorCount = actors.length;
+  // Show first actor avatar
+  const primaryActor = actors[0];
 
   return (
-    <div
+    <Link
+      to={url}
+      onClick={onMarkRead}
       className={cn(
-        "group hover:bg-accent relative flex items-start gap-4 rounded-lg p-4 transition-colors",
+        "group hover:bg-accent relative block px-3 py-2 transition-colors",
         !isRead && "bg-accent/50",
       )}
     >
       {/* Unread indicator */}
       {!isRead && (
-        <div className="bg-primary absolute top-1/2 left-1.5 size-2 -translate-y-1/2 rounded-full" />
+        <div className="bg-primary absolute top-2 left-1 size-1.5 rounded-full" />
       )}
 
-      {/* Icon */}
-      <div
-        className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-full",
-          type === "like" && "bg-red-100 text-red-600 dark:bg-red-900/30",
-          type === "comment" && "bg-blue-100 text-blue-600 dark:bg-blue-900/30",
-          type === "follow" &&
-            "bg-green-100 text-green-600 dark:bg-green-900/30",
-          type === "new_content" &&
-            "bg-purple-100 text-purple-600 dark:bg-purple-900/30",
+      {/* First line: avatar + names + action buttons */}
+      <div className="flex items-center gap-1.5">
+        {primaryActor && (
+          <Avatar
+            cloudflareId={primaryActor.avatarId}
+            alt={primaryActor.name}
+            className="size-4 shrink-0"
+          >
+            <AvatarImage width={16} quality={75} />
+            <AvatarFallback name={primaryActor.name} className="text-[8px]" />
+          </Avatar>
         )}
-      >
+        <span className="min-w-0 flex-1 truncate text-xs font-medium">
+          {formattedNames}
+        </span>
+
+        {/* Action buttons */}
+        <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+          {!isRead && onMarkRead && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-5"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onMarkRead();
+              }}
+            >
+              <Check className="size-3" />
+              <span className="sr-only">Mark as read</span>
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-5"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete();
+              }}
+            >
+              <X className="size-3" />
+              <span className="sr-only">Delete notification</span>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Second line: icon + action + time */}
+      <div className="mt-0.5 flex items-center gap-1">
         <NotificationIcon type={type} />
+        <p className="text-muted-foreground min-w-0 flex-1 truncate text-xs">
+          {action}
+        </p>
+        <span className="text-muted-foreground shrink-0 text-[10px]">
+          <TimeAgo date={new Date(latestAt)} />
+        </span>
       </div>
-
-      {/* Content */}
-      <div className="min-w-0 flex-1">
-        <Link to={url} onClick={onMarkRead} className="block">
-          {/* Actor avatars */}
-          <div className="mb-1.5 flex -space-x-2">
-            {displayActors.map((actor) => (
-              <Avatar
-                key={actor.id}
-                cloudflareId={actor.avatarId}
-                alt={actor.name}
-                className="border-background size-7 border-2"
-              >
-                <AvatarImage width={28} quality={75} />
-                <AvatarFallback name={actor.name} className="text-xs" />
-              </Avatar>
-            ))}
-            {count > uniqueActorCount && (
-              <div className="bg-muted text-muted-foreground border-background flex size-7 items-center justify-center rounded-full border-2 text-xs font-medium">
-                +{count - uniqueActorCount}
-              </div>
-            )}
-          </div>
-
-          {/* Message */}
-          <p className="text-sm leading-snug">{message}</p>
-
-          {/* Time */}
-          <p className="text-muted-foreground mt-1 text-xs">
-            <TimeAgo date={new Date(latestAt)} />
-          </p>
-        </Link>
-      </div>
-
-      {/* Action buttons */}
-      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {/* Mark as read button */}
-        {!isRead && onMarkRead && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onMarkRead();
-            }}
-          >
-            <Check className="size-4" />
-            <span className="sr-only">Mark as read</span>
-          </Button>
-        )}
-
-        {/* Delete button */}
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            <X className="size-4" />
-            <span className="sr-only">Delete notification</span>
-          </Button>
-        )}
-      </div>
-    </div>
+    </Link>
   );
 }

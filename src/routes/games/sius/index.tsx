@@ -86,10 +86,12 @@ function RouteComponent() {
             latestStack.user.id === sessionUser.id ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button disabled>
-                    <LayersIcon className="mr-2 size-4" />
-                    Stack It Up
-                  </Button>
+                  <span className="inline-flex">
+                    <Button disabled>
+                      <LayersIcon className="mr-2 size-4" />
+                      Stack It Up
+                    </Button>
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   You can&apos;t stack your own trick
@@ -99,10 +101,12 @@ function RouteComponent() {
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button disabled>
-                  <LayersIcon className="mr-2 size-4" />
-                  Stack It Up
-                </Button>
+                <span className="inline-flex">
+                  <Button disabled>
+                    <LayersIcon className="mr-2 size-4" />
+                    Stack It Up
+                  </Button>
+                </span>
               </TooltipTrigger>
               <TooltipContent>Sign in to stack it up</TooltipContent>
             </Tooltip>

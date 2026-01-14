@@ -2,8 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRightIcon,
-  BarChart3Icon,
   CalendarIcon,
+  CoinsIcon,
   LayersIcon,
   PlayIcon,
   RotateCcwIcon,
@@ -188,7 +188,7 @@ function RouteComponent() {
           <div className="mb-8 space-y-1">
             <h1 className="text-2xl font-bold tracking-tight">Games</h1>
             <p className="text-muted-foreground text-sm">
-              Collaborative creative challenges
+              une with other rides around the world
             </p>
           </div>
 
@@ -198,7 +198,7 @@ function RouteComponent() {
               description="The original. Upload creative sets each week, submit responses to others, and build through collaborative feedback."
               status="active"
               href="/games/rius/active"
-              icon={BarChart3Icon}
+              icon={CoinsIcon}
               stats={{
                 activeSets: activeRiu.sets.length,
                 participants: riuParticipants,

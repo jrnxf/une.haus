@@ -11,21 +11,12 @@ import { Link } from "@tanstack/react-router";
 import {
   HeartIcon,
   LayersIcon,
-  LinkIcon,
   MessageCircleIcon,
   PlayCircleIcon,
   SendIcon,
 } from "lucide-react";
 
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Badges } from "~/components/badges";
 import { SocialLink } from "~/components/social-link";
@@ -121,10 +112,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 
           <UserStatsGrid stats={user.stats} />
 
-          <div className="grid w-full gap-4 sm:grid-cols-2">
-            <UserActivityChart data={user.stats.activityByMonth} />
-            <UserEngagementChart stats={user.stats} />
-          </div>
+          <UserActivityChart data={user.stats.activityByMonth} />
         </div>
       </div>
     </div>
@@ -188,21 +176,23 @@ function UserStatsGrid({ stats }: { stats: UsersWithFollowsData["stats"] }) {
   }
 
   return (
-    <div className="mt-4 grid w-full gap-4 sm:grid-cols-2">
+    <div className="mt-4 grid w-full grid-cols-2 gap-2 sm:grid-cols-4">
       {stats.posts > 0 && (
         <StatCard
           label="posts"
           value={stats.posts}
           icon={SendIcon}
           description="posts shared in the feed"
+          size="compact"
         />
       )}
       {stats.gameSets > 0 && (
         <StatCard
-          label="game sets"
+          label="sets"
           value={stats.gameSets}
           icon={LayersIcon}
           description="rack it up challenge sets created"
+          size="compact"
         />
       )}
       {stats.gameSubmissions > 0 && (
@@ -211,14 +201,7 @@ function UserStatsGrid({ stats }: { stats: UsersWithFollowsData["stats"] }) {
           value={stats.gameSubmissions}
           icon={PlayCircleIcon}
           description="video responses to game sets"
-        />
-      )}
-      {stats.biuSets > 0 && (
-        <StatCard
-          label="back it up"
-          value={stats.biuSets}
-          icon={LinkIcon}
-          description="back it up chain contributions"
+          size="compact"
         />
       )}
       {stats.chatMessages > 0 && (
@@ -227,14 +210,16 @@ function UserStatsGrid({ stats }: { stats: UsersWithFollowsData["stats"] }) {
           value={stats.chatMessages}
           icon={MessageCircleIcon}
           description="messages sent in chat"
+          size="compact"
         />
       )}
       {stats.commentsMade > 0 && (
         <StatCard
-          label="comments"
+          label="comments given"
           value={stats.commentsMade}
           icon={MessageCircleIcon}
           description="comments made on posts"
+          size="compact"
         />
       )}
       {stats.likesGiven > 0 && (
@@ -243,14 +228,26 @@ function UserStatsGrid({ stats }: { stats: UsersWithFollowsData["stats"] }) {
           value={stats.likesGiven}
           icon={HeartIcon}
           description="likes given to other posts"
+          size="compact"
         />
       )}
-      {(stats.likesReceived > 0 || stats.commentsReceived > 0) && (
+
+      {stats.commentsReceived > 0 && (
         <StatCard
-          label="engagement received"
-          value={stats.likesReceived + stats.commentsReceived}
+          label="comments received"
+          value={stats.commentsReceived}
+          icon={MessageCircleIcon}
+          description="comments received on your posts"
+          size="compact"
+        />
+      )}
+      {stats.likesReceived > 0 && (
+        <StatCard
+          label="likes received"
+          value={stats.likesReceived}
           icon={HeartIcon}
-          description={`${stats.likesReceived} likes + ${stats.commentsReceived} comments received`}
+          description="likes received on your posts"
+          size="compact"
         />
       )}
     </div>
@@ -286,12 +283,12 @@ function UserActivityChart({
   });
 
   return (
-    <Card className="border-dashed py-4">
+    <Card className="w-full border-dashed py-4">
       <CardHeader className="pb-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <CardTitle className="cursor-help text-sm font-medium">
-              activity over time
+              activity (past year)
             </CardTitle>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[200px] text-xs">
@@ -351,102 +348,6 @@ function UserActivityChart({
             />
           </AreaChart>
         </ChartContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-const engagementChartConfig = {
-  given: { label: "Given", color: "var(--chart-1)" },
-  received: { label: "Received", color: "var(--chart-2)" },
-} satisfies ChartConfig;
-
-function UserEngagementChart({
-  stats,
-}: {
-  stats: UsersWithFollowsData["stats"];
-}) {
-  const chartData = [
-    {
-      category: "Likes",
-      given: stats.likesGiven,
-      received: stats.likesReceived,
-    },
-    {
-      category: "Comments",
-      given: stats.commentsMade,
-      received: stats.commentsReceived,
-    },
-  ].filter((item) => item.given > 0 || item.received > 0);
-
-  if (chartData.length === 0) {
-    return null;
-  }
-
-  return (
-    <Card className="border-dashed py-4">
-      <CardHeader className="pb-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <CardTitle className="cursor-help text-sm font-medium">
-              engagement balance
-            </CardTitle>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[200px] text-xs">
-            comparison of likes and comments given vs received
-          </TooltipContent>
-        </Tooltip>
-      </CardHeader>
-      <CardContent className="px-4">
-        <ChartContainer
-          config={engagementChartConfig}
-          className="h-[160px] w-full"
-        >
-          <BarChart data={chartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-            <XAxis
-              type="number"
-              tickLine={false}
-              axisLine={false}
-              fontSize={10}
-            />
-            <YAxis
-              dataKey="category"
-              type="category"
-              tickLine={false}
-              axisLine={false}
-              fontSize={10}
-              width={60}
-            />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Bar
-              dataKey="given"
-              fill="var(--color-given)"
-              radius={[0, 4, 4, 0]}
-            />
-            <Bar
-              dataKey="received"
-              fill="var(--color-received)"
-              radius={[0, 4, 4, 0]}
-            />
-          </BarChart>
-        </ChartContainer>
-        <div className="mt-2 flex justify-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div
-              className="size-2 rounded-full"
-              style={{ backgroundColor: "var(--chart-1)" }}
-            />
-            <span className="text-muted-foreground text-xs">Given</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div
-              className="size-2 rounded-full"
-              style={{ backgroundColor: "var(--chart-2)" }}
-            />
-            <span className="text-muted-foreground text-xs">Received</span>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

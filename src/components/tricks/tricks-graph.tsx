@@ -1,7 +1,6 @@
 import {
   Background,
   BackgroundVariant,
-  Controls,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -515,12 +514,12 @@ function GraphContent({
         proOptions={{ hideAttribution: true }}
       >
         <Background
-          className="opacity-50"
+          color="currentColor"
+          className="text-muted-foreground/30"
           gap={28}
           size={0.75}
           variant={BackgroundVariant.Dots}
         />
-        <Controls showInteractive={false} />
       </ReactFlow>
     </>
   );

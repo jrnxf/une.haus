@@ -1,6 +1,6 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { EarthIcon, FilterIcon, UsersIcon, XIcon } from "lucide-react";
+import { EarthIcon, FilterIcon, GhostIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
@@ -118,7 +118,7 @@ function RouteComponent() {
               )}
             </Button>
             <Link to="/map">
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 <EarthIcon className="size-4" />
                 Map
               </Button>
@@ -156,7 +156,7 @@ function RouteComponent() {
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <UsersIcon />
+                <GhostIcon />
               </EmptyMedia>
               <EmptyTitle>No users</EmptyTitle>
               <EmptyDescription>

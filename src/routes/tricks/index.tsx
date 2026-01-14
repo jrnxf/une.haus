@@ -7,7 +7,6 @@ import { TrickDetail } from "~/components/tricks/trick-detail";
 import { TricksGraph } from "~/components/tricks/tricks-graph";
 import { TricksSearch } from "~/components/tricks/tricks-search";
 import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
-import type { Trick } from "~/lib/tricks";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/")({
@@ -19,22 +18,24 @@ export const Route = createFileRoute("/tricks/")({
 
 function TricksPage() {
   const { data } = useSuspenseQuery(tricks.get.queryOptions());
-  const [selectedTrickId, setSelectedTrickId] = useState<string | null>(null);
-  const [detailTrick, setDetailTrick] = useState<Trick | null>(null);
+  const [selectedTrickId, setSelectedTrickId] = useState<string | null>(
+    "treyflip",
+  );
+  const [detailTrickId, setDetailTrickId] = useState<string | null>(null);
+  const detailTrick = detailTrickId ? data.byId[detailTrickId] : null;
 
-  function handleSelectTrick(trick: Trick) {
-    setSelectedTrickId(trick.id);
+  function handleSelectTrick(trickId: string) {
+    setSelectedTrickId(trickId);
   }
 
-  function handleOpenTrickDetail(trick: Trick) {
-    setDetailTrick(trick);
+  function handleOpenTrickDetail(trickId: string) {
+    setDetailTrickId(trickId);
   }
 
   function handleNavigateToTrick(trickId: string) {
-    const trick = data.byId[trickId];
-    if (trick) {
+    if (data.byId[trickId]) {
       setSelectedTrickId(trickId);
-      setDetailTrick(trick);
+      setDetailTrickId(trickId);
     }
   }
 
@@ -42,7 +43,10 @@ function TricksPage() {
     <div className="flex h-full grow flex-col overflow-hidden">
       {/* Mobile search bar */}
       <div className="shrink-0 border-b p-3 md:hidden">
-        <TricksSearch data={data} onSelectTrick={handleSelectTrick} />
+        <TricksSearch
+          data={data}
+          onSelectTrick={(trick) => handleSelectTrick(trick.id)}
+        />
       </div>
 
       <div className="flex min-h-0 flex-1">
@@ -50,7 +54,7 @@ function TricksPage() {
         <div className="hidden h-full w-64 shrink-0 overflow-hidden border-r md:block">
           <TricksSidebar
             data={data}
-            onSelectTrick={handleSelectTrick}
+            onSelectTrick={(trick) => handleSelectTrick(trick.id)}
             selectedTrickId={selectedTrickId}
           />
         </div>
@@ -60,8 +64,8 @@ function TricksPage() {
           <ReactFlowProvider>
             <TricksGraph
               data={data}
-              onOpenTrickDetail={handleOpenTrickDetail}
-              onSelectTrick={handleSelectTrick}
+              onOpenTrickDetail={(trick) => handleOpenTrickDetail(trick.id)}
+              onSelectTrick={(trick) => handleSelectTrick(trick.id)}
               selectedTrickId={selectedTrickId}
             />
           </ReactFlowProvider>
@@ -72,7 +76,7 @@ function TricksPage() {
       {detailTrick && (
         <TrickDetail
           onNavigateToTrick={handleNavigateToTrick}
-          onOpenChange={(open) => !open && setDetailTrick(null)}
+          onOpenChange={(open) => !open && setDetailTrickId(null)}
           open
           trick={detailTrick}
           tricksData={data}

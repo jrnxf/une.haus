@@ -213,6 +213,24 @@ export function Search() {
         onAction: () => closeAndNavigate("/stats"),
       },
     },
+    {
+      id: "notifications",
+      label: "Notifications",
+      value: "/notifications",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/notifications"),
+      },
+    },
+    {
+      id: "feedback",
+      label: "Feedback",
+      value: "/feedback",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/feedback"),
+      },
+    },
   ];
 
   // Map selected value to item - cmdk lowercases values for matching

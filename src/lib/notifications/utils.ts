@@ -63,6 +63,33 @@ export function getNotificationMessage(
   }
 }
 
+/**
+ * Get just the action text for a notification (without actor names)
+ */
+export function getNotificationAction(
+  type: NotificationType,
+  entityType: NotificationEntityType,
+  entityTitle?: string,
+): string {
+  switch (type) {
+    case "like": {
+      return `liked your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+    }
+    case "comment": {
+      return `commented on your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+    }
+    case "follow": {
+      return "started following you";
+    }
+    case "new_content": {
+      return `posted ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+    }
+    default: {
+      return "sent you a notification";
+    }
+  }
+}
+
 function formatActors(names: string[], totalCount: number): string {
   if (names.length === 0) return "Someone";
   if (names.length === 1) {

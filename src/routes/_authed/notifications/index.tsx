@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, Check, Loader2, Settings } from "lucide-react";
+import { Check, GhostIcon, Loader2, WrenchIcon } from "lucide-react";
 import { useState } from "react";
 
 import { NotificationItem } from "~/components/notifications/notification-item";
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authed/notifications/")({
 });
 
 function RouteComponent() {
-  const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [filter, setFilter] = useState<"all" | "unread">("unread");
 
   const { data: unreadCount = 0 } = useSuspenseQuery(
     notifications.unreadCount.queryOptions(),
@@ -79,10 +79,10 @@ function RouteComponent() {
                 Mark all as read
               </Button>
             )}
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="secondary" size="sm" asChild>
               <Link to="/notifications/settings">
-                <Settings className="size-5" />
-                <span className="sr-only">Notification settings</span>
+                <WrenchIcon className="size-4" />
+                Settings
               </Link>
             </Button>
           </div>
@@ -94,22 +94,24 @@ function RouteComponent() {
           onValueChange={(v) => setFilter(v as "all" | "unread")}
           className="mb-4"
         >
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="unread">
+          <TabsList className="h-8">
+            <TabsTrigger value="unread" className="px-3 text-xs">
               Unread
               {unreadCount > 0 && (
-                <span className="bg-primary text-primary-foreground ml-1.5 rounded-full px-1.5 py-0.5 text-xs">
+                <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-[10px]">
                   {unreadCount}
                 </span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="all" className="px-3 text-xs">
+              All
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
         {/* Notification list */}
         {groupedNotifications && groupedNotifications.length > 0 ? (
-          <div className="divide-y rounded-lg border">
+          <div className="divide-y overflow-clip rounded-lg border">
             {groupedNotifications.map((notification) => (
               <NotificationItem
                 key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
@@ -142,7 +144,7 @@ function RouteComponent() {
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <Bell />
+                <GhostIcon />
               </EmptyMedia>
               <EmptyTitle>
                 {filter === "unread"

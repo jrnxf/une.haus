@@ -54,7 +54,7 @@ export function StartChainForm() {
             <FormLabel>Set Name</FormLabel>
             <FormDescription>Name the set you&apos;re starting</FormDescription>
             <FormControl>
-              <Input {...field} placeholder="e.g. Backflip to seatpost" />
+              <Input {...field} placeholder="e.g. 360 unispin" />
             </FormControl>
             <FormMessage />
           </FormItem>

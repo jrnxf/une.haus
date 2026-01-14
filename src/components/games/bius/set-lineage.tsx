@@ -37,19 +37,15 @@ export function SetLineage({ sets }: SetLineageProps) {
   const latestPosition = sets[0]?.position ?? 0;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {sets.map((set, index) => (
-        <div key={set.id}>
+        <div key={set.id} className="space-y-1">
           <BiuSetCard set={set} isLatest={set.position === latestPosition} />
 
           {/* Show arrow between sets (not after the last one) */}
           {index < sets.length - 1 && (
-            <div className="flex justify-center py-2">
-              <div className="text-muted-foreground flex flex-col items-center">
-                <div className="bg-border h-4 w-px" />
-                <ArrowDownIcon className="size-4" />
-                <div className="bg-border h-4 w-px" />
-              </div>
+            <div className="flex justify-center py-1">
+              <ArrowDownIcon className="text-muted-foreground size-4" />
             </div>
           )}
         </div>

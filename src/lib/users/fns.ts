@@ -7,8 +7,6 @@ import { db } from "~/db";
 import {
   biuSets,
   chatMessages,
-  postLikes,
-  postMessages,
   posts,
   riuSets,
   riuSubmissions,
@@ -343,47 +341,165 @@ const getUserStats = createServerOnlyFn(async (userId: number) => {
   ] = await Promise.all([
     // Count posts by this user
     db.select({ count: count() }).from(posts).where(eq(posts.userId, userId)),
-    // Count likes received on this user's posts
-    db
-      .select({ count: count() })
-      .from(postLikes)
-      .innerJoin(posts, eq(postLikes.postId, posts.id))
-      .where(eq(posts.userId, userId)),
-    // Count comments received on this user's posts
-    db
-      .select({ count: count() })
-      .from(postMessages)
-      .innerJoin(posts, eq(postMessages.postId, posts.id))
-      .where(eq(posts.userId, userId)),
+
+    // Count ALL likes received (excluding self-likes)
+    db.execute<{ count: number }>(sql`
+      SELECT COUNT(*) as count FROM (
+        -- Likes on user's posts
+        SELECT 1 FROM post_likes pl
+        JOIN posts p ON pl.post_id = p.id
+        WHERE p.user_id = ${userId} AND pl.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's post comments
+        SELECT 1 FROM post_message_likes pml
+        JOIN post_messages pm ON pml.post_message_id = pm.id
+        WHERE pm.user_id = ${userId} AND pml.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's chat messages
+        SELECT 1 FROM chat_message_likes cml
+        JOIN chat_messages cm ON cml.chat_message_id = cm.id
+        WHERE cm.user_id = ${userId} AND cml.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's RIU sets
+        SELECT 1 FROM riu_set_likes rsl
+        JOIN riu_sets rs ON rsl.riu_set_id = rs.id
+        WHERE rs.user_id = ${userId} AND rsl.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's RIU set comments
+        SELECT 1 FROM riu_set_message_likes rsml
+        JOIN riu_set_messages rsm ON rsml.riu_set_message_id = rsm.id
+        WHERE rsm.user_id = ${userId} AND rsml.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's RIU submissions
+        SELECT 1 FROM riu_submission_likes rsubl
+        JOIN riu_submissions rsub ON rsubl.riu_submission_id = rsub.id
+        WHERE rsub.user_id = ${userId} AND rsubl.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's RIU submission comments
+        SELECT 1 FROM riu_submission_message_likes rsubml
+        JOIN riu_submission_messages rsubm ON rsubml.riu_submission_message_id = rsubm.id
+        WHERE rsubm.user_id = ${userId} AND rsubml.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's BIU sets
+        SELECT 1 FROM biu_set_likes bsl
+        JOIN biu_sets bs ON bsl.biu_set_id = bs.id
+        WHERE bs.user_id = ${userId} AND bsl.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's BIU set comments
+        SELECT 1 FROM biu_set_message_likes bsml
+        JOIN biu_set_messages bsm ON bsml.biu_set_message_id = bsm.id
+        WHERE bsm.user_id = ${userId} AND bsml.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's SIU stacks
+        SELECT 1 FROM siu_stack_likes ssl
+        JOIN siu_stacks ss ON ssl.siu_stack_id = ss.id
+        WHERE ss.user_id = ${userId} AND ssl.user_id != ${userId}
+        UNION ALL
+        -- Likes on user's SIU stack comments
+        SELECT 1 FROM siu_stack_message_likes ssml
+        JOIN siu_stack_messages ssm ON ssml.siu_stack_message_id = ssm.id
+        WHERE ssm.user_id = ${userId} AND ssml.user_id != ${userId}
+      ) all_likes
+    `),
+
+    // Count ALL comments received (excluding self-comments)
+    db.execute<{ count: number }>(sql`
+      SELECT COUNT(*) as count FROM (
+        -- Comments on user's posts
+        SELECT 1 FROM post_messages pm
+        JOIN posts p ON pm.post_id = p.id
+        WHERE p.user_id = ${userId} AND pm.user_id != ${userId}
+        UNION ALL
+        -- Comments on user's RIU sets
+        SELECT 1 FROM riu_set_messages rsm
+        JOIN riu_sets rs ON rsm.riu_set_id = rs.id
+        WHERE rs.user_id = ${userId} AND rsm.user_id != ${userId}
+        UNION ALL
+        -- Comments on user's RIU submissions
+        SELECT 1 FROM riu_submission_messages rsubm
+        JOIN riu_submissions rsub ON rsubm.riu_submission_id = rsub.id
+        WHERE rsub.user_id = ${userId} AND rsubm.user_id != ${userId}
+        UNION ALL
+        -- Comments on user's BIU sets
+        SELECT 1 FROM biu_set_messages bsm
+        JOIN biu_sets bs ON bsm.biu_set_id = bs.id
+        WHERE bs.user_id = ${userId} AND bsm.user_id != ${userId}
+        UNION ALL
+        -- Comments on user's SIU stacks
+        SELECT 1 FROM siu_stack_messages ssm
+        JOIN siu_stacks ss ON ssm.siu_stack_id = ss.id
+        WHERE ss.user_id = ${userId} AND ssm.user_id != ${userId}
+      ) all_comments
+    `),
+
     // Count RIU submissions by this user
     db
       .select({ count: count() })
       .from(riuSubmissions)
       .where(eq(riuSubmissions.userId, userId)),
-    // Count likes given by this user
-    db
-      .select({ count: count() })
-      .from(postLikes)
-      .where(eq(postLikes.userId, userId)),
-    // Count comments made by this user
-    db
-      .select({ count: count() })
-      .from(postMessages)
-      .where(eq(postMessages.userId, userId)),
-    // Activity by month for this user
+
+    // Count ALL likes given by this user
+    db.execute<{ count: number }>(sql`
+      SELECT COUNT(*) as count FROM (
+        SELECT 1 FROM post_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM post_message_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM chat_message_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM riu_set_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM riu_set_message_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM riu_submission_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM riu_submission_message_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM biu_set_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM biu_set_message_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM siu_stack_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM siu_stack_message_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM utv_video_likes WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM utv_video_message_likes WHERE user_id = ${userId}
+      ) all_likes
+    `),
+
+    // Count ALL comments made by this user
+    db.execute<{ count: number }>(sql`
+      SELECT COUNT(*) as count FROM (
+        SELECT 1 FROM post_messages WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM riu_set_messages WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM riu_submission_messages WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM biu_set_messages WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM siu_stack_messages WHERE user_id = ${userId}
+        UNION ALL
+        SELECT 1 FROM utv_video_messages WHERE user_id = ${userId}
+      ) all_comments
+    `),
+
+    // Activity by month for this user (past 12 months)
     db.execute<{ month: string; activityCount: number }>(sql`
       WITH monthly_activity AS (
-        SELECT DATE_TRUNC('month', created_at) as month FROM posts WHERE user_id = ${userId}
+        SELECT DATE_TRUNC('month', created_at) as month FROM posts WHERE user_id = ${userId} AND created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month FROM post_messages WHERE user_id = ${userId}
+        SELECT DATE_TRUNC('month', created_at) as month FROM post_messages WHERE user_id = ${userId} AND created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month FROM riu_submissions WHERE user_id = ${userId}
+        SELECT DATE_TRUNC('month', created_at) as month FROM riu_submissions WHERE user_id = ${userId} AND created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month FROM riu_sets WHERE user_id = ${userId}
+        SELECT DATE_TRUNC('month', created_at) as month FROM riu_sets WHERE user_id = ${userId} AND created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month FROM biu_sets WHERE user_id = ${userId}
+        SELECT DATE_TRUNC('month', created_at) as month FROM biu_sets WHERE user_id = ${userId} AND created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month FROM chat_messages WHERE user_id = ${userId}
+        SELECT DATE_TRUNC('month', created_at) as month FROM chat_messages WHERE user_id = ${userId} AND created_at >= DATE_TRUNC('month', NOW()) - INTERVAL '11 months'
       )
       SELECT
         TO_CHAR(month, 'YYYY-MM') as month,
@@ -392,16 +508,19 @@ const getUserStats = createServerOnlyFn(async (userId: number) => {
       GROUP BY month
       ORDER BY month ASC
     `),
+
     // Count RIU sets created by this user
     db
       .select({ count: count() })
       .from(riuSets)
       .where(eq(riuSets.userId, userId)),
+
     // Count BIU sets created by this user
     db
       .select({ count: count() })
       .from(biuSets)
       .where(eq(biuSets.userId, userId)),
+
     // Count chat messages by this user
     db
       .select({ count: count() })
@@ -411,11 +530,11 @@ const getUserStats = createServerOnlyFn(async (userId: number) => {
 
   return {
     posts: postsResult[0]?.count ?? 0,
-    likesReceived: likesReceivedResult[0]?.count ?? 0,
-    commentsReceived: commentsReceivedResult[0]?.count ?? 0,
+    likesReceived: Number(likesReceivedResult[0]?.count ?? 0),
+    commentsReceived: Number(commentsReceivedResult[0]?.count ?? 0),
     gameSubmissions: submissionsResult[0]?.count ?? 0,
-    likesGiven: likesGivenResult[0]?.count ?? 0,
-    commentsMade: commentsMadeResult[0]?.count ?? 0,
+    likesGiven: Number(likesGivenResult[0]?.count ?? 0),
+    commentsMade: Number(commentsMadeResult[0]?.count ?? 0),
     activityByMonth: activityByMonthResult.map((row) => ({
       month: row.month,
       activityCount: Number(row.activityCount),

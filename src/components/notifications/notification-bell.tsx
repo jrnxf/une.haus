@@ -9,7 +9,6 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { Separator } from "~/components/ui/separator";
 import { notifications } from "~/lib/notifications";
 import {
   useMarkAllNotificationsRead,
@@ -56,43 +55,50 @@ export function NotificationBell({ className }: NotificationBellProps) {
           </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0" sideOffset={8}>
+      <PopoverContent
+        align="end"
+        className="w-72 overflow-hidden p-0"
+        sideOffset={8}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <h3 className="font-semibold">Notifications</h3>
+        <div className="flex items-center justify-between border-b px-2.5 py-1.5">
+          <h3 className="text-xs font-semibold">Notifications</h3>
           <div className="flex items-center gap-1">
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto px-2 py-1 text-xs"
+                className="h-auto px-1.5 py-0.5 text-[10px]"
                 onClick={() => markAllRead.mutate({ data: {} })}
                 disabled={markAllRead.isPending}
               >
                 {markAllRead.isPending ? (
-                  <Loader2 className="mr-1 size-3 animate-spin" />
+                  <Loader2 className="mr-1 size-2.5 animate-spin" />
                 ) : (
-                  <Check className="mr-1 size-3" />
+                  <Check className="mr-1 size-2.5" />
                 )}
                 Mark all read
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="size-7" asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="bg-background/50 h-auto border px-1.5 py-0.5 text-[10px] backdrop-blur-sm"
+              asChild
+            >
               <Link to="/notifications/settings">
-                <Settings className="size-4" />
-                <span className="sr-only">Settings</span>
+                <Settings className="size-2.5" />
+                Settings
               </Link>
             </Button>
           </div>
         </div>
 
-        <Separator />
-
         {/* Notification list */}
         <ScrollArea className="max-h-[400px]">
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="text-muted-foreground size-6 animate-spin" />
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="text-muted-foreground size-5 animate-spin" />
             </div>
           ) : groupedNotifications && groupedNotifications.length > 0 ? (
             <div className="divide-y">
@@ -112,6 +118,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
                   }
                   data={notification.data}
                   latestAt={notification.latestAt}
+                  isRead={notification.isRead}
                   onMarkRead={() =>
                     markGroupRead.mutate({
                       data: {
@@ -125,17 +132,20 @@ export function NotificationBell({ className }: NotificationBellProps) {
               ))}
             </div>
           ) : (
-            <div className="text-muted-foreground py-8 text-center text-sm">
+            <div className="text-muted-foreground py-6 text-center text-xs">
               No notifications yet
             </div>
           )}
         </ScrollArea>
 
-        <Separator />
-
         {/* Footer */}
-        <div className="p-2">
-          <Button variant="ghost" className="w-full" asChild>
+        <div className="border-t p-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-auto w-full py-1 text-[10px]"
+            asChild
+          >
             <Link to="/notifications">View all notifications</Link>
           </Button>
         </div>

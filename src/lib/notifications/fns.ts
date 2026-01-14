@@ -83,6 +83,8 @@ export const listGroupedNotificationsServerFn = createServerFn({
         count: count(),
         latestId: sql<number>`MAX(${notifications.id})`,
         latestAt: sql<Date>`MAX(${notifications.createdAt})`,
+        // Check if all notifications in this group are read
+        isRead: sql<boolean>`COUNT(*) FILTER (WHERE ${notifications.readAt} IS NULL) = 0`,
         // Get the most recent unique actor IDs (up to 3)
         actorIds: sql<number[]>`
           (
@@ -148,6 +150,7 @@ export const listGroupedNotificationsServerFn = createServerFn({
       count: g.count,
       latestId: g.latestId,
       latestAt: g.latestAt,
+      isRead: g.isRead,
       actors: (g.actorIds || []).map((id) => actorMap.get(id)).filter(Boolean),
       data: g.data ? JSON.parse(g.data) : null,
     }));

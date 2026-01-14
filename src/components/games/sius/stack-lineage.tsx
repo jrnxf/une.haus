@@ -36,9 +36,9 @@ export function StackLineage({ stacks }: StackLineageProps) {
   const latestPosition = stacks[0]?.position ?? 0;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {stacks.map((stack, index) => (
-        <div key={stack.id}>
+        <div key={stack.id} className="space-y-1">
           <SiuStackCard
             stack={stack}
             isLatest={stack.position === latestPosition}
@@ -46,12 +46,8 @@ export function StackLineage({ stacks }: StackLineageProps) {
 
           {/* Show arrow between stacks (not after the last one) */}
           {index < stacks.length - 1 && (
-            <div className="flex justify-center py-2">
-              <div className="text-muted-foreground flex flex-col items-center">
-                <div className="bg-border h-4 w-px" />
-                <ArrowDownIcon className="size-4" />
-                <div className="bg-border h-4 w-px" />
-              </div>
+            <div className="flex justify-center py-1">
+              <ArrowDownIcon className="text-muted-foreground size-4" />
             </div>
           )}
         </div>

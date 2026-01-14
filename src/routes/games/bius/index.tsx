@@ -80,10 +80,12 @@ function RouteComponent() {
             latestSet.user.id === sessionUser.id ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button disabled>
-                    <RotateCcwIcon className="mr-2 size-4" />
-                    Back It Up
-                  </Button>
+                  <span className="inline-flex">
+                    <Button disabled>
+                      <RotateCcwIcon className="mr-2 size-4" />
+                      Back It Up
+                    </Button>
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   You can&apos;t back up your own set
@@ -92,10 +94,12 @@ function RouteComponent() {
             ) : latestSet.flaggedAt ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button disabled>
-                    <RotateCcwIcon className="mr-2 size-4" />
-                    Back It Up
-                  </Button>
+                  <span className="inline-flex">
+                    <Button disabled>
+                      <RotateCcwIcon className="mr-2 size-4" />
+                      Back It Up
+                    </Button>
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>Set is flagged and under review</TooltipContent>
               </Tooltip>
@@ -103,10 +107,12 @@ function RouteComponent() {
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button disabled>
-                  <RotateCcwIcon className="mr-2 size-4" />
-                  Back It Up
-                </Button>
+                <span className="inline-flex">
+                  <Button disabled>
+                    <RotateCcwIcon className="mr-2 size-4" />
+                    Back It Up
+                  </Button>
+                </span>
               </TooltipTrigger>
               <TooltipContent>Sign in to back it up</TooltipContent>
             </Tooltip>

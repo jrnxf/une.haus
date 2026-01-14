@@ -160,17 +160,6 @@ function RouteComponent() {
             })}
           </CardContent>
         </Card>
-
-        {/* Info card */}
-        <Card className="mt-4 border-dashed">
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-sm">
-              Changes are saved automatically. Disabling a notification type
-              will prevent new notifications from being created, but won't
-              delete existing ones.
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
