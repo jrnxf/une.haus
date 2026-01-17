@@ -80,6 +80,8 @@ export const NOTIFICATION_ENTITY_TYPES = [
   "siuChain",
   "utvVideo",
   "user",
+  "trickSubmission",
+  "trickSuggestion",
 ] as const;
 
 export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number];
@@ -1064,6 +1066,554 @@ export type SelectLocation = typeof userLocations.$inferSelect;
 
 export type SelectPost = typeof posts.$inferSelect;
 export type SelectUser = typeof users.$inferSelect;
+
+// Trick Enums
+export const TRICK_RELATIONSHIP_TYPES = [
+  "prerequisite",
+  "optional_prerequisite",
+  "related",
+] as const;
+export const trickRelationshipTypeEnum = pgEnum(
+  "trick_relationship_type",
+  TRICK_RELATIONSHIP_TYPES,
+);
+
+export const TRICK_SUBMISSION_STATUSES = [
+  "pending",
+  "approved",
+  "rejected",
+] as const;
+export const trickSubmissionStatusEnum = pgEnum(
+  "trick_submission_status",
+  TRICK_SUBMISSION_STATUSES,
+);
+
+// Trick Categories (admin-customizable)
+export const trickCategories = pgTable("trick_categories", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Trick Modifiers (global, apply to any trick)
+export const trickModifiers = pgTable("trick_modifiers", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Core Tricks Table
+export const tricks = pgTable(
+  "tricks",
+  {
+    id: serial("id").primaryKey(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    alternateNames: json("alternate_names").$type<string[]>().default([]),
+    definition: text("definition"),
+    isPrefix: boolean("is_prefix").notNull().default(false),
+    inventedBy: text("invented_by"),
+    yearLanded: integer("year_landed"),
+    videoUrl: text("video_url"),
+    videoTimestamp: text("video_timestamp"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("tricks_slug_idx").on(t.slug)],
+);
+
+// Trick Category Assignments (many-to-many)
+export const trickCategoryAssignments = pgTable(
+  "trick_category_assignments",
+  {
+    trickId: integer("trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => trickCategories.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickId, t.categoryId] })],
+);
+
+// Trick Relationships (directed graph)
+export const trickRelationships = pgTable(
+  "trick_relationships",
+  {
+    id: serial("id").primaryKey(),
+    sourceTrickId: integer("source_trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    targetTrickId: integer("target_trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    type: trickRelationshipTypeEnum("type").notNull(),
+  },
+  (t) => [
+    index("trick_relationships_source_idx").on(t.sourceTrickId),
+    index("trick_relationships_target_idx").on(t.targetTrickId),
+  ],
+);
+
+// Trick Submissions (user-submitted for review)
+export const trickSubmissions = pgTable("trick_submissions", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull(),
+  name: text("name").notNull(),
+  alternateNames: json("alternate_names").$type<string[]>().default([]),
+  definition: text("definition"),
+  isPrefix: boolean("is_prefix").notNull().default(false),
+  inventedBy: text("invented_by"),
+  yearLanded: integer("year_landed"),
+  videoUrl: text("video_url"),
+  videoTimestamp: text("video_timestamp"),
+  notes: text("notes"),
+  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  submittedByUserId: integer("submitted_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Trick Submission Category Assignments
+export const trickSubmissionCategoryAssignments = pgTable(
+  "trick_submission_category_assignments",
+  {
+    submissionId: integer("submission_id")
+      .notNull()
+      .references(() => trickSubmissions.id, { onDelete: "cascade" }),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => trickCategories.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.submissionId, t.categoryId] })],
+);
+
+// Trick Submission Relationships
+export const trickSubmissionRelationships = pgTable(
+  "trick_submission_relationships",
+  {
+    id: serial("id").primaryKey(),
+    submissionId: integer("submission_id")
+      .notNull()
+      .references(() => trickSubmissions.id, { onDelete: "cascade" }),
+    targetTrickId: integer("target_trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    type: trickRelationshipTypeEnum("type").notNull(),
+  },
+);
+
+// Trick Suggestions (edits to existing tricks)
+export type TrickSuggestionDiff = {
+  name?: { old: string; new: string };
+  alternateNames?: { old: string[]; new: string[] };
+  definition?: { old: string | null; new: string | null };
+  isPrefix?: { old: boolean; new: boolean };
+  inventedBy?: { old: string | null; new: string | null };
+  yearLanded?: { old: number | null; new: number | null };
+  videoUrl?: { old: string | null; new: string | null };
+  videoTimestamp?: { old: string | null; new: string | null };
+  notes?: { old: string | null; new: string | null };
+  categories?: { old: string[]; new: string[] };
+  relationships?: {
+    added: Array<{ targetSlug: string; type: string }>;
+    removed: Array<{ targetSlug: string; type: string }>;
+  };
+};
+
+export const trickSuggestions = pgTable("trick_suggestions", {
+  id: serial("id").primaryKey(),
+  trickId: integer("trick_id")
+    .notNull()
+    .references(() => tricks.id, { onDelete: "cascade" }),
+  diff: json("diff").$type<TrickSuggestionDiff>().notNull(),
+  reason: text("reason"),
+  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  submittedByUserId: integer("submitted_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Trick Engagement Tables
+export const trickLikes = pgTable(
+  "trick_likes",
+  {
+    trickId: integer("trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickId, t.userId] })],
+);
+
+export const trickMessages = pgTable("trick_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  trickId: integer("trick_id")
+    .notNull()
+    .references(() => tricks.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const trickMessageLikes = pgTable(
+  "trick_message_likes",
+  {
+    trickMessageId: integer("trick_message_id")
+      .notNull()
+      .references(() => trickMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickMessageId, t.userId] })],
+);
+
+// Trick Submission Engagement Tables
+export const trickSubmissionLikes = pgTable(
+  "trick_submission_likes",
+  {
+    trickSubmissionId: integer("trick_submission_id")
+      .notNull()
+      .references(() => trickSubmissions.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickSubmissionId, t.userId] })],
+);
+
+export const trickSubmissionMessages = pgTable("trick_submission_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  submissionId: integer("submission_id")
+    .notNull()
+    .references(() => trickSubmissions.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const trickSubmissionMessageLikes = pgTable(
+  "trick_submission_message_likes",
+  {
+    trickSubmissionMessageId: integer("trick_submission_message_id")
+      .notNull()
+      .references(() => trickSubmissionMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickSubmissionMessageId, t.userId] })],
+);
+
+// Trick Suggestion Engagement Tables
+export const trickSuggestionLikes = pgTable(
+  "trick_suggestion_likes",
+  {
+    trickSuggestionId: integer("trick_suggestion_id")
+      .notNull()
+      .references(() => trickSuggestions.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickSuggestionId, t.userId] })],
+);
+
+export const trickSuggestionMessages = pgTable("trick_suggestion_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  suggestionId: integer("suggestion_id")
+    .notNull()
+    .references(() => trickSuggestions.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const trickSuggestionMessageLikes = pgTable(
+  "trick_suggestion_message_likes",
+  {
+    trickSuggestionMessageId: integer("trick_suggestion_message_id")
+      .notNull()
+      .references(() => trickSuggestionMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickSuggestionMessageId, t.userId] })],
+);
+
+// Trick Relations
+export const trickCategoriesRelations = relations(
+  trickCategories,
+  ({ many }) => ({
+    assignments: many(trickCategoryAssignments),
+  }),
+);
+
+export const trickModifiersRelations = relations(trickModifiers, () => ({}));
+
+export const tricksRelations = relations(tricks, ({ many }) => ({
+  categoryAssignments: many(trickCategoryAssignments),
+  outgoingRelationships: many(trickRelationships, {
+    relationName: "sourceRelationships",
+  }),
+  incomingRelationships: many(trickRelationships, {
+    relationName: "targetRelationships",
+  }),
+  likes: many(trickLikes),
+  messages: many(trickMessages),
+  suggestions: many(trickSuggestions),
+}));
+
+export const trickCategoryAssignmentsRelations = relations(
+  trickCategoryAssignments,
+  ({ one }) => ({
+    trick: one(tricks, {
+      fields: [trickCategoryAssignments.trickId],
+      references: [tricks.id],
+    }),
+    category: one(trickCategories, {
+      fields: [trickCategoryAssignments.categoryId],
+      references: [trickCategories.id],
+    }),
+  }),
+);
+
+export const trickRelationshipsRelations = relations(
+  trickRelationships,
+  ({ one }) => ({
+    sourceTrick: one(tricks, {
+      fields: [trickRelationships.sourceTrickId],
+      references: [tricks.id],
+      relationName: "sourceRelationships",
+    }),
+    targetTrick: one(tricks, {
+      fields: [trickRelationships.targetTrickId],
+      references: [tricks.id],
+      relationName: "targetRelationships",
+    }),
+  }),
+);
+
+export const trickSubmissionsRelations = relations(
+  trickSubmissions,
+  ({ one, many }) => ({
+    submittedBy: one(users, {
+      fields: [trickSubmissions.submittedByUserId],
+      references: [users.id],
+    }),
+    reviewedBy: one(users, {
+      fields: [trickSubmissions.reviewedByUserId],
+      references: [users.id],
+    }),
+    categoryAssignments: many(trickSubmissionCategoryAssignments),
+    relationships: many(trickSubmissionRelationships),
+    likes: many(trickSubmissionLikes),
+    messages: many(trickSubmissionMessages),
+  }),
+);
+
+export const trickSubmissionCategoryAssignmentsRelations = relations(
+  trickSubmissionCategoryAssignments,
+  ({ one }) => ({
+    submission: one(trickSubmissions, {
+      fields: [trickSubmissionCategoryAssignments.submissionId],
+      references: [trickSubmissions.id],
+    }),
+    category: one(trickCategories, {
+      fields: [trickSubmissionCategoryAssignments.categoryId],
+      references: [trickCategories.id],
+    }),
+  }),
+);
+
+export const trickSubmissionRelationshipsRelations = relations(
+  trickSubmissionRelationships,
+  ({ one }) => ({
+    submission: one(trickSubmissions, {
+      fields: [trickSubmissionRelationships.submissionId],
+      references: [trickSubmissions.id],
+    }),
+    targetTrick: one(tricks, {
+      fields: [trickSubmissionRelationships.targetTrickId],
+      references: [tricks.id],
+    }),
+  }),
+);
+
+export const trickSuggestionsRelations = relations(
+  trickSuggestions,
+  ({ one, many }) => ({
+    trick: one(tricks, {
+      fields: [trickSuggestions.trickId],
+      references: [tricks.id],
+    }),
+    submittedBy: one(users, {
+      fields: [trickSuggestions.submittedByUserId],
+      references: [users.id],
+    }),
+    reviewedBy: one(users, {
+      fields: [trickSuggestions.reviewedByUserId],
+      references: [users.id],
+    }),
+    likes: many(trickSuggestionLikes),
+    messages: many(trickSuggestionMessages),
+  }),
+);
+
+export const trickLikesRelations = relations(trickLikes, ({ one }) => ({
+  trick: one(tricks, {
+    fields: [trickLikes.trickId],
+    references: [tricks.id],
+  }),
+  user: one(users, {
+    fields: [trickLikes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const trickMessagesRelations = relations(
+  trickMessages,
+  ({ one, many }) => ({
+    trick: one(tricks, {
+      fields: [trickMessages.trickId],
+      references: [tricks.id],
+    }),
+    user: one(users, {
+      fields: [trickMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(trickMessageLikes),
+  }),
+);
+
+export const trickMessageLikesRelations = relations(
+  trickMessageLikes,
+  ({ one }) => ({
+    message: one(trickMessages, {
+      fields: [trickMessageLikes.trickMessageId],
+      references: [trickMessages.id],
+    }),
+    user: one(users, {
+      fields: [trickMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const trickSubmissionLikesRelations = relations(
+  trickSubmissionLikes,
+  ({ one }) => ({
+    submission: one(trickSubmissions, {
+      fields: [trickSubmissionLikes.trickSubmissionId],
+      references: [trickSubmissions.id],
+    }),
+    user: one(users, {
+      fields: [trickSubmissionLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const trickSubmissionMessagesRelations = relations(
+  trickSubmissionMessages,
+  ({ one, many }) => ({
+    submission: one(trickSubmissions, {
+      fields: [trickSubmissionMessages.submissionId],
+      references: [trickSubmissions.id],
+    }),
+    user: one(users, {
+      fields: [trickSubmissionMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(trickSubmissionMessageLikes),
+  }),
+);
+
+export const trickSubmissionMessageLikesRelations = relations(
+  trickSubmissionMessageLikes,
+  ({ one }) => ({
+    message: one(trickSubmissionMessages, {
+      fields: [trickSubmissionMessageLikes.trickSubmissionMessageId],
+      references: [trickSubmissionMessages.id],
+    }),
+    user: one(users, {
+      fields: [trickSubmissionMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const trickSuggestionLikesRelations = relations(
+  trickSuggestionLikes,
+  ({ one }) => ({
+    suggestion: one(trickSuggestions, {
+      fields: [trickSuggestionLikes.trickSuggestionId],
+      references: [trickSuggestions.id],
+    }),
+    user: one(users, {
+      fields: [trickSuggestionLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const trickSuggestionMessagesRelations = relations(
+  trickSuggestionMessages,
+  ({ one, many }) => ({
+    suggestion: one(trickSuggestions, {
+      fields: [trickSuggestionMessages.suggestionId],
+      references: [trickSuggestions.id],
+    }),
+    user: one(users, {
+      fields: [trickSuggestionMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(trickSuggestionMessageLikes),
+  }),
+);
+
+export const trickSuggestionMessageLikesRelations = relations(
+  trickSuggestionMessageLikes,
+  ({ one }) => ({
+    message: one(trickSuggestionMessages, {
+      fields: [trickSuggestionMessageLikes.trickSuggestionMessageId],
+      references: [trickSuggestionMessages.id],
+    }),
+    user: one(users, {
+      fields: [trickSuggestionMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 // make sure to reset sequences when seeding. eg
 // SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), true);

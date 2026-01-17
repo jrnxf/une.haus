@@ -11,6 +11,8 @@ import {
   riuSetMessages,
   riuSubmissionMessages,
   siuStackMessages,
+  trickSubmissionMessages,
+  trickSuggestionMessages,
   utvVideoMessages,
   type NotificationEntityType,
 } from "~/db/schema";
@@ -314,6 +316,86 @@ export const listMessagesServerFn = createServerFn({
       };
     }
 
+    if (input.type === "trickSubmission") {
+      const messages = await db.query.trickSubmissionMessages.findMany({
+        orderBy: asc(trickSubmissionMessages.createdAt),
+        where: eq(trickSubmissionMessages.submissionId, input.id),
+        columns: {
+          submissionId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              trickSubmissionMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "trickSubmissionMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
+    if (input.type === "trickSuggestion") {
+      const messages = await db.query.trickSuggestionMessages.findMany({
+        orderBy: asc(trickSuggestionMessages.createdAt),
+        where: eq(trickSuggestionMessages.suggestionId, input.id),
+        columns: {
+          suggestionId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              trickSuggestionMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "trickSuggestionMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
     invariant(false, "Invalid type");
   });
 
@@ -325,6 +407,8 @@ const MESSAGE_ENTITY_TYPES: Partial<Record<MessageParentType, NotificationEntity
   biuSet: "biuSet",
   siuStack: "siuStack",
   utvVideo: "utvVideo",
+  trickSubmission: "trickSubmission",
+  trickSuggestion: "trickSuggestion",
 };
 
 export const createMessageServerFn = createServerFn({
@@ -413,6 +497,28 @@ export const createMessageServerFn = createServerFn({
         .returning();
     }
 
+    if (type === "trickSubmission") {
+      await db
+        .insert(trickSubmissionMessages)
+        .values({
+          content,
+          submissionId: id,
+          userId,
+        })
+        .returning();
+    }
+
+    if (type === "trickSuggestion") {
+      await db
+        .insert(trickSuggestionMessages)
+        .values({
+          content,
+          suggestionId: id,
+          userId,
+        })
+        .returning();
+    }
+
     // Create notification for the content owner (skip chat as it has no owner)
     const entityType = MESSAGE_ENTITY_TYPES[type];
     if (entityType) {
@@ -468,27 +574,29 @@ export const deleteMessageServerFn = createServerFn({
   });
 
 export const getTableByType = (type: MessageParentType) => {
-  const table =
-    type === "post"
-      ? postMessages
-      : type === "chat"
-        ? chatMessages
-        : type === "riuSet"
-          ? riuSetMessages
-          : type === "riuSubmission"
-            ? riuSubmissionMessages
-            : type === "utvVideo"
-              ? utvVideoMessages
-              : type === "biuSet"
-                ? biuSetMessages
-                : type === "siuStack"
-                  ? siuStackMessages
-                  : undefined;
-
-  invariant(
-    table,
-    `Expected type to be one of ${recordWithMessagesTypes.join(", ")}. Received ${type}`,
-  );
-
-  return table;
+  switch (type) {
+    case "post":
+      return postMessages;
+    case "chat":
+      return chatMessages;
+    case "riuSet":
+      return riuSetMessages;
+    case "riuSubmission":
+      return riuSubmissionMessages;
+    case "utvVideo":
+      return utvVideoMessages;
+    case "biuSet":
+      return biuSetMessages;
+    case "siuStack":
+      return siuStackMessages;
+    case "trickSubmission":
+      return trickSubmissionMessages;
+    case "trickSuggestion":
+      return trickSuggestionMessages;
+    default:
+      invariant(
+        false,
+        `Expected type to be one of ${recordWithMessagesTypes.join(", ")}. Received ${type}`,
+      );
+  }
 };

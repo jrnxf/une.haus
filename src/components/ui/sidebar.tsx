@@ -25,7 +25,7 @@ import { useIsTablet } from "~/hooks/use-mobile";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { cn } from "~/lib/utils";
 
-const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH = "12rem";
 const SIDEBAR_WIDTH_MOBILE = "16rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";

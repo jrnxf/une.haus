@@ -54,7 +54,7 @@ function RouteComponent() {
     <div className="space-y-6">
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link to="/games/bius">
-          <ArrowLeftIcon className="mr-1.5 size-4" />
+          <ArrowLeftIcon className="size-4" />
           Back
         </Link>
       </Button>

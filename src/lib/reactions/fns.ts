@@ -22,6 +22,10 @@ import {
   riuSubmissionMessageLikes,
   siuStackLikes,
   siuStackMessageLikes,
+  trickSubmissionLikes,
+  trickSubmissionMessageLikes,
+  trickSuggestionLikes,
+  trickSuggestionMessageLikes,
   utvVideoLikes,
   utvVideoMessageLikes,
   type NotificationEntityType,
@@ -38,6 +42,8 @@ const LIKEABLE_ENTITY_TYPES: Partial<Record<RecordWithLikesType, NotificationEnt
   biuSet: "biuSet",
   siuStack: "siuStack",
   utvVideo: "utvVideo",
+  trickSubmission: "trickSubmission",
+  trickSuggestion: "trickSuggestion",
 };
 
 // react as in the action, not the library lol
@@ -109,39 +115,45 @@ export const unlikeRecordServerFn = createServerFn({
   });
 
 export const getTableByType = (type: RecordWithLikesType) => {
-  const table =
-    type === "post"
-      ? postLikes
-      : type === "chatMessage"
-        ? chatMessageLikes
-        : type === "postMessage"
-          ? postMessageLikes
-          : type === "riuSet"
-            ? riuSetLikes
-            : type === "riuSetMessage"
-              ? riuSetMessageLikes
-              : type === "riuSubmission"
-                ? riuSubmissionLikes
-                : type === "riuSubmissionMessage"
-                  ? riuSubmissionMessageLikes
-                  : type === "utvVideo"
-                    ? utvVideoLikes
-                    : type === "utvVideoMessage"
-                      ? utvVideoMessageLikes
-                      : type === "biuSet"
-                        ? biuSetLikes
-                        : type === "biuSetMessage"
-                          ? biuSetMessageLikes
-                          : type === "siuStack"
-                            ? siuStackLikes
-                            : type === "siuStackMessage"
-                              ? siuStackMessageLikes
-                              : undefined;
-
-  invariant(
-    table,
-    `Expected type to be one of ${recordTypeWithLikes.join(", ")}. Received ${type}`,
-  );
-
-  return table;
+  switch (type) {
+    case "post":
+      return postLikes;
+    case "chatMessage":
+      return chatMessageLikes;
+    case "postMessage":
+      return postMessageLikes;
+    case "riuSet":
+      return riuSetLikes;
+    case "riuSetMessage":
+      return riuSetMessageLikes;
+    case "riuSubmission":
+      return riuSubmissionLikes;
+    case "riuSubmissionMessage":
+      return riuSubmissionMessageLikes;
+    case "utvVideo":
+      return utvVideoLikes;
+    case "utvVideoMessage":
+      return utvVideoMessageLikes;
+    case "biuSet":
+      return biuSetLikes;
+    case "biuSetMessage":
+      return biuSetMessageLikes;
+    case "siuStack":
+      return siuStackLikes;
+    case "siuStackMessage":
+      return siuStackMessageLikes;
+    case "trickSubmission":
+      return trickSubmissionLikes;
+    case "trickSubmissionMessage":
+      return trickSubmissionMessageLikes;
+    case "trickSuggestion":
+      return trickSuggestionLikes;
+    case "trickSuggestionMessage":
+      return trickSuggestionMessageLikes;
+    default:
+      invariant(
+        false,
+        `Expected type to be one of ${recordTypeWithLikes.join(", ")}. Received ${type}`,
+      );
+  }
 };

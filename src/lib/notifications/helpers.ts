@@ -166,6 +166,20 @@ export async function getContentOwner(
       // UTV videos don't have owners (legacy content)
       return null;
     }
+    case "trickSubmission": {
+      const submission = await db.query.trickSubmissions.findFirst({
+        where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
+        columns: { submittedByUserId: true },
+      });
+      return submission?.submittedByUserId ?? null;
+    }
+    case "trickSuggestion": {
+      const suggestion = await db.query.trickSuggestions.findFirst({
+        where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
+        columns: { submittedByUserId: true },
+      });
+      return suggestion?.submittedByUserId ?? null;
+    }
     case "user": {
       // For follow notifications, the entityId is the user being followed
       return entityId;

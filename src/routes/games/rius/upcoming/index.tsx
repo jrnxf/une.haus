@@ -174,7 +174,7 @@ function RouteComponent() {
             </div>
             <Button asChild>
               <Link to="/games/rius/upcoming/join">
-                <PlusIcon className="mr-1.5 size-4" />
+                <PlusIcon className="size-4" />
                 Upload Your First Set
               </Link>
             </Button>

@@ -1,3 +1,6 @@
+import { Link } from "@tanstack/react-router";
+import { Pencil } from "lucide-react";
+
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -178,8 +181,8 @@ export function TrickDetail({
               </div>
             )}
 
-            {/* Depth indicator */}
-            <div className="border-t pt-4">
+            {/* Footer */}
+            <div className="flex items-center justify-between border-t pt-4">
               <p className="text-muted-foreground text-xs">
                 Skill depth: {trick.depth} (
                 {trick.depth === 0
@@ -187,6 +190,15 @@ export function TrickDetail({
                   : `${trick.depth} step${trick.depth > 1 ? "s" : ""} from a foundational trick`}
                 )
               </p>
+              <Button variant="outline" size="sm" asChild>
+                <Link
+                  to="/tricks/$trickId/suggest"
+                  params={{ trickId: trick.id }}
+                >
+                  <Pencil className="size-3" />
+                  Suggest Edit
+                </Link>
+              </Button>
             </div>
           </div>
         </ScrollArea>

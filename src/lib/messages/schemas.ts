@@ -7,6 +7,8 @@ export const recordWithMessagesTypes = [
   "utvVideo",
   "biuSet",
   "siuStack",
+  "trickSubmission",
+  "trickSuggestion",
 ] as const;
 
 export const messageFormSchema = z.object({

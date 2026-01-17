@@ -1,12 +1,6 @@
 import { SearchIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -19,10 +13,6 @@ type TricksSidebarProps = {
   onSelectTrick: (trick: Trick) => void;
 };
 
-function formatCategory(category: string): string {
-  return category.charAt(0).toUpperCase() + category.slice(1);
-}
-
 export function TricksSidebar({
   data,
   selectedTrickId,
@@ -31,40 +21,23 @@ export function TricksSidebar({
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearchTerm = useDeferredValue(searchTerm);
 
-  // Filter tricks by search term
-  const filteredByCategory = useMemo(() => {
-    const result: Record<string, Trick[]> = {};
+  // Filter and sort tricks by search term
+  const filteredTricks = useMemo(() => {
     const searchLower = deferredSearchTerm.toLowerCase();
 
-    for (const category of data.categories) {
-      // Skip prefixes in sidebar
-      if (category === "prefix") continue;
+    const filtered = searchLower
+      ? data.tricks.filter(
+          (trick) =>
+            trick.name.toLowerCase().includes(searchLower) ||
+            trick.alternateNames.some((name) =>
+              name.toLowerCase().includes(searchLower),
+            ),
+        )
+      : data.tricks;
 
-      const categoryTricks = data.byCategory[category] ?? [];
-      const filtered = searchLower
-        ? categoryTricks.filter(
-            (trick) =>
-              trick.name.toLowerCase().includes(searchLower) ||
-              trick.alternateNames.some((name) =>
-                name.toLowerCase().includes(searchLower),
-              ),
-          )
-        : categoryTricks;
-
-      if (filtered.length > 0) {
-        result[category] = filtered;
-      }
-    }
-
-    return result;
-  }, [data, deferredSearchTerm]);
-
-  const visibleCategories = Object.keys(filteredByCategory);
-
-  // Default open categories (first 3 or all if searching)
-  const defaultOpenCategories = deferredSearchTerm
-    ? visibleCategories
-    : visibleCategories.slice(0, 3);
+    // Sort alphabetically by name
+    return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+  }, [data.tricks, deferredSearchTerm]);
 
   return (
     <div className="flex h-full flex-col">
@@ -93,47 +66,27 @@ export function TricksSidebar({
         </div>
       </div>
 
-      {/* Category list */}
+      {/* Tricks list */}
       <ScrollArea className="flex-1 overflow-hidden">
-        <Accordion
-          className="px-3"
-          defaultValue={defaultOpenCategories}
-          type="multiple"
-        >
-          {visibleCategories.map((category) => (
-            <AccordionItem key={category} value={category}>
-              <AccordionTrigger className="py-2 text-sm">
-                <span className="flex items-center gap-2">
-                  {formatCategory(category)}
-                  <span className="text-muted-foreground text-xs">
-                    ({filteredByCategory[category].length})
-                  </span>
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pb-2">
-                <div className="flex flex-col gap-0.5">
-                  {filteredByCategory[category].map((trick) => (
-                    <button
-                      className={cn(
-                        "rounded px-2 py-1 text-left text-sm transition-colors",
-                        "hover:bg-accent",
-                        selectedTrickId === trick.id &&
-                          "bg-primary/10 text-primary",
-                      )}
-                      key={trick.id}
-                      onClick={() => onSelectTrick(trick)}
-                      type="button"
-                    >
-                      {trick.name}
-                    </button>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+        <div className="flex flex-col gap-0.5 p-3">
+          {filteredTricks.map((trick) => (
+            <button
+              className={cn(
+                "rounded px-2 py-1 text-left text-sm transition-colors",
+                "hover:bg-accent",
+                selectedTrickId === trick.id &&
+                  "bg-primary/10 text-primary",
+              )}
+              key={trick.id}
+              onClick={() => onSelectTrick(trick)}
+              type="button"
+            >
+              {trick.name}
+            </button>
           ))}
-        </Accordion>
+        </div>
 
-        {visibleCategories.length === 0 && (
+        {filteredTricks.length === 0 && (
           <div className="p-4 text-center">
             <p className="text-muted-foreground text-sm">No tricks found</p>
           </div>
