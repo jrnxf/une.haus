@@ -210,8 +210,31 @@ mux-player::part(poster img) {
 }
 
 * {
-  /* always */
-  text-transform: lowercase;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+
+/* Lowercase styling for interactive UI elements (buttons, menus, sidebar, etc.) */
+[data-slot="button"],
+[data-slot="toggle"],
+[data-slot="sidebar-menu-button"],
+[data-slot="sidebar-menu-sub-button"],
+[data-slot="sidebar-group-label"],
+[data-slot="dropdown-menu-item"],
+[data-slot="dropdown-menu-checkbox-item"],
+[data-slot="dropdown-menu-radio-item"],
+[data-slot="dropdown-menu-label"],
+[data-slot="dropdown-menu-sub-trigger"],
+[data-slot="command-item"],
+[cmdk-group-heading],
+[data-slot="select-trigger"],
+[data-slot="select-item"],
+[data-slot="select-label"],
+[data-slot="breadcrumb-link"],
+[data-slot="breadcrumb-page"],
+[role="tab"],
+[role="menuitem"],
+[role="menuitemcheckbox"],
+[role="menuitemradio"] {
+  text-transform: lowercase;
 }
