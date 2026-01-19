@@ -184,34 +184,80 @@ qc.removeQueries({
 qc.removeQueries({ queryKey: ["tricks.submissions.list"] });
 ```
 
-## Button Style Guidelines
+## UI Guidelines
 
-Primary action buttons (filters, create, etc.) use **default size** - not `size="sm"`:
+### Routes Must Be Navigable
+
+When creating a new route, always ensure there's a way to navigate to it from the existing UI. Add buttons, links, or menu items so users can reach the new page by clicking around. Never create orphan routes.
+
+### Button Labels
+
+- Use single-word labels: "Create", "Save", "Delete", "Edit"
+- Do NOT add icons to buttons unless explicitly requested
+- Do NOT use multi-word labels like "Add Element" or "Create Thing"
 
 ```tsx
-// Good - default size with icon
-<Button variant="outline">
-  <FilterIcon className="size-4" />
-  Filters
-</Button>
-
-// Good - default size, no icon for simple actions
+// Good
 <Button asChild>
-  <Link to="/posts/create">Create</Link>
+  <Link to="/elements/create">Create</Link>
 </Button>
 
-// Bad - don't use size="sm" for primary actions
-<Button size="sm">
-  <Plus className="mr-1.5 size-4" />
-  Add Thing
+// Bad - multi-word label
+<Button>Add Element</Button>
+
+// Bad - icon without being asked
+<Button>
+  <Plus className="size-4" />
+  Create
 </Button>
 ```
 
-Guidelines:
+### Button Sizing
+
+Primary action buttons use **default size** - not `size="sm"`:
+
 - Use default button size for primary page actions (filters, create, etc.)
-- Icons are `size-4` with no margin - Button's built-in `gap-2` handles spacing
-- Use concise labels: "Create" not "Add Thing" or "Create Thing"
 - Reserve `size="sm"` for inline/secondary contexts (back navigation, compact toolbars)
+
+### Forms
+
+- Forms should be on their own dedicated route/page
+- Do NOT put forms in dialogs unless explicitly requested
+- Create separate `/create` or `/edit` routes for form pages
+
+### Admin Buttons
+
+Admin functionality should use a consistent UI pattern: a secondary icon button with the Shield icon.
+
+```tsx
+import { ShieldIcon } from "lucide-react";
+
+// For admin dropdown menus
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="secondary" size="icon">
+      <ShieldIcon className="size-4" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="end">
+    {/* Admin actions */}
+  </DropdownMenuContent>
+</DropdownMenu>
+
+// For admin toggle buttons
+<Button
+  variant={adminMode ? "default" : "secondary"}
+  size="icon-xs"
+  onClick={() => setAdminMode(!adminMode)}
+>
+  <ShieldIcon className="size-3.5" />
+</Button>
+```
+
+Canonical examples:
+- `src/routes/vault/index.tsx` - Admin mode toggle
+- `src/routes/games/rius/route.tsx` - Admin dropdown menu
+- `src/routes/tricks/index.tsx` - Admin dropdown menu
 
 ## Documentation
 

@@ -4,8 +4,8 @@ import { and, asc, desc, eq, lt } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
-  trickCategories,
-  trickCategoryAssignments,
+  trickElementAssignments,
+  trickElements,
   trickRelationships,
   tricks,
   trickSubmissionRelationships,
@@ -49,9 +49,9 @@ export const listSubmissionsServerFn = createServerFn({
             avatarId: true,
           },
         },
-        categoryAssignments: {
+        elementAssignments: {
           with: {
-            category: true,
+            element: true,
           },
         },
         relationships: {
@@ -118,9 +118,9 @@ export const getSubmissionServerFn = createServerFn({
             avatarId: true,
           },
         },
-        categoryAssignments: {
+        elementAssignments: {
           with: {
-            category: true,
+            element: true,
           },
         },
         relationships: {
@@ -219,7 +219,7 @@ export const reviewSubmissionServerFn = createServerFn({
     const submission = await db.query.trickSubmissions.findFirst({
       where: eq(trickSubmissions.id, id),
       with: {
-        categoryAssignments: true,
+        elementAssignments: true,
         relationships: true,
       },
     });
@@ -240,20 +240,18 @@ export const reviewSubmissionServerFn = createServerFn({
           isPrefix: submission.isPrefix,
           inventedBy: submission.inventedBy,
           yearLanded: submission.yearLanded,
-          videoUrl: submission.videoUrl,
-          videoTimestamp: submission.videoTimestamp,
           notes: submission.notes,
         })
         .returning();
 
       invariant(trick, "Failed to create trick from submission");
 
-      // Copy category assignments
-      if (submission.categoryAssignments.length > 0) {
-        await db.insert(trickCategoryAssignments).values(
-          submission.categoryAssignments.map((a) => ({
+      // Copy element assignments
+      if (submission.elementAssignments.length > 0) {
+        await db.insert(trickElementAssignments).values(
+          submission.elementAssignments.map((a) => ({
             trickId: trick.id,
-            categoryId: a.categoryId,
+            elementId: a.elementId,
           })),
         );
       }
@@ -356,9 +354,9 @@ export const getSuggestionServerFn = createServerFn({
       with: {
         trick: {
           with: {
-            categoryAssignments: {
+            elementAssignments: {
               with: {
-                category: true,
+                element: true,
               },
             },
           },
@@ -475,9 +473,6 @@ export const reviewSuggestionServerFn = createServerFn({
       if (diff.isPrefix !== undefined) updateData.isPrefix = diff.isPrefix.new;
       if (diff.inventedBy) updateData.inventedBy = diff.inventedBy.new;
       if (diff.yearLanded) updateData.yearLanded = diff.yearLanded.new;
-      if (diff.videoUrl) updateData.videoUrl = diff.videoUrl.new;
-      if (diff.videoTimestamp)
-        updateData.videoTimestamp = diff.videoTimestamp.new;
       if (diff.notes) updateData.notes = diff.notes.new;
 
       // Update trick
@@ -486,31 +481,31 @@ export const reviewSuggestionServerFn = createServerFn({
         .set(updateData)
         .where(eq(tricks.id, suggestion.trickId));
 
-      // Handle category changes
-      if (diff.categories) {
+      // Handle element changes
+      if (diff.elements) {
         // Delete all and re-insert
         await db
-          .delete(trickCategoryAssignments)
-          .where(eq(trickCategoryAssignments.trickId, suggestion.trickId));
+          .delete(trickElementAssignments)
+          .where(eq(trickElementAssignments.trickId, suggestion.trickId));
 
-        if (diff.categories.new.length > 0) {
-          const categoryResults = await db
-            .select({ id: trickCategories.id, slug: trickCategories.slug })
-            .from(trickCategories);
+        if (diff.elements.new.length > 0) {
+          const elementResults = await db
+            .select({ id: trickElements.id, slug: trickElements.slug })
+            .from(trickElements);
 
-          const categoryMap = new Map(
-            categoryResults.map((c) => [c.slug, c.id]),
+          const elementMap = new Map(
+            elementResults.map((e) => [e.slug, e.id]),
           );
 
-          const validCategoryIds = diff.categories.new
-            .map((slug) => categoryMap.get(slug))
+          const validElementIds = diff.elements.new
+            .map((slug) => elementMap.get(slug))
             .filter((id): id is number => id !== undefined);
 
-          if (validCategoryIds.length > 0) {
-            await db.insert(trickCategoryAssignments).values(
-              validCategoryIds.map((categoryId) => ({
+          if (validElementIds.length > 0) {
+            await db.insert(trickElementAssignments).values(
+              validElementIds.map((elementId) => ({
                 trickId: suggestion.trickId,
-                categoryId,
+                elementId,
               })),
             );
           }

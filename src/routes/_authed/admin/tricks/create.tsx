@@ -11,7 +11,7 @@ import { tricks } from "~/lib/tricks";
 export const Route = createFileRoute("/_authed/admin/tricks/create")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      tricks.categories.list.queryOptions(),
+      tricks.elements.list.queryOptions(),
     );
   },
   component: RouteComponent,
@@ -24,8 +24,11 @@ function RouteComponent() {
   const createTrick = useMutation({
     mutationFn: tricks.create.fn,
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["tricks"] });
       toast.success("Trick created");
+      // Remove stale cache and prefetch fresh data before navigating
+      // This ensures the route loader finds data in cache immediately
+      qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey });
+      await qc.prefetchQuery(tricks.graph.queryOptions());
       router.navigate({ to: "/tricks" });
     },
     onError: (error) => {

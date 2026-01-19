@@ -14,7 +14,7 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import { ResponsiveCombobox } from "~/components/ui/responsive-combobox";
 import { invariant } from "~/lib/invariant";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -237,8 +237,14 @@ const UsersCommandDialog = withUserSelector<{
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger asChild>
+    <ResponsiveCombobox
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) setQuery("");
+      }}
+      title="Select user"
+      trigger={
         <Button
           aria-expanded={open}
           className="w-full justify-between hover:bg-inherit"
@@ -268,22 +274,15 @@ const UsersCommandDialog = withUserSelector<{
           )}
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
-      </DialogTrigger>
-      <DialogContent
-        className="w-full p-0"
-        showCloseButton={false}
-        onCloseAutoFocus={() => {
-          setQuery("");
+      }
+    >
+      <UsersCommand
+        {...props}
+        onSelect={(args) => {
+          props.onSelect(args);
+          setOpen(false);
         }}
-      >
-        <UsersCommand
-          {...props}
-          onSelect={(args) => {
-            props.onSelect(args);
-            setOpen(false);
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+      />
+    </ResponsiveCombobox>
   );
 });

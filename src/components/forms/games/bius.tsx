@@ -54,7 +54,7 @@ export function StartChainForm() {
             <FormLabel>Set Name</FormLabel>
             <FormDescription>Name the set you&apos;re starting</FormDescription>
             <FormControl>
-              <Input {...field} placeholder="e.g. 360 unispin" />
+              <Input {...field} placeholder="360 unispin" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -131,7 +131,7 @@ export function BackUpSetForm({ parentSetId }: { parentSetId: number }) {
               one)
             </FormDescription>
             <FormControl>
-              <Input {...field} placeholder="e.g. 360 unispin" />
+              <Input {...field} placeholder="360 unispin" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -220,7 +220,7 @@ export function FlagSetForm({
             <FormControl>
               <Textarea
                 {...field}
-                placeholder="e.g. The rider didn't fully land the previous set"
+                placeholder="The rider didn't fully land the previous set"
               />
             </FormControl>
             <FormMessage />

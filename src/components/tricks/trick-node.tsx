@@ -91,15 +91,15 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
         {/* Trick name */}
         <p className="leading-tight font-medium">{trick.name}</p>
 
-        {/* Categories */}
+        {/* Elements */}
         <div className="mt-1.5 flex flex-wrap gap-1">
-          {trick.categories.slice(0, 2).map((cat) => (
+          {trick.elements.slice(0, 2).map((elem) => (
             <Badge
               className="px-1.5 py-0 text-[10px]"
-              key={cat}
+              key={elem}
               variant="secondary"
             >
-              {cat}
+              {elem}
             </Badge>
           ))}
         </div>

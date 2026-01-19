@@ -4,93 +4,32 @@ import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
-  trickCategories,
+  trickElementAssignments,
+  trickElements,
   trickModifiers,
   trickRelationships,
   tricks,
+  trickVideos,
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { adminOnlyMiddleware } from "~/lib/middleware";
 import {
-  createCategorySchema,
+  createElementSchema,
   createModifierSchema,
   createTrickSchema,
-  deleteCategorySchema,
+  deleteElementSchema,
   deleteModifierSchema,
   deleteTrickSchema,
   getTrickByIdSchema,
   getTrickSchema,
-  listCategoriesSchema,
+  listElementsSchema,
   listModifiersSchema,
   listTricksSchema,
   searchTricksSchema,
-  updateCategorySchema,
+  updateElementSchema,
   updateModifierSchema,
   updateTrickSchema,
 } from "./schemas";
-
-// ==================== CATEGORIES ====================
-
-export const listCategoriesServerFn = createServerFn({
-  method: "GET",
-})
-  .inputValidator(zodValidator(listCategoriesSchema))
-  .handler(async () => {
-    const categories = await db
-      .select()
-      .from(trickCategories)
-      .orderBy(asc(trickCategories.sortOrder), asc(trickCategories.name));
-
-    return categories;
-  });
-
-export const createCategoryServerFn = createServerFn({
-  method: "POST",
-})
-  .inputValidator(zodValidator(createCategorySchema))
-  .middleware([adminOnlyMiddleware])
-  .handler(async ({ data }) => {
-    const [category] = await db
-      .insert(trickCategories)
-      .values(data)
-      .returning();
-
-    invariant(category, "Failed to create category");
-    return category;
-  });
-
-export const updateCategoryServerFn = createServerFn({
-  method: "POST",
-})
-  .inputValidator(zodValidator(updateCategorySchema))
-  .middleware([adminOnlyMiddleware])
-  .handler(async ({ data }) => {
-    const { id, ...updateData } = data;
-
-    const [category] = await db
-      .update(trickCategories)
-      .set(updateData)
-      .where(eq(trickCategories.id, id))
-      .returning();
-
-    invariant(category, "Category not found");
-    return category;
-  });
-
-export const deleteCategoryServerFn = createServerFn({
-  method: "POST",
-})
-  .inputValidator(zodValidator(deleteCategorySchema))
-  .middleware([adminOnlyMiddleware])
-  .handler(async ({ data: id }) => {
-    const [category] = await db
-      .delete(trickCategories)
-      .where(eq(trickCategories.id, id))
-      .returning();
-
-    invariant(category, "Category not found");
-    return category;
-  });
 
 // ==================== MODIFIERS ====================
 
@@ -152,6 +91,66 @@ export const deleteModifierServerFn = createServerFn({
     return modifier;
   });
 
+// ==================== ELEMENTS ====================
+
+export const listElementsServerFn = createServerFn({
+  method: "GET",
+})
+  .inputValidator(zodValidator(listElementsSchema))
+  .handler(async () => {
+    const elements = await db
+      .select()
+      .from(trickElements)
+      .orderBy(asc(trickElements.sortOrder), asc(trickElements.name));
+
+    return elements;
+  });
+
+export const createElementServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(createElementSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async ({ data }) => {
+    const [element] = await db.insert(trickElements).values(data).returning();
+
+    invariant(element, "Failed to create element");
+    return element;
+  });
+
+export const updateElementServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(updateElementSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async ({ data }) => {
+    const { id, ...updateData } = data;
+
+    const [element] = await db
+      .update(trickElements)
+      .set(updateData)
+      .where(eq(trickElements.id, id))
+      .returning();
+
+    invariant(element, "Element not found");
+    return element;
+  });
+
+export const deleteElementServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(deleteElementSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async ({ data: id }) => {
+    const [element] = await db
+      .delete(trickElements)
+      .where(eq(trickElements.id, id))
+      .returning();
+
+    invariant(element, "Element not found");
+    return element;
+  });
+
 // ==================== TRICKS ====================
 
 export const listTricksServerFn = createServerFn({
@@ -172,9 +171,9 @@ export const listTricksServerFn = createServerFn({
         input?.cursor ? eq(tricks.id, input.cursor) : undefined,
       ),
       with: {
-        categoryAssignments: {
+        elementAssignments: {
           with: {
-            category: true,
+            element: true,
           },
         },
         outgoingRelationships: {
@@ -193,11 +192,11 @@ export const listTricksServerFn = createServerFn({
       limit,
     });
 
-    // Filter by category if specified
-    if (input?.categoryId) {
+    // Filter by element if specified
+    if (input?.elementId) {
       return tricksData.filter((trick) =>
-        trick.categoryAssignments.some(
-          (a) => a.category.id === input.categoryId,
+        trick.elementAssignments.some(
+          (a) => a.element.id === input.elementId,
         ),
       );
     }
@@ -213,9 +212,9 @@ export const getTrickServerFn = createServerFn({
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.slug, slug),
       with: {
-        categoryAssignments: {
+        elementAssignments: {
           with: {
-            category: true,
+            element: true,
           },
         },
         outgoingRelationships: {
@@ -288,9 +287,9 @@ export const getTrickByIdServerFn = createServerFn({
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.id, id),
       with: {
-        categoryAssignments: {
+        elementAssignments: {
           with: {
-            category: true,
+            element: true,
           },
         },
         outgoingRelationships: {
@@ -346,8 +345,8 @@ export const createTrickServerFn = createServerFn({
 })
   .inputValidator(zodValidator(createTrickSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data }) => {
-    const { relationships, ...trickData } = data;
+  .handler(async ({ data, context }) => {
+    const { relationships, muxAssetIds, elementIds, ...trickData } = data;
 
     // Insert trick
     const [trick] = await db.insert(tricks).values(trickData).returning();
@@ -364,6 +363,31 @@ export const createTrickServerFn = createServerFn({
       );
     }
 
+    // Insert element assignments
+    if (elementIds.length > 0) {
+      await db.insert(trickElementAssignments).values(
+        elementIds.map((elementId) => ({
+          trickId: trick.id,
+          elementId,
+        })),
+      );
+    }
+
+    // Insert videos (auto-approved as active for admin creation)
+    if (muxAssetIds.length > 0) {
+      await db.insert(trickVideos).values(
+        muxAssetIds.map((muxAssetId, index) => ({
+          trickId: trick.id,
+          muxAssetId,
+          status: "active" as const,
+          sortOrder: index,
+          submittedByUserId: context.user.id,
+          reviewedByUserId: context.user.id,
+          reviewedAt: new Date(),
+        })),
+      );
+    }
+
     return trick;
   });
 
@@ -373,7 +397,8 @@ export const updateTrickServerFn = createServerFn({
   .inputValidator(zodValidator(updateTrickSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const { id, relationships, ...trickData } = data;
+    // Note: muxAssetIds is ignored here - videos are managed separately
+    const { id, relationships, muxAssetIds: _, elementIds, ...trickData } = data;
 
     // Update trick
     const [trick] = await db
@@ -395,6 +420,20 @@ export const updateTrickServerFn = createServerFn({
           sourceTrickId: id,
           targetTrickId: rel.targetTrickId,
           type: rel.type,
+        })),
+      );
+    }
+
+    // Update element assignments - delete all and re-insert
+    await db
+      .delete(trickElementAssignments)
+      .where(eq(trickElementAssignments.trickId, id));
+
+    if (elementIds.length > 0) {
+      await db.insert(trickElementAssignments).values(
+        elementIds.map((elementId) => ({
+          trickId: id,
+          elementId,
         })),
       );
     }
@@ -427,9 +466,19 @@ export const getAllTricksForGraphServerFn = createServerFn({
 
   const tricksData = await db.query.tricks.findMany({
     with: {
-      categoryAssignments: {
+      videos: {
         with: {
-          category: true,
+          video: {
+            columns: {
+              playbackId: true,
+            },
+          },
+        },
+        orderBy: (videos, { asc }) => [asc(videos.sortOrder)],
+      },
+      elementAssignments: {
+        with: {
+          element: true,
         },
       },
       outgoingRelationships: {

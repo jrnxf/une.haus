@@ -1,13 +1,20 @@
+export type TrickVideo = {
+  id: number;
+  playbackId: string;
+  status: "active" | "pending" | "rejected";
+  sortOrder: number;
+  notes: string | null;
+};
+
 export type Trick = {
   id: string;
   name: string;
   alternateNames: string[];
-  categories: string[];
+  elements: string[];
   definition: string;
   inventedBy?: string | null;
   yearLanded?: number | null;
-  videoUrl?: string | null;
-  videoTimestamp?: string | null;
+  videos: TrickVideo[];
   prerequisite: string | null;
   optionalPrerequisite: string | null;
   isPrefix: boolean;
@@ -20,7 +27,7 @@ export type Trick = {
 export type TricksData = {
   tricks: Trick[];
   byId: Record<string, Trick>;
-  byCategory: Record<string, Trick[]>;
-  categories: string[];
+  byElement: Record<string, Trick[]>;
+  elements: string[];
   prefixes: Trick[];
 };

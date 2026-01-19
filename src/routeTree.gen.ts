@@ -20,6 +20,7 @@ import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
+import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
 import { Route as StatsContributorsRouteImport } from './routes/stats/contributors'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
@@ -48,19 +49,23 @@ import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/
 import { Route as GamesRiusPreviousIndexRouteImport } from './routes/games/rius/previous/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
+import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
 import { Route as AuthedAdminTricksModifiersRouteImport } from './routes/_authed/admin/tricks/modifiers'
 import { Route as AuthedAdminTricksCreateRouteImport } from './routes/_authed/admin/tricks/create'
-import { Route as AuthedAdminTricksCategoriesRouteImport } from './routes/_authed/admin/tricks/categories'
 import { Route as GamesSiusStacksStackIdIndexRouteImport } from './routes/games/sius/stacks/$stackId/index'
 import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './routes/games/rius/submissions/$submissionId/index'
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
 import { Route as GamesBiusSetsSetIdIndexRouteImport } from './routes/games/bius/sets/$setId/index'
 import { Route as AuthedTricksSuggestionsSuggestionIdIndexRouteImport } from './routes/_authed/tricks/suggestions/$suggestionId/index'
 import { Route as AuthedTricksSubmissionsSubmissionIdIndexRouteImport } from './routes/_authed/tricks/submissions/$submissionId/index'
+import { Route as AuthedAdminTricksElementsIndexRouteImport } from './routes/_authed/admin/tricks/elements/index'
 import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
+import { Route as AuthedAdminTricksElementsCreateRouteImport } from './routes/_authed/admin/tricks/elements/create'
+import { Route as AuthedAdminTricksTrickIdVideosRouteImport } from './routes/_authed/admin/tricks/$trickId/videos'
 import { Route as AuthedAdminTricksTrickIdEditRouteImport } from './routes/_authed/admin/tricks/$trickId/edit'
+import { Route as AuthedAdminTricksElementsElementIdEditRouteImport } from './routes/_authed/admin/tricks/elements/$elementId/edit'
 
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
@@ -114,6 +119,11 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/users/$userId',
   path: '/users/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TricksTrickIdRoute = TricksTrickIdRouteImport.update({
+  id: '/tricks/$trickId',
+  path: '/tricks/$trickId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StatsContributorsRoute = StatsContributorsRouteImport.update({
@@ -259,6 +269,12 @@ const AuthedTricksTrickIdSuggestRoute =
     path: '/tricks/$trickId/suggest',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedTricksTrickIdSubmitVideoRoute =
+  AuthedTricksTrickIdSubmitVideoRouteImport.update({
+    id: '/tricks/$trickId/submit-video',
+    path: '/tricks/$trickId/submit-video',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedPostsPostIdEditRoute = AuthedPostsPostIdEditRouteImport.update({
   id: '/posts/$postId/edit',
   path: '/posts/$postId/edit',
@@ -280,12 +296,6 @@ const AuthedAdminTricksCreateRoute = AuthedAdminTricksCreateRouteImport.update({
   path: '/tricks/create',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
-const AuthedAdminTricksCategoriesRoute =
-  AuthedAdminTricksCategoriesRouteImport.update({
-    id: '/tricks/categories',
-    path: '/tricks/categories',
-    getParentRoute: () => AuthedAdminRoute,
-  } as any)
 const GamesSiusStacksStackIdIndexRoute =
   GamesSiusStacksStackIdIndexRouteImport.update({
     id: '/stacks/$stackId/',
@@ -320,16 +330,40 @@ const AuthedTricksSubmissionsSubmissionIdIndexRoute =
     path: '/tricks/submissions/$submissionId/',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedAdminTricksElementsIndexRoute =
+  AuthedAdminTricksElementsIndexRouteImport.update({
+    id: '/tricks/elements/',
+    path: '/tricks/elements/',
+    getParentRoute: () => AuthedAdminRoute,
+  } as any)
 const AuthedGamesRiusUpcomingJoinRoute =
   AuthedGamesRiusUpcomingJoinRouteImport.update({
     id: '/games/rius/upcoming/join',
     path: '/games/rius/upcoming/join',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedAdminTricksElementsCreateRoute =
+  AuthedAdminTricksElementsCreateRouteImport.update({
+    id: '/tricks/elements/create',
+    path: '/tricks/elements/create',
+    getParentRoute: () => AuthedAdminRoute,
+  } as any)
+const AuthedAdminTricksTrickIdVideosRoute =
+  AuthedAdminTricksTrickIdVideosRouteImport.update({
+    id: '/tricks/$trickId/videos',
+    path: '/tricks/$trickId/videos',
+    getParentRoute: () => AuthedAdminRoute,
+  } as any)
 const AuthedAdminTricksTrickIdEditRoute =
   AuthedAdminTricksTrickIdEditRouteImport.update({
     id: '/tricks/$trickId/edit',
     path: '/tricks/$trickId/edit',
+    getParentRoute: () => AuthedAdminRoute,
+  } as any)
+const AuthedAdminTricksElementsElementIdEditRoute =
+  AuthedAdminTricksElementsElementIdEditRouteImport.update({
+    id: '/tricks/elements/$elementId/edit',
+    path: '/tricks/elements/$elementId/edit',
     getParentRoute: () => AuthedAdminRoute,
   } as any)
 
@@ -342,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof AuthedFeedbackRoute
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
+  '/tricks/$trickId': typeof TricksTrickIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
   '/games': typeof GamesIndexRoute
@@ -368,23 +403,27 @@ export interface FileRoutesByFullPath {
   '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
-  '/admin/tricks/categories': typeof AuthedAdminTricksCategoriesRoute
   '/admin/tricks/create': typeof AuthedAdminTricksCreateRoute
   '/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/games/rius/previous': typeof GamesRiusPreviousIndexRoute
   '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
+  '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
+  '/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
   '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
+  '/admin/tricks/elements': typeof AuthedAdminTricksElementsIndexRoute
   '/tricks/submissions/$submissionId': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
   '/tricks/suggestions/$suggestionId': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
   '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
   '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
+  '/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -393,6 +432,7 @@ export interface FileRoutesByTo {
   '/feedback': typeof AuthedFeedbackRoute
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
+  '/tricks/$trickId': typeof TricksTrickIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
   '/games': typeof GamesIndexRoute
@@ -419,23 +459,27 @@ export interface FileRoutesByTo {
   '/games/sius': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
-  '/admin/tricks/categories': typeof AuthedAdminTricksCategoriesRoute
   '/admin/tricks/create': typeof AuthedAdminTricksCreateRoute
   '/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/games/rius/previous': typeof GamesRiusPreviousIndexRoute
   '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
+  '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
+  '/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
   '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
+  '/admin/tricks/elements': typeof AuthedAdminTricksElementsIndexRoute
   '/tricks/submissions/$submissionId': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
   '/tricks/suggestions/$suggestionId': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
   '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
   '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
+  '/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -448,6 +492,7 @@ export interface FileRoutesById {
   '/_authed/feedback': typeof AuthedFeedbackRoute
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
+  '/tricks/$trickId': typeof TricksTrickIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat/': typeof ChatIndexRoute
   '/games/': typeof GamesIndexRoute
@@ -474,23 +519,27 @@ export interface FileRoutesById {
   '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
-  '/_authed/admin/tricks/categories': typeof AuthedAdminTricksCategoriesRoute
   '/_authed/admin/tricks/create': typeof AuthedAdminTricksCreateRoute
   '/_authed/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/_authed/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
   '/games/rius/previous/': typeof GamesRiusPreviousIndexRoute
   '/games/rius/upcoming/': typeof GamesRiusUpcomingIndexRoute
   '/_authed/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
+  '/_authed/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
+  '/_authed/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
   '/_authed/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
+  '/_authed/admin/tricks/elements/': typeof AuthedAdminTricksElementsIndexRoute
   '/_authed/tricks/submissions/$submissionId/': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
   '/_authed/tricks/suggestions/$suggestionId/': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
   '/games/bius/sets/$setId/': typeof GamesBiusSetsSetIdIndexRoute
   '/games/rius/sets/$setId/': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId/': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
   '/games/sius/stacks/$stackId/': typeof GamesSiusStacksStackIdIndexRoute
+  '/_authed/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -503,6 +552,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/auth/register'
     | '/stats/contributors'
+    | '/tricks/$trickId'
     | '/users/$userId'
     | '/chat'
     | '/games'
@@ -529,23 +579,27 @@ export interface FileRouteTypes {
     | '/games/sius/'
     | '/posts/$postId'
     | '/vault/$videoId'
-    | '/admin/tricks/categories'
     | '/admin/tricks/create'
     | '/admin/tricks/modifiers'
     | '/auth/me/edit'
     | '/posts/$postId/edit'
+    | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/auth/me'
     | '/games/rius/previous'
     | '/games/rius/upcoming'
     | '/admin/tricks/$trickId/edit'
+    | '/admin/tricks/$trickId/videos'
+    | '/admin/tricks/elements/create'
     | '/games/rius/upcoming/join'
+    | '/admin/tricks/elements'
     | '/tricks/submissions/$submissionId'
     | '/tricks/suggestions/$suggestionId'
     | '/games/bius/sets/$setId'
     | '/games/rius/sets/$setId'
     | '/games/rius/submissions/$submissionId'
     | '/games/sius/stacks/$stackId'
+    | '/admin/tricks/elements/$elementId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -554,6 +608,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/auth/register'
     | '/stats/contributors'
+    | '/tricks/$trickId'
     | '/users/$userId'
     | '/chat'
     | '/games'
@@ -580,23 +635,27 @@ export interface FileRouteTypes {
     | '/games/sius'
     | '/posts/$postId'
     | '/vault/$videoId'
-    | '/admin/tricks/categories'
     | '/admin/tricks/create'
     | '/admin/tricks/modifiers'
     | '/auth/me/edit'
     | '/posts/$postId/edit'
+    | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/auth/me'
     | '/games/rius/previous'
     | '/games/rius/upcoming'
     | '/admin/tricks/$trickId/edit'
+    | '/admin/tricks/$trickId/videos'
+    | '/admin/tricks/elements/create'
     | '/games/rius/upcoming/join'
+    | '/admin/tricks/elements'
     | '/tricks/submissions/$submissionId'
     | '/tricks/suggestions/$suggestionId'
     | '/games/bius/sets/$setId'
     | '/games/rius/sets/$setId'
     | '/games/rius/submissions/$submissionId'
     | '/games/sius/stacks/$stackId'
+    | '/admin/tricks/elements/$elementId/edit'
   id:
     | '__root__'
     | '/'
@@ -608,6 +667,7 @@ export interface FileRouteTypes {
     | '/_authed/feedback'
     | '/auth/register'
     | '/stats/contributors'
+    | '/tricks/$trickId'
     | '/users/$userId'
     | '/chat/'
     | '/games/'
@@ -634,23 +694,27 @@ export interface FileRouteTypes {
     | '/games/sius/'
     | '/posts/$postId/'
     | '/vault/$videoId/'
-    | '/_authed/admin/tricks/categories'
     | '/_authed/admin/tricks/create'
     | '/_authed/admin/tricks/modifiers'
     | '/_authed/auth/me/edit'
     | '/_authed/posts/$postId/edit'
+    | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/auth/me/'
     | '/games/rius/previous/'
     | '/games/rius/upcoming/'
     | '/_authed/admin/tricks/$trickId/edit'
+    | '/_authed/admin/tricks/$trickId/videos'
+    | '/_authed/admin/tricks/elements/create'
     | '/_authed/games/rius/upcoming/join'
+    | '/_authed/admin/tricks/elements/'
     | '/_authed/tricks/submissions/$submissionId/'
     | '/_authed/tricks/suggestions/$suggestionId/'
     | '/games/bius/sets/$setId/'
     | '/games/rius/sets/$setId/'
     | '/games/rius/submissions/$submissionId/'
     | '/games/sius/stacks/$stackId/'
+    | '/_authed/admin/tricks/elements/$elementId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -661,6 +725,7 @@ export interface RootRouteChildren {
   GamesSiusRouteRoute: typeof GamesSiusRouteRouteWithChildren
   AuthRegisterRoute: typeof AuthRegisterRoute
   StatsContributorsRoute: typeof StatsContributorsRoute
+  TricksTrickIdRoute: typeof TricksTrickIdRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
@@ -756,6 +821,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/users/$userId'
       preLoaderRoute: typeof UsersUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/$trickId': {
+      id: '/tricks/$trickId'
+      path: '/tricks/$trickId'
+      fullPath: '/tricks/$trickId'
+      preLoaderRoute: typeof TricksTrickIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stats/contributors': {
@@ -954,6 +1026,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTricksTrickIdSuggestRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/tricks/$trickId/submit-video': {
+      id: '/_authed/tricks/$trickId/submit-video'
+      path: '/tricks/$trickId/submit-video'
+      fullPath: '/tricks/$trickId/submit-video'
+      preLoaderRoute: typeof AuthedTricksTrickIdSubmitVideoRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/posts/$postId/edit': {
       id: '/_authed/posts/$postId/edit'
       path: '/posts/$postId/edit'
@@ -980,13 +1059,6 @@ declare module '@tanstack/react-router' {
       path: '/tricks/create'
       fullPath: '/admin/tricks/create'
       preLoaderRoute: typeof AuthedAdminTricksCreateRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/admin/tricks/categories': {
-      id: '/_authed/admin/tricks/categories'
-      path: '/tricks/categories'
-      fullPath: '/admin/tricks/categories'
-      preLoaderRoute: typeof AuthedAdminTricksCategoriesRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
     '/games/sius/stacks/$stackId/': {
@@ -1031,12 +1103,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTricksSubmissionsSubmissionIdIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/admin/tricks/elements/': {
+      id: '/_authed/admin/tricks/elements/'
+      path: '/tricks/elements'
+      fullPath: '/admin/tricks/elements'
+      preLoaderRoute: typeof AuthedAdminTricksElementsIndexRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
     '/_authed/games/rius/upcoming/join': {
       id: '/_authed/games/rius/upcoming/join'
       path: '/games/rius/upcoming/join'
       fullPath: '/games/rius/upcoming/join'
       preLoaderRoute: typeof AuthedGamesRiusUpcomingJoinRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/_authed/admin/tricks/elements/create': {
+      id: '/_authed/admin/tricks/elements/create'
+      path: '/tricks/elements/create'
+      fullPath: '/admin/tricks/elements/create'
+      preLoaderRoute: typeof AuthedAdminTricksElementsCreateRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/tricks/$trickId/videos': {
+      id: '/_authed/admin/tricks/$trickId/videos'
+      path: '/tricks/$trickId/videos'
+      fullPath: '/admin/tricks/$trickId/videos'
+      preLoaderRoute: typeof AuthedAdminTricksTrickIdVideosRouteImport
+      parentRoute: typeof AuthedAdminRoute
     }
     '/_authed/admin/tricks/$trickId/edit': {
       id: '/_authed/admin/tricks/$trickId/edit'
@@ -1045,21 +1138,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminTricksTrickIdEditRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
+    '/_authed/admin/tricks/elements/$elementId/edit': {
+      id: '/_authed/admin/tricks/elements/$elementId/edit'
+      path: '/tricks/elements/$elementId/edit'
+      fullPath: '/admin/tricks/elements/$elementId/edit'
+      preLoaderRoute: typeof AuthedAdminTricksElementsElementIdEditRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
   }
 }
 
 interface AuthedAdminRouteChildren {
-  AuthedAdminTricksCategoriesRoute: typeof AuthedAdminTricksCategoriesRoute
   AuthedAdminTricksCreateRoute: typeof AuthedAdminTricksCreateRoute
   AuthedAdminTricksModifiersRoute: typeof AuthedAdminTricksModifiersRoute
   AuthedAdminTricksTrickIdEditRoute: typeof AuthedAdminTricksTrickIdEditRoute
+  AuthedAdminTricksTrickIdVideosRoute: typeof AuthedAdminTricksTrickIdVideosRoute
+  AuthedAdminTricksElementsCreateRoute: typeof AuthedAdminTricksElementsCreateRoute
+  AuthedAdminTricksElementsIndexRoute: typeof AuthedAdminTricksElementsIndexRoute
+  AuthedAdminTricksElementsElementIdEditRoute: typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
-  AuthedAdminTricksCategoriesRoute: AuthedAdminTricksCategoriesRoute,
   AuthedAdminTricksCreateRoute: AuthedAdminTricksCreateRoute,
   AuthedAdminTricksModifiersRoute: AuthedAdminTricksModifiersRoute,
   AuthedAdminTricksTrickIdEditRoute: AuthedAdminTricksTrickIdEditRoute,
+  AuthedAdminTricksTrickIdVideosRoute: AuthedAdminTricksTrickIdVideosRoute,
+  AuthedAdminTricksElementsCreateRoute: AuthedAdminTricksElementsCreateRoute,
+  AuthedAdminTricksElementsIndexRoute: AuthedAdminTricksElementsIndexRoute,
+  AuthedAdminTricksElementsElementIdEditRoute:
+    AuthedAdminTricksElementsElementIdEditRoute,
 }
 
 const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
@@ -1076,6 +1183,7 @@ interface AuthedRouteChildren {
   AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute
   AuthedAuthMeEditRoute: typeof AuthedAuthMeEditRoute
   AuthedPostsPostIdEditRoute: typeof AuthedPostsPostIdEditRoute
+  AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute
   AuthedTricksTrickIdSuggestRoute: typeof AuthedTricksTrickIdSuggestRoute
   AuthedAuthMeIndexRoute: typeof AuthedAuthMeIndexRoute
   AuthedGamesRiusUpcomingJoinRoute: typeof AuthedGamesRiusUpcomingJoinRoute
@@ -1093,6 +1201,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedNotificationsIndexRoute: AuthedNotificationsIndexRoute,
   AuthedAuthMeEditRoute: AuthedAuthMeEditRoute,
   AuthedPostsPostIdEditRoute: AuthedPostsPostIdEditRoute,
+  AuthedTricksTrickIdSubmitVideoRoute: AuthedTricksTrickIdSubmitVideoRoute,
   AuthedTricksTrickIdSuggestRoute: AuthedTricksTrickIdSuggestRoute,
   AuthedAuthMeIndexRoute: AuthedAuthMeIndexRoute,
   AuthedGamesRiusUpcomingJoinRoute: AuthedGamesRiusUpcomingJoinRoute,
@@ -1166,6 +1275,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesSiusRouteRoute: GamesSiusRouteRouteWithChildren,
   AuthRegisterRoute: AuthRegisterRoute,
   StatsContributorsRoute: StatsContributorsRoute,
+  TricksTrickIdRoute: TricksTrickIdRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ChatIndexRoute: ChatIndexRoute,
   GamesIndexRoute: GamesIndexRoute,

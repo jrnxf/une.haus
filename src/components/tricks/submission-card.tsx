@@ -25,15 +25,15 @@ type SubmissionCardProps = {
       name: string;
       avatarId: string | null;
     };
-    categoryAssignments: Array<{
-      category: {
+    elementAssignments: {
+      element: {
         id: number;
         name: string;
         slug: string;
       };
-    }>;
-    likes: Array<{ userId: number }>;
-    messages: Array<{ id: number }>;
+    }[];
+    likes: { userId: number }[];
+    messages: { id: number }[];
   };
   showStatus?: boolean;
 };
@@ -99,13 +99,13 @@ export function SubmissionCard({
           )}
 
           <div className="flex flex-wrap gap-1">
-            {submission.categoryAssignments.map(({ category }) => (
+            {submission.elementAssignments.map(({ element }) => (
               <Badge
-                key={category.id}
+                key={element.id}
                 variant="outline"
                 className="px-1.5 py-0 text-[10px]"
               >
-                {category.name}
+                {element.name}
               </Badge>
             ))}
           </div>

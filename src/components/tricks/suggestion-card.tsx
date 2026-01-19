@@ -37,8 +37,8 @@ type SuggestionCardProps = {
       name: string;
       avatarId: string | null;
     };
-    likes: Array<{ userId: number }>;
-    messages: Array<{ id: number }>;
+    likes: { userId: number }[];
+    messages: { id: number }[];
   };
   showStatus?: boolean;
 };
@@ -73,13 +73,13 @@ function formatDiffSummary(diff: TrickSuggestionDiff): string {
   if (diff.videoUrl) changes.push("video");
   if (diff.videoTimestamp) changes.push("timestamp");
   if (diff.notes) changes.push("notes");
-  if (diff.categories) changes.push("categories");
+  if (diff.elements) changes.push("elements");
   if (diff.relationships) changes.push("relationships");
 
   if (changes.length === 0) return "No changes";
   if (changes.length === 1) return `Changed ${changes[0]}`;
   if (changes.length === 2) return `Changed ${changes[0]} and ${changes[1]}`;
-  return `Changed ${changes.slice(0, -1).join(", ")}, and ${changes[changes.length - 1]}`;
+  return `Changed ${changes.slice(0, -1).join(", ")}, and ${changes.at(-1)}`;
 }
 
 export function SuggestionCard({

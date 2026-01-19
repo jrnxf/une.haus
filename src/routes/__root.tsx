@@ -123,7 +123,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="font-mono antialiased">
+      <body className="font-sans antialiased">
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog />

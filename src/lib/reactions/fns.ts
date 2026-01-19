@@ -116,44 +116,62 @@ export const unlikeRecordServerFn = createServerFn({
 
 export const getTableByType = (type: RecordWithLikesType) => {
   switch (type) {
-    case "post":
+    case "post": {
       return postLikes;
-    case "chatMessage":
+    }
+    case "chatMessage": {
       return chatMessageLikes;
-    case "postMessage":
+    }
+    case "postMessage": {
       return postMessageLikes;
-    case "riuSet":
+    }
+    case "riuSet": {
       return riuSetLikes;
-    case "riuSetMessage":
+    }
+    case "riuSetMessage": {
       return riuSetMessageLikes;
-    case "riuSubmission":
+    }
+    case "riuSubmission": {
       return riuSubmissionLikes;
-    case "riuSubmissionMessage":
+    }
+    case "riuSubmissionMessage": {
       return riuSubmissionMessageLikes;
-    case "utvVideo":
+    }
+    case "utvVideo": {
       return utvVideoLikes;
-    case "utvVideoMessage":
+    }
+    case "utvVideoMessage": {
       return utvVideoMessageLikes;
-    case "biuSet":
+    }
+    case "biuSet": {
       return biuSetLikes;
-    case "biuSetMessage":
+    }
+    case "biuSetMessage": {
       return biuSetMessageLikes;
-    case "siuStack":
+    }
+    case "siuStack": {
       return siuStackLikes;
-    case "siuStackMessage":
+    }
+    case "siuStackMessage": {
       return siuStackMessageLikes;
-    case "trickSubmission":
+    }
+    case "trickSubmission": {
       return trickSubmissionLikes;
-    case "trickSubmissionMessage":
+    }
+    case "trickSubmissionMessage": {
       return trickSubmissionMessageLikes;
-    case "trickSuggestion":
+    }
+    case "trickSuggestion": {
       return trickSuggestionLikes;
-    case "trickSuggestionMessage":
+    }
+    case "trickSuggestionMessage": {
       return trickSuggestionMessageLikes;
-    default:
+    }
+    default: {
       invariant(
         false,
         `Expected type to be one of ${recordTypeWithLikes.join(", ")}. Received ${type}`,
       );
+    }
   }
 };

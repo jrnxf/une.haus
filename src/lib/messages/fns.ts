@@ -575,28 +575,38 @@ export const deleteMessageServerFn = createServerFn({
 
 export const getTableByType = (type: MessageParentType) => {
   switch (type) {
-    case "post":
+    case "post": {
       return postMessages;
-    case "chat":
+    }
+    case "chat": {
       return chatMessages;
-    case "riuSet":
+    }
+    case "riuSet": {
       return riuSetMessages;
-    case "riuSubmission":
+    }
+    case "riuSubmission": {
       return riuSubmissionMessages;
-    case "utvVideo":
+    }
+    case "utvVideo": {
       return utvVideoMessages;
-    case "biuSet":
+    }
+    case "biuSet": {
       return biuSetMessages;
-    case "siuStack":
+    }
+    case "siuStack": {
       return siuStackMessages;
-    case "trickSubmission":
+    }
+    case "trickSubmission": {
       return trickSubmissionMessages;
-    case "trickSuggestion":
+    }
+    case "trickSuggestion": {
       return trickSuggestionMessages;
-    default:
+    }
+    default: {
       invariant(
         false,
         `Expected type to be one of ${recordWithMessagesTypes.join(", ")}. Received ${type}`,
       );
+    }
   }
 };

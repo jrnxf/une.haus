@@ -1,4 +1,5 @@
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -10,7 +11,7 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import { ResponsiveCombobox } from "~/components/ui/responsive-combobox";
 import { cn } from "~/lib/utils";
 
 export function MultiSelect<T extends string>({
@@ -24,9 +25,14 @@ export function MultiSelect<T extends string>({
   options: readonly T[];
   selections: T[];
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <ResponsiveCombobox
+      open={open}
+      onOpenChange={setOpen}
+      title={buttonLabel}
+      trigger={
         <Button
           className="w-full justify-between"
           role="combobox"
@@ -43,38 +49,37 @@ export function MultiSelect<T extends string>({
             <ChevronsUpDown className="size-4 opacity-50" />
           </div>
         </Button>
-      </DialogTrigger>
-      <DialogContent className="w-full p-0" showCloseButton={false}>
-        <Command>
-          <CommandInput placeholder="Filter..." />
-          <CommandList>
-            <CommandEmpty>No results</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isChecked = selections.includes(option);
-                return (
-                  <CommandItem
-                    key={option}
-                    onSelect={() => {
-                      onOptionCheckedChange(option, !isChecked);
-                    }}
-                    value={option}
-                  >
-                    {option}
-                    <Check
-                      className={cn(
-                        "ml-auto",
-                        isChecked ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <Command>
+        <CommandInput placeholder="Filter..." />
+        <CommandList>
+          <CommandEmpty>No results</CommandEmpty>
+          <CommandGroup>
+            {options.map((option) => {
+              const isChecked = selections.includes(option);
+              return (
+                <CommandItem
+                  key={option}
+                  onSelect={() => {
+                    onOptionCheckedChange(option, !isChecked);
+                  }}
+                  value={option}
+                >
+                  {option}
+                  <Check
+                    className={cn(
+                      "ml-auto",
+                      isChecked ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </ResponsiveCombobox>
     // <DropdownMenu>
     //   <DropdownMenuTrigger asChild>
     //     <Button size="lg" variant="outline">

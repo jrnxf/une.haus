@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import type { Trick, TricksData } from "~/lib/tricks";
 
-import { CategoryLane } from "./category-lane";
+import { ElementLane } from "./element-lane";
 import { TrickDetail } from "./trick-detail";
 
 type SkillTreeProps = {
@@ -17,21 +17,21 @@ export function SkillTree({ data }: SkillTreeProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedTrickId, setSelectedTrickId] = useState<string | null>(null);
-  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(
+  const [hiddenElements, setHiddenElements] = useState<Set<string>>(
     new Set(["prefix"]), // Hide prefixes by default
   );
 
   // Filter tricks by search term
-  const filteredByCategory = useMemo(() => {
+  const filteredByElement = useMemo(() => {
     const result: Record<string, Trick[]> = {};
     const searchLower = deferredSearchTerm.toLowerCase();
 
-    for (const category of data.categories) {
-      if (hiddenCategories.has(category)) continue;
+    for (const element of data.elements) {
+      if (hiddenElements.has(element)) continue;
 
-      const categoryTricks = data.byCategory[category] ?? [];
+      const elementTricks = data.byElement[element] ?? [];
       const filtered = searchLower
-        ? categoryTricks.filter(
+        ? elementTricks.filter(
             (trick) =>
               trick.name.toLowerCase().includes(searchLower) ||
               trick.alternateNames.some((name) =>
@@ -39,31 +39,31 @@ export function SkillTree({ data }: SkillTreeProps) {
               ) ||
               trick.definition.toLowerCase().includes(searchLower),
           )
-        : categoryTricks;
+        : elementTricks;
 
       if (filtered.length > 0) {
-        result[category] = filtered;
+        result[element] = filtered;
       }
     }
 
     return result;
-  }, [data, deferredSearchTerm, hiddenCategories]);
+  }, [data, deferredSearchTerm, hiddenElements]);
 
-  const visibleCategories = Object.keys(filteredByCategory);
-  const totalTricksShown = Object.values(filteredByCategory).reduce(
+  const visibleElements = Object.keys(filteredByElement);
+  const totalTricksShown = Object.values(filteredByElement).reduce(
     (sum, tricks) => sum + tricks.length,
     0,
   );
 
   const selectedTrick = selectedTrickId ? data.byId[selectedTrickId] : null;
 
-  function toggleCategory(category: string) {
-    setHiddenCategories((prev) => {
+  function toggleElement(element: string) {
+    setHiddenElements((prev) => {
       const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
+      if (next.has(element)) {
+        next.delete(element);
       } else {
-        next.add(category);
+        next.add(element);
       }
       return next;
     });
@@ -103,20 +103,20 @@ export function SkillTree({ data }: SkillTreeProps) {
           )}
         </div>
 
-        {/* Category filters */}
+        {/* Element filters */}
         <div className="flex flex-wrap gap-2">
-          {data.categories.map((category) => {
-            const isHidden = hiddenCategories.has(category);
-            const count = data.byCategory[category]?.length ?? 0;
+          {data.elements.map((element) => {
+            const isHidden = hiddenElements.has(element);
+            const count = data.byElement[element]?.length ?? 0;
 
             return (
               <Badge
                 className="cursor-pointer select-none"
-                key={category}
-                onClick={() => toggleCategory(category)}
+                key={element}
+                onClick={() => toggleElement(element)}
                 variant={isHidden ? "outline" : "secondary"}
               >
-                {category}
+                {element}
                 <span className="text-muted-foreground ml-1">({count})</span>
               </Badge>
             );
@@ -125,26 +125,26 @@ export function SkillTree({ data }: SkillTreeProps) {
 
         {/* Stats */}
         <p className="text-muted-foreground text-sm">
-          Showing {totalTricksShown} tricks across {visibleCategories.length}{" "}
-          categories
+          Showing {totalTricksShown} tricks across {visibleElements.length}{" "}
+          elements
         </p>
       </div>
 
-      {/* Category lanes */}
+      {/* Element lanes */}
       <div className="space-y-8">
-        {visibleCategories.map((category) => (
-          <CategoryLane
-            category={category}
-            key={category}
+        {visibleElements.map((element) => (
+          <ElementLane
+            element={element}
+            key={element}
             onSelectTrick={handleSelectTrick}
             selectedTrickId={selectedTrickId ?? undefined}
-            tricks={filteredByCategory[category]}
+            tricks={filteredByElement[element]}
           />
         ))}
       </div>
 
       {/* Empty state */}
-      {visibleCategories.length === 0 && (
+      {visibleElements.length === 0 && (
         <div className="py-12 text-center">
           <p className="text-muted-foreground">
             No tricks found matching your search.
@@ -153,7 +153,7 @@ export function SkillTree({ data }: SkillTreeProps) {
             className="mt-4"
             onClick={() => {
               setSearchTerm("");
-              setHiddenCategories(new Set(["prefix"]));
+              setHiddenElements(new Set(["prefix"]));
             }}
             variant="outline"
           >

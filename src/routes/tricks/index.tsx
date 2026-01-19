@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ReactFlowProvider } from "@xyflow/react";
-import { Plus, Send } from "lucide-react";
+import { Boxes, Plus, ShieldIcon, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { z } from "zod";
 
 import { TrickDetail } from "~/components/tricks/trick-detail";
 import { TricksGraph } from "~/components/tricks/tricks-graph";
@@ -13,12 +14,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { session } from "~/lib/session";
 import { tricks } from "~/lib/tricks";
 
+const searchSchema = z.object({
+  trick: z.string().optional(),
+});
+
 export const Route = createFileRoute("/tricks/")({
+  validateSearch: searchSchema,
   loader: async ({ context }) => {
     const [, sessionData] = await Promise.all([
       context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
@@ -34,24 +41,44 @@ export const Route = createFileRoute("/tricks/")({
 
 function TricksPage() {
   const { isLoggedIn, isAdmin } = Route.useLoaderData();
+  const { trick: trickFromUrl } = Route.useSearch();
+  const navigate = useNavigate();
   const { data } = useSuspenseQuery(tricks.graph.queryOptions());
-  const [selectedTrickId, setSelectedTrickId] = useState<string | null>(
-    "treyflip",
-  );
+
+  // Use URL param if valid, otherwise default to "treyflip"
+  const selectedTrickId =
+    trickFromUrl && data.byId[trickFromUrl] ? trickFromUrl : "treyflip";
+
   const [detailTrickId, setDetailTrickId] = useState<string | null>(null);
   const detailTrick = detailTrickId ? data.byId[detailTrickId] : null;
 
   function handleSelectTrick(trickId: string) {
-    setSelectedTrickId(trickId);
+    // Replace URL state so back button works correctly
+    navigate({
+      to: "/tricks",
+      search: { trick: trickId },
+      replace: true,
+    });
   }
 
   function handleOpenTrickDetail(trickId: string) {
     setDetailTrickId(trickId);
   }
 
+  function handleCenterNodeClick(trickId: string) {
+    navigate({
+      to: "/tricks/$trickId",
+      params: { trickId },
+    });
+  }
+
   function handleNavigateToTrick(trickId: string) {
     if (data.byId[trickId]) {
-      setSelectedTrickId(trickId);
+      navigate({
+        to: "/tricks",
+        search: { trick: trickId },
+        replace: true,
+      });
       setDetailTrickId(trickId);
     }
   }
@@ -81,6 +108,7 @@ function TricksPage() {
           <ReactFlowProvider>
             <TricksGraph
               data={data}
+              onCenterNodeClick={(trick) => handleCenterNodeClick(trick.id)}
               onOpenTrickDetail={(trick) => handleOpenTrickDetail(trick.id)}
               onSelectTrick={(trick) => handleSelectTrick(trick.id)}
               selectedTrickId={selectedTrickId}
@@ -95,25 +123,39 @@ function TricksPage() {
 
             {isLoggedIn &&
               (isAdmin ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button>Create</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link to="/tricks/submit">
-                        <Send className="mr-2 size-4" />
-                        Submit for Review
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/tricks/create">
-                        <Plus className="mr-2 size-4" />
-                        Create Directly
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                  <Button asChild>
+                    <Link to="/tricks/submit">Create</Link>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary" size="icon">
+                        <ShieldIcon className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/tricks/create">
+                          <Plus className="mr-2 size-4" />
+                          Create Directly
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/tricks/elements">
+                          <Boxes className="mr-2 size-4" />
+                          Elements
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/tricks/modifiers">
+                          <Sparkles className="mr-2 size-4" />
+                          Modifiers
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <Button asChild>
                   <Link to="/tricks/submit">Create</Link>

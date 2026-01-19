@@ -20,6 +20,7 @@ type TricksGraphProps = {
   selectedTrickId: string | null;
   onSelectTrick: (trick: Trick) => void;
   onOpenTrickDetail: (trick: Trick) => void;
+  onCenterNodeClick?: (trick: Trick) => void;
 };
 
 type FlowNode = {
@@ -317,6 +318,7 @@ function GraphContent({
   selectedTrickId,
   onSelectTrick,
   onOpenTrickDetail,
+  onCenterNodeClick,
 }: TricksGraphProps) {
   const { fitView } = useReactFlow();
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -379,10 +381,15 @@ function GraphContent({
   const handleNodeClick = useCallback(
     (_event: React.MouseEvent, node: FlowNode) => {
       if (isTransitioning) return;
-      if (node.id === selectedTrickId) return;
 
       const clickedTrick = data.byId[node.id];
       if (!clickedTrick) return;
+
+      // If clicking the center node, navigate to its detail page
+      if (node.id === selectedTrickId) {
+        onCenterNodeClick?.(clickedTrick);
+        return;
+      }
 
       isNodeClickRef.current = true;
       setIsTransitioning(true);
@@ -465,6 +472,7 @@ function GraphContent({
       fitView,
       isTransitioning,
       nodes,
+      onCenterNodeClick,
       onSelectTrick,
       selectedTrickId,
       setEdges,
@@ -505,6 +513,7 @@ function GraphContent({
         fitView
         maxZoom={1.75}
         minZoom={0.2}
+        nodesDraggable={false}
         nodeTypes={NODE_TYPES}
         nodes={nodes}
         onEdgesChange={onEdgesChange}

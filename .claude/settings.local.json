@@ -22,7 +22,11 @@
       "Bash(pkill:*)",
       "Bash(bun run:*)",
       "Bash(git reset:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(bun add:*)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebSearch"
     ]
   }
 }

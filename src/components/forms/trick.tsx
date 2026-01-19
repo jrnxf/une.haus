@@ -1,30 +1,48 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { Info } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { MultiVideoInput } from "~/components/input/multi-video-input";
 import { StringListInput } from "~/components/input/string-list-input";
-import { TrickRelationshipSelector } from "~/components/input/trick-selector";
-import { YoutubeInput } from "~/components/input/youtube-input";
+import {
+  ElementSelector,
+  TrickRelationshipSelector,
+} from "~/components/input/trick-selector";
+import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+} from "~/components/ui/field";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
-  FormSubmitButton,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import {
   trickFormSchema,
-  type TrickFormValues,
   type CreateTrickArgs,
+  type TrickFormValues,
 } from "~/lib/tricks/schemas";
 
 export type TrickFormDefaultValues = Partial<TrickFormValues>;
+
+const generateSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/^-|-$/g, "");
 
 export function TrickForm({
   defaultValues,
@@ -49,44 +67,26 @@ export function TrickForm({
       definition: defaultValues?.definition ?? null,
       inventedBy: defaultValues?.inventedBy ?? null,
       yearLanded: defaultValues?.yearLanded ?? null,
-      videoUrl: defaultValues?.videoUrl ?? null,
-      videoTimestamp: defaultValues?.videoTimestamp ?? null,
+      muxAssetIds: defaultValues?.muxAssetIds ?? [],
       notes: defaultValues?.notes ?? null,
       prerequisites: defaultValues?.prerequisites ?? [],
-      optionalPrerequisites: defaultValues?.optionalPrerequisites ?? [],
       relatedTricks: defaultValues?.relatedTricks ?? [],
+      elements: defaultValues?.elements ?? [],
     },
     resolver: zodResolver(trickFormSchema),
   });
 
-  const { control, handleSubmit, setValue } = rhf;
+  const { control, handleSubmit, setValue, formState } = rhf;
 
   const handleNameChange = (value: string) => {
-    // Auto-generate slug from name if slug is empty or matches previous auto-generation
-    const currentSlug = rhf.getValues("slug");
-    const previousAutoSlug = generateSlug(rhf.getValues("name"));
-
-    if (!currentSlug || currentSlug === previousAutoSlug) {
-      setValue("slug", generateSlug(value));
-    }
+    setValue("slug", generateSlug(value));
   };
 
-  const generateSlug = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-
   const handleFormSubmit = (data: TrickFormValues) => {
-    // Combine all relationships into a single array for the API
     const relationships = [
       ...data.prerequisites.map((r) => ({
         targetTrickId: r.targetTrickId,
         type: "prerequisite" as const,
-      })),
-      ...data.optionalPrerequisites.map((r) => ({
-        targetTrickId: r.targetTrickId,
-        type: "optional_prerequisite" as const,
       })),
       ...data.relatedTricks.map((r) => ({
         targetTrickId: r.targetTrickId,
@@ -101,313 +101,316 @@ export function TrickForm({
       definition: data.definition,
       inventedBy: data.inventedBy,
       yearLanded: data.yearLanded,
-      videoUrl: data.videoUrl,
-      videoTimestamp: data.videoTimestamp,
+      muxAssetIds: data.muxAssetIds,
       notes: data.notes,
       relationships,
+      elementIds: data.elements.map((e) => e.id),
     });
   };
 
   const excludeIds = excludeTrickId ? [excludeTrickId] : [];
 
   return (
-    <Form
-      rhf={rhf}
-      className="flex flex-col gap-6"
-      onSubmit={(event) => {
-        event.preventDefault();
-        handleSubmit(handleFormSubmit)(event);
-      }}
-    >
-      {/* Basic Info */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Basic Info</h3>
+    <Form rhf={rhf} onSubmit={handleSubmit(handleFormSubmit)}>
+      <FieldGroup>
+        {/* Basic Info */}
+        <FieldSet>
+          <FieldLegend>Basic Info</FieldLegend>
+          <FieldDescription>Core details about the trick</FieldDescription>
+          <FieldGroup>
+            <Controller
+              name="slug"
+              control={control}
+              render={({ field }) => <input type="hidden" {...field} />}
+            />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <FormField
-            control={control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name *</FormLabel>
-                <FormControl>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Name *</FieldLabel>
                   <Input
                     {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
                     onChange={(e) => {
                       field.onChange(e);
                       handleNameChange(e.target.value);
                     }}
-                    placeholder="e.g., Hickflip"
+                    placeholder="treyflip"
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Slug *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="e.g., hickflip" />
-                </FormControl>
-                <FormDescription>URL-friendly identifier</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <Controller
+              name="alternateNames"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Alternate Names</FieldLabel>
+                  <StringListInput
+                    value={field.value ?? []}
+                    onChange={field.onChange}
+                    placeholder="Add alias..."
+                  />
+                  <FieldDescription>
+                    Common aliases or nicknames
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
-        <FormField
-          control={control}
-          name="alternateNames"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Alternate Names</FormLabel>
-              <FormControl>
-                <StringListInput
-                  value={field.value ?? []}
-                  onChange={field.onChange}
-                  placeholder="Add alias..."
-                />
-              </FormControl>
-              <FormDescription>Common aliases or nicknames</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="definition"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Definition</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="Describe how the trick is performed..."
-                  rows={3}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      {/* Relationships */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Relationships</h3>
-
-        <FormField
-          control={control}
-          name="prerequisites"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Prerequisites</FormLabel>
-              <FormControl>
-                <TrickRelationshipSelector
-                  value={field.value}
-                  onChange={field.onChange}
-                  excludeIds={excludeIds}
-                  relationshipType="prerequisite"
-                  placeholder="Select prerequisite tricks..."
-                />
-              </FormControl>
-              <FormDescription>
-                Tricks that should be learned first
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="optionalPrerequisites"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Optional Prerequisites</FormLabel>
-              <FormControl>
-                <TrickRelationshipSelector
-                  value={field.value}
-                  onChange={field.onChange}
-                  excludeIds={excludeIds}
-                  relationshipType="optional_prerequisite"
-                  placeholder="Select optional prerequisite tricks..."
-                />
-              </FormControl>
-              <FormDescription>Helpful but not required</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="relatedTricks"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Related Tricks</FormLabel>
-              <FormControl>
-                <TrickRelationshipSelector
-                  value={field.value}
-                  onChange={field.onChange}
-                  excludeIds={excludeIds}
-                  relationshipType="related"
-                  placeholder="Select related tricks..."
-                />
-              </FormControl>
-              <FormDescription>
-                Similar tricks (one degree of separation)
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      {/* History */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">History</h3>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <FormField
-            control={control}
-            name="inventedBy"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Invented By</FormLabel>
-                <FormControl>
-                  <Input
+            <Controller
+              name="definition"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Definition</FieldLabel>
+                  <Textarea
                     {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
                     value={field.value ?? ""}
-                    placeholder="Who invented this trick?"
+                    placeholder="Describe how the trick is performed..."
+                    rows={3}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="yearLanded"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Year Landed</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={1900}
-                    max={2100}
-                    name={field.name}
-                    ref={field.ref}
-                    onBlur={field.onBlur}
-                    value={field.value?.toString() ?? ""}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? Number(e.target.value) : null,
-                      )
-                    }
-                    placeholder="e.g., 2010"
+            <Controller
+              name="elements"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Elements</FieldLabel>
+                  <ElementSelector
+                    value={field.value}
+                    onChange={field.onChange}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      </div>
+                  <FieldDescription>
+                    The components that make up this trick (e.g., spins, flips)
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
 
-      {/* Video */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Video</h3>
+        <FieldSeparator />
 
-        <FormField
-          control={control}
-          name="videoUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Video URL</FormLabel>
-              <FormControl>
-                <YoutubeInput
-                  currentId={
-                    field.value
-                      ? new URL(field.value).searchParams.get("v")
-                      : null
-                  }
-                  onChange={(videoId) => {
-                    field.onChange(
-                      videoId
-                        ? `https://www.youtube.com/watch?v=${videoId}`
-                        : null,
-                    );
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Relationships */}
+        <FieldSet>
+          <FieldLegend>Relationships</FieldLegend>
+          <FieldDescription>
+            Connect this trick to other tricks in the database
+          </FieldDescription>
+          <FieldGroup>
+            <Controller
+              name="prerequisites"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Prerequisites</FieldLabel>
+                  <TrickRelationshipSelector
+                    value={field.value}
+                    onChange={field.onChange}
+                    excludeIds={excludeIds}
+                    relationshipType="prerequisite"
+                  />
+                  <FieldDescription>
+                    Tricks that should be learned first
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
 
-        <FormField
-          control={control}
-          name="videoTimestamp"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Video Timestamp</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="e.g., 1:30"
-                />
-              </FormControl>
-              <FormDescription>Start time in the video</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+            <Controller
+              name="relatedTricks"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Related Tricks</FieldLabel>
+                  <TrickRelationshipSelector
+                    value={field.value}
+                    onChange={field.onChange}
+                    excludeIds={excludeIds}
+                    relationshipType="related"
+                  />
+                  <FieldDescription>
+                    Similar tricks (one degree of separation)
+                  </FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
 
-      {/* Notes */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Notes</h3>
+        <FieldSeparator />
 
-        <FormField
-          control={control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="Additional notes..."
-                  rows={3}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+        {/* History */}
+        <FieldSet>
+          <FieldLegend>History</FieldLegend>
+          <FieldDescription>
+            Origin and historical information about the trick
+          </FieldDescription>
+          <FieldGroup>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Controller
+                name="inventedBy"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Invented By</FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      value={field.value ?? ""}
+                      placeholder="Who invented this trick?"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
 
-      {/* Actions */}
-      <div className="flex justify-end gap-2">
-        {onCancel && (
-          <Button type="button" variant="secondary" onClick={onCancel}>
-            Cancel
+              <Controller
+                name="yearLanded"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Year Landed</FieldLabel>
+                    <Input
+                      type="number"
+                      min={1900}
+                      max={2100}
+                      id={field.name}
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                      value={field.value?.toString() ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? Number(e.target.value) : null,
+                        )
+                      }
+                      placeholder="2010"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSeparator />
+
+        {/* Videos */}
+        <FieldSet>
+          <FieldLegend>Videos</FieldLegend>
+          <FieldDescription>
+            Reference videos showing the trick being performed (up to 5)
+          </FieldDescription>
+          <FieldGroup>
+            <Alert>
+              <Info className="size-4" />
+              <AlertDescription>
+                Ideal videos are short clips showing the trick from different
+                angles, slow motion views, or POV perspectives. All from the same
+                rider in one edit is best!
+              </AlertDescription>
+            </Alert>
+            <FormField
+              control={control}
+              name="muxAssetIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <MultiVideoInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      maxVideos={5}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSeparator />
+
+        {/* Notes */}
+        <FieldSet>
+          <FieldLegend>Notes</FieldLegend>
+          <FieldDescription>
+            Additional information or context about the trick
+          </FieldDescription>
+          <FieldGroup>
+            <Controller
+              name="notes"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <Textarea
+                    {...field}
+                    id={field.name}
+                    aria-invalid={fieldState.invalid}
+                    value={field.value ?? ""}
+                    placeholder="Additional notes..."
+                    rows={3}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
+
+        {/* Actions */}
+        <Field orientation="horizontal">
+          <Button
+            type="submit"
+            disabled={isPending || formState.isSubmitting}
+          >
+            {isPending || formState.isSubmitting ? "Saving..." : submitLabel}
           </Button>
-        )}
-        <FormSubmitButton busy={isPending}>{submitLabel}</FormSubmitButton>
-      </div>
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+        </Field>
+      </FieldGroup>
     </Form>
   );
 }

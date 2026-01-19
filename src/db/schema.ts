@@ -1088,8 +1088,14 @@ export const trickSubmissionStatusEnum = pgEnum(
   TRICK_SUBMISSION_STATUSES,
 );
 
-// Trick Categories (admin-customizable)
-export const trickCategories = pgTable("trick_categories", {
+export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const;
+export const trickVideoStatusEnum = pgEnum(
+  "trick_video_status",
+  TRICK_VIDEO_STATUSES,
+);
+
+// Trick Modifiers (global, apply to any trick)
+export const trickModifiers = pgTable("trick_modifiers", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
@@ -1098,8 +1104,8 @@ export const trickCategories = pgTable("trick_categories", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Trick Modifiers (global, apply to any trick)
-export const trickModifiers = pgTable("trick_modifiers", {
+// Trick Elements (components that make up a trick: spin, flip, twist, etc.)
+export const trickElements = pgTable("trick_elements", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
@@ -1120,8 +1126,6 @@ export const tricks = pgTable(
     isPrefix: boolean("is_prefix").notNull().default(false),
     inventedBy: text("invented_by"),
     yearLanded: integer("year_landed"),
-    videoUrl: text("video_url"),
-    videoTimestamp: text("video_timestamp"),
     notes: text("notes"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -1129,18 +1133,47 @@ export const tricks = pgTable(
   (t) => [index("tricks_slug_idx").on(t.slug)],
 );
 
-// Trick Category Assignments (many-to-many)
-export const trickCategoryAssignments = pgTable(
-  "trick_category_assignments",
+// Trick Videos (multiple per trick)
+export const trickVideos = pgTable(
+  "trick_videos",
+  {
+    id: serial("id").primaryKey(),
+    trickId: integer("trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    muxAssetId: text("mux_asset_id")
+      .notNull()
+      .references(() => muxVideos.assetId, { onDelete: "cascade" }),
+    status: trickVideoStatusEnum("status").notNull().default("pending"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    submittedByUserId: integer("submitted_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    reviewedAt: timestamp("reviewed_at"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("trick_videos_trick_id_idx").on(t.trickId),
+    index("trick_videos_status_idx").on(t.status),
+  ],
+);
+
+// Trick Element Assignments (many-to-many)
+export const trickElementAssignments = pgTable(
+  "trick_element_assignments",
   {
     trickId: integer("trick_id")
       .notNull()
       .references(() => tricks.id, { onDelete: "cascade" }),
-    categoryId: integer("category_id")
+    elementId: integer("element_id")
       .notNull()
-      .references(() => trickCategories.id, { onDelete: "cascade" }),
+      .references(() => trickElements.id, { onDelete: "cascade" }),
   },
-  (t) => [primaryKey({ columns: [t.trickId, t.categoryId] })],
+  (t) => [primaryKey({ columns: [t.trickId, t.elementId] })],
 );
 
 // Trick Relationships (directed graph)
@@ -1187,18 +1220,18 @@ export const trickSubmissions = pgTable("trick_submissions", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-// Trick Submission Category Assignments
-export const trickSubmissionCategoryAssignments = pgTable(
-  "trick_submission_category_assignments",
+// Trick Submission Element Assignments
+export const trickSubmissionElementAssignments = pgTable(
+  "trick_submission_element_assignments",
   {
     submissionId: integer("submission_id")
       .notNull()
       .references(() => trickSubmissions.id, { onDelete: "cascade" }),
-    categoryId: integer("category_id")
+    elementId: integer("element_id")
       .notNull()
-      .references(() => trickCategories.id, { onDelete: "cascade" }),
+      .references(() => trickElements.id, { onDelete: "cascade" }),
   },
-  (t) => [primaryKey({ columns: [t.submissionId, t.categoryId] })],
+  (t) => [primaryKey({ columns: [t.submissionId, t.elementId] })],
 );
 
 // Trick Submission Relationships
@@ -1227,10 +1260,10 @@ export type TrickSuggestionDiff = {
   videoUrl?: { old: string | null; new: string | null };
   videoTimestamp?: { old: string | null; new: string | null };
   notes?: { old: string | null; new: string | null };
-  categories?: { old: string[]; new: string[] };
+  elements?: { old: string[]; new: string[] };
   relationships?: {
-    added: Array<{ targetSlug: string; type: string }>;
-    removed: Array<{ targetSlug: string; type: string }>;
+    added: { targetSlug: string; type: string }[];
+    removed: { targetSlug: string; type: string }[];
   };
 };
 
@@ -1371,17 +1404,15 @@ export const trickSuggestionMessageLikes = pgTable(
 );
 
 // Trick Relations
-export const trickCategoriesRelations = relations(
-  trickCategories,
-  ({ many }) => ({
-    assignments: many(trickCategoryAssignments),
-  }),
-);
-
 export const trickModifiersRelations = relations(trickModifiers, () => ({}));
 
+export const trickElementsRelations = relations(trickElements, ({ many }) => ({
+  assignments: many(trickElementAssignments),
+}));
+
 export const tricksRelations = relations(tricks, ({ many }) => ({
-  categoryAssignments: many(trickCategoryAssignments),
+  videos: many(trickVideos),
+  elementAssignments: many(trickElementAssignments),
   outgoingRelationships: many(trickRelationships, {
     relationName: "sourceRelationships",
   }),
@@ -1393,16 +1424,35 @@ export const tricksRelations = relations(tricks, ({ many }) => ({
   suggestions: many(trickSuggestions),
 }));
 
-export const trickCategoryAssignmentsRelations = relations(
-  trickCategoryAssignments,
+export const trickVideosRelations = relations(trickVideos, ({ one }) => ({
+  trick: one(tricks, {
+    fields: [trickVideos.trickId],
+    references: [tricks.id],
+  }),
+  video: one(muxVideos, {
+    fields: [trickVideos.muxAssetId],
+    references: [muxVideos.assetId],
+  }),
+  submittedBy: one(users, {
+    fields: [trickVideos.submittedByUserId],
+    references: [users.id],
+  }),
+  reviewedBy: one(users, {
+    fields: [trickVideos.reviewedByUserId],
+    references: [users.id],
+  }),
+}));
+
+export const trickElementAssignmentsRelations = relations(
+  trickElementAssignments,
   ({ one }) => ({
     trick: one(tricks, {
-      fields: [trickCategoryAssignments.trickId],
+      fields: [trickElementAssignments.trickId],
       references: [tricks.id],
     }),
-    category: one(trickCategories, {
-      fields: [trickCategoryAssignments.categoryId],
-      references: [trickCategories.id],
+    element: one(trickElements, {
+      fields: [trickElementAssignments.elementId],
+      references: [trickElements.id],
     }),
   }),
 );
@@ -1434,23 +1484,23 @@ export const trickSubmissionsRelations = relations(
       fields: [trickSubmissions.reviewedByUserId],
       references: [users.id],
     }),
-    categoryAssignments: many(trickSubmissionCategoryAssignments),
+    elementAssignments: many(trickSubmissionElementAssignments),
     relationships: many(trickSubmissionRelationships),
     likes: many(trickSubmissionLikes),
     messages: many(trickSubmissionMessages),
   }),
 );
 
-export const trickSubmissionCategoryAssignmentsRelations = relations(
-  trickSubmissionCategoryAssignments,
+export const trickSubmissionElementAssignmentsRelations = relations(
+  trickSubmissionElementAssignments,
   ({ one }) => ({
     submission: one(trickSubmissions, {
-      fields: [trickSubmissionCategoryAssignments.submissionId],
+      fields: [trickSubmissionElementAssignments.submissionId],
       references: [trickSubmissions.id],
     }),
-    category: one(trickCategories, {
-      fields: [trickSubmissionCategoryAssignments.categoryId],
-      references: [trickCategories.id],
+    element: one(trickElements, {
+      fields: [trickSubmissionElementAssignments.elementId],
+      references: [trickElements.id],
     }),
   }),
 );

@@ -9,8 +9,8 @@ type TrickCardProps = {
   compact?: boolean;
 };
 
-// Assign colors to categories for visual distinction
-const CATEGORY_COLORS: Record<string, string> = {
+// Assign colors to elements for visual distinction
+const ELEMENT_COLORS: Record<string, string> = {
   spin: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
   flip: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
   wrap: "bg-purple-500/20 text-purple-700 dark:text-purple-300",
@@ -26,8 +26,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   wild: "bg-rose-500/20 text-rose-700 dark:text-rose-300",
 };
 
-function getCategoryColor(category: string): string {
-  return CATEGORY_COLORS[category] ?? "bg-secondary text-muted-foreground";
+function getElementColor(element: string): string {
+  return ELEMENT_COLORS[element] ?? "bg-secondary text-muted-foreground";
 }
 
 export function TrickCard({
@@ -57,33 +57,28 @@ export function TrickCard({
       </span>
 
       <div className="flex flex-wrap gap-1">
-        {trick.categories.slice(0, compact ? 2 : 3).map((cat) => (
+        {trick.elements.slice(0, compact ? 2 : 3).map((elem) => (
           <Badge
             className={cn(
               "border-0 px-1.5 py-0 text-[10px]",
-              getCategoryColor(cat),
+              getElementColor(elem),
             )}
-            key={cat}
+            key={elem}
             variant="secondary"
           >
-            {cat}
+            {elem}
           </Badge>
         ))}
-        {trick.categories.length > (compact ? 2 : 3) && (
+        {trick.elements.length > (compact ? 2 : 3) && (
           <Badge
             className="border-0 px-1.5 py-0 text-[10px]"
             variant="secondary"
           >
-            +{trick.categories.length - (compact ? 2 : 3)}
+            +{trick.elements.length - (compact ? 2 : 3)}
           </Badge>
         )}
       </div>
 
-      {!compact && trick.depth > 0 && (
-        <span className="text-muted-foreground text-[10px]">
-          depth {trick.depth}
-        </span>
-      )}
     </button>
   );
 }

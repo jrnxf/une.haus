@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Pencil } from "lucide-react";
+import { Pencil, Video } from "lucide-react";
 
+import { VideoCarousel } from "~/components/tricks/video-carousel";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
@@ -12,8 +13,6 @@ import {
 } from "~/components/ui/dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import type { Trick, TricksData } from "~/lib/tricks";
-
-import { VideoEmbed } from "./video-embed";
 
 type TrickDetailProps = {
   trick: Trick;
@@ -76,22 +75,16 @@ export function TrickDetail({
               )}
             </DialogHeader>
 
-            {/* Video */}
-            {trick.videoUrl && (
-              <div className="overflow-hidden rounded-lg">
-                <VideoEmbed
-                  timestamp={trick.videoTimestamp}
-                  title={trick.name}
-                  url={trick.videoUrl}
-                />
-              </div>
+            {/* Videos */}
+            {trick.videos.length > 0 && (
+              <VideoCarousel videos={trick.videos} />
             )}
 
-            {/* Categories */}
+            {/* Elements */}
             <div className="flex flex-wrap gap-2">
-              {trick.categories.map((cat) => (
-                <Badge key={cat} variant="secondary">
-                  {cat}
+              {trick.elements.map((elem) => (
+                <Badge key={elem} variant="secondary">
+                  {elem}
                 </Badge>
               ))}
             </div>
@@ -182,23 +175,27 @@ export function TrickDetail({
             )}
 
             {/* Footer */}
-            <div className="flex items-center justify-between border-t pt-4">
-              <p className="text-muted-foreground text-xs">
-                Skill depth: {trick.depth} (
-                {trick.depth === 0
-                  ? "foundational"
-                  : `${trick.depth} step${trick.depth > 1 ? "s" : ""} from a foundational trick`}
-                )
-              </p>
-              <Button variant="outline" size="sm" asChild>
-                <Link
-                  to="/tricks/$trickId/suggest"
-                  params={{ trickId: trick.id }}
-                >
-                  <Pencil className="size-3" />
-                  Suggest Edit
-                </Link>
-              </Button>
+            <div className="flex justify-end border-t pt-4">
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link
+                    to="/tricks/$trickId/submit-video"
+                    params={{ trickId: trick.id }}
+                  >
+                    <Video className="size-3" />
+                    Submit Video
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link
+                    to="/tricks/$trickId/suggest"
+                    params={{ trickId: trick.id }}
+                  >
+                    <Pencil className="size-3" />
+                    Suggest Edit
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </ScrollArea>

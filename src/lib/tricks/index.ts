@@ -1,37 +1,37 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import {
-  createCategoryServerFn,
+  createElementServerFn,
   createModifierServerFn,
   createTrickServerFn,
-  deleteCategoryServerFn,
+  deleteElementServerFn,
   deleteModifierServerFn,
   deleteTrickServerFn,
   getAllTricksForGraphServerFn,
   getTrickByIdServerFn,
   getTrickServerFn,
-  listCategoriesServerFn,
+  listElementsServerFn,
   listModifiersServerFn,
   listTricksServerFn,
   searchTricksServerFn,
-  updateCategoryServerFn,
+  updateElementServerFn,
   updateModifierServerFn,
   updateTrickServerFn,
 } from "./fns";
 import {
-  createCategorySchema,
+  createElementSchema,
   createModifierSchema,
   createTrickSchema,
-  deleteCategorySchema,
+  deleteElementSchema,
   deleteModifierSchema,
   deleteTrickSchema,
   getTrickByIdSchema,
   getTrickSchema,
-  listCategoriesSchema,
+  listElementsSchema,
   listModifiersSchema,
   listTricksSchema,
   searchTricksSchema,
-  updateCategorySchema,
+  updateElementSchema,
   updateModifierSchema,
   updateTrickSchema,
   type ListTricksInput,
@@ -58,37 +58,31 @@ import {
   type ListSubmissionsInput,
   type ListSuggestionsInput,
 } from "./submissions/schemas";
+import {
+  deleteVideoServerFn,
+  demoteVideoServerFn,
+  listPendingVideosServerFn,
+  listVideosServerFn,
+  reorderVideosServerFn,
+  reviewVideoServerFn,
+  submitVideoServerFn,
+} from "./videos/fns";
+import {
+  deleteVideoSchema,
+  demoteVideoSchema,
+  listPendingVideosSchema,
+  listVideosSchema,
+  reorderVideosSchema,
+  reviewVideoSchema,
+  submitVideoSchema,
+  type ListVideosInput,
+  type ListPendingVideosInput,
+} from "./videos/schemas";
 import type { ServerFnData, ServerFnReturn } from "~/lib/types";
 
 export type { Trick, TricksData } from "./types";
 
 export const tricks = {
-  // Categories
-  categories: {
-    list: {
-      fn: listCategoriesServerFn,
-      schema: listCategoriesSchema,
-      queryOptions: () =>
-        queryOptions({
-          queryKey: ["tricks.categories.list"],
-          queryFn: () => listCategoriesServerFn(),
-          staleTime: 1000 * 60 * 5, // 5 minutes
-        }),
-    },
-    create: {
-      fn: createCategoryServerFn,
-      schema: createCategorySchema,
-    },
-    update: {
-      fn: updateCategoryServerFn,
-      schema: updateCategorySchema,
-    },
-    delete: {
-      fn: deleteCategoryServerFn,
-      schema: deleteCategorySchema,
-    },
-  },
-
   // Modifiers
   modifiers: {
     list: {
@@ -112,6 +106,32 @@ export const tricks = {
     delete: {
       fn: deleteModifierServerFn,
       schema: deleteModifierSchema,
+    },
+  },
+
+  // Elements (components that make up a trick)
+  elements: {
+    list: {
+      fn: listElementsServerFn,
+      schema: listElementsSchema,
+      queryOptions: () =>
+        queryOptions({
+          queryKey: ["tricks.elements.list"],
+          queryFn: () => listElementsServerFn(),
+          staleTime: 1000 * 60 * 5, // 5 minutes
+        }),
+    },
+    create: {
+      fn: createElementServerFn,
+      schema: createElementSchema,
+    },
+    update: {
+      fn: updateElementServerFn,
+      schema: updateElementSchema,
+    },
+    delete: {
+      fn: deleteElementServerFn,
+      schema: deleteElementSchema,
     },
   },
 
@@ -245,6 +265,50 @@ export const tricks = {
       schema: reviewSuggestionSchema,
     },
   },
+
+  // Videos (multiple per trick)
+  videos: {
+    list: {
+      fn: listVideosServerFn,
+      schema: listVideosSchema,
+      queryOptions: (data: ListVideosInput) =>
+        queryOptions({
+          queryKey: ["tricks.videos.list", data],
+          queryFn: () => listVideosServerFn({ data }),
+          staleTime: 1000 * 30, // 30 seconds
+        }),
+    },
+    listPending: {
+      fn: listPendingVideosServerFn,
+      schema: listPendingVideosSchema,
+      queryOptions: (data?: ListPendingVideosInput) =>
+        queryOptions({
+          queryKey: ["tricks.videos.pending", data],
+          queryFn: () => listPendingVideosServerFn({ data }),
+          staleTime: 1000 * 30, // 30 seconds
+        }),
+    },
+    submit: {
+      fn: submitVideoServerFn,
+      schema: submitVideoSchema,
+    },
+    review: {
+      fn: reviewVideoServerFn,
+      schema: reviewVideoSchema,
+    },
+    reorder: {
+      fn: reorderVideosServerFn,
+      schema: reorderVideosSchema,
+    },
+    demote: {
+      fn: demoteVideoServerFn,
+      schema: demoteVideoSchema,
+    },
+    delete: {
+      fn: deleteVideoServerFn,
+      schema: deleteVideoSchema,
+    },
+  },
 };
 
 // Type exports
@@ -253,7 +317,9 @@ export type TrickByIdData = ServerFnReturn<typeof getTrickByIdServerFn>;
 export type TricksListData = ServerFnReturn<typeof listTricksServerFn>;
 export type TrickSearchData = ServerFnReturn<typeof searchTricksServerFn>;
 export type TrickGraphData = ServerFnReturn<typeof getAllTricksForGraphServerFn>;
-export type CategoryData = ServerFnReturn<typeof listCategoriesServerFn>;
 export type ModifierData = ServerFnReturn<typeof listModifiersServerFn>;
+export type ElementData = ServerFnReturn<typeof listElementsServerFn>;
 export type SubmissionData = ServerFnReturn<typeof getSubmissionServerFn>;
 export type SuggestionData = ServerFnReturn<typeof getSuggestionServerFn>;
+export type PendingVideosData = ServerFnReturn<typeof listPendingVideosServerFn>;
+export type TrickVideosData = ServerFnReturn<typeof listVideosServerFn>;

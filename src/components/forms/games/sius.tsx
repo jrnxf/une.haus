@@ -51,7 +51,7 @@ export function StartChainForm() {
             <FormLabel>Trick Name</FormLabel>
             <FormDescription>Name the first trick in the line</FormDescription>
             <FormControl>
-              <Input {...field} placeholder="e.g. Kickflip" />
+              <Input {...field} placeholder="Kickflip" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -138,7 +138,7 @@ export function StackUpForm({ parentStackId }: { parentStackId: number }) {
               Name the NEW trick you&apos;re adding to the line
             </FormDescription>
             <FormControl>
-              <Input {...field} placeholder="e.g. 360 Flip" />
+              <Input {...field} placeholder="360 Flip" />
             </FormControl>
             <FormMessage />
           </FormItem>

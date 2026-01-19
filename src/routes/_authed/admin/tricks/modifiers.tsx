@@ -267,14 +267,13 @@ function ModifierForm({
     resolver: zodResolver(createModifierSchema),
   });
 
-  const { control, handleSubmit, setValue, watch } = rhf;
-  const name = watch("name");
+  const { control, handleSubmit, setValue } = rhf;
 
   const generateSlug = (value: string) =>
     value
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+      .replaceAll(/[^a-z0-9]+/g, "-")
+      .replaceAll(/^-|-$/g, "");
 
   return (
     <Form
@@ -296,11 +295,7 @@ function ModifierForm({
                 {...field}
                 onChange={(e) => {
                   field.onChange(e);
-                  const currentSlug = rhf.getValues("slug");
-                  const previousAutoSlug = generateSlug(name);
-                  if (!currentSlug || currentSlug === previousAutoSlug) {
-                    setValue("slug", generateSlug(e.target.value));
-                  }
+                  setValue("slug", generateSlug(e.target.value));
                 }}
               />
             </FormControl>
@@ -316,7 +311,7 @@ function ModifierForm({
           <FormItem>
             <FormLabel>Slug</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} disabled />
             </FormControl>
             <FormMessage />
           </FormItem>

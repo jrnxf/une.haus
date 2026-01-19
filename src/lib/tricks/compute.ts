@@ -1,7 +1,7 @@
 import type { Trick, TricksData } from "./types";
 
-// Category display order (most common/important first)
-const CATEGORY_ORDER = [
+// Element display order (most common/important first)
+const ELEMENT_ORDER = [
   "spin",
   "flip",
   "wrap",
@@ -154,14 +154,14 @@ export function computeDepthsAndDependents(tricks: Trick[]): void {
 
 export function buildIndexes(tricks: Trick[]): {
   byId: Record<string, Trick>;
-  byCategory: Record<string, Trick[]>;
-  categories: string[];
+  byElement: Record<string, Trick[]>;
+  elements: string[];
   prefixes: Trick[];
 } {
   const byId: Record<string, Trick> = {};
-  const byCategory: Record<string, Trick[]> = {};
+  const byElement: Record<string, Trick[]> = {};
   const prefixes: Trick[] = [];
-  const categorySet = new Set<string>();
+  const elementSet = new Set<string>();
 
   for (const trick of tricks) {
     byId[trick.id] = trick;
@@ -170,48 +170,57 @@ export function buildIndexes(tricks: Trick[]): {
       prefixes.push(trick);
     }
 
-    for (const cat of trick.categories) {
-      categorySet.add(cat);
-      if (!byCategory[cat]) {
-        byCategory[cat] = [];
+    for (const elem of trick.elements) {
+      elementSet.add(elem);
+      if (!byElement[elem]) {
+        byElement[elem] = [];
       }
-      byCategory[cat].push(trick);
+      byElement[elem].push(trick);
     }
   }
 
-  // Sort tricks within each category by depth, then by natural name order
-  for (const categoryTricks of Object.values(byCategory)) {
-    categoryTricks.sort((a, b) => {
+  // Sort tricks within each element by depth, then by natural name order
+  for (const elementTricks of Object.values(byElement)) {
+    elementTricks.sort((a, b) => {
       if (a.depth !== b.depth) return a.depth - b.depth;
       return compareTrickNames(a.name, b.name);
     });
   }
 
-  // Order categories by predefined order, then alphabetically for any new ones
-  const categories = [...categorySet].sort((a, b) => {
-    const aIndex = CATEGORY_ORDER.indexOf(a);
-    const bIndex = CATEGORY_ORDER.indexOf(b);
+  // Order elements by predefined order, then alphabetically for any new ones
+  const elements = [...elementSet].sort((a, b) => {
+    const aIndex = ELEMENT_ORDER.indexOf(a);
+    const bIndex = ELEMENT_ORDER.indexOf(b);
     if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
     if (aIndex !== -1) return -1;
     if (bIndex !== -1) return 1;
     return a.localeCompare(b);
   });
 
-  return { byId, byCategory, categories, prefixes };
+  return { byId, byElement, elements, prefixes };
 }
 
 export function buildTricksData(tricks: Trick[]): TricksData {
   computeDepthsAndDependents(tricks);
-  const { byId, byCategory, categories, prefixes } = buildIndexes(tricks);
+  const { byId, byElement, elements, prefixes } = buildIndexes(tricks);
 
   return {
     tricks,
     byId,
-    byCategory,
-    categories,
+    byElement,
+    elements,
     prefixes,
   };
 }
+
+// Type for database trick video
+export type DbTrickVideo = {
+  id: number;
+  status: "active" | "pending" | "rejected";
+  sortOrder: number;
+  notes: string | null;
+  video: { playbackId: string | null } | null;
+};
 
 // Type for database trick with relations
 export type DbTrickWithRelations = {
@@ -223,24 +232,23 @@ export type DbTrickWithRelations = {
   isPrefix: boolean;
   inventedBy: string | null;
   yearLanded: number | null;
-  videoUrl: string | null;
-  videoTimestamp: string | null;
   notes: string | null;
-  categoryAssignments: Array<{
-    category: {
+  videos: DbTrickVideo[];
+  elementAssignments: {
+    element: {
       id: number;
       slug: string;
       name: string;
     };
-  }>;
-  outgoingRelationships: Array<{
+  }[];
+  outgoingRelationships: {
     type: "prerequisite" | "optional_prerequisite" | "related";
     targetTrick: {
       id: number;
       slug: string;
       name: string;
     };
-  }>;
+  }[];
 };
 
 // Transform database tricks to the Trick type format
@@ -262,11 +270,23 @@ export function transformDbTricksToTricksData(
       .filter((r) => r.type === "related")
       .map((r) => r.targetTrick.slug);
 
+    // Transform videos - only include active ones, sorted by sortOrder
+    const videos = dbTrick.videos
+      .filter((v) => v.status === "active" && v.video?.playbackId)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((v) => ({
+        id: v.id,
+        playbackId: v.video!.playbackId!,
+        status: v.status,
+        sortOrder: v.sortOrder,
+        notes: v.notes,
+      }));
+
     return {
       id: dbTrick.slug, // Use slug as id for compatibility
       name: dbTrick.name,
       alternateNames: dbTrick.alternateNames ?? [],
-      categories: dbTrick.categoryAssignments.map((a) => a.category.slug),
+      elements: dbTrick.elementAssignments.map((a) => a.element.slug),
       definition: dbTrick.definition ?? "",
       prerequisite: prerequisiteRel?.targetTrick.slug ?? null,
       optionalPrerequisite: optionalPrerequisiteRel?.targetTrick.slug ?? null,
@@ -275,8 +295,7 @@ export function transformDbTricksToTricksData(
       relatedTricks,
       inventedBy: dbTrick.inventedBy,
       yearLanded: dbTrick.yearLanded,
-      videoUrl: dbTrick.videoUrl,
-      videoTimestamp: dbTrick.videoTimestamp,
+      videos,
       depth: 0, // Will be computed
       dependents: [], // Will be computed
     };

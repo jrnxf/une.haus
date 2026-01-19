@@ -37,20 +37,21 @@ export function StringListInput({
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-2">
+      <div className="relative">
         <Input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="flex-1"
+          className="pr-10"
         />
         <Button
           type="button"
-          variant="outline"
-          size="icon"
+          variant="ghost"
+          size="icon-xs"
           onClick={handleAdd}
           disabled={!inputValue.trim()}
+          className="absolute right-1 top-1/2 -translate-y-1/2"
         >
           <Plus className="size-4" />
         </Button>

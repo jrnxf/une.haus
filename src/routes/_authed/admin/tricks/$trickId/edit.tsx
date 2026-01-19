@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
       context.queryClient.ensureQueryData(
         tricks.getById.queryOptions({ id: trickId }),
       ),
-      context.queryClient.ensureQueryData(tricks.categories.list.queryOptions()),
+      context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
     ]);
   },
   component: RouteComponent,
@@ -34,8 +34,10 @@ function RouteComponent() {
   const updateTrick = useMutation({
     mutationFn: tricks.update.fn,
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["tricks"] });
       toast.success("Trick updated");
+      // Remove stale cache and prefetch fresh data before navigating
+      qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey });
+      await qc.prefetchQuery(tricks.graph.queryOptions());
       router.navigate({ to: "/tricks" });
     },
     onError: (error) => {
@@ -52,6 +54,7 @@ function RouteComponent() {
   }
 
   // Transform trick data to form values
+  // Note: muxAssetIds is empty since video management is handled separately
   const defaultValues: TrickFormDefaultValues = {
     slug: trick.slug,
     name: trick.name,
@@ -59,8 +62,7 @@ function RouteComponent() {
     definition: trick.definition,
     inventedBy: trick.inventedBy,
     yearLanded: trick.yearLanded,
-    videoUrl: trick.videoUrl,
-    videoTimestamp: trick.videoTimestamp,
+    muxAssetIds: [], // Videos managed separately via /admin/tricks/$trickId/videos
     notes: trick.notes,
     prerequisites: trick.outgoingRelationships
       .filter((r) => r.type === "prerequisite")
@@ -70,14 +72,6 @@ function RouteComponent() {
         targetTrickName: r.targetTrick.name,
         type: "prerequisite" as const,
       })),
-    optionalPrerequisites: trick.outgoingRelationships
-      .filter((r) => r.type === "optional_prerequisite")
-      .map((r) => ({
-        targetTrickId: r.targetTrick.id,
-        targetTrickSlug: r.targetTrick.slug,
-        targetTrickName: r.targetTrick.name,
-        type: "optional_prerequisite" as const,
-      })),
     relatedTricks: trick.outgoingRelationships
       .filter((r) => r.type === "related")
       .map((r) => ({
@@ -86,6 +80,11 @@ function RouteComponent() {
         targetTrickName: r.targetTrick.name,
         type: "related" as const,
       })),
+    elements: trick.elementAssignments.map((a) => ({
+      id: a.element.id,
+      slug: a.element.slug,
+      name: a.element.name,
+    })),
   };
 
   return (

@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { StringListInput } from "~/components/input/string-list-input";
-import { YoutubeInput } from "~/components/input/youtube-input";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -45,8 +44,6 @@ const suggestionFormSchema = z.object({
   definition: z.string().nullable(),
   inventedBy: z.string().nullable(),
   yearLanded: z.number().nullable(),
-  videoUrl: z.string().nullable(),
-  videoTimestamp: z.string().nullable(),
   notes: z.string().nullable(),
   reason: z.string().optional(),
 });
@@ -64,12 +61,16 @@ function RouteComponent() {
 
   const createSuggestion = useMutation({
     mutationFn: tricks.suggestions.create.fn,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Suggestion submitted for review");
-      // Remove query so loader fetches fresh data on navigation
+      // Remove stale cache and prefetch fresh data before navigating
       qc.removeQueries({
         queryKey: tricks.suggestions.list.queryOptions({ status: "pending" }).queryKey,
       });
+      await Promise.all([
+        qc.prefetchQuery(tricks.suggestions.list.queryOptions({ status: "pending" })),
+        qc.prefetchQuery(tricks.submissions.list.queryOptions({ status: "pending" })),
+      ]);
       router.navigate({ to: "/tricks/review", search: { tab: "suggestions" } });
     },
     onError: (error) => {
@@ -92,8 +93,6 @@ function RouteComponent() {
       definition: trick.definition ?? "",
       inventedBy: trick.inventedBy ?? "",
       yearLanded: trick.yearLanded,
-      videoUrl: trick.videoUrl ?? "",
-      videoTimestamp: trick.videoTimestamp ?? "",
       notes: trick.notes ?? "",
       reason: "",
     },
@@ -133,20 +132,6 @@ function RouteComponent() {
       diff.yearLanded = {
         old: trick.yearLanded ?? null,
         new: data.yearLanded ?? null,
-      };
-    }
-
-    if (data.videoUrl !== (trick.videoUrl ?? null)) {
-      diff.videoUrl = {
-        old: trick.videoUrl ?? null,
-        new: data.videoUrl ?? null,
-      };
-    }
-
-    if (data.videoTimestamp !== (trick.videoTimestamp ?? null)) {
-      diff.videoTimestamp = {
-        old: trick.videoTimestamp ?? null,
-        new: data.videoTimestamp ?? null,
       };
     }
 
@@ -294,52 +279,6 @@ function RouteComponent() {
               )}
             />
           </div>
-        </div>
-
-        {/* Video */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Video</h3>
-
-          <FormField
-            control={control}
-            name="videoUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Video URL</FormLabel>
-                <FormControl>
-                  <YoutubeInput
-                    currentId={
-                      field.value
-                        ? new URL(field.value).searchParams.get("v")
-                        : null
-                    }
-                    onChange={(videoId) => {
-                      field.onChange(
-                        videoId
-                          ? `https://www.youtube.com/watch?v=${videoId}`
-                          : null,
-                      );
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="videoTimestamp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Video Timestamp</FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ""} placeholder="e.g., 1:30" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         {/* Notes */}

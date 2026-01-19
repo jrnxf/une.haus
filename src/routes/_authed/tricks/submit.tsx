@@ -12,7 +12,7 @@ import { createSubmissionSchema } from "~/lib/tricks/submissions/schemas";
 export const Route = createFileRoute("/_authed/tricks/submit")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      tricks.categories.list.queryOptions(),
+      tricks.elements.list.queryOptions(),
     );
   },
   component: RouteComponent,
@@ -24,12 +24,17 @@ function RouteComponent() {
 
   const createSubmission = useMutation({
     mutationFn: tricks.submissions.create.fn,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Trick submitted for review");
-      // Remove query so loader fetches fresh data on navigation
+      // Remove stale cache and prefetch fresh data before navigating
+      // This ensures the route loader finds data in cache immediately
       qc.removeQueries({
         queryKey: tricks.submissions.list.queryOptions({ status: "pending" }).queryKey,
       });
+      await Promise.all([
+        qc.prefetchQuery(tricks.submissions.list.queryOptions({ status: "pending" })),
+        qc.prefetchQuery(tricks.suggestions.list.queryOptions({ status: "pending" })),
+      ]);
       router.navigate({ to: "/tricks/review" });
     },
     onError: (error) => {
