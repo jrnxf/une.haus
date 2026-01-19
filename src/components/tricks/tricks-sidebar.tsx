@@ -1,9 +1,13 @@
-import { SearchIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
 import type { Trick, TricksData } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
@@ -39,59 +43,42 @@ export function TricksSidebar({
     return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
   }, [data.tricks, deferredSearchTerm]);
 
-  return (
-    <div className="flex h-full flex-col">
-      {/* Search */}
-      <div className="border-b p-3">
-        <div className="relative">
-          <SearchIcon className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-          <Input
-            className="h-9 pr-8 pl-8 text-sm"
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search tricks..."
-            type="search"
-            value={searchTerm}
-          />
-          {searchTerm && (
-            <Button
-              aria-label="Clear search"
-              className="absolute top-1/2 right-1 -translate-y-1/2"
-              onClick={() => setSearchTerm("")}
-              size="icon-xs"
-              variant="ghost"
-            >
-              <XIcon className="size-3" />
-            </Button>
-          )}
-        </div>
-      </div>
+  function handleSelect(trickId: string) {
+    const trick = data.byId[trickId];
+    if (trick) {
+      onSelectTrick(trick);
+    }
+  }
 
-      {/* Tricks list */}
-      <ScrollArea className="flex-1 overflow-hidden">
-        <div className="flex flex-col gap-0.5 p-3">
+  return (
+    <Command
+      shouldFilter={false}
+      value={selectedTrickId ?? undefined}
+      className="bg-background h-full rounded-none"
+    >
+      <CommandInput
+        onValueChange={setSearchTerm}
+        placeholder="Search tricks..."
+        value={searchTerm}
+      />
+      <CommandList className="max-h-none flex-1">
+        <CommandEmpty>No tricks found.</CommandEmpty>
+        <CommandGroup>
           {filteredTricks.map((trick) => (
-            <button
-              className={cn(
-                "rounded px-2 py-1 text-left text-sm transition-colors",
-                "hover:bg-accent",
-                selectedTrickId === trick.id &&
-                  "bg-primary/10 text-primary",
-              )}
+            <CommandItem
               key={trick.id}
-              onClick={() => onSelectTrick(trick)}
-              type="button"
+              value={trick.id}
+              onSelect={() => handleSelect(trick.id)}
+              className={cn(
+                "text-sm",
+                selectedTrickId === trick.id && "bg-primary/10 text-primary",
+              )}
             >
               {trick.name}
-            </button>
+            </CommandItem>
           ))}
-        </div>
-
-        {filteredTricks.length === 0 && (
-          <div className="p-4 text-center">
-            <p className="text-muted-foreground text-sm">No tricks found</p>
-          </div>
-        )}
-      </ScrollArea>
-    </div>
+        </CommandGroup>
+      </CommandList>
+    </Command>
   );
 }

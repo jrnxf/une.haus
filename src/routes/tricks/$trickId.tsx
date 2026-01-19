@@ -39,7 +39,7 @@ function TrickDetailPage() {
     : null;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6">
       {/* Back navigation */}
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>

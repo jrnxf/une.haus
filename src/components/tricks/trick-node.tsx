@@ -83,7 +83,7 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
       >
         {/* Relationship label */}
         {RELATIONSHIP_LABELS[relationshipType] && (
-          <span className="text-muted-foreground mb-1 block text-[11px] tracking-wide uppercase">
+          <span className="text-muted-foreground mb-1 block text-[9px] tracking-wide uppercase">
             {RELATIONSHIP_LABELS[relationshipType]}
           </span>
         )}
