@@ -113,7 +113,7 @@ function SetView({ setId }: { setId: number }) {
 
         <div className="text-muted-foreground text-sm">{set.user.name}</div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
+          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate} aria-label={authUserLiked ? "Unlike" : "Like"}>
             <HeartIcon
               className={cn(
                 "size-4",
@@ -126,13 +126,13 @@ function SetView({ setId }: { setId: number }) {
               users={set.likes?.map((l) => l.user) ?? []}
               title={`${set.likes?.length ?? 0} Likes`}
               trigger={
-                <Button size="icon-sm" variant="outline">
+                <Button size="icon-sm" variant="outline" aria-label="View likes">
                   <TrendingUpIcon className="size-4" />
                 </Button>
               }
             />
           )}
-          <Button size="icon-sm" variant="outline" disabled>
+          <Button size="icon-sm" variant="outline" disabled aria-label="Share">
             <Share2Icon className="size-4" />
           </Button>
         </div>
@@ -144,7 +144,7 @@ function SetView({ setId }: { setId: number }) {
 
       {isOwner && (
         <div className="flex items-center gap-1">
-          <Button size="icon-sm" variant="outline" disabled>
+          <Button size="icon-sm" variant="outline" disabled aria-label="Edit">
             <PencilIcon className="size-4" />
           </Button>
           <Button
@@ -162,6 +162,7 @@ function SetView({ setId }: { setId: number }) {
             }
             size="icon-sm"
             variant="outline"
+            aria-label="Delete"
           >
             <TrashIcon className="size-4" />
           </Button>

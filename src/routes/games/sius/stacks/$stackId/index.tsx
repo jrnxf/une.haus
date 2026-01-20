@@ -160,7 +160,7 @@ function StackView({ stackId }: { stackId: number }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
+          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate} aria-label={authUserLiked ? "Unlike" : "Like"}>
             <HeartIcon
               className={cn(
                 "size-4",
@@ -177,13 +177,13 @@ function StackView({ stackId }: { stackId: number }) {
               )}
               title={`${stack.likes.length} Likes`}
               trigger={
-                <Button size="icon-sm" variant="outline">
+                <Button size="icon-sm" variant="outline" aria-label="View likes">
                   <TrendingUpIcon className="size-4" />
                 </Button>
               }
             />
           )}
-          <Button size="icon-sm" variant="outline" disabled>
+          <Button size="icon-sm" variant="outline" disabled aria-label="Share">
             <Share2Icon className="size-4" />
           </Button>
         </div>

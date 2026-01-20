@@ -213,6 +213,7 @@ export function MessageBubble({
                 size="icon"
                 variant="secondary"
                 onClick={handleLikeUnlike}
+                aria-label={authUserLiked ? "Unlike" : "Like"}
               >
                 <HeartIcon
                   className={cn(
@@ -221,18 +222,19 @@ export function MessageBubble({
                   )}
                 />
               </Button>
-              <Button size="icon" variant="secondary" onClick={handleCopy}>
+              <Button size="icon" variant="secondary" onClick={handleCopy} aria-label="Copy">
                 <CopyIcon className="size-5" />
               </Button>
               {isOwnMessage && (
                 <>
-                  <Button size="icon" variant="secondary" onClick={handleEdit}>
+                  <Button size="icon" variant="secondary" onClick={handleEdit} aria-label="Edit">
                     <PencilIcon className="size-5" />
                   </Button>
                   <Button
                     size="icon"
                     variant="secondary"
                     onClick={handleDelete}
+                    aria-label="Delete"
                   >
                     <Trash2Icon className="size-5" />
                   </Button>
@@ -346,6 +348,7 @@ function EditMessageDrawer({
             variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting || isUpdating}
+            aria-label="Delete"
           >
             <Trash2Icon className="size-5" />
           </Button>

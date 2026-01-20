@@ -57,6 +57,14 @@
 }
 
 @theme inline {
+  /* Standardized z-index scale */
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-popover: 400;
+  --z-tooltip: 500;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -173,6 +181,20 @@
   body {
     font-family: "Geist Variable", sans-serif;
     @apply bg-background text-foreground;
+  }
+
+  /* Typography: text-pretty for paragraphs, text-balance for headings */
+  p {
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
   }
   .maplibregl-popup-content {
     @apply bg-transparent! shadow-none! p-0! rounded-none!;

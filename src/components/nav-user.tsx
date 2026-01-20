@@ -81,7 +81,7 @@ export function NavUser() {
           <DropdownMenuContent
             className={cn(
               "w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg",
-              isMobile && "z-[52]",
+              isMobile && "z-(--z-overlay)",
             )}
             side={isMobile ? "bottom" : "right"}
             align="end"

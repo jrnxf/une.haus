@@ -35,9 +35,8 @@ SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
   cn(
-    // z-[51] instead of z-50 to prevent overlay from covering content during rapid toggles
-    // (fixes race condition where animation states can desync)
-    "fixed z-[51] gap-4 bg-background p-6 shadow-lg transition ease-in-out duration-300",
+    // z-(--z-sticky) to stay above overlay (z-50) and prevent race condition during rapid toggles
+    "fixed z-(--z-sticky) gap-4 bg-background p-6 shadow-lg transition ease-in-out duration-300",
     "data-[state=open]:animate-in",
     "data-[state=closed]:animate-out",
   ),

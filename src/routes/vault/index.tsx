@@ -188,6 +188,7 @@ function RouteComponent() {
               size="icon-xs"
               onClick={() => setAdminMode(!adminMode)}
               className="shrink-0"
+              aria-label={adminMode ? "Exit admin mode" : "Enter admin mode"}
             >
               <ShieldIcon className="size-3.5" />
             </Button>
@@ -241,7 +242,7 @@ function RouteComponent() {
                       <span>{video.likesCount}</span>
                     </div>
                   </div>
-                  <Button variant="ghost" asChild size="icon-sm">
+                  <Button variant="ghost" asChild size="icon-sm" aria-label="View video">
                     <Link to="/vault/$videoId" params={{ videoId: video.id }}>
                       <ArrowUpRightIcon className="size-4" />
                     </Link>

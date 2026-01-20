@@ -50,7 +50,7 @@ function MenuPositioner({
   return (
     <MenuPrimitive.Positioner
       data-slot="menu-positioner"
-      className={cn("z-100", className)}
+      className={cn("z-(--z-popover)", className)}
       {...props}
     />
   );
@@ -120,7 +120,7 @@ function MenuPopup({
       data-slot="menu-popup"
       {...props}
       className={cn(
-        "border-border bg-popover text-popover-foreground z-100 min-w-32 space-y-0.5 overflow-hidden rounded-md border p-2 shadow-md shadow-black/5",
+        "border-border bg-popover text-popover-foreground z-(--z-popover) min-w-32 space-y-0.5 overflow-hidden rounded-md border p-2 shadow-md shadow-black/5",
         "origin-(--transform-origin) transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0",
         props.className,
       )}

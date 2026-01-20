@@ -170,7 +170,7 @@ function RouteComponent() {
                 <div className="bg-border h-4 w-px" />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" size="icon-xs">
+                    <Button variant="secondary" size="icon-xs" aria-label="Admin menu">
                       <ShieldIcon className="size-3.5" />
                     </Button>
                   </DropdownMenuTrigger>

@@ -73,7 +73,7 @@ export function PostView({ postId }: { postId: number }) {
           <div className="text-muted-foreground text-sm">{post.user.name}</div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" onClick={likeUnlikePost}>
+          <Button size="icon-sm" variant="outline" onClick={likeUnlikePost} aria-label={authUserLiked ? "Unlike" : "Like"}>
             <HeartIcon
               className={cn(
                 "size-4",
@@ -85,12 +85,12 @@ export function PostView({ postId }: { postId: number }) {
             users={post.likes.map((like) => like.user)}
             title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
             trigger={
-              <Button size="icon-sm" variant="outline">
+              <Button size="icon-sm" variant="outline" aria-label="View likes">
                 <TrendingUpIcon className="size-4" />
               </Button>
             }
           />
-          <Button size="icon-sm" variant="outline">
+          <Button size="icon-sm" variant="outline" aria-label="Share">
             <Share2Icon className="size-4" />
           </Button>
         </div>
@@ -114,7 +114,7 @@ export function PostView({ postId }: { postId: number }) {
 
       {isOwner && (
         <div className="flex items-center gap-1">
-          <Button asChild size="icon-sm" variant="outline">
+          <Button asChild size="icon-sm" variant="outline" aria-label="Edit">
             <Link params={{ postId }} to="/posts/$postId/edit">
               <PencilIcon className="size-4" />
             </Link>
@@ -135,6 +135,7 @@ export function PostView({ postId }: { postId: number }) {
             }
             size="icon-sm"
             variant="outline"
+            aria-label="Delete"
           >
             <TrashIcon className="size-4" />
           </Button>
