@@ -13,6 +13,15 @@ export type VideoUploadOptions = {
 };
 
 const CHUNK_SIZE = 5120;
+const MAX_FILE_SIZE_MB = 50;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const ALLOWED_VIDEO_TYPES = new Set([
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+  "video/x-msvideo",
+  "video/x-matroska",
+]);
 
 export function useVideoUpload(options: VideoUploadOptions = {}) {
   const { onSuccess, onError, onProgress } = options;
@@ -31,6 +40,18 @@ export function useVideoUpload(options: VideoUploadOptions = {}) {
 
   const uploadVideo = useCallback(
     async (file: File) => {
+      if (!ALLOWED_VIDEO_TYPES.has(file.type)) {
+        toast.error("Invalid file type. Please upload a video file.");
+        onError?.(new Error("Invalid file type"));
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast.error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
+        onError?.(new Error("File too large"));
+        return;
+      }
+
       setIsUploading(true);
       setUploadProgress(0);
       setIsProcessing(false);

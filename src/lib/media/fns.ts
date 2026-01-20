@@ -5,18 +5,21 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "~/db";
-import { muxVideos } from "~/db/schema";
+import { muxUploadMappings, muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
 import { client } from "~/lib/cloudflare";
 import { sleep } from "~/lib/dx/utils";
 import { env } from "~/lib/env";
 import { assertFound, invariant } from "~/lib/invariant";
 import { useServerSession } from "~/lib/session/hooks";
-import { isDefined } from "~/lib/utils";
 
 export const createCloudflareImagesDirectUploadServerFn = createServerFn({
   method: "POST",
 }).handler(async () => {
+  const session = await useServerSession();
+
+  invariant(session.data.user, "Unauthorized");
+
   return await client.images.v2.directUploads.create({
     account_id: env.CLOUDFLARE_ACCOUNT_ID,
   });
@@ -30,7 +33,7 @@ export const createPresignedMuxUrlServerFn = createServerFn({
   invariant(session.data.user, "Unauthorized");
 
   const upload = await muxClient.video.uploads.create({
-    cors_origin: "*", // TODO set up cors
+    cors_origin: "https://une.haus",
     new_asset_settings: {
       mp4_support: "capped-1080p",
       playback_policy: ["public"],
@@ -55,57 +58,43 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
 
     invariant(session.data.user, "Unauthorized");
 
-    const MAX_TRIES = 50;
-    const SLEEP_INTERVAL_MS = 750;
+    const MAX_TRIES = 60;
+    const SLEEP_INTERVAL_MS = 1000;
 
-    // Poll Mux for asset ID creation
-    let assetId: string | undefined;
+    // Poll database for video readiness
+    // 1. Check muxUploadMappings for uploadId -> assetId (set on video.upload.asset_created)
+    // 2. Check muxVideos for assetId -> playbackId (set on video.asset.ready)
     let tries = 0;
 
-    while (!assetId && tries < MAX_TRIES) {
-      const upload = await muxClient.video.uploads.retrieve(input.uploadId);
-      assetId = upload.asset_id;
-
-      if (!assetId) {
-        console.log(
-          `Waiting for asset id another ${SLEEP_INTERVAL_MS}ms for uploadId ${input.uploadId}. ${MAX_TRIES - tries - 1} tries left.`,
-        );
-        await sleep(SLEEP_INTERVAL_MS);
-      }
-
-      tries++;
-    }
-
-    invariant(
-      assetId,
-      `Asset id not found for uploadId ${input.uploadId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
-    );
-
-    // now that we have the asset id we know what to poll the backend for
-
-    // Poll database for playback ID (set by webhook when video is ready)
-    tries = 0;
-
     while (tries < MAX_TRIES) {
-      const video = await db.query.muxVideos.findFirst({
-        where: eq(muxVideos.assetId, assetId),
+      // First get the assetId from the upload mapping
+      const mapping = await db.query.muxUploadMappings.findFirst({
+        where: eq(muxUploadMappings.uploadId, input.uploadId),
       });
 
-      const playbackId = video?.playbackId;
-      if (video && isDefined(playbackId)) {
-        return {
-          ...video,
-          playbackId,
-        };
+      if (mapping) {
+        // Then check if the video is ready (has playbackId)
+        const video = await db.query.muxVideos.findFirst({
+          where: eq(muxVideos.assetId, mapping.assetId),
+        });
+
+        if (video?.playbackId) {
+          return {
+            assetId: video.assetId,
+            playbackId: video.playbackId,
+          };
+        }
       }
 
-      console.log(`Polling ${assetId}: ${MAX_TRIES - tries - 1} left`);
+      console.log(
+        `Polling DB for uploadId ${input.uploadId}: ${MAX_TRIES - tries - 1} tries left`,
+      );
       await sleep(SLEEP_INTERVAL_MS);
       tries++;
     }
 
     throw new Error(
-      `Playback id not found for assetId ${assetId} after ${MAX_TRIES} tries and sleep interval of ${SLEEP_INTERVAL_MS}ms`,
+      `Video not ready for uploadId ${input.uploadId} after ${MAX_TRIES} tries`,
     );
   });
 

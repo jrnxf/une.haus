@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 
 import { db } from "~/db";
-import { muxVideos } from "~/db/schema";
+import { muxUploadMappings, muxVideos } from "~/db/schema";
 import { muxClient } from "~/lib/clients/mux";
 
 export const Route = createFileRoute("/api/mux/webhook")({
@@ -18,19 +18,30 @@ export const Route = createFileRoute("/api/mux/webhook")({
 
         console.log(`[MUX EVENT] --> ${type}`);
 
+        if (type === "video.upload.asset_created") {
+          const assetId = data.asset_id;
+          const uploadId = data.id;
+
+          if (assetId && uploadId) {
+            await db
+              .insert(muxUploadMappings)
+              .values({ uploadId, assetId })
+              .onConflictDoNothing();
+          }
+        }
+
         if (type === "video.asset.ready") {
           const assetId = data.id;
           const playbackId = data.playback_ids?.[0]?.id;
 
-          if (playbackId) {
+          if (assetId && playbackId) {
             await db
               .insert(muxVideos)
               .values({ assetId, playbackId })
               .onConflictDoUpdate({
                 target: muxVideos.assetId,
                 set: { playbackId },
-              })
-              .returning();
+              });
           }
         }
 

@@ -40,7 +40,6 @@ import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
 import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
 import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
 import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
-import { Route as ApiMuxUrlRouteImport } from './routes/api/mux/url'
 import { Route as AuthedTricksSubmitRouteImport } from './routes/_authed/tricks/submit'
 import { Route as AuthedTricksReviewRouteImport } from './routes/_authed/tricks/review'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
@@ -222,11 +221,6 @@ const ApiMuxWebhookRoute = ApiMuxWebhookRouteImport.update({
   path: '/api/mux/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMuxUrlRoute = ApiMuxUrlRouteImport.update({
-  id: '/api/mux/url',
-  path: '/api/mux/url',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthedTricksSubmitRoute = AuthedTricksSubmitRouteImport.update({
   id: '/tricks/submit',
   path: '/tricks/submit',
@@ -390,7 +384,6 @@ export interface FileRoutesByFullPath {
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tricks/review': typeof AuthedTricksReviewRoute
   '/tricks/submit': typeof AuthedTricksSubmitRoute
-  '/api/mux/url': typeof ApiMuxUrlRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
@@ -446,7 +439,6 @@ export interface FileRoutesByTo {
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tricks/review': typeof AuthedTricksReviewRoute
   '/tricks/submit': typeof AuthedTricksSubmitRoute
-  '/api/mux/url': typeof ApiMuxUrlRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
@@ -506,7 +498,6 @@ export interface FileRoutesById {
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
   '/_authed/tricks/review': typeof AuthedTricksReviewRoute
   '/_authed/tricks/submit': typeof AuthedTricksSubmitRoute
-  '/api/mux/url': typeof ApiMuxUrlRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
@@ -566,7 +557,6 @@ export interface FileRouteTypes {
     | '/posts/create'
     | '/tricks/review'
     | '/tricks/submit'
-    | '/api/mux/url'
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
@@ -622,7 +612,6 @@ export interface FileRouteTypes {
     | '/posts/create'
     | '/tricks/review'
     | '/tricks/submit'
-    | '/api/mux/url'
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
@@ -681,7 +670,6 @@ export interface FileRouteTypes {
     | '/_authed/posts/create'
     | '/_authed/tricks/review'
     | '/_authed/tricks/submit'
-    | '/api/mux/url'
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
@@ -735,7 +723,6 @@ export interface RootRouteChildren {
   TricksIndexRoute: typeof TricksIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
-  ApiMuxUrlRoute: typeof ApiMuxUrlRoute
   ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   AuthCodeSendRoute: typeof AuthCodeSendRoute
   AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
@@ -961,13 +948,6 @@ declare module '@tanstack/react-router' {
       path: '/api/mux/webhook'
       fullPath: '/api/mux/webhook'
       preLoaderRoute: typeof ApiMuxWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/mux/url': {
-      id: '/api/mux/url'
-      path: '/api/mux/url'
-      fullPath: '/api/mux/url'
-      preLoaderRoute: typeof ApiMuxUrlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/tricks/submit': {
@@ -1285,7 +1265,6 @@ const rootRouteChildren: RootRouteChildren = {
   TricksIndexRoute: TricksIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
-  ApiMuxUrlRoute: ApiMuxUrlRoute,
   ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   AuthCodeSendRoute: AuthCodeSendRoute,
   AuthCodeVerifyRoute: AuthCodeVerifyRoute,

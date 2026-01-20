@@ -356,6 +356,13 @@ export const muxVideos = pgTable("mux_videos", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// Temporary mapping for in-flight uploads (uploadId -> assetId)
+export const muxUploadMappings = pgTable("mux_upload_mappings", {
+  uploadId: text("upload_id").primaryKey(),
+  assetId: text("asset_id").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const rius = pgTable("rius", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   id: serial("id").primaryKey(),
