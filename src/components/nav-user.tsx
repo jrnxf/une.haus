@@ -58,7 +58,7 @@ export function NavUser() {
                 cloudflareId={sessionUser.avatarId}
                 alt={sessionUser.name}
               >
-                <AvatarImage width={32} quality={85} />
+                <AvatarImage width={64} quality={85} />
                 <AvatarFallback
                   name={sessionUser.name}
                   className="rounded-lg"
@@ -94,7 +94,7 @@ export function NavUser() {
                   cloudflareId={sessionUser.avatarId}
                   alt={sessionUser.name}
                 >
-                  <AvatarImage width={32} quality={85} />
+                  <AvatarImage width={64} quality={85} />
                   <AvatarFallback
                     name={sessionUser.name}
                     className="rounded-lg"
@@ -112,13 +112,13 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
-                  <UserIcon />
+                  <UserIcon className="size-4" />
                   Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/notifications">
-                  <Bell />
+                  <Bell className="size-4" />
                   Notifications
                   {unreadCount > 0 && (
                     <span className="bg-primary text-primary-foreground ml-auto rounded-full px-1.5 py-0.5 text-xs">
@@ -130,7 +130,7 @@ export function NavUser() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => logout({})}>
-              <LogOut />
+              <LogOut className="size-4" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
