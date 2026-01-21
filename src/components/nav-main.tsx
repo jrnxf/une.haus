@@ -25,6 +25,7 @@ export function NavMain({
     title: string;
     url: string;
     icon: LucideIcon;
+    activeIcon?: LucideIcon;
     isActive?: boolean;
     items?: {
       title: string;
@@ -41,9 +42,21 @@ export function NavMain({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title} size="lg">
-                <Link to={item.url} replace={isMobile}>
-                  <item.icon />
-                  <span className="pb-px">{item.title}</span>
+                <Link
+                  to={item.url}
+                  replace={isMobile}
+                  activeProps={{ "data-active": "true" }}
+                >
+                  {({ isActive }) => {
+                    const Icon =
+                      isActive && item.activeIcon ? item.activeIcon : item.icon;
+                    return (
+                      <>
+                        <Icon />
+                        <span className="pb-px">{item.title}</span>
+                      </>
+                    );
+                  }}
                 </Link>
               </SidebarMenuButton>
               {item.items?.length ? (

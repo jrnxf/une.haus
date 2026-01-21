@@ -123,14 +123,14 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-mono antialiased">
         <ThemeProvider>
           <Toaster />
           <ConfirmDialog />
           <SidebarProvider
             style={
               {
-                "--sidebar-width": "calc(var(--spacing) * 72)",
+                "--sidebar-width": "calc(var(--spacing) * 62)",
                 "--header-height": "calc(var(--spacing) * 12)",
               } as React.CSSProperties
             }

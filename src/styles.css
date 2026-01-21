@@ -179,7 +179,7 @@
   :root,
   html,
   body {
-    font-family: "Geist Variable", sans-serif;
+    font-family: "Geist Mono Variable", ui-monospace, monospace;
     @apply bg-background text-foreground;
   }
 

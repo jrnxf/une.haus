@@ -1,13 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import {
-  BoneIcon,
   ChartLineIcon,
   ClipboardPenIcon,
   EarthIcon,
+  LockIcon,
+  LockOpenIcon,
   MedalIcon,
   MessagesSquareIcon,
   Send,
-  VaultIcon,
+  TrafficConeIcon,
 } from "lucide-react";
 import * as React from "react";
 
@@ -57,12 +58,13 @@ const data = {
     {
       title: "Tricks",
       url: "/tricks",
-      icon: BoneIcon,
+      icon: TrafficConeIcon,
     },
     {
       title: "Vault",
       url: "/vault",
-      icon: VaultIcon,
+      icon: LockIcon,
+      activeIcon: LockOpenIcon,
     },
   ],
   navSecondary: [
