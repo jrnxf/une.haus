@@ -1,0 +1,204 @@
+# UNISPINS - feet leave pedals, unicycle spins relative to ground, feet land back on pedals
+180 unispin - feet leave pedals, unicycle spins 180 degrees, feet land back on pedals
+360 unispin - feet leave pedals, unicycle spins 360 degrees, feet land back on pedals
+540 unispin - feet leave pedals, unicycle spins 540 degrees, feet land back on pedals
+720 unispin - feet leave pedals, unicycle spins 720 degrees, feet land back on pedals
+900 unispin - feet leave pedals, unicycle spins 900 degrees, feet land back on pedals
+1080 unispin - feet leave pedals, unicycle spins 1080 degrees, feet land back on pedals
+1260 unispin - feet leave pedals, unicycle spins 1260 degrees, feet land back on pedals
+
+# SIDESPINS - unispin wrapped around the same leg as hand in front of seat
+180 sidespin - 180 unispin wrapped around the same leg as hand in front of seat
+360 sidespin - 360 unispin wrapped around the same leg as hand in front of seat
+540 sidespin - 540 unispin wrapped around the same leg as hand in front of seat
+720 sidespin - 720 unispin wrapped around the same leg as hand in front of seat
+900 sidespin - 900 unispin wrapped around the same leg as hand in front of seat
+1080 sidespin - 1080 unispin wrapped around the same leg as hand in front of seat
+1260 sidespin - 1260 unispin wrapped around the same leg as hand in front of seat
+
+# SECRET SIDESPINS - unispin wrapped around both legs, starting with same leg as hand in front of seat
+180 secretsidespin - 180 unispin wrapped around both legs, starting with the same leg as hand in front of seat
+360 secretsidespin - 360 unispin wrapped around both legs, starting with the same leg as hand in front of seat
+540 secretsidespin - 540 unispin wrapped around both legs, starting with the same leg as hand in front of seat
+720 secretsidespin - 720 unispin wrapped around both legs, starting with the same leg as hand in front of seat
+
+# SECRET SIDEFLIPS - secret sidespin combined with crankflip
+treysecretsideflip - 360 secretsidespin with the wheel rotating forward once
+treysecretdoubleflip - 360 secretsidespin with the wheel rotating forward twice
+treysecrettripleflip - 360 secretsidespin with the wheel rotating forward three times
+fifthsecretsideflip - 540 secretsidespin with the wheel rotating forward once
+fifthsecretdoubleflip - 540 secretsidespin with the wheel rotating forward twice
+fifthsecrettripleflip - 540 secretsidespin with the wheel rotating forward three times
+sejsecretsideflip - 720 secretsidespin with the wheel rotating forward once
+
+# BACKSIDES - unispin threaded behind and around the leg opposite the spinning hand
+180 backside - 180 unispin threaded behind and around the leg opposite the spinning hand
+360 backside - 360 unispin threaded behind and around the leg opposite the spinning hand
+540 backside - 540 unispin threaded behind and around the leg opposite the spinning hand
+720 backside - 720 unispin threaded behind and around the leg opposite the spinning hand
+
+# BACKSIDEFLIPS - backside combined with crankflip
+hickbacksideflip - 180 backside with the wheel rotating forward once
+hickbacksidedoubleflip - 180 backside with the wheel rotating forward twice
+hickbacksidetripleflip - 180 backside with the wheel rotating forward three times
+treybacksideflip - 360 backside with the wheel rotating forward once
+treybacksidedoubleflip - 360 backside with the wheel rotating forward twice
+fifthbacksideflip - 540 backside with the wheel rotating forward once
+fifthbacksidedoubleflip - 540 backside with the wheel rotating forward twice
+fifthbacksidetripleflip - 540 backside with the wheel rotating forward three times
+sejbacksideflip - 720 backside with the wheel rotating forward once
+
+# ANTISIDES - unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs
+180 antiside - 180 unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs
+360 antiside - 360 unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs
+540 antiside - 540 unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs
+
+# ANTISIDEFLIPS - antiside combined with crankflip
+hickantisideflip - 180 antiside with the wheel rotating forward once
+hickantisidedoubleflip - 180 antiside with the wheel rotating forward twice
+fifthantisideflip - 540 antiside with the wheel rotating forward once
+fifthantisidedoubleflip - 540 antiside with the wheel rotating forward twice
+
+# CRANKFLIPS - feet leave pedals, wheel rotates forward, feet land back on pedals
+crankflip - feet leave pedals, wheel rotates forward once, feet land back on pedals
+doubleflip - feet leave pedals, wheel rotates forward twice, feet land back on pedals
+tripleflip - feet leave pedals, wheel rotates forward three times, feet land back on pedals
+quadflip - feet leave pedals, wheel rotates forward four times, feet land back on pedals
+quintflip - feet leave pedals, wheel rotates forward five times, feet land back on pedals
+sexflip - feet leave pedals, wheel rotates forward six times, feet land back on pedals
+
+# BACKFLIPS - feet leave pedals, wheel rotates backward, feet land back on pedals
+backflip - feet leave pedals, wheel rotates backward once, feet land back on pedals
+doublebackflip - feet leave pedals, wheel rotates backward twice, feet land back on pedals
+triplebackflip - feet leave pedals, wheel rotates backward three times, feet land back on pedals
+quadbackflip - feet leave pedals, wheel rotates backward four times, feet land back on pedals
+quintbackflip - feet leave pedals, wheel rotates backward five times, feet land back on pedals
+sexbackflip - feet leave pedals, wheel rotates backward six times, feet land back on pedals
+
+# HICKFLIPS - unispin combined with crankflip
+hickflip - 180 unispin with the wheel rotating forward once
+treyflip - 360 unispin with the wheel rotating forward once
+fifthflip - 540 unispin with the wheel rotating forward once
+sejflip - 720 unispin with the wheel rotating forward once
+ninthflip - 900 unispin with the wheel rotating forward once
+tenthflip - 1080 unispin with the wheel rotating forward once
+
+# HICKDOUBLEFLIPS - unispin combined with doubleflip
+hickdoubleflip - 180 unispin with the wheel rotating forward twice
+treydoubleflip - 360 unispin with the wheel rotating forward twice
+fifthdoubleflip - 540 unispin with the wheel rotating forward twice
+sejdoubleflip - 720 unispin with the wheel rotating forward twice
+
+# HICKTRIPLEFLIPS - unispin combined with tripleflip
+hicktripleflip - 180 unispin with the wheel rotating forward three times
+treytripleflip - 360 unispin with the wheel rotating forward three times
+fifthtripleflip - 540 unispin with the wheel rotating forward three times
+sejtripleflip - 720 unispin with the wheel rotating forward three times
+
+# HICKQUADFLIPS - unispin combined with quadflip
+hickquadflip - 180 unispin with the wheel rotating forward four times
+treyquadflip - 360 unispin with the wheel rotating forward four times
+fifthquadflip - 540 unispin with the wheel rotating forward four times
+sejquadflip - 720 unispin with the wheel rotating forward four times
+
+# HICKQUINTFLIPS - unispin combined with quintflip
+hickquintflip - 180 unispin with the wheel rotating forward five times
+treyquintflip - 360 unispin with the wheel rotating forward five times
+
+# HICKSIDEFLIPS - sidespin combined with crankflip
+hicksideflip - 180 sidespin with the wheel rotating forward once
+treysideflip - 360 sidespin with the wheel rotating forward once
+fifthsideflip - 540 sidespin with the wheel rotating forward once
+sejsideflip - 720 sidespin with the wheel rotating forward once
+ninthsideflip - 900 sidespin with the wheel rotating forward once
+tenthsideflip - 1080 sidespin with the wheel rotating forward once
+
+# HICKBACKFLIPS - unispin combined with backflip
+hickbackflip - 180 unispin with the wheel rotating backward once
+treybackflip - 360 unispin with the wheel rotating backward once
+fifthbackflip - 540 unispin with the wheel rotating backward once
+sejbackflip - 720 unispin with the wheel rotating backward once
+ninthbackflip - 900 unispin with the wheel rotating backward once
+tenthbackflip - 1080 unispin with the wheel rotating backward once
+
+# WHIPS - frame rotates around the wheel while rider stays stationary
+whip - frame rotates once around the wheel while rider stays stationary
+maxwhip - frame rotates around the wheel with extended rotation
+rancwhip - frame whip variation
+gustwhip - frame whip variation
+adriwhip - frame whip variation
+
+# OVERFLIPS - no footer to crankflip
+overflip - no footer, wheel rotates forward once over the top
+doubleoverflip - no footer, wheel rotates forward twice over the top
+tripleoverflip - no footer, wheel rotates forward three times over the top
+
+# UNDERFLIPS - no footer to backflip
+underflip - no footer, wheel rotates backward once under
+doubleunderflip - no footer, wheel rotates backward twice under
+tripleunderflip - no footer, wheel rotates backward three times under
+
+# STUTTERFLIPS - crankflip to overflip
+stutterflip - crankflip then catch front pedal and overflip
+doublestutterflip - doubleflip then catch front pedal and overflip
+triplestutterflip - tripleflip then catch front pedal and overflip
+
+# UNISPIN OVERFLIPS - unispin combined with overflip
+hickoverflip - 180 unispin with wheel rotating forward once over the top
+hickdoubleoverflip - 180 unispin with wheel rotating forward twice over the top
+hicktripleoverflip - 180 unispin with wheel rotating forward three times over the top
+treyoverflip - 360 unispin with wheel rotating forward once over the top
+treydoubleoverflip - 360 unispin with wheel rotating forward twice over the top
+fifthoverflip - 540 unispin with wheel rotating forward once over the top
+
+# UNISPIN UNDERFLIPS - unispin combined with underflip
+hickunderflip - 180 unispin with wheel rotating backward once under
+hickdoubleunderflip - 180 unispin with wheel rotating backward twice under
+treyunderflip - 360 unispin with wheel rotating backward once under
+treydoubleunderflip - 360 unispin with wheel rotating backward twice under
+fifthunderflip - 540 unispin with wheel rotating backward once under
+
+180-overhickflip
+360-overhickflip
+
+# FLIP TO OVERFLIP - hickflip then catch front pedal and overflip
+hickflip-overflip - hickflip then catch front pedal and overflip
+treyflip-overflip - treyflip then catch front pedal and overflip
+fifthflip-overflip - fifthflip then catch front pedal and overflip
+
+# FLIP TO UNDERFLIP - hickflip then catch front pedal and underflip
+hickflip-underflip - hickflip then catch front pedal and underflip
+treyflip-underflip - treyflip then catch front pedal and underflip
+fifthflip-underflip - fifthflip then catch front pedal and underflip
+
+
+# BACKFLIP TO OVERFLIP - backflip then catch front pedal and overflip
+backflip-overflip - backflip then catch front pedal and overflip
+doublebackflip-overflip - doublebackflip then catch front pedal and overflip
+
+# FLIP TO UNDERFLIP - crankflip then catch front pedal and underflip
+flip-underflip - crankflip then catch front pedal and underflip
+doubleflip-underflip - doubleflip then catch front pedal and underflip
+flip-underdoubleflip - crankflip then catch front pedal and double underflip
+doubleflip-underdoubleflip - doubleflip then catch front pedal and double underflip
+
+# BODY VARIAL FLIPS - body rotation with crankflip
+180 flip - 180 degree body rotation with crankflip
+360 flip - 360 degree body rotation with crankflip
+180 doubleflip - 180 degree body rotation with doubleflip
+360 doubleflip - 360 degree body rotation with doubleflip
+
+180 flip-underflip
+
+# BODY VARIAL BACKFLIPS - body rotation with backflip
+180 back - 180 degree body rotation with backflip
+360 back - 360 degree body rotation with backflip
+180 doubleback - 180 degree body rotation with doublebackflip
+360 doubleback - 360 degree body rotation with doublebackflip
+
+hickkickflip - 180 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+treykickflip-
+fifthkickflip
+
+hicksidekcikflip
+treysidekickflip
