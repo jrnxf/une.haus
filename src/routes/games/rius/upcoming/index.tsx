@@ -32,7 +32,7 @@ function RouteComponent() {
   const canUploadMore = userSetsCount < 3;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* My Sets Section - Show first if user has sets */}
       {hasUserSets && (
         <section className="space-y-4">
@@ -56,7 +56,7 @@ function RouteComponent() {
           <div className="grid gap-4">
             {data.authUserSets?.map((set) => (
               <Card key={set.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <CardTitle className="truncate text-base">

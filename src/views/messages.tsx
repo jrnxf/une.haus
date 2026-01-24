@@ -86,7 +86,7 @@ export function MessagesView({
         {messages.length === 0 && (
           <p className="text-muted-foreground mt-1">No messages</p>
         )}
-        <div className="mx-auto w-full max-w-4xl space-y-2 p-3">
+        <div className="mx-auto w-full max-w-4xl space-y-2 p-4">
           {messages.map((message, index) => {
             const isAuthUserMessage = Boolean(
               sessionUser && sessionUser.id === message.user.id,
@@ -112,7 +112,7 @@ export function MessagesView({
             );
           })}
         </div>
-        <div className="mx-auto w-full max-w-4xl shrink-0 p-3">
+        <div className="mx-auto w-full max-w-4xl shrink-0 p-4">
           <BaseMessageForm
             onFocus={
               scrollTargetId ? undefined : () => scrollTo("bottom", Infinity)

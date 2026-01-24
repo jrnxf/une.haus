@@ -115,7 +115,7 @@ function RouteComponent() {
     <div className="flex grow flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b">
-        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -152,7 +152,7 @@ function RouteComponent() {
                     key={tab.path}
                     to={tab.path}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
+                      "flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors",
                       active
                         ? "bg-secondary text-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",

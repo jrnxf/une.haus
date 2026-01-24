@@ -57,7 +57,7 @@ function RouteComponent() {
           </div>
 
           <Card className="border-dashed">
-            <CardHeader className="border-b pb-4">
+            <CardHeader className="border-b pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium">
                   {contributors.length} contributors
@@ -97,7 +97,7 @@ function RouteComponent() {
                 return (
                   <div
                     key={contributor.id}
-                    className="flex items-center gap-3 px-6 py-3"
+                    className="flex items-center gap-4 px-6 py-4"
                   >
                     <span className="text-muted-foreground w-6 shrink-0 text-right text-sm font-medium tabular-nums">
                       {index + 1}

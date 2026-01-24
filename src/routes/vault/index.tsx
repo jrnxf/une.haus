@@ -471,7 +471,7 @@ function ExpandedVideoContent({
                   )}
                 >
                   {isNewSection && (
-                    <div className={cn("mb-1", index !== 0 && "mt-3")}>
+                    <div className={cn("mb-1", index !== 0 && "mt-4")}>
                       <MessageAuthor message={message} />
                     </div>
                   )}

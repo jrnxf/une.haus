@@ -65,13 +65,11 @@ function RouteComponent() {
   const { setId } = Route.useParams();
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-2 py-4">
-      <div
-        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
-        id="main-content"
-      >
-        <SetView setId={setId} />
-      </div>
+    <div
+      className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4 py-6"
+      id="main-content"
+    >
+      <SetView setId={setId} />
     </div>
   );
 }
@@ -211,7 +209,7 @@ function SubmissionCard({ submission }: { submission: SubmissionType }) {
     >
       <Button
         variant="outline"
-        className="h-auto w-full justify-between gap-6 p-3 text-left"
+        className="h-auto w-full justify-between gap-6 p-4 text-left"
         asChild
       >
         <div>
@@ -312,7 +310,7 @@ function CollapsibleMessages({
                 )}
               >
                 {isNewSection && (
-                  <div className={cn("mb-1", index !== 0 && "mt-3")}>
+                  <div className={cn("mb-1", index !== 0 && "mt-4")}>
                     <MessageAuthor message={message} />
                   </div>
                 )}

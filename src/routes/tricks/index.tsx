@@ -86,7 +86,7 @@ function TricksPage() {
   return (
     <div className="flex h-full grow flex-col overflow-hidden">
       {/* Mobile search bar */}
-      <div className="shrink-0 border-b p-3 md:hidden">
+      <div className="shrink-0 border-b p-4 md:hidden">
         <TricksSearch
           data={data}
           onSelectTrick={(trick) => handleSelectTrick(trick.id)}

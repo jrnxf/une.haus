@@ -291,7 +291,7 @@ function StackView({ stackId }: { stackId: number }) {
 
             {stack.chain.archiveVotes &&
               stack.chain.archiveVotes.length > 0 && (
-                <div className="mt-3 border-t pt-3">
+                <div className="mt-4 border-t pt-4">
                   <p className="text-muted-foreground mb-2 text-xs">
                     Users who voted to archive:
                   </p>
@@ -307,7 +307,7 @@ function StackView({ stackId }: { stackId: number }) {
 
             {/* Admin archive button */}
             {isAdmin && thresholdReached && (
-              <div className="border-destructive/30 bg-destructive/5 mt-3 border-t pt-3">
+              <div className="border-destructive/30 bg-destructive/5 mt-4 border-t pt-4">
                 <p className="text-muted-foreground mb-2 text-sm">
                   Vote threshold reached. As an admin, you can archive this
                   chain.
@@ -417,7 +417,7 @@ function CollapsibleMessages({
                 )}
               >
                 {isNewSection && (
-                  <div className={cn("mb-1", index !== 0 && "mt-3")}>
+                  <div className={cn("mb-1", index !== 0 && "mt-4")}>
                     <MessageAuthor message={message} />
                   </div>
                 )}

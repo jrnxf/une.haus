@@ -52,7 +52,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
           </TooltipContent>
         </Tooltip>
       </CardHeader>
-      <CardContent className="flex-1 px-4">
+      <CardContent className="flex-1">
         <ChartContainer
           config={chartConfig}
           className="h-full min-h-[200px] w-full"

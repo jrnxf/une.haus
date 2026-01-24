@@ -20,7 +20,7 @@ function RouteComponent() {
   return (
     <div className="flex grow flex-col overflow-hidden px-1">
       <div className="overflow-y-auto" id="main-content">
-        <div className="mx-auto flex w-full max-w-lg flex-col gap-3 p-3">
+        <div className="mx-auto flex w-full max-w-lg flex-col gap-4 p-4">
           <h1 className="text-xl leading-loose font-semibold">Upload set</h1>
           {data.authUserSets && data.authUserSets.length === 3 ? (
             <>

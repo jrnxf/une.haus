@@ -259,6 +259,78 @@ Canonical examples:
 - `src/routes/games/rius/route.tsx` - Admin dropdown menu
 - `src/routes/tricks/index.tsx` - Admin dropdown menu
 
+## Spacing Guidelines
+
+Use consistent Tailwind spacing utilities throughout the codebase. Avoid non-standard values.
+
+### Flex/Grid Gaps
+
+Use these standard gap values:
+
+- `gap-1` - Tight spacing (icons, small button groups)
+- `gap-2` - **Default** for most flex/grid layouts
+- `gap-4` - Medium spacing (card content, form sections)
+- `gap-6` - Large spacing (section separation)
+
+**Avoid:** `gap-3`, `gap-5`, `gap-7`, `gap-8+`
+
+### Vertical Stacking (space-y)
+
+- `space-y-1` - Tight (error messages, compact lists)
+- `space-y-2` - Default (form fields, list items)
+- `space-y-4` - Medium (content sections)
+- `space-y-6` - Large (page sections)
+
+**Avoid:** `space-y-3`, `space-y-5`, `space-y-7`, `space-y-8+`
+
+### Container Padding
+
+- `p-4` - Compact containers, mobile
+- `p-6` - Cards, dialogs, modals
+
+**Avoid:** `p-3`, `p-5`, `p-7`
+
+### Page Containers
+
+Standard pattern for route content:
+
+```tsx
+<div className="mx-auto w-full max-w-4xl px-4 py-6">
+  {/* content */}
+</div>
+```
+
+For narrow forms: `max-w-lg`
+
+### CardHeader/CardContent
+
+- CardHeader: Use `pb-2` for standard spacing
+- CardContent: Use default `px-6` (don't override with `px-4`)
+
+### Message Sections
+
+Use `gap-4` in flex containers instead of manual margins (`mt-3`, `mb-1`):
+
+```tsx
+// Good - gap in flex container
+<div className="flex flex-col gap-4">
+  {messages.map((m) => <Message key={m.id} />)}
+</div>
+
+// Bad - manual margins
+<div className={cn("mb-1", index !== 0 && "mt-3")}>
+```
+
+### Summary Table
+
+| Context | Standard Values | Avoid |
+|---------|----------------|-------|
+| Flex gaps | `gap-1`, `gap-2`, `gap-4`, `gap-6` | `gap-3`, `gap-5`, `gap-7+` |
+| Vertical stacking | `space-y-1`, `space-y-2`, `space-y-4`, `space-y-6` | `space-y-3`, `space-y-5`, `space-y-7+` |
+| Padding | `p-4`, `p-6` | `p-3`, `p-5`, `p-7` |
+| Horizontal padding | `px-2`, `px-4`, `px-6` | `px-3`, `px-5` |
+| Vertical padding | `py-1`, `py-2`, `py-4`, `py-6` | `py-3`, `py-5` |
+
 ## Documentation
 
 When modifying code that has associated documentation in `docs/`, always update the docs to reflect changes. Keep documentation in sync with implementation.

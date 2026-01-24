@@ -40,7 +40,7 @@ export function TopContributors({ data }: TopContributorsProps) {
             top contributors
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-4">
+        <CardContent>
           <p className="text-muted-foreground text-sm">no contributors yet</p>
         </CardContent>
       </Card>
@@ -64,7 +64,7 @@ export function TopContributors({ data }: TopContributorsProps) {
           </TooltipContent>
         </Tooltip>
       </CardHeader>
-      <CardContent className="space-y-3 px-4">
+      <CardContent className="space-y-4">
         {data.map((contributor, index) => {
           const riuSetsPoints = contributor.riuSetsCount * 5;
           const riuSubmissionsPoints = contributor.riuSubmissionsCount * 5;

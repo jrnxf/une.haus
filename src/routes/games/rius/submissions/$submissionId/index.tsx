@@ -60,13 +60,11 @@ function RouteComponent() {
   const { submissionId } = Route.useParams();
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-2 py-4">
-      <div
-        className="flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4"
-        id="main-content"
-      >
-        <SubmissionView submissionId={submissionId} />
-      </div>
+    <div
+      className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4 py-6"
+      id="main-content"
+    >
+      <SubmissionView submissionId={submissionId} />
     </div>
   );
 }

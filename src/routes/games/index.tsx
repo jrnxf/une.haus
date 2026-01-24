@@ -70,7 +70,7 @@ function GameCard({
           !isActive && "opacity-70",
         )}
       >
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <div className="flex items-center gap-3">
             <div
               className={cn(
