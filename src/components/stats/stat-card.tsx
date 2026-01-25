@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 import { Card, CardContent } from "~/components/ui/card";
 import {
   Tooltip,
@@ -13,6 +15,7 @@ type StatCardProps = {
   description?: string;
   className?: string;
   size?: "default" | "compact" | "responsive";
+  to?: string;
 };
 
 export function StatCard({
@@ -22,6 +25,7 @@ export function StatCard({
   description,
   className,
   size = "default",
+  to,
 }: StatCardProps) {
   const isCompact = size === "compact";
   const isResponsive = size === "responsive";
@@ -34,6 +38,7 @@ export function StatCard({
         isResponsive && "py-1 md:py-1.5 lg:py-2.5",
         !isCompact && !isResponsive && "py-2.5",
         description && "hover:border-primary/30 cursor-help",
+        to && "hover:border-primary/30 cursor-pointer",
         className,
       )}
     >
@@ -88,10 +93,18 @@ export function StatCard({
     </Card>
   );
 
+  const maybeLinked = to ? (
+    <Link to={to} className="rounded-xl">
+      {content}
+    </Link>
+  ) : (
+    content
+  );
+
   if (description) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipTrigger asChild>{maybeLinked}</TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-[200px] text-xs">
           {description}
         </TooltipContent>
@@ -99,5 +112,5 @@ export function StatCard({
     );
   }
 
-  return content;
+  return maybeLinked;
 }

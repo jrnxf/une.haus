@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
@@ -436,6 +436,8 @@ export const getArchivedRiusServerFn = createServerFn({
                 id: true,
                 name: true,
                 avatarId: true,
+                bio: true,
+                disciplines: true,
               },
             },
             video: {
@@ -527,7 +529,8 @@ export const listArchivedRiusServerFn = createServerFn({
     .from(rius)
     .leftJoin(riuSets, eq(rius.id, riuSets.riuId))
     .where(eq(rius.status, "archived"))
-    .groupBy(rius.id, rius.createdAt);
+    .groupBy(rius.id, rius.createdAt)
+    .orderBy(desc(rius.createdAt));
 
   // Only return RIUs that have at least one set, casting setsCount as a number
   const riusWithSets = archivedRius

@@ -2,12 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
+  ArrowLeftIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   HeartIcon,
   MessageCircleIcon,
   PencilIcon,
-  Share2Icon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
@@ -16,6 +16,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
+import { ShareButton } from "~/components/share-button";
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
@@ -41,7 +42,7 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { setId } }) => {
+  loader: async ({ context, params: { setId }, preload }) => {
     const ensureSet = async () => {
       try {
         await context.queryClient.ensureQueryData(
@@ -52,7 +53,10 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
           messages.list.queryOptions({ type: "riuSet", id: setId }),
         );
       } catch {
-        await session.flash.set.fn({ data: { message: "Set not found" } });
+        // Only show flash message on actual navigation, not preload
+        if (!preload) {
+          await session.flash.set.fn({ data: { message: "Set not found" } });
+        }
         throw redirect({ to: "/games/rius" });
       }
     };
@@ -66,7 +70,7 @@ function RouteComponent() {
 
   return (
     <div
-      className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4 py-6"
+      className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4 pb-6"
       id="main-content"
     >
       <SetView setId={setId} />
@@ -101,7 +105,14 @@ function SetView({ setId }: { setId: number }) {
   const isOwner = set.user.id === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
+    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6">
+      <Button variant="ghost" size="sm" asChild className="self-start">
+        <Link to="/games/rius/active">
+          <ArrowLeftIcon className="size-4" />
+          Back to game
+        </Link>
+      </Button>
+
       <div className="flex items-center gap-3">
         <div className="w-full space-y-1">
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
@@ -130,9 +141,7 @@ function SetView({ setId }: { setId: number }) {
               }
             />
           )}
-          <Button size="icon-sm" variant="outline" disabled aria-label="Share">
-            <Share2Icon className="size-4" />
-          </Button>
+          <ShareButton />
         </div>
       </div>
 

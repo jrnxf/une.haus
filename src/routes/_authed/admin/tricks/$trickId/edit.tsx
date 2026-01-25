@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
+import { BackLink } from "~/components/back-link";
 import { TrickForm, type TrickFormDefaultValues } from "~/components/forms/trick";
-import { Button } from "~/components/ui/button";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
@@ -37,6 +36,12 @@ function RouteComponent() {
       toast.success("Trick updated");
       // Remove stale cache and prefetch fresh data before navigating
       qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey });
+      qc.removeQueries({
+        queryKey: tricks.getById.queryOptions({ id: numericTrickId }).queryKey,
+      });
+      qc.removeQueries({
+        queryKey: tricks.videos.list.queryOptions({ trickId: numericTrickId }).queryKey,
+      });
       await qc.prefetchQuery(tricks.graph.queryOptions());
       router.navigate({ to: "/tricks" });
     },
@@ -54,7 +59,6 @@ function RouteComponent() {
   }
 
   // Transform trick data to form values
-  // Note: muxAssetIds is empty since video management is handled separately
   const defaultValues: TrickFormDefaultValues = {
     slug: trick.slug,
     name: trick.name,
@@ -62,7 +66,7 @@ function RouteComponent() {
     definition: trick.definition,
     inventedBy: trick.inventedBy,
     yearLanded: trick.yearLanded,
-    muxAssetIds: [], // Videos managed separately via /admin/tricks/$trickId/videos
+    muxAssetIds: trick.videos?.map((v) => v.muxAssetId) ?? [],
     notes: trick.notes,
     prerequisites: trick.outgoingRelationships
       .filter((r) => r.type === "prerequisite")
@@ -89,12 +93,8 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/tricks">
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
+      <div className="space-y-4">
+        <BackLink to="/tricks" label="graph" />
         <h1 className="text-2xl font-bold">Edit Trick: {trick.name}</h1>
       </div>
 

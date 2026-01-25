@@ -4,11 +4,12 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { toast } from "sonner";
 
+import { BackLink } from "~/components/back-link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,24 +86,21 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/tricks">
-              <ArrowLeft className="size-4" />
-            </Link>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <BackLink to="/tricks" label="graph" />
+          <Button asChild>
+            <Link to="/admin/tricks/elements/create">Create</Link>
           </Button>
-          <h1 className="text-2xl font-bold">Trick Elements</h1>
         </div>
-        <Button asChild>
-          <Link to="/admin/tricks/elements/create">Create</Link>
-        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">trick elements</h1>
+          <p className="text-muted-foreground text-sm">
+            Elements are the components that make up a trick (e.g., spins, flips,
+            twists).
+          </p>
+        </div>
       </div>
-
-      <p className="text-muted-foreground text-sm">
-        Elements are the components that make up a trick (e.g., spins, flips,
-        twists).
-      </p>
 
       <Table>
         <TableHeader>

@@ -47,7 +47,7 @@ export const Route = createFileRoute(
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { submissionId } }) => {
+  loader: async ({ context, params: { submissionId }, preload }) => {
     try {
       const [sessionData] = await Promise.all([
         context.queryClient.ensureQueryData(session.get.queryOptions()),
@@ -63,7 +63,10 @@ export const Route = createFileRoute(
       ]);
       return { isAdmin: sessionData.user?.id === 1 };
     } catch {
-      await flashMessage("Submission not found");
+      // Only show flash message on actual navigation, not preload
+      if (!preload) {
+        await flashMessage("Submission not found");
+      }
       throw redirect({ to: "/tricks/review" });
     }
   },
@@ -152,7 +155,7 @@ function SubmissionView({
         className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
       >
         <ArrowLeft className="size-4" />
-        <span>Back to Review</span>
+        <span>back to review</span>
       </Link>
 
       <Card>
@@ -167,11 +170,11 @@ function SubmissionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 submission.status === "pending" &&
-                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 submission.status === "approved" &&
-                  "bg-green-500/20 text-green-700 dark:text-green-300",
+                "bg-green-500/20 text-green-700 dark:text-green-300",
                 submission.status === "rejected" &&
-                  "bg-red-500/20 text-red-700 dark:text-red-300",
+                "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {submission.status === "pending" && "Pending"}

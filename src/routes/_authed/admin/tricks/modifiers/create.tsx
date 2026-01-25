@@ -1,12 +1,12 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
-import { BackLink } from "~/components/back-link";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -20,71 +20,54 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { tricks } from "~/lib/tricks";
-import { createElementSchema } from "~/lib/tricks/schemas";
+import { createModifierSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
 
 export const Route = createFileRoute(
-  "/_authed/admin/tricks/elements/$elementId/edit",
+  "/_authed/admin/tricks/modifiers/create",
 )({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      tricks.elements.list.queryOptions(),
-    );
-  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const router = useRouter();
   const qc = useQueryClient();
-  const { elementId } = Route.useParams();
-  const numericElementId = Number(elementId);
 
-  const { data: elements } = useSuspenseQuery(
-    tricks.elements.list.queryOptions(),
-  );
-
-  const element = elements.find((e) => e.id === numericElementId);
-
-  const updateElement = useMutation({
-    mutationFn: tricks.elements.update.fn,
+  const createModifier = useMutation({
+    mutationFn: tricks.modifiers.create.fn,
     onSuccess: () => {
-      toast.success("Element updated");
+      toast.success("Modifier created");
       qc.removeQueries({
-        queryKey: tricks.elements.list.queryOptions().queryKey,
+        queryKey: tricks.modifiers.list.queryOptions().queryKey,
       });
-      router.navigate({ to: "/admin/tricks/elements" });
+      router.navigate({ to: "/admin/tricks/modifiers" });
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
 
-  const rhf = useForm<z.infer<typeof createElementSchema>>({
+  const rhf = useForm<z.infer<typeof createModifierSchema>>({
     defaultValues: {
-      slug: element?.slug ?? "",
-      name: element?.name ?? "",
-      description: element?.description ?? "",
-      sortOrder: element?.sortOrder ?? 0,
+      slug: "",
+      name: "",
+      description: "",
+      sortOrder: 0,
     },
-    resolver: zodResolver(createElementSchema),
+    resolver: zodResolver(createModifierSchema),
   });
 
   const { control, handleSubmit, setValue } = rhf;
 
-  if (!element) {
-    return (
-      <div className="p-6">
-        <p>Element not found</p>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/admin/tricks/elements" label="elements" />
-        <h1 className="text-2xl font-bold">Edit Element: {element.name}</h1>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link to="/admin/tricks/modifiers">
+            <ArrowLeft className="size-4" />
+          </Link>
+        </Button>
+        <h1 className="text-2xl font-bold">create modifier</h1>
       </div>
 
       <Form
@@ -92,9 +75,7 @@ function RouteComponent() {
         className="space-y-4"
         onSubmit={(event) => {
           event.preventDefault();
-          handleSubmit((data) =>
-            updateElement.mutate({ data: { ...data, id: numericElementId } }),
-          )(event);
+          handleSubmit((data) => createModifier.mutate({ data }))(event);
         }}
       >
         <FormField
@@ -168,9 +149,9 @@ function RouteComponent() {
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" asChild>
-            <Link to="/admin/tricks/elements">Cancel</Link>
+            <Link to="/admin/tricks/modifiers">Cancel</Link>
           </Button>
-          <FormSubmitButton busy={updateElement.isPending}>
+          <FormSubmitButton busy={createModifier.isPending}>
             Save
           </FormSubmitButton>
         </div>

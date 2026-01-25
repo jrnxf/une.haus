@@ -3,12 +3,13 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { CheckCircle, XCircle } from "lucide-react";
 import { z } from "zod";
 
 import { toast } from "sonner";
 
+import { BackLink } from "~/components/back-link";
 import { SubmissionCard } from "~/components/tricks/submission-card";
 import { SuggestionCard } from "~/components/tricks/suggestion-card";
 import { Badge } from "~/components/ui/badge";
@@ -42,8 +43,8 @@ export const Route = createFileRoute("/_authed/tricks/review")({
       // Only load pending videos for admin
       isAdmin
         ? context.queryClient.ensureQueryData(
-            tricks.videos.listPending.queryOptions(),
-          )
+          tricks.videos.listPending.queryOptions(),
+        )
         : Promise.resolve([]),
     ]);
     return { isAdmin };
@@ -67,16 +68,12 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/tricks">
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
+      <div className="space-y-4">
+        <BackLink to="/tricks" label="graph" />
         <div>
-          <h1 className="text-2xl font-bold">Review Tricks</h1>
+          <h1 className="text-2xl font-bold">review tricks</h1>
           <p className="text-muted-foreground text-sm">
-            Community submissions and suggested edits
+            community submissions and suggested edits
           </p>
         </div>
       </div>
@@ -114,12 +111,11 @@ function RouteComponent() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {submissions.map((submission) => (
-                <div key={submission.id}>
-                  <SubmissionCard submission={submission} showStatus={false} />
-                  {isAdmin && (
-                    <ReviewActions type="submission" id={submission.id} />
-                  )}
-                </div>
+                <SubmissionCard
+                  key={submission.id}
+                  submission={submission}
+                  showStatus={false}
+                />
               ))}
             </div>
           )}
@@ -137,12 +133,11 @@ function RouteComponent() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {suggestions.map((suggestion) => (
-                <div key={suggestion.id}>
-                  <SuggestionCard suggestion={suggestion} showStatus={false} />
-                  {isAdmin && (
-                    <ReviewActions type="suggestion" id={suggestion.id} />
-                  )}
-                </div>
+                <SuggestionCard
+                  key={suggestion.id}
+                  suggestion={suggestion}
+                  showStatus={false}
+                />
               ))}
             </div>
           )}
@@ -279,136 +274,3 @@ function VideoCard({ video }: { video: PendingVideosData[number] }) {
   );
 }
 
-function ReviewActions({
-  type,
-  id,
-}: {
-  type: "submission" | "suggestion";
-  id: number;
-}) {
-  const qc = useQueryClient();
-
-  const submissionsQueryKey = tricks.submissions.list.queryOptions({ status: "pending" }).queryKey;
-  const suggestionsQueryKey = tricks.suggestions.list.queryOptions({ status: "pending" }).queryKey;
-  const graphQueryKey = tricks.graph.queryOptions().queryKey;
-
-  const reviewSubmission = useMutation({
-    mutationFn: tricks.submissions.review.fn,
-    onMutate: async ({ data: { id: submissionId } }) => {
-      // Cancel in-flight queries
-      await qc.cancelQueries({ queryKey: submissionsQueryKey });
-
-      // Get previous data for rollback
-      const prev = qc.getQueryData(submissionsQueryKey);
-
-      // Optimistically remove from list
-      qc.setQueryData(submissionsQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== submissionId),
-      );
-
-      return { prev };
-    },
-    onSuccess: (_, variables) => {
-      // Remove graph query so it fetches fresh data when navigated to
-      qc.removeQueries({ queryKey: graphQueryKey });
-      toast.success(
-        variables.data.status === "approved"
-          ? "Submission approved"
-          : "Submission rejected",
-      );
-    },
-    onError: (error, _, context) => {
-      // Rollback on error
-      if (context?.prev) {
-        qc.setQueryData(submissionsQueryKey, context.prev);
-      }
-      toast.error(error.message);
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: submissionsQueryKey });
-    },
-  });
-
-  const reviewSuggestion = useMutation({
-    mutationFn: tricks.suggestions.review.fn,
-    onMutate: async ({ data: { id: suggestionId } }) => {
-      // Cancel in-flight queries
-      await qc.cancelQueries({ queryKey: suggestionsQueryKey });
-
-      // Get previous data for rollback
-      const prev = qc.getQueryData(suggestionsQueryKey);
-
-      // Optimistically remove from list
-      qc.setQueryData(suggestionsQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== suggestionId),
-      );
-
-      return { prev };
-    },
-    onSuccess: (_, variables) => {
-      // Remove graph query so it fetches fresh data when navigated to
-      qc.removeQueries({ queryKey: graphQueryKey });
-      toast.success(
-        variables.data.status === "approved"
-          ? "Suggestion approved"
-          : "Suggestion rejected",
-      );
-    },
-    onError: (error, _, context) => {
-      // Rollback on error
-      if (context?.prev) {
-        qc.setQueryData(suggestionsQueryKey, context.prev);
-      }
-      toast.error(error.message);
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: suggestionsQueryKey });
-    },
-  });
-
-  const isPending =
-    type === "submission"
-      ? reviewSubmission.isPending
-      : reviewSuggestion.isPending;
-
-  const handleApprove = () => {
-    if (type === "submission") {
-      reviewSubmission.mutate({ data: { id, status: "approved" } });
-    } else {
-      reviewSuggestion.mutate({ data: { id, status: "approved" } });
-    }
-  };
-
-  const handleReject = () => {
-    if (type === "submission") {
-      reviewSubmission.mutate({ data: { id, status: "rejected" } });
-    } else {
-      reviewSuggestion.mutate({ data: { id, status: "rejected" } });
-    }
-  };
-
-  return (
-    <div className="mt-2 flex gap-2">
-      <Button
-        size="sm"
-        variant="outline"
-        className="flex-1"
-        onClick={handleApprove}
-        disabled={isPending}
-      >
-        <CheckCircle className="size-4" />
-        Approve
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        className="flex-1"
-        onClick={handleReject}
-        disabled={isPending}
-      >
-        <XCircle className="size-4" />
-        Reject
-      </Button>
-    </div>
-  );
-}

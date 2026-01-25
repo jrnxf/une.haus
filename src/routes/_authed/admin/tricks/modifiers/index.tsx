@@ -3,8 +3,8 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Pencil, Trash2 } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -12,7 +12,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
-import { BackLink } from "~/components/back-link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,7 +52,7 @@ import { tricks } from "~/lib/tricks";
 import { createModifierSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
 
-export const Route = createFileRoute("/_authed/admin/tricks/modifiers")({
+export const Route = createFileRoute("/_authed/admin/tricks/modifiers/")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       tricks.modifiers.list.queryOptions(),
@@ -80,24 +79,13 @@ function RouteComponent() {
   const [deletingModifier, setDeletingModifier] = useState<Modifier | null>(
     null,
   );
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const createModifier = useMutation({
-    mutationFn: tricks.modifiers.create.fn,
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["tricks.modifiers"] });
-      toast.success("Modifier created");
-      setIsCreateOpen(false);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const listQueryKey = tricks.modifiers.list.queryOptions().queryKey;
 
   const updateModifier = useMutation({
     mutationFn: tricks.modifiers.update.fn,
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["tricks.modifiers"] });
+      await qc.invalidateQueries({ queryKey: listQueryKey });
       toast.success("Modifier updated");
       setEditingModifier(null);
     },
@@ -108,31 +96,49 @@ function RouteComponent() {
 
   const deleteModifier = useMutation({
     mutationFn: tricks.modifiers.delete.fn,
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ["tricks.modifiers"] });
+    onMutate: async ({ data: id }) => {
+      await qc.cancelQueries({ queryKey: listQueryKey });
+      const prev = qc.getQueryData(listQueryKey);
+      qc.setQueryData(listQueryKey, (old: Modifier[] | undefined) =>
+        old?.filter((modifier) => modifier.id !== id),
+      );
+      return { prev };
+    },
+    onSuccess: () => {
       toast.success("Modifier deleted");
       setDeletingModifier(null);
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(listQueryKey, context.prev);
+      }
       toast.error(error.message);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: listQueryKey });
     },
   });
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <BackLink to="/tricks" label="graph" />
-          <Button onClick={() => setIsCreateOpen(true)}>Create</Button>
-        </div>
-        <div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/tricks">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
           <h1 className="text-2xl font-bold">trick modifiers</h1>
-          <p className="text-muted-foreground text-sm">
-            Modifiers are global prefixes/suffixes that can apply to any trick
-            (e.g., switch, fakie, late, regular).
-          </p>
         </div>
+        <Button asChild>
+          <Link to="/admin/tricks/modifiers/create">Create</Link>
+        </Button>
       </div>
+
+      <p className="text-muted-foreground text-sm">
+        Modifiers are global prefixes/suffixes that can apply to any trick
+        (e.g., switch, fakie, late, regular).
+      </p>
 
       <Table>
         <TableHeader>
@@ -177,19 +183,6 @@ function RouteComponent() {
           ))}
         </TableBody>
       </Table>
-
-      {/* Create Dialog */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Modifier</DialogTitle>
-          </DialogHeader>
-          <ModifierForm
-            onSubmit={(data) => createModifier.mutate({ data })}
-            isPending={createModifier.isPending}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* Edit Dialog */}
       <Dialog

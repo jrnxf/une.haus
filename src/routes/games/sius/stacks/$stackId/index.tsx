@@ -8,7 +8,6 @@ import {
   ChevronUpIcon,
   HeartIcon,
   LayersIcon,
-  Share2Icon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
@@ -17,6 +16,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
+import { ShareButton } from "~/components/share-button";
 import { StackUpForm } from "~/components/forms/games/sius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button";
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/games/sius/stacks/$stackId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { stackId } }) => {
+  loader: async ({ context, params: { stackId }, preload }) => {
     try {
       await context.queryClient.ensureQueryData(
         games.sius.stacks.get.queryOptions({ stackId }),
@@ -66,7 +66,10 @@ export const Route = createFileRoute("/games/sius/stacks/$stackId/")({
         games.sius.stacks.line.queryOptions({ stackId }),
       );
     } catch {
-      await session.flash.set.fn({ data: { message: "Stack not found" } });
+      // Only show flash message on actual navigation, not preload
+      if (!preload) {
+        await session.flash.set.fn({ data: { message: "Stack not found" } });
+      }
       throw redirect({ to: "/games/sius" });
     }
   },
@@ -183,9 +186,7 @@ function StackView({ stackId }: { stackId: number }) {
               }
             />
           )}
-          <Button size="icon-sm" variant="outline" disabled aria-label="Share">
-            <Share2Icon className="size-4" />
-          </Button>
+          <ShareButton />
         </div>
       </div>
 

@@ -287,6 +287,10 @@ export const getTrickByIdServerFn = createServerFn({
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.id, id),
       with: {
+        videos: {
+          where: eq(trickVideos.status, "active"),
+          orderBy: [asc(trickVideos.sortOrder)],
+        },
         elementAssignments: {
           with: {
             element: true,
@@ -396,9 +400,8 @@ export const updateTrickServerFn = createServerFn({
 })
   .inputValidator(zodValidator(updateTrickSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data }) => {
-    // Note: muxAssetIds is ignored here - videos are managed separately
-    const { id, relationships, muxAssetIds: _, elementIds, ...trickData } = data;
+  .handler(async ({ data, context }) => {
+    const { id, relationships, muxAssetIds, elementIds, ...trickData } = data;
 
     // Update trick
     const [trick] = await db
@@ -434,6 +437,27 @@ export const updateTrickServerFn = createServerFn({
         elementIds.map((elementId) => ({
           trickId: id,
           elementId,
+        })),
+      );
+    }
+
+    // Update videos - delete all active and re-insert
+    await db
+      .delete(trickVideos)
+      .where(
+        and(eq(trickVideos.trickId, id), eq(trickVideos.status, "active")),
+      );
+
+    if (muxAssetIds.length > 0) {
+      await db.insert(trickVideos).values(
+        muxAssetIds.map((muxAssetId, index) => ({
+          trickId: id,
+          muxAssetId,
+          status: "active" as const,
+          sortOrder: index,
+          submittedByUserId: context.user.id,
+          reviewedByUserId: context.user.id,
+          reviewedAt: new Date(),
         })),
       );
     }

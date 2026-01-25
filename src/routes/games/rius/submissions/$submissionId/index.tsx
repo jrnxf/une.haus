@@ -4,7 +4,6 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeftIcon,
   HeartIcon,
-  Share2Icon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
@@ -12,6 +11,7 @@ import {
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
+import { ShareButton } from "~/components/share-button";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { submissionId } }) => {
+  loader: async ({ context, params: { submissionId }, preload }) => {
     const ensureSubmission = async () => {
       try {
         await context.queryClient.ensureQueryData(
@@ -47,7 +47,10 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
           }),
         );
       } catch {
-        await flashMessage("Submission not found");
+        // Only show flash message on actual navigation, not preload
+        if (!preload) {
+          await flashMessage("Submission not found");
+        }
         throw redirect({ to: "/games/rius/active" });
       }
     };
@@ -136,9 +139,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               }
             />
           )}
-          <Button size="icon-sm" variant="outline" disabled>
-            <Share2Icon className="size-4" />
-          </Button>
+          <ShareButton />
         </div>
       </div>
 

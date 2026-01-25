@@ -156,18 +156,30 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/tricks">
+      <div className="mb-6 flex items-center justify-between">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/tricks/$trickId" params={{ trickId: slug }}>
             <ArrowLeft className="size-4" />
+            Back to definition
           </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Suggest Edit: {trick.name}</h1>
-          <p className="text-muted-foreground text-sm">
-            Your suggestion will be reviewed by the community
-          </p>
-        </div>
+        <Button variant="secondary" size="sm" asChild>
+          <Link to="/tricks/$trickId/submit-video" params={{ trickId: slug }}>
+            Submit Video
+          </Link>
+        </Button>
+      </div>
+
+      <div>
+        <h1 className="text-2xl font-bold">
+          suggest edit:{" "}
+          <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+            {trick.name}
+          </code>
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Your suggestion will be reviewed by the community
+        </p>
       </div>
 
       <Form

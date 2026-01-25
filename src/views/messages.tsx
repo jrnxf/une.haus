@@ -80,13 +80,22 @@ export function MessagesView({
     sessionUser,
   ]);
 
+  // When scrollTargetId is passed, we're embedded in a container that already
+  // provides padding and max-width constraints
+  const isEmbedded = Boolean(scrollTargetId);
+
   return (
-    <div className="h-full overflow-y-auto" ref={ref}>
-      <div className="grid h-full grid-cols-1 grid-rows-[1fr_auto]">
-        {messages.length === 0 && (
-          <p className="text-muted-foreground mt-1">No messages</p>
-        )}
-        <div className="mx-auto w-full max-w-4xl space-y-2 p-4">
+    <div className="flex h-full flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto" ref={ref}>
+        <div
+          className={cn(
+            "space-y-2",
+            !isEmbedded && "mx-auto w-full max-w-4xl px-4 pt-4",
+          )}
+        >
+          {messages.length === 0 && (
+            <p className="text-muted-foreground">No messages</p>
+          )}
           {messages.map((message, index) => {
             const isAuthUserMessage = Boolean(
               sessionUser && sessionUser.id === message.user.id,
@@ -112,7 +121,9 @@ export function MessagesView({
             );
           })}
         </div>
-        <div className="mx-auto w-full max-w-4xl shrink-0 p-4">
+      </div>
+      <div className={cn("shrink-0", isEmbedded ? "pt-4" : "p-4")}>
+        <div className={cn(!isEmbedded && "mx-auto w-full max-w-4xl")}>
           <BaseMessageForm
             onFocus={
               scrollTargetId ? undefined : () => scrollTo("bottom", Infinity)

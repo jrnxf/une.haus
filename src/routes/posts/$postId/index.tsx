@@ -16,7 +16,7 @@ export const Route = createFileRoute("/posts/$postId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { postId } }) => {
+  loader: async ({ context, params: { postId }, preload }) => {
     const ensurePost = async () => {
       try {
         await context.queryClient.ensureQueryData(
@@ -30,7 +30,10 @@ export const Route = createFileRoute("/posts/$postId/")({
           }),
         );
       } catch {
-        await flashMessage("Post not found");
+        // Only show flash message on actual navigation, not preload
+        if (!preload) {
+          await flashMessage("Post not found");
+        }
         throw redirect({ to: "/posts" });
       }
     };

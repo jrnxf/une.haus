@@ -9,7 +9,6 @@ import {
   FlagIcon,
   HeartIcon,
   RotateCcwIcon,
-  Share2Icon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
@@ -18,6 +17,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
+import { ShareButton } from "~/components/share-button";
 import { BackUpSetForm, FlagSetForm } from "~/components/forms/games/bius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/games/bius/sets/$setId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { setId } }) => {
+  loader: async ({ context, params: { setId }, preload }) => {
     try {
       await context.queryClient.ensureQueryData(
         games.bius.sets.get.queryOptions({ setId }),
@@ -62,7 +62,10 @@ export const Route = createFileRoute("/games/bius/sets/$setId/")({
         messages.list.queryOptions({ type: "biuSet", id: setId }),
       );
     } catch {
-      await session.flash.set.fn({ data: { message: "Set not found" } });
+      // Only show flash message on actual navigation, not preload
+      if (!preload) {
+        await session.flash.set.fn({ data: { message: "Set not found" } });
+      }
       throw redirect({ to: "/games/bius" });
     }
   },
@@ -180,9 +183,7 @@ function SetView({ setId }: { setId: number }) {
               }
             />
           )}
-          <Button size="icon-sm" variant="outline" disabled aria-label="Share">
-            <Share2Icon className="size-4" />
-          </Button>
+          <ShareButton />
         </div>
       </div>
 

@@ -72,6 +72,7 @@ export function StatsGrid({ data }: StatsGridProps) {
           icon={MapPinIcon}
           description="community members who have added their location"
           size="responsive"
+          to="/map"
         />
         <StatCard
           label="countries"
@@ -79,6 +80,7 @@ export function StatsGrid({ data }: StatsGridProps) {
           icon={GlobeIcon}
           description="countries represented by the community"
           size="responsive"
+          to="/map"
         />
       </div>
 

@@ -1,5 +1,10 @@
 import { useCallback, useState } from "react";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
 
 const paths = [
@@ -39,30 +44,49 @@ export function LogoRandomScatter({ className }: { className?: string }) {
   };
 
   return (
-    <svg
-      className={cn(baseClasses, "cursor-pointer overflow-visible", className)}
-      viewBox="0 0 195 60"
-      strokeLinejoin="round"
-      xmlns="http://www.w3.org/2000/svg"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {paths.map((d, i) => (
-        <path
-          key={i}
-          d={d}
-          style={{
-            transformOrigin: "center",
-            transform: isHovered
-              ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
-              : "translate(0, 0) rotate(0deg)",
-            opacity: isHovered ? 0.8 : 1,
-            transition:
-              "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
-            transitionDelay: `${i * 0.03}s`,
-          }}
-        />
-      ))}
-    </svg>
+    <Tooltip delayDuration={500}>
+      <TooltipTrigger asChild>
+        <svg
+          className={cn(
+            baseClasses,
+            "cursor-pointer overflow-visible",
+            className,
+          )}
+          viewBox="0 0 195 60"
+          strokeLinejoin="round"
+          xmlns="http://www.w3.org/2000/svg"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {paths.map((d, i) => (
+            <path
+              key={i}
+              d={d}
+              style={{
+                transformOrigin: "center",
+                transform: isHovered
+                  ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
+                  : "translate(0, 0) rotate(0deg)",
+                opacity: isHovered ? 0.8 : 1,
+                transition:
+                  "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
+                transitionDelay: `${i * 0.03}s`,
+              }}
+            />
+          ))}
+        </svg>
+      </TooltipTrigger>
+      <TooltipContent sideOffset={16}>
+        Logo by{" "}
+        <a
+          href="https://www.instagram.com/walkertorner"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2"
+        >
+          Walker Orner
+        </a>
+      </TooltipContent>
+    </Tooltip>
   );
 }

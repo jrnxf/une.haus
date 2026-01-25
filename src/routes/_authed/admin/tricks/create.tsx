@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
+import { BackLink } from "~/components/back-link";
 import { TrickForm } from "~/components/forms/trick";
-import { Button } from "~/components/ui/button";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/create")({
@@ -38,12 +37,8 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/tricks">
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
+      <div className="space-y-4">
+        <BackLink to="/tricks" label="graph" />
         <h1 className="text-2xl font-bold">Create Trick</h1>
       </div>
 

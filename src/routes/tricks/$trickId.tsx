@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Pencil, Video } from "lucide-react";
 
+import { BackLink } from "~/components/back-link";
 import { VideoCarousel } from "~/components/tricks/video-carousel";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -40,12 +40,12 @@ function TrickDetailPage() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6">
-      {/* Back navigation */}
-      <div className="mb-6">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/tricks" search={{ trick: trickId }}>
-            <ArrowLeft className="size-4" />
-            Back to graph
+      {/* Navigation */}
+      <div className="mb-6 flex items-center justify-between">
+        <BackLink to="/tricks" search={{ trick: trickId }} label="graph" />
+        <Button size="sm" asChild>
+          <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
+            Edit
           </Link>
         </Button>
       </div>
@@ -172,26 +172,6 @@ function TrickDetailPage() {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="flex justify-end border-t pt-4">
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link
-                to="/tricks/$trickId/submit-video"
-                params={{ trickId: trick.id }}
-              >
-                <Video className="size-3" />
-                Submit Video
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
-                <Pencil className="size-3" />
-                Suggest Edit
-              </Link>
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );

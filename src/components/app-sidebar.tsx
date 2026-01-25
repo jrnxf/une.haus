@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import {
-  ChartLineIcon,
   ClipboardPenIcon,
   EarthIcon,
+  GaugeIcon,
   LockIcon,
   LockOpenIcon,
   MedalIcon,
@@ -16,6 +16,7 @@ import { Logo } from "~/components/logo";
 import { NavMain } from "~/components/nav-main";
 import { NavSecondary } from "~/components/nav-secondary";
 import { NavUser } from "~/components/nav-user";
+import { SearchTrigger } from "~/components/search-trigger";
 import {
   Sidebar,
   SidebarContent,
@@ -53,7 +54,7 @@ const data = {
     {
       title: "Stats",
       url: "/stats",
-      icon: ChartLineIcon,
+      icon: GaugeIcon,
     },
     {
       title: "Tricks",
@@ -88,12 +89,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link to="/" className="h-fit">
                 <div>
-                  <Logo className="h-10" />
+                  <Logo className="h-8" />
                 </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <SearchTrigger />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

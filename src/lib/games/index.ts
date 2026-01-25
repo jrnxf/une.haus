@@ -151,6 +151,8 @@ type User = {
   id: number;
   name: string;
   avatarId: string | null;
+  bio?: string | null;
+  disciplines?: string[] | null;
 };
 
 type SetWithSubmissions = {
@@ -160,7 +162,7 @@ type SetWithSubmissions = {
   submissions?: {
     id: number;
     createdAt: Date;
-    user: User;
+    user: Pick<User, "id" | "name" | "avatarId">;
   }[];
 };
 

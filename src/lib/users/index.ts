@@ -5,16 +5,19 @@ import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
 import {
   allUsersServerFn,
   followUserServerFn,
+  getUserActivityServerFn,
   getUserFollowsServerFn,
   getUserWithFollowsServerFn,
   listUsersServerFn,
   unfollowUserServerFn,
   updateUserServerFn,
   usersWithLocationsServerFn,
+  type ActivityItem,
   type getUserServerFn,
 } from "~/lib/users/fns";
 import {
   followUserSchema,
+  getUserActivitySchema,
   getUserFollowsSchema,
   getUserSchema,
   listUsersSchema,
@@ -99,6 +102,27 @@ export const users = {
     fn: unfollowUserServerFn,
     schema: unfollowUserSchema,
   },
+  activity: {
+    fn: getUserActivityServerFn,
+    schema: getUserActivitySchema,
+    infiniteQueryOptions: (
+      data: Omit<ServerFnData<typeof getUserActivityServerFn>, "cursor" | "limit">,
+    ) => {
+      return infiniteQueryOptions({
+        queryKey: ["users.activity", data],
+        queryFn: ({ pageParam: cursor }) => {
+          return getUserActivityServerFn({
+            data: {
+              ...data,
+              cursor,
+            },
+          });
+        },
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      });
+    },
+  },
 };
 
 export type UsersGetData = ServerFnReturn<typeof getUserServerFn>;
@@ -110,3 +134,4 @@ export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>;
 export type UsersWithLocationsData = ServerFnReturn<
   typeof usersWithLocationsServerFn
 >;
+export type { ActivityItem };

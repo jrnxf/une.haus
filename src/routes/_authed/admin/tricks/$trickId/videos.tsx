@@ -3,10 +3,9 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowDown,
-  ArrowLeft,
   ArrowUp,
   CheckCircle,
   Trash2,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { BackLink } from "~/components/back-link";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -147,12 +147,8 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/tricks">
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
+      <div className="space-y-4">
+        <BackLink to="/tricks" label="graph" />
         <div>
           <h1 className="text-2xl font-bold">Manage Videos: {trick.name}</h1>
           <p className="text-muted-foreground text-sm">

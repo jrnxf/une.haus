@@ -49,7 +49,7 @@ export const Route = createFileRoute(
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { suggestionId } }) => {
+  loader: async ({ context, params: { suggestionId }, preload }) => {
     try {
       const [sessionData] = await Promise.all([
         context.queryClient.ensureQueryData(session.get.queryOptions()),
@@ -65,7 +65,10 @@ export const Route = createFileRoute(
       ]);
       return { isAdmin: sessionData.user?.id === 1 };
     } catch {
-      await flashMessage("Suggestion not found");
+      // Only show flash message on actual navigation, not preload
+      if (!preload) {
+        await flashMessage("Suggestion not found");
+      }
       throw redirect({ to: "/tricks/review" });
     }
   },
@@ -97,6 +100,11 @@ function DiffItem({
   oldValue: string | null;
   newValue: string | null;
 }) {
+  // Don't render if both values are empty
+  if (!oldValue && !newValue) {
+    return null;
+  }
+
   return (
     <div className="rounded-md border p-3">
       <h4 className="text-muted-foreground mb-2 text-sm font-medium">
@@ -179,7 +187,7 @@ function SuggestionView({
         className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
       >
         <ArrowLeft className="size-4" />
-        <span>Back to Review</span>
+        <span>back to review</span>
       </Link>
 
       <Card>
@@ -202,11 +210,11 @@ function SuggestionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 suggestion.status === "pending" &&
-                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 suggestion.status === "approved" &&
-                  "bg-green-500/20 text-green-700 dark:text-green-300",
+                "bg-green-500/20 text-green-700 dark:text-green-300",
                 suggestion.status === "rejected" &&
-                  "bg-red-500/20 text-red-700 dark:text-red-300",
+                "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {suggestion.status === "pending" && "Pending"}
@@ -351,22 +359,9 @@ function SuggestionView({
       </Card>
 
       {isAdmin && isPending && (
-        <div className="flex gap-2">
-          <Button
-            className="flex-1"
-            onClick={() =>
-              reviewSuggestion.mutate({
-                data: { id: suggestionId, status: "approved" },
-              })
-            }
-            disabled={reviewSuggestion.isPending}
-          >
-            <CheckCircle className="mr-2 size-4" />
-            Approve
-          </Button>
+        <div className="flex justify-end gap-2">
           <Button
             variant="outline"
-            className="flex-1"
             onClick={() =>
               reviewSuggestion.mutate({
                 data: { id: suggestionId, status: "rejected" },
@@ -376,6 +371,17 @@ function SuggestionView({
           >
             <XCircle className="mr-2 size-4" />
             Reject
+          </Button>
+          <Button
+            onClick={() =>
+              reviewSuggestion.mutate({
+                data: { id: suggestionId, status: "approved" },
+              })
+            }
+            disabled={reviewSuggestion.isPending}
+          >
+            <CheckCircle className="mr-2 size-4" />
+            Approve
           </Button>
         </div>
       )}

@@ -283,7 +283,7 @@ function RouteComponent() {
           id="vault-search"
           value={query}
           onChange={(evt) => setQuery(evt.target.value)}
-          placeholder="Search vault"
+          placeholder="search vault"
           className="mx-auto mb-4 max-w-2xl"
         />
 

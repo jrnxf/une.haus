@@ -27,9 +27,11 @@ type User = {
 type UsersDialogProps = {
   users: User[];
   title: string;
-  trigger: ReactNode;
+  trigger?: ReactNode;
   disabled?: boolean;
   withSearch?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 export function UsersDialog({
@@ -38,9 +40,17 @@ export function UsersDialog({
   trigger,
   disabled = false,
   withSearch = false,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: UsersDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled
+    ? (controlledOnOpenChange ?? (() => {}))
+    : setInternalOpen;
 
   if (disabled || users.length === 0) {
     return <>{trigger}</>;
@@ -52,7 +62,7 @@ export function UsersDialog({
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent className="max-w-sm p-0">
           <Command className="bg-inherit">
-            <CommandInput autoFocus placeholder="Search users..." />
+            <CommandInput autoFocus placeholder="search users..." />
             <CommandList>
               <CommandEmpty>No users found.</CommandEmpty>
               <CommandGroup>
@@ -81,29 +91,29 @@ export function UsersDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="max-w-sm">
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className="w-full max-w-xs">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle className="text-sm">reactions</DialogTitle>
         </DialogHeader>
-        <div className="flex max-h-[400px] flex-col gap-3 overflow-y-auto">
+        <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto">
           {users.map((user) => (
             <Link
               key={user.id}
               to="/users/$userId"
               params={{ userId: user.id }}
               onClick={() => setOpen(false)}
-              className="hover:bg-accent flex items-center gap-3 rounded-md p-2 transition-colors"
+              className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors"
             >
               <Avatar
-                className="size-10"
+                className="size-6"
                 cloudflareId={user.avatarId}
                 alt={user.name}
               >
-                <AvatarImage width={40} quality={85} />
-                <AvatarFallback name={user.name} />
+                <AvatarImage width={24} quality={85} />
+                <AvatarFallback className="text-xs" name={user.name} />
               </Avatar>
-              <span className="text-sm font-medium">{user.name}</span>
+              <span className="text-sm">{user.name}</span>
             </Link>
           ))}
         </div>

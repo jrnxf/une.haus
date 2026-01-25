@@ -1,11 +1,12 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import { HeartIcon, TrendingUpIcon } from "lucide-react";
+import { ArrowLeftIcon, HeartIcon, TrendingUpIcon } from "lucide-react";
 
 import { z } from "zod";
 
 import { UsersDialog } from "~/components/likes-dialog";
+import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { flashMessage } from "~/lib/flash";
@@ -26,14 +27,17 @@ export const Route = createFileRoute("/vault/$videoId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  loader: async ({ context, params: { videoId } }) => {
+  loader: async ({ context, params: { videoId }, preload }) => {
     const ensureVideo = async () => {
       try {
         await context.queryClient.ensureQueryData(
           utv.get.queryOptions(videoId),
         );
       } catch {
-        await flashMessage("Video not found");
+        // Only show flash message on actual navigation, not preload
+        if (!preload) {
+          await flashMessage("Video not found");
+        }
         throw redirect({ to: "/vault" });
       }
     };
@@ -88,24 +92,17 @@ function RouteComponent() {
   return (
     <div className="h-full overflow-y-auto" id="main-content">
       <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
-        <div className="text-muted-foreground text-sm">
-          <Link to="/vault" className="hover:underline">
-            Vault
+        <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
+          <Link to="/vault">
+            <ArrowLeftIcon className="size-4" />
+            Back to vault
           </Link>
-          <span className="mx-2">/</span>
-          <span>{displayTitle}</span>
-        </div>
+        </Button>
 
-        {video.video?.playbackId && (
-          <VideoPlayer playbackId={video.video.playbackId} />
-        )}
-
-        <div className="flex items-center gap-3">
-          <div className="w-full space-y-1">
-            <h1 className="text-2xl leading-none font-semibold tracking-tight">
-              {displayTitle}
-            </h1>
-          </div>
+        <div className="flex items-center gap-2">
+          <h1 className="flex-1 text-2xl leading-none font-semibold tracking-tight">
+            {displayTitle}
+          </h1>
           <div className="flex shrink-0 items-center gap-1">
             <Button size="icon-sm" variant="outline" onClick={likeUnlikeVideo}>
               <HeartIcon
@@ -124,8 +121,13 @@ function RouteComponent() {
                 </Button>
               }
             />
+            <ShareButton />
           </div>
         </div>
+
+        {video.video?.playbackId && (
+          <VideoPlayer playbackId={video.video.playbackId} />
+        )}
 
         <div className="shrink-0">
           <MessagesView

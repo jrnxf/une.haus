@@ -79,6 +79,7 @@
     "@tanstack/react-router-devtools": "1.149.0",
     "@tanstack/react-router-ssr-query": "1.147.3",
     "@tanstack/react-start": "1.149.0",
+    "@tanstack/react-virtual": "^3.13.18",
     "@tanstack/router-core": "1.147.1",
     "@tanstack/router-plugin": "^1.149.0",
     "@tanstack/zod-adapter": "^1.147.3",

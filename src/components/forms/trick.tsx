@@ -35,14 +35,9 @@ import {
   type CreateTrickArgs,
   type TrickFormValues,
 } from "~/lib/tricks/schemas";
+import { generateSlug } from "~/lib/utils";
 
 export type TrickFormDefaultValues = Partial<TrickFormValues>;
-
-const generateSlug = (value: string) =>
-  value
-    .toLowerCase()
-    .replaceAll(/[^a-z0-9]+/g, "-")
-    .replaceAll(/^-|-$/g, "");
 
 export function TrickForm({
   defaultValues,

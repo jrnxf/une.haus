@@ -75,7 +75,7 @@ export function TricksSearch({ data, onSelectTrick }: TricksSearchProps) {
       <Command shouldFilter={false}>
         <CommandInput
           onValueChange={setSearchTerm}
-          placeholder="Search tricks..."
+          placeholder="search tricks..."
           value={searchTerm}
         />
         <CommandList>

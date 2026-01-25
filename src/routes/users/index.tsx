@@ -1,9 +1,10 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { EarthIcon, FilterIcon, GhostIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
+import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
 
 import { useDebounceCallback } from "usehooks-ts";
 
@@ -18,9 +19,14 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
-import { USER_DISCIPLINES } from "~/db/schema";
+import { USER_DISCIPLINES, type UserDiscipline } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn, getCloudflareImageUrl } from "~/lib/utils";
+
+const searchParamsParsers = {
+  name: parseAsString,
+  disciplines: parseAsArrayOf(parseAsString),
+};
 
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
@@ -35,53 +41,36 @@ export const Route = createFileRoute("/users/")({
 });
 
 function RouteComponent() {
-  const searchParams = Route.useSearch();
-  const router = useRouter();
-
-  // React state drives the query - NOT the URL
-  const [query, setQuery] = useState(searchParams.name ?? "");
-  const [disciplines, setDisciplines] = useState(
-    searchParams.disciplines ?? [],
+  const [{ name, disciplines }, setParams] = useQueryStates(
+    searchParamsParsers,
+    { shallow: false, history: "replace" },
   );
+
+  // Local state for immediate input feedback
+  const [query, setQuery] = useState(name ?? "");
   const deferredQuery = useDeferredValue(query);
-  const deferredDisciplines = useDeferredValue(disciplines);
+  const deferredDisciplines = useDeferredValue(disciplines ?? []);
 
   const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(searchParams.name || searchParams.disciplines?.length),
+    Boolean(name || disciplines?.length),
   );
 
-  const hasActiveFilters = Boolean(query || disciplines.length > 0);
+  const hasActiveFilters = Boolean(query || (disciplines?.length ?? 0) > 0);
 
-  const debouncedNavigate = useDebounceCallback((name: string) => {
-    router.navigate({
-      to: "/users",
-      search: (prev) => ({
-        ...prev,
-        name: name || undefined,
-        id: undefined,
-        cursor: undefined,
-      }),
-      replace: true,
-    });
+  const debouncedSetName = useDebounceCallback((value: string) => {
+    setParams({ name: value || null });
   }, 300);
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
-    debouncedNavigate(value);
+    debouncedSetName(value);
   };
 
   const handleDisciplinesChange = (
     newDisciplines: (typeof USER_DISCIPLINES)[number][],
   ) => {
-    setDisciplines(newDisciplines);
-    router.navigate({
-      to: "/users",
-      search: (prev) => ({
-        ...prev,
-        disciplines: newDisciplines.length > 0 ? newDisciplines : undefined,
-        cursor: undefined,
-      }),
-      replace: true,
+    setParams({
+      disciplines: newDisciplines.length > 0 ? newDisciplines : null,
     });
   };
 
@@ -94,7 +83,9 @@ function RouteComponent() {
     users.list.infiniteQueryOptions({
       name: deferredQuery || undefined,
       disciplines:
-        deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
+        deferredDisciplines.length > 0
+          ? (deferredDisciplines as UserDiscipline[])
+          : undefined,
     }),
   );
 
@@ -130,7 +121,7 @@ function RouteComponent() {
                 <Input
                   value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
-                  placeholder="Search users..."
+                  placeholder="search users..."
                   className="pr-8"
                 />
                 {query && (
@@ -144,7 +135,7 @@ function RouteComponent() {
                 )}
               </div>
               <BadgeInput
-                defaultSelections={searchParams.disciplines}
+                defaultSelections={(disciplines as UserDiscipline[]) ?? undefined}
                 onChange={handleDisciplinesChange}
                 options={USER_DISCIPLINES}
               />
@@ -188,7 +179,7 @@ function RouteComponent() {
               )}
               data-user-name={user.name}
             >
-              <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
+              <div className="flex flex-col gap-4 rounded-md border p-3 sm:flex-row bg-card">
                 <div className="flex w-full flex-col gap-2">
                   <div className="flex items-center gap-2">
                     {/* <Avatar className="size-6 rounded-full">
@@ -216,7 +207,7 @@ function RouteComponent() {
                       <p>{user.bio}</p>
                     </div>
                   )}
-                  <Badges content={user.disciplines} />
+                  <Badges content={user.disciplines} active={disciplines ?? undefined} />
                 </div>
               </div>
             </Link>

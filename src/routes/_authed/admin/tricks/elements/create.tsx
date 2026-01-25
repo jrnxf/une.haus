@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+import { BackLink } from "~/components/back-link";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -21,6 +21,7 @@ import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { tricks } from "~/lib/tricks";
 import { createElementSchema } from "~/lib/tricks/schemas";
+import { generateSlug } from "~/lib/utils";
 
 export const Route = createFileRoute(
   "/_authed/admin/tricks/elements/create",
@@ -58,21 +59,13 @@ function RouteComponent() {
 
   const { control, handleSubmit, setValue } = rhf;
 
-  const generateSlug = (value: string) =>
-    value
-      .toLowerCase()
-      .replaceAll(/[^a-z0-9]+/g, "-")
-      .replaceAll(/^-|-$/g, "");
+
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/admin/tricks/elements">
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">Create Element</h1>
+      <div className="space-y-4">
+        <BackLink to="/admin/tricks/elements" label="elements" />
+        <h1 className="text-2xl font-bold">create element</h1>
       </div>
 
       <Form

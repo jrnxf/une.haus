@@ -97,7 +97,7 @@ export function TrickSelector({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search tricks..."
+            placeholder="search tricks..."
             value={query}
             onValueChange={setQuery}
           />
@@ -236,7 +236,7 @@ export function TrickRelationshipSelector({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search tricks..."
+            placeholder="search tricks..."
             value={query}
             onValueChange={setQuery}
           />
@@ -365,7 +365,7 @@ export function ElementSelector({
       >
         <Command shouldFilter={false}>
           <CommandInput
-            placeholder="Search elements..."
+            placeholder="search elements..."
             value={query}
             onValueChange={setQuery}
           />

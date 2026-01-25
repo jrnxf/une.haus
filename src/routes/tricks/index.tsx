@@ -95,7 +95,7 @@ function TricksPage() {
 
       <div className="flex min-h-0 flex-1">
         {/* Sidebar - hidden on mobile */}
-        <div className="hidden h-full w-64 shrink-0 overflow-hidden border-r md:block">
+        <div className="hidden h-full w-(--sidebar-width) shrink-0 overflow-hidden border-r md:block">
           <TricksSidebar
             data={data}
             onSelectTrick={(trick) => handleSelectTrick(trick.id)}

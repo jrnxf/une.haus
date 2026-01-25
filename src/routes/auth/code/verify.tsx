@@ -97,9 +97,9 @@ function RouteComponent() {
             control={enterCodeForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>Enter verification code</FieldLabel>
+                <FieldLabel>enter verification code</FieldLabel>
                 <FieldDescription>
-                  We sent a 4-digit code to your email.
+                  we sent a 4-digit code to your email.
                 </FieldDescription>
                 <InputOTP
                   maxLength={4}
@@ -124,7 +124,7 @@ function RouteComponent() {
           <FieldGroup>
             <Button type="submit">Verify</Button>
             <FieldDescription className="text-center">
-              Didn&apos;t receive the code?{" "}
+              didn&apos;t receive the code?{" "}
               <Link to="/auth/code/send">Resend</Link>
             </FieldDescription>
           </FieldGroup>

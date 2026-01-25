@@ -2,7 +2,6 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   FilterIcon,
-  GhostIcon,
   HeartIcon,
   MessageCircleIcon,
   PaperclipIcon,
@@ -154,7 +153,7 @@ function RouteComponent() {
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <GhostIcon />
+                <MessageCircleIcon />
               </EmptyMedia>
               <EmptyTitle>No posts</EmptyTitle>
               <EmptyDescription>

@@ -1,4 +1,4 @@
-import { CommandIcon, Loader2Icon, SearchIcon } from "lucide-react";
+import { Loader2Icon, SearchIcon } from "lucide-react";
 import * as React from "react";
 import { createContext, useContext } from "react";
 
@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { Kbd, KbdGroup } from "~/components/ui/kbd";
 import { cn } from "~/lib/utils";
 
 const CommandLoading = CommandPrimitive.Loading;
@@ -43,6 +44,7 @@ function CommandDialog({
   className,
   onCloseAutoFocus,
   showCloseButton = true,
+  showTrigger = true,
   footer,
   onValueChange,
   value,
@@ -54,6 +56,7 @@ function CommandDialog({
     description?: string;
     className?: string;
     showCloseButton?: boolean;
+    showTrigger?: boolean;
     footer?: React.ReactNode;
     onValueChange?: (value: string) => void;
     value?: string;
@@ -61,16 +64,16 @@ function CommandDialog({
   }) {
   return (
     <Dialog {...props}>
-      <DialogTrigger asChild>
-        <Button
-          aria-label="Open command menu"
-          className={cn("size-7", className)}
-          size="icon"
-          variant="ghost"
-        >
-          <CommandIcon className="size-4" />
-        </Button>
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button aria-label="Open command menu" size="xs" variant="ghost">
+            <KbdGroup>
+              <Kbd>⌘</Kbd>
+              <Kbd>K</Kbd>
+            </KbdGroup>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent
         className={cn(
           "flex max-h-[min(400px,calc(100vh-100px))] flex-col gap-0 overflow-hidden p-0",
@@ -169,6 +172,8 @@ function CommandItem({
       data-slot="command-item"
       className={cn(
         "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm p-2 outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        // Darker Kbd styling when selected
+        "data-[selected=true]:[&_[data-slot=kbd]]:bg-accent-foreground/20 data-[selected=true]:[&_[data-slot=kbd]]:text-accent-foreground",
         className,
       )}
       {...props}
@@ -184,7 +189,7 @@ const CommandList = React.forwardRef<
     ref={ref}
     data-slot="command-list"
     className={cn(
-      "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto",
+      "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto pb-1",
       className,
     )}
     {...props}
@@ -263,25 +268,6 @@ function CommandActionsProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Kbd({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <kbd
-      className={cn(
-        "bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded px-1 font-mono text-[11px] font-medium",
-        className,
-      )}
-    >
-      {children}
-    </kbd>
-  );
-}
-
 function CommandFooter({ className }: { className?: string }) {
   const { actions } = useCommandActions();
 
@@ -354,7 +340,7 @@ export {
   CommandLoading,
   CommandSeparator,
   CommandShortcut,
-  Kbd,
   useCommandActions,
 };
+export { Kbd, KbdGroup } from "~/components/ui/kbd";
 export type { CommandAction };

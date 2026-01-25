@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Link, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 import { Suspense, useMemo, useRef } from "react";
@@ -26,6 +27,7 @@ import { usePeripherals } from "~/hooks/use-peripherals";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
 import { users as usersApi } from "~/lib/users";
+import { utv } from "~/lib/utv/core";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
 type Page =
@@ -34,6 +36,7 @@ type Page =
   | "posts"
   | "root"
   | "search-users"
+  | "search-vault"
   | "theme"
   | "tricks"
   | "users"
@@ -194,6 +197,15 @@ export function Search() {
         label: "Open",
         onAction: () => closeAndNavigate("/vault"),
       },
+      secondaryActions: [
+        {
+          id: "search-vault",
+          label: "Search Vault",
+          shortcut: { key: "↵", meta: true },
+          hotkey: "mod+enter",
+          onAction: () => pushPage("search-vault"),
+        },
+      ],
     },
     {
       id: "tricks",
@@ -284,8 +296,11 @@ export function Search() {
     if (activePage === "search-users") {
       return "Go to User";
     }
+    if (activePage === "search-vault") {
+      return "Go to Video";
+    }
     if (activePage === "theme") {
-      return "Set Theme";
+      return "Select";
     }
     if (activePage === "games-menu") {
       return "Open Game";
@@ -309,7 +324,7 @@ export function Search() {
       )}
 
       {/* Primary action */}
-      <Button variant="ghost" size="sm" className="gap-1.5" disabled>
+      <Button variant="ghost" size="sm" className="gap-1.5">
         <span>{getPrimaryActionLabel()}</span>
         <Kbd>↵</Kbd>
       </Button>
@@ -334,7 +349,7 @@ export function Search() {
                 >
                   {action.label}
                   {shortcutParts && (
-                    <DropdownMenuShortcut className="flex items-center gap-0.5">
+                    <DropdownMenuShortcut className="flex items-center gap-1.5">
                       {shortcutParts.map((part, i) => (
                         <Kbd key={i}>{part}</Kbd>
                       ))}
@@ -356,10 +371,11 @@ export function Search() {
       open={open}
       title="Command Menu"
       showCloseButton={false}
+      showTrigger={false}
       footer={footer}
       value={selectedValue}
       onValueChange={setSelectedValue}
-      shouldFilter={activePage !== "search-users"}
+      shouldFilter={activePage !== "search-users" && activePage !== "search-vault"}
     >
       <CommandInput
         ref={inputRef}
@@ -394,12 +410,14 @@ export function Search() {
         placeholder={
           activePage === "search-users"
             ? "Search users..."
-            : "Search for anything..."
+            : activePage === "search-vault"
+              ? "Search vault..."
+              : "Search for anything..."
         }
         value={input}
       />
       <CommandList ref={listRef}>
-        {activePage !== "search-users" && (
+        {activePage !== "search-users" && activePage !== "search-vault" && (
           <CommandEmpty>No results found.</CommandEmpty>
         )}
 
@@ -535,8 +553,27 @@ export function Search() {
           >
             <SearchUsersPage
               query={input}
+              scrollRef={listRef}
               onSelectUser={(userId) => {
                 closeAndNavigate(`/users/${userId}`);
+              }}
+            />
+          </Suspense>
+        )}
+
+        {activePage === "search-vault" && (
+          <Suspense
+            fallback={
+              <div className="text-muted-foreground py-3 text-center text-sm">
+                Loading videos...
+              </div>
+            }
+          >
+            <SearchVaultPage
+              query={input}
+              scrollRef={listRef}
+              onSelectVideo={(videoId) => {
+                closeAndNavigate(`/vault/${videoId}`);
               }}
             />
           </Suspense>
@@ -548,9 +585,11 @@ export function Search() {
 
 function SearchUsersPage({
   query,
+  scrollRef,
   onSelectUser,
 }: {
   query: string;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
   onSelectUser: (userId: number) => void;
 }) {
   const { data: users } = useSuspenseQuery(usersApi.all.queryOptions());
@@ -571,6 +610,16 @@ function SearchUsersPage({
 
   const filteredUsers = fzf.find(query.toLowerCase());
 
+  const shouldVirtualize = filteredUsers.length > VIRTUALIZE_THRESHOLD;
+
+  const virtualizer = useVirtualizer({
+    count: filteredUsers.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ITEM_HEIGHT,
+    overscan: 5,
+    enabled: shouldVirtualize,
+  });
+
   if (filteredUsers.length === 0) {
     return (
       <p className="text-muted-foreground py-3 text-center text-sm">
@@ -579,17 +628,158 @@ function SearchUsersPage({
     );
   }
 
+  // Non-virtualized rendering for small lists
+  if (!shouldVirtualize) {
+    return (
+      <CommandGroup heading="users">
+        {filteredUsers.map(({ item: user }) => (
+          <CommandItem
+            key={user.id}
+            value={`user-${user.id}-${user.name}`}
+            onSelect={() => onSelectUser(user.id)}
+          >
+            {user.name}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    );
+  }
+
+  // Virtualized rendering for large lists
   return (
-    <CommandGroup heading="Users">
-      {filteredUsers.map(({ item: user }) => (
-        <CommandItem
-          key={user.id}
-          value={`user-${user.id}-${user.name}`}
-          onSelect={() => onSelectUser(user.id)}
-        >
-          {user.name}
-        </CommandItem>
-      ))}
-    </CommandGroup>
+    <div className="text-foreground overflow-hidden px-2 py-1">
+      <div className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+        users
+      </div>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const user = filteredUsers[virtualItem.index]?.item;
+          if (!user) return null;
+          return (
+            <CommandItem
+              key={user.id}
+              value={`user-${user.id}-${user.name}`}
+              onSelect={() => onSelectUser(user.id)}
+              style={{
+                position: "absolute",
+                top: virtualItem.start,
+                left: 0,
+                right: 0,
+              }}
+            >
+              {user.name}
+            </CommandItem>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const VIRTUALIZE_THRESHOLD = 10;
+const ITEM_HEIGHT = 36; // Height of CommandItem in pixels
+
+function SearchVaultPage({
+  query,
+  scrollRef,
+  onSelectVideo,
+}: {
+  query: string;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  onSelectVideo: (videoId: number) => void;
+}) {
+  const { data: videos } = useSuspenseQuery(utv.all.queryOptions());
+
+  const searchReadyVideos = useMemo(
+    () =>
+      videos.map((video) => ({
+        ...video,
+        searchKey: video.title.toLowerCase(),
+      })),
+    [videos],
+  );
+
+  const fzf = useFzf([
+    searchReadyVideos,
+    { selector: (video) => video.searchKey },
+  ]);
+
+  const filteredVideos = fzf.find(query.toLowerCase());
+
+  const shouldVirtualize = filteredVideos.length > VIRTUALIZE_THRESHOLD;
+
+  const virtualizer = useVirtualizer({
+    count: filteredVideos.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ITEM_HEIGHT,
+    overscan: 5,
+    enabled: shouldVirtualize,
+  });
+
+  if (filteredVideos.length === 0) {
+    return (
+      <p className="text-muted-foreground py-3 text-center text-sm">
+        No videos found.
+      </p>
+    );
+  }
+
+  // Non-virtualized rendering for small lists
+  if (!shouldVirtualize) {
+    return (
+      <CommandGroup heading="vault">
+        {filteredVideos.map(({ item: video }) => (
+          <CommandItem
+            key={video.id}
+            value={`video-${video.id}-${video.title}`}
+            onSelect={() => onSelectVideo(video.id)}
+          >
+            {video.title}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    );
+  }
+
+  // Virtualized rendering for large lists
+  return (
+    <div className="text-foreground overflow-hidden px-2 py-1">
+      <div className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+        vault
+      </div>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const video = filteredVideos[virtualItem.index]?.item;
+          if (!video) return null;
+          return (
+            <CommandItem
+              key={video.id}
+              value={`video-${video.id}-${video.title}`}
+              onSelect={() => onSelectVideo(video.id)}
+              style={{
+                position: "absolute",
+                top: virtualItem.start,
+                left: 0,
+                right: 0,
+              }}
+            >
+              {video.title}
+            </CommandItem>
+          );
+        })}
+      </div>
+    </div>
   );
 }

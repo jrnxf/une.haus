@@ -1,6 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import { CopyIcon, HeartIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import {
+  CopyIcon,
+  HeartCrackIcon,
+  HeartIcon,
+  PencilIcon,
+  Trash2Icon,
+  TrendingUpIcon,
+} from "lucide-react";
 import React from "react";
 
 import { toast } from "sonner";
@@ -16,13 +23,11 @@ import {
 } from "~/components/ui/base-menu";
 import { Button } from "~/components/ui/button";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-} from "~/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import { Textarea } from "~/components/ui/textarea";
-import { useIsTablet } from "~/hooks/use-mobile";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -38,11 +43,11 @@ export function MessageBubble({
   parent: MessageParent;
   message: Message;
 }) {
-  const isTablet = useIsTablet();
   const messageType = `${parent.type}Message` as const;
   const sessionUser = useSessionUser();
   const [actionsOpen, setActionsOpen] = React.useState(false);
   const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
+  const [reactionsDialogOpen, setReactionsDialogOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const isOwnMessage = sessionUser && message.user.id === sessionUser.id;
@@ -122,63 +127,62 @@ export function MessageBubble({
             isOwnMessage ? "flex-row-reverse" : "flex-row",
           )}
         >
-          {isTablet ? (
-            <button
-              onClick={() => setActionsOpen(true)}
+          <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
+            <MenuTrigger
               className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
               style={{ wordBreak: "break-word" }}
             >
               <p className="leading-relaxed">
                 {preprocessText(message.content)}
               </p>
-            </button>
-          ) : (
-            <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
-              <MenuTrigger
-                className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
-                style={{ wordBreak: "break-word" }}
-              >
-                <p className="leading-relaxed">
-                  {preprocessText(message.content)}
-                </p>
-              </MenuTrigger>
-              <MenuContent
-                showBackdrop={true}
-                side={isOwnMessage ? "left" : "right"}
-                align="start"
-                sideOffset={5}
-                alignOffset={0}
-                collisionPadding={8}
-                sticky={false}
-                collisionAvoidance={{
-                  side: "shift",
-                  align: "shift",
-                }}
-              >
-                <ReactionMenuItem
-                  handleLikeUnlike={handleLikeUnlike}
-                  authUserLiked={authUserLiked}
-                />
-                <MenuItem onClick={handleCopy}>
-                  <CopyIcon className="size-4" />
-                  Copy Message
+            </MenuTrigger>
+            <MenuContent
+              showBackdrop={true}
+              side={isOwnMessage ? "left" : "right"}
+              align="start"
+              sideOffset={5}
+              alignOffset={0}
+              collisionPadding={8}
+              sticky={false}
+              collisionAvoidance={{
+                side: "shift",
+                align: "shift",
+              }}
+            >
+              <ReactionMenuItem
+                handleLikeUnlike={handleLikeUnlike}
+                authUserLiked={authUserLiked}
+              />
+              <MenuItem onClick={handleCopy}>
+                <CopyIcon className="size-4" />
+                Copy
+              </MenuItem>
+              {message.likes.length > 0 && (
+                <MenuItem
+                  onClick={() => {
+                    setActionsOpen(false);
+                    setReactionsDialogOpen(true);
+                  }}
+                >
+                  <TrendingUpIcon className="size-4" />
+                  Reactions
                 </MenuItem>
-                {isOwnMessage && (
-                  <>
-                    <MenuSeparator />
-                    <MenuItem onClick={handleEdit}>
-                      <PencilIcon className="size-4" />
-                      Edit
-                    </MenuItem>
-                    <MenuItem variant="destructive" onClick={handleDelete}>
-                      <Trash2Icon className="size-4" />
-                      Delete
-                    </MenuItem>
-                  </>
-                )}
-              </MenuContent>
-            </Menu>
-          )}
+              )}
+              {isOwnMessage && (
+                <>
+                  <MenuSeparator />
+                  <MenuItem onClick={handleEdit}>
+                    <PencilIcon className="size-4" />
+                    Edit
+                  </MenuItem>
+                  <MenuItem variant="destructive" onClick={handleDelete}>
+                    <Trash2Icon className="size-4" />
+                    Delete
+                  </MenuItem>
+                </>
+              )}
+            </MenuContent>
+          </Menu>
 
           {/* Like Count Badge - Absolutely Positioned */}
           {message.likes.length > 0 && (
@@ -204,46 +208,13 @@ export function MessageBubble({
         </div>
       </div>
 
-      {/* Actions Drawer (Mobile Only) */}
-      {isTablet && (
-        <Drawer open={actionsOpen} onOpenChange={setActionsOpen}>
-          <DrawerContent>
-            <div className="flex w-full items-center justify-center gap-4 p-6 pt-0">
-              <Button
-                size="icon"
-                variant="secondary"
-                onClick={handleLikeUnlike}
-                aria-label={authUserLiked ? "Unlike" : "Like"}
-              >
-                <HeartIcon
-                  className={cn(
-                    "size-5",
-                    authUserLiked && "fill-red-700/50 stroke-red-700",
-                  )}
-                />
-              </Button>
-              <Button size="icon" variant="secondary" onClick={handleCopy} aria-label="Copy">
-                <CopyIcon className="size-5" />
-              </Button>
-              {isOwnMessage && (
-                <>
-                  <Button size="icon" variant="secondary" onClick={handleEdit} aria-label="Edit">
-                    <PencilIcon className="size-5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="secondary"
-                    onClick={handleDelete}
-                    aria-label="Delete"
-                  >
-                    <Trash2Icon className="size-5" />
-                  </Button>
-                </>
-              )}
-            </div>
-          </DrawerContent>
-        </Drawer>
-      )}
+      {/* Reactions Dialog (controlled) */}
+      <UsersDialog
+        users={message.likes.map((like) => like.user)}
+        title="reactions"
+        open={reactionsDialogOpen}
+        onOpenChange={setReactionsDialogOpen}
+      />
 
       {/* Edit Drawer */}
       {isOwnMessage && (
@@ -332,41 +303,42 @@ function EditMessageDrawer({
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <div className="p-4">
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={4}
-            className="resize-none"
-          />
-        </div>
-        <DrawerFooter className="flex-row gap-2">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent showCloseButton={false} className="gap-4 p-4">
+        <DialogTitle className="sr-only">Edit message</DialogTitle>
+        <Textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={4}
+          className="resize-none"
+        />
+        <div className="flex items-center gap-2">
           <Button
             size="icon"
-            variant="destructive"
+            variant="secondary"
             onClick={handleDelete}
             disabled={isDeleting || isUpdating}
             aria-label="Delete"
           >
-            <Trash2Icon className="size-5" />
+            <Trash2Icon className="size-4" />
           </Button>
-          <DrawerClose asChild>
-            <Button variant="secondary" className="flex-1">
-              Cancel
-            </Button>
-          </DrawerClose>
+          <div className="flex-1" />
+          <Button
+            variant="secondary"
+            onClick={() => onOpenChange(false)}
+            disabled={isUpdating || isDeleting}
+          >
+            cancel
+          </Button>
           <Button
             onClick={handleUpdate}
             disabled={isUpdating || isDeleting}
-            className="flex-1"
           >
             Save
           </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -475,9 +447,11 @@ function ReactionMenuItem({
   const [isLiked] = React.useState<boolean>(authUserLiked);
   return (
     <MenuItem onClick={handleLikeUnlike}>
-      <HeartIcon
-        className={cn("size-4", isLiked && "fill-red-700/50 stroke-red-700")}
-      />
+      {isLiked ? (
+        <HeartCrackIcon className="size-4" />
+      ) : (
+        <HeartIcon className="size-4" />
+      )}
       <span>{isLiked ? "Unlike" : "Like"}</span>
     </MenuItem>
   );

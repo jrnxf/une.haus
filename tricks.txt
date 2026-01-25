@@ -211,3 +211,4 @@ hicksidekickflip - 180 sidespin where mid spin rider kicks the tire with the sam
 treysidekickflip - 360 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
 fifthsidekickflip - 540 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
 sejsidekickflip - 720 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+

@@ -31,12 +31,12 @@ export function TricksSidebar({
 
     const filtered = searchLower
       ? data.tricks.filter(
-          (trick) =>
-            trick.name.toLowerCase().includes(searchLower) ||
-            trick.alternateNames.some((name) =>
-              name.toLowerCase().includes(searchLower),
-            ),
-        )
+        (trick) =>
+          trick.name.toLowerCase().includes(searchLower) ||
+          trick.alternateNames.some((name) =>
+            name.toLowerCase().includes(searchLower),
+          ),
+      )
       : data.tricks;
 
     // Sort alphabetically by name
@@ -58,12 +58,12 @@ export function TricksSidebar({
     >
       <CommandInput
         onValueChange={setSearchTerm}
-        placeholder="Search tricks..."
+        placeholder="search tricks..."
         value={searchTerm}
       />
       <CommandList className="max-h-none flex-1">
         <CommandEmpty>No tricks found.</CommandEmpty>
-        <CommandGroup>
+        <CommandGroup className="pb-0">
           {filteredTricks.map((trick) => (
             <CommandItem
               key={trick.id}

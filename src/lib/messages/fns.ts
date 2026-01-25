@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
@@ -38,41 +38,60 @@ export const listMessagesServerFn = createServerFn({
         Date.now() - 28 * 24 * 60 * 60 * 1000,
       );
 
-      const messages = await db.query.chatMessages.findMany({
-        orderBy: asc(chatMessages.createdAt),
-        limit: 100,
-        where(fields, operators) {
-          return operators.gte(fields.createdAt, twentyEightDaysAgo);
-        },
-        with: {
-          likes: {
-            columns: {
-              chatMessageId: false,
-              userId: false,
-            },
-            with: {
-              user: {
-                columns: {
-                  avatarId: true,
-                  id: true,
-                  name: true,
-                },
+      const chatMessagesWith = {
+        likes: {
+          columns: {
+            chatMessageId: false,
+            userId: false,
+          },
+          with: {
+            user: {
+              columns: {
+                avatarId: true,
+                id: true,
+                name: true,
               },
             },
           },
-          user: {
-            columns: {
-              avatarId: true,
-              id: true,
-              name: true,
-            },
+        },
+        user: {
+          columns: {
+            avatarId: true,
+            id: true,
+            name: true,
           },
         },
+      } as const;
+
+      // Get all messages from the last 28 days
+      const recentMessages = await db.query.chatMessages.findMany({
+        orderBy: asc(chatMessages.createdAt),
+        where(fields, operators) {
+          return operators.gte(fields.createdAt, twentyEightDaysAgo);
+        },
+        with: chatMessagesWith,
       });
+
+      // If fewer than 100 messages, fetch older ones to reach 100
+      if (recentMessages.length < 100) {
+        const olderMessages = await db.query.chatMessages.findMany({
+          orderBy: desc(chatMessages.createdAt),
+          limit: 100 - recentMessages.length,
+          where(fields, operators) {
+            return operators.lt(fields.createdAt, twentyEightDaysAgo);
+          },
+          with: chatMessagesWith,
+        });
+
+        return {
+          type: "chatMessages" as const,
+          messages: [...olderMessages.reverse(), ...recentMessages],
+        };
+      }
 
       return {
         type: "chatMessages" as const,
-        messages,
+        messages: recentMessages,
       };
     }
 

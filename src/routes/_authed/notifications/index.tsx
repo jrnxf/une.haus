@@ -94,8 +94,8 @@ function RouteComponent() {
           onValueChange={(v) => setFilter(v as "all" | "unread")}
           className="mb-4"
         >
-          <TabsList className="h-8">
-            <TabsTrigger value="unread" className="px-3 text-xs">
+          <TabsList>
+            <TabsTrigger value="unread" className="text-xs">
               Unread
               {unreadCount > 0 && (
                 <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-[10px]">
@@ -103,7 +103,7 @@ function RouteComponent() {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="all" className="px-3 text-xs">
+            <TabsTrigger value="all" className="text-xs">
               All
             </TabsTrigger>
           </TabsList>

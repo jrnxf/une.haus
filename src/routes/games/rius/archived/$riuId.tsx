@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useMemo } from "react";
+import { VList } from "virtua";
 import { z } from "zod";
 
 import { SetsGroupedList } from "~/components/games/sets-grouped-list";
@@ -100,24 +101,26 @@ function RouteComponent() {
               <ChevronDown className="text-muted-foreground size-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <div className="max-h-[300px] overflow-y-auto">
-              {[...archivedRius]
-                .sort((a, b) => b.id - a.id)
-                .map((riu) => (
-                  <DropdownMenuItem key={riu.id} asChild>
-                    <Link
-                      to="/games/rius/archived/$riuId"
-                      params={{ riuId: riu.id.toString() }}
-                      className="flex flex-col items-start"
-                    >
-                      <span className="font-medium lowercase leading-tight">round {riu.id}</span>
-                      <span className="text-muted-foreground text-xs lowercase leading-tight">
-                        {formatRiuDate(riu.createdAt)}
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
+          <DropdownMenuContent align="end" className="w-48 overflow-hidden p-0">
+            <div className="h-[300px] p-1">
+              <VList className="h-full">
+                {[...archivedRius]
+                  .sort((a, b) => b.id - a.id)
+                  .map((riu) => (
+                    <DropdownMenuItem key={riu.id} asChild>
+                      <Link
+                        to="/games/rius/archived/$riuId"
+                        params={{ riuId: riu.id.toString() }}
+                        className="flex flex-col items-start"
+                      >
+                        <span className="font-medium lowercase leading-tight">round {riu.id}</span>
+                        <span className="text-muted-foreground text-xs lowercase leading-tight">
+                          {formatRiuDate(riu.createdAt)}
+                        </span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+              </VList>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>

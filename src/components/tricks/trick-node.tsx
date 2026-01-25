@@ -24,10 +24,10 @@ type TrickNodeProps = {
 };
 
 const RELATIONSHIP_STYLES = {
-  center: "border-primary bg-primary/5 ring-2 ring-primary/20",
-  before: "border-blue-500/50 bg-blue-500/5",
-  after: "border-green-500/50 bg-green-500/5",
-  related: "border-purple-500/50 bg-purple-500/5",
+  center: "border-primary ring-2 ring-primary/20",
+  before: "border-blue-500/50",
+  after: "border-green-500/50",
+  related: "border-purple-500/50",
 };
 
 const RELATIONSHIP_LABELS = {
@@ -75,7 +75,7 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
 
       <div
         className={cn(
-          "bg-background rounded-lg border-2 px-3.5 py-2.5 shadow-sm transition-all",
+          "rounded-lg border-2 bg-white px-3.5 py-2.5 shadow-sm transition-all dark:bg-zinc-950",
           "max-w-[220px] min-w-[160px]",
           RELATIONSHIP_STYLES[relationshipType],
           selected && "ring-ring ring-2",
@@ -89,13 +89,13 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
         )}
 
         {/* Trick name */}
-        <p className="leading-tight font-medium">{trick.name}</p>
+        <p className="leading-tight font-medium lowercase">{trick.name}</p>
 
         {/* Elements */}
         <div className="mt-1.5 flex flex-wrap gap-1">
           {trick.elements.slice(0, 2).map((elem) => (
             <Badge
-              className="px-1.5 py-0 text-[10px]"
+              className="px-1.5 py-0 text-[10px] lowercase"
               key={elem}
               variant="secondary"
             >

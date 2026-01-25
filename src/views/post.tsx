@@ -4,12 +4,12 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   HeartIcon,
   PencilIcon,
-  Share2Icon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
 
 import { Badges } from "~/components/badges";
+import { ShareButton } from "~/components/share-button";
 import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
 import { Button } from "~/components/ui/button";
@@ -90,9 +90,7 @@ export function PostView({ postId }: { postId: number }) {
               </Button>
             }
           />
-          <Button size="icon-sm" variant="outline" aria-label="Share">
-            <Share2Icon className="size-4" />
-          </Button>
+          <ShareButton />
         </div>
       </div>
 

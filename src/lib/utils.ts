@@ -58,3 +58,10 @@ export function getCloudflareImageUrl(
 ) {
   return `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${id}/width=${options.width},quality=${options.quality}`;
 }
+
+export function generateSlug(value: string) {
+  return value
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/^-|-$/g, "");
+}

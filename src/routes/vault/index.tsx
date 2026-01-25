@@ -76,7 +76,14 @@ function RouteComponent() {
   const deferredQuery = useDeferredValue(query);
 
   const [adminMode, setAdminMode] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(() => {
+    const hasSeenHistory = localStorage.getItem("une.haus:vault-history-seen");
+    if (!hasSeenHistory) {
+      localStorage.setItem("une.haus:vault-history-seen", "true");
+      return true;
+    }
+    return false;
+  });
 
   const isAdmin = useIsAdmin();
 
@@ -111,7 +118,7 @@ function RouteComponent() {
 
   return (
     <div className="flex grow flex-col gap-3 overflow-hidden">
-      <div className="mx-auto w-full max-w-4xl shrink-0 space-y-3 pt-4">
+      <div className="mx-auto w-full max-w-4xl shrink-0 px-4 pt-4">
         <motion.div
           initial={false}
           animate={{
@@ -155,7 +162,7 @@ function RouteComponent() {
               id="vault-search"
               value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
-              placeholder="Search vault"
+              placeholder="search vault"
               className="pr-8"
             />
             {query && (
@@ -199,7 +206,7 @@ function RouteComponent() {
         <Accordion
           collapsible
           type="single"
-          className="mx-auto max-w-4xl space-y-3"
+          className="mx-auto max-w-4xl space-y-3 px-4 pb-4"
         >
           {displayedVideos.map((video) => (
             <AccordionItem
@@ -208,45 +215,48 @@ function RouteComponent() {
               className="group overflow-clip rounded-md border last:border-b"
             >
               <AccordionTrigger className="relative min-w-0 overflow-clip rounded-none py-0 pr-4 pl-0 hover:no-underline">
-                <div className="flex min-h-12 w-full min-w-0 items-center gap-2 overflow-clip group-data-[state=open]:pl-4">
-                  <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
-                    <img
-                      src={getMuxPoster({
-                        playbackId: video.playbackId,
-                        time: video.thumbnailSeconds,
-                        width: 104 * 2,
-                      })}
-                      alt={String(video.id)}
-                      aria-label={video.title}
-                      className="h-full w-full object-cover"
-                      style={{
-                        transform: `scale(${video.scale})`,
-                      }}
-                    />
-                  </div>
-                  <h2 className="truncate font-semibold">{video.title}</h2>
-                  <div className="grow" />
-                  <div className="text-muted-foreground flex shrink-0 items-center gap-2.5 text-xs">
-                    <div
-                      className="flex items-center gap-1"
-                      title={`${video.messagesCount} messages`}
-                    >
-                      <MessageCircleIcon className="size-3.5" />
-                      <span>{video.messagesCount}</span>
+                <div className="flex h-16 w-full min-w-0 items-center justify-between gap-2 overflow-clip group-data-[state=open]:pl-4">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
+                      <img
+                        src={getMuxPoster({
+                          playbackId: video.playbackId,
+                          time: video.thumbnailSeconds,
+                          width: 104 * 2,
+                        })}
+                        alt={String(video.id)}
+                        aria-label={video.title}
+                        className="h-full w-full object-cover"
+                        style={{
+                          transform: `scale(${video.scale})`,
+                        }}
+                      />
                     </div>
-                    <div
-                      className="flex items-center gap-1"
-                      title={`${video.likesCount} likes`}
-                    >
-                      <HeartIcon className="size-3.5" />
-                      <span>{video.likesCount}</span>
-                    </div>
+                    <h2 className="truncate font-semibold">{video.title}</h2>
                   </div>
-                  <Button variant="ghost" asChild size="icon-sm" aria-label="View video">
-                    <Link to="/vault/$videoId" params={{ videoId: video.id }}>
-                      <ArrowUpRightIcon className="size-4" />
-                    </Link>
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <div className="text-muted-foreground flex items-center gap-2.5 text-xs">
+                      <div
+                        className="flex items-center gap-1"
+                        title={`${video.messagesCount} messages`}
+                      >
+                        <MessageCircleIcon className="size-3.5" />
+                        <span>{video.messagesCount}</span>
+                      </div>
+                      <div
+                        className="flex items-center gap-1"
+                        title={`${video.likesCount} likes`}
+                      >
+                        <HeartIcon className="size-3.5" />
+                        <span>{video.likesCount}</span>
+                      </div>
+                    </div>
+                    <Button variant="ghost" asChild size="icon-sm" aria-label="View video">
+                      <Link to="/vault/$videoId" params={{ videoId: video.id }}>
+                        <ArrowUpRightIcon className="size-4" />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </AccordionTrigger>
 

@@ -307,6 +307,7 @@ function buildGraphFromTrick(
         relatedSide: pos.relatedSide,
         connectedHandles: connectedHandles.get(id),
       },
+      style: { zIndex: 10 },
     });
   }
 
@@ -327,6 +328,16 @@ function GraphContent({
 
   const prevSelectedIdRef = useRef<string | null>(null);
   const isNodeClickRef = useRef(false);
+
+  // Recenter graph on window resize
+  useEffect(() => {
+    function handleResize() {
+      fitView({ padding: 0.2, duration: 200 });
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [fitView]);
 
   // Handle sidebar selection changes
   useEffect(() => {
