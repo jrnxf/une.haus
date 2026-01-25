@@ -30,6 +30,7 @@ type SetsGroupedListProps = {
   rankedRiders: RankedRider<SetData>[];
   openUserId?: number;
   basePath: string;
+  pathParams?: Record<string, string>;
   searchParams?: Record<string, unknown>;
 };
 
@@ -95,6 +96,7 @@ export function SetsGroupedList({
   rankedRiders,
   openUserId,
   basePath,
+  pathParams = {},
   searchParams = {},
 }: SetsGroupedListProps) {
   const navigate = useNavigate();
@@ -116,6 +118,7 @@ export function SetsGroupedList({
       onValueChange={(value) => {
         navigate({
           to: basePath,
+          params: pathParams,
           search: {
             ...searchParams,
             open: value ? Number.parseInt(value, 10) : undefined,

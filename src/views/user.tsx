@@ -70,20 +70,20 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             <AvatarFallback name={user.name} />
           </Avatar>
 
-          <h1 className="truncate text-2xl font-semibold tracking-tight">
-            <span className="truncate">{user.name}</span>
-          </h1>
+          <div className="flex flex-col items-center gap-1">
+            <h1 className="truncate text-2xl font-semibold tracking-tight">
+              <span className="truncate">{user.name}</span>
+            </h1>
 
-          <FollowersFollowing {...user} />
-
-          {user.location && (
-            <div className="flex max-w-full items-center gap-2">
-              <FlagEmoji className="text-2xl" location={user.location} />
-              <span className="truncate text-nowrap">
-                {user.location.label}
-              </span>
-            </div>
-          )}
+            {user.location && (
+              <div className="flex max-w-full items-center gap-2">
+                <FlagEmoji className="text-2xl" location={user.location} />
+                <span className="truncate text-nowrap">
+                  {user.location.label}
+                </span>
+              </div>
+            )}
+          </div>
 
           {user.bio && (
             <p className="max-w-full leading-tight wrap-break-word whitespace-pre-wrap">
@@ -92,6 +92,8 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           )}
 
           <Badges content={disciplines} />
+
+          <FollowersFollowing {...user} />
 
           {socials && Object.values(socials).some(isDefined) && (
             <div className="flex gap-4">

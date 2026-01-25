@@ -1,6 +1,7 @@
 import type { Trick, TricksData } from "./types";
 // Original tricks data preserved at: ~/data/tricks.json
-import rawTricks from "~/data/trick-combinations.json";
+// Previous spin+flip combos at: ~/data/trick-combinations.json
+import rawTricks from "~/data/tricks-full.json";
 
 import { buildTricksData,  } from "./compute";
 

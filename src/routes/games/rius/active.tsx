@@ -47,7 +47,7 @@ function RouteComponent() {
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Round #{data.id}</h2>
+          <h2 className="text-lg font-semibold">round #{data.id}</h2>
           <p className="text-muted-foreground text-sm">
             {participantCount} {participantCount === 1 ? "player" : "players"} ·{" "}
             {setCount} {setCount === 1 ? "set" : "sets"}

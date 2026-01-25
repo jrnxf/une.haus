@@ -37,9 +37,9 @@ type TabConfig = {
 };
 
 const tabs: TabConfig[] = [
-  { path: "/games/rius/active", label: "Active", icon: PlayCircleIcon },
-  { path: "/games/rius/upcoming", label: "Upcoming", icon: CalendarIcon },
-  { path: "/games/rius/previous", label: "Archive", icon: ArchiveIcon },
+  { path: "/games/rius/active", label: "active", icon: PlayCircleIcon },
+  { path: "/games/rius/upcoming", label: "upcoming", icon: CalendarIcon },
+  { path: "/games/rius/archived", label: "archived", icon: ArchiveIcon },
 ];
 
 const pad = (n: number) => n.toString().padStart(2, "0");
@@ -96,7 +96,7 @@ function Countdown() {
 
   return (
     <div className="text-muted-foreground flex items-center gap-1.5 text-xs tabular-nums">
-      <span className="hidden sm:inline">Next round in</span>
+      <span className="hidden sm:inline">next round in</span>
       <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
         {formatted}
       </code>
@@ -125,7 +125,7 @@ function RouteComponent() {
             >
               <Link to="/games">
                 <ArrowLeftIcon className="size-4" />
-                Games
+                games
               </Link>
             </Button>
             <div className="bg-border h-4 w-px" />
@@ -133,10 +133,10 @@ function RouteComponent() {
               <div className="bg-muted text-muted-foreground flex size-6 items-center justify-center rounded-md">
                 <RotateCcwIcon className="size-3.5" />
               </div>
-              <h1 className="text-sm font-semibold">Rack It Up</h1>
+              <h1 className="text-sm font-semibold">rack it up</h1>
             </div>
-            <div className="bg-border hidden h-4 w-px sm:block" />
-            <div className="hidden sm:block">
+            <div className="bg-border hidden h-4 w-px md:block" />
+            <div className="hidden md:block">
               <Countdown />
             </div>
           </div>
@@ -159,7 +159,7 @@ function RouteComponent() {
                     )}
                   >
                     <Icon className="size-3.5" />
-                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="hidden md:inline">{tab.label}</span>
                   </Link>
                 );
               })}
@@ -194,7 +194,7 @@ function RouteComponent() {
           </div>
         </div>
         {/* Mobile countdown */}
-        <div className="border-t px-4 py-2 sm:hidden">
+        <div className="border-t px-4 py-2 md:hidden">
           <Countdown />
         </div>
       </div>

@@ -461,42 +461,46 @@ export const deleteTrickServerFn = createServerFn({
 export const getAllTricksForGraphServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
-  console.log("[getAllTricksForGraphServerFn] Fetching tricks from database...");
-  const { transformDbTricksToTricksData } = await import("./compute");
+  // Use static JSON data instead of database
+  const { getTricksData } = await import("./data");
+  console.log("[getAllTricksForGraphServerFn] Loading tricks from static JSON...");
+  const tricksData = getTricksData();
+  console.log(`[getAllTricksForGraphServerFn] Loaded ${tricksData.tricks.length} tricks from JSON`);
+  return tricksData;
 
-  const tricksData = await db.query.tricks.findMany({
-    with: {
-      videos: {
-        with: {
-          video: {
-            columns: {
-              playbackId: true,
-            },
-          },
-        },
-        orderBy: (videos, { asc }) => [asc(videos.sortOrder)],
-      },
-      elementAssignments: {
-        with: {
-          element: true,
-        },
-      },
-      outgoingRelationships: {
-        with: {
-          targetTrick: {
-            columns: {
-              id: true,
-              slug: true,
-              name: true,
-            },
-          },
-        },
-      },
-    },
-    orderBy: [asc(tricks.name)],
-  });
-
-  console.log(`[getAllTricksForGraphServerFn] Found ${tricksData.length} tricks in database`);
-  // Transform the DB format to TricksData for the graph
-  return transformDbTricksToTricksData(tricksData);
+  // COMMENTED OUT: Database fetching - keeping for reference
+  // const { transformDbTricksToTricksData } = await import("./compute");
+  // const tricksData = await db.query.tricks.findMany({
+  //   with: {
+  //     videos: {
+  //       with: {
+  //         video: {
+  //           columns: {
+  //             playbackId: true,
+  //           },
+  //         },
+  //       },
+  //       orderBy: (videos, { asc }) => [asc(videos.sortOrder)],
+  //     },
+  //     elementAssignments: {
+  //       with: {
+  //         element: true,
+  //       },
+  //     },
+  //     outgoingRelationships: {
+  //       with: {
+  //         targetTrick: {
+  //           columns: {
+  //             id: true,
+  //             slug: true,
+  //             name: true,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  //   orderBy: [asc(tricks.name)],
+  // });
+  // console.log(`[getAllTricksForGraphServerFn] Found ${tricksData.length} tricks in database`);
+  // return transformDbTricksToTricksData(tricksData);
 });

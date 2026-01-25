@@ -87,7 +87,7 @@ function RouteComponent() {
         <div className="flex items-center gap-2">
           <UsersIcon className="text-muted-foreground size-5" />
           <div>
-            <h2 className="text-lg font-semibold">Next Round Roster</h2>
+            <h2 className="text-lg font-semibold">next round roster</h2>
             <p className="text-muted-foreground text-sm">
               {playerRoster.length}{" "}
               {playerRoster.length === 1 ? "player" : "players"} joined

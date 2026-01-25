@@ -45,8 +45,9 @@ import { Route as AuthedTricksReviewRouteImport } from './routes/_authed/tricks/
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
 import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/upcoming/index'
-import { Route as GamesRiusPreviousIndexRouteImport } from './routes/games/rius/previous/index'
+import { Route as GamesRiusArchivedIndexRouteImport } from './routes/games/rius/archived/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
+import { Route as GamesRiusArchivedRiuIdRouteImport } from './routes/games/rius/archived/$riuId'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
@@ -247,15 +248,20 @@ const GamesRiusUpcomingIndexRoute = GamesRiusUpcomingIndexRouteImport.update({
   path: '/upcoming/',
   getParentRoute: () => GamesRiusRouteRoute,
 } as any)
-const GamesRiusPreviousIndexRoute = GamesRiusPreviousIndexRouteImport.update({
-  id: '/previous/',
-  path: '/previous/',
+const GamesRiusArchivedIndexRoute = GamesRiusArchivedIndexRouteImport.update({
+  id: '/archived/',
+  path: '/archived/',
   getParentRoute: () => GamesRiusRouteRoute,
 } as any)
 const AuthedAuthMeIndexRoute = AuthedAuthMeIndexRouteImport.update({
   id: '/auth/me/',
   path: '/auth/me/',
   getParentRoute: () => AuthedRoute,
+} as any)
+const GamesRiusArchivedRiuIdRoute = GamesRiusArchivedRiuIdRouteImport.update({
+  id: '/archived/$riuId',
+  path: '/archived/$riuId',
+  getParentRoute: () => GamesRiusRouteRoute,
 } as any)
 const AuthedTricksTrickIdSuggestRoute =
   AuthedTricksTrickIdSuggestRouteImport.update({
@@ -402,8 +408,9 @@ export interface FileRoutesByFullPath {
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
-  '/games/rius/previous': typeof GamesRiusPreviousIndexRoute
+  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
   '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
@@ -457,8 +464,9 @@ export interface FileRoutesByTo {
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
-  '/games/rius/previous': typeof GamesRiusPreviousIndexRoute
+  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
   '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
@@ -516,8 +524,9 @@ export interface FileRoutesById {
   '/_authed/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
-  '/games/rius/previous/': typeof GamesRiusPreviousIndexRoute
+  '/games/rius/archived/': typeof GamesRiusArchivedIndexRoute
   '/games/rius/upcoming/': typeof GamesRiusUpcomingIndexRoute
   '/_authed/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/_authed/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
@@ -575,8 +584,9 @@ export interface FileRouteTypes {
     | '/posts/$postId/edit'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
+    | '/games/rius/archived/$riuId'
     | '/auth/me'
-    | '/games/rius/previous'
+    | '/games/rius/archived'
     | '/games/rius/upcoming'
     | '/admin/tricks/$trickId/edit'
     | '/admin/tricks/$trickId/videos'
@@ -630,8 +640,9 @@ export interface FileRouteTypes {
     | '/posts/$postId/edit'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
+    | '/games/rius/archived/$riuId'
     | '/auth/me'
-    | '/games/rius/previous'
+    | '/games/rius/archived'
     | '/games/rius/upcoming'
     | '/admin/tricks/$trickId/edit'
     | '/admin/tricks/$trickId/videos'
@@ -688,8 +699,9 @@ export interface FileRouteTypes {
     | '/_authed/posts/$postId/edit'
     | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
+    | '/games/rius/archived/$riuId'
     | '/_authed/auth/me/'
-    | '/games/rius/previous/'
+    | '/games/rius/archived/'
     | '/games/rius/upcoming/'
     | '/_authed/admin/tricks/$trickId/edit'
     | '/_authed/admin/tricks/$trickId/videos'
@@ -985,11 +997,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesRiusUpcomingIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
-    '/games/rius/previous/': {
-      id: '/games/rius/previous/'
-      path: '/previous'
-      fullPath: '/games/rius/previous'
-      preLoaderRoute: typeof GamesRiusPreviousIndexRouteImport
+    '/games/rius/archived/': {
+      id: '/games/rius/archived/'
+      path: '/archived'
+      fullPath: '/games/rius/archived'
+      preLoaderRoute: typeof GamesRiusArchivedIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
     '/_authed/auth/me/': {
@@ -998,6 +1010,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/me'
       preLoaderRoute: typeof AuthedAuthMeIndexRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/games/rius/archived/$riuId': {
+      id: '/games/rius/archived/$riuId'
+      path: '/archived/$riuId'
+      fullPath: '/games/rius/archived/$riuId'
+      preLoaderRoute: typeof GamesRiusArchivedRiuIdRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
     }
     '/_authed/tricks/$trickId/suggest': {
       id: '/_authed/tricks/$trickId/suggest'
@@ -1212,7 +1231,8 @@ const GamesBiusRouteRouteWithChildren = GamesBiusRouteRoute._addFileChildren(
 
 interface GamesRiusRouteRouteChildren {
   GamesRiusActiveRoute: typeof GamesRiusActiveRoute
-  GamesRiusPreviousIndexRoute: typeof GamesRiusPreviousIndexRoute
+  GamesRiusArchivedRiuIdRoute: typeof GamesRiusArchivedRiuIdRoute
+  GamesRiusArchivedIndexRoute: typeof GamesRiusArchivedIndexRoute
   GamesRiusUpcomingIndexRoute: typeof GamesRiusUpcomingIndexRoute
   GamesRiusSetsSetIdIndexRoute: typeof GamesRiusSetsSetIdIndexRoute
   GamesRiusSubmissionsSubmissionIdIndexRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRoute
@@ -1220,7 +1240,8 @@ interface GamesRiusRouteRouteChildren {
 
 const GamesRiusRouteRouteChildren: GamesRiusRouteRouteChildren = {
   GamesRiusActiveRoute: GamesRiusActiveRoute,
-  GamesRiusPreviousIndexRoute: GamesRiusPreviousIndexRoute,
+  GamesRiusArchivedRiuIdRoute: GamesRiusArchivedRiuIdRoute,
+  GamesRiusArchivedIndexRoute: GamesRiusArchivedIndexRoute,
   GamesRiusUpcomingIndexRoute: GamesRiusUpcomingIndexRoute,
   GamesRiusSetsSetIdIndexRoute: GamesRiusSetsSetIdIndexRoute,
   GamesRiusSubmissionsSubmissionIdIndexRoute:

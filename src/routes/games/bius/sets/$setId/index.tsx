@@ -188,25 +188,17 @@ function SetView({ setId }: { setId: number }) {
 
       {/* Parent set reference */}
       {set.parentSet && (
-        <Card className="bg-muted/30">
-          <CardContent className="p-4">
-            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase">
-              Backed Up
-            </p>
-            <Link
-              to="/games/bius/sets/$setId"
-              params={{ setId: set.parentSet.id }}
-              className="hover:text-primary font-medium transition-colors"
-            >
-              {set.parentSet.name}
-            </Link>
-            {set.parentSet.user && (
-              <p className="text-muted-foreground text-sm">
-                by {set.parentSet.user.name}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+          <span>Backed up</span>
+          <Link
+            to="/games/bius/sets/$setId"
+            params={{ setId: set.parentSet.id }}
+            className="text-foreground hover:underline"
+          >
+            {set.parentSet.name}
+          </Link>
+          {set.parentSet.user && <span>by {set.parentSet.user.name}</span>}
+        </div>
       )}
 
       {/* Video */}

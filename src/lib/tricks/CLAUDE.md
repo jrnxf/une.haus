@@ -4,13 +4,15 @@ This document outlines the rules for the trick combination data in `src/data/tri
 
 ## Data Files
 
-- `src/data/trick-combinations.json` - Current active trick data (spin+flip combos)
+- `src/data/tricks-full.json` - Current active trick data (all tricks including wraps, overflips, kickflips, body varials)
+- `src/data/trick-combinations.json` - Previous spin+flip combos only
 - `src/data/tricks.json` - Original full tricks database (preserved for reference)
 
-To switch back to the original data, change the import in `src/lib/tricks/data.ts`:
+To switch data sources, change the import in `src/lib/tricks/data.ts`:
 
 ```ts
-// Current: import rawTricks from "~/data/trick-combinations.json";
+// Current: import rawTricks from "~/data/tricks-full.json";
+// Previous: import rawTricks from "~/data/trick-combinations.json";
 // Original: import rawTricks from "~/data/tricks.json";
 ```
 

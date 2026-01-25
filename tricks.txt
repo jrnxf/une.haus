@@ -158,8 +158,10 @@ treyunderflip - 360 unispin with wheel rotating backward once under
 treydoubleunderflip - 360 unispin with wheel rotating backward twice under
 fifthunderflip - 540 unispin with wheel rotating backward once under
 
-180-overhickflip
-360-overhickflip
+# OVERFLIP TO HICKFLIP - overflip then catch pedal and hickflip
+180-overhickflip - overflip then 180 unispin with crankflip
+360-overhickflip - overflip then 360 unispin with crankflip
+540-overhickflip - overflip then 540 unispin with crankflip
 
 # FLIP TO OVERFLIP - hickflip then catch front pedal and overflip
 hickflip-overflip - hickflip then catch front pedal and overflip
@@ -188,7 +190,9 @@ doubleflip-underdoubleflip - doubleflip then catch front pedal and double underf
 180 doubleflip - 180 degree body rotation with doubleflip
 360 doubleflip - 360 degree body rotation with doubleflip
 
-180 flip-underflip
+# BODY VARIAL FLIP TO UNDERFLIP - body rotation with crankflip to underflip
+180 flip-underflip - 180 degree body rotation with crankflip then underflip
+360 flip-underflip - 360 degree body rotation with crankflip then underflip
 
 # BODY VARIAL BACKFLIPS - body rotation with backflip
 180 back - 180 degree body rotation with backflip
@@ -196,9 +200,14 @@ doubleflip-underdoubleflip - doubleflip then catch front pedal and double underf
 180 doubleback - 180 degree body rotation with doublebackflip
 360 doubleback - 360 degree body rotation with doublebackflip
 
+# KICKFLIPS - unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
 hickkickflip - 180 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
-treykickflip-
-fifthkickflip
+treykickflip - 360 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+fifthkickflip - 540 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+sejkickflip - 720 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
 
-hicksidekcikflip
-treysidekickflip
+# SIDEKICKFLIPS - sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+hicksidekickflip - 180 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+treysidekickflip - 360 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+fifthsidekickflip - 540 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
+sejsidekickflip - 720 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip
