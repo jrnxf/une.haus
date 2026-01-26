@@ -93,7 +93,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-2xl p-4">
+      <div className="mx-auto max-w-2xl p-6">
         {/* Header */}
         <div className="mb-6">
           <Button variant="ghost" size="sm" className="mb-4" asChild>

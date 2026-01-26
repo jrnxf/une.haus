@@ -9,8 +9,8 @@ import {
   type CarouselApi,
 } from "~/components/ui/carousel";
 import { VideoPlayer } from "~/components/video-player";
-import { cn } from "~/lib/utils";
 import type { TrickVideo } from "~/lib/tricks/types";
+import { cn } from "~/lib/utils";
 
 type VideoCarouselProps = {
   videos: TrickVideo[];
@@ -51,8 +51,8 @@ export function VideoCarousel({ videos, className }: VideoCarouselProps) {
         </CarouselContent>
         {videos.length > 1 && (
           <>
-            <CarouselPrevious className="-left-3 bg-background/80" />
-            <CarouselNext className="-right-3 bg-background/80" />
+            <CarouselPrevious className="bg-background/80 -left-3" />
+            <CarouselNext className="bg-background/80 -right-3" />
           </>
         )}
       </Carousel>

@@ -5,9 +5,9 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { CheckCircle, XCircle } from "lucide-react";
-import { z } from "zod";
 
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { BackLink } from "~/components/back-link";
 import { SubmissionCard } from "~/components/tricks/submission-card";
@@ -43,8 +43,8 @@ export const Route = createFileRoute("/_authed/tricks/review")({
       // Only load pending videos for admin
       isAdmin
         ? context.queryClient.ensureQueryData(
-          tricks.videos.listPending.queryOptions(),
-        )
+            tricks.videos.listPending.queryOptions(),
+          )
         : Promise.resolve([]),
     ]);
     return { isAdmin };
@@ -103,9 +103,7 @@ function RouteComponent() {
           {submissions.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">
-                  No pending submissions
-                </p>
+                <p className="text-muted-foreground">No pending submissions</p>
               </CardContent>
             </Card>
           ) : (
@@ -125,9 +123,7 @@ function RouteComponent() {
           {suggestions.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">
-                  No pending suggestions
-                </p>
+                <p className="text-muted-foreground">No pending suggestions</p>
               </CardContent>
             </Card>
           ) : (
@@ -194,7 +190,8 @@ function AdminVideosTabContent() {
 function VideoCard({ video }: { video: PendingVideosData[number] }) {
   const qc = useQueryClient();
 
-  const pendingVideosQueryKey = tricks.videos.listPending.queryOptions().queryKey;
+  const pendingVideosQueryKey =
+    tricks.videos.listPending.queryOptions().queryKey;
   const graphQueryKey = tricks.graph.queryOptions().queryKey;
 
   const reviewVideo = useMutation({
@@ -273,4 +270,3 @@ function VideoCard({ video }: { video: PendingVideosData[number] }) {
     </Card>
   );
 }
-

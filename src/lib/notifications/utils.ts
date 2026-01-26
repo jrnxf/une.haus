@@ -1,4 +1,4 @@
-import type { NotificationEntityType, NotificationType } from "~/db/schema";
+import type { NotificationEntityType, NotificationType, NotificationData } from "~/db/schema";
 
 /**
  * Get the URL to navigate to when clicking a notification
@@ -6,6 +6,7 @@ import type { NotificationEntityType, NotificationType } from "~/db/schema";
 export function getNotificationUrl(
   entityType: NotificationEntityType,
   entityId: number,
+  data?: NotificationData | null,
 ): string {
   switch (entityType) {
     case "post": {
@@ -25,6 +26,14 @@ export function getNotificationUrl(
     }
     case "user": {
       return `/users/${entityId}`;
+    }
+    case "trickSubmission":
+    case "trickSuggestion":
+    case "trickVideo": {
+      if (data?.trickSlug) {
+        return `/tricks/${data.trickSlug}`;
+      }
+      return "/tricks";
     }
     default: {
       return "/";
@@ -57,6 +66,10 @@ export function getNotificationMessage(
     case "new_content": {
       return `${actorText} ${count > 1 ? "created new content" : `posted ${formatEntityType(entityType)}`}${entityTitle ? `: "${entityTitle}"` : ""}`;
     }
+    case "review": {
+      // entityTitle contains "approved" or "rejected"
+      return `Your ${formatEntityType(entityType)} was ${entityTitle}`;
+    }
     default: {
       return "You have a new notification";
     }
@@ -83,6 +96,10 @@ export function getNotificationAction(
     }
     case "new_content": {
       return `posted ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+    }
+    case "review": {
+      // entityTitle contains "approved" or "rejected"
+      return `${formatEntityType(entityType)} was ${entityTitle}`;
     }
     default: {
       return "sent you a notification";
@@ -130,6 +147,15 @@ function formatEntityType(entityType: NotificationEntityType): string {
     }
     case "user": {
       return "profile";
+    }
+    case "trickSubmission": {
+      return "trick submission";
+    }
+    case "trickSuggestion": {
+      return "trick suggestion";
+    }
+    case "trickVideo": {
+      return "trick video";
     }
     default: {
       return "content";

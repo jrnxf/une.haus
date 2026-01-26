@@ -9,6 +9,7 @@ import {
   ArrowUpRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ClipboardListIcon,
   HeartIcon,
   MessageCircleIcon,
   MonitorIcon,
@@ -56,12 +57,13 @@ import {
 export const Route = createFileRoute("/vault/")({
   validateSearch: utv.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(
-      utv.list.infiniteQueryOptions(deps),
-    );
-    context.queryClient.prefetchQuery(utv.claps.get.queryOptions());
+  loader: async ({ context, deps }) => {
+    await Promise.all([
+      context.queryClient.ensureInfiniteQueryData(
+        utv.list.infiniteQueryOptions(deps),
+      ),
+      context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
+    ]);
   },
   component: RouteComponent,
 });
@@ -70,10 +72,10 @@ function RouteComponent() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
-  // React state drives the query - NOT the URL
-  // This allows useDeferredValue to actually defer during suspense
-  const [query, setQuery] = useState(searchParams.q ?? "");
-  const deferredQuery = useDeferredValue(query);
+  // inputValue: immediate feedback for the input field
+  // deferredQuery: deferred to prevent UI disappearance during suspense
+  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(inputValue);
 
   const [adminMode, setAdminMode] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(() => {
@@ -87,17 +89,21 @@ function RouteComponent() {
 
   const isAdmin = useIsAdmin();
 
+  // Debounced URL sync for bookmarking
   const debouncedNavigate = useDebounceCallback((q: string) => {
-    // URL update is for bookmarking only - doesn't drive the query
     router.navigate({
       to: "/vault",
-      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
+      search: (prev) => ({
+        ...prev,
+        q: q || undefined,
+        cursor: undefined,
+      }),
       replace: true,
     });
-  }, 300);
+  }, 200);
 
   const handleQueryChange = (value: string) => {
-    setQuery(value);
+    setInputValue(value);
     debouncedNavigate(value);
   };
 
@@ -160,12 +166,12 @@ function RouteComponent() {
           <div className="relative min-w-0 flex-1">
             <Input
               id="vault-search"
-              value={query}
+              value={inputValue}
               onChange={(e) => handleQueryChange(e.target.value)}
               placeholder="search vault"
               className="pr-8"
             />
-            {query && (
+            {inputValue && (
               <button
                 type="button"
                 onClick={() => handleQueryChange("")}
@@ -188,6 +194,16 @@ function RouteComponent() {
             >
               <ChevronDownIcon className="size-4" />
             </motion.div>
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon-xs"
+            asChild
+            className="shrink-0"
+          >
+            <Link to="/vault/review">
+              <ClipboardListIcon className="size-3.5" />
+            </Link>
           </Button>
           {isAdmin && (
             <Button
@@ -212,7 +228,7 @@ function RouteComponent() {
             <AccordionItem
               value={String(video.id)}
               key={video.id}
-              className="group overflow-clip rounded-md border last:border-b"
+              className="bg-card group overflow-clip rounded-md border last:border-b"
             >
               <AccordionTrigger className="relative min-w-0 overflow-clip rounded-none py-0 pr-4 pl-0 hover:no-underline">
                 <div className="flex h-16 w-full min-w-0 items-center justify-between gap-2 overflow-clip group-data-[state=open]:pl-4">
@@ -251,7 +267,12 @@ function RouteComponent() {
                         <span>{video.likesCount}</span>
                       </div>
                     </div>
-                    <Button variant="ghost" asChild size="icon-sm" aria-label="View video">
+                    <Button
+                      variant="ghost"
+                      asChild
+                      size="icon-sm"
+                      aria-label="View video"
+                    >
                       <Link to="/vault/$videoId" params={{ videoId: video.id }}>
                         <ArrowUpRightIcon className="size-4" />
                       </Link>

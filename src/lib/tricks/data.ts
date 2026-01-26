@@ -18,7 +18,7 @@ export function getTricksData(): TricksData {
   if (cachedData) return cachedData;
 
   // Cast raw JSON to Trick[] and add empty videos array
-  const tricks = (rawTricks as Array<Omit<Trick, "videos" | "depth" | "dependents">>).map(
+  const tricks = (rawTricks as Omit<Trick, "videos" | "depth" | "dependents">[]).map(
     (t) => ({
       ...t,
       videos: [],

@@ -78,7 +78,10 @@ export function MultiVideoInput({
       {uploadedVideos.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2">
           {uploadedVideos.map((video, index) => (
-            <div key={video.assetId} className="relative overflow-clip rounded-md border">
+            <div
+              key={video.assetId}
+              className="relative overflow-clip rounded-md border"
+            >
               <VideoPlayer className="w-full" playbackId={video.playbackId} />
               <Button
                 className="absolute top-2 right-2"
@@ -113,8 +116,7 @@ export function MultiVideoInput({
           <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <Plus className="size-4" />
             <span>
-              {currentFileName ??
-                `Add video (${value.length}/${maxVideos})`}
+              {currentFileName ?? `Add video (${value.length}/${maxVideos})`}
             </span>
           </div>
 

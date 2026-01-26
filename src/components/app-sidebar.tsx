@@ -8,6 +8,7 @@ import {
   MedalIcon,
   MessagesSquareIcon,
   Send,
+  ShoppingBagIcon,
   TrafficConeIcon,
 } from "lucide-react";
 import * as React from "react";
@@ -66,6 +67,11 @@ const data = {
       url: "/vault",
       icon: LockIcon,
       activeIcon: LockOpenIcon,
+    },
+    {
+      title: "Shop",
+      url: "/shop",
+      icon: ShoppingBagIcon,
     },
   ],
   navSecondary: [

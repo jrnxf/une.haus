@@ -54,18 +54,23 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
                     {user.name}
                   </h1>
                   {user.location && (
-                    <Button asChild variant='ghost' size="sm" className='-ml-2'>
-
+                    <Button asChild variant="ghost" size="sm" className="-ml-2">
                       <Link
                         to="/map"
-                        search={{ lat: user.location.lat, lng: user.location.lng, z: 10 }}
+                        search={{
+                          lat: user.location.lat,
+                          lng: user.location.lng,
+                          z: 10,
+                        }}
                         className="flex w-fit items-center gap-1.5 text-sm"
                       >
-                        <FlagEmoji className="text-base" location={user.location} />
+                        <FlagEmoji
+                          className="text-base"
+                          location={user.location}
+                        />
                         <span className="truncate">{user.location.label}</span>
                       </Link>
                     </Button>
-
                   )}
                 </div>
                 <FollowButton user={user} isOwnProfile={isOwnProfile} />
@@ -77,13 +82,13 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 
           {/* Bio */}
           {user.bio && (
-            <p className="wrap-break-word whitespace-pre-wrap leading-relaxed">
+            <p className="leading-relaxed wrap-break-word whitespace-pre-wrap">
               {user.bio}
             </p>
           )}
 
           {/* Disciplines */}
-          <Badges content={disciplines} clickable />
+          <Badges content={disciplines} clickable="disciplines" />
 
           {/* Socials */}
           {hasSocials && (
@@ -109,7 +114,7 @@ function FollowStats(props: UsersWithFollowsData) {
   const { followers, following } = props;
 
   return (
-    <div className="flex items-center gap-2 -ml-2">
+    <div className="-ml-2 flex items-center gap-2">
       <UsersCombobox users={followers.users} peripheralKey="followers">
         <Button type="button" className="text-sm" variant="ghost" size="sm">
           {followers.count} {followers.count === 1 ? "follower" : "followers"}
@@ -164,4 +169,3 @@ function FollowButton({
     </Button>
   );
 }
-

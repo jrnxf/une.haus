@@ -26,8 +26,12 @@ import {
   trickSubmissionMessageLikes,
   trickSuggestionLikes,
   trickSuggestionMessageLikes,
+  trickVideoLikes,
+  trickVideoMessageLikes,
   utvVideoLikes,
   utvVideoMessageLikes,
+  utvVideoSuggestionLikes,
+  utvVideoSuggestionMessageLikes,
   type NotificationEntityType,
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
@@ -42,8 +46,10 @@ const LIKEABLE_ENTITY_TYPES: Partial<Record<RecordWithLikesType, NotificationEnt
   biuSet: "biuSet",
   siuStack: "siuStack",
   utvVideo: "utvVideo",
+  utvVideoSuggestion: "utvVideoSuggestion",
   trickSubmission: "trickSubmission",
   trickSuggestion: "trickSuggestion",
+  trickVideo: "trickVideo",
 };
 
 // react as in the action, not the library lol
@@ -143,6 +149,12 @@ export const getTableByType = (type: RecordWithLikesType) => {
     case "utvVideoMessage": {
       return utvVideoMessageLikes;
     }
+    case "utvVideoSuggestion": {
+      return utvVideoSuggestionLikes;
+    }
+    case "utvVideoSuggestionMessage": {
+      return utvVideoSuggestionMessageLikes;
+    }
     case "biuSet": {
       return biuSetLikes;
     }
@@ -166,6 +178,12 @@ export const getTableByType = (type: RecordWithLikesType) => {
     }
     case "trickSuggestionMessage": {
       return trickSuggestionMessageLikes;
+    }
+    case "trickVideo": {
+      return trickVideoLikes;
+    }
+    case "trickVideoMessage": {
+      return trickVideoMessageLikes;
     }
     default: {
       invariant(

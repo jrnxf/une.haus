@@ -4,8 +4,8 @@ import { EarthIcon, FilterIcon, GhostIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
-import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
 
+import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
 import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
@@ -31,9 +31,8 @@ const searchParamsParsers = {
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureInfiniteQueryData(
       users.list.infiniteQueryOptions(deps),
     );
   },
@@ -43,27 +42,31 @@ export const Route = createFileRoute("/users/")({
 function RouteComponent() {
   const [{ name, disciplines }, setParams] = useQueryStates(
     searchParamsParsers,
-    { shallow: false, history: "replace" },
+    { shallow: true, history: "replace" },
   );
 
-  // Local state for immediate input feedback
-  const [query, setQuery] = useState(name ?? "");
-  const deferredQuery = useDeferredValue(query);
+  // inputValue: immediate feedback for the input field
+  // deferredQuery/deferredDisciplines: deferred to prevent UI disappearance during suspense
+  const [inputValue, setInputValue] = useState(name ?? "");
+  const deferredQuery = useDeferredValue(inputValue);
   const deferredDisciplines = useDeferredValue(disciplines ?? []);
 
   const [filtersOpen, setFiltersOpen] = useState(
     Boolean(name || disciplines?.length),
   );
 
-  const hasActiveFilters = Boolean(query || (disciplines?.length ?? 0) > 0);
+  const hasActiveFilters = Boolean(
+    inputValue || (disciplines?.length ?? 0) > 0,
+  );
 
-  const debouncedSetName = useDebounceCallback((value: string) => {
+  // Debounced URL sync for bookmarking
+  const debouncedSetParams = useDebounceCallback((value: string) => {
     setParams({ name: value || null });
-  }, 300);
+  }, 200);
 
   const handleQueryChange = (value: string) => {
-    setQuery(value);
-    debouncedSetName(value);
+    setInputValue(value);
+    debouncedSetParams(value);
   };
 
   const handleDisciplinesChange = (
@@ -119,12 +122,12 @@ function RouteComponent() {
             <div className="flex flex-col gap-3">
               <div className="relative">
                 <Input
-                  value={query}
+                  value={inputValue}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder="search users..."
                   className="pr-8"
                 />
-                {query && (
+                {inputValue && (
                   <button
                     type="button"
                     onClick={() => handleQueryChange("")}
@@ -135,7 +138,9 @@ function RouteComponent() {
                 )}
               </div>
               <BadgeInput
-                defaultSelections={(disciplines as UserDiscipline[]) ?? undefined}
+                defaultSelections={
+                  (disciplines as UserDiscipline[]) ?? undefined
+                }
                 onChange={handleDisciplinesChange}
                 options={USER_DISCIPLINES}
               />
@@ -179,7 +184,7 @@ function RouteComponent() {
               )}
               data-user-name={user.name}
             >
-              <div className="flex flex-col gap-4 rounded-md border p-3 sm:flex-row bg-card">
+              <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
                 <div className="flex w-full flex-col gap-2">
                   <div className="flex items-center gap-2">
                     {/* <Avatar className="size-6 rounded-full">
@@ -207,7 +212,10 @@ function RouteComponent() {
                       <p>{user.bio}</p>
                     </div>
                   )}
-                  <Badges content={user.disciplines} active={disciplines ?? undefined} />
+                  <Badges
+                    content={user.disciplines}
+                    active={disciplines ?? undefined}
+                  />
                 </div>
               </div>
             </Link>

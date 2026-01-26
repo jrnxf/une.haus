@@ -15,6 +15,7 @@ import {
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware";
+import { createNotification } from "~/lib/notifications/helpers";
 
 import {
   createSubmissionSchema,
@@ -279,6 +280,21 @@ export const reviewSubmissionServerFn = createServerFn({
       })
       .where(eq(trickSubmissions.id, id))
       .returning();
+
+    // Notify the user who submitted
+    await createNotification({
+      userId: submission.submittedByUserId,
+      actorId: context.user.id,
+      type: "review",
+      entityType: "trickSubmission",
+      entityId: id,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: status,
+        trickSlug: status === "approved" ? submission.slug : undefined,
+      },
+    });
 
     return updatedSubmission;
   });
@@ -564,6 +580,27 @@ export const reviewSuggestionServerFn = createServerFn({
       })
       .where(eq(trickSuggestions.id, id))
       .returning();
+
+    // Get the trick for navigation
+    const trick = await db.query.tricks.findFirst({
+      where: eq(tricks.id, suggestion.trickId),
+      columns: { slug: true },
+    });
+
+    // Notify the user who suggested
+    await createNotification({
+      userId: suggestion.submittedByUserId,
+      actorId: context.user.id,
+      type: "review",
+      entityType: "trickSuggestion",
+      entityId: id,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: status,
+        trickSlug: trick?.slug,
+      },
+    });
 
     return updatedSuggestion;
   });

@@ -4,13 +4,8 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  ArrowDown,
-  ArrowUp,
-  CheckCircle,
-  Trash2,
-  XCircle,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, CheckCircle, Trash2, XCircle } from "lucide-react";
+
 import { toast } from "sonner";
 
 import { BackLink } from "~/components/back-link";
@@ -23,9 +18,7 @@ import { tricks } from "~/lib/tricks";
 
 const MAX_ACTIVE_VIDEOS = 5;
 
-export const Route = createFileRoute(
-  "/_authed/admin/tricks/$trickId/videos",
-)({
+export const Route = createFileRoute("/_authed/admin/tricks/$trickId/videos")({
   loader: async ({ context, params }) => {
     const trickId = Number(params.trickId);
     await Promise.all([
@@ -187,9 +180,7 @@ function RouteComponent() {
               <Card key={video.id}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm">
-                      Video {index + 1}
-                    </CardTitle>
+                    <CardTitle className="text-sm">Video {index + 1}</CardTitle>
                     <div className="flex gap-1">
                       <Button
                         size="icon-sm"

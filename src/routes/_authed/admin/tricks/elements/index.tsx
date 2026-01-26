@@ -96,8 +96,8 @@ function RouteComponent() {
         <div>
           <h1 className="text-2xl font-bold">trick elements</h1>
           <p className="text-muted-foreground text-sm">
-            Elements are the components that make up a trick (e.g., spins, flips,
-            twists).
+            Elements are the components that make up a trick (e.g., spins,
+            flips, twists).
           </p>
         </div>
       </div>

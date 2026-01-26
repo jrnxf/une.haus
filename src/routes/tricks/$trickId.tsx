@@ -1,10 +1,18 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { GhostIcon } from "lucide-react";
 
 import { BackLink } from "~/components/back-link";
 import { VideoCarousel } from "~/components/tricks/video-carousel";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/$trickId")({
@@ -20,14 +28,19 @@ function TrickDetailPage() {
 
   if (!trick) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground text-lg">Trick not found</p>
-          <Button asChild className="mt-4" variant="outline">
-            <Link to="/tricks">Back to Tricks</Link>
+      <Empty className="h-full">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <GhostIcon />
+          </EmptyMedia>
+          <EmptyTitle>Trick not found</EmptyTitle>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button asChild variant="outline">
+            <Link to="/tricks">Back</Link>
           </Button>
-        </div>
-      </div>
+        </EmptyContent>
+      </Empty>
     );
   }
 
@@ -43,7 +56,7 @@ function TrickDetailPage() {
       {/* Navigation */}
       <div className="mb-6 flex items-center justify-between">
         <BackLink to="/tricks" search={{ trick: trickId }} label="graph" />
-        <Button size="sm" asChild>
+        <Button asChild>
           <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
             Edit
           </Link>
@@ -53,12 +66,7 @@ function TrickDetailPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold">{trick.name}</h1>
-          {trick.alternateNames.length > 0 && (
-            <p className="text-muted-foreground mt-1">
-              Also known as: {trick.alternateNames.join(", ")}
-            </p>
-          )}
+          <h1 className="text-2xl font-bold lowercase">{trick.name}</h1>
         </div>
 
         {/* Videos */}
@@ -77,9 +85,19 @@ function TrickDetailPage() {
         {trick.definition && (
           <div className="space-y-1">
             <h3 className="text-muted-foreground text-sm font-medium">
-              Definition
+              definition
             </h3>
             <p className="text-sm">{trick.definition}</p>
+          </div>
+        )}
+
+        {/* Also known as */}
+        {trick.alternateNames.length > 0 && (
+          <div className="space-y-1">
+            <h3 className="text-muted-foreground text-sm font-medium">
+              also known as
+            </h3>
+            <p className="text-sm">{trick.alternateNames.join(", ")}</p>
           </div>
         )}
 
@@ -87,7 +105,7 @@ function TrickDetailPage() {
         {(prerequisiteTrick || optionalPrerequisiteTrick) && (
           <div className="space-y-2">
             <h3 className="text-muted-foreground text-sm font-medium">
-              Prerequisites
+              prerequisites
             </h3>
             <div className="flex flex-wrap gap-2">
               {prerequisiteTrick && (
@@ -96,7 +114,10 @@ function TrickDetailPage() {
                   variant="outline"
                   asChild
                 >
-                  <Link to="/tricks/$trickId" params={{ trickId: prerequisiteTrick.id }}>
+                  <Link
+                    to="/tricks/$trickId"
+                    params={{ trickId: prerequisiteTrick.id }}
+                  >
                     {prerequisiteTrick.name}
                   </Link>
                 </Button>
@@ -107,7 +128,10 @@ function TrickDetailPage() {
                   variant="outline"
                   asChild
                 >
-                  <Link to="/tricks/$trickId" params={{ trickId: optionalPrerequisiteTrick.id }}>
+                  <Link
+                    to="/tricks/$trickId"
+                    params={{ trickId: optionalPrerequisiteTrick.id }}
+                  >
                     {optionalPrerequisiteTrick.name}
                   </Link>
                 </Button>
@@ -116,11 +140,11 @@ function TrickDetailPage() {
           </div>
         )}
 
-        {/* Leads to / Dependents */}
+        {/* Unlocks */}
         {trick.dependents.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-muted-foreground text-sm font-medium">
-              Leads to
+              unlocks
             </h3>
             <div className="flex flex-wrap gap-2">
               {trick.dependents.slice(0, 8).map((depId) => {
@@ -152,7 +176,7 @@ function TrickDetailPage() {
         {(trick.inventedBy || trick.yearLanded) && (
           <div className="space-y-1">
             <h3 className="text-muted-foreground text-sm font-medium">
-              History
+              history
             </h3>
             <p className="text-sm">
               {trick.inventedBy && (
@@ -167,11 +191,10 @@ function TrickDetailPage() {
         {/* Notes */}
         {trick.notes && (
           <div className="space-y-1">
-            <h3 className="text-muted-foreground text-sm font-medium">Notes</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">notes</h3>
             <p className="text-muted-foreground text-sm">{trick.notes}</p>
           </div>
         )}
-
       </div>
     </div>
   );

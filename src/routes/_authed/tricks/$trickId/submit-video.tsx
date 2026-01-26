@@ -1,5 +1,10 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+
 import { toast } from "sonner";
 
 import { BackLink } from "~/components/back-link";
@@ -25,17 +30,11 @@ function RouteComponent() {
 
   const submitVideo = useMutation({
     mutationFn: tricks.videos.submit.fn,
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success("Video submitted for review");
-      // Remove stale cache and prefetch fresh data before navigating
       qc.removeQueries({
         queryKey: tricks.videos.listPending.queryOptions().queryKey,
       });
-      await Promise.all([
-        qc.prefetchQuery(tricks.videos.listPending.queryOptions()),
-        qc.prefetchQuery(tricks.submissions.list.queryOptions({ status: "pending" })),
-        qc.prefetchQuery(tricks.suggestions.list.queryOptions({ status: "pending" })),
-      ]);
       router.navigate({ to: "/tricks/review", search: { tab: "videos" } });
     },
     onError: (error) => {

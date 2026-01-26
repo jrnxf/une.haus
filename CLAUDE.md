@@ -57,6 +57,30 @@ Engagement tables follow a consistent pattern for each entity:
 - `{entity}Messages` - Comments on the entity
 - `{entity}MessageLikes` - Likes on comments
 
+### Message Likes Column Naming
+
+**CRITICAL**: When creating a `{entity}MessageLikes` table, the foreign key column must follow this exact pattern:
+
+```ts
+// Good - column name matches the type pattern
+export const fooMessageLikes = pgTable("foo_message_likes", {
+  fooMessageId: integer("foo_message_id")  // Column name = {type}Id
+    .notNull()
+    .references(() => fooMessages.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+}, (t) => [primaryKey({ columns: [t.fooMessageId, t.userId] })]);
+
+// Bad - generic column name breaks the reactions system
+export const fooMessageLikes = pgTable("foo_message_likes", {
+  messageId: integer("message_id")  // WRONG: must be fooMessageId
+    ...
+});
+```
+
+The reactions system (`src/lib/reactions/fns.ts`) dynamically constructs column names using `` `${type}Id` ``. For `fooMessage` type, it expects `fooMessageId`. A mismatch causes likes to silently fail.
+
 ## Route Pattern
 
 Routes use a loader + suspense pattern:
@@ -68,6 +92,102 @@ loader: ({ context }) =>
 
 // Component uses same query options
 const { data } = useSuspenseQuery(domain.get.queryOptions());
+```
+
+### Loaders Must Await Data for SSR
+
+**CRITICAL**: Route loaders must `await` data fetches for SSR to work. Without `await`, the server renders before data arrives, causing a loading flash instead of SSR content.
+
+**Always use `ensure*` methods, never `prefetch*`:**
+
+- `ensureQueryData` - for regular queries
+- `ensureInfiniteQueryData` - for infinite/paginated queries
+
+```ts
+// Good - awaited ensure, SSR works
+loader: async ({ context }) => {
+  await context.queryClient.ensureQueryData(domain.get.queryOptions());
+},
+
+// Good - awaited ensure for infinite queries
+loader: async ({ context, deps }) => {
+  await context.queryClient.ensureInfiniteQueryData(
+    domain.list.infiniteQueryOptions(deps),
+  );
+},
+
+// Bad - prefetch doesn't guarantee data is ready
+loader: ({ context }) => {
+  context.queryClient.prefetchQuery(domain.get.queryOptions());
+},
+```
+
+### Filtered Lists with Suspense
+
+For pages with search/filter inputs that use `useSuspenseInfiniteQuery`, use this pattern to prevent UI disappearance during data fetching:
+
+**Canonical examples:**
+
+- `src/routes/posts/index.tsx`
+- `src/routes/users/index.tsx`
+- `src/routes/vault/index.tsx`
+
+```tsx
+import { useDeferredValue, useRef, useState } from "react";
+
+import { useDebounceValue } from "usehooks-ts";
+
+function RouteComponent() {
+  // 1. inputValue: immediate feedback for the input field
+  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
+
+  // 2. debouncedInput: reduces query frequency (200ms delay)
+  const [debouncedInput] = useDebounceValue(inputValue, 200);
+
+  // 3. deferredQuery: prevents UI disappearance during suspense
+  const deferredQuery = useDeferredValue(debouncedInput);
+
+  // For non-text filters (tags, categories), also defer them
+  const [tags, setTags] = useState(searchParams.tags ?? []);
+  const deferredTags = useDeferredValue(tags);
+
+  // Update URL when debounced input changes (for bookmarking)
+  const lastUrlQuery = useRef(searchParams.q ?? "");
+  if (debouncedInput !== lastUrlQuery.current) {
+    lastUrlQuery.current = debouncedInput;
+    router.navigate({
+      to: "/current-route",
+      search: (prev) => ({ ...prev, q: debouncedInput || undefined }),
+      replace: true,
+    });
+  }
+
+  // Query uses DEFERRED values - never raw state
+  const { data } = useSuspenseInfiniteQuery(
+    domain.list.infiniteQueryOptions({
+      q: deferredQuery || undefined,
+      tags: deferredTags.length > 0 ? deferredTags : undefined,
+    }),
+  );
+}
+```
+
+**Why this pattern?**
+
+1. **`useDebounceValue`** - Prevents query spam. Without it, every keystroke fires a query.
+
+2. **`useDeferredValue`** - Tells React "keep showing old UI while new data loads". Without it, `useSuspenseInfiniteQuery` suspends on query key change, and TanStack Router's internal Suspense boundary shows an empty fallback (page disappears).
+
+3. **Both are needed** - Debouncing alone still causes UI disappearance when the debounced value finally changes. Deferring alone still fires queries on every keystroke.
+
+**Important:** The loader must await `ensureInfiniteQueryData` for SSR to work:
+
+```tsx
+loader: async ({ context, deps }) => {
+  await context.queryClient.ensureInfiniteQueryData(
+    domain.list.infiniteQueryOptions(deps),
+  );
+},
 ```
 
 ## Session & Authentication
@@ -177,7 +297,8 @@ const mutation = useMutation({
 ```ts
 // Good - use the queryOptions helper to get the exact key
 qc.removeQueries({
-  queryKey: tricks.submissions.list.queryOptions({ status: "pending" }).queryKey,
+  queryKey: tricks.submissions.list.queryOptions({ status: "pending" })
+    .queryKey,
 });
 
 // Bad - manually constructing keys can drift from actual keys
@@ -255,6 +376,7 @@ import { ShieldIcon } from "lucide-react";
 ```
 
 Canonical examples:
+
 - `src/routes/vault/index.tsx` - Admin mode toggle
 - `src/routes/games/rius/route.tsx` - Admin dropdown menu
 - `src/routes/tricks/index.tsx` - Admin dropdown menu
@@ -295,9 +417,7 @@ Use these standard gap values:
 Standard pattern for route content:
 
 ```tsx
-<div className="mx-auto w-full max-w-4xl px-4 py-6">
-  {/* content */}
-</div>
+<div className="mx-auto w-full max-w-4xl px-4 py-6">{/* content */}</div>
 ```
 
 For narrow forms: `max-w-lg`
@@ -323,13 +443,13 @@ Use `gap-4` in flex containers instead of manual margins (`mt-3`, `mb-1`):
 
 ### Summary Table
 
-| Context | Standard Values | Avoid |
-|---------|----------------|-------|
-| Flex gaps | `gap-1`, `gap-2`, `gap-4`, `gap-6` | `gap-3`, `gap-5`, `gap-7+` |
-| Vertical stacking | `space-y-1`, `space-y-2`, `space-y-4`, `space-y-6` | `space-y-3`, `space-y-5`, `space-y-7+` |
-| Padding | `p-4`, `p-6` | `p-3`, `p-5`, `p-7` |
-| Horizontal padding | `px-2`, `px-4`, `px-6` | `px-3`, `px-5` |
-| Vertical padding | `py-1`, `py-2`, `py-4`, `py-6` | `py-3`, `py-5` |
+| Context            | Standard Values                                    | Avoid                                  |
+| ------------------ | -------------------------------------------------- | -------------------------------------- |
+| Flex gaps          | `gap-1`, `gap-2`, `gap-4`, `gap-6`                 | `gap-3`, `gap-5`, `gap-7+`             |
+| Vertical stacking  | `space-y-1`, `space-y-2`, `space-y-4`, `space-y-6` | `space-y-3`, `space-y-5`, `space-y-7+` |
+| Padding            | `p-4`, `p-6`                                       | `p-3`, `p-5`, `p-7`                    |
+| Horizontal padding | `px-2`, `px-4`, `px-6`                             | `px-3`, `px-5`                         |
+| Vertical padding   | `py-1`, `py-2`, `py-4`, `py-6`                     | `py-3`, `py-5`                         |
 
 ## Documentation
 

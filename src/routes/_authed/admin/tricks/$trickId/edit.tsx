@@ -1,10 +1,17 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
 import { BackLink } from "~/components/back-link";
-import { TrickForm, type TrickFormDefaultValues } from "~/components/forms/trick";
+import {
+  TrickForm,
+  type TrickFormDefaultValues,
+} from "~/components/forms/trick";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
@@ -32,17 +39,16 @@ function RouteComponent() {
 
   const updateTrick = useMutation({
     mutationFn: tricks.update.fn,
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success("Trick updated");
-      // Remove stale cache and prefetch fresh data before navigating
       qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey });
       qc.removeQueries({
         queryKey: tricks.getById.queryOptions({ id: numericTrickId }).queryKey,
       });
       qc.removeQueries({
-        queryKey: tricks.videos.list.queryOptions({ trickId: numericTrickId }).queryKey,
+        queryKey: tricks.videos.list.queryOptions({ trickId: numericTrickId })
+          .queryKey,
       });
-      await qc.prefetchQuery(tricks.graph.queryOptions());
       router.navigate({ to: "/tricks" });
     },
     onError: (error) => {

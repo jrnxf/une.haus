@@ -1,10 +1,13 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
+  EditIcon,
+  FileTextIcon,
   LayersIcon,
   MessageCircleIcon,
   PlayCircleIcon,
   SendIcon,
+  VideoIcon,
 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -17,8 +20,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { type ActivityItem, users } from "~/lib/users";
-import { cn } from "~/lib/utils";
+import { users, type ActivityItem } from "~/lib/users";
 
 type ActivityFeedProps = {
   userId: number;
@@ -28,7 +30,10 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery(users.activity.infiniteQueryOptions({ userId }));
 
-  const items = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
+  const items = useMemo(
+    () => data?.pages.flatMap((p) => p.items) ?? [],
+    [data],
+  );
 
   if (isLoading) {
     return <ActivityFeedSkeleton />;
@@ -42,9 +47,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
             <SendIcon />
           </EmptyMedia>
           <EmptyTitle>No activity</EmptyTitle>
-          <EmptyDescription>
-            No activity in the past year.
-          </EmptyDescription>
+          <EmptyDescription>No activity in the past year.</EmptyDescription>
         </EmptyHeader>
       </Empty>
     );
@@ -98,7 +101,7 @@ function ActivityFeedSkeleton() {
               {i < arr.length - 1 && (
                 <div className="bg-border absolute top-1/2 -bottom-6 left-[9px] w-px" />
               )}
-              <div className="bg-muted absolute left-0 top-1/2 flex size-5 -translate-y-1/2 animate-pulse items-center justify-center rounded-full" />
+              <div className="bg-muted absolute top-1/2 left-0 flex size-5 -translate-y-1/2 animate-pulse items-center justify-center rounded-full" />
               <div className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1">
                 <div className="bg-muted h-5 min-w-0 flex-1 animate-pulse rounded" />
                 <div className="bg-muted h-5 w-20 shrink-0 animate-pulse rounded" />
@@ -127,7 +130,7 @@ function ActivityItemRow({
         <div className="bg-border absolute top-1/2 -bottom-6 left-[9px] w-px" />
       )}
       {/* Timeline dot */}
-      <div className="bg-background absolute left-0 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border">
+      <div className="bg-background absolute top-1/2 left-0 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border">
         <div className="text-foreground/60">{icon}</div>
       </div>
 
@@ -187,6 +190,41 @@ function getActivityDisplay(item: ActivityItem): {
         icon: <LayersIcon className="size-2.5" />,
         label: "Added to Back It Up chain",
         url: `/games/bius/${item.chainId}`,
+      };
+    }
+    case "trickSubmission": {
+      return {
+        icon: <FileTextIcon className="size-2.5" />,
+        label: `Submitted trick: ${item.name ?? "Untitled"}`,
+        url: "/tricks",
+      };
+    }
+    case "trickSuggestion": {
+      return {
+        icon: <EditIcon className="size-2.5" />,
+        label: `Suggested edit to ${item.trickName ?? "trick"}`,
+        url: item.trickSlug ? `/tricks/${item.trickSlug}` : "/tricks",
+      };
+    }
+    case "trickVideo": {
+      return {
+        icon: <VideoIcon className="size-2.5" />,
+        label: `Submitted video for ${item.trickName ?? "trick"}`,
+        url: item.trickSlug ? `/tricks/${item.trickSlug}` : "/tricks",
+      };
+    }
+    case "utvVideoSuggestion": {
+      return {
+        icon: <EditIcon className="size-2.5" />,
+        label: `Suggested edit to ${item.videoTitle ?? "video"}`,
+        url: item.videoId ? `/vault/${item.videoId}` : "/vault",
+      };
+    }
+    case "siuStack": {
+      return {
+        icon: <LayersIcon className="size-2.5" />,
+        label: `Added to Stack It Up: ${item.name ?? ""}`,
+        url: `/games/sius/${item.chainId}`,
       };
     }
     default: {

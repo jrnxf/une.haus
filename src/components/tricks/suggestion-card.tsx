@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import {
+  ArrowRight,
+  CheckCircle,
+  Clock,
   Heart,
   MessageCircle,
-  Clock,
-  CheckCircle,
   XCircle,
-  ArrowRight,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";

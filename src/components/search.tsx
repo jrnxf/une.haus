@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import * as React from "react";
 import { Suspense, useMemo, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -243,6 +243,15 @@ export function Search() {
         onAction: () => closeAndNavigate("/feedback"),
       },
     },
+    {
+      id: "shop",
+      label: "Shop",
+      value: "/shop",
+      primaryAction: {
+        label: "Open",
+        onAction: () => closeAndNavigate("/shop"),
+      },
+    },
   ];
 
   // Map selected value to item - cmdk lowercases values for matching
@@ -375,7 +384,9 @@ export function Search() {
       footer={footer}
       value={selectedValue}
       onValueChange={setSelectedValue}
-      shouldFilter={activePage !== "search-users" && activePage !== "search-vault"}
+      shouldFilter={
+        activePage !== "search-users" && activePage !== "search-vault"
+      }
     >
       <CommandInput
         ref={inputRef}

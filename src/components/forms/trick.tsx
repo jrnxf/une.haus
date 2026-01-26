@@ -1,5 +1,5 @@
+import { ChevronDownIcon, Info } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { Info } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -11,6 +11,12 @@ import {
 } from "~/components/input/trick-selector";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import {
   Field,
   FieldDescription,
@@ -42,6 +48,7 @@ export type TrickFormDefaultValues = Partial<TrickFormValues>;
 export function TrickForm({
   defaultValues,
   onSubmit,
+  onAdminSubmit,
   onCancel,
   submitLabel = "Save",
   isPending = false,
@@ -49,6 +56,7 @@ export function TrickForm({
 }: {
   defaultValues?: TrickFormDefaultValues;
   onSubmit: (data: CreateTrickArgs) => void;
+  onAdminSubmit?: (data: CreateTrickArgs) => void;
   onCancel?: () => void;
   submitLabel?: string;
   isPending?: boolean;
@@ -337,8 +345,8 @@ export function TrickForm({
               <Info className="size-4" />
               <AlertDescription>
                 Ideal videos are short clips showing the trick from different
-                angles, slow motion views, or POV perspectives. All from the same
-                rider in one edit is best!
+                angles, slow motion views, or POV perspectives. All from the
+                same rider in one edit is best!
               </AlertDescription>
             </Alert>
             <FormField
@@ -392,19 +400,70 @@ export function TrickForm({
         </FieldSet>
 
         {/* Actions */}
-        <Field orientation="horizontal">
-          <Button
-            type="submit"
-            disabled={isPending || formState.isSubmitting}
-          >
-            {isPending || formState.isSubmitting ? "Saving..." : submitLabel}
-          </Button>
+        <div className="flex items-center justify-between">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
           )}
-        </Field>
+          {!onCancel && <div />}
+          {onAdminSubmit ? (
+            <div className="flex">
+              <Button
+                type="submit"
+                disabled={isPending || formState.isSubmitting}
+                className="rounded-r-none"
+              >
+                {isPending || formState.isSubmitting ? "Saving..." : submitLabel}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    disabled={isPending || formState.isSubmitting}
+                    className="rounded-l-none border-l-0 px-2"
+                  >
+                    <ChevronDownIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={handleSubmit((data) => {
+                      const relationships = [
+                        ...data.prerequisites.map((r) => ({
+                          targetTrickId: r.targetTrickId,
+                          type: "prerequisite" as const,
+                        })),
+                        ...data.relatedTricks.map((r) => ({
+                          targetTrickId: r.targetTrickId,
+                          type: "related" as const,
+                        })),
+                      ];
+                      onAdminSubmit({
+                        slug: data.slug,
+                        name: data.name,
+                        alternateNames: data.alternateNames,
+                        definition: data.definition,
+                        inventedBy: data.inventedBy,
+                        yearLanded: data.yearLanded,
+                        muxAssetIds: data.muxAssetIds,
+                        notes: data.notes,
+                        relationships,
+                        elementIds: data.elements.map((e) => e.id),
+                      });
+                    })}
+                  >
+                    Save as admin
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <Button type="submit" disabled={isPending || formState.isSubmitting}>
+              {isPending || formState.isSubmitting ? "Saving..." : submitLabel}
+            </Button>
+          )}
+        </div>
       </FieldGroup>
     </Form>
   );

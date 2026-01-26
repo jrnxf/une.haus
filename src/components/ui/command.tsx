@@ -66,7 +66,7 @@ function CommandDialog({
     <Dialog {...props}>
       {showTrigger && (
         <DialogTrigger asChild>
-          <Button aria-label="Open command menu" size="xs" variant="ghost">
+          <Button aria-label="Open command menu" size="sm" variant="ghost">
             <KbdGroup>
               <Kbd>⌘</Kbd>
               <Kbd>K</Kbd>

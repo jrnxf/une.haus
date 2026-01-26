@@ -9,10 +9,11 @@ import {
   getUserFollowsServerFn,
   getUserWithFollowsServerFn,
   listUsersServerFn,
+  setShopNotifyServerFn,
   unfollowUserServerFn,
   updateUserServerFn,
   usersWithLocationsServerFn,
-  type ActivityItem,
+  
   type getUserServerFn,
 } from "~/lib/users/fns";
 import {
@@ -21,6 +22,7 @@ import {
   getUserFollowsSchema,
   getUserSchema,
   listUsersSchema,
+  setShopNotifySchema,
   unfollowUserSchema,
   updateUserSchema,
 } from "~/lib/users/schemas";
@@ -123,6 +125,10 @@ export const users = {
       });
     },
   },
+  setShopNotify: {
+    fn: setShopNotifyServerFn,
+    schema: setShopNotifySchema,
+  },
 };
 
 export type UsersGetData = ServerFnReturn<typeof getUserServerFn>;
@@ -134,4 +140,6 @@ export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>;
 export type UsersWithLocationsData = ServerFnReturn<
   typeof usersWithLocationsServerFn
 >;
-export type { ActivityItem };
+
+
+export {type ActivityItem} from "~/lib/users/fns";

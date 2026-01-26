@@ -42,6 +42,7 @@ export const createNotificationSchema = z.object({
       actorAvatarId: z.string().nullable().optional(),
       entityTitle: z.string().optional(),
       entityPreview: z.string().optional(),
+      trickSlug: z.string().optional(),
     })
     .optional(),
 });

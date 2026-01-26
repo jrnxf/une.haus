@@ -36,7 +36,7 @@ type UsersDialogProps = {
 
 export function UsersDialog({
   users,
-  title,
+  title: _title,
   trigger,
   disabled = false,
   withSearch = false,

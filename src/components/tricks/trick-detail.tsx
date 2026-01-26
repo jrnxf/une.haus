@@ -76,9 +76,7 @@ export function TrickDetail({
             </DialogHeader>
 
             {/* Videos */}
-            {trick.videos.length > 0 && (
-              <VideoCarousel videos={trick.videos} />
-            )}
+            {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
 
             {/* Elements */}
             <div className="flex flex-wrap gap-2">

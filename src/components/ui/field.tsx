@@ -166,10 +166,7 @@ function FieldSeparator({
     <div
       data-slot="field-separator"
       data-content={!!children}
-      className={cn(
-        "relative my-2 h-5 text-sm",
-        className,
-      )}
+      className={cn("relative my-2 h-5 text-sm", className)}
       {...props}
     >
       <Separator className="absolute inset-0 top-1/2" />

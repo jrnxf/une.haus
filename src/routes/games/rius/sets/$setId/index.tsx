@@ -16,12 +16,12 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
-import { ShareButton } from "~/components/share-button";
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
+import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
@@ -69,11 +69,10 @@ function RouteComponent() {
   const { setId } = Route.useParams();
 
   return (
-    <div
-      className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4 pb-6"
-      id="main-content"
-    >
-      <SetView setId={setId} />
+    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+        <SetView setId={setId} />
+      </div>
     </div>
   );
 }
@@ -105,7 +104,7 @@ function SetView({ setId }: { setId: number }) {
   const isOwner = set.user.id === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6">
+    <>
       <Button variant="ghost" size="sm" asChild className="self-start">
         <Link to="/games/rius/active">
           <ArrowLeftIcon className="size-4" />
@@ -122,7 +121,12 @@ function SetView({ setId }: { setId: number }) {
 
         <div className="text-muted-foreground text-sm">{set.user.name}</div>
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate} aria-label={authUserLiked ? "Unlike" : "Like"}>
+          <Button
+            size="icon-sm"
+            variant="outline"
+            onClick={likeUnlike.mutate}
+            aria-label={authUserLiked ? "Unlike" : "Like"}
+          >
             <HeartIcon
               className={cn(
                 "size-4",
@@ -135,7 +139,11 @@ function SetView({ setId }: { setId: number }) {
               users={set.likes?.map((l) => l.user) ?? []}
               title={`${set.likes?.length ?? 0} Likes`}
               trigger={
-                <Button size="icon-sm" variant="outline" aria-label="View likes">
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  aria-label="View likes"
+                >
                   <TrendingUpIcon className="size-4" />
                 </Button>
               }
@@ -201,7 +209,7 @@ function SetView({ setId }: { setId: number }) {
           <p className="text-muted-foreground text-sm">No submissions yet.</p>
         )}
       </div>
-    </div>
+    </>
   );
 }
 

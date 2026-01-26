@@ -6,6 +6,7 @@ import { db } from "~/db";
 import { tricks, trickVideos } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware";
+import { createNotification } from "~/lib/notifications/helpers";
 
 import {
   deleteVideoSchema,
@@ -170,6 +171,29 @@ export const reviewVideoServerFn = createServerFn({
         .where(eq(trickVideos.id, id))
         .returning();
 
+      // Get the trick for navigation
+      const trick = await db.query.tricks.findFirst({
+        where: eq(tricks.id, video.trickId),
+        columns: { slug: true },
+      });
+
+      // Notify the user who submitted the video
+      if (video.submittedByUserId) {
+        await createNotification({
+          userId: video.submittedByUserId,
+          actorId: context.user.id,
+          type: "review",
+          entityType: "trickVideo",
+          entityId: id,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+            entityTitle: "approved",
+            trickSlug: trick?.slug,
+          },
+        });
+      }
+
       return updatedVideo;
     }
 
@@ -183,6 +207,29 @@ export const reviewVideoServerFn = createServerFn({
       })
       .where(eq(trickVideos.id, id))
       .returning();
+
+    // Get the trick for navigation
+    const trick = await db.query.tricks.findFirst({
+      where: eq(tricks.id, video.trickId),
+      columns: { slug: true },
+    });
+
+    // Notify the user who submitted the video
+    if (video.submittedByUserId) {
+      await createNotification({
+        userId: video.submittedByUserId,
+        actorId: context.user.id,
+        type: "review",
+        entityType: "trickVideo",
+        entityId: id,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityTitle: "rejected",
+          trickSlug: trick?.slug,
+        },
+      });
+    }
 
     return updatedVideo;
   });

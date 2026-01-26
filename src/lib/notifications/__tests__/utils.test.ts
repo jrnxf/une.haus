@@ -164,8 +164,43 @@ describe("entity type formatting", () => {
     ["biuSet", "BIU set"],
     ["utvVideo", "video"],
     ["user", "profile"],
+    ["trickSubmission", "trick submission"],
+    ["trickSuggestion", "trick suggestion"],
+    ["trickVideo", "trick video"],
   ] as const)("formats %s as %s", (entityType, expected) => {
     const msg = getNotificationMessage("like", entityType, 1, ["Test"]);
     expect(msg).toContain(expected);
+  });
+});
+
+describe("review notifications", () => {
+  it("formats approved review notification message", () => {
+    const msg = getNotificationMessage("review", "trickSubmission", 1, ["Admin"], "approved");
+    expect(msg).toBe("Your trick submission was approved");
+  });
+
+  it("formats rejected review notification message", () => {
+    const msg = getNotificationMessage("review", "trickVideo", 1, ["Admin"], "rejected");
+    expect(msg).toBe("Your trick video was rejected");
+  });
+});
+
+describe("getNotificationUrl with data", () => {
+  it("returns trick URL with slug for trickSubmission", () => {
+    expect(getNotificationUrl("trickSubmission", 123, { trickSlug: "kickflip" })).toBe("/tricks/kickflip");
+  });
+
+  it("returns trick URL with slug for trickSuggestion", () => {
+    expect(getNotificationUrl("trickSuggestion", 456, { trickSlug: "heelflip" })).toBe("/tricks/heelflip");
+  });
+
+  it("returns trick URL with slug for trickVideo", () => {
+    expect(getNotificationUrl("trickVideo", 789, { trickSlug: "tre-flip" })).toBe("/tricks/tre-flip");
+  });
+
+  it("returns fallback /tricks when no slug provided", () => {
+    expect(getNotificationUrl("trickSubmission", 123, {})).toBe("/tricks");
+    expect(getNotificationUrl("trickVideo", 456, null)).toBe("/tricks");
+    expect(getNotificationUrl("trickSuggestion", 789)).toBe("/tricks");
   });
 });

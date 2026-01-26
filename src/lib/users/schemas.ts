@@ -79,3 +79,7 @@ export const getUserActivitySchema = z.object({
   /** If true, fetch all activity (ignoring one-year limit) */
   all: z.boolean().optional(),
 });
+
+export const setShopNotifySchema = z.object({
+  notify: z.boolean(),
+});

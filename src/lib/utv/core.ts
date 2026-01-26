@@ -5,14 +5,25 @@ import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
 import {
   addUtvClapsServerFn,
   allUtvVideosServerFn,
+  createUtvSuggestionServerFn,
   getUtvClapsServerFn,
+  getUtvSuggestionServerFn,
   getUtvVideoServerFn,
+  listUtvSuggestionsServerFn,
   listUtvVideosServerFn,
+  reviewUtvSuggestionServerFn,
   updateUtvScaleServerFn,
   updateUtvThumbnailSecondsServerFn,
   updateUtvTitleServerFn,
 } from "~/lib/utv/fns";
-import { listUtvVideosSchema } from "~/lib/utv/schemas";
+import {
+  createUtvSuggestionSchema,
+  getUtvSuggestionSchema,
+  listUtvSuggestionsSchema,
+  listUtvVideosSchema,
+  reviewUtvSuggestionSchema,
+  type ListUtvSuggestionsInput,
+} from "~/lib/utv/schemas";
 
 export const utv = {
   all: {
@@ -80,8 +91,41 @@ export const utv = {
   updateTitle: {
     fn: updateUtvTitleServerFn,
   },
+
+  // Suggestions (edits to existing videos)
+  suggestions: {
+    list: {
+      fn: listUtvSuggestionsServerFn,
+      schema: listUtvSuggestionsSchema,
+      queryOptions: (data?: ListUtvSuggestionsInput) =>
+        queryOptions({
+          queryKey: ["utv.suggestions.list", data],
+          queryFn: () => listUtvSuggestionsServerFn({ data }),
+          staleTime: 1000 * 30, // 30 seconds
+        }),
+    },
+    get: {
+      fn: getUtvSuggestionServerFn,
+      schema: getUtvSuggestionSchema,
+      queryOptions: (data: ServerFnData<typeof getUtvSuggestionServerFn>) =>
+        queryOptions({
+          queryKey: ["utv.suggestions.get", data],
+          queryFn: () => getUtvSuggestionServerFn({ data }),
+        }),
+    },
+    create: {
+      fn: createUtvSuggestionServerFn,
+      schema: createUtvSuggestionSchema,
+    },
+    review: {
+      fn: reviewUtvSuggestionServerFn,
+      schema: reviewUtvSuggestionSchema,
+    },
+  },
 };
 
 export type UtvVideosData = ServerFnReturn<typeof allUtvVideosServerFn>;
 export type UtvVideosListData = ServerFnReturn<typeof listUtvVideosServerFn>;
 export type UtvVideoData = ServerFnReturn<typeof getUtvVideoServerFn>;
+export type UtvSuggestionData = ServerFnReturn<typeof getUtvSuggestionServerFn>;
+export type UtvSuggestionsData = ServerFnReturn<typeof listUtvSuggestionsServerFn>;

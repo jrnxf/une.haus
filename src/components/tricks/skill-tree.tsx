@@ -32,13 +32,13 @@ export function SkillTree({ data }: SkillTreeProps) {
       const elementTricks = data.byElement[element] ?? [];
       const filtered = searchLower
         ? elementTricks.filter(
-          (trick) =>
-            trick.name.toLowerCase().includes(searchLower) ||
-            trick.alternateNames.some((name) =>
-              name.toLowerCase().includes(searchLower),
-            ) ||
-            trick.definition.toLowerCase().includes(searchLower),
-        )
+            (trick) =>
+              trick.name.toLowerCase().includes(searchLower) ||
+              trick.alternateNames.some((name) =>
+                name.toLowerCase().includes(searchLower),
+              ) ||
+              trick.definition.toLowerCase().includes(searchLower),
+          )
         : elementTricks;
 
       if (filtered.length > 0) {

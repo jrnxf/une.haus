@@ -3,11 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { GlobeIcon, PlayIcon, TrendingUpIcon, UsersIcon } from "lucide-react";
 
 import { LogoRandomScatter } from "~/components/logo-animated";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { games, groupSetsByUserWithRankings } from "~/lib/games";
 import { stats } from "~/lib/stats";
@@ -17,23 +13,25 @@ export const Route = createFileRoute("/")({
   loader: async ({ context }) => {
     // Get list of archived RIUs (only those with sets)
     const archivedList = await context.queryClient.ensureQueryData(
-      games.rius.archived.list.queryOptions()
+      games.rius.archived.list.queryOptions(),
     );
 
     // Find the most recent one (sorted by createdAt desc)
     const mostRecent = archivedList.sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )[0];
 
     await Promise.all([
       context.queryClient.ensureQueryData(stats.get.queryOptions()),
-      context.queryClient.ensureQueryData(games.rius.active.list.queryOptions()),
+      context.queryClient.ensureQueryData(
+        games.rius.active.list.queryOptions(),
+      ),
       // Only fetch archived details if there's one with sets
       mostRecent
         ? context.queryClient.ensureQueryData(
-          games.rius.archived.get.queryOptions({ riuId: mostRecent.id })
-        )
+            games.rius.archived.get.queryOptions({ riuId: mostRecent.id }),
+          )
         : Promise.resolve(null),
     ]);
   },
@@ -43,15 +41,15 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   const { data: statsData } = useSuspenseQuery(stats.get.queryOptions());
   const { data: activeRiu } = useSuspenseQuery(
-    games.rius.active.list.queryOptions()
+    games.rius.active.list.queryOptions(),
   );
   const { data: archivedList } = useSuspenseQuery(
-    games.rius.archived.list.queryOptions()
+    games.rius.archived.list.queryOptions(),
   );
 
   // Get most recent archived RIU that has sets
   const mostRecentArchived = archivedList.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   )[0];
 
   // Use regular useQuery with enabled flag for conditional fetch
@@ -95,7 +93,7 @@ function RouteComponent() {
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-yellow-500/10 via-transparent to-amber-500/10 p-6">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-500/5 via-transparent to-transparent" />
               <div className="relative">
-                <p className="text-muted-foreground mb-6 text-center text-sm font-medium uppercase tracking-wider">
+                <p className="text-muted-foreground mb-6 text-center text-sm font-medium tracking-wider uppercase">
                   Last Week's Champions
                 </p>
 
@@ -117,14 +115,14 @@ function RouteComponent() {
                           "group flex flex-col items-center transition-transform hover:scale-105",
                           isFirst && "order-2",
                           isSecond && "order-1",
-                          isThird && "order-3"
+                          isThird && "order-3",
                         )}
                       >
                         {/* Avatar with glow */}
                         <div
                           className={cn(
                             "relative mb-2",
-                            isFirst && "mb-3 scale-125"
+                            isFirst && "mb-3 scale-125",
                           )}
                         >
                           <div
@@ -132,16 +130,15 @@ function RouteComponent() {
                               "absolute -inset-1 rounded-full opacity-50 blur-md",
                               isFirst && "bg-yellow-500",
                               isSecond && "bg-gray-400",
-                              isThird && "bg-amber-700"
+                              isThird && "bg-amber-700",
                             )}
                           />
                           <Avatar
                             className={cn(
                               "relative rounded-full ring-2",
-                              isFirst &&
-                              "size-20 ring-4 ring-yellow-500/50",
+                              isFirst && "size-20 ring-4 ring-yellow-500/50",
                               isSecond && "size-14 ring-gray-400/50",
-                              isThird && "size-14 ring-amber-700/50"
+                              isThird && "size-14 ring-amber-700/50",
                             )}
                             cloudflareId={rider.user.avatarId}
                             alt={rider.user.name}
@@ -159,7 +156,7 @@ function RouteComponent() {
                           className={cn(
                             "max-w-20 truncate text-center font-medium group-hover:underline",
                             isFirst && "max-w-28 text-base",
-                            !isFirst && "text-muted-foreground text-sm"
+                            !isFirst && "text-muted-foreground text-sm",
                           )}
                         >
                           {rider.user.name.split(" ")[0]}
@@ -170,11 +167,11 @@ function RouteComponent() {
                           className={cn(
                             "mt-2 flex w-20 items-center justify-center rounded-t-lg font-bold",
                             isFirst &&
-                            "h-16 w-24 bg-gradient-to-t from-yellow-600 to-yellow-500 text-2xl text-yellow-100",
+                              "h-16 w-24 bg-gradient-to-t from-yellow-600 to-yellow-500 text-2xl text-yellow-100",
                             isSecond &&
-                            "h-12 bg-gradient-to-t from-gray-600 to-gray-500 text-xl text-gray-100",
+                              "h-12 bg-gradient-to-t from-gray-600 to-gray-500 text-xl text-gray-100",
                             isThird &&
-                            "h-10 bg-gradient-to-t from-amber-800 to-amber-700 text-lg text-amber-100"
+                              "h-10 bg-gradient-to-t from-amber-800 to-amber-700 text-lg text-amber-100",
                           )}
                         >
                           {rider.ranking.rank}
@@ -208,7 +205,7 @@ function RouteComponent() {
               <div>
                 <div className="mb-1 flex items-center gap-2">
                   <TrendingUpIcon className="size-5 text-violet-200" />
-                  <p className="text-sm font-medium uppercase tracking-wider text-violet-200">
+                  <p className="text-sm font-medium tracking-wider text-violet-200 uppercase">
                     This Week's RIU
                   </p>
                 </div>
@@ -237,10 +234,12 @@ function RouteComponent() {
               to="/users"
               className="group flex flex-col justify-between rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-6 transition-all hover:scale-[1.02]"
             >
-              <UsersIcon className="text-emerald-500 size-6" />
+              <UsersIcon className="size-6 text-emerald-500" />
               <div className="mt-4">
                 <p className="text-4xl font-bold">{statsData.counts.users}</p>
-                <p className="text-muted-foreground text-sm">riders worldwide</p>
+                <p className="text-muted-foreground text-sm">
+                  riders worldwide
+                </p>
               </div>
             </Link>
 
@@ -249,9 +248,11 @@ function RouteComponent() {
               to="/users"
               className="group flex flex-col justify-between rounded-2xl bg-gradient-to-br from-sky-500/20 to-sky-600/10 p-6 transition-all hover:scale-[1.02]"
             >
-              <GlobeIcon className="text-sky-500 size-6" />
+              <GlobeIcon className="size-6 text-sky-500" />
               <div className="mt-4">
-                <p className="text-4xl font-bold">{statsData.counts.countries}</p>
+                <p className="text-4xl font-bold">
+                  {statsData.counts.countries}
+                </p>
                 <p className="text-muted-foreground text-sm">countries</p>
               </div>
             </Link>
@@ -261,5 +262,3 @@ function RouteComponent() {
     </div>
   );
 }
-
-

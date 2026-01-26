@@ -10,10 +10,17 @@ import {
   posts,
   riuSets,
   riuSubmissions,
+  siuStacks,
+  tricks,
+  trickSubmissions,
+  trickSuggestions,
+  trickVideos,
   userFollows,
   userLocations,
   users,
   userSocials,
+  utvVideoSuggestions,
+  utvVideos,
 } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
 import { assertFound } from "~/lib/invariant";
@@ -26,6 +33,7 @@ import {
   getUserFollowsSchema,
   getUserSchema,
   listUsersSchema,
+  setShopNotifySchema,
   unfollowUserSchema,
   updateUserSchema,
 } from "~/lib/users/schemas";
@@ -330,7 +338,13 @@ export type ActivityType =
   | "comment"
   | "riuSet"
   | "riuSubmission"
-  | "biuSet";
+  | "biuSet"
+  | "trickSubmission"
+  | "trickSuggestion"
+  | "trickVideo"
+  | "utvVideo"
+  | "utvVideoSuggestion"
+  | "siuStack";
 
 export type ActivityItem = {
   type: ActivityType;
@@ -350,6 +364,13 @@ export type ActivityItem = {
   riuSetId?: number | null;
   chainId?: number | null;
   muxAssetId?: string | null;
+  // Trick fields
+  trickId?: number | null;
+  trickSlug?: string | null;
+  trickName?: string | null;
+  // UTV Video fields
+  videoId?: number | null;
+  videoTitle?: string | null;
 };
 
 export const getUserActivityServerFn = createServerFn({
@@ -368,96 +389,195 @@ export const getUserActivityServerFn = createServerFn({
     }
 
     // Fetch activity from each source in parallel using drizzle query builder
-    const [postsData, commentsData, riuSetsData, riuSubsData, biuSetsData] =
-      await Promise.all([
-        // Posts
-        db
-          .select({
-            id: posts.id,
-            createdAt: posts.createdAt,
-            title: posts.title,
-            content: posts.content,
-          })
-          .from(posts)
-          .where(
-            cursorDate
-              ? and(eq(posts.userId, userId), lt(posts.createdAt, cursorDate))
-              : eq(posts.userId, userId),
-          )
-          .orderBy(desc(posts.createdAt))
-          .limit(limit + 1),
+    const [
+      postsData,
+      commentsData,
+      riuSetsData,
+      riuSubsData,
+      biuSetsData,
+      trickSubmissionsData,
+      trickSuggestionsData,
+      trickVideosData,
+      utvVideoSuggestionsData,
+      siuStacksData,
+    ] = await Promise.all([
+      // Posts
+      db
+        .select({
+          id: posts.id,
+          createdAt: posts.createdAt,
+          title: posts.title,
+          content: posts.content,
+        })
+        .from(posts)
+        .where(
+          cursorDate
+            ? and(eq(posts.userId, userId), lt(posts.createdAt, cursorDate))
+            : eq(posts.userId, userId),
+        )
+        .orderBy(desc(posts.createdAt))
+        .limit(limit + 1),
 
-        // Post comments with parent info
-        db
-          .select({
-            id: postMessages.id,
-            createdAt: postMessages.createdAt,
-            content: postMessages.content,
-            parentId: postMessages.postId,
-            parentTitle: posts.title,
-          })
-          .from(postMessages)
-          .innerJoin(posts, eq(postMessages.postId, posts.id))
-          .where(
-            cursorDate
-              ? and(eq(postMessages.userId, userId), lt(postMessages.createdAt, cursorDate))
-              : eq(postMessages.userId, userId),
-          )
-          .orderBy(desc(postMessages.createdAt))
-          .limit(limit + 1),
+      // Post comments with parent info
+      db
+        .select({
+          id: postMessages.id,
+          createdAt: postMessages.createdAt,
+          content: postMessages.content,
+          parentId: postMessages.postId,
+          parentTitle: posts.title,
+        })
+        .from(postMessages)
+        .innerJoin(posts, eq(postMessages.postId, posts.id))
+        .where(
+          cursorDate
+            ? and(eq(postMessages.userId, userId), lt(postMessages.createdAt, cursorDate))
+            : eq(postMessages.userId, userId),
+        )
+        .orderBy(desc(postMessages.createdAt))
+        .limit(limit + 1),
 
-        // RIU Sets
-        db
-          .select({
-            id: riuSets.id,
-            createdAt: riuSets.createdAt,
-            name: riuSets.name,
-            content: riuSets.instructions,
-            riuId: riuSets.riuId,
-          })
-          .from(riuSets)
-          .where(
-            cursorDate
-              ? and(eq(riuSets.userId, userId), lt(riuSets.createdAt, cursorDate))
-              : eq(riuSets.userId, userId),
-          )
-          .orderBy(desc(riuSets.createdAt))
-          .limit(limit + 1),
+      // RIU Sets
+      db
+        .select({
+          id: riuSets.id,
+          createdAt: riuSets.createdAt,
+          name: riuSets.name,
+          content: riuSets.instructions,
+          riuId: riuSets.riuId,
+        })
+        .from(riuSets)
+        .where(
+          cursorDate
+            ? and(eq(riuSets.userId, userId), lt(riuSets.createdAt, cursorDate))
+            : eq(riuSets.userId, userId),
+        )
+        .orderBy(desc(riuSets.createdAt))
+        .limit(limit + 1),
 
-        // RIU Submissions with set name
-        db
-          .select({
-            id: riuSubmissions.id,
-            createdAt: riuSubmissions.createdAt,
-            riuSetId: riuSubmissions.riuSetId,
-            parentTitle: riuSets.name,
-          })
-          .from(riuSubmissions)
-          .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
-          .where(
-            cursorDate
-              ? and(eq(riuSubmissions.userId, userId), lt(riuSubmissions.createdAt, cursorDate))
-              : eq(riuSubmissions.userId, userId),
-          )
-          .orderBy(desc(riuSubmissions.createdAt))
-          .limit(limit + 1),
+      // RIU Submissions with set name
+      db
+        .select({
+          id: riuSubmissions.id,
+          createdAt: riuSubmissions.createdAt,
+          riuSetId: riuSubmissions.riuSetId,
+          parentTitle: riuSets.name,
+        })
+        .from(riuSubmissions)
+        .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
+        .where(
+          cursorDate
+            ? and(eq(riuSubmissions.userId, userId), lt(riuSubmissions.createdAt, cursorDate))
+            : eq(riuSubmissions.userId, userId),
+        )
+        .orderBy(desc(riuSubmissions.createdAt))
+        .limit(limit + 1),
 
-        // BIU Sets
-        db
-          .select({
-            id: biuSets.id,
-            createdAt: biuSets.createdAt,
-            chainId: biuSets.chainId,
-          })
-          .from(biuSets)
-          .where(
-            cursorDate
-              ? and(eq(biuSets.userId, userId), lt(biuSets.createdAt, cursorDate))
-              : eq(biuSets.userId, userId),
-          )
-          .orderBy(desc(biuSets.createdAt))
-          .limit(limit + 1),
-      ]);
+      // BIU Sets
+      db
+        .select({
+          id: biuSets.id,
+          createdAt: biuSets.createdAt,
+          chainId: biuSets.chainId,
+        })
+        .from(biuSets)
+        .where(
+          cursorDate
+            ? and(eq(biuSets.userId, userId), lt(biuSets.createdAt, cursorDate))
+            : eq(biuSets.userId, userId),
+        )
+        .orderBy(desc(biuSets.createdAt))
+        .limit(limit + 1),
+
+      // Trick Submissions
+      db
+        .select({
+          id: trickSubmissions.id,
+          createdAt: trickSubmissions.createdAt,
+          name: trickSubmissions.name,
+        })
+        .from(trickSubmissions)
+        .where(
+          cursorDate
+            ? and(eq(trickSubmissions.submittedByUserId, userId), lt(trickSubmissions.createdAt, cursorDate))
+            : eq(trickSubmissions.submittedByUserId, userId),
+        )
+        .orderBy(desc(trickSubmissions.createdAt))
+        .limit(limit + 1),
+
+      // Trick Suggestions with trick info
+      db
+        .select({
+          id: trickSuggestions.id,
+          createdAt: trickSuggestions.createdAt,
+          trickId: trickSuggestions.trickId,
+          trickSlug: tricks.slug,
+          trickName: tricks.name,
+        })
+        .from(trickSuggestions)
+        .innerJoin(tricks, eq(trickSuggestions.trickId, tricks.id))
+        .where(
+          cursorDate
+            ? and(eq(trickSuggestions.submittedByUserId, userId), lt(trickSuggestions.createdAt, cursorDate))
+            : eq(trickSuggestions.submittedByUserId, userId),
+        )
+        .orderBy(desc(trickSuggestions.createdAt))
+        .limit(limit + 1),
+
+      // Trick Videos with trick info
+      db
+        .select({
+          id: trickVideos.id,
+          createdAt: trickVideos.createdAt,
+          trickId: trickVideos.trickId,
+          trickSlug: tricks.slug,
+          trickName: tricks.name,
+        })
+        .from(trickVideos)
+        .innerJoin(tricks, eq(trickVideos.trickId, tricks.id))
+        .where(
+          cursorDate
+            ? and(eq(trickVideos.submittedByUserId, userId), lt(trickVideos.createdAt, cursorDate))
+            : eq(trickVideos.submittedByUserId, userId),
+        )
+        .orderBy(desc(trickVideos.createdAt))
+        .limit(limit + 1),
+
+      // UTV Video Suggestions
+      db
+        .select({
+          id: utvVideoSuggestions.id,
+          createdAt: utvVideoSuggestions.createdAt,
+          videoId: utvVideoSuggestions.utvVideoId,
+          videoTitle: utvVideos.title,
+        })
+        .from(utvVideoSuggestions)
+        .innerJoin(utvVideos, eq(utvVideoSuggestions.utvVideoId, utvVideos.id))
+        .where(
+          cursorDate
+            ? and(eq(utvVideoSuggestions.submittedByUserId, userId), lt(utvVideoSuggestions.createdAt, cursorDate))
+            : eq(utvVideoSuggestions.submittedByUserId, userId),
+        )
+        .orderBy(desc(utvVideoSuggestions.createdAt))
+        .limit(limit + 1),
+
+      // SIU Stacks
+      db
+        .select({
+          id: siuStacks.id,
+          createdAt: siuStacks.createdAt,
+          chainId: siuStacks.chainId,
+          name: siuStacks.name,
+        })
+        .from(siuStacks)
+        .where(
+          cursorDate
+            ? and(eq(siuStacks.userId, userId), lt(siuStacks.createdAt, cursorDate))
+            : eq(siuStacks.userId, userId),
+        )
+        .orderBy(desc(siuStacks.createdAt))
+        .limit(limit + 1),
+    ]);
 
     // Helper to get timestamp from Date
     const getTime = (d: Date) => d.getTime();
@@ -506,6 +626,47 @@ export const getUserActivityServerFn = createServerFn({
         chainId: row.chainId,
         _ts: getTime(row.createdAt),
       })),
+      ...trickSubmissionsData.map((row) => ({
+        type: "trickSubmission" as const,
+        id: row.id,
+        createdAt: row.createdAt,
+        name: row.name,
+        _ts: getTime(row.createdAt),
+      })),
+      ...trickSuggestionsData.map((row) => ({
+        type: "trickSuggestion" as const,
+        id: row.id,
+        createdAt: row.createdAt,
+        trickId: row.trickId,
+        trickSlug: row.trickSlug,
+        trickName: row.trickName,
+        _ts: getTime(row.createdAt),
+      })),
+      ...trickVideosData.map((row) => ({
+        type: "trickVideo" as const,
+        id: row.id,
+        createdAt: row.createdAt,
+        trickId: row.trickId,
+        trickSlug: row.trickSlug,
+        trickName: row.trickName,
+        _ts: getTime(row.createdAt),
+      })),
+      ...utvVideoSuggestionsData.map((row) => ({
+        type: "utvVideoSuggestion" as const,
+        id: row.id,
+        createdAt: row.createdAt,
+        videoId: row.videoId,
+        videoTitle: row.videoTitle,
+        _ts: getTime(row.createdAt),
+      })),
+      ...siuStacksData.map((row) => ({
+        type: "siuStack" as const,
+        id: row.id,
+        createdAt: row.createdAt,
+        chainId: row.chainId,
+        name: row.name,
+        _ts: getTime(row.createdAt),
+      })),
     ];
 
     // Sort by timestamp descending (newest first)
@@ -520,10 +681,24 @@ export const getUserActivityServerFn = createServerFn({
     // Create cursor for next page (using | separator since ISO timestamps contain colons)
     let nextCursor: string | undefined;
     if (hasMore && items.length > 0) {
-      const lastItem = items[items.length - 1];
-      nextCursor = `${new Date(lastItem.createdAt).toISOString()}|${lastItem.type}|${lastItem.id}`;
+      const lastItem = items.at(-1);
+      if (lastItem) {
+        nextCursor = `${new Date(lastItem.createdAt).toISOString()}|${lastItem.type}|${lastItem.id}`;
+      }
     }
 
     return { items, nextCursor };
+  });
+
+export const setShopNotifyServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(setShopNotifySchema))
+  .middleware([authMiddleware])
+  .handler(async ({ data, context }) => {
+    await db
+      .update(users)
+      .set({ notifyWhenShop: data.notify })
+      .where(eq(users.id, context.user.id));
   });
 

@@ -29,8 +29,8 @@ export async function createNotification(
   });
 
   // If settings exist, check if this notification type is enabled
-  // Note: archive_request and chain_archived bypass preference checks as they are important admin/system notifications
-  if (settings && input.type !== "archive_request" && input.type !== "chain_archived") {
+  // Note: archive_request, chain_archived, and review bypass preference checks as they are important admin/system notifications
+  if (settings && input.type !== "archive_request" && input.type !== "chain_archived" && input.type !== "review") {
     const typeToSetting: Partial<Record<NotificationType, keyof typeof settings>> = {
       like: "likesEnabled",
       comment: "commentsEnabled",
@@ -166,6 +166,13 @@ export async function getContentOwner(
       // UTV videos don't have owners (legacy content)
       return null;
     }
+    case "utvVideoSuggestion": {
+      const suggestion = await db.query.utvVideoSuggestions.findFirst({
+        where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
+        columns: { submittedByUserId: true },
+      });
+      return suggestion?.submittedByUserId ?? null;
+    }
     case "trickSubmission": {
       const submission = await db.query.trickSubmissions.findFirst({
         where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
@@ -179,6 +186,13 @@ export async function getContentOwner(
         columns: { submittedByUserId: true },
       });
       return suggestion?.submittedByUserId ?? null;
+    }
+    case "trickVideo": {
+      const video = await db.query.trickVideos.findFirst({
+        where: (videos, { eq: eqOp }) => eqOp(videos.id, entityId),
+        columns: { submittedByUserId: true },
+      });
+      return video?.submittedByUserId ?? null;
     }
     case "user": {
       // For follow notifications, the entityId is the user being followed

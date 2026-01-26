@@ -16,7 +16,6 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
-import { ShareButton } from "~/components/share-button";
 import { StackUpForm } from "~/components/forms/games/sius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button";
@@ -24,6 +23,7 @@ import { TrickLine } from "~/components/games/sius/trick-line";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
+import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -163,7 +163,12 @@ function StackView({ stackId }: { stackId: number }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate} aria-label={authUserLiked ? "Unlike" : "Like"}>
+          <Button
+            size="icon-sm"
+            variant="outline"
+            onClick={likeUnlike.mutate}
+            aria-label={authUserLiked ? "Unlike" : "Like"}
+          >
             <HeartIcon
               className={cn(
                 "size-4",
@@ -180,7 +185,11 @@ function StackView({ stackId }: { stackId: number }) {
               )}
               title={`${stack.likes.length} Likes`}
               trigger={
-                <Button size="icon-sm" variant="outline" aria-label="View likes">
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  aria-label="View likes"
+                >
                   <TrendingUpIcon className="size-4" />
                 </Button>
               }

@@ -23,9 +23,7 @@ import { tricks } from "~/lib/tricks";
 import { createModifierSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
 
-export const Route = createFileRoute(
-  "/_authed/admin/tricks/modifiers/create",
-)({
+export const Route = createFileRoute("/_authed/admin/tricks/modifiers/create")({
   component: RouteComponent,
 });
 

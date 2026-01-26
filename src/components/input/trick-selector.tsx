@@ -62,7 +62,9 @@ export function TrickSelector({
   );
 
   const fzf = useFzf([searchReadyTricks, { selector: (t) => t.searchKey }]);
-  const filteredTricks = query ? fzf.find(query.toLowerCase()) : searchReadyTricks.map((item) => ({ item }));
+  const filteredTricks = query
+    ? fzf.find(query.toLowerCase())
+    : searchReadyTricks.map((item) => ({ item }));
 
   const handleSelect = (trick: TrickOption) => {
     const isSelected = value.some((v) => v.id === trick.id);
@@ -193,7 +195,9 @@ export function TrickRelationshipSelector({
   );
 
   const fzf = useFzf([searchReadyTricks, { selector: (t) => t.searchKey }]);
-  const filteredTricks = query ? fzf.find(query.toLowerCase()) : searchReadyTricks.map((item) => ({ item }));
+  const filteredTricks = query
+    ? fzf.find(query.toLowerCase())
+    : searchReadyTricks.map((item) => ({ item }));
 
   const handleSelect = (trick: TrickOption) => {
     const isSelected = selectedIds.includes(trick.id);
@@ -325,7 +329,11 @@ export function ElementSelector({
     ? fzf.find(query.toLowerCase())
     : searchReadyElements.map((item) => ({ item }));
 
-  const handleSelect = (element: { id: number; slug: string; name: string }) => {
+  const handleSelect = (element: {
+    id: number;
+    slug: string;
+    name: string;
+  }) => {
     const isSelected = selectedIds.includes(element.id);
     if (isSelected) {
       onChange(value.filter((v) => v.id !== element.id));

@@ -1,17 +1,14 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import {
-  HeartIcon,
-  PencilIcon,
-  TrashIcon,
-  TrendingUpIcon,
-} from "lucide-react";
+import { HeartIcon, PencilIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
+
+import { Separator } from "~/components/ui/separator";
 
 import { Badges } from "~/components/badges";
-import { ShareButton } from "~/components/share-button";
 import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
+import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
 import { YoutubeIframe } from "~/components/youtube-iframe";
@@ -61,19 +58,56 @@ export function PostView({ postId }: { postId: number }) {
 
   return (
     <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
-      <div className="flex items-center gap-3">
-        <div className="w-full space-y-1">
-          <div className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
-              {post.title}
-            </div>
-            {/* <PostOptions post={post} /> */}
-          </div>
-
+      <div className="flex items-center gap-2">
+        <div className="shrink-0 space-y-1">
+          <h1 className="text-2xl leading-none font-semibold tracking-tight">
+            {post.title}
+          </h1>
           <div className="text-muted-foreground text-sm">{post.user.name}</div>
         </div>
-        <div className="flex shrink-0 items-center gap-1">
-          <Button size="icon-sm" variant="outline" onClick={likeUnlikePost} aria-label={authUserLiked ? "Unlike" : "Like"}>
+
+        <div className="flex shrink-0 grow items-center justify-end gap-1">
+          {isOwner && (
+            <>
+              <Button
+                asChild
+                size="icon-sm"
+                variant="outline"
+                aria-label="Edit"
+              >
+                <Link params={{ postId }} to="/posts/$postId/edit">
+                  <PencilIcon className="size-4" />
+                </Link>
+              </Button>
+              <Button
+                onClick={() =>
+                  confirm.open({
+                    title: "Delete Post",
+                    description:
+                      "Are you sure you want to delete this post? This action cannot be undone.",
+                    confirmText: "Delete",
+                    onConfirm: () => {
+                      deletePost({
+                        data: post.id,
+                      });
+                    },
+                  })
+                }
+                size="icon-sm"
+                variant="outline"
+                aria-label="Delete"
+              >
+                <TrashIcon className="size-4" />
+              </Button>
+              <Separator orientation="vertical" className="mx-1 h-6" />
+            </>
+          )}
+          <Button
+            size="icon-sm"
+            variant="outline"
+            onClick={likeUnlikePost}
+            aria-label={authUserLiked ? "Unlike" : "Like"}
+          >
             <HeartIcon
               className={cn(
                 "size-4",
@@ -110,43 +144,13 @@ export function PostView({ postId }: { postId: number }) {
         <p>{post.content}</p>
       </div>
 
-      {isOwner && (
-        <div className="flex items-center gap-1">
-          <Button asChild size="icon-sm" variant="outline" aria-label="Edit">
-            <Link params={{ postId }} to="/posts/$postId/edit">
-              <PencilIcon className="size-4" />
-            </Link>
-          </Button>
-          <Button
-            onClick={() =>
-              confirm.open({
-                title: "Delete Post",
-                description:
-                  "Are you sure you want to delete this post? This action cannot be undone.",
-                confirmText: "Delete",
-                onConfirm: () => {
-                  deletePost({
-                    data: post.id,
-                  });
-                },
-              })
-            }
-            size="icon-sm"
-            variant="outline"
-            aria-label="Delete"
-          >
-            <TrashIcon className="size-4" />
-          </Button>
-        </div>
-      )}
-
       {post.youtubeVideoId && <YoutubeIframe videoId={post.youtubeVideoId} />}
 
       {post.video && post.video.playbackId && (
         <VideoPlayer playbackId={post.video.playbackId} />
       )}
 
-      <Badges content={post.tags} />
+      <Badges content={post.tags} clickable="tags" />
 
       <div className="shrink-0">
         <MessagesView

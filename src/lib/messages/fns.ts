@@ -13,7 +13,9 @@ import {
   siuStackMessages,
   trickSubmissionMessages,
   trickSuggestionMessages,
+  trickVideoMessages,
   utvVideoMessages,
+  utvVideoSuggestionMessages,
   type NotificationEntityType,
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
@@ -415,6 +417,86 @@ export const listMessagesServerFn = createServerFn({
       };
     }
 
+    if (input.type === "utvVideoSuggestion") {
+      const messages = await db.query.utvVideoSuggestionMessages.findMany({
+        orderBy: asc(utvVideoSuggestionMessages.createdAt),
+        where: eq(utvVideoSuggestionMessages.suggestionId, input.id),
+        columns: {
+          suggestionId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              utvVideoSuggestionMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "utvVideoSuggestionMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
+    if (input.type === "trickVideo") {
+      const messages = await db.query.trickVideoMessages.findMany({
+        orderBy: asc(trickVideoMessages.createdAt),
+        where: eq(trickVideoMessages.trickVideoId, input.id),
+        columns: {
+          trickVideoId: false,
+        },
+        with: {
+          likes: {
+            columns: {
+              trickVideoMessageId: false,
+              userId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  avatarId: true,
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          user: {
+            columns: {
+              avatarId: true,
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        type: "trickVideoMessages" as const,
+        parentId: input.id,
+        messages,
+      };
+    }
+
     invariant(false, "Invalid type");
   });
 
@@ -426,8 +508,10 @@ const MESSAGE_ENTITY_TYPES: Partial<Record<MessageParentType, NotificationEntity
   biuSet: "biuSet",
   siuStack: "siuStack",
   utvVideo: "utvVideo",
+  utvVideoSuggestion: "utvVideoSuggestion",
   trickSubmission: "trickSubmission",
   trickSuggestion: "trickSuggestion",
+  trickVideo: "trickVideo",
 };
 
 export const createMessageServerFn = createServerFn({
@@ -538,6 +622,28 @@ export const createMessageServerFn = createServerFn({
         .returning();
     }
 
+    if (type === "utvVideoSuggestion") {
+      await db
+        .insert(utvVideoSuggestionMessages)
+        .values({
+          content,
+          suggestionId: id,
+          userId,
+        })
+        .returning();
+    }
+
+    if (type === "trickVideo") {
+      await db
+        .insert(trickVideoMessages)
+        .values({
+          content,
+          trickVideoId: id,
+          userId,
+        })
+        .returning();
+    }
+
     // Create notification for the content owner (skip chat as it has no owner)
     const entityType = MESSAGE_ENTITY_TYPES[type];
     if (entityType) {
@@ -620,6 +726,12 @@ export const getTableByType = (type: MessageParentType) => {
     }
     case "trickSuggestion": {
       return trickSuggestionMessages;
+    }
+    case "utvVideoSuggestion": {
+      return utvVideoSuggestionMessages;
+    }
+    case "trickVideo": {
+      return trickVideoMessages;
     }
     default: {
       invariant(

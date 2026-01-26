@@ -127,20 +127,14 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
   //   };
   // }, []);
 
-  // Handle location updates
-  useEffect(() => {
-    if (!props.location) {
-      return;
-    }
-
-    const locationChanged =
-      nextLocation.current.lat !== props.location.lat ||
-      nextLocation.current.lng !== props.location.lng;
-
-    if (locationChanged) {
-      nextLocation.current = props.location;
-    }
-  }, [props.location]);
+  // Update location ref synchronously during render (no useEffect needed for refs)
+  if (
+    props.location &&
+    (nextLocation.current.lat !== props.location.lat ||
+      nextLocation.current.lng !== props.location.lng)
+  ) {
+    nextLocation.current = props.location;
+  }
 
   // Skip animation on back/forward navigation
   useEffect(() => {

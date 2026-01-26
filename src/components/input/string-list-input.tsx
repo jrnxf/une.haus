@@ -51,7 +51,7 @@ export function StringListInput({
           size="icon-xs"
           onClick={handleAdd}
           disabled={!inputValue.trim()}
-          className="absolute right-1 top-1/2 -translate-y-1/2"
+          className="absolute top-1/2 right-1 -translate-y-1/2"
         >
           <Plus className="size-4" />
         </Button>

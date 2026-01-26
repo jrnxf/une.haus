@@ -3,7 +3,13 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeft,
   CheckCircle,
@@ -11,9 +17,9 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
-import { z } from "zod";
 
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { UsersDialog } from "~/components/likes-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -30,7 +36,6 @@ import { flashMessage } from "~/lib/flash";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { session } from "~/lib/session";
 import { useSessionUser } from "~/lib/session/hooks";
 import { tricks } from "~/lib/tricks";
@@ -78,11 +83,8 @@ function RouteComponent() {
   const { isAdmin } = Route.useLoaderData();
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-2 py-4">
-      <div
-        className="flex w-full max-w-4xl grow flex-col gap-6 overflow-y-auto px-4"
-        id="main-content"
-      >
+    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
         <SubmissionView submissionId={submissionId} isAdmin={isAdmin} />
       </div>
     </div>
@@ -122,7 +124,9 @@ function SubmissionView({
     }).queryKey,
   });
 
-  const submissionsQueryKey = tricks.submissions.list.queryOptions({ status: "pending" }).queryKey;
+  const submissionsQueryKey = tricks.submissions.list.queryOptions({
+    status: "pending",
+  }).queryKey;
   const graphQueryKey = tricks.graph.queryOptions().queryKey;
 
   const reviewSubmission = useMutation({
@@ -170,11 +174,11 @@ function SubmissionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 submission.status === "pending" &&
-                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 submission.status === "approved" &&
-                "bg-green-500/20 text-green-700 dark:text-green-300",
+                  "bg-green-500/20 text-green-700 dark:text-green-300",
                 submission.status === "rejected" &&
-                "bg-red-500/20 text-red-700 dark:text-red-300",
+                  "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {submission.status === "pending" && "Pending"}
@@ -192,12 +196,13 @@ function SubmissionView({
 
           {/* Metadata Grid */}
           <div className="text-muted-foreground grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
-            {submission.alternateNames && submission.alternateNames.length > 0 && (
-              <div className="col-span-2 sm:col-span-3">
-                <span className="font-medium">Aliases: </span>
-                {submission.alternateNames.join(", ")}
-              </div>
-            )}
+            {submission.alternateNames &&
+              submission.alternateNames.length > 0 && (
+                <div className="col-span-2 sm:col-span-3">
+                  <span className="font-medium">Aliases: </span>
+                  {submission.alternateNames.join(", ")}
+                </div>
+              )}
             {submission.inventedBy && (
               <div>
                 <span className="font-medium">Invented by: </span>
@@ -227,7 +232,8 @@ function SubmissionView({
                   className="text-primary hover:underline"
                 >
                   {submission.videoUrl}
-                  {submission.videoTimestamp && ` @ ${submission.videoTimestamp}`}
+                  {submission.videoTimestamp &&
+                    ` @ ${submission.videoTimestamp}`}
                 </a>
               </div>
             )}

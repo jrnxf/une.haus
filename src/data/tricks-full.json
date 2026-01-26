@@ -9,7 +9,14 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-unispin", "180-sidespin", "180-secretsidespin", "180-backside", "180-antiside", "hickflip"]
+    "relatedTricks": [
+      "360-unispin",
+      "180-sidespin",
+      "180-secretsidespin",
+      "180-backside",
+      "180-antiside",
+      "hickflip"
+    ]
   },
   {
     "id": "360-unispin",
@@ -21,7 +28,15 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-unispin", "540-unispin", "360-sidespin", "360-secretsidespin", "360-backside", "360-antiside", "treyflip"]
+    "relatedTricks": [
+      "180-unispin",
+      "540-unispin",
+      "360-sidespin",
+      "360-secretsidespin",
+      "360-backside",
+      "360-antiside",
+      "treyflip"
+    ]
   },
   {
     "id": "540-unispin",
@@ -33,7 +48,15 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-unispin", "720-unispin", "540-sidespin", "540-secretsidespin", "540-backside", "540-antiside", "fifthflip"]
+    "relatedTricks": [
+      "360-unispin",
+      "720-unispin",
+      "540-sidespin",
+      "540-secretsidespin",
+      "540-backside",
+      "540-antiside",
+      "fifthflip"
+    ]
   },
   {
     "id": "720-unispin",
@@ -45,7 +68,14 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-unispin", "900-unispin", "720-sidespin", "720-secretsidespin", "720-backside", "sejflip"]
+    "relatedTricks": [
+      "540-unispin",
+      "900-unispin",
+      "720-sidespin",
+      "720-secretsidespin",
+      "720-backside",
+      "sejflip"
+    ]
   },
   {
     "id": "900-unispin",
@@ -57,7 +87,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["720-unispin", "1080-unispin", "900-sidespin", "ninthflip"]
+    "relatedTricks": [
+      "720-unispin",
+      "1080-unispin",
+      "900-sidespin",
+      "ninthflip"
+    ]
   },
   {
     "id": "1080-unispin",
@@ -69,7 +104,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["900-unispin", "1260-unispin", "1080-sidespin", "tenthflip"]
+    "relatedTricks": [
+      "900-unispin",
+      "1260-unispin",
+      "1080-sidespin",
+      "tenthflip"
+    ]
   },
   {
     "id": "1260-unispin",
@@ -105,7 +145,12 @@
     "optionalPrerequisite": "360-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-sidespin", "540-sidespin", "360-unispin", "treysideflip"]
+    "relatedTricks": [
+      "180-sidespin",
+      "540-sidespin",
+      "360-unispin",
+      "treysideflip"
+    ]
   },
   {
     "id": "540-sidespin",
@@ -117,7 +162,12 @@
     "optionalPrerequisite": "540-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-sidespin", "720-sidespin", "540-unispin", "fifthsideflip"]
+    "relatedTricks": [
+      "360-sidespin",
+      "720-sidespin",
+      "540-unispin",
+      "fifthsideflip"
+    ]
   },
   {
     "id": "720-sidespin",
@@ -129,7 +179,12 @@
     "optionalPrerequisite": "720-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-sidespin", "900-sidespin", "720-unispin", "sejsideflip"]
+    "relatedTricks": [
+      "540-sidespin",
+      "900-sidespin",
+      "720-unispin",
+      "sejsideflip"
+    ]
   },
   {
     "id": "900-sidespin",
@@ -141,7 +196,12 @@
     "optionalPrerequisite": "900-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["720-sidespin", "1080-sidespin", "900-unispin", "ninthsideflip"]
+    "relatedTricks": [
+      "720-sidespin",
+      "1080-sidespin",
+      "900-unispin",
+      "ninthsideflip"
+    ]
   },
   {
     "id": "1080-sidespin",
@@ -153,7 +213,12 @@
     "optionalPrerequisite": "1080-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["900-sidespin", "1260-sidespin", "1080-unispin", "tenthsideflip"]
+    "relatedTricks": [
+      "900-sidespin",
+      "1260-sidespin",
+      "1080-unispin",
+      "tenthsideflip"
+    ]
   },
   {
     "id": "1260-sidespin",
@@ -189,7 +254,12 @@
     "optionalPrerequisite": "360-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-secretsidespin", "540-secretsidespin", "360-sidespin", "treysecretsideflip"]
+    "relatedTricks": [
+      "180-secretsidespin",
+      "540-secretsidespin",
+      "360-sidespin",
+      "treysecretsideflip"
+    ]
   },
   {
     "id": "540-secretsidespin",
@@ -201,7 +271,12 @@
     "optionalPrerequisite": "540-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-secretsidespin", "720-secretsidespin", "540-sidespin", "fifthsecretsideflip"]
+    "relatedTricks": [
+      "360-secretsidespin",
+      "720-secretsidespin",
+      "540-sidespin",
+      "fifthsecretsideflip"
+    ]
   },
   {
     "id": "720-secretsidespin",
@@ -225,7 +300,12 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-secretsidespin", "treysecretdoubleflip", "fifthsecretsideflip", "treyflip"]
+    "relatedTricks": [
+      "360-secretsidespin",
+      "treysecretdoubleflip",
+      "fifthsecretsideflip",
+      "treyflip"
+    ]
   },
   {
     "id": "treysecretdoubleflip",
@@ -237,7 +317,11 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treysecretsideflip", "treysecrettripleflip", "fifthsecretdoubleflip"]
+    "relatedTricks": [
+      "treysecretsideflip",
+      "treysecrettripleflip",
+      "fifthsecretdoubleflip"
+    ]
   },
   {
     "id": "treysecrettripleflip",
@@ -261,7 +345,12 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-secretsidespin", "fifthsecretdoubleflip", "treysecretsideflip", "sejsecretsideflip"]
+    "relatedTricks": [
+      "540-secretsidespin",
+      "fifthsecretdoubleflip",
+      "treysecretsideflip",
+      "sejsecretsideflip"
+    ]
   },
   {
     "id": "fifthsecretdoubleflip",
@@ -273,7 +362,11 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthsecretsideflip", "fifthsecrettripleflip", "treysecretdoubleflip"]
+    "relatedTricks": [
+      "fifthsecretsideflip",
+      "fifthsecrettripleflip",
+      "treysecretdoubleflip"
+    ]
   },
   {
     "id": "fifthsecrettripleflip",
@@ -309,7 +402,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-unispin", "360-backside", "180-sidespin", "hickbacksideflip"]
+    "relatedTricks": [
+      "180-unispin",
+      "360-backside",
+      "180-sidespin",
+      "hickbacksideflip"
+    ]
   },
   {
     "id": "360-backside",
@@ -321,7 +419,12 @@
     "optionalPrerequisite": "360-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-backside", "540-backside", "360-sidespin", "treybacksideflip"]
+    "relatedTricks": [
+      "180-backside",
+      "540-backside",
+      "360-sidespin",
+      "treybacksideflip"
+    ]
   },
   {
     "id": "540-backside",
@@ -333,7 +436,12 @@
     "optionalPrerequisite": "540-unispin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-backside", "720-backside", "540-sidespin", "fifthbacksideflip"]
+    "relatedTricks": [
+      "360-backside",
+      "720-backside",
+      "540-sidespin",
+      "fifthbacksideflip"
+    ]
   },
   {
     "id": "720-backside",
@@ -357,7 +465,12 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-backside", "hickbacksidedoubleflip", "treybacksideflip", "hickflip"]
+    "relatedTricks": [
+      "180-backside",
+      "hickbacksidedoubleflip",
+      "treybacksideflip",
+      "hickflip"
+    ]
   },
   {
     "id": "hickbacksidedoubleflip",
@@ -369,7 +482,11 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickbacksideflip", "hickbacksidetripleflip", "treybacksidedoubleflip"]
+    "relatedTricks": [
+      "hickbacksideflip",
+      "hickbacksidetripleflip",
+      "treybacksidedoubleflip"
+    ]
   },
   {
     "id": "hickbacksidetripleflip",
@@ -393,7 +510,12 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-backside", "treybacksidedoubleflip", "hickbacksideflip", "fifthbacksideflip"]
+    "relatedTricks": [
+      "360-backside",
+      "treybacksidedoubleflip",
+      "hickbacksideflip",
+      "fifthbacksideflip"
+    ]
   },
   {
     "id": "treybacksidedoubleflip",
@@ -405,7 +527,11 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treybacksideflip", "hickbacksidedoubleflip", "fifthbacksidedoubleflip"]
+    "relatedTricks": [
+      "treybacksideflip",
+      "hickbacksidedoubleflip",
+      "fifthbacksidedoubleflip"
+    ]
   },
   {
     "id": "fifthbacksideflip",
@@ -417,7 +543,12 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-backside", "fifthbacksidedoubleflip", "treybacksideflip", "sejbacksideflip"]
+    "relatedTricks": [
+      "540-backside",
+      "fifthbacksidedoubleflip",
+      "treybacksideflip",
+      "sejbacksideflip"
+    ]
   },
   {
     "id": "fifthbacksidedoubleflip",
@@ -429,7 +560,11 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthbacksideflip", "fifthbacksidetripleflip", "treybacksidedoubleflip"]
+    "relatedTricks": [
+      "fifthbacksideflip",
+      "fifthbacksidetripleflip",
+      "treybacksidedoubleflip"
+    ]
   },
   {
     "id": "fifthbacksidetripleflip",
@@ -465,7 +600,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-unispin", "360-antiside", "180-sidespin", "hickantisideflip"]
+    "relatedTricks": [
+      "180-unispin",
+      "360-antiside",
+      "180-sidespin",
+      "hickantisideflip"
+    ]
   },
   {
     "id": "360-antiside",
@@ -501,7 +641,12 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-antiside", "hickantisidedoubleflip", "fifthantisideflip", "hickflip"]
+    "relatedTricks": [
+      "180-antiside",
+      "hickantisidedoubleflip",
+      "fifthantisideflip",
+      "hickflip"
+    ]
   },
   {
     "id": "hickantisidedoubleflip",
@@ -525,7 +670,11 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-antiside", "fifthantisidedoubleflip", "hickantisideflip"]
+    "relatedTricks": [
+      "540-antiside",
+      "fifthantisidedoubleflip",
+      "hickantisideflip"
+    ]
   },
   {
     "id": "fifthantisidedoubleflip",
@@ -561,7 +710,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["crankflip", "tripleflip", "doublebackflip", "hickdoubleflip"]
+    "relatedTricks": [
+      "crankflip",
+      "tripleflip",
+      "doublebackflip",
+      "hickdoubleflip"
+    ]
   },
   {
     "id": "tripleflip",
@@ -573,7 +727,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["doubleflip", "quadflip", "triplebackflip", "hicktripleflip"]
+    "relatedTricks": [
+      "doubleflip",
+      "quadflip",
+      "triplebackflip",
+      "hicktripleflip"
+    ]
   },
   {
     "id": "quadflip",
@@ -621,7 +780,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["crankflip", "doublebackflip", "hickbackflip", "underflip"]
+    "relatedTricks": [
+      "crankflip",
+      "doublebackflip",
+      "hickbackflip",
+      "underflip"
+    ]
   },
   {
     "id": "doublebackflip",
@@ -633,7 +797,12 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["backflip", "triplebackflip", "doubleflip", "hickdoublebackflip"]
+    "relatedTricks": [
+      "backflip",
+      "triplebackflip",
+      "doubleflip",
+      "hickdoublebackflip"
+    ]
   },
   {
     "id": "triplebackflip",
@@ -693,7 +862,15 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-unispin", "crankflip", "treyflip", "hickdoubleflip", "hickbackflip", "hicksideflip", "hickkickflip"]
+    "relatedTricks": [
+      "180-unispin",
+      "crankflip",
+      "treyflip",
+      "hickdoubleflip",
+      "hickbackflip",
+      "hicksideflip",
+      "hickkickflip"
+    ]
   },
   {
     "id": "treyflip",
@@ -705,7 +882,16 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-unispin", "crankflip", "hickflip", "fifthflip", "treydoubleflip", "treybackflip", "treysideflip", "treykickflip"]
+    "relatedTricks": [
+      "360-unispin",
+      "crankflip",
+      "hickflip",
+      "fifthflip",
+      "treydoubleflip",
+      "treybackflip",
+      "treysideflip",
+      "treykickflip"
+    ]
   },
   {
     "id": "fifthflip",
@@ -717,7 +903,16 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-unispin", "crankflip", "treyflip", "sejflip", "fifthdoubleflip", "fifthbackflip", "fifthsideflip", "fifthkickflip"]
+    "relatedTricks": [
+      "540-unispin",
+      "crankflip",
+      "treyflip",
+      "sejflip",
+      "fifthdoubleflip",
+      "fifthbackflip",
+      "fifthsideflip",
+      "fifthkickflip"
+    ]
   },
   {
     "id": "sejflip",
@@ -729,7 +924,16 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["720-unispin", "crankflip", "fifthflip", "ninthflip", "sejdoubleflip", "sejbackflip", "sejsideflip", "sejkickflip"]
+    "relatedTricks": [
+      "720-unispin",
+      "crankflip",
+      "fifthflip",
+      "ninthflip",
+      "sejdoubleflip",
+      "sejbackflip",
+      "sejsideflip",
+      "sejkickflip"
+    ]
   },
   {
     "id": "ninthflip",
@@ -741,7 +945,14 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["900-unispin", "crankflip", "sejflip", "tenthflip", "ninthbackflip", "ninthsideflip"]
+    "relatedTricks": [
+      "900-unispin",
+      "crankflip",
+      "sejflip",
+      "tenthflip",
+      "ninthbackflip",
+      "ninthsideflip"
+    ]
   },
   {
     "id": "tenthflip",
@@ -753,7 +964,13 @@
     "optionalPrerequisite": "crankflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["1080-unispin", "crankflip", "ninthflip", "tenthbackflip", "tenthsideflip"]
+    "relatedTricks": [
+      "1080-unispin",
+      "crankflip",
+      "ninthflip",
+      "tenthbackflip",
+      "tenthsideflip"
+    ]
   },
   {
     "id": "hickdoubleflip",
@@ -765,7 +982,13 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickflip", "doubleflip", "treydoubleflip", "hicktripleflip", "hickdoublebackflip"]
+    "relatedTricks": [
+      "hickflip",
+      "doubleflip",
+      "treydoubleflip",
+      "hicktripleflip",
+      "hickdoublebackflip"
+    ]
   },
   {
     "id": "treydoubleflip",
@@ -777,7 +1000,14 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treyflip", "doubleflip", "hickdoubleflip", "fifthdoubleflip", "treytripleflip", "treydoublebackflip"]
+    "relatedTricks": [
+      "treyflip",
+      "doubleflip",
+      "hickdoubleflip",
+      "fifthdoubleflip",
+      "treytripleflip",
+      "treydoublebackflip"
+    ]
   },
   {
     "id": "fifthdoubleflip",
@@ -789,7 +1019,14 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthflip", "doubleflip", "treydoubleflip", "sejdoubleflip", "fifthtripleflip", "fifthdoublebackflip"]
+    "relatedTricks": [
+      "fifthflip",
+      "doubleflip",
+      "treydoubleflip",
+      "sejdoubleflip",
+      "fifthtripleflip",
+      "fifthdoublebackflip"
+    ]
   },
   {
     "id": "sejdoubleflip",
@@ -801,7 +1038,13 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["sejflip", "doubleflip", "fifthdoubleflip", "sejtripleflip", "sejdoublebackflip"]
+    "relatedTricks": [
+      "sejflip",
+      "doubleflip",
+      "fifthdoubleflip",
+      "sejtripleflip",
+      "sejdoublebackflip"
+    ]
   },
   {
     "id": "hicktripleflip",
@@ -813,7 +1056,12 @@
     "optionalPrerequisite": "tripleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickdoubleflip", "tripleflip", "treytripleflip", "hickquadflip"]
+    "relatedTricks": [
+      "hickdoubleflip",
+      "tripleflip",
+      "treytripleflip",
+      "hickquadflip"
+    ]
   },
   {
     "id": "treytripleflip",
@@ -825,7 +1073,13 @@
     "optionalPrerequisite": "tripleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treydoubleflip", "tripleflip", "hicktripleflip", "fifthtripleflip", "treyquadflip"]
+    "relatedTricks": [
+      "treydoubleflip",
+      "tripleflip",
+      "hicktripleflip",
+      "fifthtripleflip",
+      "treyquadflip"
+    ]
   },
   {
     "id": "fifthtripleflip",
@@ -837,7 +1091,13 @@
     "optionalPrerequisite": "tripleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthdoubleflip", "tripleflip", "treytripleflip", "sejtripleflip", "fifthquadflip"]
+    "relatedTricks": [
+      "fifthdoubleflip",
+      "tripleflip",
+      "treytripleflip",
+      "sejtripleflip",
+      "fifthquadflip"
+    ]
   },
   {
     "id": "sejtripleflip",
@@ -849,7 +1109,12 @@
     "optionalPrerequisite": "tripleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["sejdoubleflip", "tripleflip", "fifthtripleflip", "sejquadflip"]
+    "relatedTricks": [
+      "sejdoubleflip",
+      "tripleflip",
+      "fifthtripleflip",
+      "sejquadflip"
+    ]
   },
   {
     "id": "hickquadflip",
@@ -861,7 +1126,12 @@
     "optionalPrerequisite": "quadflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hicktripleflip", "quadflip", "treyquadflip", "hickquintflip"]
+    "relatedTricks": [
+      "hicktripleflip",
+      "quadflip",
+      "treyquadflip",
+      "hickquintflip"
+    ]
   },
   {
     "id": "treyquadflip",
@@ -873,7 +1143,13 @@
     "optionalPrerequisite": "quadflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treytripleflip", "quadflip", "hickquadflip", "fifthquadflip", "treyquintflip"]
+    "relatedTricks": [
+      "treytripleflip",
+      "quadflip",
+      "hickquadflip",
+      "fifthquadflip",
+      "treyquintflip"
+    ]
   },
   {
     "id": "fifthquadflip",
@@ -885,7 +1161,12 @@
     "optionalPrerequisite": "quadflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthtripleflip", "quadflip", "treyquadflip", "sejquadflip"]
+    "relatedTricks": [
+      "fifthtripleflip",
+      "quadflip",
+      "treyquadflip",
+      "sejquadflip"
+    ]
   },
   {
     "id": "sejquadflip",
@@ -933,7 +1214,12 @@
     "optionalPrerequisite": "180-sidespin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["180-sidespin", "hickflip", "treysideflip", "hicksidekickflip"]
+    "relatedTricks": [
+      "180-sidespin",
+      "hickflip",
+      "treysideflip",
+      "hicksidekickflip"
+    ]
   },
   {
     "id": "treysideflip",
@@ -945,7 +1231,13 @@
     "optionalPrerequisite": "360-sidespin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["360-sidespin", "treyflip", "hicksideflip", "fifthsideflip", "treysidekickflip"]
+    "relatedTricks": [
+      "360-sidespin",
+      "treyflip",
+      "hicksideflip",
+      "fifthsideflip",
+      "treysidekickflip"
+    ]
   },
   {
     "id": "fifthsideflip",
@@ -957,7 +1249,13 @@
     "optionalPrerequisite": "540-sidespin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["540-sidespin", "fifthflip", "treysideflip", "sejsideflip", "fifthsidekickflip"]
+    "relatedTricks": [
+      "540-sidespin",
+      "fifthflip",
+      "treysideflip",
+      "sejsideflip",
+      "fifthsidekickflip"
+    ]
   },
   {
     "id": "sejsideflip",
@@ -969,7 +1267,13 @@
     "optionalPrerequisite": "720-sidespin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["720-sidespin", "sejflip", "fifthsideflip", "ninthsideflip", "sejsidekickflip"]
+    "relatedTricks": [
+      "720-sidespin",
+      "sejflip",
+      "fifthsideflip",
+      "ninthsideflip",
+      "sejsidekickflip"
+    ]
   },
   {
     "id": "ninthsideflip",
@@ -981,7 +1285,12 @@
     "optionalPrerequisite": "900-sidespin",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["900-sidespin", "ninthflip", "sejsideflip", "tenthsideflip"]
+    "relatedTricks": [
+      "900-sidespin",
+      "ninthflip",
+      "sejsideflip",
+      "tenthsideflip"
+    ]
   },
   {
     "id": "tenthsideflip",
@@ -1005,7 +1314,12 @@
     "optionalPrerequisite": "backflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickflip", "backflip", "treybackflip", "hickdoublebackflip"]
+    "relatedTricks": [
+      "hickflip",
+      "backflip",
+      "treybackflip",
+      "hickdoublebackflip"
+    ]
   },
   {
     "id": "treybackflip",
@@ -1017,7 +1331,13 @@
     "optionalPrerequisite": "backflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treyflip", "backflip", "hickbackflip", "fifthbackflip", "treydoublebackflip"]
+    "relatedTricks": [
+      "treyflip",
+      "backflip",
+      "hickbackflip",
+      "fifthbackflip",
+      "treydoublebackflip"
+    ]
   },
   {
     "id": "fifthbackflip",
@@ -1029,7 +1349,13 @@
     "optionalPrerequisite": "backflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthflip", "backflip", "treybackflip", "sejbackflip", "fifthdoublebackflip"]
+    "relatedTricks": [
+      "fifthflip",
+      "backflip",
+      "treybackflip",
+      "sejbackflip",
+      "fifthdoublebackflip"
+    ]
   },
   {
     "id": "sejbackflip",
@@ -1041,7 +1367,13 @@
     "optionalPrerequisite": "backflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["sejflip", "backflip", "fifthbackflip", "ninthbackflip", "sejdoublebackflip"]
+    "relatedTricks": [
+      "sejflip",
+      "backflip",
+      "fifthbackflip",
+      "ninthbackflip",
+      "sejdoublebackflip"
+    ]
   },
   {
     "id": "ninthbackflip",
@@ -1077,7 +1409,12 @@
     "optionalPrerequisite": "doublebackflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickbackflip", "doublebackflip", "hickdoubleflip", "treydoublebackflip"]
+    "relatedTricks": [
+      "hickbackflip",
+      "doublebackflip",
+      "hickdoubleflip",
+      "treydoublebackflip"
+    ]
   },
   {
     "id": "treydoublebackflip",
@@ -1089,7 +1426,13 @@
     "optionalPrerequisite": "doublebackflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treybackflip", "doublebackflip", "treydoubleflip", "hickdoublebackflip", "fifthdoublebackflip"]
+    "relatedTricks": [
+      "treybackflip",
+      "doublebackflip",
+      "treydoubleflip",
+      "hickdoublebackflip",
+      "fifthdoublebackflip"
+    ]
   },
   {
     "id": "fifthdoublebackflip",
@@ -1101,7 +1444,13 @@
     "optionalPrerequisite": "doublebackflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthbackflip", "doublebackflip", "fifthdoubleflip", "treydoublebackflip", "sejdoublebackflip"]
+    "relatedTricks": [
+      "fifthbackflip",
+      "doublebackflip",
+      "fifthdoubleflip",
+      "treydoublebackflip",
+      "sejdoublebackflip"
+    ]
   },
   {
     "id": "sejdoublebackflip",
@@ -1113,7 +1462,12 @@
     "optionalPrerequisite": "doublebackflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["sejbackflip", "doublebackflip", "sejdoubleflip", "fifthdoublebackflip"]
+    "relatedTricks": [
+      "sejbackflip",
+      "doublebackflip",
+      "sejdoubleflip",
+      "fifthdoublebackflip"
+    ]
   },
   {
     "id": "whip",
@@ -1185,7 +1539,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["crankflip", "doubleoverflip", "hickoverflip", "stutterflip"]
+    "relatedTricks": [
+      "crankflip",
+      "doubleoverflip",
+      "hickoverflip",
+      "stutterflip"
+    ]
   },
   {
     "id": "doubleoverflip",
@@ -1293,7 +1652,12 @@
     "optionalPrerequisite": "overflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickflip", "overflip", "treyoverflip", "hickdoubleoverflip"]
+    "relatedTricks": [
+      "hickflip",
+      "overflip",
+      "treyoverflip",
+      "hickdoubleoverflip"
+    ]
   },
   {
     "id": "hickdoubleoverflip",
@@ -1329,7 +1693,13 @@
     "optionalPrerequisite": "overflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treyflip", "overflip", "hickoverflip", "fifthoverflip", "treydoubleoverflip"]
+    "relatedTricks": [
+      "treyflip",
+      "overflip",
+      "hickoverflip",
+      "fifthoverflip",
+      "treydoubleoverflip"
+    ]
   },
   {
     "id": "treydoubleoverflip",
@@ -1365,7 +1735,12 @@
     "optionalPrerequisite": "underflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["hickbackflip", "underflip", "treyunderflip", "hickdoubleunderflip"]
+    "relatedTricks": [
+      "hickbackflip",
+      "underflip",
+      "treyunderflip",
+      "hickdoubleunderflip"
+    ]
   },
   {
     "id": "hickdoubleunderflip",
@@ -1389,7 +1764,13 @@
     "optionalPrerequisite": "underflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treybackflip", "underflip", "hickunderflip", "fifthunderflip", "treydoubleunderflip"]
+    "relatedTricks": [
+      "treybackflip",
+      "underflip",
+      "hickunderflip",
+      "fifthunderflip",
+      "treydoubleunderflip"
+    ]
   },
   {
     "id": "treydoubleunderflip",
@@ -1473,7 +1854,12 @@
     "optionalPrerequisite": "overflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treyflip", "overflip", "hickflip-overflip", "fifthflip-overflip"]
+    "relatedTricks": [
+      "treyflip",
+      "overflip",
+      "hickflip-overflip",
+      "fifthflip-overflip"
+    ]
   },
   {
     "id": "fifthflip-overflip",
@@ -1509,7 +1895,12 @@
     "optionalPrerequisite": "underflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treyflip", "underflip", "hickflip-underflip", "fifthflip-underflip"]
+    "relatedTricks": [
+      "treyflip",
+      "underflip",
+      "hickflip-underflip",
+      "fifthflip-underflip"
+    ]
   },
   {
     "id": "fifthflip-underflip",
@@ -1557,7 +1948,12 @@
     "optionalPrerequisite": "underflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["crankflip", "underflip", "doubleflip-underflip", "flip-underdoubleflip"]
+    "relatedTricks": [
+      "crankflip",
+      "underflip",
+      "doubleflip-underflip",
+      "flip-underdoubleflip"
+    ]
   },
   {
     "id": "doubleflip-underflip",
@@ -1569,7 +1965,11 @@
     "optionalPrerequisite": "doubleflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["flip-underflip", "doubleflip", "doubleflip-underdoubleflip"]
+    "relatedTricks": [
+      "flip-underflip",
+      "doubleflip",
+      "doubleflip-underdoubleflip"
+    ]
   },
   {
     "id": "flip-underdoubleflip",
@@ -1581,7 +1981,11 @@
     "optionalPrerequisite": "doubleunderflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["flip-underflip", "doubleunderflip", "doubleflip-underdoubleflip"]
+    "relatedTricks": [
+      "flip-underflip",
+      "doubleunderflip",
+      "doubleflip-underdoubleflip"
+    ]
   },
   {
     "id": "doubleflip-underdoubleflip",
@@ -1605,7 +2009,12 @@
     "optionalPrerequisite": null,
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["crankflip", "360-flip", "180-doubleflip", "180-flip-underflip"]
+    "relatedTricks": [
+      "crankflip",
+      "360-flip",
+      "180-doubleflip",
+      "180-flip-underflip"
+    ]
   },
   {
     "id": "360-flip",
@@ -1737,7 +2146,12 @@
     "optionalPrerequisite": "hickkickflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treyflip", "hickkickflip", "fifthkickflip", "treysidekickflip"]
+    "relatedTricks": [
+      "treyflip",
+      "hickkickflip",
+      "fifthkickflip",
+      "treysidekickflip"
+    ]
   },
   {
     "id": "fifthkickflip",
@@ -1749,7 +2163,12 @@
     "optionalPrerequisite": "treykickflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthflip", "treykickflip", "sejkickflip", "fifthsidekickflip"]
+    "relatedTricks": [
+      "fifthflip",
+      "treykickflip",
+      "sejkickflip",
+      "fifthsidekickflip"
+    ]
   },
   {
     "id": "sejkickflip",
@@ -1785,7 +2204,12 @@
     "optionalPrerequisite": "treykickflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["treysideflip", "treykickflip", "hicksidekickflip", "fifthsidekickflip"]
+    "relatedTricks": [
+      "treysideflip",
+      "treykickflip",
+      "hicksidekickflip",
+      "fifthsidekickflip"
+    ]
   },
   {
     "id": "fifthsidekickflip",
@@ -1797,7 +2221,12 @@
     "optionalPrerequisite": "fifthkickflip",
     "isPrefix": false,
     "notes": null,
-    "relatedTricks": ["fifthsideflip", "fifthkickflip", "treysidekickflip", "sejsidekickflip"]
+    "relatedTricks": [
+      "fifthsideflip",
+      "fifthkickflip",
+      "treysidekickflip",
+      "sejsidekickflip"
+    ]
   },
   {
     "id": "sejsidekickflip",

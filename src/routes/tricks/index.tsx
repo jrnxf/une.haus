@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ReactFlowProvider } from "@xyflow/react";
-import { Boxes, Plus, ShieldIcon, Sparkles } from "lucide-react";
+import { ShieldIcon } from "lucide-react";
 import { useState } from "react";
+
 import { z } from "zod";
 
 import { TrickDetail } from "~/components/tricks/trick-detail";
@@ -14,7 +15,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { session } from "~/lib/session";
@@ -116,7 +116,7 @@ function TricksPage() {
           </ReactFlowProvider>
 
           {/* Action buttons */}
-          <div className="absolute right-4 top-4 flex gap-2">
+          <div className="absolute top-4 right-4 flex gap-2">
             <Button variant="outline" asChild>
               <Link to="/tricks/review">Review</Link>
             </Button>
@@ -125,40 +125,31 @@ function TricksPage() {
               (isAdmin ? (
                 <>
                   <Button asChild>
-                    <Link to="/tricks/submit">Create</Link>
+                    <Link to="/tricks/create">Create</Link>
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="icon" aria-label="Admin menu">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        aria-label="Admin menu"
+                      >
                         <ShieldIcon className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link to="/admin/tricks/create">
-                          <Plus className="mr-2 size-4" />
-                          Create Directly
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/tricks/elements">
-                          <Boxes className="mr-2 size-4" />
-                          Elements
-                        </Link>
+                        <Link to="/admin/tricks/elements">Elements</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/admin/tricks/modifiers">
-                          <Sparkles className="mr-2 size-4" />
-                          Modifiers
-                        </Link>
+                        <Link to="/admin/tricks/modifiers">Modifiers</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
               ) : (
                 <Button asChild>
-                  <Link to="/tricks/submit">Create</Link>
+                  <Link to="/tricks/create">Create</Link>
                 </Button>
               ))}
           </div>

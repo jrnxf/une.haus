@@ -107,7 +107,7 @@ function RouteComponent() {
                   Be the first to join the next round!
                 </p>
               </div>
-              {user && !isUserInGame && (
+              {!user || !isUserInGame && (
                 <Button asChild>
                   <Link to="/games/rius/upcoming/join">Join Game</Link>
                 </Button>
@@ -161,43 +161,6 @@ function RouteComponent() {
           </div>
         )}
       </section>
-
-      {/* Join CTA - Show if user isn't in game */}
-      {user && !isUserInGame && !hasUserSets && (
-        <Card className="bg-muted/30 border-dashed">
-          <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
-            <div className="space-y-1">
-              <h3 className="text-lg font-medium">Ready to play?</h3>
-              <p className="text-muted-foreground text-sm">
-                Upload a set to join the next round
-              </p>
-            </div>
-            <Button asChild>
-              <Link to="/games/rius/upcoming/join">
-                <PlusIcon className="size-4" />
-                Upload Your First Set
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Sign In CTA - Show if not logged in */}
-      {!user && (
-        <Card className="bg-muted/30 border-dashed">
-          <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
-            <div className="space-y-1">
-              <h3 className="text-lg font-medium">Want to join?</h3>
-              <p className="text-muted-foreground text-sm">
-                Sign in to participate in the next round
-              </p>
-            </div>
-            <Button asChild>
-              <Link to="/auth/code/send">Sign In</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

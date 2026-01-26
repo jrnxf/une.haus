@@ -17,7 +17,7 @@ export const Route = createFileRoute("/chat/")({
 
 function RouteComponent() {
   return (
-    <div className="h-full min-h-0 flex-1">
+    <div className="mx-auto w-full max-w-4xl p-4">
       <ChatMessagesView />
     </div>
   );

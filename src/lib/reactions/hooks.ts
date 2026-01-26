@@ -63,6 +63,7 @@ export function useLikeRecord({
           record.type === "riuSetMessage" ||
           record.type === "riuSubmissionMessage" ||
           record.type === "utvVideoMessage" ||
+          record.type === "utvVideoSuggestionMessage" ||
           record.type === "biuSetMessage" ||
           record.type === "siuStackMessage" ||
           record.type === "trickSubmissionMessage" ||
@@ -171,6 +172,7 @@ export function useUnlikeRecord({
           record.type === "riuSetMessage" ||
           record.type === "riuSubmissionMessage" ||
           record.type === "utvVideoMessage" ||
+          record.type === "utvVideoSuggestionMessage" ||
           record.type === "biuSetMessage" ||
           record.type === "siuStackMessage" ||
           record.type === "trickSubmissionMessage" ||

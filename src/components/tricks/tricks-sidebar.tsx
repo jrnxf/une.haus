@@ -31,12 +31,12 @@ export function TricksSidebar({
 
     const filtered = searchLower
       ? data.tricks.filter(
-        (trick) =>
-          trick.name.toLowerCase().includes(searchLower) ||
-          trick.alternateNames.some((name) =>
-            name.toLowerCase().includes(searchLower),
-          ),
-      )
+          (trick) =>
+            trick.name.toLowerCase().includes(searchLower) ||
+            trick.alternateNames.some((name) =>
+              name.toLowerCase().includes(searchLower),
+            ),
+        )
       : data.tricks;
 
     // Sort alphabetically by name

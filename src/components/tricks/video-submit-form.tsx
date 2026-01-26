@@ -1,11 +1,12 @@
+import { Info } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Info } from "lucide-react";
 
 import { VideoInput } from "~/components/input/video-input";
-import { Button } from "~/components/ui/button";
 import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Button } from "~/components/ui/button";
 import {
   Field,
   FieldDescription,
@@ -66,10 +67,11 @@ export function VideoSubmitForm({
         <Alert>
           <Info className="size-4" />
           <AlertDescription>
-            Submitting a video for <span className="font-medium">{trickName}</span>.
-            Ideal videos are short clips showing the trick from different angles,
-            slow motion views, or POV perspectives. All from the same rider in one
-            edit is best!
+            Submitting a video for{" "}
+            <span className="font-medium">{trickName}</span>. Ideal videos are
+            short clips showing the trick from different angles, slow motion
+            views, or POV perspectives. All from the same rider in one edit is
+            best!
           </AlertDescription>
         </Alert>
 
@@ -108,20 +110,17 @@ export function VideoSubmitForm({
               <FieldDescription>
                 Describe what makes this video unique (max 200 characters)
               </FieldDescription>
-              {fieldState.invalid && (
-                <FieldError errors={[fieldState.error]} />
-              )}
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
         {/* Actions */}
         <Field orientation="horizontal">
-          <Button
-            type="submit"
-            disabled={isPending || formState.isSubmitting}
-          >
-            {isPending || formState.isSubmitting ? "Submitting..." : "Submit Video"}
+          <Button type="submit" disabled={isPending || formState.isSubmitting}>
+            {isPending || formState.isSubmitting
+              ? "Submitting..."
+              : "Submit Video"}
           </Button>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>

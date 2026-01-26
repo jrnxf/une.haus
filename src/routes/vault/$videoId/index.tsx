@@ -1,19 +1,28 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import { ArrowLeftIcon, HeartIcon, TrendingUpIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  HeartIcon,
+  PencilIcon,
+  ShieldIcon,
+  TrendingUpIcon,
+} from "lucide-react";
 
 import { z } from "zod";
 
+import { DisciplineBadge } from "~/components/badges";
 import { UsersDialog } from "~/components/likes-dialog";
 import { ShareButton } from "~/components/share-button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
+import type { UserDiscipline } from "~/db/schema";
 import { flashMessage } from "~/lib/flash";
 import { invariant } from "~/lib/invariant";
 import { messages } from "~/lib/messages";
 import { useCreateMessage } from "~/lib/messages/hooks";
-import { useSessionUser } from "~/lib/session/hooks";
+import { useIsAdmin, useSessionUser } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
 import { utv } from "~/lib/utv/core";
 import { MessagesView } from "~/views/messages";
@@ -71,6 +80,7 @@ function RouteComponent() {
   invariant(video, "Video not found");
 
   const sessionUser = useSessionUser();
+  const isAdmin = useIsAdmin();
 
   const { mutate: createMessage } = useCreateMessage({
     id: videoId,
@@ -90,7 +100,7 @@ function RouteComponent() {
   const displayTitle = video.title || video.legacyTitle;
 
   return (
-    <div className="h-full overflow-y-auto" id="main-content">
+    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
       <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
         <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
           <Link to="/vault">
@@ -122,8 +132,74 @@ function RouteComponent() {
               }
             />
             <ShareButton />
+            {sessionUser && (
+              <Button variant="secondary" size="icon-sm" asChild>
+                <Link to="/vault/$videoId/suggest" params={{ videoId }}>
+                  <PencilIcon className="size-4" />
+                </Link>
+              </Button>
+            )}
+            {isAdmin && (
+              <Button variant="secondary" size="icon-sm" asChild>
+                <Link to="/vault/$videoId/edit" params={{ videoId }}>
+                  <ShieldIcon className="size-4" />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
+
+        {/* Disciplines */}
+        {video.disciplines && video.disciplines.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {video.disciplines.map((discipline) => (
+              <DisciplineBadge
+                key={discipline}
+                discipline={discipline as UserDiscipline}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Riders */}
+        {video.riders.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground text-sm">Riders:</span>
+            {video.riders.map((rider) => {
+              if (rider.user) {
+                return (
+                  <Link
+                    key={rider.id}
+                    to="/users/$userId"
+                    params={{ userId: rider.user.id }}
+                    className="bg-muted hover:bg-muted/80 flex items-center gap-1.5 rounded-full px-2 py-1 text-sm transition-colors"
+                  >
+                    <Avatar
+                      className="size-5"
+                      cloudflareId={rider.user.avatarId}
+                      alt={rider.user.name}
+                    >
+                      <AvatarImage width={20} quality={85} />
+                      <AvatarFallback
+                        className="text-[10px]"
+                        name={rider.user.name}
+                      />
+                    </Avatar>
+                    <span>{rider.user.name}</span>
+                  </Link>
+                );
+              }
+              return (
+                <span
+                  key={rider.id}
+                  className="bg-muted rounded-full px-2 py-1 text-sm"
+                >
+                  {rider.name}
+                </span>
+              );
+            })}
+          </div>
+        )}
 
         {video.video?.playbackId && (
           <VideoPlayer playbackId={video.video.playbackId} />

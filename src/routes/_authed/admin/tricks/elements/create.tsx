@@ -23,9 +23,7 @@ import { tricks } from "~/lib/tricks";
 import { createElementSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
 
-export const Route = createFileRoute(
-  "/_authed/admin/tricks/elements/create",
-)({
+export const Route = createFileRoute("/_authed/admin/tricks/elements/create")({
   component: RouteComponent,
 });
 
@@ -58,8 +56,6 @@ function RouteComponent() {
   });
 
   const { control, handleSubmit, setValue } = rhf;
-
-
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 p-6">

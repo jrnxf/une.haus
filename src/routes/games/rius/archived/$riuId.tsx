@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useMemo } from "react";
+
 import { VList } from "virtua";
 import { z } from "zod";
 
@@ -113,8 +114,10 @@ function RouteComponent() {
                         params={{ riuId: riu.id.toString() }}
                         className="flex flex-col items-start"
                       >
-                        <span className="font-medium lowercase leading-tight">round {riu.id}</span>
-                        <span className="text-muted-foreground text-xs lowercase leading-tight">
+                        <span className="leading-tight font-medium lowercase">
+                          round {riu.id}
+                        </span>
+                        <span className="text-muted-foreground text-xs leading-tight lowercase">
                           {formatRiuDate(riu.createdAt)}
                         </span>
                       </Link>

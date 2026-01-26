@@ -1,20 +1,36 @@
 import { Link } from "@tanstack/react-router";
+
 import { createSerializer, parseAsArrayOf, parseAsString } from "nuqs";
 
 import { Badge, badgeVariants } from "~/components/ui/badge";
+import type { UserDiscipline } from "~/db/schema";
 import { cn } from "~/lib/utils";
 
-const serialize = createSerializer({
+const DISCIPLINE_LABELS: Record<UserDiscipline, string> = {
+  street: "Street",
+  flatland: "Flatland",
+  trials: "Trials",
+  freestyle: "Freestyle",
+  mountain: "Mountain",
+  distance: "Distance",
+  other: "Other",
+};
+
+const disciplinesSerializer = createSerializer({
   disciplines: parseAsArrayOf(parseAsString),
+});
+
+const tagsSerializer = createSerializer({
+  tags: parseAsArrayOf(parseAsString),
 });
 
 type BadgesProps = {
   content: null | string[];
   active?: string[];
-  clickable?: boolean;
+  clickable?: "disciplines" | "tags";
 };
 
-export function Badges({ content, active, clickable = false }: BadgesProps) {
+export function Badges({ content, active, clickable }: BadgesProps) {
   if (!content || content.length === 0) return null;
 
   return (
@@ -27,10 +43,24 @@ export function Badges({ content, active, clickable = false }: BadgesProps) {
         );
 
         if (clickable) {
+          // Toggle behavior: add if not active, remove if active
+          const newSelection = isActive
+            ? (active ?? []).filter((a) => a !== item)
+            : [...(active ?? []), item];
+
+          const to =
+            clickable === "disciplines"
+              ? disciplinesSerializer("/users", {
+                  disciplines: newSelection.length > 0 ? newSelection : null,
+                })
+              : tagsSerializer("/posts", {
+                  tags: newSelection.length > 0 ? newSelection : null,
+                });
+
           return (
             <Link
               key={item}
-              to={serialize("/users", { disciplines: [item] })}
+              to={to}
               onClick={(e) => e.stopPropagation()}
               className={cn(badgeVariants({ variant: "secondary" }), className)}
             >
@@ -40,11 +70,23 @@ export function Badges({ content, active, clickable = false }: BadgesProps) {
         }
 
         return (
-          <Badge className={cn(className, "hover:bg-secondary")} key={item} variant="secondary">
+          <Badge
+            className={cn(className, "hover:bg-secondary")}
+            key={item}
+            variant="secondary"
+          >
             {item}
           </Badge>
         );
       })}
     </div>
   );
+}
+
+export function DisciplineBadge({
+  discipline,
+}: {
+  discipline: UserDiscipline;
+}) {
+  return <Badge variant="secondary">{DISCIPLINE_LABELS[discipline]}</Badge>;
 }

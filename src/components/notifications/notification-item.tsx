@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import {
   Check,
+  ClipboardCheck,
   Heart,
   MessageCircle,
   Sparkles,
@@ -55,6 +56,9 @@ function NotificationIcon({ type }: { type: NotificationType }) {
     case "new_content": {
       return <Sparkles className="size-3 text-purple-500" />;
     }
+    case "review": {
+      return <ClipboardCheck className="size-3 text-orange-500" />;
+    }
     default: {
       return <Sparkles className="size-3 text-purple-500" />;
     }
@@ -84,7 +88,7 @@ export function NotificationItem({
   onMarkRead,
   onDelete,
 }: NotificationItemProps) {
-  const url = getNotificationUrl(entityType, entityId);
+  const url = getNotificationUrl(entityType, entityId, data);
   const actorNames = actors.map((a) => a.name);
   const formattedNames = formatActorNames(actorNames, count);
   const action = getNotificationAction(type, entityType, data?.entityTitle);

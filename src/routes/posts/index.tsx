@@ -31,9 +31,8 @@ import { posts } from "~/lib/posts";
 export const Route = createFileRoute("/posts/")({
   validateSearch: posts.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureInfiniteQueryData(
       posts.list.infiniteQueryOptions(deps),
     );
   },
@@ -44,29 +43,34 @@ function RouteComponent() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
-  // React state drives the query - NOT the URL
-  const [query, setQuery] = useState(searchParams.q ?? "");
+  // inputValue: immediate feedback for the input field
+  // deferredQuery/deferredTags: deferred to prevent UI disappearance during suspense
+  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(inputValue);
   const [tags, setTags] = useState(searchParams.tags ?? []);
-  const deferredQuery = useDeferredValue(query);
   const deferredTags = useDeferredValue(tags);
 
   const [filtersOpen, setFiltersOpen] = useState(
     Boolean(searchParams.q || searchParams.tags?.length),
   );
 
-  const hasActiveFilters = Boolean(query || tags.length > 0);
+  const hasActiveFilters = Boolean(inputValue || tags.length > 0);
 
+  // Debounced URL sync for bookmarking
   const debouncedNavigate = useDebounceCallback((q: string) => {
     router.navigate({
       to: "/posts",
-      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
+      search: (prev) => ({
+        ...prev,
+        q: q || undefined,
+        cursor: undefined,
+      }),
       replace: true,
-      resetScroll: true,
     });
-  }, 300);
+  }, 200);
 
   const handleQueryChange = (value: string) => {
-    setQuery(value);
+    setInputValue(value);
     debouncedNavigate(value);
   };
 
@@ -80,7 +84,6 @@ function RouteComponent() {
         cursor: undefined,
       }),
       replace: true,
-      resetScroll: true,
     });
   };
 
@@ -126,12 +129,12 @@ function RouteComponent() {
             <div className="flex flex-col gap-3">
               <div className="relative">
                 <Input
-                  value={query}
+                  value={inputValue}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder="Search posts..."
                   className="pr-8"
                 />
-                {query && (
+                {inputValue && (
                   <button
                     type="button"
                     onClick={() => handleQueryChange("")}
@@ -176,7 +179,7 @@ function RouteComponent() {
               params={{ postId: post.id }}
               to="/posts/$postId"
             >
-              <div className="flex flex-col gap-4 rounded-md border bg-white p-3 sm:flex-row dark:bg-[#0a0a0a]">
+              <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
                 <div className="flex w-full flex-col gap-2">
                   <p className="truncate font-semibold">
                     {Boolean(posterUrl) && (

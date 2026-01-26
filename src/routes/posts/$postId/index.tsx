@@ -55,7 +55,7 @@ function RouteComponent() {
   const { postId } = Route.useParams();
 
   return (
-    <div className="h-full overflow-y-auto" id="main-content">
+    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
       <div className="mx-auto h-full w-full max-w-4xl">
         <PostView postId={postId} />
       </div>

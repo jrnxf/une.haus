@@ -4,6 +4,7 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeftIcon,
   HeartIcon,
+  PencilIcon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
@@ -11,9 +12,10 @@ import {
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
-import { ShareButton } from "~/components/share-button";
 import { UsersDialog } from "~/components/likes-dialog";
+import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
 import { VideoPlayer } from "~/components/video-player";
 import { flashMessage } from "~/lib/flash";
 import { games } from "~/lib/games";
@@ -63,11 +65,10 @@ function RouteComponent() {
   const { submissionId } = Route.useParams();
 
   return (
-    <div
-      className="mx-auto flex w-full max-w-4xl grow overflow-hidden overflow-y-auto px-4 py-6"
-      id="main-content"
-    >
-      <SubmissionView submissionId={submissionId} />
+    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+        <SubmissionView submissionId={submissionId} />
+      </div>
     </div>
   );
 }
@@ -102,7 +103,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
   const isOwner = submission.user.id === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
+    <>
       <Link
         to="/games/rius/sets/$setId"
         params={{ setId: submission.riuSet.id }}
@@ -112,14 +113,48 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         <span>Back to {submission.riuSet.name}</span>
       </Link>
 
-      <div className="flex items-center gap-3">
-        <div className="w-full space-y-1">
-          <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
-            {submission.user.name}
-          </div>
-        </div>
+      <div className="flex items-center gap-2">
+        <h1 className="shrink-0 text-2xl leading-none font-semibold tracking-tight">
+          {submission.user.name}
+        </h1>
 
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 grow items-center justify-end gap-1">
+          {isOwner && (
+            <>
+              <Button
+                size="icon-sm"
+                variant="outline"
+                asChild
+              >
+                <Link
+                  to="/games/rius/submissions/$submissionId/edit"
+                  params={{ submissionId }}
+                >
+                  <PencilIcon className="size-4" />
+                </Link>
+              </Button>
+              <Button
+                onClick={() =>
+                  confirm.open({
+                    title: "Delete Submission",
+                    description:
+                      "Are you sure you want to delete this submission? This action cannot be undone.",
+                    confirmText: "Delete",
+                    onConfirm: () => {
+                      deleteSubmission.mutate({
+                        data: { submissionId: submission.id },
+                      });
+                    },
+                  })
+                }
+                size="icon-sm"
+                variant="outline"
+              >
+                <TrashIcon className="size-4" />
+              </Button>
+              <Separator orientation="vertical" className="mx-1 h-6" />
+            </>
+          )}
           <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
             <HeartIcon
               className={cn(
@@ -143,30 +178,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         </div>
       </div>
 
-      {isOwner && (
-        <div className="flex items-center gap-1">
-          <Button
-            onClick={() =>
-              confirm.open({
-                title: "Delete Submission",
-                description:
-                  "Are you sure you want to delete this submission? This action cannot be undone.",
-                confirmText: "Delete",
-                onConfirm: () => {
-                  deleteSubmission.mutate({
-                    data: { submissionId: submission.id },
-                  });
-                },
-              })
-            }
-            size="icon-sm"
-            variant="outline"
-          >
-            <TrashIcon className="size-4" />
-          </Button>
-        </div>
-      )}
-
       {submission.video && submission.video.playbackId && (
         <VideoPlayer playbackId={submission.video.playbackId} />
       )}
@@ -177,6 +188,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         handleCreateMessage={(content) => createMessage.mutate(content)}
         scrollTargetId="main-content"
       />
-    </div>
+    </>
   );
 }

@@ -55,22 +55,31 @@ function RouteComponent() {
   const qc = useQueryClient();
   const { trickId: slug } = Route.useParams();
 
-  const { data: trick } = useSuspenseQuery(
-    tricks.get.queryOptions({ slug }),
-  );
+  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }));
+
+  const rhf = useForm<SuggestionFormValues>({
+    defaultValues: {
+      name: trick?.name ?? "",
+      alternateNames: trick?.alternateNames ?? [],
+      definition: trick?.definition ?? "",
+      inventedBy: trick?.inventedBy ?? "",
+      yearLanded: trick?.yearLanded ?? null,
+      notes: trick?.notes ?? "",
+      reason: "",
+    },
+    resolver: zodResolver(suggestionFormSchema),
+  });
+
+  const { control, handleSubmit } = rhf;
 
   const createSuggestion = useMutation({
     mutationFn: tricks.suggestions.create.fn,
-    onSuccess: async () => {
+    onSuccess: () => {
       toast.success("Suggestion submitted for review");
-      // Remove stale cache and prefetch fresh data before navigating
       qc.removeQueries({
-        queryKey: tricks.suggestions.list.queryOptions({ status: "pending" }).queryKey,
+        queryKey: tricks.suggestions.list.queryOptions({ status: "pending" })
+          .queryKey,
       });
-      await Promise.all([
-        qc.prefetchQuery(tricks.suggestions.list.queryOptions({ status: "pending" })),
-        qc.prefetchQuery(tricks.submissions.list.queryOptions({ status: "pending" })),
-      ]);
       router.navigate({ to: "/tricks/review", search: { tab: "suggestions" } });
     },
     onError: (error) => {
@@ -85,21 +94,6 @@ function RouteComponent() {
       </div>
     );
   }
-
-  const rhf = useForm<SuggestionFormValues>({
-    defaultValues: {
-      name: trick.name,
-      alternateNames: trick.alternateNames ?? [],
-      definition: trick.definition ?? "",
-      inventedBy: trick.inventedBy ?? "",
-      yearLanded: trick.yearLanded,
-      notes: trick.notes ?? "",
-      reason: "",
-    },
-    resolver: zodResolver(suggestionFormSchema),
-  });
-
-  const { control, handleSubmit } = rhf;
 
   const handleFormSubmit = (data: SuggestionFormValues) => {
     // Build diff by comparing to original trick
@@ -233,11 +227,7 @@ function RouteComponent() {
               <FormItem>
                 <FormLabel>Definition</FormLabel>
                 <FormControl>
-                  <Textarea
-                    {...field}
-                    value={field.value ?? ""}
-                    rows={3}
-                  />
+                  <Textarea {...field} value={field.value ?? ""} rows={3} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -341,9 +331,7 @@ function RouteComponent() {
           <Button
             type="button"
             variant="secondary"
-            onClick={() =>
-              router.navigate({ to: "/tricks" })
-            }
+            onClick={() => router.navigate({ to: "/tricks" })}
           >
             Cancel
           </Button>

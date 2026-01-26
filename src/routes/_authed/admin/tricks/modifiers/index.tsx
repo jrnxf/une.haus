@@ -67,6 +67,7 @@ type Modifier = {
   name: string;
   description: string | null;
   sortOrder: number;
+  createdAt: Date;
 };
 
 function RouteComponent() {

@@ -13,15 +13,31 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
+export const TRICK_SUBMISSION_STATUSES = [
+  "pending",
+  "approved",
+  "rejected",
+] as const;
+
+export const trickSubmissionStatusEnum = pgEnum(
+  "trick_submission_status",
+  TRICK_SUBMISSION_STATUSES,
+);
 export const RIU_STATUSES = ["archived", "active", "upcoming"] as const;
 // enums
 export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES);
 
 export const BIU_CHAIN_STATUSES = ["active", "completed", "flagged"] as const;
-export const biuChainStatusEnum = pgEnum("biu_chain_status", BIU_CHAIN_STATUSES);
+export const biuChainStatusEnum = pgEnum(
+  "biu_chain_status",
+  BIU_CHAIN_STATUSES,
+);
 
 export const SIU_CHAIN_STATUSES = ["active", "archived"] as const;
-export const siuChainStatusEnum = pgEnum("siu_chain_status", SIU_CHAIN_STATUSES);
+export const siuChainStatusEnum = pgEnum(
+  "siu_chain_status",
+  SIU_CHAIN_STATUSES,
+);
 
 export const USER_TYPES = ["user", "admin", "test"] as const;
 export const userTypeEnum = pgEnum("user_type", USER_TYPES);
@@ -33,6 +49,7 @@ export const USER_DISCIPLINES = [
   "freestyle",
   "mountain",
   "distance",
+  "other",
 ] as const;
 
 export type UserDiscipline = (typeof USER_DISCIPLINES)[number];
@@ -65,11 +82,15 @@ export const NOTIFICATION_TYPES = [
   "new_content",
   "archive_request",
   "chain_archived",
+  "review",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
-export const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES);
+export const notificationTypeEnum = pgEnum(
+  "notification_type",
+  NOTIFICATION_TYPES,
+);
 
 export const NOTIFICATION_ENTITY_TYPES = [
   "post",
@@ -79,9 +100,11 @@ export const NOTIFICATION_ENTITY_TYPES = [
   "siuStack",
   "siuChain",
   "utvVideo",
+  "utvVideoSuggestion",
   "user",
   "trickSubmission",
   "trickSuggestion",
+  "trickVideo",
 ] as const;
 
 export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number];
@@ -99,6 +122,7 @@ export const users = pgTable("users", {
   email: text("email").unique().notNull(),
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  notifyWhenShop: boolean("notify_when_shop").notNull().default(false),
   type: userTypeEnum("type").default("user"),
 });
 
@@ -302,9 +326,22 @@ export const utvVideos = pgTable("utv_videos", {
   thumbnailScale: real("thumbnail_scale").notNull().default(1),
   thumbnailSeconds: integer("thumbnail_seconds").notNull().default(30),
   titleConfidenceScore: integer("title_confidence_score").notNull().default(-1),
+  disciplines: json("disciplines").$type<UserDiscipline[]>(),
   muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
     onDelete: "set null",
   }),
+});
+
+export const utvVideoRiders = pgTable("utv_video_riders", {
+  id: serial("id").primaryKey(),
+  utvVideoId: integer("utv_video_id")
+    .notNull()
+    .references(() => utvVideos.id, { onDelete: "cascade" }),
+  userId: integer("user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  name: text("name"),
+  order: integer("order").notNull().default(0),
 });
 
 export const utvVideoLikes = pgTable(
@@ -343,6 +380,76 @@ export const utvVideoMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.utvVideoMessageId, t.userId] })],
+);
+
+// UTV Video Suggestions (edits to existing videos)
+export type UtvVideoSuggestionDiff = {
+  title?: { old: string; new: string };
+  disciplines?: { old: UserDiscipline[] | null; new: UserDiscipline[] | null };
+  riders?: {
+    old: { userId: number | null; name: string | null }[];
+    new: { userId: number | null; name: string | null }[];
+  };
+};
+
+export const utvVideoSuggestions = pgTable("utv_video_suggestions", {
+  id: serial("id").primaryKey(),
+  utvVideoId: integer("utv_video_id")
+    .notNull()
+    .references(() => utvVideos.id, { onDelete: "cascade" }),
+  diff: json("diff").$type<UtvVideoSuggestionDiff>().notNull(),
+  reason: text("reason"),
+  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  submittedByUserId: integer("submitted_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const utvVideoSuggestionLikes = pgTable(
+  "utv_video_suggestion_likes",
+  {
+    utvVideoSuggestionId: integer("utv_video_suggestion_id")
+      .notNull()
+      .references(() => utvVideoSuggestions.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.utvVideoSuggestionId, t.userId] })],
+);
+
+export const utvVideoSuggestionMessages = pgTable(
+  "utv_video_suggestion_messages",
+  {
+    id: serial("id").primaryKey(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    suggestionId: integer("suggestion_id")
+      .notNull()
+      .references(() => utvVideoSuggestions.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+);
+
+export const utvVideoSuggestionMessageLikes = pgTable(
+  "utv_video_sug_msg_likes",
+  {
+    utvVideoSuggestionMessageId: integer("utv_video_suggestion_message_id")
+      .notNull()
+      .references(() => utvVideoSuggestionMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.utvVideoSuggestionMessageId, t.userId] })],
 );
 
 export const utvClaps = pgTable("utv_claps", {
@@ -580,6 +687,7 @@ export type NotificationData = {
   actorAvatarId?: string | null;
   entityTitle?: string;
   entityPreview?: string;
+  trickSlug?: string;
 };
 
 export const notifications = pgTable(
@@ -669,6 +777,19 @@ export const utvVideosRelations = relations(utvVideos, ({ one, many }) => ({
   }),
   likes: many(utvVideoLikes),
   messages: many(utvVideoMessages),
+  riders: many(utvVideoRiders),
+  suggestions: many(utvVideoSuggestions),
+}));
+
+export const utvVideoRidersRelations = relations(utvVideoRiders, ({ one }) => ({
+  utvVideo: one(utvVideos, {
+    fields: [utvVideoRiders.utvVideoId],
+    references: [utvVideos.id],
+  }),
+  user: one(users, {
+    fields: [utvVideoRiders.userId],
+    references: [users.id],
+  }),
 }));
 
 export const utvVideoLikesRelations = relations(utvVideoLikes, ({ one }) => ({
@@ -706,6 +827,71 @@ export const utvVideoMessageLikesRelations = relations(
     }),
     user: one(users, {
       fields: [utvVideoMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const utvVideoSuggestionsRelations = relations(
+  utvVideoSuggestions,
+  ({ one, many }) => ({
+    utvVideo: one(utvVideos, {
+      fields: [utvVideoSuggestions.utvVideoId],
+      references: [utvVideos.id],
+    }),
+    submittedBy: one(users, {
+      fields: [utvVideoSuggestions.submittedByUserId],
+      references: [users.id],
+      relationName: "submittedByUser",
+    }),
+    reviewedBy: one(users, {
+      fields: [utvVideoSuggestions.reviewedByUserId],
+      references: [users.id],
+      relationName: "reviewedByUser",
+    }),
+    likes: many(utvVideoSuggestionLikes),
+    messages: many(utvVideoSuggestionMessages),
+  }),
+);
+
+export const utvVideoSuggestionLikesRelations = relations(
+  utvVideoSuggestionLikes,
+  ({ one }) => ({
+    suggestion: one(utvVideoSuggestions, {
+      fields: [utvVideoSuggestionLikes.utvVideoSuggestionId],
+      references: [utvVideoSuggestions.id],
+    }),
+    user: one(users, {
+      fields: [utvVideoSuggestionLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const utvVideoSuggestionMessagesRelations = relations(
+  utvVideoSuggestionMessages,
+  ({ one, many }) => ({
+    suggestion: one(utvVideoSuggestions, {
+      fields: [utvVideoSuggestionMessages.suggestionId],
+      references: [utvVideoSuggestions.id],
+    }),
+    user: one(users, {
+      fields: [utvVideoSuggestionMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(utvVideoSuggestionMessageLikes),
+  }),
+);
+
+export const utvVideoSuggestionMessageLikesRelations = relations(
+  utvVideoSuggestionMessageLikes,
+  ({ one }) => ({
+    message: one(utvVideoSuggestionMessages, {
+      fields: [utvVideoSuggestionMessageLikes.utvVideoSuggestionMessageId],
+      references: [utvVideoSuggestionMessages.id],
+    }),
+    user: one(users, {
+      fields: [utvVideoSuggestionMessageLikes.userId],
       references: [users.id],
     }),
   }),
@@ -1085,16 +1271,6 @@ export const trickRelationshipTypeEnum = pgEnum(
   TRICK_RELATIONSHIP_TYPES,
 );
 
-export const TRICK_SUBMISSION_STATUSES = [
-  "pending",
-  "approved",
-  "rejected",
-] as const;
-export const trickSubmissionStatusEnum = pgEnum(
-  "trick_submission_status",
-  TRICK_SUBMISSION_STATUSES,
-);
-
 export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const;
 export const trickVideoStatusEnum = pgEnum(
   "trick_video_status",
@@ -1156,9 +1332,12 @@ export const trickVideos = pgTable(
     submittedByUserId: integer("submitted_by_user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
-      onDelete: "set null",
-    }),
+    reviewedByUserId: integer("reviewed_by_user_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     reviewedAt: timestamp("reviewed_at"),
     notes: text("notes"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -1167,6 +1346,45 @@ export const trickVideos = pgTable(
     index("trick_videos_trick_id_idx").on(t.trickId),
     index("trick_videos_status_idx").on(t.status),
   ],
+);
+
+// Trick Video Engagement Tables
+export const trickVideoLikes = pgTable(
+  "trick_video_likes",
+  {
+    trickVideoId: integer("trick_video_id")
+      .notNull()
+      .references(() => trickVideos.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickVideoId, t.userId] })],
+);
+
+export const trickVideoMessages = pgTable("trick_video_messages", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  trickVideoId: integer("trick_video_id")
+    .notNull()
+    .references(() => trickVideos.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const trickVideoMessageLikes = pgTable(
+  "trick_video_message_likes",
+  {
+    trickVideoMessageId: integer("trick_video_message_id")
+      .notNull()
+      .references(() => trickVideoMessages.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.trickVideoMessageId, t.userId] })],
 );
 
 // Trick Element Assignments (many-to-many)
@@ -1431,7 +1649,7 @@ export const tricksRelations = relations(tricks, ({ many }) => ({
   suggestions: many(trickSuggestions),
 }));
 
-export const trickVideosRelations = relations(trickVideos, ({ one }) => ({
+export const trickVideosRelations = relations(trickVideos, ({ one, many }) => ({
   trick: one(tricks, {
     fields: [trickVideos.trickId],
     references: [tricks.id],
@@ -1448,7 +1666,49 @@ export const trickVideosRelations = relations(trickVideos, ({ one }) => ({
     fields: [trickVideos.reviewedByUserId],
     references: [users.id],
   }),
+  likes: many(trickVideoLikes),
+  messages: many(trickVideoMessages),
 }));
+
+export const trickVideoLikesRelations = relations(trickVideoLikes, ({ one }) => ({
+  trickVideo: one(trickVideos, {
+    fields: [trickVideoLikes.trickVideoId],
+    references: [trickVideos.id],
+  }),
+  user: one(users, {
+    fields: [trickVideoLikes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const trickVideoMessagesRelations = relations(
+  trickVideoMessages,
+  ({ one, many }) => ({
+    trickVideo: one(trickVideos, {
+      fields: [trickVideoMessages.trickVideoId],
+      references: [trickVideos.id],
+    }),
+    user: one(users, {
+      fields: [trickVideoMessages.userId],
+      references: [users.id],
+    }),
+    likes: many(trickVideoMessageLikes),
+  }),
+);
+
+export const trickVideoMessageLikesRelations = relations(
+  trickVideoMessageLikes,
+  ({ one }) => ({
+    message: one(trickVideoMessages, {
+      fields: [trickVideoMessageLikes.trickVideoMessageId],
+      references: [trickVideoMessages.id],
+    }),
+    user: one(users, {
+      fields: [trickVideoMessageLikes.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const trickElementAssignmentsRelations = relations(
   trickElementAssignments,

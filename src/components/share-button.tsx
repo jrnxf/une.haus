@@ -1,4 +1,5 @@
 import { ShareIcon } from "lucide-react";
+
 import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
@@ -10,7 +11,7 @@ export function ShareButton() {
       variant="outline"
       aria-label="Share"
       onClick={() => {
-        navigator.clipboard.writeText(window.location.href);
+        navigator.clipboard.writeText(globalThis.location.href);
         toast.success("Link copied");
       }}
     >

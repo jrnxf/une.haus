@@ -22,11 +22,7 @@ import {
   MenuTrigger,
 } from "~/components/ui/base-menu";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { Textarea } from "~/components/ui/textarea";
 import { messages } from "~/lib/messages";
 import { type MessageParent } from "~/lib/messages/schemas";
@@ -330,10 +326,7 @@ function EditMessageDrawer({
           >
             cancel
           </Button>
-          <Button
-            onClick={handleUpdate}
-            disabled={isUpdating || isDeleting}
-          >
+          <Button onClick={handleUpdate} disabled={isUpdating || isDeleting}>
             Save
           </Button>
         </div>
