@@ -20,6 +20,7 @@ import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as UsersUserIdRouteImport } from './routes/users/$userId'
 import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
@@ -34,12 +35,17 @@ import { Route as VaultVideoIdIndexRouteImport } from './routes/vault/$videoId/i
 import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
 import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
 import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
+import { Route as EventsStopwatchIndexRouteImport } from './routes/events/stopwatch/index'
+import { Route as EventsBracketIndexRouteImport } from './routes/events/bracket/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
 import { Route as VaultValutBakRouteImport } from './routes/vault/valut.bak'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
 import { Route as GamesSiusStartRouteImport } from './routes/games/sius/start'
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
 import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
+import { Route as EventsStopwatchSplitRouteImport } from './routes/events/stopwatch/split'
+import { Route as EventsStopwatchSetupRouteImport } from './routes/events/stopwatch/setup'
+import { Route as EventsBracketSetupRouteImport } from './routes/events/bracket/setup'
 import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
 import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
 import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
@@ -53,6 +59,7 @@ import { Route as GamesRiusArchivedIndexRouteImport } from './routes/games/rius/
 import { Route as AuthedTricksSuggestionsIndexRouteImport } from './routes/_authed/tricks/suggestions/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as GamesRiusArchivedRiuIdRouteImport } from './routes/games/rius/archived/$riuId'
+import { Route as EventsStopwatchSplitSetupRouteImport } from './routes/events/stopwatch/split/setup'
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
@@ -129,6 +136,11 @@ const GamesIndexRoute = GamesIndexRouteImport.update({
   path: '/games/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
@@ -199,6 +211,16 @@ const GamesBiusIndexRoute = GamesBiusIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GamesBiusRouteRoute,
 } as any)
+const EventsStopwatchIndexRoute = EventsStopwatchIndexRouteImport.update({
+  id: '/events/stopwatch/',
+  path: '/events/stopwatch/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsBracketIndexRoute = EventsBracketIndexRouteImport.update({
+  id: '/events/bracket/',
+  path: '/events/bracket/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedNotificationsIndexRoute =
   AuthedNotificationsIndexRouteImport.update({
     id: '/notifications/',
@@ -229,6 +251,21 @@ const GamesBiusStartRoute = GamesBiusStartRouteImport.update({
   id: '/start',
   path: '/start',
   getParentRoute: () => GamesBiusRouteRoute,
+} as any)
+const EventsStopwatchSplitRoute = EventsStopwatchSplitRouteImport.update({
+  id: '/events/stopwatch/split',
+  path: '/events/stopwatch/split',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsStopwatchSetupRoute = EventsStopwatchSetupRouteImport.update({
+  id: '/events/stopwatch/setup',
+  path: '/events/stopwatch/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsBracketSetupRoute = EventsBracketSetupRouteImport.update({
+  id: '/events/bracket/setup',
+  path: '/events/bracket/setup',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCodeVerifyRoute = AuthCodeVerifyRouteImport.update({
   id: '/auth/code/verify',
@@ -297,6 +334,12 @@ const GamesRiusArchivedRiuIdRoute = GamesRiusArchivedRiuIdRouteImport.update({
   path: '/archived/$riuId',
   getParentRoute: () => GamesRiusRouteRoute,
 } as any)
+const EventsStopwatchSplitSetupRoute =
+  EventsStopwatchSplitSetupRouteImport.update({
+    id: '/setup',
+    path: '/setup',
+    getParentRoute: () => EventsStopwatchSplitRoute,
+  } as any)
 const AuthedVaultVideoIdSuggestRoute =
   AuthedVaultVideoIdSuggestRouteImport.update({
     id: '/vault/$videoId/suggest',
@@ -434,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
+  '/events': typeof EventsIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
@@ -449,12 +493,17 @@ export interface FileRoutesByFullPath {
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
+  '/events/bracket/setup': typeof EventsBracketSetupRoute
+  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
+  '/events/stopwatch/split': typeof EventsStopwatchSplitRouteWithChildren
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
+  '/events/bracket': typeof EventsBracketIndexRoute
+  '/events/stopwatch': typeof EventsStopwatchIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
@@ -465,6 +514,7 @@ export interface FileRoutesByFullPath {
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/events/stopwatch/split/setup': typeof EventsStopwatchSplitSetupRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
@@ -498,6 +548,7 @@ export interface FileRoutesByTo {
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat': typeof ChatIndexRoute
+  '/events': typeof EventsIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
@@ -513,12 +564,17 @@ export interface FileRoutesByTo {
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
+  '/events/bracket/setup': typeof EventsBracketSetupRoute
+  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
+  '/events/stopwatch/split': typeof EventsStopwatchSplitRouteWithChildren
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
+  '/events/bracket': typeof EventsBracketIndexRoute
+  '/events/stopwatch': typeof EventsStopwatchIndexRoute
   '/games/bius': typeof GamesBiusIndexRoute
   '/games/sius': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
@@ -528,6 +584,7 @@ export interface FileRoutesByTo {
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/events/stopwatch/split/setup': typeof EventsStopwatchSplitSetupRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
@@ -565,6 +622,7 @@ export interface FileRoutesById {
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/chat/': typeof ChatIndexRoute
+  '/events/': typeof EventsIndexRoute
   '/games/': typeof GamesIndexRoute
   '/map/': typeof MapIndexRoute
   '/posts/': typeof PostsIndexRoute
@@ -580,12 +638,17 @@ export interface FileRoutesById {
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
+  '/events/bracket/setup': typeof EventsBracketSetupRoute
+  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
+  '/events/stopwatch/split': typeof EventsStopwatchSplitRouteWithChildren
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
+  '/events/bracket/': typeof EventsBracketIndexRoute
+  '/events/stopwatch/': typeof EventsStopwatchIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
@@ -596,6 +659,7 @@ export interface FileRoutesById {
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/events/stopwatch/split/setup': typeof EventsStopwatchSplitSetupRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
   '/_authed/tricks/suggestions/': typeof AuthedTricksSuggestionsIndexRoute
@@ -633,6 +697,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId'
     | '/users/$userId'
     | '/chat'
+    | '/events'
     | '/games'
     | '/map'
     | '/posts'
@@ -648,12 +713,17 @@ export interface FileRouteTypes {
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
+    | '/events/bracket/setup'
+    | '/events/stopwatch/setup'
+    | '/events/stopwatch/split'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/notifications'
+    | '/events/bracket'
+    | '/events/stopwatch'
     | '/games/bius/'
     | '/games/sius/'
     | '/posts/$postId'
@@ -664,6 +734,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
+    | '/events/stopwatch/split/setup'
     | '/games/rius/archived/$riuId'
     | '/auth/me'
     | '/tricks/suggestions'
@@ -697,6 +768,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId'
     | '/users/$userId'
     | '/chat'
+    | '/events'
     | '/games'
     | '/map'
     | '/posts'
@@ -712,12 +784,17 @@ export interface FileRouteTypes {
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
+    | '/events/bracket/setup'
+    | '/events/stopwatch/setup'
+    | '/events/stopwatch/split'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/notifications'
+    | '/events/bracket'
+    | '/events/stopwatch'
     | '/games/bius'
     | '/games/sius'
     | '/posts/$postId'
@@ -727,6 +804,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
+    | '/events/stopwatch/split/setup'
     | '/games/rius/archived/$riuId'
     | '/auth/me'
     | '/tricks/suggestions'
@@ -763,6 +841,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId'
     | '/users/$userId'
     | '/chat/'
+    | '/events/'
     | '/games/'
     | '/map/'
     | '/posts/'
@@ -778,12 +857,17 @@ export interface FileRouteTypes {
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
+    | '/events/bracket/setup'
+    | '/events/stopwatch/setup'
+    | '/events/stopwatch/split'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/_authed/notifications/'
+    | '/events/bracket/'
+    | '/events/stopwatch/'
     | '/games/bius/'
     | '/games/sius/'
     | '/posts/$postId/'
@@ -794,6 +878,7 @@ export interface FileRouteTypes {
     | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/vault/$videoId/suggest'
+    | '/events/stopwatch/split/setup'
     | '/games/rius/archived/$riuId'
     | '/_authed/auth/me/'
     | '/_authed/tricks/suggestions/'
@@ -829,6 +914,7 @@ export interface RootRouteChildren {
   TricksTrickIdRoute: typeof TricksTrickIdRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
   MapIndexRoute: typeof MapIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
@@ -839,8 +925,13 @@ export interface RootRouteChildren {
   ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   AuthCodeSendRoute: typeof AuthCodeSendRoute
   AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
+  EventsBracketSetupRoute: typeof EventsBracketSetupRoute
+  EventsStopwatchSetupRoute: typeof EventsStopwatchSetupRoute
+  EventsStopwatchSplitRoute: typeof EventsStopwatchSplitRouteWithChildren
   VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
   VaultValutBakRoute: typeof VaultValutBakRoute
+  EventsBracketIndexRoute: typeof EventsBracketIndexRoute
+  EventsStopwatchIndexRoute: typeof EventsStopwatchIndexRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
   VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
 }
@@ -922,6 +1013,13 @@ declare module '@tanstack/react-router' {
       path: '/games'
       fullPath: '/games'
       preLoaderRoute: typeof GamesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -1022,6 +1120,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesBiusIndexRouteImport
       parentRoute: typeof GamesBiusRouteRoute
     }
+    '/events/stopwatch/': {
+      id: '/events/stopwatch/'
+      path: '/events/stopwatch'
+      fullPath: '/events/stopwatch'
+      preLoaderRoute: typeof EventsStopwatchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/bracket/': {
+      id: '/events/bracket/'
+      path: '/events/bracket'
+      fullPath: '/events/bracket'
+      preLoaderRoute: typeof EventsBracketIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/notifications/': {
       id: '/_authed/notifications/'
       path: '/notifications'
@@ -1063,6 +1175,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/bius/start'
       preLoaderRoute: typeof GamesBiusStartRouteImport
       parentRoute: typeof GamesBiusRouteRoute
+    }
+    '/events/stopwatch/split': {
+      id: '/events/stopwatch/split'
+      path: '/events/stopwatch/split'
+      fullPath: '/events/stopwatch/split'
+      preLoaderRoute: typeof EventsStopwatchSplitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/stopwatch/setup': {
+      id: '/events/stopwatch/setup'
+      path: '/events/stopwatch/setup'
+      fullPath: '/events/stopwatch/setup'
+      preLoaderRoute: typeof EventsStopwatchSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/bracket/setup': {
+      id: '/events/bracket/setup'
+      path: '/events/bracket/setup'
+      fullPath: '/events/bracket/setup'
+      preLoaderRoute: typeof EventsBracketSetupRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/code/verify': {
       id: '/auth/code/verify'
@@ -1154,6 +1287,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/rius/archived/$riuId'
       preLoaderRoute: typeof GamesRiusArchivedRiuIdRouteImport
       parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/events/stopwatch/split/setup': {
+      id: '/events/stopwatch/split/setup'
+      path: '/setup'
+      fullPath: '/events/stopwatch/split/setup'
+      preLoaderRoute: typeof EventsStopwatchSplitSetupRouteImport
+      parentRoute: typeof EventsStopwatchSplitRoute
     }
     '/_authed/vault/$videoId/suggest': {
       id: '/_authed/vault/$videoId/suggest'
@@ -1450,6 +1590,17 @@ const GamesSiusRouteRouteWithChildren = GamesSiusRouteRoute._addFileChildren(
   GamesSiusRouteRouteChildren,
 )
 
+interface EventsStopwatchSplitRouteChildren {
+  EventsStopwatchSplitSetupRoute: typeof EventsStopwatchSplitSetupRoute
+}
+
+const EventsStopwatchSplitRouteChildren: EventsStopwatchSplitRouteChildren = {
+  EventsStopwatchSplitSetupRoute: EventsStopwatchSplitSetupRoute,
+}
+
+const EventsStopwatchSplitRouteWithChildren =
+  EventsStopwatchSplitRoute._addFileChildren(EventsStopwatchSplitRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
@@ -1463,6 +1614,7 @@ const rootRouteChildren: RootRouteChildren = {
   TricksTrickIdRoute: TricksTrickIdRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ChatIndexRoute: ChatIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
   MapIndexRoute: MapIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
@@ -1473,8 +1625,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   AuthCodeSendRoute: AuthCodeSendRoute,
   AuthCodeVerifyRoute: AuthCodeVerifyRoute,
+  EventsBracketSetupRoute: EventsBracketSetupRoute,
+  EventsStopwatchSetupRoute: EventsStopwatchSetupRoute,
+  EventsStopwatchSplitRoute: EventsStopwatchSplitRouteWithChildren,
   VaultVideoIdEditRoute: VaultVideoIdEditRoute,
   VaultValutBakRoute: VaultValutBakRoute,
+  EventsBracketIndexRoute: EventsBracketIndexRoute,
+  EventsStopwatchIndexRoute: EventsStopwatchIndexRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
 }

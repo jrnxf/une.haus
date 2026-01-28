@@ -9,6 +9,7 @@ import {
   MessagesSquareIcon,
   Send,
   ShoppingBagIcon,
+  TimerIcon,
   TrafficConeIcon,
 } from "lucide-react";
 import * as React from "react";
@@ -72,6 +73,11 @@ const data = {
       title: "Shop",
       url: "/shop",
       icon: ShoppingBagIcon,
+    },
+    {
+      title: "Events",
+      url: "/events",
+      icon: TimerIcon,
     },
   ],
   navSecondary: [
