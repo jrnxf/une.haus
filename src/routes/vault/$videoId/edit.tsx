@@ -120,7 +120,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
         <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
           <Link to="/vault/$videoId" params={{ videoId }}>
             <ArrowLeftIcon className="size-4" />

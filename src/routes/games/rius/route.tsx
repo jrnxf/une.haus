@@ -205,7 +205,7 @@ function RouteComponent() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto" id="main-content">
-        <div className="mx-auto w-full max-w-4xl p-4">
+        <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
           <Outlet />
         </div>
       </div>

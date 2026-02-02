@@ -23,7 +23,7 @@ export function StatsGrid({ data }: StatsGridProps) {
   return (
     <div className="grid gap-3 lg:grid-cols-4">
       {/* Rows 1-2: Hero stats - 4 columns on all screen sizes */}
-      <div className="grid grid-cols-4 gap-1.5 md:gap-2.5 lg:col-span-4 lg:gap-3">
+      <div className="grid grid-cols-4 gap-1 md:gap-2 lg:col-span-4 lg:gap-3">
         <StatCard
           label="total users"
           value={data.counts.users}

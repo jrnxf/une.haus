@@ -52,7 +52,7 @@ function TrickDetailPage() {
     : null;
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6">
+    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
       {/* Navigation */}
       <div className="mb-6 flex items-center justify-between">
         <BackLink to="/tricks" search={{ trick: trickId }} label="graph" />

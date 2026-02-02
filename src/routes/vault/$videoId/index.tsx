@@ -101,7 +101,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
+      <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4 md:p-6">
         <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
           <Link to="/vault">
             <ArrowLeftIcon className="size-4" />
