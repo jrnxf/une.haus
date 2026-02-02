@@ -2,12 +2,8 @@ import { cn } from "~/lib/utils";
 
 const pad = (n: number) => n.toString().padStart(2, "0");
 
-export function formatCountdownTime(ms: number, maxSeconds: number, isRunning: boolean) {
-  // When running, show floor (time decrements immediately on start)
-  // When idle/paused, show ceiling (shows full initial time)
-  const totalSeconds = isRunning
-    ? Math.max(0, Math.ceil(ms / 1000) - 1)
-    : Math.max(0, Math.ceil(ms / 1000));
+export function formatCountdownTime(ms: number, maxSeconds: number) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   // If max time is 60 seconds or less, show just seconds
@@ -43,7 +39,7 @@ export function CountdownDisplay({
         className,
       )}
     >
-      {formatCountdownTime(timeRemaining, maxSeconds, isRunning)}
+      {formatCountdownTime(timeRemaining, maxSeconds)}
     </div>
   );
 }
