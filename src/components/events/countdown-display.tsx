@@ -2,17 +2,6 @@ import { cn } from "~/lib/utils";
 
 const pad = (n: number) => n.toString().padStart(2, "0");
 
-export function formatCountdownTime(ms: number, maxSeconds: number) {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  // If max time is 60 seconds or less, show just seconds
-  if (maxSeconds <= 60) {
-    return totalSeconds.toString();
-  }
-  return `${pad(minutes)}:${pad(seconds)}`;
-}
-
 type CountdownDisplayProps = {
   timeRemaining: number;
   maxSeconds: number;
@@ -29,6 +18,13 @@ export function CountdownDisplay({
   className,
 }: CountdownDisplayProps) {
   const isLow = timeRemaining <= 10_000 && isRunning;
+  const totalSeconds = Math.max(0, Math.floor(timeRemaining / 1000));
+  const tenths = Math.floor((timeRemaining % 1000) / 100);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const mainDisplay =
+    maxSeconds <= 60 ? totalSeconds.toString() : `${pad(minutes)}:${pad(seconds)}`;
 
   return (
     <div
@@ -39,7 +35,8 @@ export function CountdownDisplay({
         className,
       )}
     >
-      {formatCountdownTime(timeRemaining, maxSeconds)}
+      {mainDisplay}
+      <span className="text-[0.25em] opacity-50">.{tenths}</span>
     </div>
   );
 }
