@@ -3,7 +3,7 @@ import { cn } from "~/lib/utils";
 const pad = (n: number) => n.toString().padStart(2, "0");
 
 export function formatCountdownTime(ms: number, maxSeconds: number) {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   // If max time is 60 seconds or less, show just seconds
