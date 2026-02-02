@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon, TimerIcon, TrophyIcon } from "lucide-react";
-import { useEffect } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { useSidebar } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/events/")({
@@ -15,12 +13,11 @@ type FeatureCardProps = {
   description: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  onClick?: () => void;
 };
 
-function FeatureCard({ name, description, href, icon: Icon, onClick }: FeatureCardProps) {
+function FeatureCard({ name, description, href, icon: Icon }: FeatureCardProps) {
   return (
-    <Link to={href} className="block h-full" onClick={onClick}>
+    <Link to={href} className="block h-full">
       <Card
         className={cn(
           "group relative flex h-full flex-col overflow-hidden transition-all py-4 gap-2",
@@ -55,15 +52,6 @@ function FeatureCard({ name, description, href, icon: Icon, onClick }: FeatureCa
 }
 
 function RouteComponent() {
-  const { setOpen, isMobile } = useSidebar();
-
-  // Auto-close sidebar on desktop when entering events
-  useEffect(() => {
-    if (!isMobile) {
-      setOpen(false);
-    }
-  }, [setOpen, isMobile]);
-
   return (
     <div className="flex grow flex-col overflow-hidden">
       <div className="overflow-y-auto" id="main-content">
@@ -81,7 +69,6 @@ function RouteComponent() {
               description="full screen countdown timer with configurable time limit. perfect for timed runs and competitions."
               href="/events/stopwatch/setup"
               icon={TimerIcon}
-              onClick={() => !isMobile && setOpen(false)}
             />
 
             <FeatureCard
@@ -89,7 +76,6 @@ function RouteComponent() {
               description="tournament bracket for any number of participants. track matchups and advancement with built-in split timers."
               href="/events/bracket/setup"
               icon={TrophyIcon}
-              onClick={() => !isMobile && setOpen(false)}
             />
           </div>
         </div>
