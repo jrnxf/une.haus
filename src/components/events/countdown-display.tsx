@@ -36,7 +36,7 @@ export function CountdownDisplay({
       )}
     >
       {mainDisplay}
-      <span className="text-[0.25em] opacity-50">.{tenths}</span>
+      <span className="text-[0.18em] opacity-30">.{tenths}</span>
     </div>
   );
 }
