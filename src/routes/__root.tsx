@@ -22,6 +22,7 @@ import { SiteHeader } from "~/components/site-header";
 import { Button } from "~/components/ui/button";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
+import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
 import { ThemeProvider } from "~/lib/theme/context";
@@ -114,6 +115,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const router = useRouter();
+  const { session: sessionData } = useRootRouteContext();
 
   return (
     <html
@@ -130,6 +132,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <Toaster />
           <ConfirmDialog />
           <SidebarProvider
+            defaultOpen={sessionData.sidebarOpen}
             style={
               {
                 "--sidebar-width": "calc(var(--spacing) * 62)",

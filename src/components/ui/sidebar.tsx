@@ -23,6 +23,7 @@ import {
 } from "~/components/ui/tooltip";
 import { useIsTablet } from "~/hooks/use-mobile";
 import { usePeripherals } from "~/hooks/use-peripherals";
+import { session } from "~/lib/session/index";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_WIDTH = "12rem";
@@ -31,9 +32,6 @@ const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 export const SIDEBAR_CLOSE_DURATION = 200;
-
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -68,23 +66,8 @@ function SidebarProvider({
   const [urlOpen, setUrlOpen] = usePeripherals("sidebar");
   const isMobile = useIsTablet();
 
-  // Desktop state from cookie, Mobile state from URL
+  // Desktop state from session (SSR), Mobile state from URL
   const [openDesktop, setOpenDesktop] = React.useState(defaultOpen);
-
-  // Sync with cookie after mount to avoid hydration mismatch
-  React.useEffect(() => {
-    const cookie = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith(`${SIDEBAR_COOKIE_NAME}=`));
-    if (cookie) {
-      const value = cookie.split("=")[1] === "true";
-      if (value !== openDesktop) {
-        setOpenDesktop(value);
-      }
-    }
-    // Only run once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const open = isMobile ? urlOpen : openDesktop;
   const openMobile = urlOpen;
@@ -102,8 +85,8 @@ function SidebarProvider({
         setOpenMobile(nextOpen);
       } else {
         setOpenDesktop(nextOpen);
-        // Persist desktop state to cookie
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${nextOpen}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+        // Persist desktop state to session
+        session.sidebar.set.fn({ data: nextOpen });
       }
     },
     [isMobile, setOpenMobile],
