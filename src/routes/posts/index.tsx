@@ -1,16 +1,18 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   FilterIcon,
+  GhostIcon,
   HeartIcon,
   MessageCircleIcon,
   PaperclipIcon,
   XIcon,
 } from "lucide-react";
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useDeferredValue, useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
 
-import { useDebounceCallback } from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
 import { BadgeInput } from "~/components/input/badge-input";
@@ -31,60 +33,49 @@ import { posts } from "~/lib/posts";
 export const Route = createFileRoute("/posts/")({
   validateSearch: posts.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: async ({ context, deps }) => {
-    await context.queryClient.ensureInfiniteQueryData(
+  loader: ({ context, deps }) => {
+    // Prefetch (non-blocking) - component handles suspense via useTransition
+    context.queryClient.prefetchInfiniteQuery(
       posts.list.infiniteQueryOptions(deps),
     );
   },
   component: RouteComponent,
 });
 
-function RouteComponent() {
-  const searchParams = Route.useSearch();
-  const router = useRouter();
+/** Nuqs parser for comma-delimited tags */
+const parseAsTags = parseAsArrayOf(parseAsString, ",");
 
-  // inputValue: immediate feedback for the input field
-  // deferredQuery/deferredTags: deferred to prevent UI disappearance during suspense
-  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
-  const deferredQuery = useDeferredValue(inputValue);
-  const [tags, setTags] = useState(searchParams.tags ?? []);
+function RouteComponent() {
+  // Use nuqs for URL state (stringifySearch keeps commas readable)
+  const [query, setQuery] = useQueryState("q", {
+    defaultValue: "",
+    shallow: false,
+    history: "replace",
+  });
+  const [tags, setTags] = useQueryState("tags", {
+    ...parseAsTags,
+    defaultValue: [] as string[],
+    shallow: false,
+    history: "replace",
+  });
+
+  // Debounce query for API calls
+  const [debouncedQuery] = useDebounceValue(query, 300);
+  const deferredQuery = useDeferredValue(debouncedQuery);
   const deferredTags = useDeferredValue(tags);
 
   const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(searchParams.q || searchParams.tags?.length),
+    Boolean(query || tags.length),
   );
 
-  const hasActiveFilters = Boolean(inputValue || tags.length > 0);
-
-  // Debounced URL sync for bookmarking
-  const debouncedNavigate = useDebounceCallback((q: string) => {
-    router.navigate({
-      to: "/posts",
-      search: (prev) => ({
-        ...prev,
-        q: q || undefined,
-        cursor: undefined,
-      }),
-      replace: true,
-    });
-  }, 200);
+  const hasActiveFilters = Boolean(query || tags.length > 0);
 
   const handleQueryChange = (value: string) => {
-    setInputValue(value);
-    debouncedNavigate(value);
+    setQuery(value || null);
   };
 
   const handleTagsChange = (newTags: (typeof POST_TAGS)[number][]) => {
-    setTags(newTags);
-    router.navigate({
-      to: "/posts",
-      search: (prev) => ({
-        ...prev,
-        tags: newTags.length > 0 ? newTags : undefined,
-        cursor: undefined,
-      }),
-      replace: true,
-    });
+    setTags(newTags.length > 0 ? newTags : null);
   };
 
   const {
@@ -129,12 +120,12 @@ function RouteComponent() {
             <div className="flex flex-col gap-3">
               <div className="relative">
                 <Input
-                  value={inputValue}
+                  value={query}
                   onChange={(e) => handleQueryChange(e.target.value)}
                   placeholder="Search posts..."
                   className="pr-8"
                 />
-                {inputValue && (
+                {query && (
                   <button
                     type="button"
                     onClick={() => handleQueryChange("")}
@@ -145,7 +136,7 @@ function RouteComponent() {
                 )}
               </div>
               <BadgeInput
-                defaultSelections={searchParams.tags}
+                defaultSelections={tags as (typeof POST_TAGS)[number][]}
                 onChange={handleTagsChange}
                 options={POST_TAGS}
               />
@@ -156,7 +147,7 @@ function RouteComponent() {
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <MessageCircleIcon />
+                <GhostIcon />
               </EmptyMedia>
               <EmptyTitle>No posts</EmptyTitle>
               <EmptyDescription>
@@ -179,7 +170,7 @@ function RouteComponent() {
               params={{ postId: post.id }}
               to="/posts/$postId"
             >
-              <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
+              <div className="flex flex-col gap-4 rounded-md border bg-card p-3 sm:flex-row">
                 <div className="flex w-full flex-col gap-2">
                   <p className="truncate font-semibold">
                     {Boolean(posterUrl) && (

@@ -72,12 +72,29 @@ export const updateUserSchema = z.object({
 
 export type UpdateUserArgs = z.infer<typeof updateUserSchema>;
 
+export const ACTIVITY_TYPES = [
+  "post",
+  "comment",
+  "riuSet",
+  "riuSubmission",
+  "biuSet",
+  "trickSubmission",
+  "trickSuggestion",
+  "trickVideo",
+  "utvVideoSuggestion",
+  "siuStack",
+] as const;
+
+export type ActivityTypeFilter = (typeof ACTIVITY_TYPES)[number];
+
 export const getUserActivitySchema = z.object({
   userId: z.coerce.number(),
   cursor: z.string().nullish(),
   limit: z.number().min(1).max(100).default(50),
   /** If true, fetch all activity (ignoring one-year limit) */
   all: z.boolean().optional(),
+  /** Filter to a specific activity type */
+  type: z.enum(ACTIVITY_TYPES).optional(),
 });
 
 export const setShopNotifySchema = z.object({

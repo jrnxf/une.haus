@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeftIcon,
   ChevronDownIcon,
@@ -12,6 +11,7 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -70,7 +70,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         <SetView setId={setId} />
       </div>
     </div>
@@ -112,14 +112,14 @@ function SetView({ setId }: { setId: number }) {
         </Link>
       </Button>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <div className="w-full space-y-1">
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
             {set.name}
           </div>
+          <div className="text-muted-foreground text-sm shrink-0">{set.user.name}</div>
         </div>
 
-        <div className="text-muted-foreground text-sm">{set.user.name}</div>
         <div className="flex shrink-0 items-center gap-1">
           <Button
             size="icon-sm"

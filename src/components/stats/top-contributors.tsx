@@ -34,7 +34,7 @@ type TopContributorsProps = {
 export function TopContributors({ data }: TopContributorsProps) {
   if (data.length === 0) {
     return (
-      <Card className="border-dashed py-4">
+      <Card className="py-4">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">
             top contributors
@@ -50,7 +50,7 @@ export function TopContributors({ data }: TopContributorsProps) {
   const maxPoints = Math.max(...data.map((d) => d.totalPoints));
 
   return (
-    <Card className="border-dashed py-4">
+    <Card className="py-4">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <Tooltip>
           <TooltipTrigger asChild>

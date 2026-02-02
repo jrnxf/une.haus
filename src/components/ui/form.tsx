@@ -353,7 +353,7 @@ function FormDebug() {
           type="button"
           variant="outline"
           size="icon-sm"
-          className="border-dashed"
+          className=""
         >
           <BugIcon className="size-4" />
         </Button>

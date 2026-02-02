@@ -108,7 +108,7 @@ function DiffItem({
   }
 
   return (
-    <div className="rounded-md border p-3">
+    <div className="rounded-md border bg-card p-3">
       <h4 className="text-muted-foreground mb-2 text-sm font-medium">
         {label}
       </h4>
@@ -293,7 +293,7 @@ function SuggestionView({
                 />
               )}
               {diff.alternateNames && (
-                <div className="rounded-md border p-3">
+                <div className="rounded-md border bg-card p-3">
                   <h4 className="text-muted-foreground mb-2 text-sm font-medium">
                     Alternate Names
                   </h4>

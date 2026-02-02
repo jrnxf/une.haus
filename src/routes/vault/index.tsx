@@ -9,7 +9,6 @@ import {
   ArrowUpRightIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ClipboardListIcon,
   HeartIcon,
   MessageCircleIcon,
   MonitorIcon,
@@ -57,13 +56,12 @@ import {
 export const Route = createFileRoute("/vault/")({
   validateSearch: utv.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: async ({ context, deps }) => {
-    await Promise.all([
-      context.queryClient.ensureInfiniteQueryData(
-        utv.list.infiniteQueryOptions(deps),
-      ),
-      context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
-    ]);
+  loader: ({ context, deps }) => {
+    // Prefetch (non-blocking) - component handles suspense via useTransition
+    context.queryClient.prefetchInfiniteQuery(
+      utv.list.infiniteQueryOptions(deps),
+    );
+    context.queryClient.prefetchQuery(utv.claps.get.queryOptions());
   },
   component: RouteComponent,
 });
@@ -72,38 +70,27 @@ function RouteComponent() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
-  // inputValue: immediate feedback for the input field
-  // deferredQuery: deferred to prevent UI disappearance during suspense
-  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
-  const deferredQuery = useDeferredValue(inputValue);
+  // React state drives the query - NOT the URL
+  // This allows useDeferredValue to actually defer during suspense
+  const [query, setQuery] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(query);
 
   const [adminMode, setAdminMode] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(() => {
-    const hasSeenHistory = localStorage.getItem("une.haus:vault-history-seen");
-    if (!hasSeenHistory) {
-      localStorage.setItem("une.haus:vault-history-seen", "true");
-      return true;
-    }
-    return false;
-  });
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const isAdmin = useIsAdmin();
 
-  // Debounced URL sync for bookmarking
   const debouncedNavigate = useDebounceCallback((q: string) => {
+    // URL update is for bookmarking only - doesn't drive the query
     router.navigate({
       to: "/vault",
-      search: (prev) => ({
-        ...prev,
-        q: q || undefined,
-        cursor: undefined,
-      }),
+      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
       replace: true,
     });
-  }, 200);
+  }, 300);
 
   const handleQueryChange = (value: string) => {
-    setInputValue(value);
+    setQuery(value);
     debouncedNavigate(value);
   };
 
@@ -124,7 +111,7 @@ function RouteComponent() {
 
   return (
     <div className="flex grow flex-col gap-3 overflow-hidden">
-      <div className="mx-auto w-full max-w-4xl shrink-0 px-4 pt-4">
+      <div className="mx-auto w-full max-w-4xl shrink-0 space-y-3 pt-4">
         <motion.div
           initial={false}
           animate={{
@@ -134,7 +121,7 @@ function RouteComponent() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="overflow-hidden"
         >
-          <div className="bg-sidebar mb-3 space-y-4 rounded-lg border p-4">
+          <div className="bg-card mb-3 space-y-4 rounded-lg border p-4">
             <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
               <p>
                 In December 2005, Olaf Schlote launched{" "}
@@ -166,12 +153,12 @@ function RouteComponent() {
           <div className="relative min-w-0 flex-1">
             <Input
               id="vault-search"
-              value={inputValue}
+              value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
-              placeholder="search vault"
+              placeholder="Search vault"
               className="pr-8"
             />
-            {inputValue && (
+            {query && (
               <button
                 type="button"
                 onClick={() => handleQueryChange("")}
@@ -195,16 +182,6 @@ function RouteComponent() {
               <ChevronDownIcon className="size-4" />
             </motion.div>
           </Button>
-          <Button
-            variant="secondary"
-            size="icon-xs"
-            asChild
-            className="shrink-0"
-          >
-            <Link to="/vault/review">
-              <ClipboardListIcon className="size-3.5" />
-            </Link>
-          </Button>
           {isAdmin && (
             <Button
               variant={adminMode ? "default" : "secondary"}
@@ -222,62 +199,54 @@ function RouteComponent() {
         <Accordion
           collapsible
           type="single"
-          className="mx-auto max-w-4xl space-y-3 px-4 pb-4"
+          className="mx-auto max-w-4xl space-y-3"
         >
           {displayedVideos.map((video) => (
             <AccordionItem
               value={String(video.id)}
               key={video.id}
-              className="bg-card group overflow-clip rounded-md border last:border-b"
+              className="group overflow-clip rounded-md border bg-card last:border-b"
             >
               <AccordionTrigger className="relative min-w-0 overflow-clip rounded-none py-0 pr-4 pl-0 hover:no-underline">
-                <div className="flex h-16 w-full min-w-0 items-center justify-between gap-2 overflow-clip group-data-[state=open]:pl-4">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
-                      <img
-                        src={getMuxPoster({
-                          playbackId: video.playbackId,
-                          time: video.thumbnailSeconds,
-                          width: 104 * 2,
-                        })}
-                        alt={String(video.id)}
-                        aria-label={video.title}
-                        className="h-full w-full object-cover"
-                        style={{
-                          transform: `scale(${video.scale})`,
-                        }}
-                      />
-                    </div>
-                    <h2 className="truncate font-semibold">{video.title}</h2>
+                <div className="flex min-h-12 w-full min-w-0 items-center gap-2 overflow-clip group-data-[state=open]:pl-4">
+                  <div className="relative aspect-video h-16 overflow-clip transition-all group-data-[state=open]:hidden">
+                    <img
+                      src={getMuxPoster({
+                        playbackId: video.playbackId,
+                        time: video.thumbnailSeconds,
+                        width: 104 * 2,
+                      })}
+                      alt={String(video.id)}
+                      aria-label={video.title}
+                      className="h-full w-full object-cover"
+                      style={{
+                        transform: `scale(${video.scale})`,
+                      }}
+                    />
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <div className="text-muted-foreground flex items-center gap-2.5 text-xs">
-                      <div
-                        className="flex items-center gap-1"
-                        title={`${video.messagesCount} messages`}
-                      >
-                        <MessageCircleIcon className="size-3.5" />
-                        <span>{video.messagesCount}</span>
-                      </div>
-                      <div
-                        className="flex items-center gap-1"
-                        title={`${video.likesCount} likes`}
-                      >
-                        <HeartIcon className="size-3.5" />
-                        <span>{video.likesCount}</span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      asChild
-                      size="icon-sm"
-                      aria-label="View video"
+                  <h2 className="truncate font-semibold">{video.title}</h2>
+                  <div className="grow" />
+                  <div className="text-muted-foreground flex shrink-0 items-center gap-2.5 text-xs">
+                    <div
+                      className="flex items-center gap-1"
+                      title={`${video.messagesCount} messages`}
                     >
-                      <Link to="/vault/$videoId" params={{ videoId: video.id }}>
-                        <ArrowUpRightIcon className="size-4" />
-                      </Link>
-                    </Button>
+                      <MessageCircleIcon className="size-3.5" />
+                      <span>{video.messagesCount}</span>
+                    </div>
+                    <div
+                      className="flex items-center gap-1"
+                      title={`${video.likesCount} likes`}
+                    >
+                      <HeartIcon className="size-3.5" />
+                      <span>{video.likesCount}</span>
+                    </div>
                   </div>
+                  <Button variant="ghost" asChild size="icon-sm" aria-label="View video">
+                    <Link to="/vault/$videoId" params={{ videoId: video.id }}>
+                      <ArrowUpRightIcon className="size-4" />
+                    </Link>
+                  </Button>
                 </div>
               </AccordionTrigger>
 
@@ -367,7 +336,17 @@ function ClapButton() {
         spread: 40,
         origin: { x, y },
         shapes: ["circle"],
-        colors: ["#f59e0b", "#fbbf24", "#fcd34d"],
+        colors: [
+          "#ff6b6b", // bright red
+          "#ff8c42", // bright orange
+          "#ffd93d", // bright yellow
+          "#6bcb77", // bright green
+          "#4ecdc4", // bright teal
+          "#45b7d1", // bright cyan
+          "#7950f2", // bright indigo
+          "#c084fc", // bright purple
+          "#f472b6", // bright pink
+        ],
         scalar: 0.8,
         gravity: 1.5,
         ticks: 40,

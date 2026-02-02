@@ -6,7 +6,7 @@ import { users } from "~/lib/users";
 import { errorFmt } from "~/lib/utils";
 import { UserView } from "~/views/user";
 
-export const Route = createFileRoute("/users/$userId")({
+export const Route = createFileRoute("/users/$userId/")({
   component: RouteComponent,
   params: users.get.schema,
   loader: async ({ context, params: { userId } }) => {

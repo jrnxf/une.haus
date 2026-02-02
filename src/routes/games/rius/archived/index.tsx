@@ -30,7 +30,7 @@ function EmptyArchive() {
           Previous rounds and their sets
         </p>
       </div>
-      <div className="rounded-lg border border-dashed p-8 text-center">
+      <div className="rounded-lg border p-8 text-center">
         <p className="text-muted-foreground">
           No archived rounds yet. Complete a round to see it here!
         </p>

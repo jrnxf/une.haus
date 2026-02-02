@@ -18,10 +18,13 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
     editor: {
       name: "Cursor",
       open: async (path, lineNumber, columnNumber) => {
-        const { exec } = await import("node:child_process");
-        exec(
-          `cursor -g "${path.replaceAll("$", "\\$")}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}"`,
-        );
+        const { spawn } = await import("node:child_process");
+        // Escape $ to prevent shell expansion in cursor's eval
+        const escapedPath = path.replaceAll("$", "\\$");
+        spawn("cursor", [
+          "-g",
+          `${escapedPath}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}`,
+        ]);
       },
     },
   });
@@ -35,24 +38,18 @@ const config = defineConfig(async () => ({
   },
   plugins: [
     await devtoolsPlugin(),
+    // this is the plugin that enables path aliases - must come before nitro
+    viteTsConfigPaths({
+      projects: ["./tsconfig.json"],
+    }),
     nitro({
       preset: "bun",
       compatibilityDate: "latest",
+      serverDir: "./server",
       experimental: {
         tasks: true,
         vite: {
           serverReload: true,
-        },
-      },
-      tasks: {
-        [TASK_NAMES.RIUS_ROTATE]: {
-          handler: "~/lib/tasks/rius/rotate",
-          description:
-            "Rotate RIUs: archive active, activate upcoming, create new upcoming",
-        },
-        [TASK_NAMES.HEARTBEAT]: {
-          handler: "~/lib/tasks/heartbeat",
-          description: "Heartbeat task that logs the current time every minute",
         },
       },
       scheduledTasks: {
@@ -64,10 +61,6 @@ const config = defineConfig(async () => ({
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- types here are not yet updated for nitro
     } as any),
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
     tailwindcss(),
     // beasties({
     //   options: {

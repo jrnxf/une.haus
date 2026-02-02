@@ -56,7 +56,7 @@ function RouteComponent() {
             </div>
           </div>
 
-          <Card className="border-dashed">
+          <Card>
             <CardHeader className="border-b pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium">

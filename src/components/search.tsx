@@ -14,7 +14,9 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
+  CommandShortcut,
   Kbd,
+  KbdGroup,
 } from "~/components/ui/command";
 import {
   DropdownMenu,
@@ -25,7 +27,9 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import { SHORTCUTS } from "~/lib/shortcuts/constants";
 import { useTheme } from "~/lib/theme/context";
+import { useSidebar } from "~/components/ui/sidebar";
 import { users as usersApi } from "~/lib/users";
 import { utv } from "~/lib/utv/core";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
@@ -68,6 +72,7 @@ export function Search() {
   const { setTheme } = useTheme();
   const navigate = useNavigate();
   const logout = useLogout();
+  const { toggleSidebar } = useSidebar();
 
   const [pages, setPages] = React.useState<Page[]>(["root"]);
   const [input, setInput] = React.useState("");
@@ -453,10 +458,25 @@ export function Search() {
             <CommandGroup heading="Settings">
               <CommandItem
                 onSelect={() => {
+                  toggleSidebar();
+                  closeMenu();
+                }}
+              >
+                Toggle Sidebar
+              </CommandItem>
+              <CommandItem
+                onSelect={() => {
                   pushPage("theme");
                 }}
               >
                 Theme
+                <CommandShortcut>
+                  <KbdGroup>
+                    {SHORTCUTS.toggleTheme.display.map((key) => (
+                      <Kbd key={key}>{key}</Kbd>
+                    ))}
+                  </KbdGroup>
+                </CommandShortcut>
               </CommandItem>
               {isAuthenticated ? (
                 <>

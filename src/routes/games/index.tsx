@@ -65,7 +65,7 @@ function GameCard({
       <Card
         className={cn(
           "group relative flex h-full flex-col overflow-hidden transition-all",
-          "cursor-pointer border-dashed",
+          "cursor-pointer",
           "focus-within:scale-[1.01] hover:scale-[1.01]",
           !isActive && "opacity-70",
         )}

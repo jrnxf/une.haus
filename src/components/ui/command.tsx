@@ -133,21 +133,23 @@ const CommandInput = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
     isFetching?: boolean;
+    containerClassName?: string;
   }
->(({ className, isFetching, ...props }, ref) => {
+>(({ className, isFetching, containerClassName, ...props }, ref) => {
   return (
     <div
       className={cn(
         "flex h-9 min-h-9 items-center gap-2 px-3",
         "border-b",
         "group-data-[side=top]/popover-content:border-t group-data-[side=top]/popover-content:border-b-0",
+        containerClassName,
       )}
       data-slot="command-input-wrapper"
     >
       {isFetching ? (
-        <Loader2Icon className="size-4 shrink-0 animate-spin opacity-50" />
+        <Loader2Icon className="text-muted-foreground size-4 shrink-0 animate-spin" />
       ) : (
-        <SearchIcon className="size-4 shrink-0 opacity-50" />
+        <SearchIcon className="text-muted-foreground size-4 shrink-0" />
       )}
       <CommandPrimitive.Input
         ref={ref}
@@ -189,7 +191,7 @@ const CommandList = React.forwardRef<
     ref={ref}
     data-slot="command-list"
     className={cn(
-      "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto pb-1",
+      "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto not-last-of-type:pb-1",
       className,
     )}
     {...props}
@@ -327,6 +329,7 @@ function CommandFooter({ className }: { className?: string }) {
   );
 }
 
+export { Kbd, KbdGroup } from "~/components/ui/kbd";
 export {
   Command,
   CommandActionsProvider,
@@ -340,7 +343,7 @@ export {
   CommandLoading,
   CommandSeparator,
   CommandShortcut,
-  useCommandActions,
+  useCommandActions
 };
-export { Kbd, KbdGroup } from "~/components/ui/kbd";
 export type { CommandAction };
+

@@ -17,6 +17,7 @@ import { z } from "zod";
 
 import { AppSidebar } from "~/components/app-sidebar";
 import { ConfirmDialog } from "~/components/confirm-dialog";
+import { GlobalShortcuts } from "~/components/global-shortcuts";
 import { SiteHeader } from "~/components/site-header";
 import { Button } from "~/components/ui/button";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
@@ -125,6 +126,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="font-mono antialiased">
         <ThemeProvider>
+          <GlobalShortcuts />
           <Toaster />
           <ConfirmDialog />
           <SidebarProvider
@@ -150,7 +152,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               <Button
                 variant="outline"
                 size="icon-sm"
-                className="rounded-full border-dashed"
+                className="rounded-full"
               >
                 <BugIcon className="size-4" />
               </Button>

@@ -3,13 +3,14 @@ import {
   BackgroundVariant,
   ReactFlow,
   useEdgesState,
+  useNodesInitialized,
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import type { Trick, TricksData } from "~/lib/tricks";
 
@@ -322,12 +323,24 @@ function GraphContent({
   onCenterNodeClick,
 }: TricksGraphProps) {
   const { fitView } = useReactFlow();
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const nodesInitialized = useNodesInitialized();
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<FlowEdge>([]);
 
   const prevSelectedIdRef = useRef<string | null>(null);
   const isNodeClickRef = useRef(false);
+  const isTransitioningRef = useRef(false);
+  const pendingFitRef = useRef<{ duration: number; callback?: () => void } | null>(null);
+
+  // Execute pending fitView when nodes are initialized
+  useEffect(() => {
+    if (nodesInitialized && pendingFitRef.current) {
+      const { duration, callback } = pendingFitRef.current;
+      pendingFitRef.current = null;
+      fitView({ padding: 0.2, duration });
+      callback?.();
+    }
+  }, [nodesInitialized, fitView]);
 
   // Recenter graph on window resize
   useEffect(() => {
@@ -366,32 +379,25 @@ function GraphContent({
     if (isFirstLoad) {
       setNodes(newNodes);
       setEdges(newEdges);
-      setTimeout(() => fitView({ padding: 0.2, duration: 300 }), 50);
+      pendingFitRef.current = { duration: 0 };
     } else {
-      // Sidebar selection - fade everything out then in
-      setIsTransitioning(true);
-      setNodes((current) =>
-        current.map((n) => ({ ...n, className: "node-exiting" })),
-      );
-      setEdges((current) =>
-        current.map((e) => ({ ...e, className: "edge-exiting" })),
-      );
-
-      setTimeout(() => {
-        setNodes(newNodes.map((n) => ({ ...n, className: "node-entering" })));
-        setEdges(newEdges.map((e) => ({ ...e, className: "edge-entering" })));
-        setTimeout(() => {
-          fitView({ padding: 0.2, duration: 300 });
-          setIsTransitioning(false);
-        }, 50);
-      }, TRANSITION_DURATION);
+      // Sidebar selection - cross-fade to new nodes
+      isTransitioningRef.current = true;
+      setNodes(newNodes.map((n) => ({ ...n, className: "node-entering" })));
+      setEdges(newEdges.map((e) => ({ ...e, className: "edge-entering" })));
+      pendingFitRef.current = {
+        duration: 300,
+        callback: () => {
+          isTransitioningRef.current = false;
+        },
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTrickId]);
 
   const handleNodeClick = useCallback(
     (_event: React.MouseEvent, node: FlowNode) => {
-      if (isTransitioning) return;
+      if (isTransitioningRef.current) return;
 
       const clickedTrick = data.byId[node.id];
       if (!clickedTrick) return;
@@ -403,92 +409,25 @@ function GraphContent({
       }
 
       isNodeClickRef.current = true;
-      setIsTransitioning(true);
+      isTransitioningRef.current = true;
 
-      // Build the new graph upfront so we have connectedHandles info for transitions
       const { nodes: newNodes, edges: newEdges } = buildGraphFromTrick(
         clickedTrick,
         data,
       );
-      const newNodesById = new Map(newNodes.map((n) => [n.id, n]));
 
-      const currentNodeIds = new Set(nodes.map((n) => n.id));
-      const newNodeIds = new Set(newNodes.map((n) => n.id));
+      setNodes(newNodes.map((n) => ({ ...n, className: "node-entering" })));
+      setEdges(newEdges.map((e) => ({ ...e, className: "edge-entering" })));
 
-      // Categorize nodes
-      const persistingIds = new Set(
-        [...currentNodeIds].filter((id) => newNodeIds.has(id)),
-      );
-      const exitingIds = new Set(
-        [...currentNodeIds].filter((id) => !newNodeIds.has(id)),
-      );
-      const enteringIds = new Set(
-        [...newNodeIds].filter((id) => !currentNodeIds.has(id)),
-      );
-
-      // Phase 1: Move persisting nodes to new positions, fade out exiting nodes
-      setNodes((current) =>
-        current.map((n) => {
-          if (exitingIds.has(n.id)) {
-            return { ...n, className: "node-exiting" };
-          }
-          if (persistingIds.has(n.id)) {
-            const newNode = newNodesById.get(n.id)!;
-            return {
-              ...n,
-              position: newNode.position,
-              data: newNode.data,
-              className: "",
-            };
-          }
-          return n;
-        }),
-      );
-
-      // Fade out all edges immediately
-      setEdges((current) =>
-        current.map((e) => ({ ...e, className: "edge-exiting" })),
-      );
-
-      // Phase 2: After transition, add new nodes and edges
-      setTimeout(() => {
-        // Remove exiting nodes, keep persisting, add entering
-        setNodes((current) => {
-          const persistingNodes = current
-            .filter((n) => persistingIds.has(n.id))
-            .map((n) => {
-              const newNode = newNodes.find((nn) => nn.id === n.id);
-              return newNode ? { ...newNode, className: "" } : n;
-            });
-
-          const enteringNodes = newNodes
-            .filter((n) => enteringIds.has(n.id))
-            .map((n) => ({ ...n, className: "node-entering" }));
-
-          return [...persistingNodes, ...enteringNodes];
-        });
-
-        // Add new edges
-        setEdges(newEdges.map((e) => ({ ...e, className: "edge-entering" })));
-
-        setTimeout(() => {
-          fitView({ padding: 0.2, duration: 300 });
-          setIsTransitioning(false);
+      pendingFitRef.current = {
+        duration: 300,
+        callback: () => {
+          isTransitioningRef.current = false;
           onSelectTrick(clickedTrick);
-        }, 50);
-      }, TRANSITION_DURATION);
+        },
+      };
     },
-    [
-      data,
-      fitView,
-      isTransitioning,
-      nodes,
-      onCenterNodeClick,
-      onSelectTrick,
-      selectedTrickId,
-      setEdges,
-      setNodes,
-    ],
+    [data, onCenterNodeClick, onSelectTrick, selectedTrickId, setEdges, setNodes],
   );
 
   const handleNodeDoubleClick = useCallback(

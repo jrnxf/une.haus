@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "~/db";
 import { rius } from "~/db/schema";
-import { TASK_NAMES } from "../constants";
+import { TASK_NAMES } from "~/lib/tasks/constants";
 
 export default defineTask({
   meta: {

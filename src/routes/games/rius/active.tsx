@@ -57,7 +57,7 @@ function RouteComponent() {
 
       {/* Sets Grid/List */}
       {data.sets.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center">
+        <div className="rounded-lg border bg-card p-8 text-center">
           <p className="text-muted-foreground">
             No active sets yet. Check back soon!
           </p>

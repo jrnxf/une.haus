@@ -96,7 +96,7 @@ function RouteComponent() {
         </div>
 
         {playerRoster.length === 0 ? (
-          <Card className="border-dashed">
+          <Card>
             <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
               <div className="bg-muted flex size-12 items-center justify-center rounded-full">
                 <UsersIcon className="text-muted-foreground size-6" />

@@ -1,15 +1,19 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { ArrowLeftIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
+import { CountdownDisplay } from "~/components/events/countdown-display";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
 const searchSchema = z.object({
-  name: z.string().optional(),
+  rider: z.string().optional(),
   time: z.coerce.number().min(1).max(3600).optional().default(60),
 });
 
@@ -18,20 +22,46 @@ export const Route = createFileRoute("/events/stopwatch/")({
   validateSearch: zodValidator(searchSchema),
 });
 
-const pad = (n: number) => n.toString().padStart(2, "0");
+type RiderData = {
+  userId: number | null;
+  name: string | null;
+};
 
-function formatTime(ms: number) {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${pad(minutes)}:${pad(seconds)}`;
+function parseRiderParam(param: string | undefined): RiderData | null {
+  if (!param) return null;
+  if (param.startsWith("~")) {
+    return { userId: null, name: param.slice(1) };
+  }
+  const userId = parseInt(param, 10);
+  if (isNaN(userId)) return null;
+  return { userId, name: null };
+}
+
+function encodeRiderParam(rider: RiderData | null): string | undefined {
+  if (!rider) return undefined;
+  if (rider.userId !== null) return String(rider.userId);
+  if (rider.name) return `~${rider.name}`;
+  return undefined;
 }
 
 type StopwatchState = "idle" | "running" | "paused" | "finished";
 
 function RouteComponent() {
-  const { name, time: initialSeconds } = Route.useSearch();
+  const { rider: riderParam, time: initialSeconds } = Route.useSearch();
   const navigate = useNavigate();
+
+  const rider = useMemo(() => parseRiderParam(riderParam), [riderParam]);
+
+  // Fetch users to resolve rider data
+  const { data: allUsers = [] } = useQuery(usersApi.all.queryOptions());
+
+  // Get user data if rider has a userId
+  const user = useMemo(() => {
+    if (!rider?.userId) return null;
+    return allUsers.find((u) => u.id === rider.userId) ?? null;
+  }, [rider, allUsers]);
+
+  const displayName = user?.name ?? rider?.name ?? null;
 
   const [state, setState] = useState<StopwatchState>("idle");
   const [timeRemaining, setTimeRemaining] = useState(initialSeconds * 1000);
@@ -82,20 +112,20 @@ function RouteComponent() {
       if (e.code === "Space") {
         e.preventDefault();
         switch (state) {
-        case "idle": 
+        case "idle":
         case "paused": {
           startTimer();
-        
+
         break;
         }
         case "running": {
           pauseTimer();
-        
+
         break;
         }
         case "finished": {
           resetTimer();
-        
+
         break;
         }
         // No default
@@ -111,28 +141,28 @@ function RouteComponent() {
 
   const handleClick = useCallback(() => {
     switch (state) {
-    case "idle": 
+    case "idle":
     case "paused": {
       startTimer();
-    
+
     break;
     }
     case "running": {
       pauseTimer();
-    
+
     break;
     }
     case "finished": {
       resetTimer();
-    
+
     break;
     }
     // No default
     }
   }, [state, startTimer, pauseTimer, resetTimer]);
 
-  const isLow = timeRemaining <= 10_000 && state === "running";
   const isFinished = state === "finished";
+  const isLow = timeRemaining <= 10_000 && state === "running";
 
   return (
     <div
@@ -155,10 +185,22 @@ function RouteComponent() {
               Back
             </Link>
           </Button>
-          {name && (
+          {displayName && (
             <>
               <div className="bg-border h-4 w-px" />
-              <span className="text-lg font-semibold">{name}</span>
+              <div className="flex items-center gap-2">
+                {user?.avatarId && (
+                  <Avatar
+                    className="size-8"
+                    cloudflareId={user.avatarId}
+                    alt={displayName}
+                  >
+                    <AvatarImage width={64} quality={90} />
+                    <AvatarFallback className="text-xs" name={displayName} />
+                  </Avatar>
+                )}
+                <span className="text-lg font-semibold">{displayName}</span>
+              </div>
             </>
           )}
         </div>
@@ -170,7 +212,7 @@ function RouteComponent() {
             onClick={() =>
               navigate({
                 to: "/events/stopwatch/setup",
-                search: { name, time: initialSeconds },
+                search: { rider: encodeRiderParam(rider), time: initialSeconds },
               })
             }
           >
@@ -183,48 +225,37 @@ function RouteComponent() {
       </div>
 
       {/* Timer Display */}
-      <button
-        type="button"
-        className="flex grow cursor-pointer flex-col items-center justify-center"
-        onClick={handleClick}
-      >
-        <div
-          className={cn(
-            "font-mono text-[20vw] font-bold leading-none tabular-nums transition-colors",
-            isFinished && "text-destructive",
-            isLow && !isFinished && "text-yellow-500",
-          )}
-        >
-          {formatTime(timeRemaining)}
-        </div>
+      <div className="flex grow flex-col items-center justify-center">
+        <CountdownDisplay
+          timeRemaining={timeRemaining}
+          maxSeconds={initialSeconds}
+          isRunning={state === "running"}
+          isFinished={isFinished}
+          className="text-[20vw]"
+        />
+      </div>
 
-        <div className="text-muted-foreground mt-6 flex items-center gap-2 text-lg">
-          {state === "idle" && (
+      {/* Play/Pause Button */}
+      <div className="flex items-center justify-center border-t py-4">
+        <Button onClick={handleClick} className="gap-2">
+          {state === "finished" ? (
             <>
-              <PlayIcon className="size-5" />
-              <span>Press space to start</span>
+              <RotateCcwIcon className="size-4" />
+              Reset
+            </>
+          ) : state === "running" ? (
+            <>
+              <PauseIcon className="size-4" />
+              Pause
+            </>
+          ) : (
+            <>
+              <PlayIcon className="size-4" />
+              {state === "paused" ? "Resume" : "Start"}
             </>
           )}
-          {state === "running" && (
-            <>
-              <PauseIcon className="size-5" />
-              <span>Press space to pause</span>
-            </>
-          )}
-          {state === "paused" && (
-            <>
-              <PlayIcon className="size-5" />
-              <span>Press space to resume</span>
-            </>
-          )}
-          {state === "finished" && (
-            <>
-              <RotateCcwIcon className="size-5" />
-              <span>Press space to reset</span>
-            </>
-          )}
-        </div>
-      </button>
+        </Button>
+      </div>
     </div>
   );
 }

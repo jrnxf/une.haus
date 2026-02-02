@@ -3,13 +3,18 @@ import { Link } from "@tanstack/react-router";
 import { MatrixText } from "~/components/matrix-text";
 import { Search } from "~/components/search";
 import { Button } from "~/components/ui/button";
-import { SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
 
 export function SiteHeader() {
+  const { open, isMobile } = useSidebar();
+
+  // Show trigger when sidebar is closed on desktop, or always on mobile
+  const showTrigger = isMobile || !open;
+
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-        <SidebarTrigger className="-ml-1 lg:hidden" size="icon-xs" />
+        {showTrigger && <SidebarTrigger className="-ml-1" size="icon-xs" />}
         <Search />
 
         <div className="ml-auto flex items-center gap-2">

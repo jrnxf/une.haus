@@ -1,12 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRightIcon,
-  SplitIcon,
-  TimerIcon,
-  TrophyIcon,
-} from "lucide-react";
+import { ArrowRightIcon, TimerIcon, TrophyIcon } from "lucide-react";
+import { useEffect } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { useSidebar } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/events/")({
@@ -18,28 +15,29 @@ type FeatureCardProps = {
   description: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  onClick?: () => void;
 };
 
-function FeatureCard({ name, description, href, icon: Icon }: FeatureCardProps) {
+function FeatureCard({ name, description, href, icon: Icon, onClick }: FeatureCardProps) {
   return (
-    <Link to={href} className="block h-full">
+    <Link to={href} className="block h-full" onClick={onClick}>
       <Card
         className={cn(
-          "group relative flex h-full flex-col overflow-hidden transition-all",
-          "cursor-pointer border-dashed",
+          "group relative flex h-full flex-col overflow-hidden transition-all py-4 gap-2",
+          "cursor-pointer",
           "focus-within:scale-[1.01] hover:scale-[1.01]",
         )}
       >
-        <CardHeader className="pb-2">
-          <div className="flex items-center gap-4">
-            <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
-              <Icon className="size-4" />
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <div className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
+              <Icon className="size-3.5" />
             </div>
-            <CardTitle className="text-lg">{name}</CardTitle>
+            <CardTitle className="text-base">{name}</CardTitle>
           </div>
         </CardHeader>
 
-        <CardContent className="flex grow flex-col gap-4">
+        <CardContent className="flex grow flex-col gap-2">
           <p className="text-muted-foreground text-sm leading-relaxed">
             {description}
           </p>
@@ -57,37 +55,41 @@ function FeatureCard({ name, description, href, icon: Icon }: FeatureCardProps) 
 }
 
 function RouteComponent() {
+  const { setOpen, isMobile } = useSidebar();
+
+  // Auto-close sidebar on desktop when entering events
+  useEffect(() => {
+    if (!isMobile) {
+      setOpen(false);
+    }
+  }, [setOpen, isMobile]);
+
   return (
     <div className="flex grow flex-col overflow-hidden">
       <div className="overflow-y-auto" id="main-content">
         <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
           <div className="mb-8 space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">Events</h1>
+            <h1 className="text-2xl font-bold tracking-tight">events</h1>
             <p className="text-muted-foreground text-sm">
-              Tournament brackets and stopwatch tools for live events
+              tournament brackets and stopwatch tools for live events
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <FeatureCard
-              name="Stopwatch"
-              description="Full screen countdown timer with configurable time limit. Perfect for timed runs and competitions."
+              name="stopwatch"
+              description="full screen countdown timer with configurable time limit. perfect for timed runs and competitions."
               href="/events/stopwatch/setup"
               icon={TimerIcon}
+              onClick={() => !isMobile && setOpen(false)}
             />
 
             <FeatureCard
-              name="Split"
-              description="Two side-by-side stopwatches. Spacebar toggles between them for head-to-head battles."
-              href="/events/stopwatch/split/setup"
-              icon={SplitIcon}
-            />
-
-            <FeatureCard
-              name="Bracket"
-              description="Tournament bracket for any number of participants. Track matchups and advancement."
+              name="bracket"
+              description="tournament bracket for any number of participants. track matchups and advancement with built-in split timers."
               href="/events/bracket/setup"
               icon={TrophyIcon}
+              onClick={() => !isMobile && setOpen(false)}
             />
           </div>
         </div>

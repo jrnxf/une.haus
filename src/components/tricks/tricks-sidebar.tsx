@@ -2,7 +2,6 @@ import { useDeferredValue, useMemo, useState } from "react";
 
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -62,7 +61,11 @@ export function TricksSidebar({
         value={searchTerm}
       />
       <CommandList className="max-h-none flex-1">
-        <CommandEmpty>No tricks found.</CommandEmpty>
+        {filteredTricks.length === 0 && (
+          <p className="text-muted-foreground py-3 text-center text-sm">
+            No tricks found.
+          </p>
+        )}
         <CommandGroup className="pb-0">
           {filteredTricks.map((trick) => (
             <CommandItem

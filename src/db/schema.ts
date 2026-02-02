@@ -716,16 +716,61 @@ export const notifications = pgTable(
   ],
 );
 
+export const EMAIL_DIGEST_FREQUENCIES = ["daily", "weekly"] as const;
+export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number];
+
+export const EMAIL_REMINDER_TYPES = [
+  "digest",
+  "game_start",
+  "pre_trick",
+] as const;
+export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number];
+
 export const userNotificationSettings = pgTable("user_notification_settings", {
   userId: integer("user_id")
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
+  // In-app notification toggles
   likesEnabled: boolean("likes_enabled").notNull().default(true),
   commentsEnabled: boolean("comments_enabled").notNull().default(true),
   followsEnabled: boolean("follows_enabled").notNull().default(true),
   newContentEnabled: boolean("new_content_enabled").notNull().default(true),
+  // Email digest preferences (opt-in, default off)
+  emailDigestEnabled: boolean("email_digest_enabled").notNull().default(false),
+  emailDigestFrequency: text("email_digest_frequency")
+    .$type<EmailDigestFrequency>()
+    .default("weekly"),
+  emailDigestDayOfWeek: integer("email_digest_day_of_week").default(0), // 0=Sunday
+  emailDigestHourUtc: integer("email_digest_hour_utc").default(9), // 9am UTC
+  // Game start reminder preferences (opt-in, default off)
+  gameStartReminderEnabled: boolean("game_start_reminder_enabled")
+    .notNull()
+    .default(false),
+  gameStartReminderHoursBefore: integer("game_start_reminder_hours_before").default(24),
+  // Pre-game trick reminder preferences (opt-in, default off)
+  preTrickReminderEnabled: boolean("pre_trick_reminder_enabled")
+    .notNull()
+    .default(false),
+  preTrickReminderDaysBefore: integer("pre_trick_reminder_days_before").default(1),
+  // Global email unsubscribe
+  emailUnsubscribedAll: boolean("email_unsubscribed_all").notNull().default(false),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// Track sent email reminders to avoid duplicates
+export const emailRemindersSent = pgTable(
+  "email_reminders_sent",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    reminderType: text("reminder_type").$type<EmailReminderType>().notNull(),
+    riuId: integer("riu_id").references(() => rius.id, { onDelete: "cascade" }),
+    sentAt: timestamp("sent_at").notNull().defaultNow(),
+  },
+  (t) => [index("email_reminders_sent_user_type_riu_idx").on(t.userId, t.reminderType, t.riuId)],
+);
 
 /**
  * Relations
@@ -1244,6 +1289,20 @@ export const userNotificationSettingsRelations = relations(
     user: one(users, {
       fields: [userNotificationSettings.userId],
       references: [users.id],
+    }),
+  }),
+);
+
+export const emailRemindersSentRelations = relations(
+  emailRemindersSent,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [emailRemindersSent.userId],
+      references: [users.id],
+    }),
+    riu: one(rius, {
+      fields: [emailRemindersSent.riuId],
+      references: [rius.id],
     }),
   }),
 );

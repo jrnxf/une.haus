@@ -33,7 +33,7 @@ export function StatCard({
   const content = (
     <Card
       className={cn(
-        "border-dashed transition-colors",
+        "transition-colors",
         isCompact && "py-1.5",
         isResponsive && "py-1 md:py-1.5 lg:py-2.5",
         !isCompact && !isResponsive && "py-2.5",

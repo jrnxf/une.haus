@@ -32,10 +32,15 @@ const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 export const SIDEBAR_CLOSE_DURATION = 200;
 
+const SIDEBAR_COOKIE_NAME = "sidebar_state";
+const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
   setOpen: (open: boolean) => void;
+  openMobile: boolean;
+  setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
 };
@@ -52,30 +57,63 @@ function useSidebar() {
 }
 
 function SidebarProvider({
+  defaultOpen = true,
   className,
   style,
   children,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  defaultOpen?: boolean;
+}) {
   const [urlOpen, setUrlOpen] = usePeripherals("sidebar");
   const isMobile = useIsTablet();
 
-  // Desktop: always open, Mobile: URL-driven
-  const open = isMobile ? urlOpen : true;
+  // Desktop state from cookie, Mobile state from URL
+  const [openDesktop, setOpenDesktop] = React.useState(defaultOpen);
 
-  const setOpen = React.useCallback(
+  // Sync with cookie after mount to avoid hydration mismatch
+  React.useEffect(() => {
+    const cookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${SIDEBAR_COOKIE_NAME}=`));
+    if (cookie) {
+      const value = cookie.split("=")[1] === "true";
+      if (value !== openDesktop) {
+        setOpenDesktop(value);
+      }
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const open = isMobile ? urlOpen : openDesktop;
+  const openMobile = urlOpen;
+
+  const setOpenMobile = React.useCallback(
     (nextOpen: boolean) => {
-      // Only affects mobile (Sheet) - desktop sidebar is always visible
       setUrlOpen(nextOpen);
     },
     [setUrlOpen],
+  );
+
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (isMobile) {
+        setOpenMobile(nextOpen);
+      } else {
+        setOpenDesktop(nextOpen);
+        // Persist desktop state to cookie
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${nextOpen}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      }
+    },
+    [isMobile, setOpenMobile],
   );
 
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);
   }, [open, setOpen]);
 
-  // Keyboard shortcut to toggle sidebar (only on mobile)
+  // Keyboard shortcut to toggle sidebar (cmd+b / ctrl+b)
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
@@ -84,15 +122,13 @@ function SidebarProvider({
         !event.repeat
       ) {
         event.preventDefault();
-        if (isMobile) {
-          toggleSidebar();
-        }
+        toggleSidebar();
       }
     };
 
     globalThis.addEventListener("keydown", handleKeyDown);
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [isMobile, toggleSidebar]);
+  }, [toggleSidebar]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
@@ -103,10 +139,12 @@ function SidebarProvider({
       state,
       open,
       setOpen,
+      openMobile,
+      setOpenMobile,
       isMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, isMobile, toggleSidebar],
+    [state, open, setOpen, openMobile, setOpenMobile, isMobile, toggleSidebar],
   );
 
   return (

@@ -1,6 +1,6 @@
 import { defineTask } from "nitro/task";
 
-import { TASK_NAMES } from "./constants";
+import { TASK_NAMES } from "~/lib/tasks/constants";
 
 export default defineTask({
   meta: {

@@ -9,7 +9,7 @@ import {
   SendIcon,
   VideoIcon,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { TimeAgo } from "~/components/time-ago";
 import { Button } from "~/components/ui/button";
@@ -20,15 +20,45 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { users, type ActivityItem } from "~/lib/users";
+import { type ActivityTypeFilter, ACTIVITY_TYPES } from "~/lib/users/schemas";
+
+const TYPE_LABELS: Record<ActivityTypeFilter, string> = {
+  post: "Posts",
+  comment: "Comments",
+  riuSet: "RIU Sets",
+  riuSubmission: "RIU Submissions",
+  biuSet: "BIU Sets",
+  trickSubmission: "Trick Submissions",
+  trickSuggestion: "Trick Suggestions",
+  trickVideo: "Trick Videos",
+  utvVideoSuggestion: "Vault Suggestions",
+  siuStack: "SIU Stacks",
+};
 
 type ActivityFeedProps = {
   userId: number;
 };
 
 export function ActivityFeed({ userId }: ActivityFeedProps) {
+  const [typeFilter, setTypeFilter] = useState<ActivityTypeFilter | "all">(
+    "all",
+  );
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery(users.activity.infiniteQueryOptions({ userId }));
+    useInfiniteQuery(
+      users.activity.infiniteQueryOptions({
+        userId,
+        type: typeFilter === "all" ? undefined : typeFilter,
+      }),
+    );
 
   const items = useMemo(
     () => data?.pages.flatMap((p) => p.items) ?? [],
@@ -39,23 +69,73 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     return <ActivityFeedSkeleton />;
   }
 
+  const filterDropdown = (
+    <Select
+      value={typeFilter}
+      onValueChange={(v) => setTypeFilter(v as ActivityTypeFilter | "all")}
+    >
+      <SelectTrigger className="h-7 w-36 text-xs">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All activity</SelectItem>
+        {ACTIVITY_TYPES.map((type) => (
+          <SelectItem key={type} value={type}>
+            {TYPE_LABELS[type]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
   if (items.length === 0) {
     return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <SendIcon />
-          </EmptyMedia>
-          <EmptyTitle>No activity</EmptyTitle>
-          <EmptyDescription>No activity in the past year.</EmptyDescription>
-        </EmptyHeader>
-      </Empty>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-medium">Activity</h2>
+            <Link
+              to="/users/$userId/activity"
+              params={{ userId: String(userId) }}
+              className="text-muted-foreground hover:text-foreground text-xs"
+            >
+              View all
+            </Link>
+          </div>
+          {filterDropdown}
+        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <SendIcon />
+            </EmptyMedia>
+            <EmptyTitle>No activity</EmptyTitle>
+            <EmptyDescription>
+              {typeFilter === "all"
+                ? "No activity in the past year."
+                : `No ${TYPE_LABELS[typeFilter].toLowerCase()} found.`}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium">Activity</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-medium">Activity</h2>
+          <Link
+            to="/users/$userId/activity"
+            params={{ userId: String(userId) }}
+            className="text-muted-foreground hover:text-foreground text-xs"
+          >
+            View all
+          </Link>
+        </div>
+        {filterDropdown}
+      </div>
       <div className="relative">
         <div className="flex flex-col">
           {items.map((item, index) => (

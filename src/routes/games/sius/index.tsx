@@ -145,7 +145,7 @@ function NoActiveChain() {
 
   return (
     <div className="flex flex-col items-center justify-center py-12">
-      <Card className="w-full max-w-md border-dashed">
+      <Card className="w-full max-w-md">
         <CardContent className="flex flex-col items-center gap-6 py-10 text-center">
           <div className="bg-muted flex size-16 items-center justify-center rounded-full">
             <LayersIcon className="text-muted-foreground size-8" />

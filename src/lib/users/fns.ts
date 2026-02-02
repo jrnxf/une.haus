@@ -378,7 +378,7 @@ export const getUserActivityServerFn = createServerFn({
 })
   .inputValidator(zodValidator(getUserActivitySchema))
   .handler(async ({ data }) => {
-    const { userId, cursor, limit = 50 } = data;
+    const { userId, cursor, limit = 50, type: typeFilter } = data;
 
     // Parse cursor timestamp for pagination
     // Cursor format: "timestamp|type|id" (using | since ISO timestamps contain colons)
@@ -388,7 +388,11 @@ export const getUserActivityServerFn = createServerFn({
       cursorDate = new Date(timestamp);
     }
 
+    // Helper to check if we should fetch a specific type
+    const shouldFetch = (type: string) => !typeFilter || typeFilter === type;
+
     // Fetch activity from each source in parallel using drizzle query builder
+    // When a type filter is set, only fetch that specific source
     const [
       postsData,
       commentsData,
@@ -402,181 +406,228 @@ export const getUserActivityServerFn = createServerFn({
       siuStacksData,
     ] = await Promise.all([
       // Posts
-      db
-        .select({
-          id: posts.id,
-          createdAt: posts.createdAt,
-          title: posts.title,
-          content: posts.content,
-        })
-        .from(posts)
-        .where(
-          cursorDate
-            ? and(eq(posts.userId, userId), lt(posts.createdAt, cursorDate))
-            : eq(posts.userId, userId),
-        )
-        .orderBy(desc(posts.createdAt))
-        .limit(limit + 1),
+      shouldFetch("post")
+        ? db
+            .select({
+              id: posts.id,
+              createdAt: posts.createdAt,
+              title: posts.title,
+              content: posts.content,
+            })
+            .from(posts)
+            .where(
+              cursorDate
+                ? and(eq(posts.userId, userId), lt(posts.createdAt, cursorDate))
+                : eq(posts.userId, userId),
+            )
+            .orderBy(desc(posts.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // Post comments with parent info
-      db
-        .select({
-          id: postMessages.id,
-          createdAt: postMessages.createdAt,
-          content: postMessages.content,
-          parentId: postMessages.postId,
-          parentTitle: posts.title,
-        })
-        .from(postMessages)
-        .innerJoin(posts, eq(postMessages.postId, posts.id))
-        .where(
-          cursorDate
-            ? and(eq(postMessages.userId, userId), lt(postMessages.createdAt, cursorDate))
-            : eq(postMessages.userId, userId),
-        )
-        .orderBy(desc(postMessages.createdAt))
-        .limit(limit + 1),
+      shouldFetch("comment")
+        ? db
+            .select({
+              id: postMessages.id,
+              createdAt: postMessages.createdAt,
+              content: postMessages.content,
+              parentId: postMessages.postId,
+              parentTitle: posts.title,
+            })
+            .from(postMessages)
+            .innerJoin(posts, eq(postMessages.postId, posts.id))
+            .where(
+              cursorDate
+                ? and(
+                    eq(postMessages.userId, userId),
+                    lt(postMessages.createdAt, cursorDate),
+                  )
+                : eq(postMessages.userId, userId),
+            )
+            .orderBy(desc(postMessages.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // RIU Sets
-      db
-        .select({
-          id: riuSets.id,
-          createdAt: riuSets.createdAt,
-          name: riuSets.name,
-          content: riuSets.instructions,
-          riuId: riuSets.riuId,
-        })
-        .from(riuSets)
-        .where(
-          cursorDate
-            ? and(eq(riuSets.userId, userId), lt(riuSets.createdAt, cursorDate))
-            : eq(riuSets.userId, userId),
-        )
-        .orderBy(desc(riuSets.createdAt))
-        .limit(limit + 1),
+      shouldFetch("riuSet")
+        ? db
+            .select({
+              id: riuSets.id,
+              createdAt: riuSets.createdAt,
+              name: riuSets.name,
+              content: riuSets.instructions,
+              riuId: riuSets.riuId,
+            })
+            .from(riuSets)
+            .where(
+              cursorDate
+                ? and(
+                    eq(riuSets.userId, userId),
+                    lt(riuSets.createdAt, cursorDate),
+                  )
+                : eq(riuSets.userId, userId),
+            )
+            .orderBy(desc(riuSets.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // RIU Submissions with set name
-      db
-        .select({
-          id: riuSubmissions.id,
-          createdAt: riuSubmissions.createdAt,
-          riuSetId: riuSubmissions.riuSetId,
-          parentTitle: riuSets.name,
-        })
-        .from(riuSubmissions)
-        .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
-        .where(
-          cursorDate
-            ? and(eq(riuSubmissions.userId, userId), lt(riuSubmissions.createdAt, cursorDate))
-            : eq(riuSubmissions.userId, userId),
-        )
-        .orderBy(desc(riuSubmissions.createdAt))
-        .limit(limit + 1),
+      shouldFetch("riuSubmission")
+        ? db
+            .select({
+              id: riuSubmissions.id,
+              createdAt: riuSubmissions.createdAt,
+              riuSetId: riuSubmissions.riuSetId,
+              parentTitle: riuSets.name,
+            })
+            .from(riuSubmissions)
+            .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
+            .where(
+              cursorDate
+                ? and(
+                    eq(riuSubmissions.userId, userId),
+                    lt(riuSubmissions.createdAt, cursorDate),
+                  )
+                : eq(riuSubmissions.userId, userId),
+            )
+            .orderBy(desc(riuSubmissions.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // BIU Sets
-      db
-        .select({
-          id: biuSets.id,
-          createdAt: biuSets.createdAt,
-          chainId: biuSets.chainId,
-        })
-        .from(biuSets)
-        .where(
-          cursorDate
-            ? and(eq(biuSets.userId, userId), lt(biuSets.createdAt, cursorDate))
-            : eq(biuSets.userId, userId),
-        )
-        .orderBy(desc(biuSets.createdAt))
-        .limit(limit + 1),
+      shouldFetch("biuSet")
+        ? db
+            .select({
+              id: biuSets.id,
+              createdAt: biuSets.createdAt,
+              chainId: biuSets.chainId,
+            })
+            .from(biuSets)
+            .where(
+              cursorDate
+                ? and(
+                    eq(biuSets.userId, userId),
+                    lt(biuSets.createdAt, cursorDate),
+                  )
+                : eq(biuSets.userId, userId),
+            )
+            .orderBy(desc(biuSets.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // Trick Submissions
-      db
-        .select({
-          id: trickSubmissions.id,
-          createdAt: trickSubmissions.createdAt,
-          name: trickSubmissions.name,
-        })
-        .from(trickSubmissions)
-        .where(
-          cursorDate
-            ? and(eq(trickSubmissions.submittedByUserId, userId), lt(trickSubmissions.createdAt, cursorDate))
-            : eq(trickSubmissions.submittedByUserId, userId),
-        )
-        .orderBy(desc(trickSubmissions.createdAt))
-        .limit(limit + 1),
+      shouldFetch("trickSubmission")
+        ? db
+            .select({
+              id: trickSubmissions.id,
+              createdAt: trickSubmissions.createdAt,
+              name: trickSubmissions.name,
+            })
+            .from(trickSubmissions)
+            .where(
+              cursorDate
+                ? and(
+                    eq(trickSubmissions.submittedByUserId, userId),
+                    lt(trickSubmissions.createdAt, cursorDate),
+                  )
+                : eq(trickSubmissions.submittedByUserId, userId),
+            )
+            .orderBy(desc(trickSubmissions.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // Trick Suggestions with trick info
-      db
-        .select({
-          id: trickSuggestions.id,
-          createdAt: trickSuggestions.createdAt,
-          trickId: trickSuggestions.trickId,
-          trickSlug: tricks.slug,
-          trickName: tricks.name,
-        })
-        .from(trickSuggestions)
-        .innerJoin(tricks, eq(trickSuggestions.trickId, tricks.id))
-        .where(
-          cursorDate
-            ? and(eq(trickSuggestions.submittedByUserId, userId), lt(trickSuggestions.createdAt, cursorDate))
-            : eq(trickSuggestions.submittedByUserId, userId),
-        )
-        .orderBy(desc(trickSuggestions.createdAt))
-        .limit(limit + 1),
+      shouldFetch("trickSuggestion")
+        ? db
+            .select({
+              id: trickSuggestions.id,
+              createdAt: trickSuggestions.createdAt,
+              trickId: trickSuggestions.trickId,
+              trickSlug: tricks.slug,
+              trickName: tricks.name,
+            })
+            .from(trickSuggestions)
+            .innerJoin(tricks, eq(trickSuggestions.trickId, tricks.id))
+            .where(
+              cursorDate
+                ? and(
+                    eq(trickSuggestions.submittedByUserId, userId),
+                    lt(trickSuggestions.createdAt, cursorDate),
+                  )
+                : eq(trickSuggestions.submittedByUserId, userId),
+            )
+            .orderBy(desc(trickSuggestions.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // Trick Videos with trick info
-      db
-        .select({
-          id: trickVideos.id,
-          createdAt: trickVideos.createdAt,
-          trickId: trickVideos.trickId,
-          trickSlug: tricks.slug,
-          trickName: tricks.name,
-        })
-        .from(trickVideos)
-        .innerJoin(tricks, eq(trickVideos.trickId, tricks.id))
-        .where(
-          cursorDate
-            ? and(eq(trickVideos.submittedByUserId, userId), lt(trickVideos.createdAt, cursorDate))
-            : eq(trickVideos.submittedByUserId, userId),
-        )
-        .orderBy(desc(trickVideos.createdAt))
-        .limit(limit + 1),
+      shouldFetch("trickVideo")
+        ? db
+            .select({
+              id: trickVideos.id,
+              createdAt: trickVideos.createdAt,
+              trickId: trickVideos.trickId,
+              trickSlug: tricks.slug,
+              trickName: tricks.name,
+            })
+            .from(trickVideos)
+            .innerJoin(tricks, eq(trickVideos.trickId, tricks.id))
+            .where(
+              cursorDate
+                ? and(
+                    eq(trickVideos.submittedByUserId, userId),
+                    lt(trickVideos.createdAt, cursorDate),
+                  )
+                : eq(trickVideos.submittedByUserId, userId),
+            )
+            .orderBy(desc(trickVideos.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // UTV Video Suggestions
-      db
-        .select({
-          id: utvVideoSuggestions.id,
-          createdAt: utvVideoSuggestions.createdAt,
-          videoId: utvVideoSuggestions.utvVideoId,
-          videoTitle: utvVideos.title,
-        })
-        .from(utvVideoSuggestions)
-        .innerJoin(utvVideos, eq(utvVideoSuggestions.utvVideoId, utvVideos.id))
-        .where(
-          cursorDate
-            ? and(eq(utvVideoSuggestions.submittedByUserId, userId), lt(utvVideoSuggestions.createdAt, cursorDate))
-            : eq(utvVideoSuggestions.submittedByUserId, userId),
-        )
-        .orderBy(desc(utvVideoSuggestions.createdAt))
-        .limit(limit + 1),
+      shouldFetch("utvVideoSuggestion")
+        ? db
+            .select({
+              id: utvVideoSuggestions.id,
+              createdAt: utvVideoSuggestions.createdAt,
+              videoId: utvVideoSuggestions.utvVideoId,
+              videoTitle: utvVideos.title,
+            })
+            .from(utvVideoSuggestions)
+            .innerJoin(utvVideos, eq(utvVideoSuggestions.utvVideoId, utvVideos.id))
+            .where(
+              cursorDate
+                ? and(
+                    eq(utvVideoSuggestions.submittedByUserId, userId),
+                    lt(utvVideoSuggestions.createdAt, cursorDate),
+                  )
+                : eq(utvVideoSuggestions.submittedByUserId, userId),
+            )
+            .orderBy(desc(utvVideoSuggestions.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
 
       // SIU Stacks
-      db
-        .select({
-          id: siuStacks.id,
-          createdAt: siuStacks.createdAt,
-          chainId: siuStacks.chainId,
-          name: siuStacks.name,
-        })
-        .from(siuStacks)
-        .where(
-          cursorDate
-            ? and(eq(siuStacks.userId, userId), lt(siuStacks.createdAt, cursorDate))
-            : eq(siuStacks.userId, userId),
-        )
-        .orderBy(desc(siuStacks.createdAt))
-        .limit(limit + 1),
+      shouldFetch("siuStack")
+        ? db
+            .select({
+              id: siuStacks.id,
+              createdAt: siuStacks.createdAt,
+              chainId: siuStacks.chainId,
+              name: siuStacks.name,
+            })
+            .from(siuStacks)
+            .where(
+              cursorDate
+                ? and(
+                    eq(siuStacks.userId, userId),
+                    lt(siuStacks.createdAt, cursorDate),
+                  )
+                : eq(siuStacks.userId, userId),
+            )
+            .orderBy(desc(siuStacks.createdAt))
+            .limit(limit + 1)
+        : Promise.resolve([]),
     ]);
 
     // Helper to get timestamp from Date

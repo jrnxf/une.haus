@@ -6,6 +6,7 @@ import superjson from "superjson";
 
 import { CatchBoundary } from "./components/catch-boundary";
 import { NotFound } from "./components/not-found";
+import { stringifySearch } from "./lib/url";
 import { routeTree } from "./routeTree.gen";
 
 export function getRouter() {
@@ -37,6 +38,9 @@ export function getRouter() {
     defaultNotFoundComponent: () => <NotFound />,
 
     defaultStructuralSharing: true,
+
+    // Keep commas and tildes readable in URLs (RFC 3986 compliant)
+    stringifySearch,
   });
 
   setupRouterSsrQueryIntegration({ router, queryClient });

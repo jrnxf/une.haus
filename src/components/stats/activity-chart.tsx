@@ -39,7 +39,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
   });
 
   return (
-    <Card className="flex h-full flex-col border-dashed py-4">
+    <Card className="flex h-full flex-col py-4">
       <CardHeader className="pb-2">
         <Tooltip>
           <TooltipTrigger asChild>

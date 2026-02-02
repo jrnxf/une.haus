@@ -111,7 +111,7 @@ function RouteComponent() {
 
         {/* Notification list */}
         {groupedNotifications && groupedNotifications.length > 0 ? (
-          <div className="divide-y overflow-clip rounded-lg border">
+          <div className="divide-y overflow-clip rounded-lg border bg-card">
             {groupedNotifications.map((notification) => (
               <NotificationItem
                 key={`${notification.type}-${notification.entityType}-${notification.entityId}`}

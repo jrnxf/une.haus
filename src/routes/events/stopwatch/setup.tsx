@@ -4,6 +4,10 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 
+import {
+  SingleRiderSelector,
+  type RiderEntry,
+} from "~/components/input/single-rider-selector";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -16,7 +20,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
 const searchSchema = z.object({
-  name: z.string().optional(),
+  rider: z.string().optional(),
   time: z.coerce.number().min(1).max(3600).optional().default(60),
 });
 
@@ -33,18 +37,37 @@ const presets = [
   { label: "5m", value: 300 },
 ];
 
+function parseRiderParam(param: string | undefined): RiderEntry | null {
+  if (!param) return null;
+  if (param.startsWith("~")) {
+    return { userId: null, name: param.slice(1) };
+  }
+  const userId = parseInt(param, 10);
+  if (isNaN(userId)) return null;
+  return { userId, name: null };
+}
+
+function encodeRiderParam(rider: RiderEntry | null): string | undefined {
+  if (!rider) return undefined;
+  if (rider.userId !== null) return String(rider.userId);
+  if (rider.name) return `~${rider.name}`;
+  return undefined;
+}
+
 function RouteComponent() {
   const search = Route.useSearch();
   const navigate = useNavigate();
 
-  const [name, setName] = useState(search.name ?? "");
+  const [rider, setRider] = useState<RiderEntry | null>(() =>
+    parseRiderParam(search.rider),
+  );
   const [time, setTime] = useState(search.time);
 
   const handleStart = () => {
     navigate({
       to: "/events/stopwatch",
       search: {
-        name: name || undefined,
+        rider: encodeRiderParam(rider),
         time,
       },
     });
@@ -63,7 +86,7 @@ function RouteComponent() {
           >
             <Link to="/events">
               <ArrowLeftIcon className="size-4" />
-              Events
+              events
             </Link>
           </Button>
         </div>
@@ -74,23 +97,22 @@ function RouteComponent() {
         <div className="mx-auto w-full max-w-lg p-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle>Stopwatch</CardTitle>
+              <CardTitle>stopwatch</CardTitle>
               <CardDescription>
-                Configure the timer settings before starting
+                configure the timer settings before starting
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Rider name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                <Label>Rider</Label>
+                <SingleRiderSelector
+                  value={rider}
+                  onChange={setRider}
+                  placeholder="Select rider"
                 />
                 <p className="text-muted-foreground text-xs">
-                  Displayed in the top left corner
+                  displayed in the top left corner
                 </p>
               </div>
 

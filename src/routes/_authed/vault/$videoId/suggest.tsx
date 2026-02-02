@@ -44,13 +44,19 @@ export const Route = createFileRoute("/_authed/vault/$videoId/suggest")({
   component: RouteComponent,
 });
 
-type RiderEntry = { userId: number | null; name: string | null };
+type RiderEntry = { orderId: string; userId: number | null; name: string | null };
+
+// Generate a unique order ID
+function generateOrderId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
 
 const suggestionFormSchema = z.object({
   title: z.string().min(1),
   disciplines: z.array(z.enum(USER_DISCIPLINES)).nullable(),
   riders: z.array(
     z.object({
+      orderId: z.string(),
       userId: z.number().nullable(),
       name: z.string().nullable(),
     }),
@@ -89,6 +95,7 @@ function RouteComponent() {
   // Transform riders from video for the form
   // Include user name if available, so it shows in diffs
   const currentRiders: RiderEntry[] = video.riders.map((r) => ({
+    orderId: generateOrderId(),
     userId: r.userId,
     name: r.user?.name ?? r.name,
   }));
