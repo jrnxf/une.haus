@@ -33,9 +33,8 @@ import { posts } from "~/lib/posts";
 export const Route = createFileRoute("/posts/")({
   validateSearch: posts.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureInfiniteQueryData(
       posts.list.infiniteQueryOptions(deps),
     );
   },

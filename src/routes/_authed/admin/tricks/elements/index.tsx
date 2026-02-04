@@ -125,7 +125,7 @@ function RouteComponent() {
               <TableCell>{element.sortOrder}</TableCell>
               <TableCell>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" asChild>
+                  <Button variant="ghost" size="icon" asChild aria-label="Edit">
                     <Link
                       to="/admin/tricks/elements/$elementId/edit"
                       params={{ elementId: element.id.toString() }}
@@ -136,6 +136,7 @@ function RouteComponent() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Delete"
                     onClick={() => setDeletingElement(element)}
                   >
                     <Trash2 className="size-4" />

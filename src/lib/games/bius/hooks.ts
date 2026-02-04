@@ -4,6 +4,8 @@ import { toast } from "sonner";
 
 import { games } from "~/lib/games";
 
+const activeChainKey = games.bius.chain.active.queryOptions().queryKey;
+
 export function useStartChain() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -12,7 +14,7 @@ export function useStartChain() {
     mutationFn: games.bius.chain.start.fn,
     onSuccess: (data) => {
       toast.success("Chain started!");
-      qc.invalidateQueries({ queryKey: ["games.bius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
       navigate({
         to: "/games/bius/sets/$setId",
         params: { setId: data.set.id },
@@ -32,7 +34,7 @@ export function useBackUpSet() {
     mutationFn: games.bius.sets.backUp.fn,
     onSuccess: (data) => {
       toast.success("Set submitted!");
-      qc.invalidateQueries({ queryKey: ["games.bius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
       navigate({
         to: "/games/bius/sets/$setId",
         params: { setId: data.id },
@@ -51,7 +53,7 @@ export function useFlagSet() {
     mutationFn: games.bius.sets.flag.fn,
     onSuccess: () => {
       toast.success("Set flagged for review");
-      qc.invalidateQueries({ queryKey: ["games.bius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to flag set");
@@ -67,7 +69,7 @@ export function useDeleteSet() {
     mutationFn: games.bius.sets.delete.fn,
     onSuccess: () => {
       toast.success("Set deleted");
-      qc.invalidateQueries({ queryKey: ["games.bius.chain.active"] });
+      qc.removeQueries({ queryKey: activeChainKey });
       navigate({ to: "/games/bius" });
     },
     onError: (error) => {
@@ -83,7 +85,7 @@ export function useResolveFlag() {
     mutationFn: games.bius.admin.resolveFlag.fn,
     onSuccess: () => {
       toast.success("Flag resolved");
-      qc.invalidateQueries({ queryKey: ["games.bius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to resolve flag");

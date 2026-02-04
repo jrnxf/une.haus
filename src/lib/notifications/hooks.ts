@@ -6,10 +6,12 @@ import {
 
 import { notifications } from "~/lib/notifications";
 
+const unreadCountKey = notifications.unreadCount.queryOptions().queryKey;
+
 function invalidateAllNotifications(qc: QueryClient) {
   qc.invalidateQueries({ queryKey: ["notifications.list"] });
   qc.invalidateQueries({ queryKey: ["notifications.grouped"] });
-  qc.invalidateQueries({ queryKey: ["notifications.unreadCount"] });
+  qc.invalidateQueries({ queryKey: unreadCountKey });
 }
 
 export function useMarkNotificationRead() {
@@ -37,14 +39,14 @@ export function useMarkAllNotificationsRead() {
     mutationFn: notifications.markAllRead.fn,
     onMutate: async () => {
       // Optimistically set unread count to 0
-      await qc.cancelQueries({ queryKey: ["notifications.unreadCount"] });
-      const prev = qc.getQueryData<number>(["notifications.unreadCount"]);
-      qc.setQueryData(["notifications.unreadCount"], 0);
+      await qc.cancelQueries({ queryKey: unreadCountKey });
+      const prev = qc.getQueryData<number>(unreadCountKey);
+      qc.setQueryData(unreadCountKey, 0);
       return { prev };
     },
     onError: (_err, _vars, context) => {
       if (context?.prev !== undefined) {
-        qc.setQueryData(["notifications.unreadCount"], context.prev);
+        qc.setQueryData(unreadCountKey, context.prev);
       }
     },
     onSettled: () => invalidateAllNotifications(qc),

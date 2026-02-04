@@ -4,6 +4,8 @@ import { toast } from "sonner";
 
 import { games } from "~/lib/games";
 
+const activeChainKey = games.sius.chain.active.queryOptions().queryKey;
+
 export function useStartChain() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -12,7 +14,7 @@ export function useStartChain() {
     mutationFn: games.sius.chain.start.fn,
     onSuccess: (data) => {
       toast.success("Chain started!");
-      qc.invalidateQueries({ queryKey: ["games.sius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
       navigate({
         to: "/games/sius/stacks/$stackId",
         params: { stackId: data.stack.id },
@@ -32,7 +34,7 @@ export function useStackUp() {
     mutationFn: games.sius.stacks.stackUp.fn,
     onSuccess: (data) => {
       toast.success("Stack submitted!");
-      qc.invalidateQueries({ queryKey: ["games.sius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
       navigate({
         to: "/games/sius/stacks/$stackId",
         params: { stackId: data.id },
@@ -55,7 +57,7 @@ export function useVoteToArchive() {
       } else {
         toast.success(`Voted to archive (${data.voteCount}/5)`);
       }
-      qc.invalidateQueries({ queryKey: ["games.sius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to vote");
@@ -70,7 +72,7 @@ export function useRemoveArchiveVote() {
     mutationFn: games.sius.chain.removeArchiveVote.fn,
     onSuccess: (data) => {
       toast.success(`Vote removed (${data.voteCount}/5)`);
-      qc.invalidateQueries({ queryKey: ["games.sius.chain.active"] });
+      qc.invalidateQueries({ queryKey: activeChainKey });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to remove vote");
@@ -86,7 +88,7 @@ export function useArchiveChain() {
     mutationFn: games.sius.admin.archiveChain.fn,
     onSuccess: () => {
       toast.success("Chain archived");
-      qc.invalidateQueries({ queryKey: ["games.sius.chain.active"] });
+      qc.removeQueries({ queryKey: activeChainKey });
       navigate({ to: "/games/sius" });
     },
     onError: (error) => {
@@ -103,7 +105,7 @@ export function useDeleteStack() {
     mutationFn: games.sius.stacks.delete.fn,
     onSuccess: () => {
       toast.success("Stack deleted");
-      qc.invalidateQueries({ queryKey: ["games.sius.chain.active"] });
+      qc.removeQueries({ queryKey: activeChainKey });
       navigate({ to: "/games/sius" });
     },
     onError: (error) => {

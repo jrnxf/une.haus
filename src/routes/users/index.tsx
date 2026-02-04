@@ -26,9 +26,8 @@ import { cn, getCloudflareImageUrl } from "~/lib/utils";
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureInfiniteQueryData(
       users.list.infiniteQueryOptions(deps),
     );
   },

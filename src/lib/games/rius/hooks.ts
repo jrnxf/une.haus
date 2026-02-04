@@ -44,9 +44,9 @@ export function useAdminRotateRius() {
     mutationFn: games.rius.admin.rotate.fn,
     onSuccess: () => {
       toast.success("Rius rotated");
-      qc.invalidateQueries({ queryKey: ["games.rius.active.list"] });
-      qc.invalidateQueries({ queryKey: ["games.rius.upcoming.roster"] });
-      qc.invalidateQueries({ queryKey: ["games.rius.archived.list"] });
+      qc.invalidateQueries({ queryKey: games.rius.active.list.queryOptions().queryKey });
+      qc.invalidateQueries({ queryKey: games.rius.upcoming.roster.queryOptions().queryKey });
+      qc.invalidateQueries({ queryKey: games.rius.archived.list.queryOptions().queryKey });
     },
   });
 }
@@ -125,8 +125,8 @@ export function useDeleteSubmission({ setId }: { setId: number }) {
     mutationFn: games.rius.submissions.delete.fn,
     onSuccess: () => {
       toast.success("Submission deleted");
-      qc.invalidateQueries({ queryKey: ["games.rius.active.list"] });
-      qc.invalidateQueries({ queryKey: ["games.rius.sets.get", { setId }] });
+      qc.invalidateQueries({ queryKey: games.rius.active.list.queryOptions().queryKey });
+      qc.removeQueries({ queryKey: games.rius.sets.get.queryOptions({ setId }).queryKey });
       navigate({ to: "/games/rius/sets/$setId", params: { setId } });
     },
     onError: (error) => {

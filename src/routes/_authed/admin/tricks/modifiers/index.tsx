@@ -167,6 +167,7 @@ function RouteComponent() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Edit"
                     onClick={() => setEditingModifier(modifier)}
                   >
                     <Pencil className="size-4" />
@@ -174,6 +175,7 @@ function RouteComponent() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label="Delete"
                     onClick={() => setDeletingModifier(modifier)}
                   >
                     <Trash2 className="size-4" />

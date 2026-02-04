@@ -56,12 +56,13 @@ import {
 export const Route = createFileRoute("/vault/")({
   validateSearch: utv.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    // Prefetch (non-blocking) - component handles suspense via useTransition
-    context.queryClient.prefetchInfiniteQuery(
-      utv.list.infiniteQueryOptions(deps),
-    );
-    context.queryClient.prefetchQuery(utv.claps.get.queryOptions());
+  loader: async ({ context, deps }) => {
+    await Promise.all([
+      context.queryClient.ensureInfiniteQueryData(
+        utv.list.infiniteQueryOptions(deps),
+      ),
+      context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
+    ]);
   },
   component: RouteComponent,
 });

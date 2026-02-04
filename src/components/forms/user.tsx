@@ -22,6 +22,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { USER_DISCIPLINES } from "~/db/schema";
+import { session } from "~/lib/session";
 import { users } from "~/lib/users";
 
 export function UserForm({
@@ -36,12 +37,12 @@ export function UserForm({
     mutationFn: users.update.fn,
     onSuccess: async () => {
       if (user?.id) {
-        await qc.invalidateQueries({
+        qc.removeQueries({
           queryKey: users.get.queryOptions({ userId: user.id }).queryKey,
         });
       }
       // Reset session so sidebar user info updates
-      await qc.resetQueries({ queryKey: ["session.get"] });
+      await qc.resetQueries({ queryKey: session.get.queryOptions().queryKey });
       toast.success("Profile updated");
 
       navigate({ to: "/auth/me" });

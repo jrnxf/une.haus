@@ -130,7 +130,7 @@ function RouteComponent() {
                 {isAdmin && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="icon">
+                      <Button variant="secondary" size="icon" aria-label="Admin menu">
                         <ShieldIcon className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
