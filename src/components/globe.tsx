@@ -127,14 +127,16 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
   //   };
   // }, []);
 
-  // Update location ref synchronously during render (no useEffect needed for refs)
-  if (
-    props.location &&
-    (nextLocation.current.lat !== props.location.lat ||
-      nextLocation.current.lng !== props.location.lng)
-  ) {
-    nextLocation.current = props.location;
-  }
+  // Update location ref when props change
+  useEffect(() => {
+    if (
+      props.location &&
+      (nextLocation.current.lat !== props.location.lat ||
+        nextLocation.current.lng !== props.location.lng)
+    ) {
+      nextLocation.current = props.location;
+    }
+  }, [props.location]);
 
   // Skip animation on back/forward navigation
   useEffect(() => {

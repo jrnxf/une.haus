@@ -239,7 +239,7 @@ function applyWinners(matches: Match[], winners: Map<number, 1 | 2>): Match[] {
 
   // Build a lookup from match id to sorted index
   const idToIndex = new Map<string, number>();
-  sortedMatches.forEach((m, i) => idToIndex.set(m.id, i));
+  for (const [i, m] of sortedMatches.entries()) idToIndex.set(m.id, i);
 
   // Apply winners in round order (so propagation works correctly)
   const totalRounds = Math.max(...updated.map((m) => m.round));
@@ -467,20 +467,20 @@ function buildBracketGraph(
       height: NODE_HEIGHT,
       // SSR: explicit handle positions for edge rendering
       handles: [
-        ...(!isFirstRound ? [{
+        ...(isFirstRound ? [] : [{
           type: "target" as const,
           position: Position.Left,
           x: 0,
           y: NODE_HEIGHT / 2,
           id: "target",
-        }] : []),
-        ...(!isLastRound ? [{
+        }]),
+        ...(isLastRound ? [] : [{
           type: "source" as const,
           position: Position.Right,
           x: NODE_WIDTH,
           y: NODE_HEIGHT / 2,
           id: "source",
-        }] : []),
+        }]),
       ],
       data: {
         match,
@@ -684,8 +684,9 @@ function RouteComponent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiRef = useRef<confetti.CreateTypes | null>(null);
   const [activeTimer, setActiveTimer] = useState<{ match: Match; duration: number } | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
-  const previousChampionRef = useRef<string | null | undefined>(undefined); // undefined = not initialized
+  const [celebrationDismissed, setCelebrationDismissed] = useState(false);
+  const [prevChampion, setPrevChampion] = useState<string | null | undefined>(undefined);
+  const prevChampionForConfettiRef = useRef<string | null | undefined>(undefined);
 
   // Track actual fullscreen state (may differ from URL during transitions)
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -799,19 +800,27 @@ function RouteComponent() {
   const finalMatch = matches.find((m) => m.round === rounds);
   const champion = finalMatch ? getWinnerName(finalMatch) : null;
 
-  // Trigger celebration when a new champion is crowned
+  // Reset dismissed state when a new champion is crowned (getDerivedStateFromProps pattern)
+  if (champion !== prevChampion) {
+    if (prevChampion !== undefined && champion && champion !== "BYE") {
+      setCelebrationDismissed(false);
+    }
+    setPrevChampion(champion);
+  }
+  const showCelebration = !!champion && champion !== "BYE" && !celebrationDismissed;
+
+  // Fire confetti when a new champion is crowned
   useEffect(() => {
     const fireConfetti = confettiRef.current;
 
     // Initialize ref on first run (don't trigger confetti for existing champion)
-    if (previousChampionRef.current === undefined) {
-      previousChampionRef.current = champion;
+    if (prevChampionForConfettiRef.current === undefined) {
+      prevChampionForConfettiRef.current = champion;
       return;
     }
 
-    if (champion && champion !== "BYE" && champion !== previousChampionRef.current && fireConfetti) {
-      previousChampionRef.current = champion;
-      setShowCelebration(true);
+    if (champion && champion !== "BYE" && champion !== prevChampionForConfettiRef.current && fireConfetti) {
+      prevChampionForConfettiRef.current = champion;
 
       // Fire confetti bursts
       const duration = 1875; // 1.5x longer
@@ -881,8 +890,7 @@ function RouteComponent() {
         colors,
       });
     } else if (!champion) {
-      previousChampionRef.current = null;
-      setShowCelebration(false);
+      prevChampionForConfettiRef.current = null;
     }
   }, [champion]);
 
@@ -968,7 +976,7 @@ function RouteComponent() {
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={() => setShowCelebration(false)}>
+              <Button variant="secondary" size="sm" onClick={() => setCelebrationDismissed(true)}>
                 Bracket
               </Button>
               <Button variant="secondary" size="icon-xs" onClick={reset}>
@@ -1016,7 +1024,7 @@ function RouteComponent() {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => setShowCelebration(true)}
+                    onClick={() => setCelebrationDismissed(false)}
                     className="gap-2"
                   >
                     <TrophyIcon className="size-4 text-yellow-500" />

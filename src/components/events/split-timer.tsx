@@ -158,20 +158,17 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
     }
   }, [activeTimer, timer1.state, timer2.state, clearTimer, startTimerLoop, reset]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+  // Global keyboard shortcut for reset
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "KeyR") {
         e.preventDefault();
         reset();
       }
-    },
-    [reset],
-  );
-
-  // Focus container on mount for keyboard events
-  useEffect(() => {
-    containerRef.current?.focus();
-  }, []);
+    };
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
+  }, [reset]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -194,7 +191,6 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
     <div
       ref={containerRef}
       className="bg-background flex h-full flex-col"
-      onKeyDown={handleKeyDown}
     >
       {/* Header */}
       {headerContent && (

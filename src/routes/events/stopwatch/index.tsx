@@ -32,8 +32,8 @@ function parseRiderParam(param: string | undefined): RiderData | null {
   if (param.startsWith("~")) {
     return { userId: null, name: param.slice(1) };
   }
-  const userId = parseInt(param, 10);
-  if (isNaN(userId)) return null;
+  const userId = Number.parseInt(param, 10);
+  if (Number.isNaN(userId)) return null;
   return { userId, name: null };
 }
 

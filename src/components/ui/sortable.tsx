@@ -4,12 +4,12 @@ import * as React from 'react';
 import { cn } from '~/lib/utils';
 import {
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   DragOverlay,
-  DragStartEvent,
+  type DragStartEvent,
   KeyboardSensor,
   PointerSensor,
-  UniqueIdentifier,
+  type UniqueIdentifier,
   useSensor,
   useSensors,
   type DraggableSyntheticListeners,
@@ -108,12 +108,12 @@ function Sortable<T>({
   const getStrategy = () => {
     switch (strategy) {
       case 'horizontal':
+      case 'grid': {
         return rectSortingStrategy;
-      case 'grid':
-        return rectSortingStrategy;
-      case 'vertical':
-      default:
+      }
+      default: {
         return verticalListSortingStrategy;
+      }
     }
   };
 
@@ -131,10 +131,10 @@ function Sortable<T>({
         {activeId ? (
           <div className="z-50">
             {React.Children.map(children, (child) => {
-              if (React.isValidElement(child) && (child.props as any).value === activeId) {
-                return React.cloneElement(child as React.ReactElement<any>, {
-                  ...(child.props as any),
-                  className: cn((child.props as any).className, 'z-50 shadow-lg'),
+              if (React.isValidElement<{ value: UniqueIdentifier; className?: string }>(child) && child.props.value === activeId) {
+                return React.cloneElement(child, {
+                  ...child.props,
+                  className: cn(child.props.className, 'z-50 shadow-lg'),
                 });
               }
               return null;

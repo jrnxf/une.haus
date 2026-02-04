@@ -4,24 +4,35 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useImperativeHandle,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 
+import type * as MatterJSNamespace from "matter-js";
+import type {
+  Body,
+  Engine as MatterEngineType,
+  IBodyDefinition,
+  MouseConstraint,
+  Render as MatterRenderType,
+  Runner as MatterRunnerType,
+} from "matter-js";
+
 import { cn } from "~/lib/utils";
 
 import { calculatePosition, parsePathToVertices } from "./utils";
 
 // Lazy load Matter.js types
-type MatterModule = typeof import("matter-js");
-type MatterBody = import("matter-js").Body;
-type MatterEngine = import("matter-js").Engine;
-type MatterRender = import("matter-js").Render;
-type MatterRunner = import("matter-js").Runner;
-type MatterMouseConstraint = import("matter-js").MouseConstraint;
-type MatterIBodyDefinition = import("matter-js").IBodyDefinition;
+type MatterModule = typeof MatterJSNamespace;
+type MatterBody = Body;
+type MatterEngine = MatterEngineType;
+type MatterRender = MatterRenderType;
+type MatterRunner = MatterRunnerType;
+type MatterMouseConstraint = MouseConstraint;
+type MatterIBodyDefinition = IBodyDefinition;
 
 type GravityProps = {
   children: ReactNode;
@@ -87,12 +98,12 @@ export function MatterBody({
   angle = 0,
 }: MatterBodyProps) {
   const elementRef = useRef<HTMLDivElement>(null);
-  const idRef = useRef(Math.random().toString(36).substring(7));
+  const id = useId();
   const context = useContext(GravityContext);
 
   useEffect(() => {
     if (!elementRef.current || !context) return;
-    context.registerElement(idRef.current, elementRef.current, {
+    context.registerElement(id, elementRef.current, {
       children,
       matterBodyOptions,
       bodyType,
@@ -103,8 +114,9 @@ export function MatterBody({
       angle,
     });
 
-    return () => context.unregisterElement(idRef.current);
+    return () => { context.unregisterElement(id); };
   }, [
+    id,
     context,
     children,
     matterBodyOptions,
@@ -153,7 +165,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
     const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
     const isRunning = useRef(false);
     const pendingRegistrations = useRef<
-      Array<{ id: string; element: HTMLElement; props: MatterBodyProps }>
+      { id: string; element: HTMLElement; props: MatterBodyProps }[]
     >([]);
 
     // Lazy load Matter.js
@@ -212,15 +224,15 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
           });
         } else if (props.bodyType === "svg") {
           const paths = element.querySelectorAll("path");
-          const vertexSets: Array<{ x: number; y: number }[]> = [];
+          const vertexSets: { x: number; y: number }[][] = [];
 
-          paths.forEach((path) => {
+          for (const path of paths) {
             const d = path.getAttribute("d");
             if (d) {
               const vertices = parsePathToVertices(d, props.sampleLength);
               vertexSets.push(vertices);
             }
-          });
+          }
 
           if (vertexSets.length > 0) {
             body = Matter.Bodies.fromVertices(
@@ -275,11 +287,11 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
     }, []);
 
     const updateElements = useCallback(() => {
-      bodiesMap.current.forEach(({ element, body }) => {
+      for (const { element, body } of bodiesMap.current) {
         const { x, y } = body.position;
         const rotation = body.angle * (180 / Math.PI);
         element.style.transform = `translate(${x - element.offsetWidth / 2}px, ${y - element.offsetHeight / 2}px) rotate(${rotation}deg)`;
-      });
+      }
       frameId.current = requestAnimationFrame(updateElements);
     }, []);
 
@@ -403,6 +415,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
       autoStart,
       updateElements,
       registerElement,
+      startEngine,
     ]);
 
     const clearRenderer = useCallback(() => {
@@ -468,8 +481,8 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
 
     const reset = useCallback(() => {
       stopEngine();
-      bodiesMap.current.forEach(({ element, body, props }) => {
-        if (!matterRef.current) return;
+      for (const { element, body, props } of bodiesMap.current) {
+        if (!matterRef.current) continue;
         const Matter = matterRef.current;
 
         Matter.Body.setAngle(body, (props.angle || 0) * (Math.PI / 180));
@@ -487,7 +500,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
           element.offsetHeight,
         );
         Matter.Body.setPosition(body, { x, y });
-      });
+      }
       updateElements();
     }, [canvasSize.width, canvasSize.height, stopEngine, updateElements]);
 
