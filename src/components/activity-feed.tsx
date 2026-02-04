@@ -52,7 +52,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     "all",
   );
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery(
       users.activity.infiniteQueryOptions({
         userId,
@@ -64,10 +64,6 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     () => data?.pages.flatMap((p) => p.items) ?? [],
     [data],
   );
-
-  if (isLoading) {
-    return <ActivityFeedSkeleton />;
-  }
 
   const filterDropdown = (
     <Select
@@ -170,29 +166,6 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
   );
 }
 
-function ActivityFeedSkeleton() {
-  return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-sm font-medium">Activity</h2>
-      <div className="relative">
-        <div className="flex flex-col">
-          {Array.from({ length: 12 }).map((_, i, arr) => (
-            <div key={i} className="relative flex items-center py-2 pl-7">
-              {i < arr.length - 1 && (
-                <div className="bg-border absolute top-1/2 -bottom-6 left-[9px] w-px" />
-              )}
-              <div className="bg-muted absolute top-1/2 left-0 flex size-5 -translate-y-1/2 animate-pulse items-center justify-center rounded-full" />
-              <div className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1">
-                <div className="bg-muted h-5 min-w-0 flex-1 animate-pulse rounded" />
-                <div className="bg-muted h-5 w-20 shrink-0 animate-pulse rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function ActivityItemRow({
   item,

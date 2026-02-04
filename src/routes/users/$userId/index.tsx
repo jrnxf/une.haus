@@ -11,9 +11,14 @@ export const Route = createFileRoute("/users/$userId/")({
   params: users.get.schema,
   loader: async ({ context, params: { userId } }) => {
     try {
-      const y = await context.queryClient.ensureQueryData(
-        users.get.queryOptions({ userId }),
-      );
+      const [y] = await Promise.all([
+        context.queryClient.ensureQueryData(
+          users.get.queryOptions({ userId }),
+        ),
+        context.queryClient.ensureInfiniteQueryData(
+          users.activity.infiniteQueryOptions({ userId }),
+        ),
+      ]);
 
       return y;
     } catch (error) {
