@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ActivityIcon, Bell, ChevronsUpDown, LogOut, UserIcon } from "lucide-react";
+import { Bell, ChevronsUpDown, LogOut, UserIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
@@ -114,15 +114,6 @@ export function NavUser() {
                 <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
                   <UserIcon className="size-4" />
                   Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  to="/users/$userId/activity"
-                  params={{ userId: String(sessionUser.id) }}
-                >
-                  <ActivityIcon className="size-4" />
-                  Activity
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

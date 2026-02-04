@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   EditIcon,
@@ -9,7 +9,7 @@ import {
   SendIcon,
   VideoIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 
 import { TimeAgo } from "~/components/time-ago";
 import { Button } from "~/components/ui/button";
@@ -51,17 +51,18 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
   const [typeFilter, setTypeFilter] = useState<ActivityTypeFilter | "all">(
     "all",
   );
+  const deferredTypeFilter = useDeferredValue(typeFilter);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery(
+    useSuspenseInfiniteQuery(
       users.activity.infiniteQueryOptions({
         userId,
-        type: typeFilter === "all" ? undefined : typeFilter,
+        type: deferredTypeFilter === "all" ? undefined : deferredTypeFilter,
       }),
     );
 
   const items = useMemo(
-    () => data?.pages.flatMap((p) => p.items) ?? [],
+    () => data.pages.flatMap((p) => p.items),
     [data],
   );
 
@@ -88,16 +89,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-medium">Activity</h2>
-            <Link
-              to="/users/$userId/activity"
-              params={{ userId: String(userId) }}
-              className="text-muted-foreground hover:text-foreground text-xs"
-            >
-              View all
-            </Link>
-          </div>
+          <h2 className="text-sm font-medium">Activity</h2>
           {filterDropdown}
         </div>
         <Empty>
@@ -120,16 +112,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-sm font-medium">Activity</h2>
-          <Link
-            to="/users/$userId/activity"
-            params={{ userId: String(userId) }}
-            className="text-muted-foreground hover:text-foreground text-xs"
-          >
-            View all
-          </Link>
-        </div>
+        <h2 className="text-sm font-medium">Activity</h2>
         {filterDropdown}
       </div>
       <div className="relative">
