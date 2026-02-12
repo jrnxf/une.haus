@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
@@ -85,6 +86,11 @@ import { Route as AuthedAdminTricksElementsElementIdEditRouteImport } from './ro
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SandboxRoute = SandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -465,6 +471,7 @@ const AuthedAdminTricksElementsElementIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
+  '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
   '/games/bius': typeof GamesBiusRouteRouteWithChildren
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
@@ -475,15 +482,15 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
-  '/chat/': typeof ChatIndexRoute
-  '/events/': typeof EventsIndexRoute
-  '/games/': typeof GamesIndexRoute
-  '/map/': typeof MapIndexRoute
-  '/posts/': typeof PostsIndexRoute
-  '/stats/': typeof StatsIndexRoute
-  '/tricks/': typeof TricksIndexRoute
-  '/users/': typeof UsersIndexRoute
-  '/vault/': typeof VaultIndexRoute
+  '/chat': typeof ChatIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/games': typeof GamesIndexRoute
+  '/map': typeof MapIndexRoute
+  '/posts': typeof PostsIndexRoute
+  '/stats': typeof StatsIndexRoute
+  '/tricks': typeof TricksIndexRoute
+  '/users': typeof UsersIndexRoute
+  '/vault': typeof VaultIndexRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
@@ -499,14 +506,14 @@ export interface FileRoutesByFullPath {
   '/games/sius/start': typeof GamesSiusStartRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
-  '/notifications/': typeof AuthedNotificationsIndexRoute
-  '/events/bracket/': typeof EventsBracketIndexRoute
-  '/events/stopwatch/': typeof EventsStopwatchIndexRoute
+  '/notifications': typeof AuthedNotificationsIndexRoute
+  '/events/bracket': typeof EventsBracketIndexRoute
+  '/events/stopwatch': typeof EventsStopwatchIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
-  '/posts/$postId/': typeof PostsPostIdIndexRoute
-  '/users/$userId/': typeof UsersUserIdIndexRoute
-  '/vault/$videoId/': typeof VaultVideoIdIndexRoute
+  '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/users/$userId': typeof UsersUserIdIndexRoute
+  '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRouteWithChildren
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
@@ -514,30 +521,31 @@ export interface FileRoutesByFullPath {
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
-  '/auth/me/': typeof AuthedAuthMeIndexRoute
-  '/tricks/suggestions/': typeof AuthedTricksSuggestionsIndexRoute
-  '/games/rius/archived/': typeof GamesRiusArchivedIndexRoute
-  '/games/rius/sets/': typeof GamesRiusSetsIndexRoute
-  '/games/rius/upcoming/': typeof GamesRiusUpcomingIndexRoute
+  '/auth/me': typeof AuthedAuthMeIndexRoute
+  '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
+  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
+  '/games/rius/sets': typeof GamesRiusSetsIndexRoute
+  '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
   '/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
   '/admin/tricks/modifiers/create': typeof AuthedAdminTricksModifiersCreateRoute
   '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
-  '/admin/tricks/elements/': typeof AuthedAdminTricksElementsIndexRoute
+  '/admin/tricks/elements': typeof AuthedAdminTricksElementsIndexRoute
   '/admin/tricks/modifiers/': typeof AuthedAdminTricksModifiersIndexRoute
-  '/tricks/submissions/$submissionId/': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
-  '/tricks/suggestions/$suggestionId/': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
-  '/vault/suggestions/$suggestionId/': typeof AuthedVaultSuggestionsSuggestionIdIndexRoute
-  '/games/bius/sets/$setId/': typeof GamesBiusSetsSetIdIndexRoute
-  '/games/rius/sets/$setId/': typeof GamesRiusSetsSetIdIndexRoute
-  '/games/rius/submissions/$submissionId/': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
-  '/games/sius/stacks/$stackId/': typeof GamesSiusStacksStackIdIndexRoute
+  '/tricks/submissions/$submissionId': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
+  '/tricks/suggestions/$suggestionId': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
+  '/vault/suggestions/$suggestionId': typeof AuthedVaultSuggestionsSuggestionIdIndexRoute
+  '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
   '/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
+  '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/admin': typeof AuthedAdminRouteWithChildren
@@ -610,6 +618,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
   '/games/bius': typeof GamesBiusRouteRouteWithChildren
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
@@ -685,6 +694,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/privacy'
+    | '/sandbox'
     | '/shop'
     | '/games/bius'
     | '/games/rius'
@@ -695,15 +705,15 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/stats/contributors'
     | '/tricks/$trickId'
-    | '/chat/'
-    | '/events/'
-    | '/games/'
-    | '/map/'
-    | '/posts/'
-    | '/stats/'
-    | '/tricks/'
-    | '/users/'
-    | '/vault/'
+    | '/chat'
+    | '/events'
+    | '/games'
+    | '/map'
+    | '/posts'
+    | '/stats'
+    | '/tricks'
+    | '/users'
+    | '/vault'
     | '/notifications/settings'
     | '/posts/create'
     | '/tricks/create'
@@ -719,14 +729,14 @@ export interface FileRouteTypes {
     | '/games/sius/start'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
-    | '/notifications/'
-    | '/events/bracket/'
-    | '/events/stopwatch/'
+    | '/notifications'
+    | '/events/bracket'
+    | '/events/stopwatch'
     | '/games/bius/'
     | '/games/sius/'
-    | '/posts/$postId/'
-    | '/users/$userId/'
-    | '/vault/$videoId/'
+    | '/posts/$postId'
+    | '/users/$userId'
+    | '/vault/$videoId'
     | '/admin/tricks/modifiers'
     | '/auth/me/edit'
     | '/posts/$postId/edit'
@@ -734,30 +744,31 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
     | '/games/rius/archived/$riuId'
-    | '/auth/me/'
-    | '/tricks/suggestions/'
-    | '/games/rius/archived/'
-    | '/games/rius/sets/'
-    | '/games/rius/upcoming/'
+    | '/auth/me'
+    | '/tricks/suggestions'
+    | '/games/rius/archived'
+    | '/games/rius/sets'
+    | '/games/rius/upcoming'
     | '/admin/tricks/$trickId/edit'
     | '/admin/tricks/$trickId/videos'
     | '/admin/tricks/elements/create'
     | '/admin/tricks/modifiers/create'
     | '/games/rius/upcoming/join'
-    | '/admin/tricks/elements/'
+    | '/admin/tricks/elements'
     | '/admin/tricks/modifiers/'
-    | '/tricks/submissions/$submissionId/'
-    | '/tricks/suggestions/$suggestionId/'
-    | '/vault/suggestions/$suggestionId/'
-    | '/games/bius/sets/$setId/'
-    | '/games/rius/sets/$setId/'
-    | '/games/rius/submissions/$submissionId/'
-    | '/games/sius/stacks/$stackId/'
+    | '/tricks/submissions/$submissionId'
+    | '/tricks/suggestions/$suggestionId'
+    | '/vault/suggestions/$suggestionId'
+    | '/games/bius/sets/$setId'
+    | '/games/rius/sets/$setId'
+    | '/games/rius/submissions/$submissionId'
+    | '/games/sius/stacks/$stackId'
     | '/admin/tricks/elements/$elementId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/privacy'
+    | '/sandbox'
     | '/shop'
     | '/games/rius'
     | '/admin'
@@ -829,6 +840,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authed'
     | '/privacy'
+    | '/sandbox'
     | '/shop'
     | '/games/bius'
     | '/games/rius'
@@ -904,6 +916,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
+  SandboxRoute: typeof SandboxRoute
   ShopRoute: typeof ShopRoute
   GamesBiusRouteRoute: typeof GamesBiusRouteRouteWithChildren
   GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren
@@ -944,6 +957,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sandbox': {
+      id: '/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof SandboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -954,7 +974,7 @@ declare module '@tanstack/react-router' {
     '/_authed': {
       id: '/_authed'
       path: ''
-      fullPath: '/'
+      fullPath: ''
       preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -968,63 +988,63 @@ declare module '@tanstack/react-router' {
     '/vault/': {
       id: '/vault/'
       path: '/vault'
-      fullPath: '/vault/'
+      fullPath: '/vault'
       preLoaderRoute: typeof VaultIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/': {
       id: '/users/'
       path: '/users'
-      fullPath: '/users/'
+      fullPath: '/users'
       preLoaderRoute: typeof UsersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tricks/': {
       id: '/tricks/'
       path: '/tricks'
-      fullPath: '/tricks/'
+      fullPath: '/tricks'
       preLoaderRoute: typeof TricksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stats/': {
       id: '/stats/'
       path: '/stats'
-      fullPath: '/stats/'
+      fullPath: '/stats'
       preLoaderRoute: typeof StatsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/posts/': {
       id: '/posts/'
       path: '/posts'
-      fullPath: '/posts/'
+      fullPath: '/posts'
       preLoaderRoute: typeof PostsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/map/': {
       id: '/map/'
       path: '/map'
-      fullPath: '/map/'
+      fullPath: '/map'
       preLoaderRoute: typeof MapIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games/': {
       id: '/games/'
       path: '/games'
-      fullPath: '/games/'
+      fullPath: '/games'
       preLoaderRoute: typeof GamesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/': {
       id: '/events/'
       path: '/events'
-      fullPath: '/events/'
+      fullPath: '/events'
       preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
       id: '/chat/'
       path: '/chat'
-      fullPath: '/chat/'
+      fullPath: '/chat'
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -1094,21 +1114,21 @@ declare module '@tanstack/react-router' {
     '/vault/$videoId/': {
       id: '/vault/$videoId/'
       path: '/vault/$videoId'
-      fullPath: '/vault/$videoId/'
+      fullPath: '/vault/$videoId'
       preLoaderRoute: typeof VaultVideoIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/$userId/': {
       id: '/users/$userId/'
       path: '/users/$userId'
-      fullPath: '/users/$userId/'
+      fullPath: '/users/$userId'
       preLoaderRoute: typeof UsersUserIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/posts/$postId/': {
       id: '/posts/$postId/'
       path: '/posts/$postId'
-      fullPath: '/posts/$postId/'
+      fullPath: '/posts/$postId'
       preLoaderRoute: typeof PostsPostIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -1129,21 +1149,21 @@ declare module '@tanstack/react-router' {
     '/events/stopwatch/': {
       id: '/events/stopwatch/'
       path: '/events/stopwatch'
-      fullPath: '/events/stopwatch/'
+      fullPath: '/events/stopwatch'
       preLoaderRoute: typeof EventsStopwatchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/bracket/': {
       id: '/events/bracket/'
       path: '/events/bracket'
-      fullPath: '/events/bracket/'
+      fullPath: '/events/bracket'
       preLoaderRoute: typeof EventsBracketIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/notifications/': {
       id: '/_authed/notifications/'
       path: '/notifications'
-      fullPath: '/notifications/'
+      fullPath: '/notifications'
       preLoaderRoute: typeof AuthedNotificationsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
@@ -1255,35 +1275,35 @@ declare module '@tanstack/react-router' {
     '/games/rius/upcoming/': {
       id: '/games/rius/upcoming/'
       path: '/upcoming'
-      fullPath: '/games/rius/upcoming/'
+      fullPath: '/games/rius/upcoming'
       preLoaderRoute: typeof GamesRiusUpcomingIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
     '/games/rius/sets/': {
       id: '/games/rius/sets/'
       path: '/sets'
-      fullPath: '/games/rius/sets/'
+      fullPath: '/games/rius/sets'
       preLoaderRoute: typeof GamesRiusSetsIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
     '/games/rius/archived/': {
       id: '/games/rius/archived/'
       path: '/archived'
-      fullPath: '/games/rius/archived/'
+      fullPath: '/games/rius/archived'
       preLoaderRoute: typeof GamesRiusArchivedIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
     '/_authed/tricks/suggestions/': {
       id: '/_authed/tricks/suggestions/'
       path: '/tricks/suggestions'
-      fullPath: '/tricks/suggestions/'
+      fullPath: '/tricks/suggestions'
       preLoaderRoute: typeof AuthedTricksSuggestionsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/auth/me/': {
       id: '/_authed/auth/me/'
       path: '/auth/me'
-      fullPath: '/auth/me/'
+      fullPath: '/auth/me'
       preLoaderRoute: typeof AuthedAuthMeIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
@@ -1339,49 +1359,49 @@ declare module '@tanstack/react-router' {
     '/games/sius/stacks/$stackId/': {
       id: '/games/sius/stacks/$stackId/'
       path: '/stacks/$stackId'
-      fullPath: '/games/sius/stacks/$stackId/'
+      fullPath: '/games/sius/stacks/$stackId'
       preLoaderRoute: typeof GamesSiusStacksStackIdIndexRouteImport
       parentRoute: typeof GamesSiusRouteRoute
     }
     '/games/rius/submissions/$submissionId/': {
       id: '/games/rius/submissions/$submissionId/'
       path: '/submissions/$submissionId'
-      fullPath: '/games/rius/submissions/$submissionId/'
+      fullPath: '/games/rius/submissions/$submissionId'
       preLoaderRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
     '/games/rius/sets/$setId/': {
       id: '/games/rius/sets/$setId/'
       path: '/sets/$setId'
-      fullPath: '/games/rius/sets/$setId/'
+      fullPath: '/games/rius/sets/$setId'
       preLoaderRoute: typeof GamesRiusSetsSetIdIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
     '/games/bius/sets/$setId/': {
       id: '/games/bius/sets/$setId/'
       path: '/sets/$setId'
-      fullPath: '/games/bius/sets/$setId/'
+      fullPath: '/games/bius/sets/$setId'
       preLoaderRoute: typeof GamesBiusSetsSetIdIndexRouteImport
       parentRoute: typeof GamesBiusRouteRoute
     }
     '/_authed/vault/suggestions/$suggestionId/': {
       id: '/_authed/vault/suggestions/$suggestionId/'
       path: '/vault/suggestions/$suggestionId'
-      fullPath: '/vault/suggestions/$suggestionId/'
+      fullPath: '/vault/suggestions/$suggestionId'
       preLoaderRoute: typeof AuthedVaultSuggestionsSuggestionIdIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/tricks/suggestions/$suggestionId/': {
       id: '/_authed/tricks/suggestions/$suggestionId/'
       path: '/tricks/suggestions/$suggestionId'
-      fullPath: '/tricks/suggestions/$suggestionId/'
+      fullPath: '/tricks/suggestions/$suggestionId'
       preLoaderRoute: typeof AuthedTricksSuggestionsSuggestionIdIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/tricks/submissions/$submissionId/': {
       id: '/_authed/tricks/submissions/$submissionId/'
       path: '/tricks/submissions/$submissionId'
-      fullPath: '/tricks/submissions/$submissionId/'
+      fullPath: '/tricks/submissions/$submissionId'
       preLoaderRoute: typeof AuthedTricksSubmissionsSubmissionIdIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
@@ -1395,7 +1415,7 @@ declare module '@tanstack/react-router' {
     '/_authed/admin/tricks/elements/': {
       id: '/_authed/admin/tricks/elements/'
       path: '/tricks/elements'
-      fullPath: '/admin/tricks/elements/'
+      fullPath: '/admin/tricks/elements'
       preLoaderRoute: typeof AuthedAdminTricksElementsIndexRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
@@ -1595,6 +1615,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
+  SandboxRoute: SandboxRoute,
   ShopRoute: ShopRoute,
   GamesBiusRouteRoute: GamesBiusRouteRouteWithChildren,
   GamesRiusRouteRoute: GamesRiusRouteRouteWithChildren,
@@ -1628,3 +1649,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

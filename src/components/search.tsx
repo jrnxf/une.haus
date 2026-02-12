@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { usePeripherals } from "~/hooks/use-peripherals";
-import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks";
 import { SHORTCUTS } from "~/lib/shortcuts/constants";
 import { useTheme } from "~/lib/theme/context";
 import { useSidebar } from "~/components/ui/sidebar";
@@ -68,6 +68,7 @@ type CommandItemConfig = {
 export function Search() {
   const sessionUser = useSessionUser();
   const isAuthenticated = Boolean(sessionUser);
+  const isAdmin = useIsAdmin();
 
   const { setTheme } = useTheme();
   const navigate = useNavigate();
@@ -257,6 +258,19 @@ export function Search() {
         onAction: () => closeAndNavigate("/shop"),
       },
     },
+    ...(isAdmin
+      ? [
+          {
+            id: "sandbox",
+            label: "Sandbox",
+            value: "/sandbox",
+            primaryAction: {
+              label: "Open",
+              onAction: () => closeAndNavigate("/sandbox"),
+            },
+          },
+        ]
+      : []),
   ];
 
   // Map selected value to item - cmdk lowercases values for matching

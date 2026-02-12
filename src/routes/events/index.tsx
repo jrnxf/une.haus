@@ -1,55 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRightIcon, TimerIcon, TrophyIcon } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { TimerIcon, TrophyIcon } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { cn } from "~/lib/utils";
+import { LinkCard } from "~/components/link-card";
 
 export const Route = createFileRoute("/events/")({
   component: RouteComponent,
 });
-
-type FeatureCardProps = {
-  name: string;
-  description: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
-
-function FeatureCard({ name, description, href, icon: Icon }: FeatureCardProps) {
-  return (
-    <Link to={href} className="block h-full">
-      <Card
-        className={cn(
-          "group relative flex h-full flex-col overflow-hidden transition-all py-4 gap-2",
-          "cursor-pointer",
-          "focus-within:scale-[1.01] hover:scale-[1.01]",
-        )}
-      >
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <div className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
-              <Icon className="size-3.5" />
-            </div>
-            <CardTitle className="text-base">{name}</CardTitle>
-          </div>
-        </CardHeader>
-
-        <CardContent className="flex grow flex-col gap-2">
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            {description}
-          </p>
-
-          <div className="mt-auto flex items-center justify-end">
-            <span className="text-muted-foreground group-hover:text-foreground flex items-center gap-1 text-sm transition-colors">
-              Open
-              <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
 
 function RouteComponent() {
   return (
@@ -64,19 +20,27 @@ function RouteComponent() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <FeatureCard
-              name="stopwatch"
-              description="full screen countdown timer with configurable time limit. perfect for timed runs and competitions."
-              href="/events/stopwatch/setup"
-              icon={TimerIcon}
-            />
+            <LinkCard.Root href="/events/stopwatch/setup">
+              <LinkCard.Header icon={TimerIcon} title="stopwatch" />
+              <LinkCard.Content>
+                <LinkCard.Description>
+                  full screen countdown timer with configurable time limit.
+                  perfect for timed runs and competitions.
+                </LinkCard.Description>
+                <LinkCard.Cta label="Open" />
+              </LinkCard.Content>
+            </LinkCard.Root>
 
-            <FeatureCard
-              name="bracket"
-              description="tournament bracket for any number of participants. track matchups and advancement with built-in split timers."
-              href="/events/bracket/setup"
-              icon={TrophyIcon}
-            />
+            <LinkCard.Root href="/events/bracket/setup">
+              <LinkCard.Header icon={TrophyIcon} title="bracket" />
+              <LinkCard.Content>
+                <LinkCard.Description>
+                  tournament bracket for any number of participants. track
+                  matchups and advancement with built-in split timers.
+                </LinkCard.Description>
+                <LinkCard.Cta label="Open" />
+              </LinkCard.Content>
+            </LinkCard.Root>
           </div>
         </div>
       </div>

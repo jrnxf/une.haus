@@ -35,20 +35,25 @@ export const Route = createFileRoute("/api/unsubscribe")({
           }> = {};
 
           switch (type) {
-            case "digest":
+            case "digest": {
               updates.emailDigestEnabled = false;
               break;
-            case "game_start":
+            }
+            case "game_start": {
               updates.gameStartReminderEnabled = false;
               break;
-            case "pre_trick":
+            }
+            case "pre_trick": {
               updates.preTrickReminderEnabled = false;
               break;
-            case "all":
+            }
+            case "all": {
               updates.emailUnsubscribedAll = true;
               break;
-            default:
+            }
+            default: {
               return new Response("Invalid unsubscribe type", { status: 400 });
+            }
           }
 
           await db

@@ -94,7 +94,7 @@ export default defineTask({
         email: string;
         name: string;
         daysBefore: number | null;
-        sets: Array<{ name: string; instructions: string | null }>;
+        sets: { name: string; instructions: string | null }[];
       }
     >();
 
@@ -116,7 +116,7 @@ export default defineTask({
     }
 
     // Filter to users whose reminder day matches
-    const usersToNotify = Array.from(userSetsMap.entries()).filter(
+    const usersToNotify = [...userSetsMap.entries()].filter(
       ([, user]) => {
         const targetDays = user.daysBefore ?? 1;
         return daysUntilStart === targetDays;
@@ -190,10 +190,10 @@ export default defineTask({
         console.log(
           `[notifications:pre-trick-reminders] Sent to user ${userId} with ${setCount} sets`,
         );
-      } catch (err) {
+      } catch (error) {
         console.error(
           `[notifications:pre-trick-reminders] Error processing user ${userId}:`,
-          err,
+          error,
         );
         errorCount++;
       }

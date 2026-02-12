@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
-  ArrowRightIcon,
   CalendarIcon,
   CoinsIcon,
   LayersIcon,
@@ -10,9 +9,8 @@ import {
   UsersIcon,
 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { LinkCard } from "~/components/link-card";
 import { games } from "~/lib/games";
-import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/games/")({
   component: RouteComponent,
@@ -34,127 +32,22 @@ export const Route = createFileRoute("/games/")({
   },
 });
 
-type GameStatus = "active" | "coming-soon";
-
-type GameCardProps = {
-  name: string;
-  description: string;
-  status: GameStatus;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  stats?: {
-    activeSets?: number;
-    chainLength?: number;
-    participants?: number;
-    upcomingPlayers?: number;
-  };
-};
-
-function GameCard({
-  name,
-  description,
-  status,
-  href,
+function StatRow({
   icon: Icon,
-  stats,
-}: GameCardProps) {
-  const isActive = status === "active";
-
+  value,
+  label,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  value: number;
+  label: string;
+}) {
   return (
-    <Link to={href} className="block h-full">
-      <Card
-        className={cn(
-          "group relative flex h-full flex-col overflow-hidden transition-all",
-          "cursor-pointer",
-          "focus-within:scale-[1.01] hover:scale-[1.01]",
-          !isActive && "opacity-70",
-        )}
-      >
-        <CardHeader className="pb-2">
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "flex size-8 items-center justify-center rounded-lg",
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground",
-              )}
-            >
-              <Icon className="size-4" />
-            </div>
-            <CardTitle className="text-lg">{name}</CardTitle>
-          </div>
-        </CardHeader>
-
-        <CardContent className="flex grow flex-col space-y-4">
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            {description}
-          </p>
-
-          <div className="flex grow flex-col gap-2 border-t pt-4">
-            {isActive && stats ? (
-              <>
-                {stats.activeSets !== undefined && (
-                  <div className="flex items-center gap-2">
-                    <PlayIcon className="text-muted-foreground size-4" />
-                    <p className="text-muted-foreground text-xs">
-                      <span className="text-foreground font-medium">
-                        {stats.activeSets}
-                      </span>{" "}
-                      active sets
-                    </p>
-                  </div>
-                )}
-                {stats.chainLength !== undefined && (
-                  <div className="flex items-center gap-2">
-                    <LayersIcon className="text-muted-foreground size-4" />
-                    <p className="text-muted-foreground text-xs">
-                      <span className="text-foreground font-medium">
-                        {stats.chainLength}
-                      </span>{" "}
-                      {stats.chainLength === 1 ? "trick" : "tricks"} in chain
-                    </p>
-                  </div>
-                )}
-                {stats.participants !== undefined && (
-                  <div className="flex items-center gap-2">
-                    <UsersIcon className="text-muted-foreground size-4" />
-                    <p className="text-muted-foreground text-xs">
-                      <span className="text-foreground font-medium">
-                        {stats.participants}
-                      </span>{" "}
-                      {stats.participants === 1 ? "player" : "players"}
-                    </p>
-                  </div>
-                )}
-                {stats.upcomingPlayers !== undefined && (
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="text-muted-foreground size-4" />
-                    <p className="text-muted-foreground text-xs">
-                      <span className="text-foreground font-medium">
-                        {stats.upcomingPlayers}
-                      </span>{" "}
-                      in next round
-                    </p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-muted-foreground text-xs italic">
-                Coming soon
-              </p>
-            )}
-          </div>
-
-          <div className="flex items-center justify-end">
-            <span className="text-muted-foreground group-hover:text-foreground flex items-center gap-1 text-sm transition-colors">
-              {isActive ? "View Game" : "Learn More"}
-              <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+    <div className="flex items-center gap-2">
+      <Icon className="text-muted-foreground size-4" />
+      <p className="text-muted-foreground text-xs">
+        <span className="text-foreground font-medium">{value}</span> {label}
+      </p>
+    </div>
   );
 }
 
@@ -193,42 +86,85 @@ function RouteComponent() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <GameCard
-              name="Rack It Up"
-              description="The original. Upload creative sets each week, submit responses to others, and build through collaborative feedback."
-              status="active"
-              href="/games/rius/active"
-              icon={CoinsIcon}
-              stats={{
-                activeSets: activeRiu.sets.length,
-                participants: riuParticipants,
-                upcomingPlayers: upcomingPlayers,
-              }}
-            />
+            <LinkCard.Root href="/games/rius/active">
+              <LinkCard.Header icon={CoinsIcon} title="Rack It Up" />
+              <LinkCard.Content>
+                <LinkCard.Description>
+                  The original. Upload creative sets each week, submit responses
+                  to others, and build through collaborative feedback.
+                </LinkCard.Description>
+                <div className="flex grow flex-col gap-2 border-t pt-4">
+                  <StatRow
+                    icon={PlayIcon}
+                    value={activeRiu.sets.length}
+                    label="active sets"
+                  />
+                  <StatRow
+                    icon={UsersIcon}
+                    value={riuParticipants}
+                    label={riuParticipants === 1 ? "player" : "players"}
+                  />
+                  <StatRow
+                    icon={CalendarIcon}
+                    value={upcomingPlayers}
+                    label="in next round"
+                  />
+                </div>
+                <LinkCard.Cta label="View Game" />
+              </LinkCard.Content>
+            </LinkCard.Root>
 
-            <GameCard
-              name="Back It Up"
-              description="Land the previous trick, then set a new one. Chain your skills in an evolving line of creativity."
-              status="active"
-              href="/games/bius"
-              icon={RotateCcwIcon}
-              stats={{
-                chainLength: biusSets.length,
-                participants: biusParticipants,
-              }}
-            />
+            <LinkCard.Root href="/games/bius">
+              <LinkCard.Header icon={RotateCcwIcon} title="Back It Up" />
+              <LinkCard.Content>
+                <LinkCard.Description>
+                  Land the previous trick, then set a new one. Chain your skills
+                  in an evolving line of creativity.
+                </LinkCard.Description>
+                <div className="flex grow flex-col gap-2 border-t pt-4">
+                  <StatRow
+                    icon={LayersIcon}
+                    value={biusSets.length}
+                    label={
+                      biusSets.length === 1 ? "trick in chain" : "tricks in chain"
+                    }
+                  />
+                  <StatRow
+                    icon={UsersIcon}
+                    value={biusParticipants}
+                    label={biusParticipants === 1 ? "player" : "players"}
+                  />
+                </div>
+                <LinkCard.Cta label="View Game" />
+              </LinkCard.Content>
+            </LinkCard.Root>
 
-            <GameCard
-              name="Stack It Up"
-              description="Complete the full stack of tricks, then add your own to the end. Build on what came before."
-              status="active"
-              href="/games/sius"
-              icon={LayersIcon}
-              stats={{
-                chainLength: siusStacks.length,
-                participants: siusParticipants,
-              }}
-            />
+            <LinkCard.Root href="/games/sius">
+              <LinkCard.Header icon={LayersIcon} title="Stack It Up" />
+              <LinkCard.Content>
+                <LinkCard.Description>
+                  Complete the full stack of tricks, then add your own to the
+                  end. Build on what came before.
+                </LinkCard.Description>
+                <div className="flex grow flex-col gap-2 border-t pt-4">
+                  <StatRow
+                    icon={LayersIcon}
+                    value={siusStacks.length}
+                    label={
+                      siusStacks.length === 1
+                        ? "trick in chain"
+                        : "tricks in chain"
+                    }
+                  />
+                  <StatRow
+                    icon={UsersIcon}
+                    value={siusParticipants}
+                    label={siusParticipants === 1 ? "player" : "players"}
+                  />
+                </div>
+                <LinkCard.Cta label="View Game" />
+              </LinkCard.Content>
+            </LinkCard.Root>
           </div>
         </div>
       </div>

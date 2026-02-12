@@ -57,7 +57,7 @@ function RouteComponent() {
   const deferredDisciplines = useDeferredValue(disciplines);
 
   const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(query || disciplines.length),
+    Boolean(query || disciplines.length > 0),
   );
 
   const hasActiveFilters = Boolean(query || disciplines.length > 0);

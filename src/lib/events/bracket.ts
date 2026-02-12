@@ -153,7 +153,7 @@ export function encodeWinners(matches: { round: number; position: number; winner
   const encoded = sorted.map((m) => (m.winner === 1 ? "1" : m.winner === 2 ? "2" : "-")).join("");
 
   // Return null if all undecided (no need to store in URL)
-  if (encoded.replace(/-/g, "") === "") return null;
+  if (encoded.replaceAll('-', "") === "") return null;
 
   // Trim trailing dashes for cleaner URLs
   return encoded.replace(/-+$/, "") || null;
@@ -167,8 +167,7 @@ export function decodeWinners(encoded: string | null): Map<number, 1 | 2> {
   const winners = new Map<number, 1 | 2>();
   if (!encoded) return winners;
 
-  for (let i = 0; i < encoded.length; i++) {
-    const char = encoded[i];
+  for (const [i, char] of encoded.entries()) {
     if (char === "1") winners.set(i, 1);
     else if (char === "2") winners.set(i, 2);
     // '-' or any other char means undecided, skip

@@ -8,5 +8,5 @@ import { defaultStringifySearch } from "@tanstack/react-router";
 export function stringifySearch(search: Record<string, unknown>): string {
   const encoded = defaultStringifySearch(search);
   // Decode commas and tildes (safe in query values per RFC 3986)
-  return encoded.replace(/%2C/gi, ",").replace(/%7E/gi, "~");
+  return encoded.replaceAll(/%2C/gi, ",").replaceAll(/%7E/gi, "~");
 }

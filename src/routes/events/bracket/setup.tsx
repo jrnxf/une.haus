@@ -79,7 +79,7 @@ function RouteComponent() {
 
     // Encode riders: 1,20,~CustomName,30 (userIds or ~prefixed names)
     const ridersStr = riders
-      .map((r) => (r.userId !== null ? String(r.userId) : r.name ? `~${r.name}` : null))
+      .map((r) => (r.userId === null ? r.name ? `~${r.name}` : null : String(r.userId)))
       .filter(Boolean)
       .join(",");
 

@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { BugIcon } from "lucide-react";
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
@@ -104,6 +104,14 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      void import("react-grab");
+      void import("@react-grab/claude-code/client");
+      void import("@react-grab/cursor/client");
+    }
+  }, []);
+
   return (
     <NuqsAdapter>
       <RootDocument>

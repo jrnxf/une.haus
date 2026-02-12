@@ -319,8 +319,11 @@ describe("listPostsSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects invalid tags", () => {
+  it("drops invalid tags", () => {
     const result = listPostsSchema.safeParse({ tags: ["invalid"] });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tags).toBeUndefined();
+    }
   });
 });

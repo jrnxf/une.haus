@@ -160,10 +160,10 @@ export default defineTask({
         console.log(
           `[notifications:game-start-reminders] Sent to user ${user.userId}`,
         );
-      } catch (err) {
+      } catch (error) {
         console.error(
           `[notifications:game-start-reminders] Error processing user ${user.userId}:`,
-          err,
+          error,
         );
         errorCount++;
       }

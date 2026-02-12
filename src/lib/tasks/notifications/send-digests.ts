@@ -47,13 +47,15 @@ export default defineTask({
           eq(userNotificationSettings.emailUnsubscribedAll, false),
           eq(userNotificationSettings.emailDigestHourUtc, currentHour),
           // For weekly digests, also check the day
-          sql`(
-            ${userNotificationSettings.emailDigestFrequency} = 'daily'
-            OR (
-              ${userNotificationSettings.emailDigestFrequency} = 'weekly'
-              AND ${userNotificationSettings.emailDigestDayOfWeek} = ${currentDay}
-            )
-          )`,
+          sql`
+            (
+                        ${userNotificationSettings.emailDigestFrequency} = 'daily'
+                        OR (
+                          ${userNotificationSettings.emailDigestFrequency} = 'weekly'
+                          AND ${userNotificationSettings.emailDigestDayOfWeek} = ${currentDay}
+                        )
+                      )
+          `,
         ),
       );
 
@@ -106,7 +108,7 @@ export default defineTask({
         type NotificationGroup = {
           type: "likes" | "comments" | "followers";
           count: number;
-          items: Array<{ title: string; preview?: string }>;
+          items: { title: string; preview?: string }[];
         };
 
         const groups: NotificationGroup[] = [];
@@ -186,10 +188,10 @@ export default defineTask({
         console.log(
           `[notifications:send-digests] Sent digest to user ${user.userId} with ${userNotifications.length} notifications`,
         );
-      } catch (err) {
+      } catch (error) {
         console.error(
           `[notifications:send-digests] Error processing user ${user.userId}:`,
-          err,
+          error,
         );
         errorCount++;
       }

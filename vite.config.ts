@@ -20,7 +20,7 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
       open: async (path, lineNumber, columnNumber) => {
         const { spawn } = await import("node:child_process");
         // Escape $ to prevent shell expansion in cursor's eval
-        const escapedPath = path.replaceAll("$", "\\$");
+        const escapedPath = path.replaceAll("$", String.raw`\$`);
         spawn("cursor", [
           "-g",
           `${escapedPath}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}`,

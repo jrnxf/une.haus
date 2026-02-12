@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   Tooltip,
@@ -6,6 +6,8 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
+
+const ANIMATION_DURATION = 400;
 
 const paths = [
   "M186.135 1.26857C187.769 0.768408 189.243 0.98937 190.423 1.74611C191.576 2.48524 192.358 3.67466 192.778 4.96877C193.605 7.51608 193.145 10.8639 190.799 12.8486L190.75 12.8916L190.694 12.9268C186.666 15.5146 181.063 19.1661 176.919 21.8047C176.919 21.8107 176.92 21.8163 176.921 21.8203L176.917 21.8154L176.921 21.8223C176.924 21.8274 176.93 21.8357 176.941 21.8438C176.953 21.8522 176.966 21.858 176.979 21.8613C176.985 21.8628 176.989 21.863 176.992 21.8633C179.2 20.4647 181.389 19.0405 183.595 17.6182L183.665 17.5733L183.74 17.541C188.029 15.6877 193.163 18.7767 193.163 23.7666V44.2608L193.158 44.3115C192.979 46.0545 192.148 47.6404 190.784 48.7783L190.736 48.8174L190.683 48.8516C189.58 49.5603 188.323 50.5248 186.933 51.6045C185.557 52.6738 184.062 53.8469 182.529 54.9277C179.513 57.054 176.117 58.9998 172.897 59C169.193 59 166.173 56.0195 166.173 52.3262C166.173 51.5437 166.163 50.6327 166.517 49.71C166.884 48.7546 167.593 47.8924 168.804 47.0108L168.823 46.9971L168.842 46.9844L182.251 38.1426C182.251 38.1421 182.252 38.1417 182.253 38.1406C182.255 38.1376 182.258 38.1312 182.259 38.1221C182.263 38.102 182.258 38.0891 182.254 38.083V38.082C182.253 38.0814 182.251 38.0796 182.248 38.0772C182.243 38.0743 182.235 38.0706 182.223 38.0684C182.196 38.0633 182.18 38.0712 182.177 38.0733L182.173 38.0762V38.0772C182.172 38.0775 182.171 38.0775 182.17 38.0781C182.168 38.0794 182.165 38.0817 182.162 38.084C182.154 38.0889 182.144 38.0961 182.13 38.1055C182.101 38.1245 182.059 38.1524 182.005 38.1885C181.896 38.2608 181.739 38.3659 181.544 38.4961C181.153 38.7566 180.61 39.119 180 39.5254C178.78 40.3383 177.291 41.3294 176.218 42.0401L176.182 42.0635L176.143 42.085C173.951 43.2752 171.443 42.9512 169.527 41.7852C167.612 40.6196 166.163 38.5377 166.163 36.0498V16.3164C166.163 14.6469 166.429 13.2549 167.164 12.0176C167.892 10.7918 169.019 9.82415 170.535 8.88185C172.045 7.94304 174.029 6.97757 176.545 5.79787C179.076 4.61049 182.177 3.1918 185.989 1.32619L186.06 1.29201L186.135 1.26857Z",
@@ -22,25 +24,56 @@ const baseClasses =
   "h-14 shrink-0 fill-transparent stroke-black stroke-2 dark:stroke-white";
 
 export function LogoRandomScatter({ className }: { className?: string }) {
-  const generateRandomTransforms = useCallback(() => {
-    return paths.map(() => {
-      const x = (Math.random() - 0.5) * 40;
-      const y = (Math.random() - 0.5) * 30;
-      const rotate = (Math.random() - 0.5) * 30;
-      return { x, y, rotate };
+  const [transforms, setTransforms] = useState(() =>
+    paths.map(() => ({ x: 0, y: 0, rotate: 0 })),
+  );
+  const [hoveredPaths, setHoveredPaths] = useState<Set<number>>(new Set());
+  const enterTimesRef = useRef<Map<number, number>>(new Map());
+  const pendingTimeoutsRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+
+  const handlePathMouseEnter = (index: number) => {
+    const pendingTimeout = pendingTimeoutsRef.current.get(index);
+    if (pendingTimeout) {
+      clearTimeout(pendingTimeout);
+      pendingTimeoutsRef.current.delete(index);
+    }
+
+    enterTimesRef.current.set(index, Date.now());
+
+    setTransforms((prev) => {
+      const next = [...prev];
+      next[index] = {
+        x: (Math.random() - 0.5) * 40,
+        y: (Math.random() - 0.5) * 30,
+        rotate: (Math.random() - 0.5) * 30,
+      };
+      return next;
     });
-  }, []);
-
-  const [transforms, setTransforms] = useState(generateRandomTransforms);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseEnter = () => {
-    setTransforms(generateRandomTransforms());
-    setIsHovered(true);
+    setHoveredPaths((prev) => new Set(prev).add(index));
   };
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
+  const handlePathMouseLeave = (index: number) => {
+    const enterTime = enterTimesRef.current.get(index) ?? 0;
+    const elapsed = Date.now() - enterTime;
+    const remaining = ANIMATION_DURATION - elapsed;
+
+    const removePath = () => {
+      pendingTimeoutsRef.current.delete(index);
+      setHoveredPaths((prev) => {
+        const next = new Set(prev);
+        next.delete(index);
+        return next;
+      });
+    };
+
+    if (remaining > 0) {
+      const timeout = setTimeout(removePath, remaining);
+      pendingTimeoutsRef.current.set(index, timeout);
+    } else {
+      removePath();
+    }
   };
 
   return (
@@ -55,25 +88,39 @@ export function LogoRandomScatter({ className }: { className?: string }) {
           viewBox="0 0 195 60"
           strokeLinejoin="round"
           xmlns="http://www.w3.org/2000/svg"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
-          {paths.map((d, i) => (
-            <path
-              key={i}
-              d={d}
-              style={{
-                transformOrigin: "center",
-                transform: isHovered
-                  ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
-                  : "translate(0, 0) rotate(0deg)",
-                opacity: isHovered ? 0.8 : 1,
-                transition:
-                  "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
-                transitionDelay: `${i * 0.03}s`,
-              }}
-            />
-          ))}
+          {paths.map((d, i) => {
+            const isActive = hoveredPaths.has(i);
+            return (
+              <g key={i}>
+                {/* Invisible hit area stays at resting position */}
+                <path
+                  d={d}
+                  onMouseEnter={() => handlePathMouseEnter(i)}
+                  onMouseLeave={() => handlePathMouseLeave(i)}
+                  style={{
+                    fill: "transparent",
+                    stroke: "transparent",
+                    pointerEvents: "all",
+                  }}
+                />
+                {/* Visible path animates away */}
+                <path
+                  d={d}
+                  style={{
+                    transformOrigin: "center",
+                    transform: isActive
+                      ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
+                      : "translate(0, 0) rotate(0deg)",
+                    opacity: isActive ? 0.8 : 1,
+                    transition:
+                      "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
+                    pointerEvents: "none",
+                  }}
+                />
+              </g>
+            );
+          })}
         </svg>
       </TooltipTrigger>
       <TooltipContent sideOffset={16}>

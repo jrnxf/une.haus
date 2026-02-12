@@ -64,7 +64,7 @@ function RouteComponent() {
   const deferredTags = useDeferredValue(tags);
 
   const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(query || tags.length),
+    Boolean(query || tags.length > 0),
   );
 
   const hasActiveFilters = Boolean(query || tags.length > 0);

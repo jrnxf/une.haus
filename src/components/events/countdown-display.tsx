@@ -19,7 +19,7 @@ export function CountdownDisplay({
 }: CountdownDisplayProps) {
   const isLow = timeRemaining <= 10_000 && isRunning;
   const totalSeconds = Math.max(0, Math.floor(timeRemaining / 1000));
-  const tenths = Math.floor((timeRemaining % 1000) / 100);
+  const hundredths = Math.floor((timeRemaining % 1000) / 10);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
 
@@ -36,7 +36,7 @@ export function CountdownDisplay({
       )}
     >
       {mainDisplay}
-      <span className="text-[0.18em] opacity-30">.{tenths}</span>
+      <span className="text-[0.18em] opacity-30">.{hundredths.toString().padStart(2, "0")}</span>
     </div>
   );
 }

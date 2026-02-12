@@ -3,8 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { HeartIcon, PencilIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
 
-import { Separator } from "~/components/ui/separator";
-
 import { Badges } from "~/components/badges";
 import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
@@ -67,6 +65,29 @@ export function PostView({ postId }: { postId: number }) {
         </div>
 
         <div className="flex shrink-0 grow items-center justify-end gap-1">
+          <Button
+            size="icon-sm"
+            variant="outline"
+            onClick={likeUnlikePost}
+            aria-label={authUserLiked ? "Unlike" : "Like"}
+          >
+            <HeartIcon
+              className={cn(
+                "size-4",
+                authUserLiked && "fill-red-700/50 stroke-red-700",
+              )}
+            />
+          </Button>
+          <UsersDialog
+            users={post.likes.map((like) => like.user)}
+            title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
+            trigger={
+              <Button size="icon-sm" variant="outline" aria-label="View likes">
+                <TrendingUpIcon className="size-4" />
+              </Button>
+            }
+          />
+          <ShareButton />
           {isOwner && (
             <>
               <Button
@@ -99,32 +120,8 @@ export function PostView({ postId }: { postId: number }) {
               >
                 <TrashIcon className="size-4" />
               </Button>
-              <Separator orientation="vertical" className="mx-1 h-6" />
             </>
           )}
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={likeUnlikePost}
-            aria-label={authUserLiked ? "Unlike" : "Like"}
-          >
-            <HeartIcon
-              className={cn(
-                "size-4",
-                authUserLiked && "fill-red-700/50 stroke-red-700",
-              )}
-            />
-          </Button>
-          <UsersDialog
-            users={post.likes.map((like) => like.user)}
-            title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
-            trigger={
-              <Button size="icon-sm" variant="outline" aria-label="View likes">
-                <TrendingUpIcon className="size-4" />
-              </Button>
-            }
-          />
-          <ShareButton />
         </div>
       </div>
 

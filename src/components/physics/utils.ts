@@ -33,7 +33,7 @@ export function calculatePosition(
   elementSize: number,
 ): number {
   if (typeof value === "string" && value.endsWith("%")) {
-    const percentage = parseFloat(value) / 100;
+    const percentage = Number.parseFloat(value) / 100;
     return containerSize * percentage;
   }
   if (typeof value === "number") {
