@@ -27,6 +27,25 @@ export const messages = {
 };
 ```
 
+## Fast Refresh Compatibility
+
+Never mix React component exports and non-component exports (hooks, constants, contexts) in the same file. Vite's Fast Refresh requires a module to export **only** components or **only** non-components. Put hooks and contexts in a separate `-context.tsx` file.
+
+```ts
+// Good - components-only file
+export function MobileNavProvider({ children }: { children: ReactNode }) { ... }
+export function MobileNavTrigger() { ... }
+
+// Good - separate file for hooks/context
+// mobile-nav-context.tsx
+export const MobileNavContext = createContext<(() => void) | null>(null);
+export function useMobileNav() { ... }
+
+// Bad - mixing hooks and components in one file breaks Fast Refresh
+export function useMobileNav() { ... }
+export function MobileNavProvider() { ... }
+```
+
 ## Component Organization
 
 Components are organized in domain-specific folders. **Do NOT use barrel files (`index.ts`) in `src/components/`** - always use direct imports:

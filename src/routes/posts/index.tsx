@@ -15,6 +15,7 @@ import { InView } from "react-intersection-observer";
 import { useDebounceValue } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
+import { FilterPanel } from "~/components/filter-drawer";
 import { BadgeInput } from "~/components/input/badge-input";
 import { PageHeader } from "~/components/page-header";
 import { TimeAgo } from "~/components/time-ago";
@@ -123,32 +124,30 @@ function RouteComponent() {
 
       <div className="h-full overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-        {filtersOpen && (
-          <div className="flex flex-col gap-3">
-            <div className="relative">
-              <Input
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search posts..."
-                className="pr-8"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => handleQueryChange("")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              )}
-            </div>
-            <BadgeInput
-              defaultSelections={tags as (typeof POST_TAGS)[number][]}
-              onChange={handleTagsChange}
-              options={POST_TAGS}
+        <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <div className="relative">
+            <Input
+              value={query}
+              onChange={(e) => handleQueryChange(e.target.value)}
+              placeholder="Search posts..."
+              className="pr-8"
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => handleQueryChange("")}
+                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+              >
+                <XIcon className="size-4" />
+              </button>
+            )}
           </div>
-        )}
+          <BadgeInput
+            defaultSelections={tags as (typeof POST_TAGS)[number][]}
+            onChange={handleTagsChange}
+            options={POST_TAGS}
+          />
+        </FilterPanel>
         {displayedPosts.length === 0 && (
           <Empty>
             <EmptyHeader>
