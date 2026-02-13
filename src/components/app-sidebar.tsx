@@ -5,7 +5,7 @@ import {
   GaugeIcon,
   LockIcon,
   LockOpenIcon,
-  MapIcon,
+  MapPinIcon,
   MedalIcon,
   MessagesSquareIcon,
   Send,
@@ -45,11 +45,6 @@ const data = {
       icon: EarthIcon,
     },
     {
-      title: "Map",
-      url: "/map",
-      icon: MapIcon,
-    },
-    {
       title: "Posts",
       url: "/posts",
       icon: ClipboardPenIcon,
@@ -59,11 +54,10 @@ const data = {
       url: "/chat",
       icon: MessagesSquareIcon,
     },
-
     {
-      title: "Stats",
-      url: "/stats",
-      icon: GaugeIcon,
+      title: "Map",
+      url: "/map",
+      icon: MapPinIcon,
     },
     {
       title: "Tricks",
@@ -77,14 +71,19 @@ const data = {
       activeIcon: LockOpenIcon,
     },
     {
-      title: "Shop",
-      url: "/shop",
-      icon: ShoppingBagIcon,
-    },
-    {
       title: "Events",
       url: "/events",
       icon: TimerIcon,
+    },
+    {
+      title: "Stats",
+      url: "/stats",
+      icon: GaugeIcon,
+    },
+    {
+      title: "Shop",
+      url: "/shop",
+      icon: ShoppingBagIcon,
     },
   ],
   navSecondary: [

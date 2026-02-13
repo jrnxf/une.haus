@@ -7,11 +7,14 @@ import {
   GaugeIcon,
   LockIcon,
   LockOpenIcon,
-  MapIcon,
+  MapPinIcon,
   MedalIcon,
   MessagesSquareIcon,
+  MonitorIcon,
+  MoonIcon,
   Send,
   ShoppingBagIcon,
+  SunIcon,
   TimerIcon,
   TrafficConeIcon,
   type LucideIcon,
@@ -23,15 +26,15 @@ import {
   useMobileNav,
 } from "~/components/mobile-nav-context";
 import { Button } from "~/components/ui/button";
+import { useTheme, type Theme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 
 const navItems = [
   { title: "games", url: "/games", icon: MedalIcon },
   { title: "users", url: "/users", icon: EarthIcon },
-  { title: "map", url: "/map", icon: MapIcon },
   { title: "posts", url: "/posts", icon: ClipboardPenIcon },
   { title: "chat", url: "/chat", icon: MessagesSquareIcon },
-  { title: "stats", url: "/stats", icon: GaugeIcon },
+  { title: "map", url: "/map", icon: MapPinIcon },
   { title: "tricks", url: "/tricks", icon: TrafficConeIcon },
   {
     title: "vault",
@@ -39,10 +42,18 @@ const navItems = [
     icon: LockIcon,
     activeIcon: LockOpenIcon,
   },
-  { title: "shop", url: "/shop", icon: ShoppingBagIcon },
   { title: "events", url: "/events", icon: TimerIcon },
+  { title: "stats", url: "/stats", icon: GaugeIcon },
+  { title: "shop", url: "/shop", icon: ShoppingBagIcon },
   { title: "feedback", url: "/feedback", icon: Send },
 ] as const;
+
+const themeOrder: Theme[] = ["system", "dark", "light"];
+const themeIcon: Record<Theme, LucideIcon> = {
+  system: MonitorIcon,
+  dark: MoonIcon,
+  light: SunIcon,
+};
 
 function NavItem({
   title,
@@ -143,6 +154,26 @@ export function MobileNavTrigger({ className }: { className?: string }) {
   );
 }
 
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const ThemeIcon = themeIcon[theme];
+
+  const cycleTheme = () => {
+    const next = themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
+    setTheme(next);
+  };
+
+  return (
+    <button
+      onClick={cycleTheme}
+      className="text-muted-foreground hover:bg-accent/50 hover:text-foreground flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors"
+    >
+      <ThemeIcon className="size-5" />
+      <span>color mode ({theme})</span>
+    </button>
+  );
+}
+
 export function MobileNavPopup({
   portalContainer,
 }: {
@@ -174,6 +205,7 @@ export function MobileNavPopup({
                   isActive={currentPath.startsWith(item.url)}
                 />
               ))}
+              <ThemeToggle />
             </nav>
           </DrawerPrimitive.Content>
         </DrawerPrimitive.Popup>

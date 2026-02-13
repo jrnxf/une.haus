@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
@@ -57,31 +58,35 @@ export function AuthButton() {
         side="right"
         sideOffset={4}
       >
-        <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar
-              className="size-8"
-              cloudflareId={sessionUser.avatarId}
-              alt={sessionUser.name}
-            >
-              <AvatarImage
-                className="rounded-full object-cover"
-                width={40}
-                quality={85}
-              />
-              <AvatarFallback
-                className="flex w-full items-center justify-center"
-                name={sessionUser.name}
-              />
-            </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{sessionUser.name}</span>
-              <span className="text-muted-foreground truncate text-xs">
-                {sessionUser.email}
-              </span>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="p-0 font-normal">
+            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <Avatar
+                className="size-8"
+                cloudflareId={sessionUser.avatarId}
+                alt={sessionUser.name}
+              >
+                <AvatarImage
+                  className="rounded-full object-cover"
+                  width={40}
+                  quality={85}
+                />
+                <AvatarFallback
+                  className="flex w-full items-center justify-center"
+                  name={sessionUser.name}
+                />
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">
+                  {sessionUser.name}
+                </span>
+                <span className="text-muted-foreground truncate text-xs">
+                  {sessionUser.email}
+                </span>
+              </div>
             </div>
-          </div>
-        </DropdownMenuLabel>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link to="/">Home</Link>

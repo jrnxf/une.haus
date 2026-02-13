@@ -11,6 +11,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
@@ -82,7 +83,9 @@ export function UsersPopover({
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent className="max-w-xs">
-        <DropdownMenuLabel className="text-sm">{title}</DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-sm">{title}</DropdownMenuLabel>
+        </DropdownMenuGroup>
         {userList}
       </DropdownMenuContent>
     </DropdownMenu>

@@ -58,6 +58,14 @@ const config = defineConfig(async () => ({
         // Run RIU rotation at midnight (00:00) every Monday (server timezone)
         // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
         "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
+        // Every hour at :00 — digest checks user's configured hour/day,
+        // game-start checks hours-until-rotation with 1h window
+        "0 * * * *": [
+          TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
+          TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
+        ],
+        // Once daily at midnight UTC — checks days-until-rotation
+        "0 0 * * *": [TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS],
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- types here are not yet updated for nitro
     } as any),

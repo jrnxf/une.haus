@@ -9,9 +9,9 @@ import {
   users,
 } from "~/db/schema";
 import { env } from "~/lib/env";
-import { TASK_NAMES } from "../constants";
+import { TASK_NAMES } from "~/lib/tasks/constants";
 
-import NotificationDigestTemplate from "../../../../emails/notification-digest";
+import NotificationDigestTemplate from "../../../emails/notification-digest";
 
 const resendClient = new Resend(env.RESEND_API_KEY);
 
