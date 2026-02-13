@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { Children, isValidElement, type ReactNode } from "react";
 
+import { MobileNavTrigger } from "~/components/mobile-nav";
 import { PageHeader } from "~/components/page-header";
 import { Search } from "~/components/search";
 import { SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
@@ -36,13 +37,11 @@ function renderBreadcrumbs(breadcrumbsNode: ReactNode) {
   return (
     <nav
       aria-label="breadcrumb"
-      className="flex items-center gap-1.5 text-sm"
+      className="flex items-center gap-1.5 text-base lg:text-sm"
     >
       {crumbs.map((crumb, i) => (
         <span key={i} className="flex items-center gap-1.5">
-          {i > 0 && (
-            <ChevronRight className="text-muted-foreground size-3.5" />
-          )}
+          {i > 0 && <ChevronRight className="text-muted-foreground size-3.5" />}
           {crumb}
         </span>
       ))}
@@ -62,15 +61,35 @@ export function SiteHeader() {
   const hasMobileRow = headerState.mobileRow !== null;
 
   return (
-    <header className="shrink-0 border-b">
-      <div className={cn("mx-auto flex h-(--header-height) w-full items-center gap-2 px-4 lg:px-6", maxWidthClasses[headerState.maxWidth])}>
+    <header className="order-last shrink-0 border-t lg:order-first lg:border-t-0 lg:border-b">
+      {hasMobileRow && (
+        <div
+          className={cn(
+            "mx-auto w-full border-b px-4 py-2 lg:hidden",
+            maxWidthClasses[headerState.maxWidth],
+          )}
+        >
+          {headerState.mobileRow}
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "mx-auto flex h-14 w-full items-center gap-2 px-4 lg:h-(--header-height) lg:px-6",
+          maxWidthClasses[headerState.maxWidth],
+        )}
+      >
         <div className="flex items-center gap-2">
           {showTrigger && (
-            <SidebarTrigger className="-ml-1" size="icon-xs" />
+            <SidebarTrigger className="-ml-1 hidden lg:flex" size="icon-xs" />
           )}
           {hasBreadcrumbs && (
             <>
-              {showTrigger && <HeaderDivider />}
+              {showTrigger && (
+                <div className="hidden lg:block">
+                  <HeaderDivider />
+                </div>
+              )}
               {renderBreadcrumbs(headerState.breadcrumbs)}
             </>
           )}
@@ -96,14 +115,9 @@ export function SiteHeader() {
             </>
           )}
           <Search />
+          <MobileNavTrigger />
         </div>
       </div>
-
-      {hasMobileRow && (
-        <div className={cn("mx-auto w-full border-t px-4 py-2 md:hidden", maxWidthClasses[headerState.maxWidth])}>
-          {headerState.mobileRow}
-        </div>
-      )}
     </header>
   );
 }

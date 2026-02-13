@@ -1,14 +1,15 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { EarthIcon, FilterIcon, GhostIcon, XIcon } from "lucide-react";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import { FilterIcon, GhostIcon, XIcon } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
 
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useDebounceValue } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
+import { FilterPanel } from "~/components/filter-drawer";
 import { BadgeInput } from "~/components/input/badge-input";
 import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
@@ -108,123 +109,117 @@ function RouteComponent() {
               <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
             )}
           </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/map">
-              <EarthIcon className="size-4" />
-              Map
-            </Link>
-          </Button>
         </PageHeader.Actions>
       </PageHeader>
 
       <div className="overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-          {filtersOpen && (
-            <div className="flex flex-col gap-3">
-              <div className="relative">
-                <Input
-                  value={query}
-                  onChange={(e) => handleQueryChange(e.target.value)}
-                  placeholder="Search users..."
-                  className="pr-8"
-                />
-                {query && (
-                  <button
-                    type="button"
-                    onClick={() => handleQueryChange("")}
-                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                  >
-                    <XIcon className="size-4" />
-                  </button>
-                )}
-              </div>
-              <BadgeInput
-                defaultSelections={disciplines as (typeof USER_DISCIPLINES)[number][]}
-                onChange={handleDisciplinesChange}
-                options={USER_DISCIPLINES}
+          <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
+            <div className="relative">
+              <Input
+                value={query}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                placeholder="Search users..."
+                className="pr-8"
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => handleQueryChange("")}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                >
+                  <XIcon className="size-4" />
+                </button>
+              )}
             </div>
+            <BadgeInput
+              defaultSelections={
+                disciplines as (typeof USER_DISCIPLINES)[number][]
+              }
+              onChange={handleDisciplinesChange}
+              options={USER_DISCIPLINES}
+            />
+          </FilterPanel>
+
+          {displayedUsers.length === 0 && (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <GhostIcon />
+                </EmptyMedia>
+                <EmptyTitle>No users</EmptyTitle>
+                <EmptyDescription>
+                  There are no users to display at the moment.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           )}
 
-        {displayedUsers.length === 0 && (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <GhostIcon />
-              </EmptyMedia>
-              <EmptyTitle>No users</EmptyTitle>
-              <EmptyDescription>
-                There are no users to display at the moment.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
-
-        {displayedUsers.map((user, idx) => {
-          return (
-            <Link
-              key={user.id}
-              to="/users/$userId"
-              params={{ userId: user.id }}
-              onMouseEnter={() => {
-                if (user.avatarId) {
-                  preload(
-                    getCloudflareImageUrl(user.avatarId, {
-                      width: 448,
-                      quality: 60,
-                    }),
-                    { as: "image", fetchPriority: "high" },
-                  );
-                }
-              }}
-              className={cn(
-                "ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-              )}
-              data-user-name={user.name}
-            >
-              <div className="flex flex-col gap-4 rounded-md border bg-card p-3 sm:flex-row">
-                <div className="flex w-full flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    {/* <Avatar className="size-6 rounded-full">
+          {displayedUsers.map((user, idx) => {
+            return (
+              <Link
+                key={user.id}
+                to="/users/$userId"
+                params={{ userId: user.id }}
+                onMouseEnter={() => {
+                  if (user.avatarId) {
+                    preload(
+                      getCloudflareImageUrl(user.avatarId, {
+                        width: 448,
+                        quality: 60,
+                      }),
+                      { as: "image", fetchPriority: "high" },
+                    );
+                  }
+                }}
+                className={cn(
+                  "ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+                )}
+                data-user-name={user.name}
+              >
+                <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
+                  <div className="flex w-full flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      {/* <Avatar className="size-6 rounded-full">
                     <AvatarImage alt={user.name} src={user.avatarId} />
                     <AvatarFallback className="text-xs" name={user.name} />
                   </Avatar> */}
-                    {user.avatarId && (
-                      <img
-                        src={getCloudflareImageUrl(user.avatarId, {
-                          width: 72,
-                          quality: 70,
-                        })}
-                        alt={user.name}
-                        fetchPriority="high"
-                        loading={idx < 6 ? "eager" : "lazy"}
-                        className="size-6 rounded-full"
-                      />
-                    )}
-                    <p className="truncate text-base font-semibold">
-                      {user.name}
-                    </p>
-                  </div>
-                  {user.bio && (
-                    <div className="line-clamp-3 text-sm">
-                      <p>{user.bio}</p>
+                      {user.avatarId && (
+                        <img
+                          src={getCloudflareImageUrl(user.avatarId, {
+                            width: 72,
+                            quality: 70,
+                          })}
+                          alt={user.name}
+                          fetchPriority="high"
+                          loading={idx < 6 ? "eager" : "lazy"}
+                          className="size-6 rounded-full"
+                        />
+                      )}
+                      <p className="truncate text-base font-semibold">
+                        {user.name}
+                      </p>
                     </div>
-                  )}
-                  <Badges content={user.disciplines} />
+                    {user.bio && (
+                      <div className="line-clamp-3 text-sm">
+                        <p>{user.bio}</p>
+                      </div>
+                    )}
+                    <Badges content={user.disciplines} />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          );
-        })}
-        {hasNextPage && !isFetchingNextPage && (
-          <InView
-            root={scrollRoot}
-            rootMargin="1000px"
-            onChange={(inView) => inView && fetchNextPage()}
-          />
-        )}
+              </Link>
+            );
+          })}
+          {hasNextPage && !isFetchingNextPage && (
+            <InView
+              root={scrollRoot}
+              rootMargin="1000px"
+              onChange={(inView) => inView && fetchNextPage()}
+            />
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

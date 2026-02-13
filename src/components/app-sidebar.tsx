@@ -5,6 +5,7 @@ import {
   GaugeIcon,
   LockIcon,
   LockOpenIcon,
+  MapIcon,
   MedalIcon,
   MessagesSquareIcon,
   Send,
@@ -42,6 +43,11 @@ const data = {
       title: "Users",
       url: "/users",
       icon: EarthIcon,
+    },
+    {
+      title: "Map",
+      url: "/map",
+      icon: MapIcon,
     },
     {
       title: "Posts",

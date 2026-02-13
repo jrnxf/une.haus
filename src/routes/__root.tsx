@@ -1,16 +1,16 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
+// import { TanStackDevtools } from "@tanstack/react-devtools";
 import { type QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
-  useRouter,
+  // useRouter,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { BugIcon } from "lucide-react";
-import { type ReactNode, useEffect } from "react";
+// import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+// import { BugIcon } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
@@ -18,8 +18,13 @@ import { z } from "zod";
 import { AppSidebar } from "~/components/app-sidebar";
 import { ConfirmDialog } from "~/components/confirm-dialog";
 import { GlobalShortcuts } from "~/components/global-shortcuts";
+import {
+  MobileNavIndent,
+  MobileNavIndentBackground,
+  MobileNavPopup,
+  MobileNavProvider,
+} from "~/components/mobile-nav";
 import { SiteHeader } from "~/components/site-header";
-import { Button } from "~/components/ui/button";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { PageHeaderProvider } from "~/lib/page-header/context";
@@ -123,8 +128,10 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const router = useRouter();
   const { session: sessionData } = useRootRouteContext();
+  const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
+    null,
+  );
 
   return (
     <html
@@ -140,29 +147,40 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           <GlobalShortcuts />
           <Toaster />
           <ConfirmDialog />
-          <SidebarProvider
-            defaultOpen={sessionData.sidebarOpen}
-            style={
-              {
-                "--sidebar-width": "calc(var(--spacing) * 62)",
-                "--header-height": "calc(var(--spacing) * 12)",
-              } as React.CSSProperties
-            }
-          >
-            <AppSidebar variant="inset" />
-            <PageHeaderProvider>
-              <SidebarInset>
-                <SiteHeader />
-                <div className="flex-1 overflow-y-auto" id="main-content">
-                  {children}
-                </div>
-              </SidebarInset>
-            </PageHeaderProvider>
-          </SidebarProvider>
+          <MobileNavProvider>
+            <div ref={setPortalContainer} className="relative h-dvh">
+              <MobileNavIndentBackground />
+              <MobileNavIndent>
+                <SidebarProvider
+                  defaultOpen={sessionData.sidebarOpen}
+                  style={
+                    {
+                      "--sidebar-width": "calc(var(--spacing) * 62)",
+                      "--header-height": "calc(var(--spacing) * 12)",
+                    } as React.CSSProperties
+                  }
+                >
+                  <AppSidebar variant="inset" />
+                  <PageHeaderProvider>
+                    <SidebarInset>
+                      <SiteHeader />
+                      <div
+                        className="flex flex-1 flex-col overflow-y-auto"
+                        id="main-content"
+                      >
+                        {children}
+                      </div>
+                    </SidebarInset>
+                  </PageHeaderProvider>
+                </SidebarProvider>
+              </MobileNavIndent>
+              <MobileNavPopup portalContainer={portalContainer} />
+            </div>
+          </MobileNavProvider>
         </ThemeProvider>
-        <TanStackDevtools
+        {/* <TanStackDevtools
           config={{
-            position: "bottom-right",
+            position: "bottom-left",
             hideUntilHover: true,
             customTrigger: (
               <Button
@@ -184,7 +202,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               render: <ReactQueryDevtoolsPanel />,
             },
           ]}
-        />
+        /> */}
         <Scripts />
       </body>
     </html>
