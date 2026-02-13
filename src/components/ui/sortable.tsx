@@ -23,7 +23,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Slot } from '@radix-ui/react-slot';
+import { Slot } from '~/lib/slot';
 
 // Sortable Item Context
 const SortableItemContext = React.createContext<{

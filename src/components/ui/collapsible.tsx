@@ -1,31 +1,56 @@
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
+import * as React from "react"
+import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
 
 function Collapsible({
+  asChild,
+  children,
+  render,
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {
-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />;
+}: CollapsiblePrimitive.Root.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children)
+      ? (children as React.ReactElement)
+      : render;
+  const resolvedChildren =
+    asChild && React.isValidElement(children) ? undefined : children;
+  return (
+    <CollapsiblePrimitive.Root
+      data-slot="collapsible"
+      render={resolvedRender}
+      {...props}
+    >
+      {resolvedChildren}
+    </CollapsiblePrimitive.Root>
+  )
 }
 
 function CollapsibleTrigger({
+  asChild,
+  children,
+  render,
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
+}: CollapsiblePrimitive.Trigger.Props & { asChild?: boolean }) {
+  const resolvedRender =
+    asChild && React.isValidElement(children)
+      ? (children as React.ReactElement)
+      : render;
+  const resolvedChildren =
+    asChild && React.isValidElement(children) ? undefined : children;
   return (
-    <CollapsiblePrimitive.CollapsibleTrigger
+    <CollapsiblePrimitive.Trigger
       data-slot="collapsible-trigger"
+      render={resolvedRender}
       {...props}
-    />
-  );
+    >
+      {resolvedChildren}
+    </CollapsiblePrimitive.Trigger>
+  )
 }
 
-function CollapsibleContent({
-  ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
+function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
   return (
-    <CollapsiblePrimitive.CollapsibleContent
-      data-slot="collapsible-content"
-      {...props}
-    />
-  );
+    <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
+  )
 }
 
-export { Collapsible, CollapsibleContent, CollapsibleTrigger };
+export { Collapsible, CollapsibleTrigger, CollapsibleContent }

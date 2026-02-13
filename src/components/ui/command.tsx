@@ -42,7 +42,6 @@ function CommandDialog({
   description = "Search for a command to run...",
   children,
   className,
-  onCloseAutoFocus,
   showCloseButton = true,
   showTrigger = true,
   footer,
@@ -50,8 +49,8 @@ function CommandDialog({
   value,
   shouldFilter = true,
   ...props
-}: React.ComponentProps<typeof Dialog> &
-  Pick<React.ComponentProps<typeof DialogContent>, "onCloseAutoFocus"> & {
+}: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
+    children?: React.ReactNode;
     title?: string;
     description?: string;
     className?: string;
@@ -80,7 +79,6 @@ function CommandDialog({
           className,
         )}
         showCloseButton={showCloseButton}
-        onCloseAutoFocus={onCloseAutoFocus}
       >
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>

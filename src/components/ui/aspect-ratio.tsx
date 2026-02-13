@@ -1,5 +1,18 @@
-import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
+import { cn } from "~/lib/utils";
 
-const AspectRatio = AspectRatioPrimitive.Root;
+function AspectRatio({
+  ratio = 1,
+  className,
+  ...props
+}: React.ComponentProps<"div"> & { ratio?: number }) {
+  return (
+    <div
+      data-slot="aspect-ratio"
+      className={cn("relative w-full", className)}
+      style={{ aspectRatio: String(ratio) }}
+      {...props}
+    />
+  );
+}
 
 export { AspectRatio };

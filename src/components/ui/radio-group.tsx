@@ -1,48 +1,37 @@
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
-import { Circle } from "lucide-react";
-import * as React from "react";
+import { Radio as RadioPrimitive } from "@base-ui/react/radio"
+import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
+import { CircleIcon } from "lucide-react"
 
-function RadioGroup({
-  className,
-  ref,
-  ...properties
-}: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> & {
-  ref?: React.Ref<React.ElementRef<typeof RadioGroupPrimitive.Root>>;
-}) {
+function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
   return (
-    <RadioGroupPrimitive.Root
-      className={cn("grid gap-2", className)}
-      {...properties}
-      ref={ref}
+    <RadioGroupPrimitive
+      data-slot="radio-group"
+      className={cn("grid gap-3 w-full", className)}
+      {...props}
     />
-  );
+  )
 }
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
-function RadioGroupItem({
-  className,
-  ref,
-  ...properties
-}: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
-  ref?: React.Ref<React.ElementRef<typeof RadioGroupPrimitive.Item>>;
-}) {
+function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   return (
-    <RadioGroupPrimitive.Item
+    <RadioPrimitive.Root
+      data-slot="radio-group-item"
       className={cn(
-        "border-primary text-primary ring-offset-background focus-visible:ring-ring aspect-square h-4 w-4 rounded-full border focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className,
+        "border-input text-primary dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 flex size-4 rounded-full shadow-xs focus-visible:ring-3 aria-invalid:ring-3 group/radio-group-item peer relative aspect-square shrink-0 border outline-none after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50",
+        className
       )}
-      ref={ref}
-      {...properties}
+      {...props}
     >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-2.5 w-2.5 fill-current text-current" />
-      </RadioGroupPrimitive.Indicator>
-    </RadioGroupPrimitive.Item>
-  );
+      <RadioPrimitive.Indicator
+        data-slot="radio-group-indicator"
+        className="group-aria-invalid/radio-group-item:text-destructive text-primary flex size-4 items-center justify-center"
+      >
+        <CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-current" />
+      </RadioPrimitive.Indicator>
+    </RadioPrimitive.Root>
+  )
 }
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
-export { RadioGroup, RadioGroupItem };
+export { RadioGroup, RadioGroupItem }

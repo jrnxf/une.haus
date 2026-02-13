@@ -111,17 +111,16 @@ export function SetsGroupedList({
 
   return (
     <Accordion
-      type="single"
-      collapsible
       className="space-y-2"
-      value={openUserId?.toString()}
+      value={openUserId ? [openUserId.toString()] : []}
       onValueChange={(value) => {
+        const first = value[0];
         navigate({
           to: basePath,
           params: pathParams,
           search: {
             ...searchParams,
-            open: value ? Number.parseInt(value, 10) : undefined,
+            open: first ? Number.parseInt(String(first), 10) : undefined,
           },
           replace: true,
         });

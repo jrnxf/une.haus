@@ -31,39 +31,43 @@ const TrayContext = React.createContext<{
 const useTrayContext = () => React.useContext(TrayContext);
 
 export function Tray(
-  properties:
-    | React.ComponentProps<typeof Dialog>
-    | React.ComponentProps<typeof Drawer>,
+  properties: {
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    children?: React.ReactNode;
+  },
 ) {
   const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const [open, setOpen] = useState(false);
 
-  const Comp = isMobile ? Drawer : Dialog;
+  const resolvedOpen = properties.open ?? open;
+  const resolvedOnOpenChange = properties.onOpenChange ?? setOpen;
 
   return (
-    <TrayContext.Provider value={{ isMobile, open }}>
-      <Comp
-        {...properties}
-        onOpenChange={properties.onOpenChange ?? setOpen}
-        open={properties.open ?? open}
-      >
-        {properties.children}
-      </Comp>
+    <TrayContext.Provider value={{ isMobile, open: resolvedOpen }}>
+      {isMobile ? (
+        <Drawer open={resolvedOpen} onOpenChange={resolvedOnOpenChange}>
+          {properties.children}
+        </Drawer>
+      ) : (
+        <Dialog open={resolvedOpen} onOpenChange={resolvedOnOpenChange}>
+          {properties.children}
+        </Dialog>
+      )}
     </TrayContext.Provider>
   );
 }
 
 export function TrayClose(
-  properties:
-    | React.ComponentProps<typeof DialogClose>
-    | React.ComponentProps<typeof DrawerClose>,
+  properties: React.ComponentProps<"button">,
 ) {
   const { isMobile } = useTrayContext();
 
-  const Comp = isMobile ? DrawerClose : DialogClose;
-
-  return <Comp {...properties} />;
+  if (isMobile) {
+    return <DrawerClose {...properties} />;
+  }
+  return <DialogClose {...properties} />;
 }
 
 export function TrayContent({
@@ -101,27 +105,25 @@ export function TrayContent({
 }
 
 export function TrayTitle(
-  properties:
-    | React.ComponentProps<typeof DialogTitle>
-    | React.ComponentProps<typeof DrawerTitle>,
+  properties: React.ComponentProps<"h2"> & { className?: string },
 ) {
   const { isMobile } = useTrayContext();
 
-  const Comp = isMobile ? DrawerTitle : DialogTitle;
-
-  return <Comp {...properties} />;
+  if (isMobile) {
+    return <DrawerTitle {...properties} />;
+  }
+  return <DialogTitle {...properties} />;
 }
 
 export function TrayTrigger(
-  properties:
-    | React.ComponentProps<typeof DialogTrigger>
-    | React.ComponentProps<typeof DrawerTrigger>,
+  properties: React.ComponentProps<"button"> & { asChild?: boolean; children?: React.ReactNode },
 ) {
   const { isMobile } = useTrayContext();
 
-  const Comp = isMobile ? DrawerTrigger : DialogTrigger;
-
-  return <Comp {...properties} />;
+  if (isMobile) {
+    return <DrawerTrigger {...properties} />;
+  }
+  return <DialogTrigger {...properties} />;
 }
 
 function TrayOverlay() {

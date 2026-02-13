@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { cn } from "~/lib/utils";
@@ -77,7 +78,8 @@ export function LogoRandomScatter({ className }: { className?: string }) {
   };
 
   return (
-    <Tooltip delayDuration={500}>
+    <TooltipProvider delay={0}>
+    <Tooltip>
       <TooltipTrigger asChild>
         <svg
           className={cn(
@@ -135,5 +137,6 @@ export function LogoRandomScatter({ className }: { className?: string }) {
         </a>
       </TooltipContent>
     </Tooltip>
+    </TooltipProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "~/lib/slot";
 import { useBlocker } from "@tanstack/react-router";
 import { BugIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";

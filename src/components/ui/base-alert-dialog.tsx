@@ -1,4 +1,4 @@
-import { AlertDialog as AlertDialogPrimitive } from "@base-ui-components/react/alert-dialog";
+import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import { X } from "lucide-react";
 import * as React from "react";
 
