@@ -87,13 +87,13 @@ function RouteComponent() {
 
       <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
         <TrickForm
-        onSubmit={handleSubmit}
-        onAdminSubmit={isAdmin ? handleAdminSubmit : undefined}
-        onCancel={() => router.navigate({ to: "/tricks" })}
-        submitLabel="Submit"
-        isPending={isPending}
-      />
-    </div>
+          onSubmit={handleSubmit}
+          onAdminSubmit={isAdmin ? handleAdminSubmit : undefined}
+          onCancel={() => router.navigate({ to: "/tricks" })}
+          submitLabel="Submit"
+          isPending={isPending}
+        />
+      </div>
     </>
   );
 }

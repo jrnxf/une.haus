@@ -8,10 +8,10 @@ import {
   PaperclipIcon,
   XIcon,
 } from "lucide-react";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useDeferredValue, useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
 
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useDebounceValue } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
@@ -124,96 +124,96 @@ function RouteComponent() {
 
       <div className="h-full overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-        <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
-          <div className="relative">
-            <Input
-              value={query}
-              onChange={(e) => handleQueryChange(e.target.value)}
-              placeholder="Search posts..."
-              className="pr-8"
+          <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
+            <div className="relative">
+              <Input
+                value={query}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                placeholder="Search posts..."
+                className="pr-8"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => handleQueryChange("")}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                >
+                  <XIcon className="size-4" />
+                </button>
+              )}
+            </div>
+            <BadgeInput
+              defaultSelections={tags as (typeof POST_TAGS)[number][]}
+              onChange={handleTagsChange}
+              options={POST_TAGS}
             />
-            {query && (
-              <button
-                type="button"
-                onClick={() => handleQueryChange("")}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+          </FilterPanel>
+          {displayedPosts.length === 0 && (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <GhostIcon />
+                </EmptyMedia>
+                <EmptyTitle>No posts</EmptyTitle>
+                <EmptyDescription>
+                  There are no posts to display at the moment.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+          {displayedPosts.map((post) => {
+            const posterUrl =
+              post.imageId ||
+              (post.video?.playbackId &&
+                getMuxPoster({ playbackId: post.video.playbackId })) ||
+              (post.youtubeVideoId &&
+                `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
+            return (
+              <Link
+                className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+                key={post.id}
+                params={{ postId: post.id }}
+                to="/posts/$postId"
               >
-                <XIcon className="size-4" />
-              </button>
-            )}
-          </div>
-          <BadgeInput
-            defaultSelections={tags as (typeof POST_TAGS)[number][]}
-            onChange={handleTagsChange}
-            options={POST_TAGS}
-          />
-        </FilterPanel>
-        {displayedPosts.length === 0 && (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <GhostIcon />
-              </EmptyMedia>
-              <EmptyTitle>No posts</EmptyTitle>
-              <EmptyDescription>
-                There are no posts to display at the moment.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
-        {displayedPosts.map((post) => {
-          const posterUrl =
-            post.imageId ||
-            (post.video?.playbackId &&
-              getMuxPoster({ playbackId: post.video.playbackId })) ||
-            (post.youtubeVideoId &&
-              `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
-          return (
-            <Link
-              className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
-              key={post.id}
-              params={{ postId: post.id }}
-              to="/posts/$postId"
-            >
-              <div className="flex flex-col gap-4 rounded-md border bg-card p-3 sm:flex-row">
-                <div className="flex w-full flex-col gap-2">
-                  <p className="truncate font-semibold">
-                    {Boolean(posterUrl) && (
-                      <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
-                    )}
-                    {post.title}
-                  </p>
-                  <div className="line-clamp-3 text-sm">
-                    <p>{post.content}</p>
-                  </div>
-                  <Badges content={post.tags} />
-                  <div className="flex w-full justify-between gap-4">
-                    <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
-                      <span>{post.user.name}</span>
-                      <span>•</span>
-                      <TimeAgo date={post.createdAt} />
+                <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
+                  <div className="flex w-full flex-col gap-2">
+                    <p className="truncate font-semibold">
+                      {Boolean(posterUrl) && (
+                        <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
+                      )}
+                      {post.title}
                     </p>
-                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                      <MessageCircleIcon className="size-3" />
-                      {post.counts.messages}
-                      <HeartIcon className="size-3" />
-                      {post.counts.likes}
+                    <div className="line-clamp-3 text-sm">
+                      <p>{post.content}</p>
+                    </div>
+                    <Badges content={post.tags} />
+                    <div className="flex w-full justify-between gap-4">
+                      <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
+                        <span>{post.user.name}</span>
+                        <span>•</span>
+                        <TimeAgo date={post.createdAt} />
+                      </p>
+                      <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                        <MessageCircleIcon className="size-3" />
+                        {post.counts.messages}
+                        <HeartIcon className="size-3" />
+                        {post.counts.likes}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          );
-        })}
-        {hasNextPage && !isFetchingNextPage && (
-          <InView
-            root={scrollRoot}
-            rootMargin="1000px"
-            onChange={(inView) => inView && fetchNextPage()}
-          />
-        )}
+              </Link>
+            );
+          })}
+          {hasNextPage && !isFetchingNextPage && (
+            <InView
+              root={scrollRoot}
+              rootMargin="1000px"
+              onChange={(inView) => inView && fetchNextPage()}
+            />
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

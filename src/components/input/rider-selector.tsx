@@ -68,7 +68,9 @@ export function RiderSelector({
     { selector: (user) => user.searchKey },
   ]);
   const allMatchingUsers = query ? fzf.find(query.toLowerCase()) : [];
-  const filteredUsers = allMatchingUsers.filter(({ item }) => !selectedUserIds.has(item.id));
+  const filteredUsers = allMatchingUsers.filter(
+    ({ item }) => !selectedUserIds.has(item.id),
+  );
 
   // Get user data for selected riders
   const usersMap = useMemo(() => {
@@ -84,7 +86,10 @@ export function RiderSelector({
     if (value.some((r) => r.userId === user.id)) {
       return;
     }
-    onChange([...value, { orderId: generateOrderId(), userId: user.id, name: user.name }]);
+    onChange([
+      ...value,
+      { orderId: generateOrderId(), userId: user.id, name: user.name },
+    ]);
     setQuery("");
     inputRef.current?.focus();
   };
@@ -93,15 +98,32 @@ export function RiderSelector({
     const trimmed = query.trim();
     if (!trimmed) return;
     // Check if already added (as custom name)
-    if (value.some((r) => r.name?.toLowerCase() === trimmed.toLowerCase() && r.userId === null)) {
+    if (
+      value.some(
+        (r) =>
+          r.name?.toLowerCase() === trimmed.toLowerCase() && r.userId === null,
+      )
+    ) {
       return;
     }
     // Check if it matches an existing user exactly - add them instead
-    const exactMatch = users.find((u) => u.name.toLowerCase() === trimmed.toLowerCase());
+    const exactMatch = users.find(
+      (u) => u.name.toLowerCase() === trimmed.toLowerCase(),
+    );
     if (exactMatch && !value.some((r) => r.userId === exactMatch.id)) {
-      onChange([...value, { orderId: generateOrderId(), userId: exactMatch.id, name: exactMatch.name }]);
+      onChange([
+        ...value,
+        {
+          orderId: generateOrderId(),
+          userId: exactMatch.id,
+          name: exactMatch.name,
+        },
+      ]);
     } else if (!exactMatch) {
-      onChange([...value, { orderId: generateOrderId(), userId: null, name: trimmed }]);
+      onChange([
+        ...value,
+        { orderId: generateOrderId(), userId: null, name: trimmed },
+      ]);
     }
     setQuery("");
     inputRef.current?.focus();
@@ -113,10 +135,16 @@ export function RiderSelector({
 
   // Check if query exactly matches a user or is already added
   const trimmedQuery = query.trim();
-  const exactUserMatch = users.find((u) => u.name.toLowerCase() === trimmedQuery.toLowerCase());
+  const exactUserMatch = users.find(
+    (u) => u.name.toLowerCase() === trimmedQuery.toLowerCase(),
+  );
   const isAlreadyAdded = exactUserMatch
     ? value.some((r) => r.userId === exactUserMatch.id)
-    : value.some((r) => r.name?.toLowerCase() === trimmedQuery.toLowerCase() && r.userId === null);
+    : value.some(
+        (r) =>
+          r.name?.toLowerCase() === trimmedQuery.toLowerCase() &&
+          r.userId === null,
+      );
 
   const showAddCustom = trimmedQuery && !isAlreadyAdded;
 
@@ -130,21 +158,36 @@ export function RiderSelector({
     alreadyAddedName = allMatchingUsers[0]?.item.name ?? null;
   }
 
-  const hasDropdownItems = query && (filteredUsers.length > 0 || showAddCustom || alreadyAddedName);
+  const hasDropdownItems =
+    query && (filteredUsers.length > 0 || showAddCustom || alreadyAddedName);
 
   return (
     <div className="space-y-2">
       <div className="relative">
-        <Command className={cn("overflow-visible border", hasDropdownItems && "rounded-b-none")} shouldFilter={false}>
+        <Command
+          className={cn(
+            "overflow-visible border",
+            hasDropdownItems && "rounded-b-none",
+          )}
+          shouldFilter={false}
+        >
           <CommandInput
-            containerClassName={cn(!query && "border-transparent", hasDropdownItems && "border-transparent")}
+            containerClassName={cn(
+              !query && "border-transparent",
+              hasDropdownItems && "border-transparent",
+            )}
             ref={inputRef}
             placeholder="search users or add a custom name..."
             value={query}
             onValueChange={setQuery}
             onKeyDown={(e) => {
               // Only handle Enter for custom add when no users match
-              if (e.key === "Enter" && trimmedQuery && !isAlreadyAdded && filteredUsers.length === 0) {
+              if (
+                e.key === "Enter" &&
+                trimmedQuery &&
+                !isAlreadyAdded &&
+                filteredUsers.length === 0
+              ) {
                 e.preventDefault();
                 handleAddCustom();
               }
@@ -153,7 +196,9 @@ export function RiderSelector({
           {hasDropdownItems && (
             <CommandList className="bg-popover absolute top-full right-0 left-0 z-10 max-h-60 rounded-t-none rounded-b-md border border-t-0 shadow-md">
               {alreadyAddedName && filteredUsers.length === 0 ? (
-                <CommandEmpty>{alreadyAddedName} already in bracket</CommandEmpty>
+                <CommandEmpty>
+                  {alreadyAddedName} already in bracket
+                </CommandEmpty>
               ) : (
                 <CommandGroup>
                   {filteredUsers.slice(0, 8).map(({ item: user }) => (
@@ -184,7 +229,11 @@ export function RiderSelector({
                     >
                       <Plus className="size-4" />
                       <span>
-                        Add "<span className="text-foreground font-medium">{trimmedQuery}</span>"
+                        Add "
+                        <span className="text-foreground font-medium">
+                          {trimmedQuery}
+                        </span>
+                        "
                       </span>
                     </CommandItem>
                   )}
@@ -233,7 +282,9 @@ export function RiderSelector({
                     {displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="min-w-0 flex-1 truncate text-sm">{displayName}</span>
+                <span className="min-w-0 flex-1 truncate text-sm">
+                  {displayName}
+                </span>
                 <button
                   type="button"
                   onClick={() => handleRemove(rider.orderId)}

@@ -1,6 +1,5 @@
-import * as React from "react";
-
 import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -90,7 +89,7 @@ function DrawerOverlay({
     <DrawerPrimitive.Backdrop
       data-slot="drawer-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black opacity-[calc(0.3*(1-var(--drawer-swipe-progress)))] transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[swiping]:duration-0 data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]",
+        "fixed inset-0 z-50 bg-black opacity-[calc(0.3*(1-var(--drawer-swipe-progress)))] transition-opacity duration-200 data-[ending-style]:opacity-0 data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-[starting-style]:opacity-0 data-[swiping]:duration-0",
         className,
       )}
       {...props}
@@ -108,12 +107,10 @@ const viewportClasses: Record<DrawerDirection, string> = {
 const popupClasses: Record<DrawerDirection, string> = {
   bottom:
     "w-full max-h-[90vh] rounded-t-lg border-t [transform:translateY(var(--drawer-swipe-movement-y))] data-[starting-style]:[transform:translateY(100%)] data-[ending-style]:[transform:translateY(100%)]",
-  top:
-    "w-full max-h-[90vh] rounded-b-lg border-b [transform:translateY(var(--drawer-swipe-movement-y))] data-[starting-style]:[transform:translateY(-100%)] data-[ending-style]:[transform:translateY(-100%)]",
+  top: "w-full max-h-[90vh] rounded-b-lg border-b [transform:translateY(var(--drawer-swipe-movement-y))] data-[starting-style]:[transform:translateY(-100%)] data-[ending-style]:[transform:translateY(-100%)]",
   right:
     "h-full w-3/4 border-l sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(100%)] data-[ending-style]:[transform:translateX(100%)]",
-  left:
-    "h-full w-3/4 border-r sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(-100%)] data-[ending-style]:[transform:translateX(-100%)]",
+  left: "h-full w-3/4 border-r sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(-100%)] data-[ending-style]:[transform:translateX(-100%)]",
 };
 
 function DrawerContent({
@@ -132,7 +129,7 @@ function DrawerContent({
         <DrawerPrimitive.Popup
           data-slot="drawer-popup"
           className={cn(
-            "bg-background flex h-auto flex-col outline-none transition-transform duration-200 ease-in-out data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]",
+            "bg-background flex h-auto flex-col transition-transform duration-200 ease-in-out outline-none data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]",
             popupClasses[direction],
             className,
           )}
@@ -172,10 +169,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function DrawerTitle({
-  className,
-  ...props
-}: DrawerPrimitive.Title.Props) {
+function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"

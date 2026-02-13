@@ -1,5 +1,5 @@
-import * as React from "react"
-import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
+import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible";
+import * as React from "react";
 
 function Collapsible({
   asChild,
@@ -21,7 +21,7 @@ function Collapsible({
     >
       {resolvedChildren}
     </CollapsiblePrimitive.Root>
-  )
+  );
 }
 
 function CollapsibleTrigger({
@@ -44,13 +44,13 @@ function CollapsibleTrigger({
     >
       {resolvedChildren}
     </CollapsiblePrimitive.Trigger>
-  )
+  );
 }
 
 function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
   return (
     <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
-  )
+  );
 }
 
-export { Collapsible, CollapsibleTrigger, CollapsibleContent }
+export { Collapsible, CollapsibleTrigger, CollapsibleContent };

@@ -1,4 +1,3 @@
-import { Slot } from "~/lib/slot";
 import { useBlocker } from "@tanstack/react-router";
 import { BugIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";
@@ -25,6 +24,7 @@ import { Json } from "~/lib/dx/json";
 import { isProduction } from "~/lib/env";
 import { invariant } from "~/lib/invariant";
 import { useIsAdmin } from "~/lib/session/hooks";
+import { Slot } from "~/lib/slot";
 import { cn } from "~/lib/utils";
 
 type VideoUploadStatus = "idle" | number | "processing";
@@ -349,12 +349,7 @@ function FormDebug() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          className=""
-        >
+        <Button type="button" variant="outline" size="icon-sm" className="">
           <BugIcon className="size-4" />
         </Button>
       </DialogTrigger>

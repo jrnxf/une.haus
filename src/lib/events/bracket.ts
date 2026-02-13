@@ -167,7 +167,7 @@ export function decodeWinners(encoded: string | null): Map<number, 1 | 2> {
   const winners = new Map<number, 1 | 2>();
   if (!encoded) return winners;
 
-  for (const [i, char] of encoded.entries()) {
+  for (const [i, char] of [...encoded].entries()) {
     if (char === "1") winners.set(i, 1);
     else if (char === "2") winners.set(i, 2);
     // '-' or any other char means undecided, skip

@@ -13,9 +13,7 @@ export const Route = createFileRoute("/users/$userId/")({
   loader: async ({ context, params: { userId } }) => {
     try {
       const [y] = await Promise.all([
-        context.queryClient.ensureQueryData(
-          users.get.queryOptions({ userId }),
-        ),
+        context.queryClient.ensureQueryData(users.get.queryOptions({ userId })),
         context.queryClient.ensureInfiniteQueryData(
           users.activity.infiniteQueryOptions({ userId }),
         ),

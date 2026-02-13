@@ -330,7 +330,10 @@ function GraphContent({
   const prevSelectedIdRef = useRef<string | null>(null);
   const isNodeClickRef = useRef(false);
   const isTransitioningRef = useRef(false);
-  const pendingFitRef = useRef<{ duration: number; callback?: () => void } | null>(null);
+  const pendingFitRef = useRef<{
+    duration: number;
+    callback?: () => void;
+  } | null>(null);
 
   // Execute pending fitView when nodes are initialized
   useEffect(() => {
@@ -427,7 +430,14 @@ function GraphContent({
         },
       };
     },
-    [data, onCenterNodeClick, onSelectTrick, selectedTrickId, setEdges, setNodes],
+    [
+      data,
+      onCenterNodeClick,
+      onSelectTrick,
+      selectedTrickId,
+      setEdges,
+      setNodes,
+    ],
   );
 
   const handleNodeDoubleClick = useCallback(

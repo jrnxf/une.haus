@@ -4,7 +4,11 @@ export const PreviewProps = {
   code: "123456",
 };
 
-export default function AuthCodeTemplate({ code = "000000" }: { code: string }) {
+export default function AuthCodeTemplate({
+  code = "000000",
+}: {
+  code: string;
+}) {
   return (
     <Tailwind>
       <div className="font-mono">

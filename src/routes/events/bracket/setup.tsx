@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-adapter";
 import { ShieldIcon, UsersIcon } from "lucide-react";
 import { useState } from "react";
+
+import { zodValidator } from "@tanstack/zod-adapter";
 
 import { RiderSelector } from "~/components/input/rider-selector";
 import { PageHeader } from "~/components/page-header";
@@ -21,15 +22,14 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useIsAdmin } from "~/lib/session/hooks";
-import { users } from "~/lib/users";
-
 import {
   bracketSearchSchema,
   generateOrderId,
   parseRidersParamOrdered,
   type OrderedRiderEntry,
 } from "~/lib/events/bracket";
+import { useIsAdmin } from "~/lib/session/hooks";
+import { users } from "~/lib/users";
 
 const presets = [4, 8, 16, 32];
 
@@ -47,12 +47,20 @@ const timePresets = [
 ];
 
 function RouteComponent() {
-  const { name: initialName, riders: ridersParam, prelimsTime: initialPrelimsTime, semifinalsTime: initialSemifinalsTime, finalsTime: initialFinalsTime } = Route.useSearch();
+  const {
+    name: initialName,
+    riders: ridersParam,
+    prelimsTime: initialPrelimsTime,
+    semifinalsTime: initialSemifinalsTime,
+    finalsTime: initialFinalsTime,
+  } = Route.useSearch();
   const navigate = useNavigate();
   const isAdmin = useIsAdmin();
 
   const [name, setName] = useState(initialName ?? "");
-  const [riders, setRiders] = useState<OrderedRiderEntry[]>(() => parseRidersParamOrdered(ridersParam));
+  const [riders, setRiders] = useState<OrderedRiderEntry[]>(() =>
+    parseRidersParamOrdered(ridersParam),
+  );
   const [prelimsTime, setPrelimsTime] = useState(initialPrelimsTime);
   const [semifinalsTime, setSemifinalsTime] = useState(initialSemifinalsTime);
   const [finalsTime, setFinalsTime] = useState(initialFinalsTime);
@@ -64,14 +72,20 @@ function RouteComponent() {
 
     const allUsers = await users.all.fn();
     // Filter to only users with avatars that aren't already added, then shuffle
-    const existingUserIds = new Set(riders.filter((r) => r.userId).map((r) => r.userId));
-    const withAvatars = allUsers.filter((u) => u.avatarId && !existingUserIds.has(u.id));
+    const existingUserIds = new Set(
+      riders.filter((r) => r.userId).map((r) => r.userId),
+    );
+    const withAvatars = allUsers.filter(
+      (u) => u.avatarId && !existingUserIds.has(u.id),
+    );
     const shuffled = [...withAvatars].sort(() => Math.random() - 0.5);
-    const newRiders: OrderedRiderEntry[] = shuffled.slice(0, slotsToFill).map((u) => ({
-      orderId: generateOrderId(),
-      userId: u.id,
-      name: u.name,
-    }));
+    const newRiders: OrderedRiderEntry[] = shuffled
+      .slice(0, slotsToFill)
+      .map((u) => ({
+        orderId: generateOrderId(),
+        userId: u.id,
+        name: u.name,
+      }));
     setRiders([...riders, ...newRiders]);
   };
 
@@ -80,7 +94,9 @@ function RouteComponent() {
 
     // Encode riders: 1,20,~CustomName,30 (userIds or ~prefixed names)
     const ridersStr = riders
-      .map((r) => (r.userId === null ? r.name ? `~${r.name}` : null : String(r.userId)))
+      .map((r) =>
+        r.userId === null ? (r.name ? `~${r.name}` : null) : String(r.userId),
+      )
       .filter(Boolean)
       .join(",");
 
@@ -107,120 +123,138 @@ function RouteComponent() {
       </PageHeader>
 
       <div className="mx-auto w-full max-w-lg p-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle>Bracket</CardTitle>
-                  <CardDescription>
-                    Add participants and start the tournament
-                  </CardDescription>
-                </div>
-                {isAdmin && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="icon" aria-label="Admin menu">
-                        <ShieldIcon className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {presets.map((count) => {
-                        const slotsToFill = count - riders.length;
-                        return (
-                          <DropdownMenuItem
-                            key={count}
-                            onClick={() => loadDemo(count)}
-                            disabled={slotsToFill <= 0}
-                          >
-                            <UsersIcon className="size-4" />
-                            Fill to {count}
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <CardTitle>Bracket</CardTitle>
+                <CardDescription>
+                  Add participants and start the tournament
+                </CardDescription>
               </div>
-            </CardHeader>
+              {isAdmin && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      aria-label="Admin menu"
+                    >
+                      <ShieldIcon className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {presets.map((count) => {
+                      const slotsToFill = count - riders.length;
+                      return (
+                        <DropdownMenuItem
+                          key={count}
+                          onClick={() => loadDemo(count)}
+                          disabled={slotsToFill <= 0}
+                        >
+                          <UsersIcon className="size-4" />
+                          Fill to {count}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </CardHeader>
 
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label>Event Name</Label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Summer Championship"
-                />
-              </div>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label>Event Name</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Summer Championship"
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label>Participants</Label>
-                <RiderSelector value={riders} onChange={setRiders} />
-                <p className="text-muted-foreground text-xs">
-                  {riders.length} participants added
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label>Participants</Label>
+              <RiderSelector value={riders} onChange={setRiders} />
+              <p className="text-muted-foreground text-xs">
+                {riders.length} participants added
+              </p>
+            </div>
 
+            <div className="space-y-4">
+              <Label>Timer Durations</Label>
               <div className="space-y-4">
-                <Label>Timer Durations</Label>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-xs">Prelims</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {timePresets.map((preset) => (
-                        <Button
-                          key={preset.value}
-                          variant={prelimsTime === preset.value ? "default" : "secondary"}
-                          size="sm"
-                          onClick={() => setPrelimsTime(preset.value)}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
-                    </div>
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs">
+                    Prelims
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {timePresets.map((preset) => (
+                      <Button
+                        key={preset.value}
+                        variant={
+                          prelimsTime === preset.value ? "default" : "secondary"
+                        }
+                        size="sm"
+                        onClick={() => setPrelimsTime(preset.value)}
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-xs">Semifinals</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {timePresets.map((preset) => (
-                        <Button
-                          key={preset.value}
-                          variant={semifinalsTime === preset.value ? "default" : "secondary"}
-                          size="sm"
-                          onClick={() => setSemifinalsTime(preset.value)}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
-                    </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs">
+                    Semifinals
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {timePresets.map((preset) => (
+                      <Button
+                        key={preset.value}
+                        variant={
+                          semifinalsTime === preset.value
+                            ? "default"
+                            : "secondary"
+                        }
+                        size="sm"
+                        onClick={() => setSemifinalsTime(preset.value)}
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-xs">Finals</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {timePresets.map((preset) => (
-                        <Button
-                          key={preset.value}
-                          variant={finalsTime === preset.value ? "default" : "secondary"}
-                          size="sm"
-                          onClick={() => setFinalsTime(preset.value)}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
-                    </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs">
+                    Finals
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {timePresets.map((preset) => (
+                      <Button
+                        key={preset.value}
+                        variant={
+                          finalsTime === preset.value ? "default" : "secondary"
+                        }
+                        size="sm"
+                        onClick={() => setFinalsTime(preset.value)}
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               </div>
+            </div>
 
-              <Button
-                onClick={handleStart}
-                disabled={riders.length < 2}
-                className="w-full"
-              >
-                Start
-              </Button>
-            </CardContent>
-          </Card>
+            <Button
+              onClick={handleStart}
+              disabled={riders.length < 2}
+              className="w-full"
+            >
+              Start
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

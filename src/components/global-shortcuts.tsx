@@ -1,4 +1,5 @@
 import { useHotkeys } from "react-hotkeys-hook";
+
 import { toast } from "sonner";
 
 import { SHORTCUTS } from "~/lib/shortcuts/constants";

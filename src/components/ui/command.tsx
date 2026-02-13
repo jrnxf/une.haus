@@ -50,17 +50,17 @@ function CommandDialog({
   shouldFilter = true,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
-    children?: React.ReactNode;
-    title?: string;
-    description?: string;
-    className?: string;
-    showCloseButton?: boolean;
-    showTrigger?: boolean;
-    footer?: React.ReactNode;
-    onValueChange?: (value: string) => void;
-    value?: string;
-    shouldFilter?: boolean;
-  }) {
+  children?: React.ReactNode;
+  title?: string;
+  description?: string;
+  className?: string;
+  showCloseButton?: boolean;
+  showTrigger?: boolean;
+  footer?: React.ReactNode;
+  onValueChange?: (value: string) => void;
+  value?: string;
+  shouldFilter?: boolean;
+}) {
   return (
     <Dialog {...props}>
       {showTrigger && (
@@ -341,7 +341,6 @@ export {
   CommandLoading,
   CommandSeparator,
   CommandShortcut,
-  useCommandActions
+  useCommandActions,
 };
 export type { CommandAction };
-

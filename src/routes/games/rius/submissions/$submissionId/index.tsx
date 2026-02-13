@@ -1,12 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import {
-  HeartIcon,
-  PencilIcon,
-  TrashIcon,
-  TrendingUpIcon,
-} from "lucide-react";
+import { HeartIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
 
 import { z } from "zod";
 
@@ -72,8 +67,12 @@ function RouteComponent() {
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/rius/active">rack it up</PageHeader.Crumb>
-          <PageHeader.Crumb>{submission?.user.name ?? "submission"}</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/rius/active">
+            rack it up
+          </PageHeader.Crumb>
+          <PageHeader.Crumb>
+            {submission?.user.name ?? "submission"}
+          </PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
@@ -124,18 +123,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         <div className="flex shrink-0 grow items-center justify-end gap-1">
           {isOwner && (
             <>
-              <Button
-                size="icon-sm"
-                variant="outline"
-                asChild
-              >
-                <Link
-                  to="/games/rius/submissions/$submissionId/edit"
-                  params={{ submissionId }}
-                >
-                  <PencilIcon className="size-4" />
-                </Link>
-              </Button>
               <Button
                 onClick={() =>
                   confirm.open({

@@ -84,78 +84,78 @@ function RouteComponent() {
       <div className="h-full overflow-y-auto">
         <div className="mx-auto max-w-2xl p-4">
           {/* Tabs */}
-        <Tabs
-          value={filter}
-          onValueChange={(v) => setFilter(v as "all" | "unread")}
-          className="mb-4"
-        >
-          <TabsList>
-            <TabsTrigger value="unread" className="text-xs">
-              Unread
-              {unreadCount > 0 && (
-                <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-[10px]">
-                  {unreadCount}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="all" className="text-xs">
-              All
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <Tabs
+            value={filter}
+            onValueChange={(v) => setFilter(v as "all" | "unread")}
+            className="mb-4"
+          >
+            <TabsList>
+              <TabsTrigger value="unread" className="text-xs">
+                Unread
+                {unreadCount > 0 && (
+                  <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-[10px]">
+                    {unreadCount}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="all" className="text-xs">
+                All
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        {/* Notification list */}
-        {groupedNotifications && groupedNotifications.length > 0 ? (
-          <div className="divide-y overflow-clip rounded-lg border bg-card">
-            {groupedNotifications.map((notification) => (
-              <NotificationItem
-                key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
-                type={notification.type}
-                entityType={notification.entityType}
-                entityId={notification.entityId}
-                count={notification.count}
-                actors={
-                  notification.actors as {
-                    id: number;
-                    name: string;
-                    avatarId: string | null;
-                  }[]
-                }
-                data={notification.data}
-                latestAt={notification.latestAt}
-                onMarkRead={() =>
-                  markGroupRead.mutate({
-                    data: {
-                      type: notification.type,
-                      entityType: notification.entityType,
-                      entityId: notification.entityId,
-                    },
-                  })
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <GhostIcon />
-              </EmptyMedia>
-              <EmptyTitle>
-                {filter === "unread"
-                  ? "All caught up!"
-                  : "No notifications yet"}
-              </EmptyTitle>
-              <EmptyDescription>
-                {filter === "unread"
-                  ? "You've read all your notifications."
-                  : "When someone interacts with your content, you'll see it here."}
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        )}
+          {/* Notification list */}
+          {groupedNotifications && groupedNotifications.length > 0 ? (
+            <div className="bg-card divide-y overflow-clip rounded-lg border">
+              {groupedNotifications.map((notification) => (
+                <NotificationItem
+                  key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
+                  type={notification.type}
+                  entityType={notification.entityType}
+                  entityId={notification.entityId}
+                  count={notification.count}
+                  actors={
+                    notification.actors as {
+                      id: number;
+                      name: string;
+                      avatarId: string | null;
+                    }[]
+                  }
+                  data={notification.data}
+                  latestAt={notification.latestAt}
+                  onMarkRead={() =>
+                    markGroupRead.mutate({
+                      data: {
+                        type: notification.type,
+                        entityType: notification.entityType,
+                        entityId: notification.entityId,
+                      },
+                    })
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <GhostIcon />
+                </EmptyMedia>
+                <EmptyTitle>
+                  {filter === "unread"
+                    ? "All caught up!"
+                    : "No notifications yet"}
+                </EmptyTitle>
+                <EmptyDescription>
+                  {filter === "unread"
+                    ? "You've read all your notifications."
+                    : "When someone interacts with your content, you'll see it here."}
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

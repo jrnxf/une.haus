@@ -39,7 +39,7 @@ export function TrickCard({
   return (
     <button
       className={cn(
-        "flex flex-col items-start gap-1 rounded-lg border bg-card p-3 text-left transition-colors",
+        "bg-card flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors",
         "hover:bg-accent hover:border-accent-foreground/20",
         isSelected && "border-primary bg-primary/5",
         compact ? "max-w-[180px] min-w-[140px]" : "max-w-[220px] min-w-[180px]",
@@ -78,7 +78,6 @@ export function TrickCard({
           </Badge>
         )}
       </div>
-
     </button>
   );
 }

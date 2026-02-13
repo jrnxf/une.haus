@@ -151,225 +151,227 @@ function RouteComponent() {
           {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active videos
         </p>
 
-      {/* Active Videos */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">
-          Active Videos
-          <Badge variant="secondary" className="ml-2">
-            {activeVideos.length}
-          </Badge>
-        </h2>
-
-        {isAtLimit && (
-          <Alert>
-            <AlertDescription>
-              This trick has the maximum of {MAX_ACTIVE_VIDEOS} active videos.
-              Demote one to add more.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {activeVideos.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">No active videos</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {activeVideos.map((video, index) => (
-              <Card key={video.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm">Video {index + 1}</CardTitle>
-                    <div className="flex gap-1">
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        onClick={() => moveVideo(video.id, "up")}
-                        disabled={index === 0 || reorderVideos.isPending}
-                      >
-                        <ArrowUp className="size-3" />
-                      </Button>
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        onClick={() => moveVideo(video.id, "down")}
-                        disabled={
-                          index === activeVideos.length - 1 ||
-                          reorderVideos.isPending
-                        }
-                      >
-                        <ArrowDown className="size-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {video.video?.playbackId && (
-                    <VideoPlayer playbackId={video.video.playbackId} />
-                  )}
-                  {video.notes && (
-                    <p className="text-muted-foreground text-sm">
-                      {video.notes}
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() =>
-                        demoteVideo.mutate({ data: { id: video.id } })
-                      }
-                      disabled={demoteVideo.isPending}
-                    >
-                      <XCircle className="size-4" />
-                      Demote
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() =>
-                        deleteVideo.mutate({ data: { id: video.id } })
-                      }
-                      disabled={deleteVideo.isPending}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Pending Videos */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">
-          Pending Videos
-          <Badge variant="secondary" className="ml-2">
-            {pendingVideos.length}
-          </Badge>
-        </h2>
-
-        {pendingVideos.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">No pending videos</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {pendingVideos.map((video) => (
-              <Card key={video.id}>
-                <CardHeader className="pb-2">
-                  <p className="text-muted-foreground text-xs">
-                    Submitted by {video.submittedBy.name}
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {video.video?.playbackId && (
-                    <VideoPlayer playbackId={video.video.playbackId} />
-                  )}
-                  {video.notes && (
-                    <p className="text-muted-foreground text-sm">
-                      {video.notes}
-                    </p>
-                  )}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() =>
-                        reviewVideo.mutate({
-                          data: { id: video.id, status: "active" },
-                        })
-                      }
-                      disabled={reviewVideo.isPending || isAtLimit}
-                      title={
-                        isAtLimit
-                          ? "Demote an active video first"
-                          : "Approve video"
-                      }
-                    >
-                      <CheckCircle className="size-4" />
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() =>
-                        reviewVideo.mutate({
-                          data: { id: video.id, status: "rejected" },
-                        })
-                      }
-                      disabled={reviewVideo.isPending}
-                    >
-                      <XCircle className="size-4" />
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() =>
-                        deleteVideo.mutate({ data: { id: video.id } })
-                      }
-                      disabled={deleteVideo.isPending}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Rejected Videos */}
-      {rejectedVideos.length > 0 && (
+        {/* Active Videos */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">
-            Rejected Videos
+            Active Videos
             <Badge variant="secondary" className="ml-2">
-              {rejectedVideos.length}
+              {activeVideos.length}
             </Badge>
           </h2>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {rejectedVideos.map((video) => (
-              <Card key={video.id} className="opacity-60">
-                <CardHeader className="pb-2">
-                  <p className="text-muted-foreground text-xs">
-                    Submitted by {video.submittedBy.name}
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {video.video?.playbackId && (
-                    <VideoPlayer playbackId={video.video.playbackId} />
-                  )}
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="w-full"
-                    onClick={() =>
-                      deleteVideo.mutate({ data: { id: video.id } })
-                    }
-                    disabled={deleteVideo.isPending}
-                  >
-                    <Trash2 className="size-4" />
-                    Delete Permanently
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {isAtLimit && (
+            <Alert>
+              <AlertDescription>
+                This trick has the maximum of {MAX_ACTIVE_VIDEOS} active videos.
+                Demote one to add more.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {activeVideos.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No active videos</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {activeVideos.map((video, index) => (
+                <Card key={video.id}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm">
+                        Video {index + 1}
+                      </CardTitle>
+                      <div className="flex gap-1">
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          onClick={() => moveVideo(video.id, "up")}
+                          disabled={index === 0 || reorderVideos.isPending}
+                        >
+                          <ArrowUp className="size-3" />
+                        </Button>
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          onClick={() => moveVideo(video.id, "down")}
+                          disabled={
+                            index === activeVideos.length - 1 ||
+                            reorderVideos.isPending
+                          }
+                        >
+                          <ArrowDown className="size-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {video.video?.playbackId && (
+                      <VideoPlayer playbackId={video.video.playbackId} />
+                    )}
+                    {video.notes && (
+                      <p className="text-muted-foreground text-sm">
+                        {video.notes}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() =>
+                          demoteVideo.mutate({ data: { id: video.id } })
+                        }
+                        disabled={demoteVideo.isPending}
+                      >
+                        <XCircle className="size-4" />
+                        Demote
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          deleteVideo.mutate({ data: { id: video.id } })
+                        }
+                        disabled={deleteVideo.isPending}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </section>
-      )}
+
+        {/* Pending Videos */}
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">
+            Pending Videos
+            <Badge variant="secondary" className="ml-2">
+              {pendingVideos.length}
+            </Badge>
+          </h2>
+
+          {pendingVideos.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No pending videos</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {pendingVideos.map((video) => (
+                <Card key={video.id}>
+                  <CardHeader className="pb-2">
+                    <p className="text-muted-foreground text-xs">
+                      Submitted by {video.submittedBy.name}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {video.video?.playbackId && (
+                      <VideoPlayer playbackId={video.video.playbackId} />
+                    )}
+                    {video.notes && (
+                      <p className="text-muted-foreground text-sm">
+                        {video.notes}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() =>
+                          reviewVideo.mutate({
+                            data: { id: video.id, status: "active" },
+                          })
+                        }
+                        disabled={reviewVideo.isPending || isAtLimit}
+                        title={
+                          isAtLimit
+                            ? "Demote an active video first"
+                            : "Approve video"
+                        }
+                      >
+                        <CheckCircle className="size-4" />
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() =>
+                          reviewVideo.mutate({
+                            data: { id: video.id, status: "rejected" },
+                          })
+                        }
+                        disabled={reviewVideo.isPending}
+                      >
+                        <XCircle className="size-4" />
+                        Reject
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          deleteVideo.mutate({ data: { id: video.id } })
+                        }
+                        disabled={deleteVideo.isPending}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Rejected Videos */}
+        {rejectedVideos.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold">
+              Rejected Videos
+              <Badge variant="secondary" className="ml-2">
+                {rejectedVideos.length}
+              </Badge>
+            </h2>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {rejectedVideos.map((video) => (
+                <Card key={video.id} className="opacity-60">
+                  <CardHeader className="pb-2">
+                    <p className="text-muted-foreground text-xs">
+                      Submitted by {video.submittedBy.name}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {video.video?.playbackId && (
+                      <VideoPlayer playbackId={video.video.playbackId} />
+                    )}
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() =>
+                        deleteVideo.mutate({ data: { id: video.id } })
+                      }
+                      disabled={deleteVideo.isPending}
+                    >
+                      <Trash2 className="size-4" />
+                      Delete Permanently
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </>
   );

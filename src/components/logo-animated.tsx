@@ -41,6 +41,7 @@ export function LogoRandomScatter({ className }: { className?: string }) {
       pendingTimeoutsRef.current.delete(index);
     }
 
+    // eslint-disable-next-line react-hooks/purity -- event handler, not render
     enterTimesRef.current.set(index, Date.now());
 
     setTransforms((prev) => {
@@ -57,6 +58,7 @@ export function LogoRandomScatter({ className }: { className?: string }) {
 
   const handlePathMouseLeave = (index: number) => {
     const enterTime = enterTimesRef.current.get(index) ?? 0;
+    // eslint-disable-next-line react-hooks/purity -- event handler, not render
     const elapsed = Date.now() - enterTime;
     const remaining = ANIMATION_DURATION - elapsed;
 
@@ -79,64 +81,64 @@ export function LogoRandomScatter({ className }: { className?: string }) {
 
   return (
     <TooltipProvider delay={0}>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <svg
-          className={cn(
-            baseClasses,
-            "cursor-pointer overflow-visible",
-            className,
-          )}
-          viewBox="0 0 195 60"
-          strokeLinejoin="round"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {paths.map((d, i) => {
-            const isActive = hoveredPaths.has(i);
-            return (
-              <g key={i}>
-                {/* Invisible hit area stays at resting position */}
-                <path
-                  d={d}
-                  onMouseEnter={() => handlePathMouseEnter(i)}
-                  onMouseLeave={() => handlePathMouseLeave(i)}
-                  style={{
-                    fill: "transparent",
-                    stroke: "transparent",
-                    pointerEvents: "all",
-                  }}
-                />
-                {/* Visible path animates away */}
-                <path
-                  d={d}
-                  style={{
-                    transformOrigin: "center",
-                    transform: isActive
-                      ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
-                      : "translate(0, 0) rotate(0deg)",
-                    opacity: isActive ? 0.8 : 1,
-                    transition:
-                      "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
-                    pointerEvents: "none",
-                  }}
-                />
-              </g>
-            );
-          })}
-        </svg>
-      </TooltipTrigger>
-      <TooltipContent sideOffset={16}>
-        Logo by{" "}
-        <a
-          href="https://www.instagram.com/walkertorner"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2"
-        >
-          Walker Orner
-        </a>
-      </TooltipContent>
-    </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <svg
+            className={cn(
+              baseClasses,
+              "cursor-pointer overflow-visible",
+              className,
+            )}
+            viewBox="0 0 195 60"
+            strokeLinejoin="round"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {paths.map((d, i) => {
+              const isActive = hoveredPaths.has(i);
+              return (
+                <g key={i}>
+                  {/* Invisible hit area stays at resting position */}
+                  <path
+                    d={d}
+                    onMouseEnter={() => handlePathMouseEnter(i)}
+                    onMouseLeave={() => handlePathMouseLeave(i)}
+                    style={{
+                      fill: "transparent",
+                      stroke: "transparent",
+                      pointerEvents: "all",
+                    }}
+                  />
+                  {/* Visible path animates away */}
+                  <path
+                    d={d}
+                    style={{
+                      transformOrigin: "center",
+                      transform: isActive
+                        ? `translate(${transforms[i].x}px, ${transforms[i].y}px) rotate(${transforms[i].rotate}deg)`
+                        : "translate(0, 0) rotate(0deg)",
+                      opacity: isActive ? 0.8 : 1,
+                      transition:
+                        "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+        </TooltipTrigger>
+        <TooltipContent sideOffset={16}>
+          Logo by{" "}
+          <a
+            href="https://www.instagram.com/walkertorner"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2"
+          >
+            Walker Orner
+          </a>
+        </TooltipContent>
+      </Tooltip>
     </TooltipProvider>
   );
 }

@@ -106,17 +106,16 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
-
-      <TrickForm
-        defaultValues={defaultValues}
-        onSubmit={(data) =>
-          updateTrick.mutate({ data: { ...data, id: numericTrickId } })
-        }
-        onCancel={() => router.navigate({ to: "/tricks" })}
-        submitLabel="Save Changes"
-        isPending={updateTrick.isPending}
-        excludeTrickId={numericTrickId}
-      />
+        <TrickForm
+          defaultValues={defaultValues}
+          onSubmit={(data) =>
+            updateTrick.mutate({ data: { ...data, id: numericTrickId } })
+          }
+          onCancel={() => router.navigate({ to: "/tricks" })}
+          submitLabel="Save Changes"
+          isPending={updateTrick.isPending}
+          excludeTrickId={numericTrickId}
+        />
       </div>
     </>
   );

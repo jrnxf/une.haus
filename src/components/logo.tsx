@@ -7,7 +7,7 @@ export function Logo({
   return (
     <svg
       className={cn(
-        "size-full shrink-0 stroke-2 fill-black stroke-white dark:fill-white dark:stroke-black",
+        "size-full shrink-0 fill-black stroke-white stroke-2 dark:fill-white dark:stroke-black",
         className,
       )}
       viewBox="0 0 195 60"

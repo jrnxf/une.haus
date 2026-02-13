@@ -103,7 +103,7 @@ export function SetsGroupedList({
 
   if (rankedRiders.length === 0) {
     return (
-      <div className="rounded-lg border bg-card p-8 text-center">
+      <div className="bg-card rounded-lg border p-8 text-center">
         <p className="text-muted-foreground">No sets available</p>
       </div>
     );

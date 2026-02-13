@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-adapter";
 import { useState } from "react";
+
+import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
 import {
@@ -83,59 +84,59 @@ function RouteComponent() {
       </PageHeader>
 
       <div className="mx-auto w-full max-w-lg p-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>stopwatch</CardTitle>
-              <CardDescription>
-                configure the timer settings before starting
-              </CardDescription>
-            </CardHeader>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>stopwatch</CardTitle>
+            <CardDescription>
+              configure the timer settings before starting
+            </CardDescription>
+          </CardHeader>
 
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label>Rider</Label>
-                <SingleRiderSelector
-                  value={rider}
-                  onChange={setRider}
-                  placeholder="Select rider"
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label>Rider</Label>
+              <SingleRiderSelector
+                value={rider}
+                onChange={setRider}
+                placeholder="Select rider"
+              />
+              <p className="text-muted-foreground text-xs">
+                displayed in the top left corner
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Time Limit</Label>
+              <div className="flex flex-wrap gap-2">
+                {presets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant={time === preset.value ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => setTime(preset.value)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  max={3600}
+                  value={String(time)}
+                  onChange={(e) => setTime(Number(e.target.value))}
+                  className="w-24"
                 />
-                <p className="text-muted-foreground text-xs">
-                  displayed in the top left corner
-                </p>
+                <span className="text-muted-foreground text-sm">seconds</span>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label>Time Limit</Label>
-                <div className="flex flex-wrap gap-2">
-                  {presets.map((preset) => (
-                    <Button
-                      key={preset.value}
-                      variant={time === preset.value ? "default" : "secondary"}
-                      size="sm"
-                      onClick={() => setTime(preset.value)}
-                    >
-                      {preset.label}
-                    </Button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={1}
-                    max={3600}
-                    value={time}
-                    onChange={(e) => setTime(Number(e.target.value))}
-                    className="w-24"
-                  />
-                  <span className="text-muted-foreground text-sm">seconds</span>
-                </div>
-              </div>
-
-              <Button onClick={handleStart} className="w-full">
-                Start
-              </Button>
-            </CardContent>
-          </Card>
+            <Button onClick={handleStart} className="w-full">
+              Start
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

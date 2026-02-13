@@ -22,8 +22,8 @@ const Slot = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
         childProps.className as string | undefined,
       ),
       style: {
-        ...(props.style ?? {}),
-        ...((childProps.style as React.CSSProperties) ?? {}),
+        ...props.style,
+        ...(childProps.style as React.CSSProperties),
       },
       // Merge event handlers
       ...(props.onClick && childProps.onClick

@@ -49,7 +49,10 @@ export default function GameStartReminderTemplate({
 
         <p className="mb-4">
           The next RIU round kicks off in{" "}
-          <strong>{hoursUntilStart} {hoursUntilStart === 1 ? "hour" : "hours"}</strong>.
+          <strong>
+            {hoursUntilStart} {hoursUntilStart === 1 ? "hour" : "hours"}
+          </strong>
+          .
         </p>
 
         <p className="mb-6">{getParticipationMessage()}</p>

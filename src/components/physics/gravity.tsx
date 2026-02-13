@@ -14,11 +14,11 @@ import {
 import type * as MatterJSNamespace from "matter-js";
 import type {
   Body,
-  Engine as MatterEngineType,
   IBodyDefinition,
-  MouseConstraint,
+  Engine as MatterEngineType,
   Render as MatterRenderType,
   Runner as MatterRunnerType,
+  MouseConstraint,
 } from "matter-js";
 
 import { cn } from "~/lib/utils";
@@ -114,7 +114,9 @@ export function MatterBody({
       angle,
     });
 
-    return () => { context.unregisterElement(id); };
+    return () => {
+      context.unregisterElement(id);
+    };
   }, [
     id,
     context,
@@ -131,7 +133,11 @@ export function MatterBody({
   return (
     <div
       ref={elementRef}
-      className={cn("absolute", className, isDraggable && "pointer-events-none")}
+      className={cn(
+        "absolute",
+        className,
+        isDraggable && "pointer-events-none",
+      )}
     >
       {children}
     </div>
@@ -287,13 +293,28 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
     }, []);
 
     const updateElements = useCallback(() => {
-      for (const { element, body } of bodiesMap.current) {
+      for (const { element, body } of bodiesMap.current.values()) {
         const { x, y } = body.position;
         const rotation = body.angle * (180 / Math.PI);
         element.style.transform = `translate(${x - element.offsetWidth / 2}px, ${y - element.offsetHeight / 2}px) rotate(${rotation}deg)`;
       }
       frameId.current = requestAnimationFrame(updateElements);
     }, []);
+
+    const startEngine = useCallback(() => {
+      if (!matterRef.current || !runner.current || !engine.current) return;
+      const Matter = matterRef.current;
+
+      runner.current.enabled = true;
+      Matter.Runner.run(runner.current, engine.current);
+
+      if (render.current) {
+        Matter.Render.run(render.current);
+      }
+
+      frameId.current = requestAnimationFrame(updateElements);
+      isRunning.current = true;
+    }, [updateElements]);
 
     const initializeRenderer = useCallback(() => {
       if (!canvas.current || !matterRef.current || !engine.current) return;
@@ -448,21 +469,6 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
       bodiesMap.current.clear();
     }, []);
 
-    const startEngine = useCallback(() => {
-      if (!matterRef.current || !runner.current || !engine.current) return;
-      const Matter = matterRef.current;
-
-      runner.current.enabled = true;
-      Matter.Runner.run(runner.current, engine.current);
-
-      if (render.current) {
-        Matter.Render.run(render.current);
-      }
-
-      frameId.current = requestAnimationFrame(updateElements);
-      isRunning.current = true;
-    }, [updateElements]);
-
     const stopEngine = useCallback(() => {
       if (!isRunning.current || !matterRef.current) return;
       const Matter = matterRef.current;
@@ -481,7 +487,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
 
     const reset = useCallback(() => {
       stopEngine();
-      for (const { element, body, props } of bodiesMap.current) {
+      for (const { element, body, props } of bodiesMap.current.values()) {
         if (!matterRef.current) continue;
         const Matter = matterRef.current;
 
@@ -551,7 +557,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
       <GravityContext.Provider value={{ registerElement, unregisterElement }}>
         <div
           ref={canvas}
-          className={cn(className, "absolute left-0 top-0 h-full w-full")}
+          className={cn(className, "absolute top-0 left-0 h-full w-full")}
         >
           {children}
         </div>

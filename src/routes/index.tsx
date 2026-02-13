@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRightIcon } from "lucide-react";
 
 import { LogoRandomScatter } from "~/components/logo-animated";
@@ -20,9 +20,9 @@ const sections = [
 
 function RouteComponent() {
   return (
-    <div className="flex flex-col items-center justify-start px-4 py-6 gap-6">
+    <div className="flex flex-col items-center justify-start gap-6 px-4 py-6">
       <LogoRandomScatter />
-      <div className="w-96 divide-y rounded-xl border bg-card">
+      <div className="bg-card w-96 divide-y rounded-xl border">
         {sections.map((section) => (
           <Link
             key={section.to}

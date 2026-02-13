@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -10,7 +11,6 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -76,7 +76,9 @@ function RouteComponent() {
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/rius/active">rack it up</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/rius/active">
+            rack it up
+          </PageHeader.Crumb>
           <PageHeader.Crumb>{set?.name ?? "set"}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
@@ -122,7 +124,9 @@ function SetView({ setId }: { setId: number }) {
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
             {set.name}
           </div>
-          <div className="text-muted-foreground text-sm shrink-0">{set.user.name}</div>
+          <div className="text-muted-foreground shrink-0 text-sm">
+            {set.user.name}
+          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-1">

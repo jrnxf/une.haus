@@ -4,11 +4,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  redirect,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { MonitorIcon, TvIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -123,7 +119,9 @@ function RouteComponent() {
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/vault/${videoId}`}>{video.title}</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/vault/${videoId}`}>
+            {video.title}
+          </PageHeader.Crumb>
           <PageHeader.Crumb>edit</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
@@ -140,11 +138,7 @@ function RouteComponent() {
             </Button>
           )}
           <Button variant="secondary" size="sm" asChild>
-            <a
-              href={video.legacyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href={video.legacyUrl} target="_blank" rel="noopener noreferrer">
               <TvIcon className="size-3" />
               UTV
             </a>
@@ -153,72 +147,76 @@ function RouteComponent() {
       </PageHeader>
       <div className="h-full overflow-y-auto">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
-
-        <div className="space-y-2">
-          <Label htmlFor="title">Name</Label>
-          <Input
-            id="title"
-            type="text"
-            value={localTitle}
-            onChange={(e) => setLocalTitle(e.target.value)}
-            placeholder="Video title"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Scale</Label>
-          <div className="flex items-center gap-4">
-            {video.video?.playbackId && (
-              <div className="relative aspect-video h-16 shrink-0 overflow-clip rounded-md border">
-                <img
-                  src={getMuxPoster({
-                    playbackId: video.video.playbackId,
-                    time: localSeconds,
-                    width: 160,
-                  })}
-                  alt="Thumbnail preview"
-                  className="h-full w-full object-cover"
-                  style={{
-                    transform: `scale(${localScale})`,
-                  }}
-                />
-              </div>
-            )}
-            <input
-              type="range"
-              min={1}
-              max={3}
-              step={0.01}
-              value={localScale}
-              onChange={(e) => setLocalScale(Number.parseFloat(e.target.value))}
-              className="accent-primary h-2 grow cursor-pointer"
-            />
-            <span className="text-muted-foreground w-12 text-sm tabular-nums">
-              {(localScale * 100).toFixed(0)}%
-            </span>
-          </div>
-        </div>
-
-        {video.video?.playbackId && (
           <div className="space-y-2">
-            <Label>Thumbnail</Label>
-            <VideoPlayer ref={playerRef} playbackId={video.video.playbackId} />
-            <Button
-              variant="secondary"
-              size="sm"
-              className="w-fit"
-              onClick={handleCaptureTimestamp}
-            >
-              Capture Timestamp ({localSeconds}s)
-            </Button>
+            <Label htmlFor="title">Name</Label>
+            <Input
+              id="title"
+              type="text"
+              value={localTitle}
+              onChange={(e) => setLocalTitle(e.target.value)}
+              placeholder="Video title"
+            />
           </div>
-        )}
 
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save"}
-        </Button>
+          <div className="space-y-2">
+            <Label>Scale</Label>
+            <div className="flex items-center gap-4">
+              {video.video?.playbackId && (
+                <div className="relative aspect-video h-16 shrink-0 overflow-clip rounded-md border">
+                  <img
+                    src={getMuxPoster({
+                      playbackId: video.video.playbackId,
+                      time: localSeconds,
+                      width: 160,
+                    })}
+                    alt="Thumbnail preview"
+                    className="h-full w-full object-cover"
+                    style={{
+                      transform: `scale(${localScale})`,
+                    }}
+                  />
+                </div>
+              )}
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.01}
+                value={localScale}
+                onChange={(e) =>
+                  setLocalScale(Number.parseFloat(e.target.value))
+                }
+                className="accent-primary h-2 grow cursor-pointer"
+              />
+              <span className="text-muted-foreground w-12 text-sm tabular-nums">
+                {(localScale * 100).toFixed(0)}%
+              </span>
+            </div>
+          </div>
+
+          {video.video?.playbackId && (
+            <div className="space-y-2">
+              <Label>Thumbnail</Label>
+              <VideoPlayer
+                ref={playerRef}
+                playbackId={video.video.playbackId}
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-fit"
+                onClick={handleCaptureTimestamp}
+              >
+                Capture Timestamp ({localSeconds}s)
+              </Button>
+            </div>
+          )}
+
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+        </div>
       </div>
-    </div>
     </>
   );
 }

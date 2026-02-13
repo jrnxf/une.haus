@@ -30,13 +30,11 @@ const TrayContext = React.createContext<{
 
 const useTrayContext = () => React.useContext(TrayContext);
 
-export function Tray(
-  properties: {
-    open?: boolean;
-    onOpenChange?: (open: boolean) => void;
-    children?: React.ReactNode;
-  },
-) {
+export function Tray(properties: {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children?: React.ReactNode;
+}) {
   const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const [open, setOpen] = useState(false);
@@ -59,9 +57,7 @@ export function Tray(
   );
 }
 
-export function TrayClose(
-  properties: React.ComponentProps<"button">,
-) {
+export function TrayClose(properties: React.ComponentProps<"button">) {
   const { isMobile } = useTrayContext();
 
   if (isMobile) {
@@ -119,7 +115,10 @@ export function TrayTitle(
 }
 
 export function TrayTrigger(
-  properties: React.ComponentProps<"button"> & { asChild?: boolean; children?: React.ReactNode },
+  properties: React.ComponentProps<"button"> & {
+    asChild?: boolean;
+    children?: React.ReactNode;
+  },
 ) {
   const { isMobile } = useTrayContext();
 

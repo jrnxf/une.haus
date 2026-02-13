@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftRightIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
+import {
+  ArrowLeftRightIcon,
+  PauseIcon,
+  PlayIcon,
+  RotateCcwIcon,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CountdownDisplay } from "~/components/events/countdown-display";
@@ -28,7 +33,12 @@ type SplitTimerProps = {
   headerContent?: React.ReactNode;
 };
 
-export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent }: SplitTimerProps) {
+export function SplitTimer({
+  rider1,
+  rider2,
+  time: initialSeconds,
+  headerContent,
+}: SplitTimerProps) {
   const [swapped, setSwapped] = useState(false);
   const [activeTimer, setActiveTimer] = useState<1 | 2 | null>(null);
   const [timer1, setTimer1] = useState<TimerData>({
@@ -45,7 +55,10 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
 
   // Create a map for quick user lookup
   const usersMap = useMemo(() => {
-    const map = new Map<number, { id: number; name: string; avatarId: string | null }>();
+    const map = new Map<
+      number,
+      { id: number; name: string; avatarId: string | null }
+    >();
     for (const user of allUsers) {
       map.set(user.id, user);
     }
@@ -156,7 +169,14 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
       startTimerLoop(2);
       return;
     }
-  }, [activeTimer, timer1.state, timer2.state, clearTimer, startTimerLoop, reset]);
+  }, [
+    activeTimer,
+    timer1.state,
+    timer2.state,
+    clearTimer,
+    startTimerLoop,
+    reset,
+  ]);
 
   // Global keyboard shortcut for reset
   useEffect(() => {
@@ -179,19 +199,27 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
     };
   }, []);
 
-  const bothFinished = timer1.state === "finished" && timer2.state === "finished";
+  const bothFinished =
+    timer1.state === "finished" && timer2.state === "finished";
   const bothIdle = timer1.state === "idle" && timer2.state === "idle";
 
   // Determine button label based on state
   const isAnyRunning = timer1.state === "running" || timer2.state === "running";
-  const buttonLabel = bothFinished ? "Reset" : isAnyRunning ? "Switch" : bothIdle ? "Start" : "Switch";
-  const ButtonIcon = bothFinished ? RotateCcwIcon : isAnyRunning ? PauseIcon : PlayIcon;
+  const buttonLabel = bothFinished
+    ? "Reset"
+    : isAnyRunning
+      ? "Switch"
+      : bothIdle
+        ? "Start"
+        : "Switch";
+  const ButtonIcon = bothFinished
+    ? RotateCcwIcon
+    : isAnyRunning
+      ? PauseIcon
+      : PlayIcon;
 
   return (
-    <div
-      ref={containerRef}
-      className="bg-background flex h-full flex-col"
-    >
+    <div ref={containerRef} className="bg-background flex h-full flex-col">
       {/* Header */}
       {headerContent && (
         <div className="flex items-center justify-between border-b px-4 py-4">
@@ -202,11 +230,11 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
       {/* Split Timers */}
       <div className="relative flex grow">
         {/* Vertical divider */}
-        <div className="bg-border absolute bottom-0 left-1/2 top-0 w-px" />
+        <div className="bg-border absolute top-0 bottom-0 left-1/2 w-px" />
 
         {/* Swap button - centered at top */}
         {(leftRider || rightRider) && (
-          <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">
+          <div className="absolute top-4 left-1/2 z-10 -translate-x-1/2">
             <Button
               variant="secondary"
               size="icon-xs"
@@ -230,7 +258,7 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
           )}
         >
           {leftName && (
-            <div className="absolute left-4 top-4 flex items-center gap-2">
+            <div className="absolute top-4 left-4 flex items-center gap-2">
               {leftUser?.avatarId && (
                 <Avatar
                   className="size-8"
@@ -271,7 +299,7 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
           )}
         >
           {rightName && (
-            <div className="absolute right-4 top-4 flex items-center gap-2">
+            <div className="absolute top-4 right-4 flex items-center gap-2">
               <span className="text-lg font-semibold">{rightName}</span>
               {rightUser?.avatarId && (
                 <Avatar
@@ -309,7 +337,7 @@ export function SplitTimer({ rider1, rider2, time: initialSeconds, headerContent
         </Button>
       </div>
 
-      <Logo className="pointer-events-none absolute bottom-4 right-4 h-6 w-auto opacity-50" />
+      <Logo className="pointer-events-none absolute right-4 bottom-4 h-6 w-auto opacity-50" />
     </div>
   );
 }

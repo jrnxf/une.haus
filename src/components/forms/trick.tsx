@@ -414,7 +414,9 @@ export function TrickForm({
                 disabled={isPending || formState.isSubmitting}
                 className="rounded-r-none"
               >
-                {isPending || formState.isSubmitting ? "Saving..." : submitLabel}
+                {isPending || formState.isSubmitting
+                  ? "Saving..."
+                  : submitLabel}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -459,7 +461,10 @@ export function TrickForm({
               </DropdownMenu>
             </div>
           ) : (
-            <Button type="submit" disabled={isPending || formState.isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isPending || formState.isSubmitting}
+            >
               {isPending || formState.isSubmitting ? "Saving..." : submitLabel}
             </Button>
           )}

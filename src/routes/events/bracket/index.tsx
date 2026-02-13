@@ -13,10 +13,10 @@ import {
   type EdgeProps,
   type Node,
 } from "@xyflow/react";
+
 import "@xyflow/react/dist/style.css";
+
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-adapter";
-import confetti from "canvas-confetti";
 import {
   ArrowLeftIcon,
   MaximizeIcon,
@@ -27,13 +27,13 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { zodValidator } from "@tanstack/zod-adapter";
+import confetti from "canvas-confetti";
+
 import { SplitTimer } from "~/components/events/split-timer";
 import { Logo } from "~/components/logo";
 import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
-import { users as usersApi } from "~/lib/users";
-import { cn } from "~/lib/utils";
-
 import {
   bracketPageSearchSchema,
   decodeWinners,
@@ -42,6 +42,8 @@ import {
   parseRidersParam,
   type ResolvedRiderEntry,
 } from "~/lib/events/bracket";
+import { users as usersApi } from "~/lib/users";
+import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/events/bracket/")({
   component: RouteComponent,
@@ -143,8 +145,12 @@ function generateBracket(participants: ResolvedRiderEntry[]): Match[] {
       player1: paddedParticipants[player1Index],
       player2: paddedParticipants[player2Index],
       // Seeds are 1-indexed, but only for real participants (not byes)
-      player1Seed: isBye(paddedParticipants[player1Index]) ? null : player1Index + 1,
-      player2Seed: isBye(paddedParticipants[player2Index]) ? null : player2Index + 1,
+      player1Seed: isBye(paddedParticipants[player1Index])
+        ? null
+        : player1Index + 1,
+      player2Seed: isBye(paddedParticipants[player2Index])
+        ? null
+        : player2Index + 1,
       winner: null,
     });
   }
@@ -193,7 +199,8 @@ function generateBracket(participants: ResolvedRiderEntry[]): Match[] {
         if (nextMatch) {
           const isTopHalf = match.position % 2 === 0;
           const winner = match.winner === 1 ? match.player1 : match.player2;
-          const winnerSeed = match.winner === 1 ? match.player1Seed : match.player2Seed;
+          const winnerSeed =
+            match.winner === 1 ? match.player1Seed : match.player2Seed;
           if (isTopHalf) {
             nextMatch.player1 = winner;
             nextMatch.player1Seed = winnerSeed;
@@ -291,10 +298,21 @@ function applyWinners(matches: Match[], winners: Map<number, 1 | 2>): Match[] {
 }
 
 function MatchNode({ data }: { data: MatchNodeData }) {
-  const { match, isFirstRound, isLastRound, timerDuration, onSelectWinner, onOpenTimer } = data;
+  const {
+    match,
+    isFirstRound,
+    isLastRound,
+    timerDuration,
+    onSelectWinner,
+    onOpenTimer,
+  } = data;
   // Allow selecting winner if both players are present (can re-select to change winner)
   const canSelect = match.player1 && match.player2;
-  const canOpenTimer = match.player1 && match.player2 && !isBye(match.player1) && !isBye(match.player2);
+  const canOpenTimer =
+    match.player1 &&
+    match.player2 &&
+    !isBye(match.player1) &&
+    !isBye(match.player2);
   const player1Name = getRiderName(match.player1);
   const player2Name = getRiderName(match.player2);
   const player1IsBye = isBye(match.player1);
@@ -304,7 +322,8 @@ function MatchNode({ data }: { data: MatchNodeData }) {
     <div
       className={cn(
         "bg-card group w-[200px] overflow-hidden rounded-lg border shadow-sm",
-        isLastRound && "border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)]",
+        isLastRound &&
+          "border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)]",
       )}
     >
       {/* Target handle on left - receives edges from previous round */}
@@ -321,9 +340,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
           type="button"
           className={cn(
             "nodrag nopan flex min-w-0 flex-1 items-center gap-2 overflow-hidden px-3 py-1.5 text-left text-sm transition-colors",
-            canSelect &&
-              !player1IsBye &&
-              "hover:bg-muted/50 cursor-pointer",
+            canSelect && !player1IsBye && "hover:bg-muted/50 cursor-pointer",
             match.winner === 1 && "bg-muted/80 font-semibold",
             match.winner === 2 && "text-muted-foreground/50",
             player1IsBye && "text-muted-foreground italic",
@@ -337,10 +354,16 @@ function MatchNode({ data }: { data: MatchNodeData }) {
           }}
         >
           {match.player1Seed && (
-            <span className="text-muted-foreground/50 shrink-0 text-[10px]">{match.player1Seed}</span>
+            <span className="text-muted-foreground/50 shrink-0 text-[10px]">
+              {match.player1Seed}
+            </span>
           )}
-          <span className="truncate">{player1Name || <span className="text-muted-foreground">TBD</span>}</span>
-          {isLastRound && match.winner === 1 && !player1IsBye && <TrophyIcon className="size-3 shrink-0 text-yellow-500" />}
+          <span className="truncate">
+            {player1Name || <span className="text-muted-foreground">TBD</span>}
+          </span>
+          {isLastRound && match.winner === 1 && !player1IsBye && (
+            <TrophyIcon className="size-3 shrink-0 text-yellow-500" />
+          )}
         </button>
         {canOpenTimer && (
           <button
@@ -360,9 +383,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
         type="button"
         className={cn(
           "nodrag nopan flex w-full min-w-0 items-center gap-2 overflow-hidden px-3 py-1.5 text-left text-sm transition-colors",
-          canSelect &&
-            !player2IsBye &&
-            "hover:bg-muted/50 cursor-pointer",
+          canSelect && !player2IsBye && "hover:bg-muted/50 cursor-pointer",
           match.winner === 2 && "bg-muted/80 font-semibold",
           match.winner === 1 && "text-muted-foreground/50",
           player2IsBye && "text-muted-foreground italic",
@@ -376,10 +397,16 @@ function MatchNode({ data }: { data: MatchNodeData }) {
         }}
       >
         {match.player2Seed && (
-          <span className="text-muted-foreground/50 shrink-0 text-[10px]">{match.player2Seed}</span>
+          <span className="text-muted-foreground/50 shrink-0 text-[10px]">
+            {match.player2Seed}
+          </span>
         )}
-        <span className="truncate">{player2Name || <span className="text-muted-foreground">TBD</span>}</span>
-        {isLastRound && match.winner === 2 && !player2IsBye && <TrophyIcon className="size-3 shrink-0 text-yellow-500" />}
+        <span className="truncate">
+          {player2Name || <span className="text-muted-foreground">TBD</span>}
+        </span>
+        {isLastRound && match.winner === 2 && !player2IsBye && (
+          <TrophyIcon className="size-3 shrink-0 text-yellow-500" />
+        )}
       </button>
 
       {/* Source handle on right - connects to next round */}
@@ -409,7 +436,8 @@ function getTimerDuration(
   stageTimes: { prelims: number; semifinals: number; finals: number },
 ): number {
   if (round === totalRounds) return stageTimes.finals;
-  if (round === totalRounds - 1 && totalRounds > 2) return stageTimes.semifinals;
+  if (round === totalRounds - 1 && totalRounds > 2)
+    return stageTimes.semifinals;
   return stageTimes.prelims;
 }
 
@@ -418,11 +446,16 @@ function buildBracketGraph(
   stageTimes: { prelims: number; semifinals: number; finals: number },
   onSelectWinner: (matchId: string, winner: 1 | 2) => void,
   onOpenTimer: (match: Match, duration: number) => void,
-): { nodes: Node<MatchNodeData>[]; edges: Edge[]; bounds: { width: number; height: number } } {
+): {
+  nodes: Node<MatchNodeData>[];
+  edges: Edge[];
+  bounds: { width: number; height: number };
+} {
   const nodes: Node<MatchNodeData>[] = [];
   const edges: Edge[] = [];
 
-  if (matches.length === 0) return { nodes, edges, bounds: { width: 0, height: 0 } };
+  if (matches.length === 0)
+    return { nodes, edges, bounds: { width: 0, height: 0 } };
 
   const totalRounds = Math.max(...matches.map((m) => m.round));
   const firstRoundMatchCount = matches.filter((m) => m.round === 1).length;
@@ -455,7 +488,11 @@ function buildBracketGraph(
   for (const match of matches) {
     const x = (match.round - 1) * (NODE_WIDTH + HORIZONTAL_GAP);
     const y = yPositions.get(match.id) ?? 0;
-    const timerDuration = getTimerDuration(match.round, totalRounds, stageTimes);
+    const timerDuration = getTimerDuration(
+      match.round,
+      totalRounds,
+      stageTimes,
+    );
     const isFirstRound = match.round === 1;
     const isLastRound = match.round === totalRounds;
 
@@ -468,20 +505,28 @@ function buildBracketGraph(
       height: NODE_HEIGHT,
       // SSR: explicit handle positions for edge rendering
       handles: [
-        ...(isFirstRound ? [] : [{
-          type: "target" as const,
-          position: Position.Left,
-          x: 0,
-          y: NODE_HEIGHT / 2,
-          id: "target",
-        }]),
-        ...(isLastRound ? [] : [{
-          type: "source" as const,
-          position: Position.Right,
-          x: NODE_WIDTH,
-          y: NODE_HEIGHT / 2,
-          id: "source",
-        }]),
+        ...(isFirstRound
+          ? []
+          : [
+              {
+                type: "target" as const,
+                position: Position.Left,
+                x: 0,
+                y: NODE_HEIGHT / 2,
+                id: "target",
+              },
+            ]),
+        ...(isLastRound
+          ? []
+          : [
+              {
+                type: "source" as const,
+                position: Position.Right,
+                x: NODE_WIDTH,
+                y: NODE_HEIGHT / 2,
+                id: "source",
+              },
+            ]),
       ],
       data: {
         match,
@@ -512,8 +557,11 @@ function buildBracketGraph(
   }
 
   // Calculate bounds of the bracket
-  const boundsWidth = totalRounds * (NODE_WIDTH + HORIZONTAL_GAP) - HORIZONTAL_GAP;
-  const boundsHeight = firstRoundMatchCount * (NODE_HEIGHT + BASE_VERTICAL_GAP) - BASE_VERTICAL_GAP;
+  const boundsWidth =
+    totalRounds * (NODE_WIDTH + HORIZONTAL_GAP) - HORIZONTAL_GAP;
+  const boundsHeight =
+    firstRoundMatchCount * (NODE_HEIGHT + BASE_VERTICAL_GAP) -
+    BASE_VERTICAL_GAP;
 
   return { nodes, edges, bounds: { width: boundsWidth, height: boundsHeight } };
 }
@@ -565,7 +613,7 @@ function BracketContainer({
           />
         </ReactFlowProvider>
       </div>
-      <Logo className="pointer-events-none absolute bottom-4 right-4 h-10 w-auto" />
+      <Logo className="pointer-events-none absolute right-4 bottom-4 h-10 w-auto" />
     </div>
   );
 }
@@ -620,7 +668,7 @@ function BracketGraph({
       />
       <Controls
         showInteractive={false}
-        className="!bg-card !border-border !shadow-sm [&_button]:!bg-card [&_button]:!border-border [&_button]:!fill-foreground [&_button:hover]:!bg-muted"
+        className="!bg-card !border-border [&_button]:!bg-card [&_button]:!border-border [&_button]:!fill-foreground [&_button:hover]:!bg-muted !shadow-sm"
       />
     </ReactFlow>
   );
@@ -630,11 +678,11 @@ function BracketGraph({
 function FitText({ text }: { text: string }) {
   return (
     <div
-      className="w-full [container-type:inline-size]"
+      className="[container-type:inline-size] w-full"
       style={{ "--chars": text.length } as React.CSSProperties}
     >
       <span
-        className="block whitespace-nowrap text-center font-bold tracking-tight"
+        className="block text-center font-bold tracking-tight whitespace-nowrap"
         style={{ fontSize: "calc(150cqi / var(--chars))" }}
       >
         {text}
@@ -647,18 +695,34 @@ function RouteComponent() {
   const navigate = useNavigate();
 
   // Read from Route.useSearch() for SSR-compatible initial values
-  const { name: eventName, riders: ridersParam, w: winnersParam, prelimsTime, semifinalsTime, finalsTime } = Route.useSearch();
+  const {
+    name: eventName,
+    riders: ridersParam,
+    w: winnersParam,
+    prelimsTime,
+    semifinalsTime,
+    finalsTime,
+  } = Route.useSearch();
 
   // Parse riders and winners from URL (available immediately on SSR)
-  const ridersEntries = useMemo(() => parseRidersParam(ridersParam), [ridersParam]);
-  const winnersMap = useMemo(() => decodeWinners(winnersParam ?? null), [winnersParam]);
+  const ridersEntries = useMemo(
+    () => parseRidersParam(ridersParam),
+    [ridersParam],
+  );
+  const winnersMap = useMemo(
+    () => decodeWinners(winnersParam ?? null),
+    [winnersParam],
+  );
 
   // Users pre-fetched in loader, available immediately
   const { data: allUsers } = useSuspenseQuery(usersApi.all.queryOptions());
 
   // Create lookup map for users
   const usersMap = useMemo(() => {
-    const map = new Map<number, { id: number; name: string; avatarId: string | null }>();
+    const map = new Map<
+      number,
+      { id: number; name: string; avatarId: string | null }
+    >();
     for (const user of allUsers) {
       map.set(user.id, user);
     }
@@ -676,18 +740,28 @@ function RouteComponent() {
     });
   }, [ridersEntries, usersMap]);
 
-  const stageTimes = useMemo(() => ({
-    prelims: prelimsTime,
-    semifinals: semifinalsTime,
-    finals: finalsTime,
-  }), [prelimsTime, semifinalsTime, finalsTime]);
+  const stageTimes = useMemo(
+    () => ({
+      prelims: prelimsTime,
+      semifinals: semifinalsTime,
+      finals: finalsTime,
+    }),
+    [prelimsTime, semifinalsTime, finalsTime],
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const confettiRef = useRef<confetti.CreateTypes | null>(null);
-  const [activeTimer, setActiveTimer] = useState<{ match: Match; duration: number } | null>(null);
+  const [activeTimer, setActiveTimer] = useState<{
+    match: Match;
+    duration: number;
+  } | null>(null);
   const [celebrationDismissed, setCelebrationDismissed] = useState(false);
-  const [prevChampion, setPrevChampion] = useState<string | null | undefined>(undefined);
-  const prevChampionForConfettiRef = useRef<string | null | undefined>(undefined);
+  const [prevChampion, setPrevChampion] = useState<string | null | undefined>(
+    undefined,
+  );
+  const prevChampionForConfettiRef = useRef<string | null | undefined>(
+    undefined,
+  );
 
   // Track actual fullscreen state (may differ from URL during transitions)
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -695,7 +769,9 @@ function RouteComponent() {
   // Initialize confetti instance with our canvas
   useEffect(() => {
     if (canvasRef.current && !confettiRef.current) {
-      confettiRef.current = confetti.create(canvasRef.current, { resize: true });
+      confettiRef.current = confetti.create(canvasRef.current, {
+        resize: true,
+      });
     }
   }, []);
 
@@ -726,63 +802,66 @@ function RouteComponent() {
     return applyWinners(bracket, winnersMap);
   }, [riders, winnersMap]);
 
-  const selectWinner = useCallback((matchId: string, winner: 1 | 2) => {
-    // Find the match and its index in sorted order
-    const match = matches.find((m) => m.id === matchId);
-    if (!match) return;
+  const selectWinner = useCallback(
+    (matchId: string, winner: 1 | 2) => {
+      // Find the match and its index in sorted order
+      const match = matches.find((m) => m.id === matchId);
+      if (!match) return;
 
-    // Sort matches to get index mapping (same order as encoding)
-    const sortedMatches = [...matches].sort((a, b) => {
-      if (a.round !== b.round) return a.round - b.round;
-      return a.position - b.position;
-    });
-    const matchIndex = sortedMatches.findIndex((m) => m.id === matchId);
-    if (matchIndex === -1) return;
+      // Sort matches to get index mapping (same order as encoding)
+      const sortedMatches = [...matches].sort((a, b) => {
+        if (a.round !== b.round) return a.round - b.round;
+        return a.position - b.position;
+      });
+      const matchIndex = sortedMatches.findIndex((m) => m.id === matchId);
+      if (matchIndex === -1) return;
 
-    const previousWinner = match.winner;
-    const newWinners = new Map(winnersMap);
+      const previousWinner = match.winner;
+      const newWinners = new Map(winnersMap);
 
-    // If changing winner, clear all downstream winners
-    if (previousWinner !== null && previousWinner !== winner) {
-      const totalRounds = Math.max(...matches.map((m) => m.round));
-      let currentRound = match.round;
-      let currentPosition = match.position;
+      // If changing winner, clear all downstream winners
+      if (previousWinner !== null && previousWinner !== winner) {
+        const totalRounds = Math.max(...matches.map((m) => m.round));
+        let currentRound = match.round;
+        let currentPosition = match.position;
 
-      while (currentRound < totalRounds) {
-        const nextRound = currentRound + 1;
-        const nextPosition = Math.floor(currentPosition / 2);
+        while (currentRound < totalRounds) {
+          const nextRound = currentRound + 1;
+          const nextPosition = Math.floor(currentPosition / 2);
 
-        // Find the downstream match index and clear its winner
-        const downstreamMatch = sortedMatches.find(
-          (m) => m.round === nextRound && m.position === nextPosition,
-        );
-        if (downstreamMatch) {
-          const downstreamIndex = sortedMatches.indexOf(downstreamMatch);
-          newWinners.delete(downstreamIndex);
+          // Find the downstream match index and clear its winner
+          const downstreamMatch = sortedMatches.find(
+            (m) => m.round === nextRound && m.position === nextPosition,
+          );
+          if (downstreamMatch) {
+            const downstreamIndex = sortedMatches.indexOf(downstreamMatch);
+            newWinners.delete(downstreamIndex);
+          }
+
+          currentRound = nextRound;
+          currentPosition = nextPosition;
         }
-
-        currentRound = nextRound;
-        currentPosition = nextPosition;
       }
-    }
 
-    // Set the new winner
-    newWinners.set(matchIndex, winner);
+      // Set the new winner
+      newWinners.set(matchIndex, winner);
 
-    // Encode winners and update URL (stringifySearch keeps commas readable)
-    const encoded = encodeWinners(
-      sortedMatches.map((m, i) => ({
-        round: m.round,
-        position: m.position,
-        winner: newWinners.get(i) ?? null,
-      })),
-    );
-    navigate({
-      to: ".",
-      search: (prev) => ({ ...prev, w: encoded ?? undefined }),
-      replace: true,
-    });
-  }, [matches, winnersMap, navigate]);
+      // Encode winners and update URL (stringifySearch keeps commas readable)
+      const encoded = encodeWinners(
+        sortedMatches.map((m, i) => ({
+          round: m.round,
+          position: m.position,
+          winner: newWinners.get(i) ?? null,
+        })),
+      );
+      navigate({
+        to: ".",
+        search: (prev) => ({ ...prev, w: encoded ?? undefined }),
+        replace: true,
+      });
+    },
+    [matches, winnersMap, navigate],
+  );
 
   const reset = useCallback(() => {
     // Clear winners from URL
@@ -808,7 +887,8 @@ function RouteComponent() {
     }
     setPrevChampion(champion);
   }
-  const showCelebration = !!champion && champion !== "BYE" && !celebrationDismissed;
+  const showCelebration =
+    !!champion && champion !== "BYE" && !celebrationDismissed;
 
   // Fire confetti when a new champion is crowned
   useEffect(() => {
@@ -820,7 +900,12 @@ function RouteComponent() {
       return;
     }
 
-    if (champion && champion !== "BYE" && champion !== prevChampionForConfettiRef.current && fireConfetti) {
+    if (
+      champion &&
+      champion !== "BYE" &&
+      champion !== prevChampionForConfettiRef.current &&
+      fireConfetti
+    ) {
       prevChampionForConfettiRef.current = champion;
 
       // Fire confetti bursts
@@ -927,7 +1012,8 @@ function RouteComponent() {
         </Button>
         <div className="bg-border h-4 w-px" />
         <span className="text-sm font-medium">
-          {getRiderName(activeTimer.match.player1)} vs {getRiderName(activeTimer.match.player2)}
+          {getRiderName(activeTimer.match.player1)} vs{" "}
+          {getRiderName(activeTimer.match.player2)}
         </span>
       </div>
 
@@ -967,7 +1053,10 @@ function RouteComponent() {
               <Button variant="secondary" size="sm" asChild>
                 <Link
                   to="/events/bracket/setup"
-                  search={{ name: eventName, riders: encodeRidersParam(riders) }}
+                  search={{
+                    name: eventName,
+                    riders: encodeRidersParam(riders),
+                  }}
                 >
                   Edit
                 </Link>
@@ -975,7 +1064,11 @@ function RouteComponent() {
               <Button variant="secondary" size="icon-xs" onClick={reset}>
                 <RotateCcwIcon className="size-3.5" />
               </Button>
-              <Button variant="secondary" size="icon-xs" onClick={toggleFullscreen}>
+              <Button
+                variant="secondary"
+                size="icon-xs"
+                onClick={toggleFullscreen}
+              >
                 {isFullscreen ? (
                   <MinimizeIcon className="size-3.5" />
                 ) : (
@@ -986,13 +1079,21 @@ function RouteComponent() {
           )}
           {showCelebration && champion && (
             <>
-              <Button variant="secondary" size="sm" onClick={() => setCelebrationDismissed(true)}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setCelebrationDismissed(true)}
+              >
                 Bracket
               </Button>
               <Button variant="secondary" size="icon-xs" onClick={reset}>
                 <RotateCcwIcon className="size-3.5" />
               </Button>
-              <Button variant="secondary" size="icon-xs" onClick={toggleFullscreen}>
+              <Button
+                variant="secondary"
+                size="icon-xs"
+                onClick={toggleFullscreen}
+              >
                 {isFullscreen ? (
                   <MinimizeIcon className="size-3.5" />
                 ) : (
@@ -1027,7 +1128,7 @@ function RouteComponent() {
         {/* Confetti canvas - must be inside fullscreen container */}
         <canvas
           ref={canvasRef}
-          className="pointer-events-none fixed left-0 top-0 z-50 h-screen w-screen"
+          className="pointer-events-none fixed top-0 left-0 z-50 h-screen w-screen"
         />
       </div>
     </>

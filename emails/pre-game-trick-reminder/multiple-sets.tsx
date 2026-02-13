@@ -5,7 +5,10 @@ export default function MultipleSets() {
     <PreGameTrickReminderTemplate
       userName="John"
       sets={[
-        { name: "Kickflip variations", instructions: "Land it clean, no sketchy landings" },
+        {
+          name: "Kickflip variations",
+          instructions: "Land it clean, no sketchy landings",
+        },
         { name: "Flatground combos", instructions: "Any 3-trick combo" },
         { name: "Manual tricks" },
       ]}

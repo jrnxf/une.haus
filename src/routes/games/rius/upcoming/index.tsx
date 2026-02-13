@@ -107,11 +107,12 @@ function RouteComponent() {
                   Be the first to join the next round!
                 </p>
               </div>
-              {!user || !isUserInGame && (
-                <Button asChild>
-                  <Link to="/games/rius/upcoming/join">Join Game</Link>
-                </Button>
-              )}
+              {!user ||
+                (!isUserInGame && (
+                  <Button asChild>
+                    <Link to="/games/rius/upcoming/join">Join Game</Link>
+                  </Button>
+                ))}
             </CardContent>
           </Card>
         ) : (

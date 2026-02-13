@@ -26,7 +26,9 @@ export default function PreGameTrickReminderTemplate({
 
   const setCount = sets.length;
   const subjectLine =
-    setCount === 1 ? "Your set goes live tomorrow" : `Your ${setCount} sets go live tomorrow`;
+    setCount === 1
+      ? "Your set goes live tomorrow"
+      : `Your ${setCount} sets go live tomorrow`;
 
   return (
     <Tailwind>

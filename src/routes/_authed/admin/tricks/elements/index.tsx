@@ -99,82 +99,87 @@ function RouteComponent() {
       </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
-          Elements are the components that make up a trick (e.g., spins,
-          flips, twists).
+          Elements are the components that make up a trick (e.g., spins, flips,
+          twists).
         </p>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Slug</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="w-20">Order</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {elements.map((element) => (
-            <TableRow key={element.id}>
-              <TableCell className="font-medium">{element.name}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {element.slug}
-              </TableCell>
-              <TableCell className="text-muted-foreground max-w-xs truncate">
-                {element.description}
-              </TableCell>
-              <TableCell>{element.sortOrder}</TableCell>
-              <TableCell>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" asChild aria-label="Edit">
-                    <Link
-                      to="/admin/tricks/elements/$elementId/edit"
-                      params={{ elementId: element.id.toString() }}
-                    >
-                      <Pencil className="size-4" />
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Delete"
-                    onClick={() => setDeletingElement(element)}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              </TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Slug</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="w-20">Order</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {elements.map((element) => (
+              <TableRow key={element.id}>
+                <TableCell className="font-medium">{element.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {element.slug}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-xs truncate">
+                  {element.description}
+                </TableCell>
+                <TableCell>{element.sortOrder}</TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      aria-label="Edit"
+                    >
+                      <Link
+                        to="/admin/tricks/elements/$elementId/edit"
+                        params={{ elementId: element.id.toString() }}
+                      >
+                        <Pencil className="size-4" />
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Delete"
+                      onClick={() => setDeletingElement(element)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {/* Delete Confirmation */}
-      <AlertDialog
-        open={!!deletingElement}
-        onOpenChange={(open) => !open && setDeletingElement(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Element</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{deletingElement?.name}
-              &quot;? This will remove the element from all tricks.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() =>
-                deletingElement &&
-                deleteElement.mutate({ data: deletingElement.id })
-              }
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Delete Confirmation */}
+        <AlertDialog
+          open={!!deletingElement}
+          onOpenChange={(open) => !open && setDeletingElement(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Element</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete &quot;{deletingElement?.name}
+                &quot;? This will remove the element from all tricks.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() =>
+                  deletingElement &&
+                  deleteElement.mutate({ data: deletingElement.id })
+                }
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

@@ -39,23 +39,23 @@ function RouteComponent() {
           )}
         </div>
 
-      {suggestions.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">No pending suggestions</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {suggestions.map((suggestion) => (
-            <UtvSuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              showStatus={false}
-            />
-          ))}
-        </div>
-      )}
+        {suggestions.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">No pending suggestions</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {suggestions.map((suggestion) => (
+              <UtvSuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                showStatus={false}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

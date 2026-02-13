@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { users, type ActivityItem } from "~/lib/users";
-import { type ActivityTypeFilter, ACTIVITY_TYPES } from "~/lib/users/schemas";
+import { ACTIVITY_TYPES, type ActivityTypeFilter } from "~/lib/users/schemas";
 
 const TYPE_LABELS: Record<ActivityTypeFilter, string> = {
   post: "Posts",
@@ -50,22 +50,30 @@ type ActivityGroup = {
 
 function getGroupKey(item: ActivityItem): string {
   switch (item.type) {
-    case "comment":
+    case "comment": {
       return `comment-${item.parentType}-${item.parentId}`;
-    case "riuSubmission":
+    }
+    case "riuSubmission": {
       return `riuSubmission-${item.riuSetId}`;
-    case "trickSuggestion":
+    }
+    case "trickSuggestion": {
       return `trickSuggestion-${item.trickId}`;
-    case "trickVideo":
+    }
+    case "trickVideo": {
       return `trickVideo-${item.trickId}`;
-    case "utvVideoSuggestion":
+    }
+    case "utvVideoSuggestion": {
       return `utvVideoSuggestion-${item.videoId}`;
-    case "biuSet":
+    }
+    case "biuSet": {
       return `biuSet-${item.chainId}`;
-    case "siuStack":
+    }
+    case "siuStack": {
       return `siuStack-${item.chainId}`;
-    default:
+    }
+    default: {
       return `${item.type}-${item.id}`;
+    }
   }
 }
 
@@ -73,7 +81,7 @@ function groupConsecutiveItems(items: ActivityItem[]): ActivityGroup[] {
   const groups: ActivityGroup[] = [];
   for (const item of items) {
     const key = getGroupKey(item);
-    const last = groups[groups.length - 1];
+    const last = groups.at(-1);
     if (last && last.key === key) {
       last.items.push(item);
     } else {
@@ -101,10 +109,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
       }),
     );
 
-  const items = useMemo(
-    () => data.pages.flatMap((p) => p.items),
-    [data],
-  );
+  const items = useMemo(() => data.pages.flatMap((p) => p.items), [data]);
 
   const groups = useMemo(() => groupConsecutiveItems(items), [items]);
 
@@ -191,7 +196,6 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
   );
 }
 
-
 function ActivityGroupRow({
   group,
   isLast,
@@ -265,7 +269,10 @@ function ActivityGroupRow({
           {group.items.map((item) => {
             const display = getActivityDisplay(item);
             return (
-              <div key={`${item.type}-${item.id}`} className="relative flex items-center py-1 pl-4">
+              <div
+                key={`${item.type}-${item.id}`}
+                className="relative flex items-center py-1 pl-4"
+              >
                 <div className="bg-border absolute top-0 bottom-0 left-[2px] w-px" />
                 <Link
                   to={display.url}

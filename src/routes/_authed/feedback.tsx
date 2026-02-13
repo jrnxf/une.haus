@@ -90,97 +90,99 @@ function RouteComponent() {
           Share your thoughts, report bugs, or suggest improvements.
         </p>
 
-      <FormField
-        control={control}
-        name="content"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Your feedback</FormLabel>
-            <FormControl>
-              <Textarea
-                {...field}
-                placeholder="What's on your mind?"
-                rows={6}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="media"
-        render={({ field }) => {
-          return (
+        <FormField
+          control={control}
+          name="content"
+          render={({ field }) => (
             <FormItem>
-              <FormLabel>Attachment</FormLabel>
-              <RadioGroup
-                className="flex gap-6 py-2"
-                onValueChange={(value) => {
-                  field.onChange(undefined);
-                  setMediaOption(value as MediaOption);
-                }}
-                value={mediaOption}
-              >
-                {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
-                  <Label
-                    htmlFor={k}
-                    className="flex items-center space-x-2"
-                    key={k}
-                  >
-                    <RadioGroupItem id={k} value={k} />
-                    {v}
-                  </Label>
-                ))}
-              </RadioGroup>
+              <FormLabel>Your feedback</FormLabel>
               <FormControl>
-                <>
-                  {mediaOption === "image" && (
-                    <ImageInput
-                      previewClassNames="rounded-md size-86"
-                      value={
-                        field.value?.type === "image"
-                          ? field.value.value
-                          : undefined
-                      }
-                      onChange={(data) => {
-                        field.onChange(
-                          data ? { type: "image", value: data } : undefined,
-                        );
-                      }}
-                    />
-                  )}
-
-                  {mediaOption === "video" && (
-                    <FeedbackVideoInput
-                      value={
-                        field.value?.type === "video" ? field.value : undefined
-                      }
-                      onChange={(data) => {
-                        field.onChange(
-                          data
-                            ? {
-                                type: "video",
-                                assetId: data.assetId,
-                                playbackId: data.playbackId,
-                              }
-                            : undefined,
-                        );
-                      }}
-                    />
-                  )}
-                </>
+                <Textarea
+                  {...field}
+                  placeholder="What's on your mind?"
+                  rows={6}
+                />
               </FormControl>
-
               <FormMessage />
             </FormItem>
-          );
-        }}
-      />
-      <div className="flex justify-end">
-        <FormSubmitButton busy={isSubmitting} />
-      </div>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="media"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Attachment</FormLabel>
+                <RadioGroup
+                  className="flex gap-6 py-2"
+                  onValueChange={(value) => {
+                    field.onChange(undefined);
+                    setMediaOption(value as MediaOption);
+                  }}
+                  value={mediaOption}
+                >
+                  {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
+                    <Label
+                      htmlFor={k}
+                      className="flex items-center space-x-2"
+                      key={k}
+                    >
+                      <RadioGroupItem id={k} value={k} />
+                      {v}
+                    </Label>
+                  ))}
+                </RadioGroup>
+                <FormControl>
+                  <>
+                    {mediaOption === "image" && (
+                      <ImageInput
+                        previewClassNames="rounded-md size-86"
+                        value={
+                          field.value?.type === "image"
+                            ? field.value.value
+                            : undefined
+                        }
+                        onChange={(data) => {
+                          field.onChange(
+                            data ? { type: "image", value: data } : undefined,
+                          );
+                        }}
+                      />
+                    )}
+
+                    {mediaOption === "video" && (
+                      <FeedbackVideoInput
+                        value={
+                          field.value?.type === "video"
+                            ? field.value
+                            : undefined
+                        }
+                        onChange={(data) => {
+                          field.onChange(
+                            data
+                              ? {
+                                  type: "video",
+                                  assetId: data.assetId,
+                                  playbackId: data.playbackId,
+                                }
+                              : undefined,
+                          );
+                        }}
+                      />
+                    )}
+                  </>
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <div className="flex justify-end">
+          <FormSubmitButton busy={isSubmitting} />
+        </div>
       </Form>
     </>
   );

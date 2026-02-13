@@ -16,12 +16,12 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
-import { PageHeader } from "~/components/page-header";
 import { BackUpSetForm, FlagSetForm } from "~/components/forms/games/bius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
+import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -79,7 +79,9 @@ function RouteComponent() {
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/bius" icon={RotateCcwIcon}>back it up</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/bius" icon={RotateCcwIcon}>
+            back it up
+          </PageHeader.Crumb>
           <PageHeader.Crumb>set</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>

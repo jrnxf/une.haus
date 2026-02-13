@@ -44,7 +44,11 @@ export const Route = createFileRoute("/_authed/vault/$videoId/suggest")({
   component: RouteComponent,
 });
 
-type RiderEntry = { orderId: string; userId: number | null; name: string | null };
+type RiderEntry = {
+  orderId: string;
+  userId: number | null;
+  name: string | null;
+};
 
 // Generate a unique order ID
 function generateOrderId(): string {

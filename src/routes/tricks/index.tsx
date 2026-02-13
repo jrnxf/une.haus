@@ -125,49 +125,48 @@ function TricksPage() {
 
       <div className="flex h-full grow flex-col overflow-hidden">
         {/* Mobile search bar */}
-      <div className="shrink-0 border-b p-4 md:hidden">
-        <TricksSearch
-          data={data}
-          onSelectTrick={(trick) => handleSelectTrick(trick.id)}
-        />
-      </div>
-
-      <div className="flex min-h-0 flex-1">
-        {/* Sidebar - hidden on mobile */}
-        <div className="hidden h-full w-(--sidebar-width) shrink-0 overflow-hidden border-r md:block">
-          <TricksSidebar
+        <div className="shrink-0 border-b p-4 md:hidden">
+          <TricksSearch
             data={data}
             onSelectTrick={(trick) => handleSelectTrick(trick.id)}
-            selectedTrickId={selectedTrickId}
           />
         </div>
 
-        {/* Graph */}
-        <div className="relative flex-1">
-          <ReactFlowProvider>
-            <TricksGraph
+        <div className="flex min-h-0 flex-1">
+          {/* Sidebar - hidden on mobile */}
+          <div className="hidden h-full w-(--sidebar-width) shrink-0 overflow-hidden border-r md:block">
+            <TricksSidebar
               data={data}
-              onCenterNodeClick={(trick) => handleCenterNodeClick(trick.id)}
-              onOpenTrickDetail={(trick) => handleOpenTrickDetail(trick.id)}
               onSelectTrick={(trick) => handleSelectTrick(trick.id)}
               selectedTrickId={selectedTrickId}
             />
-          </ReactFlowProvider>
+          </div>
 
+          {/* Graph */}
+          <div className="relative flex-1">
+            <ReactFlowProvider>
+              <TricksGraph
+                data={data}
+                onCenterNodeClick={(trick) => handleCenterNodeClick(trick.id)}
+                onOpenTrickDetail={(trick) => handleOpenTrickDetail(trick.id)}
+                onSelectTrick={(trick) => handleSelectTrick(trick.id)}
+                selectedTrickId={selectedTrickId}
+              />
+            </ReactFlowProvider>
+          </div>
         </div>
-      </div>
 
-      {/* Detail dialog */}
-      {detailTrick && (
-        <TrickDetail
-          onNavigateToTrick={handleNavigateToTrick}
-          onOpenChange={(open) => !open && setDetailTrickId(null)}
-          open
-          trick={detailTrick}
-          tricksData={data}
-        />
-      )}
-    </div>
+        {/* Detail dialog */}
+        {detailTrick && (
+          <TrickDetail
+            onNavigateToTrick={handleNavigateToTrick}
+            onOpenChange={(open) => !open && setDetailTrickId(null)}
+            open
+            trick={detailTrick}
+            tricksData={data}
+          />
+        )}
+      </div>
     </>
   );
 }

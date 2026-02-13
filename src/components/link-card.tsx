@@ -16,7 +16,7 @@ function LinkCardRoot({
   return (
     <Link
       to={href}
-      className="group block h-full rounded-xl transition-transform hover:scale-[1.01] focus-visible:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group focus-visible:ring-ring block h-full rounded-xl transition-transform hover:scale-[1.01] focus-visible:scale-[1.01] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       <Card
         className={cn(

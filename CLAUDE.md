@@ -214,6 +214,7 @@ loader: async ({ context, deps }) => {
 Every route declares its header content via a `<PageHeader>` compound component that renders nothing visible — it writes to a React Context consumed by `SiteHeader`. This gives every page consistent breadcrumbs, tabs, actions, and widgets in the global header bar.
 
 **Key files:**
+
 - `src/lib/page-header/context.tsx` — Store + Provider + hooks
 - `src/components/page-header.tsx` — Declarative compound component
 - `src/components/site-header.tsx` — Consumes context, renders header
@@ -235,13 +236,13 @@ Every route declares its header content via a `<PageHeader>` compound component 
 
 ### Breadcrumb Depth
 
-| Route Type | Breadcrumbs | Example |
-|---|---|---|
-| Standalone (home, chat, shop) | None | Minimal header |
-| Hub pages (`/games`, `/stats`) | 1 crumb (non-link) | `games` |
-| Sub-sections (`/games/rius/active`) | 2 crumbs | `games > rack it up` |
-| Detail pages (`/vault/$videoId`) | 2 crumbs | `vault > video title` |
-| Deep detail (`/games/rius/sets/$setId`) | 3 crumbs | `games > rack it up > set name` |
+| Route Type                              | Breadcrumbs        | Example                         |
+| --------------------------------------- | ------------------ | ------------------------------- |
+| Standalone (home, chat, shop)           | None               | Minimal header                  |
+| Hub pages (`/games`, `/stats`)          | 1 crumb (non-link) | `games`                         |
+| Sub-sections (`/games/rius/active`)     | 2 crumbs           | `games > rack it up`            |
+| Detail pages (`/vault/$videoId`)        | 2 crumbs           | `vault > video title`           |
+| Deep detail (`/games/rius/sets/$setId`) | 3 crumbs           | `games > rack it up > set name` |
 
 ### Rules
 
@@ -505,13 +506,13 @@ Use `gap-4` in flex containers instead of manual margins (`mt-3`, `mb-1`):
 
 ### Summary Table
 
-| Context            | Standard Values                                             | Avoid                                          |
-| ------------------ | ----------------------------------------------------------- | ---------------------------------------------- |
-| Flex gaps          | `gap-1`, `gap-2`, `gap-3`, `gap-4`, `gap-6`                 | `gap-5`, `gap-7+`, fractional (`gap-1.5`, etc) |
-| Vertical stacking  | `space-y-1`, `space-y-2`, `space-y-3`, `space-y-4`, `space-y-6` | `space-y-5`, `space-y-7+`                  |
-| Padding            | `p-4`, `p-6`                                       | `p-3`, `p-5`, `p-7`                    |
-| Horizontal padding | `px-2`, `px-4`, `px-6`                             | `px-3`, `px-5`                         |
-| Vertical padding   | `py-1`, `py-2`, `py-4`, `py-6`                     | `py-3`, `py-5`                         |
+| Context            | Standard Values                                                 | Avoid                                          |
+| ------------------ | --------------------------------------------------------------- | ---------------------------------------------- |
+| Flex gaps          | `gap-1`, `gap-2`, `gap-3`, `gap-4`, `gap-6`                     | `gap-5`, `gap-7+`, fractional (`gap-1.5`, etc) |
+| Vertical stacking  | `space-y-1`, `space-y-2`, `space-y-3`, `space-y-4`, `space-y-6` | `space-y-5`, `space-y-7+`                      |
+| Padding            | `p-4`, `p-6`                                                    | `p-3`, `p-5`, `p-7`                            |
+| Horizontal padding | `px-2`, `px-4`, `px-6`                                          | `px-3`, `px-5`                                 |
+| Vertical padding   | `py-1`, `py-2`, `py-4`, `py-6`                                  | `py-3`, `py-5`                                 |
 
 ## Documentation
 

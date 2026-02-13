@@ -16,6 +16,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useEffect } from "react";
+
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -84,7 +85,9 @@ const DAYS_BEFORE_OPTIONS = [
 
 function RouteComponent() {
   const qc = useQueryClient();
-  const { unsubscribed } = useSearch({ from: "/_authed/notifications/settings" });
+  const { unsubscribed } = useSearch({
+    from: "/_authed/notifications/settings",
+  });
   const { data: settings } = useSuspenseQuery(
     notificationSettings.get.queryOptions(),
   );
@@ -364,7 +367,9 @@ function RouteComponent() {
                     id="gameStartReminderEnabled"
                     checked={settings.gameStartReminderEnabled}
                     onCheckedChange={(checked) =>
-                      handleUpdate({ gameStartReminderEnabled: checked === true })
+                      handleUpdate({
+                        gameStartReminderEnabled: checked === true,
+                      })
                     }
                     disabled={updateSettings.isPending || isEmailDisabled}
                   />
@@ -376,7 +381,9 @@ function RouteComponent() {
                       Remind me
                     </Label>
                     <Select
-                      value={String(settings.gameStartReminderHoursBefore ?? 24)}
+                      value={String(
+                        settings.gameStartReminderHoursBefore ?? 24,
+                      )}
                       onValueChange={(value) =>
                         handleUpdate({
                           gameStartReminderHoursBefore: Number(value),
@@ -395,7 +402,9 @@ function RouteComponent() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <span className="text-muted-foreground text-sm">before</span>
+                    <span className="text-muted-foreground text-sm">
+                      before
+                    </span>
                   </div>
                 )}
               </div>
@@ -424,7 +433,9 @@ function RouteComponent() {
                     id="preTrickReminderEnabled"
                     checked={settings.preTrickReminderEnabled}
                     onCheckedChange={(checked) =>
-                      handleUpdate({ preTrickReminderEnabled: checked === true })
+                      handleUpdate({
+                        preTrickReminderEnabled: checked === true,
+                      })
                     }
                     disabled={updateSettings.isPending || isEmailDisabled}
                   />
@@ -455,7 +466,9 @@ function RouteComponent() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <span className="text-muted-foreground text-sm">before</span>
+                    <span className="text-muted-foreground text-sm">
+                      before
+                    </span>
                   </div>
                 )}
               </div>
@@ -479,8 +492,8 @@ function RouteComponent() {
                   Unsubscribe from all emails
                 </Label>
                 <p className="text-muted-foreground text-sm">
-                  Stop receiving all email notifications (except account security
-                  emails)
+                  Stop receiving all email notifications (except account
+                  security emails)
                 </p>
               </div>
               <Checkbox

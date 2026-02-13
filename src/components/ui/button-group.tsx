@@ -1,8 +1,7 @@
-import { Slot } from "~/lib/slot";
-
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { Separator } from "~/components/ui/separator";
+import { Slot } from "~/lib/slot";
 import { cn } from "~/lib/utils";
 
 const buttonGroupVariants = cva(

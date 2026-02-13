@@ -25,11 +25,11 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { useSidebar } from "~/components/ui/sidebar";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks";
 import { SHORTCUTS } from "~/lib/shortcuts/constants";
 import { useTheme } from "~/lib/theme/context";
-import { useSidebar } from "~/components/ui/sidebar";
 import { users as usersApi } from "~/lib/users";
 import { utv } from "~/lib/utv/core";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";

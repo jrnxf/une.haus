@@ -1,4 +1,3 @@
-import { Slot } from "~/lib/slot";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
@@ -24,6 +23,7 @@ import {
 import { useIsTablet } from "~/hooks/use-mobile";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { session } from "~/lib/session/index";
+import { Slot } from "~/lib/slot";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_WIDTH = "12rem";

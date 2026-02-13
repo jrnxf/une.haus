@@ -3,8 +3,8 @@ import { LayersIcon, PaperclipIcon, PlayCircleIcon } from "lucide-react";
 
 import { TimeAgo } from "~/components/time-ago";
 import { Badge } from "~/components/ui/badge";
-import { cn } from "~/lib/utils";
 import type { ActivityItem } from "~/lib/users";
+import { cn } from "~/lib/utils";
 
 type ActivityCardProps = {
   item: ActivityItem;

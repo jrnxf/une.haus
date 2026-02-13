@@ -18,33 +18,40 @@ Create a dedicated `/activity` route that displays the current user's activity i
 A polymorphic card component that renders differently based on activity type:
 
 **Post Card**
+
 - Title, content preview (2-3 lines)
 - Paperclip icon if has media
 - Timestamp
 
 **Comment Card**
+
 - "Commented on {parentTitle}"
 - Comment content preview
 - Link to parent
 
 **RIU Set Card**
+
 - Set name, instructions preview
 - "Created set" label
 
 **RIU Submission Card**
+
 - "Submitted to {setName}"
 - Video thumbnail if muxAssetId available
 
 **BIU/SIU Cards**
+
 - Chain reference
 - "Added to Back It Up" / "Added to Stack It Up"
 
 **Trick Activity Cards** (submission, suggestion, video)
+
 - Trick name
 - Status badge for pending items
 - Type-specific icon
 
 **Vault Suggestion Card**
+
 - Video title
 - "Suggested edit" label
 

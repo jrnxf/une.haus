@@ -24,19 +24,23 @@ export function CountdownDisplay({
   const seconds = totalSeconds % 60;
 
   const mainDisplay =
-    maxSeconds <= 60 ? totalSeconds.toString() : `${pad(minutes)}:${pad(seconds)}`;
+    maxSeconds <= 60
+      ? totalSeconds.toString()
+      : `${pad(minutes)}:${pad(seconds)}`;
 
   return (
     <div
       className={cn(
-        "font-mono font-bold leading-none tabular-nums transition-colors",
+        "font-mono leading-none font-bold tabular-nums transition-colors",
         isFinished && "text-destructive",
         isLow && !isFinished && "text-yellow-500",
         className,
       )}
     >
       {mainDisplay}
-      <span className="text-[0.18em] opacity-30">.{hundredths.toString().padStart(2, "0")}</span>
+      <span className="text-[0.18em] opacity-30">
+        .{hundredths.toString().padStart(2, "0")}
+      </span>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-adapter";
 import { PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
+
+import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
 import { CountdownDisplay } from "~/components/events/countdown-display";
@@ -112,23 +113,23 @@ function RouteComponent() {
       if (e.code === "Space") {
         e.preventDefault();
         switch (state) {
-        case "idle":
-        case "paused": {
-          startTimer();
+          case "idle":
+          case "paused": {
+            startTimer();
 
-        break;
-        }
-        case "running": {
-          pauseTimer();
+            break;
+          }
+          case "running": {
+            pauseTimer();
 
-        break;
-        }
-        case "finished": {
-          resetTimer();
+            break;
+          }
+          case "finished": {
+            resetTimer();
 
-        break;
-        }
-        // No default
+            break;
+          }
+          // No default
         }
       }
       if (e.code === "KeyR") {
@@ -141,23 +142,23 @@ function RouteComponent() {
 
   const handleClick = useCallback(() => {
     switch (state) {
-    case "idle":
-    case "paused": {
-      startTimer();
+      case "idle":
+      case "paused": {
+        startTimer();
 
-    break;
-    }
-    case "running": {
-      pauseTimer();
+        break;
+      }
+      case "running": {
+        pauseTimer();
 
-    break;
-    }
-    case "finished": {
-      resetTimer();
+        break;
+      }
+      case "finished": {
+        resetTimer();
 
-    break;
-    }
-    // No default
+        break;
+      }
+      // No default
     }
   }, [state, startTimer, pauseTimer, resetTimer]);
 
@@ -178,7 +179,10 @@ function RouteComponent() {
             onClick={() =>
               navigate({
                 to: "/events/stopwatch/setup",
-                search: { rider: encodeRiderParam(rider), time: initialSeconds },
+                search: {
+                  rider: encodeRiderParam(rider),
+                  time: initialSeconds,
+                },
               })
             }
           >
@@ -200,39 +204,38 @@ function RouteComponent() {
         onKeyDown={handleKeyDown}
         tabIndex={0}
       >
+        {/* Timer Display */}
+        <div className="flex grow flex-col items-center justify-center">
+          <CountdownDisplay
+            timeRemaining={timeRemaining}
+            maxSeconds={initialSeconds}
+            isRunning={state === "running"}
+            isFinished={isFinished}
+            className="text-[20vw]"
+          />
+        </div>
 
-      {/* Timer Display */}
-      <div className="flex grow flex-col items-center justify-center">
-        <CountdownDisplay
-          timeRemaining={timeRemaining}
-          maxSeconds={initialSeconds}
-          isRunning={state === "running"}
-          isFinished={isFinished}
-          className="text-[20vw]"
-        />
-      </div>
-
-      {/* Play/Pause Button */}
-      <div className="flex items-center justify-center border-t py-4">
-        <Button onClick={handleClick} className="gap-2">
-          {state === "finished" ? (
-            <>
-              <RotateCcwIcon className="size-4" />
-              Reset
-            </>
-          ) : state === "running" ? (
-            <>
-              <PauseIcon className="size-4" />
-              Pause
-            </>
-          ) : (
-            <>
-              <PlayIcon className="size-4" />
-              {state === "paused" ? "Resume" : "Start"}
-            </>
-          )}
-        </Button>
-      </div>
+        {/* Play/Pause Button */}
+        <div className="flex items-center justify-center border-t py-4">
+          <Button onClick={handleClick} className="gap-2">
+            {state === "finished" ? (
+              <>
+                <RotateCcwIcon className="size-4" />
+                Reset
+              </>
+            ) : state === "running" ? (
+              <>
+                <PauseIcon className="size-4" />
+                Pause
+              </>
+            ) : (
+              <>
+                <PlayIcon className="size-4" />
+                {state === "paused" ? "Resume" : "Start"}
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </>
   );

@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +23,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -140,101 +140,101 @@ function RouteComponent() {
           (e.g., switch, fakie, late, regular).
         </p>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Slug</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead className="w-20">Order</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {modifiers.map((modifier) => (
-            <TableRow key={modifier.id}>
-              <TableCell className="font-medium">{modifier.name}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {modifier.slug}
-              </TableCell>
-              <TableCell className="text-muted-foreground max-w-xs truncate">
-                {modifier.description}
-              </TableCell>
-              <TableCell>{modifier.sortOrder}</TableCell>
-              <TableCell>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Edit"
-                    onClick={() => setEditingModifier(modifier)}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Delete"
-                    onClick={() => setDeletingModifier(modifier)}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
-              </TableCell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Slug</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="w-20">Order</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {modifiers.map((modifier) => (
+              <TableRow key={modifier.id}>
+                <TableCell className="font-medium">{modifier.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {modifier.slug}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-xs truncate">
+                  {modifier.description}
+                </TableCell>
+                <TableCell>{modifier.sortOrder}</TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Edit"
+                      onClick={() => setEditingModifier(modifier)}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Delete"
+                      onClick={() => setDeletingModifier(modifier)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {/* Edit Dialog */}
-      <Dialog
-        open={!!editingModifier}
-        onOpenChange={(open) => !open && setEditingModifier(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Modifier</DialogTitle>
-          </DialogHeader>
-          {editingModifier && (
-            <ModifierForm
-              defaultValues={editingModifier}
-              onSubmit={(data) =>
-                updateModifier.mutate({
-                  data: { ...data, id: editingModifier.id },
-                })
-              }
-              isPending={updateModifier.isPending}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+        {/* Edit Dialog */}
+        <Dialog
+          open={!!editingModifier}
+          onOpenChange={(open) => !open && setEditingModifier(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Modifier</DialogTitle>
+            </DialogHeader>
+            {editingModifier && (
+              <ModifierForm
+                defaultValues={editingModifier}
+                onSubmit={(data) =>
+                  updateModifier.mutate({
+                    data: { ...data, id: editingModifier.id },
+                  })
+                }
+                isPending={updateModifier.isPending}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
 
-      {/* Delete Confirmation */}
-      <AlertDialog
-        open={!!deletingModifier}
-        onOpenChange={(open) => !open && setDeletingModifier(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Modifier</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete &quot;{deletingModifier?.name}
-              &quot;?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() =>
-                deletingModifier &&
-                deleteModifier.mutate({ data: deletingModifier.id })
-              }
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Delete Confirmation */}
+        <AlertDialog
+          open={!!deletingModifier}
+          onOpenChange={(open) => !open && setDeletingModifier(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Modifier</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete &quot;{deletingModifier?.name}
+                &quot;?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() =>
+                  deletingModifier &&
+                  deleteModifier.mutate({ data: deletingModifier.id })
+                }
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

@@ -8,7 +8,7 @@ import { usePageHeaderStore } from "~/lib/page-header/context";
 // They're used to declaratively collect config for the header.
 
 type CrumbProps = {
-  to?: LinkProps["to"];
+  to?: LinkProps["to"] | (string & {});
   icon?: React.ComponentType<{ className?: string }>;
   children: ReactNode;
 };
@@ -17,7 +17,7 @@ function Crumb({ to, icon: Icon, children }: CrumbProps) {
   if (to) {
     return (
       <Link
-        to={to}
+        to={to as LinkProps["to"]}
         className="text-muted-foreground hover:text-foreground transition-colors"
       >
         {Icon && <Icon className="mr-1.5 inline size-3.5" />}
@@ -81,11 +81,26 @@ function PageHeaderRoot({
   for (const child of childArray) {
     if (!child || typeof child !== "object" || !("type" in child)) continue;
     switch (child.type) {
-      case Breadcrumbs: { slots.breadcrumbs = child; break; }
-      case Tabs: { slots.tabs = child; break; }
-      case Actions: { slots.actions = child; break; }
-      case Widget: { slots.widget = child; break; }
-      case MobileRow: { slots.mobileRow = child; break; }
+      case Breadcrumbs: {
+        slots.breadcrumbs = child;
+        break;
+      }
+      case Tabs: {
+        slots.tabs = child;
+        break;
+      }
+      case Actions: {
+        slots.actions = child;
+        break;
+      }
+      case Widget: {
+        slots.widget = child;
+        break;
+      }
+      case MobileRow: {
+        slots.mobileRow = child;
+        break;
+      }
     }
   }
 

@@ -69,135 +69,136 @@ function TrickDetailPage() {
 
       <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
         <div className="space-y-6">
+          {/* Videos */}
+          {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
 
-        {/* Videos */}
-        {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
-
-        {/* Elements */}
-        <div className="flex flex-wrap gap-2">
-          {trick.elements.map((elem) => (
-            <Badge key={elem} variant="secondary">
-              {elem}
-            </Badge>
-          ))}
-        </div>
-
-        {/* Definition */}
-        {trick.definition && (
-          <div className="space-y-1">
-            <h3 className="text-muted-foreground text-sm font-medium">
-              definition
-            </h3>
-            <p className="text-sm">{trick.definition}</p>
+          {/* Elements */}
+          <div className="flex flex-wrap gap-2">
+            {trick.elements.map((elem) => (
+              <Badge key={elem} variant="secondary">
+                {elem}
+              </Badge>
+            ))}
           </div>
-        )}
 
-        {/* Also known as */}
-        {trick.alternateNames.length > 0 && (
-          <div className="space-y-1">
-            <h3 className="text-muted-foreground text-sm font-medium">
-              also known as
-            </h3>
-            <p className="text-sm">{trick.alternateNames.join(", ")}</p>
-          </div>
-        )}
-
-        {/* Prerequisites */}
-        {(prerequisiteTrick || optionalPrerequisiteTrick) && (
-          <div className="space-y-2">
-            <h3 className="text-muted-foreground text-sm font-medium">
-              prerequisites
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {prerequisiteTrick && (
-                <Button
-                  className="h-auto px-2 py-1 text-sm"
-                  variant="outline"
-                  asChild
-                >
-                  <Link
-                    to="/tricks/$trickId"
-                    params={{ trickId: prerequisiteTrick.id }}
-                  >
-                    {prerequisiteTrick.name}
-                  </Link>
-                </Button>
-              )}
-              {optionalPrerequisiteTrick && (
-                <Button
-                  className="h-auto px-2 py-1 text-sm"
-                  variant="outline"
-                  asChild
-                >
-                  <Link
-                    to="/tricks/$trickId"
-                    params={{ trickId: optionalPrerequisiteTrick.id }}
-                  >
-                    {optionalPrerequisiteTrick.name}
-                  </Link>
-                </Button>
-              )}
+          {/* Definition */}
+          {trick.definition && (
+            <div className="space-y-1">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                definition
+              </h3>
+              <p className="text-sm">{trick.definition}</p>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Unlocks */}
-        {trick.dependents.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-muted-foreground text-sm font-medium">
-              unlocks
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {trick.dependents.slice(0, 8).map((depId) => {
-                const depTrick = data.byId[depId];
-                if (!depTrick) return null;
-                return (
+          {/* Also known as */}
+          {trick.alternateNames.length > 0 && (
+            <div className="space-y-1">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                also known as
+              </h3>
+              <p className="text-sm">{trick.alternateNames.join(", ")}</p>
+            </div>
+          )}
+
+          {/* Prerequisites */}
+          {(prerequisiteTrick || optionalPrerequisiteTrick) && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                prerequisites
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {prerequisiteTrick && (
                   <Button
-                    key={depId}
                     className="h-auto px-2 py-1 text-sm"
                     variant="outline"
                     asChild
                   >
-                    <Link to="/tricks/$trickId" params={{ trickId: depId }}>
-                      {depTrick.name}
+                    <Link
+                      to="/tricks/$trickId"
+                      params={{ trickId: prerequisiteTrick.id }}
+                    >
+                      {prerequisiteTrick.name}
                     </Link>
                   </Button>
-                );
-              })}
-              {trick.dependents.length > 8 && (
-                <span className="text-muted-foreground self-center text-sm">
-                  +{trick.dependents.length - 8} more
-                </span>
-              )}
+                )}
+                {optionalPrerequisiteTrick && (
+                  <Button
+                    className="h-auto px-2 py-1 text-sm"
+                    variant="outline"
+                    asChild
+                  >
+                    <Link
+                      to="/tricks/$trickId"
+                      params={{ trickId: optionalPrerequisiteTrick.id }}
+                    >
+                      {optionalPrerequisiteTrick.name}
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Inventor / Year */}
-        {(trick.inventedBy || trick.yearLanded) && (
-          <div className="space-y-1">
-            <h3 className="text-muted-foreground text-sm font-medium">
-              history
-            </h3>
-            <p className="text-sm">
-              {trick.inventedBy && (
-                <span>First landed by {trick.inventedBy}</span>
-              )}
-              {trick.inventedBy && trick.yearLanded && <span> in </span>}
-              {trick.yearLanded && <span>{trick.yearLanded}</span>}
-            </p>
-          </div>
-        )}
+          {/* Unlocks */}
+          {trick.dependents.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                unlocks
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {trick.dependents.slice(0, 8).map((depId) => {
+                  const depTrick = data.byId[depId];
+                  if (!depTrick) return null;
+                  return (
+                    <Button
+                      key={depId}
+                      className="h-auto px-2 py-1 text-sm"
+                      variant="outline"
+                      asChild
+                    >
+                      <Link to="/tricks/$trickId" params={{ trickId: depId }}>
+                        {depTrick.name}
+                      </Link>
+                    </Button>
+                  );
+                })}
+                {trick.dependents.length > 8 && (
+                  <span className="text-muted-foreground self-center text-sm">
+                    +{trick.dependents.length - 8} more
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
-        {/* Notes */}
-        {trick.notes && (
-          <div className="space-y-1">
-            <h3 className="text-muted-foreground text-sm font-medium">notes</h3>
-            <p className="text-muted-foreground text-sm">{trick.notes}</p>
-          </div>
-        )}
+          {/* Inventor / Year */}
+          {(trick.inventedBy || trick.yearLanded) && (
+            <div className="space-y-1">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                history
+              </h3>
+              <p className="text-sm">
+                {trick.inventedBy && (
+                  <span>First landed by {trick.inventedBy}</span>
+                )}
+                {trick.inventedBy && trick.yearLanded && <span> in </span>}
+                {trick.yearLanded && <span>{trick.yearLanded}</span>}
+              </p>
+            </div>
+          )}
+
+          {/* Notes */}
+          {trick.notes && (
+            <div className="space-y-1">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                notes
+              </h3>
+              <p className="text-muted-foreground text-sm">{trick.notes}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

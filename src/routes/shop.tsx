@@ -10,7 +10,7 @@ import {
   EmptyContent,
   EmptyHeader,
   EmptyMedia,
-  EmptyTitle
+  EmptyTitle,
 } from "~/components/ui/empty";
 import { useSessionUser } from "~/lib/session/hooks";
 import { users } from "~/lib/users";
