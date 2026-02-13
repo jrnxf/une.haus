@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
 });
 
 const sections = [
-  { to: "/tricks", label: "tricks", desc: "explore the trick graph!!!!" },
+  { to: "/tricks", label: "tricks", desc: "explore the trick graph" },
   { to: "/games", label: "games", desc: "play games of skate" },
   { to: "/vault", label: "vault", desc: "browse video clips" },
   { to: "/posts", label: "posts", desc: "community discussions" },

@@ -8,7 +8,7 @@ import { ArrowDown, ArrowUp, CheckCircle, Trash2, XCircle } from "lucide-react";
 
 import { toast } from "sonner";
 
-import { BackLink } from "~/components/back-link";
+import { PageHeader } from "~/components/page-header";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -139,16 +139,17 @@ function RouteComponent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/tricks" label="graph" />
-        <div>
-          <h1 className="text-2xl font-bold">Manage Videos: {trick.name}</h1>
-          <p className="text-muted-foreground text-sm">
-            {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active videos
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>videos: {trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+        <p className="text-muted-foreground text-sm">
+          {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active videos
+        </p>
 
       {/* Active Videos */}
       <section className="space-y-4">
@@ -369,6 +370,7 @@ function RouteComponent() {
           </div>
         </section>
       )}
-    </div>
+      </div>
+    </>
   );
 }

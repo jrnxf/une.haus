@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowLeftIcon,
   HeartIcon,
   LayersIcon,
   MessageCircleIcon,
@@ -9,6 +8,7 @@ import {
   SendIcon,
 } from "lucide-react";
 
+import { PageHeader } from "~/components/page-header";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -35,28 +35,16 @@ function RouteComponent() {
   const maxPoints = Math.max(...contributors.map((c) => c.totalPoints));
 
   return (
-    <div className="flex grow flex-col overflow-hidden">
-      <div className="overflow-y-auto" id="main-content">
-        <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-          <div className="mb-8 space-y-4">
-            <Link
-              to="/stats"
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
-            >
-              <ArrowLeftIcon className="size-4" />
-              back to stats
-            </Link>
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">
-                contributors
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                all community members ranked by points
-              </p>
-            </div>
-          </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/stats">stats</PageHeader.Crumb>
+          <PageHeader.Crumb>contributors</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-          <Card>
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <Card>
             <CardHeader className="border-b pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium">
@@ -253,8 +241,7 @@ function RouteComponent() {
               <span className="text-muted-foreground">likes</span>
             </div>
           </div>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

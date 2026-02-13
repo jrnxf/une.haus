@@ -7,7 +7,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
-import { BackLink } from "~/components/back-link";
+import { PageHeader } from "~/components/page-header";
 import { VideoSubmitForm } from "~/components/tricks/video-submit-form";
 import { tricks } from "~/lib/tricks";
 
@@ -61,23 +61,25 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/tricks" label="graph" />
-        <div>
-          <h1 className="text-2xl font-bold">Submit Video: {trick.name}</h1>
-          <p className="text-muted-foreground text-sm">
-            Your video will be reviewed before appearing on the trick page
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader maxWidth="2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>submit video: {trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
+        <p className="text-muted-foreground text-sm">
+          Your video will be reviewed before appearing on the trick page
+        </p>
 
-      <VideoSubmitForm
-        trickName={trick.name}
-        onSubmit={handleSubmit}
-        onCancel={() => router.navigate({ to: "/tricks" })}
-        isPending={submitVideo.isPending}
-      />
-    </div>
+        <VideoSubmitForm
+          trickName={trick.name}
+          onSubmit={handleSubmit}
+          onCancel={() => router.navigate({ to: "/tricks" })}
+          isPending={submitVideo.isPending}
+        />
+      </div>
+    </>
   );
 }

@@ -2,7 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
-  ArrowLeftIcon,
   HeartIcon,
   PencilIcon,
   TrashIcon,
@@ -13,6 +12,7 @@ import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
+import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
@@ -63,13 +63,25 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
 
 function RouteComponent() {
   const { submissionId } = Route.useParams();
+  const { data: submission } = useSuspenseQuery(
+    games.rius.submissions.get.queryOptions({ submissionId }),
+  );
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-        <SubmissionView submissionId={submissionId} />
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/rius/active">rack it up</PageHeader.Crumb>
+          <PageHeader.Crumb>{submission?.user.name ?? "submission"}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="h-full min-h-0 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+          <SubmissionView submissionId={submissionId} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -104,15 +116,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
 
   return (
     <>
-      <Link
-        to="/games/rius/sets/$setId"
-        params={{ setId: submission.riuSet.id }}
-        className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
-      >
-        <ArrowLeftIcon className="size-4" />
-        <span>Back to {submission.riuSet.name}</span>
-      </Link>
-
       <div className="flex items-center gap-2">
         <h1 className="shrink-0 text-2xl leading-none font-semibold tracking-tight">
           {submission.user.name}

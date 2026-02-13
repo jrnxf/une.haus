@@ -16,6 +16,7 @@ import { useDebounceValue } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
 import { BadgeInput } from "~/components/input/badge-input";
+import { PageHeader } from "~/components/page-header";
 import { TimeAgo } from "~/components/time-ago";
 import { Button } from "~/components/ui/button";
 import {
@@ -96,52 +97,58 @@ function RouteComponent() {
   // unnecessary and it means we can't have scroll restoration
 
   return (
-    <div className="h-full overflow-y-auto" ref={setScrollRoot}>
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              variant="outline"
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className="relative"
-            >
-              <FilterIcon className="size-4" />
-              Filters
-              {hasActiveFilters && !filtersOpen && (
-                <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
-              )}
-            </Button>
-            <Button asChild>
-              <Link to="/posts/create">Create</Link>
-            </Button>
-          </div>
-          {filtersOpen && (
-            <div className="flex flex-col gap-3">
-              <div className="relative">
-                <Input
-                  value={query}
-                  onChange={(e) => handleQueryChange(e.target.value)}
-                  placeholder="Search posts..."
-                  className="pr-8"
-                />
-                {query && (
-                  <button
-                    type="button"
-                    onClick={() => handleQueryChange("")}
-                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                  >
-                    <XIcon className="size-4" />
-                  </button>
-                )}
-              </div>
-              <BadgeInput
-                defaultSelections={tags as (typeof POST_TAGS)[number][]}
-                onChange={handleTagsChange}
-                options={POST_TAGS}
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>posts</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            className="relative"
+          >
+            <FilterIcon className="size-4" />
+            Filters
+            {hasActiveFilters && !filtersOpen && (
+              <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
+            )}
+          </Button>
+          <Button asChild size="sm">
+            <Link to="/posts/create">Create</Link>
+          </Button>
+        </PageHeader.Actions>
+      </PageHeader>
+
+      <div className="h-full overflow-y-auto" ref={setScrollRoot}>
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
+        {filtersOpen && (
+          <div className="flex flex-col gap-3">
+            <div className="relative">
+              <Input
+                value={query}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                placeholder="Search posts..."
+                className="pr-8"
               />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => handleQueryChange("")}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
+                >
+                  <XIcon className="size-4" />
+                </button>
+              )}
             </div>
-          )}
-        </div>
+            <BadgeInput
+              defaultSelections={tags as (typeof POST_TAGS)[number][]}
+              onChange={handleTagsChange}
+              options={POST_TAGS}
+            />
+          </div>
+        )}
         {displayedPosts.length === 0 && (
           <Empty>
             <EmptyHeader>
@@ -208,5 +215,6 @@ function RouteComponent() {
         )}
       </div>
     </div>
+    </>
   );
 }

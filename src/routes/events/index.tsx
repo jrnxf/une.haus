@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { TimerIcon, TrophyIcon } from "lucide-react";
 
 import { LinkCard } from "~/components/link-card";
+import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/events/")({
   component: RouteComponent,
@@ -9,17 +10,15 @@ export const Route = createFileRoute("/events/")({
 
 function RouteComponent() {
   return (
-    <div className="flex grow flex-col overflow-hidden">
-      <div className="overflow-y-auto" id="main-content">
-        <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-          <div className="mb-8 space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">events</h1>
-            <p className="text-muted-foreground text-sm">
-              tournament brackets and stopwatch tools for live events
-            </p>
-          </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>events</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="grid gap-4 sm:grid-cols-2">
             <LinkCard.Root href="/events/stopwatch/setup">
               <LinkCard.Header icon={TimerIcon} title="stopwatch" />
               <LinkCard.Content>
@@ -41,9 +40,8 @@ function RouteComponent() {
                 <LinkCard.Cta label="Open" />
               </LinkCard.Content>
             </LinkCard.Root>
-          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

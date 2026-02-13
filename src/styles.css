@@ -25,30 +25,12 @@
       height: 0;
     }
     to {
-      height: var(
-        --radix-accordion-content-height,
-        var(
-          --bits-accordion-content-height,
-          var(
-            --reka-accordion-content-height,
-            var(--kb-accordion-content-height, auto)
-          )
-        )
-      );
+      height: var(--accordion-panel-height, auto);
     }
   }
   @keyframes accordion-up {
     0% {
-      height: var(
-        --radix-accordion-content-height,
-        var(
-          --bits-accordion-content-height,
-          var(
-            --reka-accordion-content-height,
-            var(--kb-accordion-content-height, auto)
-          )
-        )
-      );
+      height: var(--accordion-panel-height, auto);
     }
     to {
       height: 0;
@@ -84,6 +66,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -119,6 +102,7 @@
   --accent: oklch(0.967 0.001 285);
   --accent-foreground: oklch(17% 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.92 0.004 285);
   --input: oklch(0.92 0.004 285);
   --ring: oklch(0.705 0.015 285);
@@ -153,6 +137,7 @@
   --accent: oklch(0.274 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285);
@@ -202,11 +187,6 @@
   .maplibregl-popup-tip {
     @apply hidden!;
   }
-}
-
-[vaul-drawer]::after {
-  background: transparent !important;
-  background-color: transparent !important;
 }
 
 mux-player {

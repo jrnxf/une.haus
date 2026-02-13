@@ -7,11 +7,11 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
-import { BackLink } from "~/components/back-link";
 import {
   TrickForm,
   type TrickFormDefaultValues,
 } from "~/components/forms/trick";
+import { PageHeader } from "~/components/page-header";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
@@ -98,11 +98,14 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/tricks" label="graph" />
-        <h1 className="text-2xl font-bold">Edit Trick: {trick.name}</h1>
-      </div>
+    <>
+      <PageHeader maxWidth="2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>edit: {trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
 
       <TrickForm
         defaultValues={defaultValues}
@@ -114,6 +117,7 @@ function RouteComponent() {
         isPending={updateTrick.isPending}
         excludeTrickId={numericTrickId}
       />
-    </div>
+      </div>
+    </>
   );
 }

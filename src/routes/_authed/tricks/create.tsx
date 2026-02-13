@@ -7,8 +7,8 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
-import { BackLink } from "~/components/back-link";
 import { TrickForm } from "~/components/forms/trick";
+import { PageHeader } from "~/components/page-header";
 import { session } from "~/lib/session";
 import { tricks } from "~/lib/tricks";
 import type { CreateTrickArgs } from "~/lib/tricks/schemas";
@@ -77,18 +77,16 @@ function RouteComponent() {
   const isPending = createSubmission.isPending || createTrickDirectly.isPending;
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/tricks" label="graph" />
-        <div>
-          <h1 className="text-2xl font-bold">create trick</h1>
-          <p className="text-muted-foreground text-sm">
-            your submission will be reviewed by the community
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader maxWidth="2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>create</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-      <TrickForm
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+        <TrickForm
         onSubmit={handleSubmit}
         onAdminSubmit={isAdmin ? handleAdminSubmit : undefined}
         onCancel={() => router.navigate({ to: "/tricks" })}
@@ -96,5 +94,6 @@ function RouteComponent() {
         isPending={isPending}
       />
     </div>
+    </>
   );
 }

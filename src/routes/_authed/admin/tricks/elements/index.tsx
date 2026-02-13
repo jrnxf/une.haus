@@ -9,7 +9,7 @@ import { useState } from "react";
 
 import { toast } from "sonner";
 
-import { BackLink } from "~/components/back-link";
+import { PageHeader } from "~/components/page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,22 +85,23 @@ function RouteComponent() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <BackLink to="/tricks" label="graph" />
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>elements</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
           <Button asChild>
             <Link to="/admin/tricks/elements/create">Create</Link>
           </Button>
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold">trick elements</h1>
-          <p className="text-muted-foreground text-sm">
-            Elements are the components that make up a trick (e.g., spins,
-            flips, twists).
-          </p>
-        </div>
-      </div>
+        </PageHeader.Actions>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+        <p className="text-muted-foreground text-sm">
+          Elements are the components that make up a trick (e.g., spins,
+          flips, twists).
+        </p>
 
       <Table>
         <TableHeader>
@@ -174,6 +175,7 @@ function RouteComponent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </>
   );
 }

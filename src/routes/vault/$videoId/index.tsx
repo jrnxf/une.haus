@@ -2,7 +2,6 @@ import { useSuspenseQueries } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
-  ArrowLeftIcon,
   HeartIcon,
   PencilIcon,
   ShieldIcon,
@@ -13,6 +12,7 @@ import { z } from "zod";
 
 import { DisciplineBadge } from "~/components/badges";
 import { UsersDialog } from "~/components/likes-dialog";
+import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -100,19 +100,20 @@ function RouteComponent() {
   const displayTitle = video.title || video.legacyTitle;
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4 md:p-6">
-        <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
-          <Link to="/vault">
-            <ArrowLeftIcon className="size-4" />
-            Back to vault
-          </Link>
-        </Button>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb>{displayTitle}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-        <div className="flex items-center gap-2">
-          <h1 className="flex-1 text-2xl leading-none font-semibold tracking-tight">
-            {displayTitle}
-          </h1>
+      <div className="h-full min-h-0 overflow-y-auto">
+        <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4 md:p-6">
+          <div className="flex items-center gap-2">
+            <h1 className="flex-1 text-2xl leading-none font-semibold tracking-tight">
+              {displayTitle}
+            </h1>
           <div className="flex shrink-0 items-center gap-1">
             <Button size="icon-sm" variant="outline" onClick={likeUnlikeVideo}>
               <HeartIcon
@@ -215,5 +216,6 @@ function RouteComponent() {
         </div>
       </div>
     </div>
+    </>
   );
 }

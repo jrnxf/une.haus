@@ -1,9 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeftIcon } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 
+import { PageHeader } from "~/components/page-header";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { UtvSuggestionCard } from "~/components/vault/suggestion-card";
 import { utv } from "~/lib/utv/core";
@@ -23,26 +22,22 @@ function RouteComponent() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="space-y-4">
-        <Button variant="ghost" size="sm" asChild className="-ml-3">
-          <Link to="/vault">
-            <ArrowLeftIcon className="size-4" />
-            Back to vault
-          </Link>
-        </Button>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb>review</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            review vault edits
-          </h1>
+          <p className="text-muted-foreground text-sm">
+            Community suggestions for video metadata
+          </p>
           {suggestions.length > 0 && (
             <Badge variant="secondary">{suggestions.length}</Badge>
           )}
         </div>
-        <p className="text-muted-foreground text-sm">
-          Community suggestions for video metadata
-        </p>
-      </div>
 
       {suggestions.length === 0 ? (
         <Card>
@@ -61,6 +56,7 @@ function RouteComponent() {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

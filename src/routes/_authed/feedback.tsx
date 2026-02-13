@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { type z } from "zod";
 
 import { ImageInput } from "~/components/input/image-input";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -68,21 +69,26 @@ function RouteComponent() {
   } = rhf;
 
   return (
-    <Form
-      rhf={rhf}
-      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
-      id="main-content"
-      method="post"
-      onSubmit={(event) => {
-        handleSubmit(async (data) => {
-          await mutateAsync({ data });
-        })(event);
-      }}
-    >
-      <h1 className="text-2xl font-bold">Feedback</h1>
-      <p className="text-muted-foreground">
-        Share your thoughts, report bugs, or suggest improvements.
-      </p>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>feedback</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <Form
+        rhf={rhf}
+        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        id="main-content"
+        method="post"
+        onSubmit={(event) => {
+          handleSubmit(async (data) => {
+            await mutateAsync({ data });
+          })(event);
+        }}
+      >
+        <p className="text-muted-foreground">
+          Share your thoughts, report bugs, or suggest improvements.
+        </p>
 
       <FormField
         control={control}
@@ -175,7 +181,8 @@ function RouteComponent() {
       <div className="flex justify-end">
         <FormSubmitButton busy={isSubmitting} />
       </div>
-    </Form>
+      </Form>
+    </>
   );
 }
 

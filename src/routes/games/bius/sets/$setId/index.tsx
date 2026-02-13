@@ -3,7 +3,6 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   AlertTriangleIcon,
-  ArrowLeftIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   FlagIcon,
@@ -17,6 +16,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
+import { PageHeader } from "~/components/page-header";
 import { BackUpSetForm, FlagSetForm } from "~/components/forms/games/bius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
@@ -75,16 +75,18 @@ function RouteComponent() {
   const { setId } = Route.useParams();
 
   return (
-    <div className="space-y-6">
-      <Button asChild variant="ghost" size="sm" className="-ml-2">
-        <Link to="/games/bius">
-          <ArrowLeftIcon className="size-4" />
-          Back to Chain
-        </Link>
-      </Button>
-
-      <SetView setId={setId} />
-    </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/bius" icon={RotateCcwIcon}>back it up</PageHeader.Crumb>
+          <PageHeader.Crumb>set</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+        <SetView setId={setId} />
+      </div>
+    </>
   );
 }
 

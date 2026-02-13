@@ -9,7 +9,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { BackLink } from "~/components/back-link";
+import { PageHeader } from "~/components/page-header";
 import { SubmissionCard } from "~/components/tricks/submission-card";
 import { SuggestionCard } from "~/components/tricks/suggestion-card";
 import { Badge } from "~/components/ui/badge";
@@ -67,18 +67,16 @@ function RouteComponent() {
   const defaultTab = search.tab ?? "submissions";
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/tricks" label="graph" />
-        <div>
-          <h1 className="text-2xl font-bold">review tricks</h1>
-          <p className="text-muted-foreground text-sm">
-            community submissions and suggested edits
-          </p>
-        </div>
-      </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>review</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-      <Tabs defaultValue={defaultTab}>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+        <Tabs defaultValue={defaultTab}>
         <TabsList>
           <TabsTrigger value="submissions">
             Submissions
@@ -142,6 +140,7 @@ function RouteComponent() {
         {isAdmin && <AdminVideosTabContent />}
       </Tabs>
     </div>
+    </>
   );
 }
 

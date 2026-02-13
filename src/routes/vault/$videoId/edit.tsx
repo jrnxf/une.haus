@@ -6,16 +6,16 @@ import {
 } from "@tanstack/react-query";
 import {
   createFileRoute,
-  Link,
   redirect,
   useRouter,
 } from "@tanstack/react-router";
-import { ArrowLeftIcon, MonitorIcon, TvIcon } from "lucide-react";
+import { MonitorIcon, TvIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -119,42 +119,40 @@ function RouteComponent() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
-        <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
-          <Link to="/vault/$videoId" params={{ videoId }}>
-            <ArrowLeftIcon className="size-4" />
-            Back
-          </Link>
-        </Button>
-
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold tracking-tight">edit video</h1>
-          <div className="flex gap-2">
-            {video.video?.assetId && (
-              <Button variant="secondary" size="sm" asChild>
-                <a
-                  href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <MonitorIcon className="size-3" />
-                  Mux
-                </a>
-              </Button>
-            )}
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/vault/${videoId}`}>{video.title}</PageHeader.Crumb>
+          <PageHeader.Crumb>edit</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          {video.video?.assetId && (
             <Button variant="secondary" size="sm" asChild>
               <a
-                href={video.legacyUrl}
+                href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <TvIcon className="size-3" />
-                UTV
+                <MonitorIcon className="size-3" />
+                Mux
               </a>
             </Button>
-          </div>
-        </div>
+          )}
+          <Button variant="secondary" size="sm" asChild>
+            <a
+              href={video.legacyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <TvIcon className="size-3" />
+              UTV
+            </a>
+          </Button>
+        </PageHeader.Actions>
+      </PageHeader>
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
 
         <div className="space-y-2">
           <Label htmlFor="title">Name</Label>
@@ -221,5 +219,6 @@ function RouteComponent() {
         </Button>
       </div>
     </div>
+    </>
   );
 }

@@ -1,6 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
-import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -8,6 +7,7 @@ import {
   SingleRiderSelector,
   type RiderEntry,
 } from "~/components/input/single-rider-selector";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -74,27 +74,15 @@ function RouteComponent() {
   };
 
   return (
-    <div className="flex grow flex-col overflow-hidden">
-      {/* Header */}
-      <div className="border-b">
-        <div className="mx-auto flex w-full max-w-lg items-center gap-4 px-4 py-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-foreground -ml-2 gap-1.5"
-            asChild
-          >
-            <Link to="/events">
-              <ArrowLeftIcon className="size-4" />
-              events
-            </Link>
-          </Button>
-        </div>
-      </div>
+    <>
+      <PageHeader maxWidth="lg">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/events">events</PageHeader.Crumb>
+          <PageHeader.Crumb>stopwatch</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto" id="main-content">
-        <div className="mx-auto w-full max-w-lg p-4">
+      <div className="mx-auto w-full max-w-lg p-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>stopwatch</CardTitle>
@@ -148,8 +136,7 @@ function RouteComponent() {
               </Button>
             </CardContent>
           </Card>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

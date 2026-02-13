@@ -4,6 +4,7 @@ import { Check, GhostIcon, Loader2, WrenchIcon } from "lucide-react";
 import { useState } from "react";
 
 import { NotificationItem } from "~/components/notifications/notification-item";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -51,44 +52,38 @@ function RouteComponent() {
   const markGroupRead = useMarkGroupRead();
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-2xl p-4">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Notifications</h1>
-            {unreadCount > 0 && (
-              <p className="text-muted-foreground text-sm">
-                {unreadCount} unread
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => markAllRead.mutate({ data: {} })}
-                disabled={markAllRead.isPending}
-              >
-                {markAllRead.isPending ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                ) : (
-                  <Check className="mr-2 size-4" />
-                )}
-                Mark all as read
-              </Button>
-            )}
-            <Button variant="secondary" size="sm" asChild>
-              <Link to="/notifications/settings">
-                <WrenchIcon className="size-4" />
-                Settings
-              </Link>
+    <>
+      <PageHeader maxWidth="2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>notifications</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          {unreadCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllRead.mutate({ data: {} })}
+              disabled={markAllRead.isPending}
+            >
+              {markAllRead.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Check className="size-4" />
+              )}
+              Read
             </Button>
-          </div>
-        </div>
+          )}
+          <Button variant="secondary" size="sm" asChild>
+            <Link to="/notifications/settings">
+              <WrenchIcon className="size-4" />
+            </Link>
+          </Button>
+        </PageHeader.Actions>
+      </PageHeader>
 
-        {/* Tabs */}
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto max-w-2xl p-4">
+          {/* Tabs */}
         <Tabs
           value={filter}
           onValueChange={(v) => setFilter(v as "all" | "unread")}
@@ -161,5 +156,6 @@ function RouteComponent() {
         )}
       </div>
     </div>
+    </>
   );
 }

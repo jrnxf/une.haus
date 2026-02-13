@@ -1,13 +1,13 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
-import { ArrowLeftIcon, PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
+import { PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 import { CountdownDisplay } from "~/components/events/countdown-display";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -165,47 +165,13 @@ function RouteComponent() {
   const isLow = timeRemaining <= 10_000 && state === "running";
 
   return (
-    <div
-      role="application"
-      aria-label="Stopwatch timer"
-      className={cn(
-        "flex h-full flex-col transition-colors duration-300",
-        isFinished && "bg-destructive/20",
-        isLow && !isFinished && "bg-yellow-500/10",
-      )}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/events">
-              <ArrowLeftIcon className="size-4" />
-              Back
-            </Link>
-          </Button>
-          {displayName && (
-            <>
-              <div className="bg-border h-4 w-px" />
-              <div className="flex items-center gap-2">
-                {user?.avatarId && (
-                  <Avatar
-                    className="size-8"
-                    cloudflareId={user.avatarId}
-                    alt={displayName}
-                  >
-                    <AvatarImage width={64} quality={90} />
-                    <AvatarFallback className="text-xs" name={displayName} />
-                  </Avatar>
-                )}
-                <span className="text-lg font-semibold">{displayName}</span>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
+    <>
+      <PageHeader maxWidth="full">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/events">events</PageHeader.Crumb>
+          <PageHeader.Crumb>{displayName || "stopwatch"}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
           <Button
             variant="secondary"
             size="sm"
@@ -221,8 +187,19 @@ function RouteComponent() {
           <Button variant="secondary" size="icon-xs" onClick={resetTimer}>
             <RotateCcwIcon className="size-3.5" />
           </Button>
-        </div>
-      </div>
+        </PageHeader.Actions>
+      </PageHeader>
+      <div
+        role="application"
+        aria-label="Stopwatch timer"
+        className={cn(
+          "flex h-full flex-col transition-colors duration-300",
+          isFinished && "bg-destructive/20",
+          isLow && !isFinished && "bg-yellow-500/10",
+        )}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+      >
 
       {/* Timer Display */}
       <div className="flex grow flex-col items-center justify-center">
@@ -256,6 +233,7 @@ function RouteComponent() {
           )}
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

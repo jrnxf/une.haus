@@ -65,7 +65,10 @@ export const createTrickSchema = z.object({
   definition: z.string().optional().nullable(),
   inventedBy: z.string().optional().nullable(),
   yearLanded: z.number().int().min(1900).max(2100).optional().nullable(),
-  muxAssetIds: z.array(z.string()).max(5, "Maximum 5 videos allowed").default([]),
+  muxAssetIds: z
+    .array(z.string())
+    .max(5, "Maximum 5 videos allowed")
+    .default([]),
   notes: z.string().optional().nullable(),
   relationships: z.array(trickRelationshipSchema).default([]),
   elementIds: z.array(z.number()).default([]),
@@ -101,7 +104,7 @@ export const listTricksSchema = z
 export type ListTricksArgs = z.infer<typeof listTricksSchema>;
 export type ListTricksInput = z.input<typeof listTricksSchema>;
 
-// Search tricks for selector
+// search tricks for selector
 export const searchTricksSchema = z.object({
   q: z.string().optional(),
   excludeIds: z.array(z.number()).default([]),

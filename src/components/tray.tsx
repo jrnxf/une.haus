@@ -74,14 +74,14 @@ export function TrayContent({
   className,
   dialogClassName,
   drawerClassName,
+  children,
   ...properties
 }: {
   dialogClassName?: string;
   drawerClassName?: string;
-} & (
-  | React.ComponentProps<typeof DialogContent>
-  | React.ComponentProps<typeof DrawerContent>
-)) {
+  children?: React.ReactNode;
+  className?: string;
+}) {
   const { isMobile } = useTrayContext();
 
   return (
@@ -90,15 +90,18 @@ export function TrayContent({
       {isMobile ? (
         <DrawerContent
           className={cn("p-4", className, drawerClassName)}
-          {...properties}
           overlay={false}
-        />
+        >
+          {children}
+        </DrawerContent>
       ) : (
         <DialogContent
           className={cn(className, dialogClassName)}
-          {...properties}
           overlay={false}
-        />
+          {...properties}
+        >
+          {children}
+        </DialogContent>
       )}
     </>
   );

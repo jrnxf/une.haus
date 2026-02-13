@@ -186,7 +186,7 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={setOpen} {...props}>
+      <Sheet open={open} onOpenChange={setOpen} side={side} {...props}>
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"
@@ -197,7 +197,6 @@ function Sidebar({
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
             } as React.CSSProperties
           }
-          side={side}
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Sidebar</SheetTitle>
@@ -322,7 +321,7 @@ function SidebarInset({
       )}
       {...props}
     >
-      <div className="bg-background flex grow flex-col overflow-auto sm:rounded-xl sm:border">
+      <div className="bg-background flex grow flex-col overflow-hidden sm:rounded-xl sm:border">
         {children}
       </div>
     </main>

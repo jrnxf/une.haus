@@ -56,7 +56,7 @@ export function TricksSearch({ data, onSelectTrick }: TricksSearchProps) {
         setOpen(nextOpen);
         if (!nextOpen) setSearchTerm("");
       }}
-      title="Search tricks"
+      title="search tricks"
       trigger={
         <button
           className={cn(
@@ -68,7 +68,7 @@ export function TricksSearch({ data, onSelectTrick }: TricksSearchProps) {
           type="button"
         >
           <SearchIcon className="size-4 shrink-0" />
-          <span>Search tricks...</span>
+          <span>search tricks...</span>
         </button>
       }
     >

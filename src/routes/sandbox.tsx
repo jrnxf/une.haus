@@ -3,6 +3,7 @@ import { CoinsIcon, TimerIcon, TrophyIcon } from "lucide-react";
 import { useState } from "react";
 
 import { LinkCard } from "~/components/link-card";
+import { PageHeader } from "~/components/page-header";
 import {
   Alert,
   AlertDescription,
@@ -48,6 +49,7 @@ const pairedColors = [
   { name: "secondary", bg: "var(--secondary)", fg: "var(--secondary-foreground)" },
   { name: "muted", bg: "var(--muted)", fg: "var(--muted-foreground)" },
   { name: "accent", bg: "var(--accent)", fg: "var(--accent-foreground)" },
+  { name: "destructive", bg: "var(--destructive)", fg: "var(--destructive-foreground)" },
   { name: "card", bg: "var(--card)", fg: "var(--card-foreground)" },
   { name: "popover", bg: "var(--popover)", fg: "var(--popover-foreground)" },
   { name: "sidebar", bg: "var(--sidebar)", fg: "var(--sidebar-foreground)" },
@@ -56,10 +58,6 @@ const pairedColors = [
 ];
 
 const standaloneGroups = [
-  {
-    label: "destructive",
-    colors: [{ name: "destructive", var: "var(--destructive)" }],
-  },
   {
     label: "border / input / ring",
     colors: [
@@ -106,16 +104,15 @@ function RouteComponent() {
   const [togglePressed, setTogglePressed] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-      <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-2xl font-bold">sandbox</h1>
-          <p className="text-muted-foreground text-sm">
-            ui primitives and color reference
-          </p>
-        </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>sandbox</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-        <Separator />
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="flex flex-col gap-6">
 
         {/* Buttons */}
         <Section title="buttons">
@@ -488,5 +485,6 @@ function RouteComponent() {
         </Section>
       </div>
     </div>
+    </>
   );
 }

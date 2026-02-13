@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GhostIcon } from "lucide-react";
 
-import { BackLink } from "~/components/back-link";
+import { PageHeader } from "~/components/page-header";
 import { VideoCarousel } from "~/components/tricks/video-carousel";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -52,22 +52,23 @@ function TrickDetailPage() {
     : null;
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-      {/* Navigation */}
-      <div className="mb-6 flex items-center justify-between">
-        <BackLink to="/tricks" search={{ trick: trickId }} label="graph" />
-        <Button asChild>
-          <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
-            Edit
-          </Link>
-        </Button>
-      </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          <Button asChild size="sm">
+            <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
+              Edit
+            </Link>
+          </Button>
+        </PageHeader.Actions>
+      </PageHeader>
 
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold lowercase">{trick.name}</h1>
-        </div>
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="space-y-6">
 
         {/* Videos */}
         {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
@@ -197,5 +198,6 @@ function TrickDetailPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

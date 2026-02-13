@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -58,15 +58,15 @@ function RouteComponent() {
   const { control, handleSubmit, setValue } = rhf;
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/admin/tricks/modifiers">
-            <ArrowLeft className="size-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">create modifier</h1>
-      </div>
+    <>
+      <PageHeader maxWidth="2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb to="/admin/tricks/modifiers">modifiers</PageHeader.Crumb>
+          <PageHeader.Crumb>create</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
 
       <Form
         rhf={rhf}
@@ -154,6 +154,7 @@ function RouteComponent() {
           </FormSubmitButton>
         </div>
       </Form>
-    </div>
+      </div>
+    </>
   );
 }

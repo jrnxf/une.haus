@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { LinkCard } from "~/components/link-card";
+import { PageHeader } from "~/components/page-header";
 import { games } from "~/lib/games";
 
 export const Route = createFileRoute("/games/")({
@@ -75,17 +76,15 @@ function RouteComponent() {
   const siusParticipants = new Set(siusStacks.map((s) => s.user.id)).size;
 
   return (
-    <div className="flex grow flex-col overflow-hidden">
-      <div className="overflow-y-auto" id="main-content">
-        <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-          <div className="mb-8 space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">games</h1>
-            <p className="text-muted-foreground text-sm">
-              une with other rides around the world
-            </p>
-          </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>games</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <LinkCard.Root href="/games/rius/active">
               <LinkCard.Header icon={CoinsIcon} title="Rack It Up" />
               <LinkCard.Content>
@@ -165,9 +164,8 @@ function RouteComponent() {
                 <LinkCard.Cta label="View Game" />
               </LinkCard.Content>
             </LinkCard.Root>
-          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

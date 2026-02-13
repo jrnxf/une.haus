@@ -190,6 +190,47 @@ loader: async ({ context, deps }) => {
 },
 ```
 
+## Page Header System
+
+Every route declares its header content via a `<PageHeader>` compound component that renders nothing visible — it writes to a React Context consumed by `SiteHeader`. This gives every page consistent breadcrumbs, tabs, actions, and widgets in the global header bar.
+
+**Key files:**
+- `src/lib/page-header/context.tsx` — Store + Provider + hooks
+- `src/components/page-header.tsx` — Declarative compound component
+- `src/components/site-header.tsx` — Consumes context, renders header
+
+### Usage
+
+```tsx
+<PageHeader>
+  <PageHeader.Breadcrumbs>
+    <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+    <PageHeader.Crumb>current page</PageHeader.Crumb>
+  </PageHeader.Breadcrumbs>
+  <PageHeader.Tabs items={[{ to: "/games/rius/active", label: "active" }]} />
+  <PageHeader.Actions>{actionButtons}</PageHeader.Actions>
+  <PageHeader.Widget>{desktopWidget}</PageHeader.Widget>
+  <PageHeader.MobileRow>{mobileContent}</PageHeader.MobileRow>
+</PageHeader>
+```
+
+### Breadcrumb Depth
+
+| Route Type | Breadcrumbs | Example |
+|---|---|---|
+| Standalone (home, chat, shop) | None | Minimal header |
+| Hub pages (`/games`, `/stats`) | 1 crumb (non-link) | `games` |
+| Sub-sections (`/games/rius/active`) | 2 crumbs | `games > rack it up` |
+| Detail pages (`/vault/$videoId`) | 2 crumbs | `vault > video title` |
+| Deep detail (`/games/rius/sets/$setId`) | 3 crumbs | `games > rack it up > set name` |
+
+### Rules
+
+- Every route with navigation context should have a `<PageHeader>` — no standalone back buttons or h1 titles
+- The last `<PageHeader.Crumb>` (without `to` prop) represents the current page
+- Child routes override parent layouts — the last `useLayoutEffect` wins
+- `<PageHeader>` resets on unmount, so standalone pages show a clean header
+
 ## Session & Authentication
 
 This project uses TanStack Router with TanStack Query (react-query) for data fetching.

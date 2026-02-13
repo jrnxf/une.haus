@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
-import { BackLink } from "~/components/back-link";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -85,11 +85,15 @@ function RouteComponent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="space-y-4">
-        <BackLink to="/admin/tricks/elements" label="elements" />
-        <h1 className="text-2xl font-bold">Edit Element: {element.name}</h1>
-      </div>
+    <>
+      <PageHeader maxWidth="2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb to="/admin/tricks/elements">elements</PageHeader.Crumb>
+          <PageHeader.Crumb>edit: {element.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
 
       <Form
         rhf={rhf}
@@ -179,6 +183,7 @@ function RouteComponent() {
           </FormSubmitButton>
         </div>
       </Form>
-    </div>
+      </div>
+    </>
   );
 }

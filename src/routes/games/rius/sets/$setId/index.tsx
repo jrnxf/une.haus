@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
-  ArrowLeftIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   HeartIcon,
@@ -21,6 +20,7 @@ import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
+import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
@@ -67,13 +67,25 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
 
 function RouteComponent() {
   const { setId } = Route.useParams();
+  const { data: set } = useSuspenseQuery(
+    games.rius.sets.get.queryOptions({ setId }),
+  );
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-        <SetView setId={setId} />
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/rius/active">rack it up</PageHeader.Crumb>
+          <PageHeader.Crumb>{set?.name ?? "set"}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="h-full min-h-0 overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+          <SetView setId={setId} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -105,13 +117,6 @@ function SetView({ setId }: { setId: number }) {
 
   return (
     <>
-      <Button variant="ghost" size="sm" asChild className="self-start">
-        <Link to="/games/rius/active">
-          <ArrowLeftIcon className="size-4" />
-          Back to game
-        </Link>
-      </Button>
-
       <div className="flex items-start gap-3">
         <div className="w-full space-y-1">
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">

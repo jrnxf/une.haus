@@ -43,6 +43,46 @@ const TYPE_LABELS: Record<ActivityTypeFilter, string> = {
   siuStack: "SIU Stacks",
 };
 
+type ActivityGroup = {
+  key: string;
+  items: ActivityItem[];
+};
+
+function getGroupKey(item: ActivityItem): string {
+  switch (item.type) {
+    case "comment":
+      return `comment-${item.parentType}-${item.parentId}`;
+    case "riuSubmission":
+      return `riuSubmission-${item.riuSetId}`;
+    case "trickSuggestion":
+      return `trickSuggestion-${item.trickId}`;
+    case "trickVideo":
+      return `trickVideo-${item.trickId}`;
+    case "utvVideoSuggestion":
+      return `utvVideoSuggestion-${item.videoId}`;
+    case "biuSet":
+      return `biuSet-${item.chainId}`;
+    case "siuStack":
+      return `siuStack-${item.chainId}`;
+    default:
+      return `${item.type}-${item.id}`;
+  }
+}
+
+function groupConsecutiveItems(items: ActivityItem[]): ActivityGroup[] {
+  const groups: ActivityGroup[] = [];
+  for (const item of items) {
+    const key = getGroupKey(item);
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) {
+      last.items.push(item);
+    } else {
+      groups.push({ key, items: [item] });
+    }
+  }
+  return groups;
+}
+
 type ActivityFeedProps = {
   userId: number;
 };
@@ -65,6 +105,8 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     () => data.pages.flatMap((p) => p.items),
     [data],
   );
+
+  const groups = useMemo(() => groupConsecutiveItems(items), [items]);
 
   const filterDropdown = (
     <Select
@@ -117,11 +159,11 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
       </div>
       <div className="relative">
         <div className="flex flex-col">
-          {items.map((item, index) => (
-            <ActivityItemRow
-              key={`${item.type}-${item.id}`}
-              item={item}
-              isLast={index === items.length - 1 && !hasNextPage}
+          {groups.map((group, index) => (
+            <ActivityGroupRow
+              key={group.key}
+              group={group}
+              isLast={index === groups.length - 1 && !hasNextPage}
             />
           ))}
         </div>
@@ -150,35 +192,97 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
 }
 
 
-function ActivityItemRow({
-  item,
+function ActivityGroupRow({
+  group,
   isLast,
 }: {
-  item: ActivityItem;
+  group: ActivityGroup;
   isLast: boolean;
 }) {
-  const { icon, label, url } = getActivityDisplay(item);
+  const [expanded, setExpanded] = useState(false);
+  const first = group.items[0];
+  const count = group.items.length;
+  const isGrouped = count > 1;
+  const { icon, label, url } = getActivityDisplay(first);
+
+  if (!isGrouped) {
+    return (
+      <div className="relative flex items-center py-2 pl-7">
+        {!isLast && (
+          <div className="bg-border absolute top-1/2 -bottom-6 left-[9px] w-px" />
+        )}
+        <div className="bg-background absolute top-1/2 left-0 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border">
+          <div className="text-foreground/60">{icon}</div>
+        </div>
+        <Link
+          to={url}
+          className="hover:bg-accent/50 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 transition-colors"
+        >
+          <p className="min-w-0 flex-1 truncate text-sm">{label}</p>
+          <span className="text-muted-foreground shrink-0 text-xs">
+            <TimeAgo date={new Date(first.createdAt)} />
+          </span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative flex items-center py-2 pl-7">
+    <div className="relative">
       {/* Timeline connector line */}
       {!isLast && (
-        <div className="bg-border absolute top-1/2 -bottom-6 left-[9px] w-px" />
+        <div className="bg-border absolute top-[50%] -bottom-6 left-[9px] w-px" />
       )}
-      {/* Timeline dot */}
-      <div className="bg-background absolute top-1/2 left-0 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border">
-        <div className="text-foreground/60">{icon}</div>
+      {expanded && !isLast && (
+        <div className="bg-border absolute top-0 -bottom-6 left-[9px] w-px" />
+      )}
+
+      {/* Collapsed row */}
+      <div className="relative flex items-center py-2 pl-7">
+        <div className="bg-background absolute top-1/2 left-0 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border">
+          <div className="text-foreground/60">{icon}</div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="hover:bg-accent/50 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-left transition-colors"
+        >
+          <p className="min-w-0 flex-1 truncate text-sm">
+            {label}
+            <span className="text-muted-foreground ml-1 text-xs">
+              &times; {count}
+            </span>
+          </p>
+          <span className="text-muted-foreground shrink-0 text-xs">
+            <TimeAgo date={new Date(first.createdAt)} />
+          </span>
+        </button>
       </div>
 
-      <Link
-        to={url}
-        className="hover:bg-accent/50 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 transition-colors"
-      >
-        <p className="min-w-0 flex-1 truncate text-sm">{label}</p>
-        <span className="text-muted-foreground shrink-0 text-xs">
-          <TimeAgo date={new Date(item.createdAt)} />
-        </span>
-      </Link>
+      {/* Expanded items */}
+      {expanded && (
+        <div className="flex flex-col pl-7">
+          {group.items.map((item) => {
+            const display = getActivityDisplay(item);
+            return (
+              <div key={`${item.type}-${item.id}`} className="relative flex items-center py-1 pl-4">
+                <div className="bg-border absolute top-0 bottom-0 left-[2px] w-px" />
+                <Link
+                  to={display.url}
+                  className="hover:bg-accent/50 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 transition-colors"
+                >
+                  <p className="text-muted-foreground min-w-0 flex-1 truncate text-xs">
+                    {display.label}
+                  </p>
+                  <span className="text-muted-foreground shrink-0 text-xs">
+                    <TimeAgo date={new Date(item.createdAt)} />
+                  </span>
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

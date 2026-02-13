@@ -10,6 +10,7 @@ import { useDebounceValue } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
 import { BadgeInput } from "~/components/input/badge-input";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -89,28 +90,35 @@ function RouteComponent() {
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
 
   return (
-    <div className="overflow-y-auto" ref={setScrollRoot}>
-      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              variant="outline"
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className="relative"
-            >
-              <FilterIcon className="size-4" />
-              Filters
-              {hasActiveFilters && !filtersOpen && (
-                <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
-              )}
-            </Button>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>users</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            className="relative"
+          >
+            <FilterIcon className="size-4" />
+            Filters
+            {hasActiveFilters && !filtersOpen && (
+              <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
+            )}
+          </Button>
+          <Button variant="outline" size="sm" asChild>
             <Link to="/map">
-              <Button variant="outline">
-                <EarthIcon className="size-4" />
-                Map
-              </Button>
+              <EarthIcon className="size-4" />
+              Map
             </Link>
-          </div>
+          </Button>
+        </PageHeader.Actions>
+      </PageHeader>
+
+      <div className="overflow-y-auto" ref={setScrollRoot}>
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
           {filtersOpen && (
             <div className="flex flex-col gap-3">
               <div className="relative">
@@ -137,7 +145,6 @@ function RouteComponent() {
               />
             </div>
           )}
-        </div>
 
         {displayedUsers.length === 0 && (
           <Empty>
@@ -218,5 +225,6 @@ function RouteComponent() {
         )}
       </div>
     </div>
+    </>
   );
 }

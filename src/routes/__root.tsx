@@ -22,6 +22,7 @@ import { SiteHeader } from "~/components/site-header";
 import { Button } from "~/components/ui/button";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
+import { PageHeaderProvider } from "~/lib/page-header/context";
 import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
@@ -149,10 +150,14 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             }
           >
             <AppSidebar variant="inset" />
-            <SidebarInset>
-              <SiteHeader />
-              {children}
-            </SidebarInset>
+            <PageHeaderProvider>
+              <SidebarInset>
+                <SiteHeader />
+                <div className="flex-1 overflow-y-auto" id="main-content">
+                  {children}
+                </div>
+              </SidebarInset>
+            </PageHeaderProvider>
           </SidebarProvider>
         </ThemeProvider>
         <TanStackDevtools

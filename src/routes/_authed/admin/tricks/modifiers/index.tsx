@@ -4,7 +4,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -121,25 +122,23 @@ function RouteComponent() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/tricks">
-              <ArrowLeft className="size-4" />
-            </Link>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>modifiers</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          <Button asChild>
+            <Link to="/admin/tricks/modifiers/create">Create</Link>
           </Button>
-          <h1 className="text-2xl font-bold">trick modifiers</h1>
-        </div>
-        <Button asChild>
-          <Link to="/admin/tricks/modifiers/create">Create</Link>
-        </Button>
-      </div>
-
-      <p className="text-muted-foreground text-sm">
-        Modifiers are global prefixes/suffixes that can apply to any trick
-        (e.g., switch, fakie, late, regular).
-      </p>
+        </PageHeader.Actions>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+        <p className="text-muted-foreground text-sm">
+          Modifiers are global prefixes/suffixes that can apply to any trick
+          (e.g., switch, fakie, late, regular).
+        </p>
 
       <Table>
         <TableHeader>
@@ -236,7 +235,8 @@ function RouteComponent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+      </div>
+    </>
   );
 }
 

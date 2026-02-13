@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { BadgeInput } from "~/components/input/badge-input";
+import { PageHeader } from "~/components/page-header";
 import {
   Form,
   FormControl,
@@ -122,17 +123,25 @@ function RouteComponent() {
   }
 
   return (
-    <Form
-      rhf={rhf}
-      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
-      id="main-content"
-      method="post"
-      onSubmit={(event) => {
-        handleSubmit(async (data) => {
-          await mutateAsync({ data: { ...data, postId } });
-        })(event);
-      }}
-    >
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/posts/${postId}`}>{post.title}</PageHeader.Crumb>
+          <PageHeader.Crumb>edit</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <Form
+        rhf={rhf}
+        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        id="main-content"
+        method="post"
+        onSubmit={(event) => {
+          handleSubmit(async (data) => {
+            await mutateAsync({ data: { ...data, postId } });
+          })(event);
+        }}
+      >
       <FormField
         control={control}
         name="title"
@@ -182,6 +191,7 @@ function RouteComponent() {
         <FormSubmitButton busy={isSubmitting} />
       </div>
     </Form>
+    </>
   );
 }
 

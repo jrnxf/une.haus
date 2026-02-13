@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { TrickDetail } from "~/components/tricks/trick-detail";
 import { TricksGraph } from "~/components/tricks/tricks-graph";
 import { TricksSearch } from "~/components/tricks/tricks-search";
@@ -84,8 +85,46 @@ function TricksPage() {
   }
 
   return (
-    <div className="flex h-full grow flex-col overflow-hidden">
-      {/* Mobile search bar */}
+    <>
+      <PageHeader maxWidth="full">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>tricks</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          <Button variant="outline" asChild size="sm">
+            <Link to="/tricks/review">Review</Link>
+          </Button>
+          {isLoggedIn && (
+            <Button asChild size="sm">
+              <Link to="/tricks/create">Create</Link>
+            </Button>
+          )}
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon-xs"
+                  aria-label="Admin menu"
+                >
+                  <ShieldIcon className="size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/tricks/elements">Elements</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin/tricks/modifiers">Modifiers</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </PageHeader.Actions>
+      </PageHeader>
+
+      <div className="flex h-full grow flex-col overflow-hidden">
+        {/* Mobile search bar */}
       <div className="shrink-0 border-b p-4 md:hidden">
         <TricksSearch
           data={data}
@@ -115,44 +154,6 @@ function TricksPage() {
             />
           </ReactFlowProvider>
 
-          {/* Action buttons */}
-          <div className="absolute top-4 right-4 flex gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/tricks/review">Review</Link>
-            </Button>
-
-            {isLoggedIn &&
-              (isAdmin ? (
-                <>
-                  <Button asChild>
-                    <Link to="/tricks/create">Create</Link>
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        aria-label="Admin menu"
-                      >
-                        <ShieldIcon className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/tricks/elements">Elements</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/tricks/modifiers">Modifiers</Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                <Button asChild>
-                  <Link to="/tricks/create">Create</Link>
-                </Button>
-              ))}
-          </div>
         </div>
       </div>
 
@@ -167,5 +168,6 @@ function TricksPage() {
         />
       )}
     </div>
+    </>
   );
 }

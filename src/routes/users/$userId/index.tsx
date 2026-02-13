@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
+import { PageHeader } from "~/components/page-header";
 import { session } from "~/lib/session/index";
 import { users } from "~/lib/users";
 import { errorFmt } from "~/lib/utils";
@@ -32,5 +33,15 @@ function RouteComponent() {
   const { userId } = Route.useParams();
   const { data } = useSuspenseQuery(users.get.queryOptions({ userId }));
 
-  return <UserView user={data} />;
+  return (
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/users">users</PageHeader.Crumb>
+          <PageHeader.Crumb>{data.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <UserView user={data} />
+    </>
+  );
 }

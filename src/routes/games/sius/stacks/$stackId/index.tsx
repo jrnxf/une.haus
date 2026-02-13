@@ -3,7 +3,6 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArchiveIcon,
-  ArrowLeftIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   HeartIcon,
@@ -16,6 +15,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
+import { PageHeader } from "~/components/page-header";
 import { StackUpForm } from "~/components/forms/games/sius";
 import { BaseMessageForm } from "~/components/forms/message";
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button";
@@ -79,16 +79,18 @@ function RouteComponent() {
   const { stackId } = Route.useParams();
 
   return (
-    <div className="space-y-6">
-      <Button asChild variant="ghost" size="sm" className="-ml-2">
-        <Link to="/games/sius">
-          <ArrowLeftIcon className="size-4" />
-          Back to Stack
-        </Link>
-      </Button>
-
-      <StackView stackId={stackId} />
-    </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/sius" icon={LayersIcon}>stack it up</PageHeader.Crumb>
+          <PageHeader.Crumb>stack</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+        <StackView stackId={stackId} />
+      </div>
+    </>
   );
 }
 

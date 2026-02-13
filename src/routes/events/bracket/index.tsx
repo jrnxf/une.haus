@@ -29,6 +29,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { SplitTimer } from "~/components/events/split-timer";
 import { Logo } from "~/components/logo";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
@@ -896,23 +897,13 @@ function RouteComponent() {
 
   if (riders.length < 2) {
     return (
-      <div className="flex grow flex-col overflow-hidden">
-        <div className="border-b">
-          <div className="mx-auto flex w-full max-w-4xl items-center gap-4 px-4 py-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground -ml-2 gap-1.5"
-              asChild
-            >
-              <Link to="/events">
-                <ArrowLeftIcon className="size-4" />
-                Events
-              </Link>
-            </Button>
-          </div>
-        </div>
-
+      <>
+        <PageHeader maxWidth="full">
+          <PageHeader.Breadcrumbs>
+            <PageHeader.Crumb to="/events">events</PageHeader.Crumb>
+            <PageHeader.Crumb>bracket</PageHeader.Crumb>
+          </PageHeader.Breadcrumbs>
+        </PageHeader>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
           <TrophyIcon className="text-muted-foreground size-12" />
           <p className="text-muted-foreground text-center">
@@ -922,7 +913,7 @@ function RouteComponent() {
             <Link to="/events/bracket/setup">Setup</Link>
           </Button>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -953,84 +944,25 @@ function RouteComponent() {
   ) : null;
 
   return (
-    <div ref={containerRef} className="bg-background flex h-full flex-col">
-      {activeTimer ? (
-        <SplitTimer
-          key={activeTimer.match.id}
-          rider1={activeTimer.match.player1 ?? undefined}
-          rider2={activeTimer.match.player2 ?? undefined}
-          time={activeTimer.duration}
-          headerContent={timerHeader}
-        />
-      ) : showCelebration && champion ? (
-        // Celebration screen
-        <div className="flex flex-1 flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/events">
-                  <ArrowLeftIcon className="size-4" />
-                  Back
-                </Link>
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={() => setCelebrationDismissed(true)}>
-                Bracket
-              </Button>
-              <Button variant="secondary" size="icon-xs" onClick={reset}>
-                <RotateCcwIcon className="size-3.5" />
-              </Button>
-              <Button variant="secondary" size="icon-xs" onClick={toggleFullscreen}>
-                {isFullscreen ? (
-                  <MinimizeIcon className="size-3.5" />
-                ) : (
-                  <MaximizeIcon className="size-3.5" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Champion display */}
-          <div className="flex flex-1 items-center justify-center overflow-hidden px-8">
-            <FitText text={champion} />
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/events">
-                  <ArrowLeftIcon className="size-4" />
-                  back
-                </Link>
-              </Button>
-              {eventName && (
-                <>
-                  <div className="bg-border h-4 w-px" />
-                  <span className="text-lg font-bold">
-                    {eventName}
-                  </span>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
+    <>
+      <PageHeader maxWidth="full">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/events">events</PageHeader.Crumb>
+          <PageHeader.Crumb>{eventName || "bracket"}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Actions>
+          {!activeTimer && !showCelebration && (
+            <>
               {champion && (
-                <>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setCelebrationDismissed(false)}
-                    className="gap-2"
-                  >
-                    <TrophyIcon className="size-4 text-yellow-500" />
-                    {champion}
-                  </Button>
-                </>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setCelebrationDismissed(false)}
+                  className="gap-2"
+                >
+                  <TrophyIcon className="size-4 text-yellow-500" />
+                  {champion}
+                </Button>
               )}
               <Button variant="secondary" size="sm" asChild>
                 <Link
@@ -1050,23 +982,54 @@ function RouteComponent() {
                   <MaximizeIcon className="size-3.5" />
                 )}
               </Button>
-            </div>
+            </>
+          )}
+          {showCelebration && champion && (
+            <>
+              <Button variant="secondary" size="sm" onClick={() => setCelebrationDismissed(true)}>
+                Bracket
+              </Button>
+              <Button variant="secondary" size="icon-xs" onClick={reset}>
+                <RotateCcwIcon className="size-3.5" />
+              </Button>
+              <Button variant="secondary" size="icon-xs" onClick={toggleFullscreen}>
+                {isFullscreen ? (
+                  <MinimizeIcon className="size-3.5" />
+                ) : (
+                  <MaximizeIcon className="size-3.5" />
+                )}
+              </Button>
+            </>
+          )}
+        </PageHeader.Actions>
+      </PageHeader>
+      <div ref={containerRef} className="bg-background flex h-full flex-col">
+        {activeTimer ? (
+          <SplitTimer
+            key={activeTimer.match.id}
+            rider1={activeTimer.match.player1 ?? undefined}
+            rider2={activeTimer.match.player2 ?? undefined}
+            time={activeTimer.duration}
+            headerContent={timerHeader}
+          />
+        ) : showCelebration && champion ? (
+          <div className="flex flex-1 items-center justify-center overflow-hidden px-8">
+            <FitText text={champion} />
           </div>
-
-          {/* Bracket */}
+        ) : (
           <BracketContainer
             matches={matches}
             stageTimes={stageTimes}
             selectWinner={selectWinner}
             onOpenTimer={openTimer}
           />
-        </>
-      )}
-      {/* Confetti canvas - must be inside fullscreen container */}
-      <canvas
-        ref={canvasRef}
-        className="pointer-events-none fixed left-0 top-0 z-50 h-screen w-screen"
-      />
-    </div>
+        )}
+        {/* Confetti canvas - must be inside fullscreen container */}
+        <canvas
+          ref={canvasRef}
+          className="pointer-events-none fixed left-0 top-0 z-50 h-screen w-screen"
+        />
+      </div>
+    </>
   );
 }

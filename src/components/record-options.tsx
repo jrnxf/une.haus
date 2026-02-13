@@ -84,7 +84,7 @@ export function RecordOptions({
             <>
               <DropdownMenuItem onClick={onEditRecord}>Edit</DropdownMenuItem>
               <DropdownMenuItem
-                className="focus:bg-destructive"
+                className="focus:bg-destructive focus:text-destructive-foreground"
                 onClick={onDeleteRecord}
               >
                 Delete

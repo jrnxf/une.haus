@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { UserForm } from "~/components/forms/user";
+import { PageHeader } from "~/components/page-header";
 import { users } from "~/lib/users";
 
 export const Route = createFileRoute("/_authed/auth/me/edit")({
@@ -23,5 +24,15 @@ function RouteComponent() {
     users.get.queryOptions({ userId: authUser.id }),
   );
 
-  return <UserForm user={user} />;
+  return (
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/auth/me">profile</PageHeader.Crumb>
+          <PageHeader.Crumb>edit</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <UserForm user={user} />
+    </>
+  );
 }
