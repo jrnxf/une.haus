@@ -8,1468 +8,1465 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import type { createStart } from "@tanstack/react-start";
-
-import type { getRouter } from "./router.tsx";
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as AuthedRouteImport } from "./routes/_authed";
-import { Route as AuthedAdminRouteImport } from "./routes/_authed/admin";
-import { Route as AuthedAdminTricksTrickIdEditRouteImport } from "./routes/_authed/admin/tricks/$trickId/edit";
-import { Route as AuthedAdminTricksTrickIdVideosRouteImport } from "./routes/_authed/admin/tricks/$trickId/videos";
-import { Route as AuthedAdminTricksElementsElementIdEditRouteImport } from "./routes/_authed/admin/tricks/elements/$elementId/edit";
-import { Route as AuthedAdminTricksElementsCreateRouteImport } from "./routes/_authed/admin/tricks/elements/create";
-import { Route as AuthedAdminTricksElementsIndexRouteImport } from "./routes/_authed/admin/tricks/elements/index";
-import { Route as AuthedAdminTricksModifiersRouteImport } from "./routes/_authed/admin/tricks/modifiers";
-import { Route as AuthedAdminTricksModifiersCreateRouteImport } from "./routes/_authed/admin/tricks/modifiers/create";
-import { Route as AuthedAdminTricksModifiersIndexRouteImport } from "./routes/_authed/admin/tricks/modifiers/index";
-import { Route as AuthedAuthMeEditRouteImport } from "./routes/_authed/auth/me/edit";
-import { Route as AuthedAuthMeIndexRouteImport } from "./routes/_authed/auth/me/index";
-import { Route as AuthedFeedbackRouteImport } from "./routes/_authed/feedback";
-import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from "./routes/_authed/games/rius/upcoming/join";
-import { Route as AuthedNotificationsIndexRouteImport } from "./routes/_authed/notifications/index";
-import { Route as AuthedNotificationsSettingsRouteImport } from "./routes/_authed/notifications/settings";
-import { Route as AuthedPostsPostIdEditRouteImport } from "./routes/_authed/posts/$postId/edit";
-import { Route as AuthedPostsCreateRouteImport } from "./routes/_authed/posts/create";
-import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from "./routes/_authed/tricks/$trickId/submit-video";
-import { Route as AuthedTricksTrickIdSuggestRouteImport } from "./routes/_authed/tricks/$trickId/suggest";
-import { Route as AuthedTricksCreateRouteImport } from "./routes/_authed/tricks/create";
-import { Route as AuthedTricksReviewRouteImport } from "./routes/_authed/tricks/review";
-import { Route as AuthedTricksSubmissionsSubmissionIdIndexRouteImport } from "./routes/_authed/tricks/submissions/$submissionId/index";
-import { Route as AuthedTricksSuggestionsSuggestionIdIndexRouteImport } from "./routes/_authed/tricks/suggestions/$suggestionId/index";
-import { Route as AuthedTricksSuggestionsIndexRouteImport } from "./routes/_authed/tricks/suggestions/index";
-import { Route as AuthedVaultVideoIdSuggestRouteImport } from "./routes/_authed/vault/$videoId/suggest";
-import { Route as AuthedVaultReviewRouteImport } from "./routes/_authed/vault/review";
-import { Route as AuthedVaultSuggestionsSuggestionIdIndexRouteImport } from "./routes/_authed/vault/suggestions/$suggestionId/index";
-import { Route as ApiMuxWebhookRouteImport } from "./routes/api/mux/webhook";
-import { Route as ApiUnsubscribeRouteImport } from "./routes/api/unsubscribe";
-import { Route as AuthCodeSendRouteImport } from "./routes/auth/code/send";
-import { Route as AuthCodeVerifyRouteImport } from "./routes/auth/code/verify";
-import { Route as AuthRegisterRouteImport } from "./routes/auth/register";
-import { Route as ChatIndexRouteImport } from "./routes/chat/index";
-import { Route as EventsBracketIndexRouteImport } from "./routes/events/bracket/index";
-import { Route as EventsBracketSetupRouteImport } from "./routes/events/bracket/setup";
-import { Route as EventsIndexRouteImport } from "./routes/events/index";
-import { Route as EventsStopwatchIndexRouteImport } from "./routes/events/stopwatch/index";
-import { Route as EventsStopwatchSetupRouteImport } from "./routes/events/stopwatch/setup";
-import { Route as GamesBiusIndexRouteImport } from "./routes/games/bius/index";
-import { Route as GamesBiusRouteRouteImport } from "./routes/games/bius/route";
-import { Route as GamesBiusSetsSetIdIndexRouteImport } from "./routes/games/bius/sets/$setId/index";
-import { Route as GamesBiusStartRouteImport } from "./routes/games/bius/start";
-import { Route as GamesIndexRouteImport } from "./routes/games/index";
-import { Route as GamesRiusActiveRouteImport } from "./routes/games/rius/active";
-import { Route as GamesRiusArchivedRiuIdRouteImport } from "./routes/games/rius/archived/$riuId";
-import { Route as GamesRiusArchivedIndexRouteImport } from "./routes/games/rius/archived/index";
-import { Route as GamesRiusRouteRouteImport } from "./routes/games/rius/route";
-import { Route as GamesRiusSetsSetIdIndexRouteImport } from "./routes/games/rius/sets/$setId/index";
-import { Route as GamesRiusSetsIndexRouteImport } from "./routes/games/rius/sets/index";
-import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from "./routes/games/rius/submissions/$submissionId/index";
-import { Route as GamesRiusUpcomingIndexRouteImport } from "./routes/games/rius/upcoming/index";
-import { Route as GamesSiusIndexRouteImport } from "./routes/games/sius/index";
-import { Route as GamesSiusRouteRouteImport } from "./routes/games/sius/route";
-import { Route as GamesSiusStacksStackIdIndexRouteImport } from "./routes/games/sius/stacks/$stackId/index";
-import { Route as GamesSiusStartRouteImport } from "./routes/games/sius/start";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as MapIndexRouteImport } from "./routes/map/index";
-import { Route as PostsPostIdIndexRouteImport } from "./routes/posts/$postId/index";
-import { Route as PostsIndexRouteImport } from "./routes/posts/index";
-import { Route as PrivacyRouteImport } from "./routes/privacy";
-import { Route as SandboxRouteImport } from "./routes/sandbox";
-import { Route as ShopRouteImport } from "./routes/shop";
-import { Route as StatsContributorsRouteImport } from "./routes/stats/contributors";
-import { Route as StatsIndexRouteImport } from "./routes/stats/index";
-import { Route as TricksTrickIdRouteImport } from "./routes/tricks/$trickId";
-import { Route as TricksIndexRouteImport } from "./routes/tricks/index";
-import { Route as UsersUserIdIndexRouteImport } from "./routes/users/$userId/index";
-import { Route as UsersIndexRouteImport } from "./routes/users/index";
-import { Route as VaultVideoIdEditRouteImport } from "./routes/vault/$videoId/edit";
-import { Route as VaultVideoIdIndexRouteImport } from "./routes/vault/$videoId/index";
-import { Route as VaultIndexRouteImport } from "./routes/vault/index";
-import { Route as VaultValutBakRouteImport } from "./routes/vault/valut.bak";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SandboxRouteImport } from './routes/sandbox'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as VaultIndexRouteImport } from './routes/vault/index'
+import { Route as UsersIndexRouteImport } from './routes/users/index'
+import { Route as TricksIndexRouteImport } from './routes/tricks/index'
+import { Route as StatsIndexRouteImport } from './routes/stats/index'
+import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as MapIndexRouteImport } from './routes/map/index'
+import { Route as GamesIndexRouteImport } from './routes/games/index'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
+import { Route as StatsContributorsRouteImport } from './routes/stats/contributors'
+import { Route as AuthRegisterRouteImport } from './routes/auth/register'
+import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
+import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
+import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
+import { Route as GamesSiusRouteRouteImport } from './routes/games/sius/route'
+import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
+import { Route as GamesBiusRouteRouteImport } from './routes/games/bius/route'
+import { Route as VaultVideoIdIndexRouteImport } from './routes/vault/$videoId/index'
+import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
+import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
+import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
+import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
+import { Route as EventsStopwatchIndexRouteImport } from './routes/events/stopwatch/index'
+import { Route as EventsBracketIndexRouteImport } from './routes/events/bracket/index'
+import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
+import { Route as VaultValutBakRouteImport } from './routes/vault/valut.bak'
+import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
+import { Route as GamesSiusStartRouteImport } from './routes/games/sius/start'
+import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
+import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
+import { Route as EventsStopwatchSetupRouteImport } from './routes/events/stopwatch/setup'
+import { Route as EventsBracketSetupRouteImport } from './routes/events/bracket/setup'
+import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
+import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
+import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
+import { Route as AuthedVaultReviewRouteImport } from './routes/_authed/vault/review'
+import { Route as AuthedTricksReviewRouteImport } from './routes/_authed/tricks/review'
+import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/create'
+import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
+import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
+import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/upcoming/index'
+import { Route as GamesRiusSetsIndexRouteImport } from './routes/games/rius/sets/index'
+import { Route as GamesRiusArchivedIndexRouteImport } from './routes/games/rius/archived/index'
+import { Route as AuthedTricksSuggestionsIndexRouteImport } from './routes/_authed/tricks/suggestions/index'
+import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
+import { Route as GamesRiusArchivedRiuIdRouteImport } from './routes/games/rius/archived/$riuId'
+import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
+import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
+import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
+import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
+import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
+import { Route as AuthedAdminTricksModifiersRouteImport } from './routes/_authed/admin/tricks/modifiers'
+import { Route as GamesSiusStacksStackIdIndexRouteImport } from './routes/games/sius/stacks/$stackId/index'
+import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './routes/games/rius/submissions/$submissionId/index'
+import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
+import { Route as GamesBiusSetsSetIdIndexRouteImport } from './routes/games/bius/sets/$setId/index'
+import { Route as AuthedVaultSuggestionsSuggestionIdIndexRouteImport } from './routes/_authed/vault/suggestions/$suggestionId/index'
+import { Route as AuthedTricksSuggestionsSuggestionIdIndexRouteImport } from './routes/_authed/tricks/suggestions/$suggestionId/index'
+import { Route as AuthedTricksSubmissionsSubmissionIdIndexRouteImport } from './routes/_authed/tricks/submissions/$submissionId/index'
+import { Route as AuthedAdminTricksModifiersIndexRouteImport } from './routes/_authed/admin/tricks/modifiers/index'
+import { Route as AuthedAdminTricksElementsIndexRouteImport } from './routes/_authed/admin/tricks/elements/index'
+import { Route as AuthedGamesRiusUpcomingJoinRouteImport } from './routes/_authed/games/rius/upcoming/join'
+import { Route as AuthedAdminTricksModifiersCreateRouteImport } from './routes/_authed/admin/tricks/modifiers/create'
+import { Route as AuthedAdminTricksElementsCreateRouteImport } from './routes/_authed/admin/tricks/elements/create'
+import { Route as AuthedAdminTricksTrickIdVideosRouteImport } from './routes/_authed/admin/tricks/$trickId/videos'
+import { Route as AuthedAdminTricksTrickIdEditRouteImport } from './routes/_authed/admin/tricks/$trickId/edit'
+import { Route as AuthedAdminTricksElementsElementIdEditRouteImport } from './routes/_authed/admin/tricks/elements/$elementId/edit'
 
 const ShopRoute = ShopRouteImport.update({
-  id: "/shop",
-  path: "/shop",
+  id: '/shop',
+  path: '/shop',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const SandboxRoute = SandboxRouteImport.update({
-  id: "/sandbox",
-  path: "/sandbox",
+  id: '/sandbox',
+  path: '/sandbox',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
-  id: "/privacy",
-  path: "/privacy",
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedRoute = AuthedRouteImport.update({
-  id: "/_authed",
+  id: '/_authed',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const VaultIndexRoute = VaultIndexRouteImport.update({
-  id: "/vault/",
-  path: "/vault/",
+  id: '/vault/',
+  path: '/vault/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const UsersIndexRoute = UsersIndexRouteImport.update({
-  id: "/users/",
-  path: "/users/",
+  id: '/users/',
+  path: '/users/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TricksIndexRoute = TricksIndexRouteImport.update({
-  id: "/tricks/",
-  path: "/tricks/",
+  id: '/tricks/',
+  path: '/tricks/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const StatsIndexRoute = StatsIndexRouteImport.update({
-  id: "/stats/",
-  path: "/stats/",
+  id: '/stats/',
+  path: '/stats/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: "/posts/",
-  path: "/posts/",
+  id: '/posts/',
+  path: '/posts/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const MapIndexRoute = MapIndexRouteImport.update({
-  id: "/map/",
-  path: "/map/",
+  id: '/map/',
+  path: '/map/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const GamesIndexRoute = GamesIndexRouteImport.update({
-  id: "/games/",
-  path: "/games/",
+  id: '/games/',
+  path: '/games/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
-  id: "/events/",
-  path: "/events/",
+  id: '/events/',
+  path: '/events/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
-  id: "/chat/",
-  path: "/chat/",
+  id: '/chat/',
+  path: '/chat/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TricksTrickIdRoute = TricksTrickIdRouteImport.update({
-  id: "/tricks/$trickId",
-  path: "/tricks/$trickId",
+  id: '/tricks/$trickId',
+  path: '/tricks/$trickId',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const StatsContributorsRoute = StatsContributorsRouteImport.update({
-  id: "/stats/contributors",
-  path: "/stats/contributors",
+  id: '/stats/contributors',
+  path: '/stats/contributors',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
-  id: "/auth/register",
-  path: "/auth/register",
+  id: '/auth/register',
+  path: '/auth/register',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ApiUnsubscribeRoute = ApiUnsubscribeRouteImport.update({
-  id: "/api/unsubscribe",
-  path: "/api/unsubscribe",
+  id: '/api/unsubscribe',
+  path: '/api/unsubscribe',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedFeedbackRoute = AuthedFeedbackRouteImport.update({
-  id: "/feedback",
-  path: "/feedback",
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
-  id: "/admin",
-  path: "/admin",
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const GamesSiusRouteRoute = GamesSiusRouteRouteImport.update({
-  id: "/games/sius",
-  path: "/games/sius",
+  id: '/games/sius',
+  path: '/games/sius',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const GamesRiusRouteRoute = GamesRiusRouteRouteImport.update({
-  id: "/games/rius",
-  path: "/games/rius",
+  id: '/games/rius',
+  path: '/games/rius',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const GamesBiusRouteRoute = GamesBiusRouteRouteImport.update({
-  id: "/games/bius",
-  path: "/games/bius",
+  id: '/games/bius',
+  path: '/games/bius',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const VaultVideoIdIndexRoute = VaultVideoIdIndexRouteImport.update({
-  id: "/vault/$videoId/",
-  path: "/vault/$videoId/",
+  id: '/vault/$videoId/',
+  path: '/vault/$videoId/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
-  id: "/users/$userId/",
-  path: "/users/$userId/",
+  id: '/users/$userId/',
+  path: '/users/$userId/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PostsPostIdIndexRoute = PostsPostIdIndexRouteImport.update({
-  id: "/posts/$postId/",
-  path: "/posts/$postId/",
+  id: '/posts/$postId/',
+  path: '/posts/$postId/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const GamesSiusIndexRoute = GamesSiusIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => GamesSiusRouteRoute,
-} as any);
+} as any)
 const GamesBiusIndexRoute = GamesBiusIndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => GamesBiusRouteRoute,
-} as any);
+} as any)
 const EventsStopwatchIndexRoute = EventsStopwatchIndexRouteImport.update({
-  id: "/events/stopwatch/",
-  path: "/events/stopwatch/",
+  id: '/events/stopwatch/',
+  path: '/events/stopwatch/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsBracketIndexRoute = EventsBracketIndexRouteImport.update({
-  id: "/events/bracket/",
-  path: "/events/bracket/",
+  id: '/events/bracket/',
+  path: '/events/bracket/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedNotificationsIndexRoute =
   AuthedNotificationsIndexRouteImport.update({
-    id: "/notifications/",
-    path: "/notifications/",
+    id: '/notifications/',
+    path: '/notifications/',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const VaultValutBakRoute = VaultValutBakRouteImport.update({
-  id: "/vault/valut/bak",
-  path: "/vault/valut/bak",
+  id: '/vault/valut/bak',
+  path: '/vault/valut/bak',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const VaultVideoIdEditRoute = VaultVideoIdEditRouteImport.update({
-  id: "/vault/$videoId/edit",
-  path: "/vault/$videoId/edit",
+  id: '/vault/$videoId/edit',
+  path: '/vault/$videoId/edit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const GamesSiusStartRoute = GamesSiusStartRouteImport.update({
-  id: "/start",
-  path: "/start",
+  id: '/start',
+  path: '/start',
   getParentRoute: () => GamesSiusRouteRoute,
-} as any);
+} as any)
 const GamesRiusActiveRoute = GamesRiusActiveRouteImport.update({
-  id: "/active",
-  path: "/active",
+  id: '/active',
+  path: '/active',
   getParentRoute: () => GamesRiusRouteRoute,
-} as any);
+} as any)
 const GamesBiusStartRoute = GamesBiusStartRouteImport.update({
-  id: "/start",
-  path: "/start",
+  id: '/start',
+  path: '/start',
   getParentRoute: () => GamesBiusRouteRoute,
-} as any);
+} as any)
 const EventsStopwatchSetupRoute = EventsStopwatchSetupRouteImport.update({
-  id: "/events/stopwatch/setup",
-  path: "/events/stopwatch/setup",
+  id: '/events/stopwatch/setup',
+  path: '/events/stopwatch/setup',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsBracketSetupRoute = EventsBracketSetupRouteImport.update({
-  id: "/events/bracket/setup",
-  path: "/events/bracket/setup",
+  id: '/events/bracket/setup',
+  path: '/events/bracket/setup',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthCodeVerifyRoute = AuthCodeVerifyRouteImport.update({
-  id: "/auth/code/verify",
-  path: "/auth/code/verify",
+  id: '/auth/code/verify',
+  path: '/auth/code/verify',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthCodeSendRoute = AuthCodeSendRouteImport.update({
-  id: "/auth/code/send",
-  path: "/auth/code/send",
+  id: '/auth/code/send',
+  path: '/auth/code/send',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ApiMuxWebhookRoute = ApiMuxWebhookRouteImport.update({
-  id: "/api/mux/webhook",
-  path: "/api/mux/webhook",
+  id: '/api/mux/webhook',
+  path: '/api/mux/webhook',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthedVaultReviewRoute = AuthedVaultReviewRouteImport.update({
-  id: "/vault/review",
-  path: "/vault/review",
+  id: '/vault/review',
+  path: '/vault/review',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedTricksReviewRoute = AuthedTricksReviewRouteImport.update({
-  id: "/tricks/review",
-  path: "/tricks/review",
+  id: '/tricks/review',
+  path: '/tricks/review',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedTricksCreateRoute = AuthedTricksCreateRouteImport.update({
-  id: "/tricks/create",
-  path: "/tricks/create",
+  id: '/tricks/create',
+  path: '/tricks/create',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedPostsCreateRoute = AuthedPostsCreateRouteImport.update({
-  id: "/posts/create",
-  path: "/posts/create",
+  id: '/posts/create',
+  path: '/posts/create',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedNotificationsSettingsRoute =
   AuthedNotificationsSettingsRouteImport.update({
-    id: "/notifications/settings",
-    path: "/notifications/settings",
+    id: '/notifications/settings',
+    path: '/notifications/settings',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const GamesRiusUpcomingIndexRoute = GamesRiusUpcomingIndexRouteImport.update({
-  id: "/upcoming/",
-  path: "/upcoming/",
+  id: '/upcoming/',
+  path: '/upcoming/',
   getParentRoute: () => GamesRiusRouteRoute,
-} as any);
+} as any)
 const GamesRiusSetsIndexRoute = GamesRiusSetsIndexRouteImport.update({
-  id: "/sets/",
-  path: "/sets/",
+  id: '/sets/',
+  path: '/sets/',
   getParentRoute: () => GamesRiusRouteRoute,
-} as any);
+} as any)
 const GamesRiusArchivedIndexRoute = GamesRiusArchivedIndexRouteImport.update({
-  id: "/archived/",
-  path: "/archived/",
+  id: '/archived/',
+  path: '/archived/',
   getParentRoute: () => GamesRiusRouteRoute,
-} as any);
+} as any)
 const AuthedTricksSuggestionsIndexRoute =
   AuthedTricksSuggestionsIndexRouteImport.update({
-    id: "/tricks/suggestions/",
-    path: "/tricks/suggestions/",
+    id: '/tricks/suggestions/',
+    path: '/tricks/suggestions/',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedAuthMeIndexRoute = AuthedAuthMeIndexRouteImport.update({
-  id: "/auth/me/",
-  path: "/auth/me/",
+  id: '/auth/me/',
+  path: '/auth/me/',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const GamesRiusArchivedRiuIdRoute = GamesRiusArchivedRiuIdRouteImport.update({
-  id: "/archived/$riuId",
-  path: "/archived/$riuId",
+  id: '/archived/$riuId',
+  path: '/archived/$riuId',
   getParentRoute: () => GamesRiusRouteRoute,
-} as any);
+} as any)
 const AuthedVaultVideoIdSuggestRoute =
   AuthedVaultVideoIdSuggestRouteImport.update({
-    id: "/vault/$videoId/suggest",
-    path: "/vault/$videoId/suggest",
+    id: '/vault/$videoId/suggest',
+    path: '/vault/$videoId/suggest',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedTricksTrickIdSuggestRoute =
   AuthedTricksTrickIdSuggestRouteImport.update({
-    id: "/tricks/$trickId/suggest",
-    path: "/tricks/$trickId/suggest",
+    id: '/tricks/$trickId/suggest',
+    path: '/tricks/$trickId/suggest',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedTricksTrickIdSubmitVideoRoute =
   AuthedTricksTrickIdSubmitVideoRouteImport.update({
-    id: "/tricks/$trickId/submit-video",
-    path: "/tricks/$trickId/submit-video",
+    id: '/tricks/$trickId/submit-video',
+    path: '/tricks/$trickId/submit-video',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedPostsPostIdEditRoute = AuthedPostsPostIdEditRouteImport.update({
-  id: "/posts/$postId/edit",
-  path: "/posts/$postId/edit",
+  id: '/posts/$postId/edit',
+  path: '/posts/$postId/edit',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedAuthMeEditRoute = AuthedAuthMeEditRouteImport.update({
-  id: "/auth/me/edit",
-  path: "/auth/me/edit",
+  id: '/auth/me/edit',
+  path: '/auth/me/edit',
   getParentRoute: () => AuthedRoute,
-} as any);
+} as any)
 const AuthedAdminTricksModifiersRoute =
   AuthedAdminTricksModifiersRouteImport.update({
-    id: "/tricks/modifiers",
-    path: "/tricks/modifiers",
+    id: '/tricks/modifiers',
+    path: '/tricks/modifiers',
     getParentRoute: () => AuthedAdminRoute,
-  } as any);
+  } as any)
 const GamesSiusStacksStackIdIndexRoute =
   GamesSiusStacksStackIdIndexRouteImport.update({
-    id: "/stacks/$stackId/",
-    path: "/stacks/$stackId/",
+    id: '/stacks/$stackId/',
+    path: '/stacks/$stackId/',
     getParentRoute: () => GamesSiusRouteRoute,
-  } as any);
+  } as any)
 const GamesRiusSubmissionsSubmissionIdIndexRoute =
   GamesRiusSubmissionsSubmissionIdIndexRouteImport.update({
-    id: "/submissions/$submissionId/",
-    path: "/submissions/$submissionId/",
+    id: '/submissions/$submissionId/',
+    path: '/submissions/$submissionId/',
     getParentRoute: () => GamesRiusRouteRoute,
-  } as any);
+  } as any)
 const GamesRiusSetsSetIdIndexRoute = GamesRiusSetsSetIdIndexRouteImport.update({
-  id: "/sets/$setId/",
-  path: "/sets/$setId/",
+  id: '/sets/$setId/',
+  path: '/sets/$setId/',
   getParentRoute: () => GamesRiusRouteRoute,
-} as any);
+} as any)
 const GamesBiusSetsSetIdIndexRoute = GamesBiusSetsSetIdIndexRouteImport.update({
-  id: "/sets/$setId/",
-  path: "/sets/$setId/",
+  id: '/sets/$setId/',
+  path: '/sets/$setId/',
   getParentRoute: () => GamesBiusRouteRoute,
-} as any);
+} as any)
 const AuthedVaultSuggestionsSuggestionIdIndexRoute =
   AuthedVaultSuggestionsSuggestionIdIndexRouteImport.update({
-    id: "/vault/suggestions/$suggestionId/",
-    path: "/vault/suggestions/$suggestionId/",
+    id: '/vault/suggestions/$suggestionId/',
+    path: '/vault/suggestions/$suggestionId/',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedTricksSuggestionsSuggestionIdIndexRoute =
   AuthedTricksSuggestionsSuggestionIdIndexRouteImport.update({
-    id: "/tricks/suggestions/$suggestionId/",
-    path: "/tricks/suggestions/$suggestionId/",
+    id: '/tricks/suggestions/$suggestionId/',
+    path: '/tricks/suggestions/$suggestionId/',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedTricksSubmissionsSubmissionIdIndexRoute =
   AuthedTricksSubmissionsSubmissionIdIndexRouteImport.update({
-    id: "/tricks/submissions/$submissionId/",
-    path: "/tricks/submissions/$submissionId/",
+    id: '/tricks/submissions/$submissionId/',
+    path: '/tricks/submissions/$submissionId/',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksModifiersIndexRoute =
   AuthedAdminTricksModifiersIndexRouteImport.update({
-    id: "/",
-    path: "/",
+    id: '/',
+    path: '/',
     getParentRoute: () => AuthedAdminTricksModifiersRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksElementsIndexRoute =
   AuthedAdminTricksElementsIndexRouteImport.update({
-    id: "/tricks/elements/",
-    path: "/tricks/elements/",
+    id: '/tricks/elements/',
+    path: '/tricks/elements/',
     getParentRoute: () => AuthedAdminRoute,
-  } as any);
+  } as any)
 const AuthedGamesRiusUpcomingJoinRoute =
   AuthedGamesRiusUpcomingJoinRouteImport.update({
-    id: "/games/rius/upcoming/join",
-    path: "/games/rius/upcoming/join",
+    id: '/games/rius/upcoming/join',
+    path: '/games/rius/upcoming/join',
     getParentRoute: () => AuthedRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksModifiersCreateRoute =
   AuthedAdminTricksModifiersCreateRouteImport.update({
-    id: "/create",
-    path: "/create",
+    id: '/create',
+    path: '/create',
     getParentRoute: () => AuthedAdminTricksModifiersRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksElementsCreateRoute =
   AuthedAdminTricksElementsCreateRouteImport.update({
-    id: "/tricks/elements/create",
-    path: "/tricks/elements/create",
+    id: '/tricks/elements/create',
+    path: '/tricks/elements/create',
     getParentRoute: () => AuthedAdminRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksTrickIdVideosRoute =
   AuthedAdminTricksTrickIdVideosRouteImport.update({
-    id: "/tricks/$trickId/videos",
-    path: "/tricks/$trickId/videos",
+    id: '/tricks/$trickId/videos',
+    path: '/tricks/$trickId/videos',
     getParentRoute: () => AuthedAdminRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksTrickIdEditRoute =
   AuthedAdminTricksTrickIdEditRouteImport.update({
-    id: "/tricks/$trickId/edit",
-    path: "/tricks/$trickId/edit",
+    id: '/tricks/$trickId/edit',
+    path: '/tricks/$trickId/edit',
     getParentRoute: () => AuthedAdminRoute,
-  } as any);
+  } as any)
 const AuthedAdminTricksElementsElementIdEditRoute =
   AuthedAdminTricksElementsElementIdEditRouteImport.update({
-    id: "/tricks/elements/$elementId/edit",
-    path: "/tricks/elements/$elementId/edit",
+    id: '/tricks/elements/$elementId/edit',
+    path: '/tricks/elements/$elementId/edit',
     getParentRoute: () => AuthedAdminRoute,
-  } as any);
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/sandbox": typeof SandboxRoute;
-  "/shop": typeof ShopRoute;
-  "/games/bius": typeof GamesBiusRouteRouteWithChildren;
-  "/games/rius": typeof GamesRiusRouteRouteWithChildren;
-  "/games/sius": typeof GamesSiusRouteRouteWithChildren;
-  "/admin": typeof AuthedAdminRouteWithChildren;
-  "/feedback": typeof AuthedFeedbackRoute;
-  "/api/unsubscribe": typeof ApiUnsubscribeRoute;
-  "/auth/register": typeof AuthRegisterRoute;
-  "/stats/contributors": typeof StatsContributorsRoute;
-  "/tricks/$trickId": typeof TricksTrickIdRoute;
-  "/chat": typeof ChatIndexRoute;
-  "/events": typeof EventsIndexRoute;
-  "/games": typeof GamesIndexRoute;
-  "/map": typeof MapIndexRoute;
-  "/posts": typeof PostsIndexRoute;
-  "/stats": typeof StatsIndexRoute;
-  "/tricks": typeof TricksIndexRoute;
-  "/users": typeof UsersIndexRoute;
-  "/vault": typeof VaultIndexRoute;
-  "/notifications/settings": typeof AuthedNotificationsSettingsRoute;
-  "/posts/create": typeof AuthedPostsCreateRoute;
-  "/tricks/create": typeof AuthedTricksCreateRoute;
-  "/tricks/review": typeof AuthedTricksReviewRoute;
-  "/vault/review": typeof AuthedVaultReviewRoute;
-  "/api/mux/webhook": typeof ApiMuxWebhookRoute;
-  "/auth/code/send": typeof AuthCodeSendRoute;
-  "/auth/code/verify": typeof AuthCodeVerifyRoute;
-  "/events/bracket/setup": typeof EventsBracketSetupRoute;
-  "/events/stopwatch/setup": typeof EventsStopwatchSetupRoute;
-  "/games/bius/start": typeof GamesBiusStartRoute;
-  "/games/rius/active": typeof GamesRiusActiveRoute;
-  "/games/sius/start": typeof GamesSiusStartRoute;
-  "/vault/$videoId/edit": typeof VaultVideoIdEditRoute;
-  "/vault/valut/bak": typeof VaultValutBakRoute;
-  "/notifications": typeof AuthedNotificationsIndexRoute;
-  "/events/bracket": typeof EventsBracketIndexRoute;
-  "/events/stopwatch": typeof EventsStopwatchIndexRoute;
-  "/games/bius/": typeof GamesBiusIndexRoute;
-  "/games/sius/": typeof GamesSiusIndexRoute;
-  "/posts/$postId": typeof PostsPostIdIndexRoute;
-  "/users/$userId": typeof UsersUserIdIndexRoute;
-  "/vault/$videoId": typeof VaultVideoIdIndexRoute;
-  "/admin/tricks/modifiers": typeof AuthedAdminTricksModifiersRouteWithChildren;
-  "/auth/me/edit": typeof AuthedAuthMeEditRoute;
-  "/posts/$postId/edit": typeof AuthedPostsPostIdEditRoute;
-  "/tricks/$trickId/submit-video": typeof AuthedTricksTrickIdSubmitVideoRoute;
-  "/tricks/$trickId/suggest": typeof AuthedTricksTrickIdSuggestRoute;
-  "/vault/$videoId/suggest": typeof AuthedVaultVideoIdSuggestRoute;
-  "/games/rius/archived/$riuId": typeof GamesRiusArchivedRiuIdRoute;
-  "/auth/me": typeof AuthedAuthMeIndexRoute;
-  "/tricks/suggestions": typeof AuthedTricksSuggestionsIndexRoute;
-  "/games/rius/archived": typeof GamesRiusArchivedIndexRoute;
-  "/games/rius/sets": typeof GamesRiusSetsIndexRoute;
-  "/games/rius/upcoming": typeof GamesRiusUpcomingIndexRoute;
-  "/admin/tricks/$trickId/edit": typeof AuthedAdminTricksTrickIdEditRoute;
-  "/admin/tricks/$trickId/videos": typeof AuthedAdminTricksTrickIdVideosRoute;
-  "/admin/tricks/elements/create": typeof AuthedAdminTricksElementsCreateRoute;
-  "/admin/tricks/modifiers/create": typeof AuthedAdminTricksModifiersCreateRoute;
-  "/games/rius/upcoming/join": typeof AuthedGamesRiusUpcomingJoinRoute;
-  "/admin/tricks/elements": typeof AuthedAdminTricksElementsIndexRoute;
-  "/admin/tricks/modifiers/": typeof AuthedAdminTricksModifiersIndexRoute;
-  "/tricks/submissions/$submissionId": typeof AuthedTricksSubmissionsSubmissionIdIndexRoute;
-  "/tricks/suggestions/$suggestionId": typeof AuthedTricksSuggestionsSuggestionIdIndexRoute;
-  "/vault/suggestions/$suggestionId": typeof AuthedVaultSuggestionsSuggestionIdIndexRoute;
-  "/games/bius/sets/$setId": typeof GamesBiusSetsSetIdIndexRoute;
-  "/games/rius/sets/$setId": typeof GamesRiusSetsSetIdIndexRoute;
-  "/games/rius/submissions/$submissionId": typeof GamesRiusSubmissionsSubmissionIdIndexRoute;
-  "/games/sius/stacks/$stackId": typeof GamesSiusStacksStackIdIndexRoute;
-  "/admin/tricks/elements/$elementId/edit": typeof AuthedAdminTricksElementsElementIdEditRoute;
+  '/': typeof IndexRoute
+  '/privacy': typeof PrivacyRoute
+  '/sandbox': typeof SandboxRoute
+  '/shop': typeof ShopRoute
+  '/games/bius': typeof GamesBiusRouteRouteWithChildren
+  '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/games/sius': typeof GamesSiusRouteRouteWithChildren
+  '/admin': typeof AuthedAdminRouteWithChildren
+  '/feedback': typeof AuthedFeedbackRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
+  '/auth/register': typeof AuthRegisterRoute
+  '/stats/contributors': typeof StatsContributorsRoute
+  '/tricks/$trickId': typeof TricksTrickIdRoute
+  '/chat': typeof ChatIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/games': typeof GamesIndexRoute
+  '/map': typeof MapIndexRoute
+  '/posts': typeof PostsIndexRoute
+  '/stats': typeof StatsIndexRoute
+  '/tricks': typeof TricksIndexRoute
+  '/users': typeof UsersIndexRoute
+  '/vault': typeof VaultIndexRoute
+  '/notifications/settings': typeof AuthedNotificationsSettingsRoute
+  '/posts/create': typeof AuthedPostsCreateRoute
+  '/tricks/create': typeof AuthedTricksCreateRoute
+  '/tricks/review': typeof AuthedTricksReviewRoute
+  '/vault/review': typeof AuthedVaultReviewRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
+  '/auth/code/send': typeof AuthCodeSendRoute
+  '/auth/code/verify': typeof AuthCodeVerifyRoute
+  '/events/bracket/setup': typeof EventsBracketSetupRoute
+  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
+  '/games/bius/start': typeof GamesBiusStartRoute
+  '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/sius/start': typeof GamesSiusStartRoute
+  '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
+  '/vault/valut/bak': typeof VaultValutBakRoute
+  '/notifications': typeof AuthedNotificationsIndexRoute
+  '/events/bracket': typeof EventsBracketIndexRoute
+  '/events/stopwatch': typeof EventsStopwatchIndexRoute
+  '/games/bius/': typeof GamesBiusIndexRoute
+  '/games/sius/': typeof GamesSiusIndexRoute
+  '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/users/$userId': typeof UsersUserIdIndexRoute
+  '/vault/$videoId': typeof VaultVideoIdIndexRoute
+  '/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRouteWithChildren
+  '/auth/me/edit': typeof AuthedAuthMeEditRoute
+  '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
+  '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
+  '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
+  '/auth/me': typeof AuthedAuthMeIndexRoute
+  '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
+  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
+  '/games/rius/sets': typeof GamesRiusSetsIndexRoute
+  '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
+  '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
+  '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
+  '/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
+  '/admin/tricks/modifiers/create': typeof AuthedAdminTricksModifiersCreateRoute
+  '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
+  '/admin/tricks/elements': typeof AuthedAdminTricksElementsIndexRoute
+  '/admin/tricks/modifiers/': typeof AuthedAdminTricksModifiersIndexRoute
+  '/tricks/submissions/$submissionId': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
+  '/tricks/suggestions/$suggestionId': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
+  '/vault/suggestions/$suggestionId': typeof AuthedVaultSuggestionsSuggestionIdIndexRoute
+  '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
+  '/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/sandbox": typeof SandboxRoute;
-  "/shop": typeof ShopRoute;
-  "/games/rius": typeof GamesRiusRouteRouteWithChildren;
-  "/admin": typeof AuthedAdminRouteWithChildren;
-  "/feedback": typeof AuthedFeedbackRoute;
-  "/api/unsubscribe": typeof ApiUnsubscribeRoute;
-  "/auth/register": typeof AuthRegisterRoute;
-  "/stats/contributors": typeof StatsContributorsRoute;
-  "/tricks/$trickId": typeof TricksTrickIdRoute;
-  "/chat": typeof ChatIndexRoute;
-  "/events": typeof EventsIndexRoute;
-  "/games": typeof GamesIndexRoute;
-  "/map": typeof MapIndexRoute;
-  "/posts": typeof PostsIndexRoute;
-  "/stats": typeof StatsIndexRoute;
-  "/tricks": typeof TricksIndexRoute;
-  "/users": typeof UsersIndexRoute;
-  "/vault": typeof VaultIndexRoute;
-  "/notifications/settings": typeof AuthedNotificationsSettingsRoute;
-  "/posts/create": typeof AuthedPostsCreateRoute;
-  "/tricks/create": typeof AuthedTricksCreateRoute;
-  "/tricks/review": typeof AuthedTricksReviewRoute;
-  "/vault/review": typeof AuthedVaultReviewRoute;
-  "/api/mux/webhook": typeof ApiMuxWebhookRoute;
-  "/auth/code/send": typeof AuthCodeSendRoute;
-  "/auth/code/verify": typeof AuthCodeVerifyRoute;
-  "/events/bracket/setup": typeof EventsBracketSetupRoute;
-  "/events/stopwatch/setup": typeof EventsStopwatchSetupRoute;
-  "/games/bius/start": typeof GamesBiusStartRoute;
-  "/games/rius/active": typeof GamesRiusActiveRoute;
-  "/games/sius/start": typeof GamesSiusStartRoute;
-  "/vault/$videoId/edit": typeof VaultVideoIdEditRoute;
-  "/vault/valut/bak": typeof VaultValutBakRoute;
-  "/notifications": typeof AuthedNotificationsIndexRoute;
-  "/events/bracket": typeof EventsBracketIndexRoute;
-  "/events/stopwatch": typeof EventsStopwatchIndexRoute;
-  "/games/bius": typeof GamesBiusIndexRoute;
-  "/games/sius": typeof GamesSiusIndexRoute;
-  "/posts/$postId": typeof PostsPostIdIndexRoute;
-  "/users/$userId": typeof UsersUserIdIndexRoute;
-  "/vault/$videoId": typeof VaultVideoIdIndexRoute;
-  "/auth/me/edit": typeof AuthedAuthMeEditRoute;
-  "/posts/$postId/edit": typeof AuthedPostsPostIdEditRoute;
-  "/tricks/$trickId/submit-video": typeof AuthedTricksTrickIdSubmitVideoRoute;
-  "/tricks/$trickId/suggest": typeof AuthedTricksTrickIdSuggestRoute;
-  "/vault/$videoId/suggest": typeof AuthedVaultVideoIdSuggestRoute;
-  "/games/rius/archived/$riuId": typeof GamesRiusArchivedRiuIdRoute;
-  "/auth/me": typeof AuthedAuthMeIndexRoute;
-  "/tricks/suggestions": typeof AuthedTricksSuggestionsIndexRoute;
-  "/games/rius/archived": typeof GamesRiusArchivedIndexRoute;
-  "/games/rius/sets": typeof GamesRiusSetsIndexRoute;
-  "/games/rius/upcoming": typeof GamesRiusUpcomingIndexRoute;
-  "/admin/tricks/$trickId/edit": typeof AuthedAdminTricksTrickIdEditRoute;
-  "/admin/tricks/$trickId/videos": typeof AuthedAdminTricksTrickIdVideosRoute;
-  "/admin/tricks/elements/create": typeof AuthedAdminTricksElementsCreateRoute;
-  "/admin/tricks/modifiers/create": typeof AuthedAdminTricksModifiersCreateRoute;
-  "/games/rius/upcoming/join": typeof AuthedGamesRiusUpcomingJoinRoute;
-  "/admin/tricks/elements": typeof AuthedAdminTricksElementsIndexRoute;
-  "/admin/tricks/modifiers": typeof AuthedAdminTricksModifiersIndexRoute;
-  "/tricks/submissions/$submissionId": typeof AuthedTricksSubmissionsSubmissionIdIndexRoute;
-  "/tricks/suggestions/$suggestionId": typeof AuthedTricksSuggestionsSuggestionIdIndexRoute;
-  "/vault/suggestions/$suggestionId": typeof AuthedVaultSuggestionsSuggestionIdIndexRoute;
-  "/games/bius/sets/$setId": typeof GamesBiusSetsSetIdIndexRoute;
-  "/games/rius/sets/$setId": typeof GamesRiusSetsSetIdIndexRoute;
-  "/games/rius/submissions/$submissionId": typeof GamesRiusSubmissionsSubmissionIdIndexRoute;
-  "/games/sius/stacks/$stackId": typeof GamesSiusStacksStackIdIndexRoute;
-  "/admin/tricks/elements/$elementId/edit": typeof AuthedAdminTricksElementsElementIdEditRoute;
+  '/': typeof IndexRoute
+  '/privacy': typeof PrivacyRoute
+  '/sandbox': typeof SandboxRoute
+  '/shop': typeof ShopRoute
+  '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/admin': typeof AuthedAdminRouteWithChildren
+  '/feedback': typeof AuthedFeedbackRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
+  '/auth/register': typeof AuthRegisterRoute
+  '/stats/contributors': typeof StatsContributorsRoute
+  '/tricks/$trickId': typeof TricksTrickIdRoute
+  '/chat': typeof ChatIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/games': typeof GamesIndexRoute
+  '/map': typeof MapIndexRoute
+  '/posts': typeof PostsIndexRoute
+  '/stats': typeof StatsIndexRoute
+  '/tricks': typeof TricksIndexRoute
+  '/users': typeof UsersIndexRoute
+  '/vault': typeof VaultIndexRoute
+  '/notifications/settings': typeof AuthedNotificationsSettingsRoute
+  '/posts/create': typeof AuthedPostsCreateRoute
+  '/tricks/create': typeof AuthedTricksCreateRoute
+  '/tricks/review': typeof AuthedTricksReviewRoute
+  '/vault/review': typeof AuthedVaultReviewRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
+  '/auth/code/send': typeof AuthCodeSendRoute
+  '/auth/code/verify': typeof AuthCodeVerifyRoute
+  '/events/bracket/setup': typeof EventsBracketSetupRoute
+  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
+  '/games/bius/start': typeof GamesBiusStartRoute
+  '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/sius/start': typeof GamesSiusStartRoute
+  '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
+  '/vault/valut/bak': typeof VaultValutBakRoute
+  '/notifications': typeof AuthedNotificationsIndexRoute
+  '/events/bracket': typeof EventsBracketIndexRoute
+  '/events/stopwatch': typeof EventsStopwatchIndexRoute
+  '/games/bius': typeof GamesBiusIndexRoute
+  '/games/sius': typeof GamesSiusIndexRoute
+  '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/users/$userId': typeof UsersUserIdIndexRoute
+  '/vault/$videoId': typeof VaultVideoIdIndexRoute
+  '/auth/me/edit': typeof AuthedAuthMeEditRoute
+  '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
+  '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
+  '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
+  '/auth/me': typeof AuthedAuthMeIndexRoute
+  '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
+  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
+  '/games/rius/sets': typeof GamesRiusSetsIndexRoute
+  '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
+  '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
+  '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
+  '/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
+  '/admin/tricks/modifiers/create': typeof AuthedAdminTricksModifiersCreateRoute
+  '/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
+  '/admin/tricks/elements': typeof AuthedAdminTricksElementsIndexRoute
+  '/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersIndexRoute
+  '/tricks/submissions/$submissionId': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
+  '/tricks/suggestions/$suggestionId': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
+  '/vault/suggestions/$suggestionId': typeof AuthedVaultSuggestionsSuggestionIdIndexRoute
+  '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId': typeof GamesSiusStacksStackIdIndexRoute
+  '/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/_authed": typeof AuthedRouteWithChildren;
-  "/privacy": typeof PrivacyRoute;
-  "/sandbox": typeof SandboxRoute;
-  "/shop": typeof ShopRoute;
-  "/games/bius": typeof GamesBiusRouteRouteWithChildren;
-  "/games/rius": typeof GamesRiusRouteRouteWithChildren;
-  "/games/sius": typeof GamesSiusRouteRouteWithChildren;
-  "/_authed/admin": typeof AuthedAdminRouteWithChildren;
-  "/_authed/feedback": typeof AuthedFeedbackRoute;
-  "/api/unsubscribe": typeof ApiUnsubscribeRoute;
-  "/auth/register": typeof AuthRegisterRoute;
-  "/stats/contributors": typeof StatsContributorsRoute;
-  "/tricks/$trickId": typeof TricksTrickIdRoute;
-  "/chat/": typeof ChatIndexRoute;
-  "/events/": typeof EventsIndexRoute;
-  "/games/": typeof GamesIndexRoute;
-  "/map/": typeof MapIndexRoute;
-  "/posts/": typeof PostsIndexRoute;
-  "/stats/": typeof StatsIndexRoute;
-  "/tricks/": typeof TricksIndexRoute;
-  "/users/": typeof UsersIndexRoute;
-  "/vault/": typeof VaultIndexRoute;
-  "/_authed/notifications/settings": typeof AuthedNotificationsSettingsRoute;
-  "/_authed/posts/create": typeof AuthedPostsCreateRoute;
-  "/_authed/tricks/create": typeof AuthedTricksCreateRoute;
-  "/_authed/tricks/review": typeof AuthedTricksReviewRoute;
-  "/_authed/vault/review": typeof AuthedVaultReviewRoute;
-  "/api/mux/webhook": typeof ApiMuxWebhookRoute;
-  "/auth/code/send": typeof AuthCodeSendRoute;
-  "/auth/code/verify": typeof AuthCodeVerifyRoute;
-  "/events/bracket/setup": typeof EventsBracketSetupRoute;
-  "/events/stopwatch/setup": typeof EventsStopwatchSetupRoute;
-  "/games/bius/start": typeof GamesBiusStartRoute;
-  "/games/rius/active": typeof GamesRiusActiveRoute;
-  "/games/sius/start": typeof GamesSiusStartRoute;
-  "/vault/$videoId/edit": typeof VaultVideoIdEditRoute;
-  "/vault/valut/bak": typeof VaultValutBakRoute;
-  "/_authed/notifications/": typeof AuthedNotificationsIndexRoute;
-  "/events/bracket/": typeof EventsBracketIndexRoute;
-  "/events/stopwatch/": typeof EventsStopwatchIndexRoute;
-  "/games/bius/": typeof GamesBiusIndexRoute;
-  "/games/sius/": typeof GamesSiusIndexRoute;
-  "/posts/$postId/": typeof PostsPostIdIndexRoute;
-  "/users/$userId/": typeof UsersUserIdIndexRoute;
-  "/vault/$videoId/": typeof VaultVideoIdIndexRoute;
-  "/_authed/admin/tricks/modifiers": typeof AuthedAdminTricksModifiersRouteWithChildren;
-  "/_authed/auth/me/edit": typeof AuthedAuthMeEditRoute;
-  "/_authed/posts/$postId/edit": typeof AuthedPostsPostIdEditRoute;
-  "/_authed/tricks/$trickId/submit-video": typeof AuthedTricksTrickIdSubmitVideoRoute;
-  "/_authed/tricks/$trickId/suggest": typeof AuthedTricksTrickIdSuggestRoute;
-  "/_authed/vault/$videoId/suggest": typeof AuthedVaultVideoIdSuggestRoute;
-  "/games/rius/archived/$riuId": typeof GamesRiusArchivedRiuIdRoute;
-  "/_authed/auth/me/": typeof AuthedAuthMeIndexRoute;
-  "/_authed/tricks/suggestions/": typeof AuthedTricksSuggestionsIndexRoute;
-  "/games/rius/archived/": typeof GamesRiusArchivedIndexRoute;
-  "/games/rius/sets/": typeof GamesRiusSetsIndexRoute;
-  "/games/rius/upcoming/": typeof GamesRiusUpcomingIndexRoute;
-  "/_authed/admin/tricks/$trickId/edit": typeof AuthedAdminTricksTrickIdEditRoute;
-  "/_authed/admin/tricks/$trickId/videos": typeof AuthedAdminTricksTrickIdVideosRoute;
-  "/_authed/admin/tricks/elements/create": typeof AuthedAdminTricksElementsCreateRoute;
-  "/_authed/admin/tricks/modifiers/create": typeof AuthedAdminTricksModifiersCreateRoute;
-  "/_authed/games/rius/upcoming/join": typeof AuthedGamesRiusUpcomingJoinRoute;
-  "/_authed/admin/tricks/elements/": typeof AuthedAdminTricksElementsIndexRoute;
-  "/_authed/admin/tricks/modifiers/": typeof AuthedAdminTricksModifiersIndexRoute;
-  "/_authed/tricks/submissions/$submissionId/": typeof AuthedTricksSubmissionsSubmissionIdIndexRoute;
-  "/_authed/tricks/suggestions/$suggestionId/": typeof AuthedTricksSuggestionsSuggestionIdIndexRoute;
-  "/_authed/vault/suggestions/$suggestionId/": typeof AuthedVaultSuggestionsSuggestionIdIndexRoute;
-  "/games/bius/sets/$setId/": typeof GamesBiusSetsSetIdIndexRoute;
-  "/games/rius/sets/$setId/": typeof GamesRiusSetsSetIdIndexRoute;
-  "/games/rius/submissions/$submissionId/": typeof GamesRiusSubmissionsSubmissionIdIndexRoute;
-  "/games/sius/stacks/$stackId/": typeof GamesSiusStacksStackIdIndexRoute;
-  "/_authed/admin/tricks/elements/$elementId/edit": typeof AuthedAdminTricksElementsElementIdEditRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/sandbox': typeof SandboxRoute
+  '/shop': typeof ShopRoute
+  '/games/bius': typeof GamesBiusRouteRouteWithChildren
+  '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/games/sius': typeof GamesSiusRouteRouteWithChildren
+  '/_authed/admin': typeof AuthedAdminRouteWithChildren
+  '/_authed/feedback': typeof AuthedFeedbackRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
+  '/auth/register': typeof AuthRegisterRoute
+  '/stats/contributors': typeof StatsContributorsRoute
+  '/tricks/$trickId': typeof TricksTrickIdRoute
+  '/chat/': typeof ChatIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/games/': typeof GamesIndexRoute
+  '/map/': typeof MapIndexRoute
+  '/posts/': typeof PostsIndexRoute
+  '/stats/': typeof StatsIndexRoute
+  '/tricks/': typeof TricksIndexRoute
+  '/users/': typeof UsersIndexRoute
+  '/vault/': typeof VaultIndexRoute
+  '/_authed/notifications/settings': typeof AuthedNotificationsSettingsRoute
+  '/_authed/posts/create': typeof AuthedPostsCreateRoute
+  '/_authed/tricks/create': typeof AuthedTricksCreateRoute
+  '/_authed/tricks/review': typeof AuthedTricksReviewRoute
+  '/_authed/vault/review': typeof AuthedVaultReviewRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
+  '/auth/code/send': typeof AuthCodeSendRoute
+  '/auth/code/verify': typeof AuthCodeVerifyRoute
+  '/events/bracket/setup': typeof EventsBracketSetupRoute
+  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
+  '/games/bius/start': typeof GamesBiusStartRoute
+  '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/sius/start': typeof GamesSiusStartRoute
+  '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
+  '/vault/valut/bak': typeof VaultValutBakRoute
+  '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
+  '/events/bracket/': typeof EventsBracketIndexRoute
+  '/events/stopwatch/': typeof EventsStopwatchIndexRoute
+  '/games/bius/': typeof GamesBiusIndexRoute
+  '/games/sius/': typeof GamesSiusIndexRoute
+  '/posts/$postId/': typeof PostsPostIdIndexRoute
+  '/users/$userId/': typeof UsersUserIdIndexRoute
+  '/vault/$videoId/': typeof VaultVideoIdIndexRoute
+  '/_authed/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRouteWithChildren
+  '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
+  '/_authed/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
+  '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
+  '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
+  '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
+  '/_authed/tricks/suggestions/': typeof AuthedTricksSuggestionsIndexRoute
+  '/games/rius/archived/': typeof GamesRiusArchivedIndexRoute
+  '/games/rius/sets/': typeof GamesRiusSetsIndexRoute
+  '/games/rius/upcoming/': typeof GamesRiusUpcomingIndexRoute
+  '/_authed/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
+  '/_authed/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
+  '/_authed/admin/tricks/elements/create': typeof AuthedAdminTricksElementsCreateRoute
+  '/_authed/admin/tricks/modifiers/create': typeof AuthedAdminTricksModifiersCreateRoute
+  '/_authed/games/rius/upcoming/join': typeof AuthedGamesRiusUpcomingJoinRoute
+  '/_authed/admin/tricks/elements/': typeof AuthedAdminTricksElementsIndexRoute
+  '/_authed/admin/tricks/modifiers/': typeof AuthedAdminTricksModifiersIndexRoute
+  '/_authed/tricks/submissions/$submissionId/': typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
+  '/_authed/tricks/suggestions/$suggestionId/': typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
+  '/_authed/vault/suggestions/$suggestionId/': typeof AuthedVaultSuggestionsSuggestionIdIndexRoute
+  '/games/bius/sets/$setId/': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/sets/$setId/': typeof GamesRiusSetsSetIdIndexRoute
+  '/games/rius/submissions/$submissionId/': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/stacks/$stackId/': typeof GamesSiusStacksStackIdIndexRoute
+  '/_authed/admin/tricks/elements/$elementId/edit': typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/privacy"
-    | "/sandbox"
-    | "/shop"
-    | "/games/bius"
-    | "/games/rius"
-    | "/games/sius"
-    | "/admin"
-    | "/feedback"
-    | "/api/unsubscribe"
-    | "/auth/register"
-    | "/stats/contributors"
-    | "/tricks/$trickId"
-    | "/chat"
-    | "/events"
-    | "/games"
-    | "/map"
-    | "/posts"
-    | "/stats"
-    | "/tricks"
-    | "/users"
-    | "/vault"
-    | "/notifications/settings"
-    | "/posts/create"
-    | "/tricks/create"
-    | "/tricks/review"
-    | "/vault/review"
-    | "/api/mux/webhook"
-    | "/auth/code/send"
-    | "/auth/code/verify"
-    | "/events/bracket/setup"
-    | "/events/stopwatch/setup"
-    | "/games/bius/start"
-    | "/games/rius/active"
-    | "/games/sius/start"
-    | "/vault/$videoId/edit"
-    | "/vault/valut/bak"
-    | "/notifications"
-    | "/events/bracket"
-    | "/events/stopwatch"
-    | "/games/bius/"
-    | "/games/sius/"
-    | "/posts/$postId"
-    | "/users/$userId"
-    | "/vault/$videoId"
-    | "/admin/tricks/modifiers"
-    | "/auth/me/edit"
-    | "/posts/$postId/edit"
-    | "/tricks/$trickId/submit-video"
-    | "/tricks/$trickId/suggest"
-    | "/vault/$videoId/suggest"
-    | "/games/rius/archived/$riuId"
-    | "/auth/me"
-    | "/tricks/suggestions"
-    | "/games/rius/archived"
-    | "/games/rius/sets"
-    | "/games/rius/upcoming"
-    | "/admin/tricks/$trickId/edit"
-    | "/admin/tricks/$trickId/videos"
-    | "/admin/tricks/elements/create"
-    | "/admin/tricks/modifiers/create"
-    | "/games/rius/upcoming/join"
-    | "/admin/tricks/elements"
-    | "/admin/tricks/modifiers/"
-    | "/tricks/submissions/$submissionId"
-    | "/tricks/suggestions/$suggestionId"
-    | "/vault/suggestions/$suggestionId"
-    | "/games/bius/sets/$setId"
-    | "/games/rius/sets/$setId"
-    | "/games/rius/submissions/$submissionId"
-    | "/games/sius/stacks/$stackId"
-    | "/admin/tricks/elements/$elementId/edit";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/privacy'
+    | '/sandbox'
+    | '/shop'
+    | '/games/bius'
+    | '/games/rius'
+    | '/games/sius'
+    | '/admin'
+    | '/feedback'
+    | '/api/unsubscribe'
+    | '/auth/register'
+    | '/stats/contributors'
+    | '/tricks/$trickId'
+    | '/chat'
+    | '/events'
+    | '/games'
+    | '/map'
+    | '/posts'
+    | '/stats'
+    | '/tricks'
+    | '/users'
+    | '/vault'
+    | '/notifications/settings'
+    | '/posts/create'
+    | '/tricks/create'
+    | '/tricks/review'
+    | '/vault/review'
+    | '/api/mux/webhook'
+    | '/auth/code/send'
+    | '/auth/code/verify'
+    | '/events/bracket/setup'
+    | '/events/stopwatch/setup'
+    | '/games/bius/start'
+    | '/games/rius/active'
+    | '/games/sius/start'
+    | '/vault/$videoId/edit'
+    | '/vault/valut/bak'
+    | '/notifications'
+    | '/events/bracket'
+    | '/events/stopwatch'
+    | '/games/bius/'
+    | '/games/sius/'
+    | '/posts/$postId'
+    | '/users/$userId'
+    | '/vault/$videoId'
+    | '/admin/tricks/modifiers'
+    | '/auth/me/edit'
+    | '/posts/$postId/edit'
+    | '/tricks/$trickId/submit-video'
+    | '/tricks/$trickId/suggest'
+    | '/vault/$videoId/suggest'
+    | '/games/rius/archived/$riuId'
+    | '/auth/me'
+    | '/tricks/suggestions'
+    | '/games/rius/archived'
+    | '/games/rius/sets'
+    | '/games/rius/upcoming'
+    | '/admin/tricks/$trickId/edit'
+    | '/admin/tricks/$trickId/videos'
+    | '/admin/tricks/elements/create'
+    | '/admin/tricks/modifiers/create'
+    | '/games/rius/upcoming/join'
+    | '/admin/tricks/elements'
+    | '/admin/tricks/modifiers/'
+    | '/tricks/submissions/$submissionId'
+    | '/tricks/suggestions/$suggestionId'
+    | '/vault/suggestions/$suggestionId'
+    | '/games/bius/sets/$setId'
+    | '/games/rius/sets/$setId'
+    | '/games/rius/submissions/$submissionId'
+    | '/games/sius/stacks/$stackId'
+    | '/admin/tricks/elements/$elementId/edit'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/privacy"
-    | "/sandbox"
-    | "/shop"
-    | "/games/rius"
-    | "/admin"
-    | "/feedback"
-    | "/api/unsubscribe"
-    | "/auth/register"
-    | "/stats/contributors"
-    | "/tricks/$trickId"
-    | "/chat"
-    | "/events"
-    | "/games"
-    | "/map"
-    | "/posts"
-    | "/stats"
-    | "/tricks"
-    | "/users"
-    | "/vault"
-    | "/notifications/settings"
-    | "/posts/create"
-    | "/tricks/create"
-    | "/tricks/review"
-    | "/vault/review"
-    | "/api/mux/webhook"
-    | "/auth/code/send"
-    | "/auth/code/verify"
-    | "/events/bracket/setup"
-    | "/events/stopwatch/setup"
-    | "/games/bius/start"
-    | "/games/rius/active"
-    | "/games/sius/start"
-    | "/vault/$videoId/edit"
-    | "/vault/valut/bak"
-    | "/notifications"
-    | "/events/bracket"
-    | "/events/stopwatch"
-    | "/games/bius"
-    | "/games/sius"
-    | "/posts/$postId"
-    | "/users/$userId"
-    | "/vault/$videoId"
-    | "/auth/me/edit"
-    | "/posts/$postId/edit"
-    | "/tricks/$trickId/submit-video"
-    | "/tricks/$trickId/suggest"
-    | "/vault/$videoId/suggest"
-    | "/games/rius/archived/$riuId"
-    | "/auth/me"
-    | "/tricks/suggestions"
-    | "/games/rius/archived"
-    | "/games/rius/sets"
-    | "/games/rius/upcoming"
-    | "/admin/tricks/$trickId/edit"
-    | "/admin/tricks/$trickId/videos"
-    | "/admin/tricks/elements/create"
-    | "/admin/tricks/modifiers/create"
-    | "/games/rius/upcoming/join"
-    | "/admin/tricks/elements"
-    | "/admin/tricks/modifiers"
-    | "/tricks/submissions/$submissionId"
-    | "/tricks/suggestions/$suggestionId"
-    | "/vault/suggestions/$suggestionId"
-    | "/games/bius/sets/$setId"
-    | "/games/rius/sets/$setId"
-    | "/games/rius/submissions/$submissionId"
-    | "/games/sius/stacks/$stackId"
-    | "/admin/tricks/elements/$elementId/edit";
+    | '/'
+    | '/privacy'
+    | '/sandbox'
+    | '/shop'
+    | '/games/rius'
+    | '/admin'
+    | '/feedback'
+    | '/api/unsubscribe'
+    | '/auth/register'
+    | '/stats/contributors'
+    | '/tricks/$trickId'
+    | '/chat'
+    | '/events'
+    | '/games'
+    | '/map'
+    | '/posts'
+    | '/stats'
+    | '/tricks'
+    | '/users'
+    | '/vault'
+    | '/notifications/settings'
+    | '/posts/create'
+    | '/tricks/create'
+    | '/tricks/review'
+    | '/vault/review'
+    | '/api/mux/webhook'
+    | '/auth/code/send'
+    | '/auth/code/verify'
+    | '/events/bracket/setup'
+    | '/events/stopwatch/setup'
+    | '/games/bius/start'
+    | '/games/rius/active'
+    | '/games/sius/start'
+    | '/vault/$videoId/edit'
+    | '/vault/valut/bak'
+    | '/notifications'
+    | '/events/bracket'
+    | '/events/stopwatch'
+    | '/games/bius'
+    | '/games/sius'
+    | '/posts/$postId'
+    | '/users/$userId'
+    | '/vault/$videoId'
+    | '/auth/me/edit'
+    | '/posts/$postId/edit'
+    | '/tricks/$trickId/submit-video'
+    | '/tricks/$trickId/suggest'
+    | '/vault/$videoId/suggest'
+    | '/games/rius/archived/$riuId'
+    | '/auth/me'
+    | '/tricks/suggestions'
+    | '/games/rius/archived'
+    | '/games/rius/sets'
+    | '/games/rius/upcoming'
+    | '/admin/tricks/$trickId/edit'
+    | '/admin/tricks/$trickId/videos'
+    | '/admin/tricks/elements/create'
+    | '/admin/tricks/modifiers/create'
+    | '/games/rius/upcoming/join'
+    | '/admin/tricks/elements'
+    | '/admin/tricks/modifiers'
+    | '/tricks/submissions/$submissionId'
+    | '/tricks/suggestions/$suggestionId'
+    | '/vault/suggestions/$suggestionId'
+    | '/games/bius/sets/$setId'
+    | '/games/rius/sets/$setId'
+    | '/games/rius/submissions/$submissionId'
+    | '/games/sius/stacks/$stackId'
+    | '/admin/tricks/elements/$elementId/edit'
   id:
-    | "__root__"
-    | "/"
-    | "/_authed"
-    | "/privacy"
-    | "/sandbox"
-    | "/shop"
-    | "/games/bius"
-    | "/games/rius"
-    | "/games/sius"
-    | "/_authed/admin"
-    | "/_authed/feedback"
-    | "/api/unsubscribe"
-    | "/auth/register"
-    | "/stats/contributors"
-    | "/tricks/$trickId"
-    | "/chat/"
-    | "/events/"
-    | "/games/"
-    | "/map/"
-    | "/posts/"
-    | "/stats/"
-    | "/tricks/"
-    | "/users/"
-    | "/vault/"
-    | "/_authed/notifications/settings"
-    | "/_authed/posts/create"
-    | "/_authed/tricks/create"
-    | "/_authed/tricks/review"
-    | "/_authed/vault/review"
-    | "/api/mux/webhook"
-    | "/auth/code/send"
-    | "/auth/code/verify"
-    | "/events/bracket/setup"
-    | "/events/stopwatch/setup"
-    | "/games/bius/start"
-    | "/games/rius/active"
-    | "/games/sius/start"
-    | "/vault/$videoId/edit"
-    | "/vault/valut/bak"
-    | "/_authed/notifications/"
-    | "/events/bracket/"
-    | "/events/stopwatch/"
-    | "/games/bius/"
-    | "/games/sius/"
-    | "/posts/$postId/"
-    | "/users/$userId/"
-    | "/vault/$videoId/"
-    | "/_authed/admin/tricks/modifiers"
-    | "/_authed/auth/me/edit"
-    | "/_authed/posts/$postId/edit"
-    | "/_authed/tricks/$trickId/submit-video"
-    | "/_authed/tricks/$trickId/suggest"
-    | "/_authed/vault/$videoId/suggest"
-    | "/games/rius/archived/$riuId"
-    | "/_authed/auth/me/"
-    | "/_authed/tricks/suggestions/"
-    | "/games/rius/archived/"
-    | "/games/rius/sets/"
-    | "/games/rius/upcoming/"
-    | "/_authed/admin/tricks/$trickId/edit"
-    | "/_authed/admin/tricks/$trickId/videos"
-    | "/_authed/admin/tricks/elements/create"
-    | "/_authed/admin/tricks/modifiers/create"
-    | "/_authed/games/rius/upcoming/join"
-    | "/_authed/admin/tricks/elements/"
-    | "/_authed/admin/tricks/modifiers/"
-    | "/_authed/tricks/submissions/$submissionId/"
-    | "/_authed/tricks/suggestions/$suggestionId/"
-    | "/_authed/vault/suggestions/$suggestionId/"
-    | "/games/bius/sets/$setId/"
-    | "/games/rius/sets/$setId/"
-    | "/games/rius/submissions/$submissionId/"
-    | "/games/sius/stacks/$stackId/"
-    | "/_authed/admin/tricks/elements/$elementId/edit";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/_authed'
+    | '/privacy'
+    | '/sandbox'
+    | '/shop'
+    | '/games/bius'
+    | '/games/rius'
+    | '/games/sius'
+    | '/_authed/admin'
+    | '/_authed/feedback'
+    | '/api/unsubscribe'
+    | '/auth/register'
+    | '/stats/contributors'
+    | '/tricks/$trickId'
+    | '/chat/'
+    | '/events/'
+    | '/games/'
+    | '/map/'
+    | '/posts/'
+    | '/stats/'
+    | '/tricks/'
+    | '/users/'
+    | '/vault/'
+    | '/_authed/notifications/settings'
+    | '/_authed/posts/create'
+    | '/_authed/tricks/create'
+    | '/_authed/tricks/review'
+    | '/_authed/vault/review'
+    | '/api/mux/webhook'
+    | '/auth/code/send'
+    | '/auth/code/verify'
+    | '/events/bracket/setup'
+    | '/events/stopwatch/setup'
+    | '/games/bius/start'
+    | '/games/rius/active'
+    | '/games/sius/start'
+    | '/vault/$videoId/edit'
+    | '/vault/valut/bak'
+    | '/_authed/notifications/'
+    | '/events/bracket/'
+    | '/events/stopwatch/'
+    | '/games/bius/'
+    | '/games/sius/'
+    | '/posts/$postId/'
+    | '/users/$userId/'
+    | '/vault/$videoId/'
+    | '/_authed/admin/tricks/modifiers'
+    | '/_authed/auth/me/edit'
+    | '/_authed/posts/$postId/edit'
+    | '/_authed/tricks/$trickId/submit-video'
+    | '/_authed/tricks/$trickId/suggest'
+    | '/_authed/vault/$videoId/suggest'
+    | '/games/rius/archived/$riuId'
+    | '/_authed/auth/me/'
+    | '/_authed/tricks/suggestions/'
+    | '/games/rius/archived/'
+    | '/games/rius/sets/'
+    | '/games/rius/upcoming/'
+    | '/_authed/admin/tricks/$trickId/edit'
+    | '/_authed/admin/tricks/$trickId/videos'
+    | '/_authed/admin/tricks/elements/create'
+    | '/_authed/admin/tricks/modifiers/create'
+    | '/_authed/games/rius/upcoming/join'
+    | '/_authed/admin/tricks/elements/'
+    | '/_authed/admin/tricks/modifiers/'
+    | '/_authed/tricks/submissions/$submissionId/'
+    | '/_authed/tricks/suggestions/$suggestionId/'
+    | '/_authed/vault/suggestions/$suggestionId/'
+    | '/games/bius/sets/$setId/'
+    | '/games/rius/sets/$setId/'
+    | '/games/rius/submissions/$submissionId/'
+    | '/games/sius/stacks/$stackId/'
+    | '/_authed/admin/tricks/elements/$elementId/edit'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  AuthedRoute: typeof AuthedRouteWithChildren;
-  PrivacyRoute: typeof PrivacyRoute;
-  SandboxRoute: typeof SandboxRoute;
-  ShopRoute: typeof ShopRoute;
-  GamesBiusRouteRoute: typeof GamesBiusRouteRouteWithChildren;
-  GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren;
-  GamesSiusRouteRoute: typeof GamesSiusRouteRouteWithChildren;
-  ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute;
-  AuthRegisterRoute: typeof AuthRegisterRoute;
-  StatsContributorsRoute: typeof StatsContributorsRoute;
-  TricksTrickIdRoute: typeof TricksTrickIdRoute;
-  ChatIndexRoute: typeof ChatIndexRoute;
-  EventsIndexRoute: typeof EventsIndexRoute;
-  GamesIndexRoute: typeof GamesIndexRoute;
-  MapIndexRoute: typeof MapIndexRoute;
-  PostsIndexRoute: typeof PostsIndexRoute;
-  StatsIndexRoute: typeof StatsIndexRoute;
-  TricksIndexRoute: typeof TricksIndexRoute;
-  UsersIndexRoute: typeof UsersIndexRoute;
-  VaultIndexRoute: typeof VaultIndexRoute;
-  ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute;
-  AuthCodeSendRoute: typeof AuthCodeSendRoute;
-  AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute;
-  EventsBracketSetupRoute: typeof EventsBracketSetupRoute;
-  EventsStopwatchSetupRoute: typeof EventsStopwatchSetupRoute;
-  VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute;
-  VaultValutBakRoute: typeof VaultValutBakRoute;
-  EventsBracketIndexRoute: typeof EventsBracketIndexRoute;
-  EventsStopwatchIndexRoute: typeof EventsStopwatchIndexRoute;
-  PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute;
-  UsersUserIdIndexRoute: typeof UsersUserIdIndexRoute;
-  VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
+  SandboxRoute: typeof SandboxRoute
+  ShopRoute: typeof ShopRoute
+  GamesBiusRouteRoute: typeof GamesBiusRouteRouteWithChildren
+  GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren
+  GamesSiusRouteRoute: typeof GamesSiusRouteRouteWithChildren
+  ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
+  AuthRegisterRoute: typeof AuthRegisterRoute
+  StatsContributorsRoute: typeof StatsContributorsRoute
+  TricksTrickIdRoute: typeof TricksTrickIdRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+  GamesIndexRoute: typeof GamesIndexRoute
+  MapIndexRoute: typeof MapIndexRoute
+  PostsIndexRoute: typeof PostsIndexRoute
+  StatsIndexRoute: typeof StatsIndexRoute
+  TricksIndexRoute: typeof TricksIndexRoute
+  UsersIndexRoute: typeof UsersIndexRoute
+  VaultIndexRoute: typeof VaultIndexRoute
+  ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
+  AuthCodeSendRoute: typeof AuthCodeSendRoute
+  AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
+  EventsBracketSetupRoute: typeof EventsBracketSetupRoute
+  EventsStopwatchSetupRoute: typeof EventsStopwatchSetupRoute
+  VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
+  VaultValutBakRoute: typeof VaultValutBakRoute
+  EventsBracketIndexRoute: typeof EventsBracketIndexRoute
+  EventsStopwatchIndexRoute: typeof EventsStopwatchIndexRoute
+  PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
+  UsersUserIdIndexRoute: typeof UsersUserIdIndexRoute
+  VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/shop": {
-      id: "/shop";
-      path: "/shop";
-      fullPath: "/shop";
-      preLoaderRoute: typeof ShopRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/sandbox": {
-      id: "/sandbox";
-      path: "/sandbox";
-      fullPath: "/sandbox";
-      preLoaderRoute: typeof SandboxRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/privacy": {
-      id: "/privacy";
-      path: "/privacy";
-      fullPath: "/privacy";
-      preLoaderRoute: typeof PrivacyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed": {
-      id: "/_authed";
-      path: "";
-      fullPath: "";
-      preLoaderRoute: typeof AuthedRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/vault/": {
-      id: "/vault/";
-      path: "/vault";
-      fullPath: "/vault";
-      preLoaderRoute: typeof VaultIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/users/": {
-      id: "/users/";
-      path: "/users";
-      fullPath: "/users";
-      preLoaderRoute: typeof UsersIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/tricks/": {
-      id: "/tricks/";
-      path: "/tricks";
-      fullPath: "/tricks";
-      preLoaderRoute: typeof TricksIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/stats/": {
-      id: "/stats/";
-      path: "/stats";
-      fullPath: "/stats";
-      preLoaderRoute: typeof StatsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/posts/": {
-      id: "/posts/";
-      path: "/posts";
-      fullPath: "/posts";
-      preLoaderRoute: typeof PostsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/map/": {
-      id: "/map/";
-      path: "/map";
-      fullPath: "/map";
-      preLoaderRoute: typeof MapIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/games/": {
-      id: "/games/";
-      path: "/games";
-      fullPath: "/games";
-      preLoaderRoute: typeof GamesIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events/": {
-      id: "/events/";
-      path: "/events";
-      fullPath: "/events";
-      preLoaderRoute: typeof EventsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/chat/": {
-      id: "/chat/";
-      path: "/chat";
-      fullPath: "/chat";
-      preLoaderRoute: typeof ChatIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/tricks/$trickId": {
-      id: "/tricks/$trickId";
-      path: "/tricks/$trickId";
-      fullPath: "/tricks/$trickId";
-      preLoaderRoute: typeof TricksTrickIdRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/stats/contributors": {
-      id: "/stats/contributors";
-      path: "/stats/contributors";
-      fullPath: "/stats/contributors";
-      preLoaderRoute: typeof StatsContributorsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/register": {
-      id: "/auth/register";
-      path: "/auth/register";
-      fullPath: "/auth/register";
-      preLoaderRoute: typeof AuthRegisterRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/unsubscribe": {
-      id: "/api/unsubscribe";
-      path: "/api/unsubscribe";
-      fullPath: "/api/unsubscribe";
-      preLoaderRoute: typeof ApiUnsubscribeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed/feedback": {
-      id: "/_authed/feedback";
-      path: "/feedback";
-      fullPath: "/feedback";
-      preLoaderRoute: typeof AuthedFeedbackRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/admin": {
-      id: "/_authed/admin";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof AuthedAdminRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/games/sius": {
-      id: "/games/sius";
-      path: "/games/sius";
-      fullPath: "/games/sius";
-      preLoaderRoute: typeof GamesSiusRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/games/rius": {
-      id: "/games/rius";
-      path: "/games/rius";
-      fullPath: "/games/rius";
-      preLoaderRoute: typeof GamesRiusRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/games/bius": {
-      id: "/games/bius";
-      path: "/games/bius";
-      fullPath: "/games/bius";
-      preLoaderRoute: typeof GamesBiusRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/vault/$videoId/": {
-      id: "/vault/$videoId/";
-      path: "/vault/$videoId";
-      fullPath: "/vault/$videoId";
-      preLoaderRoute: typeof VaultVideoIdIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/users/$userId/": {
-      id: "/users/$userId/";
-      path: "/users/$userId";
-      fullPath: "/users/$userId";
-      preLoaderRoute: typeof UsersUserIdIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/posts/$postId/": {
-      id: "/posts/$postId/";
-      path: "/posts/$postId";
-      fullPath: "/posts/$postId";
-      preLoaderRoute: typeof PostsPostIdIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/games/sius/": {
-      id: "/games/sius/";
-      path: "/";
-      fullPath: "/games/sius/";
-      preLoaderRoute: typeof GamesSiusIndexRouteImport;
-      parentRoute: typeof GamesSiusRouteRoute;
-    };
-    "/games/bius/": {
-      id: "/games/bius/";
-      path: "/";
-      fullPath: "/games/bius/";
-      preLoaderRoute: typeof GamesBiusIndexRouteImport;
-      parentRoute: typeof GamesBiusRouteRoute;
-    };
-    "/events/stopwatch/": {
-      id: "/events/stopwatch/";
-      path: "/events/stopwatch";
-      fullPath: "/events/stopwatch";
-      preLoaderRoute: typeof EventsStopwatchIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events/bracket/": {
-      id: "/events/bracket/";
-      path: "/events/bracket";
-      fullPath: "/events/bracket";
-      preLoaderRoute: typeof EventsBracketIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed/notifications/": {
-      id: "/_authed/notifications/";
-      path: "/notifications";
-      fullPath: "/notifications";
-      preLoaderRoute: typeof AuthedNotificationsIndexRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/vault/valut/bak": {
-      id: "/vault/valut/bak";
-      path: "/vault/valut/bak";
-      fullPath: "/vault/valut/bak";
-      preLoaderRoute: typeof VaultValutBakRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/vault/$videoId/edit": {
-      id: "/vault/$videoId/edit";
-      path: "/vault/$videoId/edit";
-      fullPath: "/vault/$videoId/edit";
-      preLoaderRoute: typeof VaultVideoIdEditRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/games/sius/start": {
-      id: "/games/sius/start";
-      path: "/start";
-      fullPath: "/games/sius/start";
-      preLoaderRoute: typeof GamesSiusStartRouteImport;
-      parentRoute: typeof GamesSiusRouteRoute;
-    };
-    "/games/rius/active": {
-      id: "/games/rius/active";
-      path: "/active";
-      fullPath: "/games/rius/active";
-      preLoaderRoute: typeof GamesRiusActiveRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/games/bius/start": {
-      id: "/games/bius/start";
-      path: "/start";
-      fullPath: "/games/bius/start";
-      preLoaderRoute: typeof GamesBiusStartRouteImport;
-      parentRoute: typeof GamesBiusRouteRoute;
-    };
-    "/events/stopwatch/setup": {
-      id: "/events/stopwatch/setup";
-      path: "/events/stopwatch/setup";
-      fullPath: "/events/stopwatch/setup";
-      preLoaderRoute: typeof EventsStopwatchSetupRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events/bracket/setup": {
-      id: "/events/bracket/setup";
-      path: "/events/bracket/setup";
-      fullPath: "/events/bracket/setup";
-      preLoaderRoute: typeof EventsBracketSetupRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/code/verify": {
-      id: "/auth/code/verify";
-      path: "/auth/code/verify";
-      fullPath: "/auth/code/verify";
-      preLoaderRoute: typeof AuthCodeVerifyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/code/send": {
-      id: "/auth/code/send";
-      path: "/auth/code/send";
-      fullPath: "/auth/code/send";
-      preLoaderRoute: typeof AuthCodeSendRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/mux/webhook": {
-      id: "/api/mux/webhook";
-      path: "/api/mux/webhook";
-      fullPath: "/api/mux/webhook";
-      preLoaderRoute: typeof ApiMuxWebhookRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/_authed/vault/review": {
-      id: "/_authed/vault/review";
-      path: "/vault/review";
-      fullPath: "/vault/review";
-      preLoaderRoute: typeof AuthedVaultReviewRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/tricks/review": {
-      id: "/_authed/tricks/review";
-      path: "/tricks/review";
-      fullPath: "/tricks/review";
-      preLoaderRoute: typeof AuthedTricksReviewRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/tricks/create": {
-      id: "/_authed/tricks/create";
-      path: "/tricks/create";
-      fullPath: "/tricks/create";
-      preLoaderRoute: typeof AuthedTricksCreateRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/posts/create": {
-      id: "/_authed/posts/create";
-      path: "/posts/create";
-      fullPath: "/posts/create";
-      preLoaderRoute: typeof AuthedPostsCreateRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/notifications/settings": {
-      id: "/_authed/notifications/settings";
-      path: "/notifications/settings";
-      fullPath: "/notifications/settings";
-      preLoaderRoute: typeof AuthedNotificationsSettingsRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/games/rius/upcoming/": {
-      id: "/games/rius/upcoming/";
-      path: "/upcoming";
-      fullPath: "/games/rius/upcoming";
-      preLoaderRoute: typeof GamesRiusUpcomingIndexRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/games/rius/sets/": {
-      id: "/games/rius/sets/";
-      path: "/sets";
-      fullPath: "/games/rius/sets";
-      preLoaderRoute: typeof GamesRiusSetsIndexRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/games/rius/archived/": {
-      id: "/games/rius/archived/";
-      path: "/archived";
-      fullPath: "/games/rius/archived";
-      preLoaderRoute: typeof GamesRiusArchivedIndexRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/_authed/tricks/suggestions/": {
-      id: "/_authed/tricks/suggestions/";
-      path: "/tricks/suggestions";
-      fullPath: "/tricks/suggestions";
-      preLoaderRoute: typeof AuthedTricksSuggestionsIndexRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/auth/me/": {
-      id: "/_authed/auth/me/";
-      path: "/auth/me";
-      fullPath: "/auth/me";
-      preLoaderRoute: typeof AuthedAuthMeIndexRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/games/rius/archived/$riuId": {
-      id: "/games/rius/archived/$riuId";
-      path: "/archived/$riuId";
-      fullPath: "/games/rius/archived/$riuId";
-      preLoaderRoute: typeof GamesRiusArchivedRiuIdRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/_authed/vault/$videoId/suggest": {
-      id: "/_authed/vault/$videoId/suggest";
-      path: "/vault/$videoId/suggest";
-      fullPath: "/vault/$videoId/suggest";
-      preLoaderRoute: typeof AuthedVaultVideoIdSuggestRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/tricks/$trickId/suggest": {
-      id: "/_authed/tricks/$trickId/suggest";
-      path: "/tricks/$trickId/suggest";
-      fullPath: "/tricks/$trickId/suggest";
-      preLoaderRoute: typeof AuthedTricksTrickIdSuggestRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/tricks/$trickId/submit-video": {
-      id: "/_authed/tricks/$trickId/submit-video";
-      path: "/tricks/$trickId/submit-video";
-      fullPath: "/tricks/$trickId/submit-video";
-      preLoaderRoute: typeof AuthedTricksTrickIdSubmitVideoRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/posts/$postId/edit": {
-      id: "/_authed/posts/$postId/edit";
-      path: "/posts/$postId/edit";
-      fullPath: "/posts/$postId/edit";
-      preLoaderRoute: typeof AuthedPostsPostIdEditRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/auth/me/edit": {
-      id: "/_authed/auth/me/edit";
-      path: "/auth/me/edit";
-      fullPath: "/auth/me/edit";
-      preLoaderRoute: typeof AuthedAuthMeEditRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/admin/tricks/modifiers": {
-      id: "/_authed/admin/tricks/modifiers";
-      path: "/tricks/modifiers";
-      fullPath: "/admin/tricks/modifiers";
-      preLoaderRoute: typeof AuthedAdminTricksModifiersRouteImport;
-      parentRoute: typeof AuthedAdminRoute;
-    };
-    "/games/sius/stacks/$stackId/": {
-      id: "/games/sius/stacks/$stackId/";
-      path: "/stacks/$stackId";
-      fullPath: "/games/sius/stacks/$stackId";
-      preLoaderRoute: typeof GamesSiusStacksStackIdIndexRouteImport;
-      parentRoute: typeof GamesSiusRouteRoute;
-    };
-    "/games/rius/submissions/$submissionId/": {
-      id: "/games/rius/submissions/$submissionId/";
-      path: "/submissions/$submissionId";
-      fullPath: "/games/rius/submissions/$submissionId";
-      preLoaderRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/games/rius/sets/$setId/": {
-      id: "/games/rius/sets/$setId/";
-      path: "/sets/$setId";
-      fullPath: "/games/rius/sets/$setId";
-      preLoaderRoute: typeof GamesRiusSetsSetIdIndexRouteImport;
-      parentRoute: typeof GamesRiusRouteRoute;
-    };
-    "/games/bius/sets/$setId/": {
-      id: "/games/bius/sets/$setId/";
-      path: "/sets/$setId";
-      fullPath: "/games/bius/sets/$setId";
-      preLoaderRoute: typeof GamesBiusSetsSetIdIndexRouteImport;
-      parentRoute: typeof GamesBiusRouteRoute;
-    };
-    "/_authed/vault/suggestions/$suggestionId/": {
-      id: "/_authed/vault/suggestions/$suggestionId/";
-      path: "/vault/suggestions/$suggestionId";
-      fullPath: "/vault/suggestions/$suggestionId";
-      preLoaderRoute: typeof AuthedVaultSuggestionsSuggestionIdIndexRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/tricks/suggestions/$suggestionId/": {
-      id: "/_authed/tricks/suggestions/$suggestionId/";
-      path: "/tricks/suggestions/$suggestionId";
-      fullPath: "/tricks/suggestions/$suggestionId";
-      preLoaderRoute: typeof AuthedTricksSuggestionsSuggestionIdIndexRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/tricks/submissions/$submissionId/": {
-      id: "/_authed/tricks/submissions/$submissionId/";
-      path: "/tricks/submissions/$submissionId";
-      fullPath: "/tricks/submissions/$submissionId";
-      preLoaderRoute: typeof AuthedTricksSubmissionsSubmissionIdIndexRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/admin/tricks/modifiers/": {
-      id: "/_authed/admin/tricks/modifiers/";
-      path: "/";
-      fullPath: "/admin/tricks/modifiers/";
-      preLoaderRoute: typeof AuthedAdminTricksModifiersIndexRouteImport;
-      parentRoute: typeof AuthedAdminTricksModifiersRoute;
-    };
-    "/_authed/admin/tricks/elements/": {
-      id: "/_authed/admin/tricks/elements/";
-      path: "/tricks/elements";
-      fullPath: "/admin/tricks/elements";
-      preLoaderRoute: typeof AuthedAdminTricksElementsIndexRouteImport;
-      parentRoute: typeof AuthedAdminRoute;
-    };
-    "/_authed/games/rius/upcoming/join": {
-      id: "/_authed/games/rius/upcoming/join";
-      path: "/games/rius/upcoming/join";
-      fullPath: "/games/rius/upcoming/join";
-      preLoaderRoute: typeof AuthedGamesRiusUpcomingJoinRouteImport;
-      parentRoute: typeof AuthedRoute;
-    };
-    "/_authed/admin/tricks/modifiers/create": {
-      id: "/_authed/admin/tricks/modifiers/create";
-      path: "/create";
-      fullPath: "/admin/tricks/modifiers/create";
-      preLoaderRoute: typeof AuthedAdminTricksModifiersCreateRouteImport;
-      parentRoute: typeof AuthedAdminTricksModifiersRoute;
-    };
-    "/_authed/admin/tricks/elements/create": {
-      id: "/_authed/admin/tricks/elements/create";
-      path: "/tricks/elements/create";
-      fullPath: "/admin/tricks/elements/create";
-      preLoaderRoute: typeof AuthedAdminTricksElementsCreateRouteImport;
-      parentRoute: typeof AuthedAdminRoute;
-    };
-    "/_authed/admin/tricks/$trickId/videos": {
-      id: "/_authed/admin/tricks/$trickId/videos";
-      path: "/tricks/$trickId/videos";
-      fullPath: "/admin/tricks/$trickId/videos";
-      preLoaderRoute: typeof AuthedAdminTricksTrickIdVideosRouteImport;
-      parentRoute: typeof AuthedAdminRoute;
-    };
-    "/_authed/admin/tricks/$trickId/edit": {
-      id: "/_authed/admin/tricks/$trickId/edit";
-      path: "/tricks/$trickId/edit";
-      fullPath: "/admin/tricks/$trickId/edit";
-      preLoaderRoute: typeof AuthedAdminTricksTrickIdEditRouteImport;
-      parentRoute: typeof AuthedAdminRoute;
-    };
-    "/_authed/admin/tricks/elements/$elementId/edit": {
-      id: "/_authed/admin/tricks/elements/$elementId/edit";
-      path: "/tricks/elements/$elementId/edit";
-      fullPath: "/admin/tricks/elements/$elementId/edit";
-      preLoaderRoute: typeof AuthedAdminTricksElementsElementIdEditRouteImport;
-      parentRoute: typeof AuthedAdminRoute;
-    };
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sandbox': {
+      id: '/sandbox'
+      path: '/sandbox'
+      fullPath: '/sandbox'
+      preLoaderRoute: typeof SandboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vault/': {
+      id: '/vault/'
+      path: '/vault'
+      fullPath: '/vault'
+      preLoaderRoute: typeof VaultIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/': {
+      id: '/users/'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/': {
+      id: '/tricks/'
+      path: '/tricks'
+      fullPath: '/tricks'
+      preLoaderRoute: typeof TricksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats/': {
+      id: '/stats/'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/': {
+      id: '/posts/'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map/': {
+      id: '/map/'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/$trickId': {
+      id: '/tricks/$trickId'
+      path: '/tricks/$trickId'
+      fullPath: '/tricks/$trickId'
+      preLoaderRoute: typeof TricksTrickIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats/contributors': {
+      id: '/stats/contributors'
+      path: '/stats/contributors'
+      fullPath: '/stats/contributors'
+      preLoaderRoute: typeof StatsContributorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/register': {
+      id: '/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof AuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/unsubscribe': {
+      id: '/api/unsubscribe'
+      path: '/api/unsubscribe'
+      fullPath: '/api/unsubscribe'
+      preLoaderRoute: typeof ApiUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/feedback': {
+      id: '/_authed/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof AuthedFeedbackRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/admin': {
+      id: '/_authed/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthedAdminRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/games/sius': {
+      id: '/games/sius'
+      path: '/games/sius'
+      fullPath: '/games/sius'
+      preLoaderRoute: typeof GamesSiusRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/rius': {
+      id: '/games/rius'
+      path: '/games/rius'
+      fullPath: '/games/rius'
+      preLoaderRoute: typeof GamesRiusRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/bius': {
+      id: '/games/bius'
+      path: '/games/bius'
+      fullPath: '/games/bius'
+      preLoaderRoute: typeof GamesBiusRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vault/$videoId/': {
+      id: '/vault/$videoId/'
+      path: '/vault/$videoId'
+      fullPath: '/vault/$videoId'
+      preLoaderRoute: typeof VaultVideoIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/$userId/': {
+      id: '/users/$userId/'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof UsersUserIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postId/': {
+      id: '/posts/$postId/'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/sius/': {
+      id: '/games/sius/'
+      path: '/'
+      fullPath: '/games/sius/'
+      preLoaderRoute: typeof GamesSiusIndexRouteImport
+      parentRoute: typeof GamesSiusRouteRoute
+    }
+    '/games/bius/': {
+      id: '/games/bius/'
+      path: '/'
+      fullPath: '/games/bius/'
+      preLoaderRoute: typeof GamesBiusIndexRouteImport
+      parentRoute: typeof GamesBiusRouteRoute
+    }
+    '/events/stopwatch/': {
+      id: '/events/stopwatch/'
+      path: '/events/stopwatch'
+      fullPath: '/events/stopwatch'
+      preLoaderRoute: typeof EventsStopwatchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/bracket/': {
+      id: '/events/bracket/'
+      path: '/events/bracket'
+      fullPath: '/events/bracket'
+      preLoaderRoute: typeof EventsBracketIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/notifications/': {
+      id: '/_authed/notifications/'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthedNotificationsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/vault/valut/bak': {
+      id: '/vault/valut/bak'
+      path: '/vault/valut/bak'
+      fullPath: '/vault/valut/bak'
+      preLoaderRoute: typeof VaultValutBakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vault/$videoId/edit': {
+      id: '/vault/$videoId/edit'
+      path: '/vault/$videoId/edit'
+      fullPath: '/vault/$videoId/edit'
+      preLoaderRoute: typeof VaultVideoIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/sius/start': {
+      id: '/games/sius/start'
+      path: '/start'
+      fullPath: '/games/sius/start'
+      preLoaderRoute: typeof GamesSiusStartRouteImport
+      parentRoute: typeof GamesSiusRouteRoute
+    }
+    '/games/rius/active': {
+      id: '/games/rius/active'
+      path: '/active'
+      fullPath: '/games/rius/active'
+      preLoaderRoute: typeof GamesRiusActiveRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/games/bius/start': {
+      id: '/games/bius/start'
+      path: '/start'
+      fullPath: '/games/bius/start'
+      preLoaderRoute: typeof GamesBiusStartRouteImport
+      parentRoute: typeof GamesBiusRouteRoute
+    }
+    '/events/stopwatch/setup': {
+      id: '/events/stopwatch/setup'
+      path: '/events/stopwatch/setup'
+      fullPath: '/events/stopwatch/setup'
+      preLoaderRoute: typeof EventsStopwatchSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/bracket/setup': {
+      id: '/events/bracket/setup'
+      path: '/events/bracket/setup'
+      fullPath: '/events/bracket/setup'
+      preLoaderRoute: typeof EventsBracketSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/code/verify': {
+      id: '/auth/code/verify'
+      path: '/auth/code/verify'
+      fullPath: '/auth/code/verify'
+      preLoaderRoute: typeof AuthCodeVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/code/send': {
+      id: '/auth/code/send'
+      path: '/auth/code/send'
+      fullPath: '/auth/code/send'
+      preLoaderRoute: typeof AuthCodeSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mux/webhook': {
+      id: '/api/mux/webhook'
+      path: '/api/mux/webhook'
+      fullPath: '/api/mux/webhook'
+      preLoaderRoute: typeof ApiMuxWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/vault/review': {
+      id: '/_authed/vault/review'
+      path: '/vault/review'
+      fullPath: '/vault/review'
+      preLoaderRoute: typeof AuthedVaultReviewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/review': {
+      id: '/_authed/tricks/review'
+      path: '/tricks/review'
+      fullPath: '/tricks/review'
+      preLoaderRoute: typeof AuthedTricksReviewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/create': {
+      id: '/_authed/tricks/create'
+      path: '/tricks/create'
+      fullPath: '/tricks/create'
+      preLoaderRoute: typeof AuthedTricksCreateRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/posts/create': {
+      id: '/_authed/posts/create'
+      path: '/posts/create'
+      fullPath: '/posts/create'
+      preLoaderRoute: typeof AuthedPostsCreateRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/notifications/settings': {
+      id: '/_authed/notifications/settings'
+      path: '/notifications/settings'
+      fullPath: '/notifications/settings'
+      preLoaderRoute: typeof AuthedNotificationsSettingsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/games/rius/upcoming/': {
+      id: '/games/rius/upcoming/'
+      path: '/upcoming'
+      fullPath: '/games/rius/upcoming'
+      preLoaderRoute: typeof GamesRiusUpcomingIndexRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/games/rius/sets/': {
+      id: '/games/rius/sets/'
+      path: '/sets'
+      fullPath: '/games/rius/sets'
+      preLoaderRoute: typeof GamesRiusSetsIndexRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/games/rius/archived/': {
+      id: '/games/rius/archived/'
+      path: '/archived'
+      fullPath: '/games/rius/archived'
+      preLoaderRoute: typeof GamesRiusArchivedIndexRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/_authed/tricks/suggestions/': {
+      id: '/_authed/tricks/suggestions/'
+      path: '/tricks/suggestions'
+      fullPath: '/tricks/suggestions'
+      preLoaderRoute: typeof AuthedTricksSuggestionsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/auth/me/': {
+      id: '/_authed/auth/me/'
+      path: '/auth/me'
+      fullPath: '/auth/me'
+      preLoaderRoute: typeof AuthedAuthMeIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/games/rius/archived/$riuId': {
+      id: '/games/rius/archived/$riuId'
+      path: '/archived/$riuId'
+      fullPath: '/games/rius/archived/$riuId'
+      preLoaderRoute: typeof GamesRiusArchivedRiuIdRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/_authed/vault/$videoId/suggest': {
+      id: '/_authed/vault/$videoId/suggest'
+      path: '/vault/$videoId/suggest'
+      fullPath: '/vault/$videoId/suggest'
+      preLoaderRoute: typeof AuthedVaultVideoIdSuggestRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/$trickId/suggest': {
+      id: '/_authed/tricks/$trickId/suggest'
+      path: '/tricks/$trickId/suggest'
+      fullPath: '/tricks/$trickId/suggest'
+      preLoaderRoute: typeof AuthedTricksTrickIdSuggestRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/$trickId/submit-video': {
+      id: '/_authed/tricks/$trickId/submit-video'
+      path: '/tricks/$trickId/submit-video'
+      fullPath: '/tricks/$trickId/submit-video'
+      preLoaderRoute: typeof AuthedTricksTrickIdSubmitVideoRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/posts/$postId/edit': {
+      id: '/_authed/posts/$postId/edit'
+      path: '/posts/$postId/edit'
+      fullPath: '/posts/$postId/edit'
+      preLoaderRoute: typeof AuthedPostsPostIdEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/auth/me/edit': {
+      id: '/_authed/auth/me/edit'
+      path: '/auth/me/edit'
+      fullPath: '/auth/me/edit'
+      preLoaderRoute: typeof AuthedAuthMeEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/admin/tricks/modifiers': {
+      id: '/_authed/admin/tricks/modifiers'
+      path: '/tricks/modifiers'
+      fullPath: '/admin/tricks/modifiers'
+      preLoaderRoute: typeof AuthedAdminTricksModifiersRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/games/sius/stacks/$stackId/': {
+      id: '/games/sius/stacks/$stackId/'
+      path: '/stacks/$stackId'
+      fullPath: '/games/sius/stacks/$stackId'
+      preLoaderRoute: typeof GamesSiusStacksStackIdIndexRouteImport
+      parentRoute: typeof GamesSiusRouteRoute
+    }
+    '/games/rius/submissions/$submissionId/': {
+      id: '/games/rius/submissions/$submissionId/'
+      path: '/submissions/$submissionId'
+      fullPath: '/games/rius/submissions/$submissionId'
+      preLoaderRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/games/rius/sets/$setId/': {
+      id: '/games/rius/sets/$setId/'
+      path: '/sets/$setId'
+      fullPath: '/games/rius/sets/$setId'
+      preLoaderRoute: typeof GamesRiusSetsSetIdIndexRouteImport
+      parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/games/bius/sets/$setId/': {
+      id: '/games/bius/sets/$setId/'
+      path: '/sets/$setId'
+      fullPath: '/games/bius/sets/$setId'
+      preLoaderRoute: typeof GamesBiusSetsSetIdIndexRouteImport
+      parentRoute: typeof GamesBiusRouteRoute
+    }
+    '/_authed/vault/suggestions/$suggestionId/': {
+      id: '/_authed/vault/suggestions/$suggestionId/'
+      path: '/vault/suggestions/$suggestionId'
+      fullPath: '/vault/suggestions/$suggestionId'
+      preLoaderRoute: typeof AuthedVaultSuggestionsSuggestionIdIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/suggestions/$suggestionId/': {
+      id: '/_authed/tricks/suggestions/$suggestionId/'
+      path: '/tricks/suggestions/$suggestionId'
+      fullPath: '/tricks/suggestions/$suggestionId'
+      preLoaderRoute: typeof AuthedTricksSuggestionsSuggestionIdIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/submissions/$submissionId/': {
+      id: '/_authed/tricks/submissions/$submissionId/'
+      path: '/tricks/submissions/$submissionId'
+      fullPath: '/tricks/submissions/$submissionId'
+      preLoaderRoute: typeof AuthedTricksSubmissionsSubmissionIdIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/admin/tricks/modifiers/': {
+      id: '/_authed/admin/tricks/modifiers/'
+      path: '/'
+      fullPath: '/admin/tricks/modifiers/'
+      preLoaderRoute: typeof AuthedAdminTricksModifiersIndexRouteImport
+      parentRoute: typeof AuthedAdminTricksModifiersRoute
+    }
+    '/_authed/admin/tricks/elements/': {
+      id: '/_authed/admin/tricks/elements/'
+      path: '/tricks/elements'
+      fullPath: '/admin/tricks/elements'
+      preLoaderRoute: typeof AuthedAdminTricksElementsIndexRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/games/rius/upcoming/join': {
+      id: '/_authed/games/rius/upcoming/join'
+      path: '/games/rius/upcoming/join'
+      fullPath: '/games/rius/upcoming/join'
+      preLoaderRoute: typeof AuthedGamesRiusUpcomingJoinRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/admin/tricks/modifiers/create': {
+      id: '/_authed/admin/tricks/modifiers/create'
+      path: '/create'
+      fullPath: '/admin/tricks/modifiers/create'
+      preLoaderRoute: typeof AuthedAdminTricksModifiersCreateRouteImport
+      parentRoute: typeof AuthedAdminTricksModifiersRoute
+    }
+    '/_authed/admin/tricks/elements/create': {
+      id: '/_authed/admin/tricks/elements/create'
+      path: '/tricks/elements/create'
+      fullPath: '/admin/tricks/elements/create'
+      preLoaderRoute: typeof AuthedAdminTricksElementsCreateRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/tricks/$trickId/videos': {
+      id: '/_authed/admin/tricks/$trickId/videos'
+      path: '/tricks/$trickId/videos'
+      fullPath: '/admin/tricks/$trickId/videos'
+      preLoaderRoute: typeof AuthedAdminTricksTrickIdVideosRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/tricks/$trickId/edit': {
+      id: '/_authed/admin/tricks/$trickId/edit'
+      path: '/tricks/$trickId/edit'
+      fullPath: '/admin/tricks/$trickId/edit'
+      preLoaderRoute: typeof AuthedAdminTricksTrickIdEditRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/tricks/elements/$elementId/edit': {
+      id: '/_authed/admin/tricks/elements/$elementId/edit'
+      path: '/tricks/elements/$elementId/edit'
+      fullPath: '/admin/tricks/elements/$elementId/edit'
+      preLoaderRoute: typeof AuthedAdminTricksElementsElementIdEditRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
   }
 }
 
 interface AuthedAdminTricksModifiersRouteChildren {
-  AuthedAdminTricksModifiersCreateRoute: typeof AuthedAdminTricksModifiersCreateRoute;
-  AuthedAdminTricksModifiersIndexRoute: typeof AuthedAdminTricksModifiersIndexRoute;
+  AuthedAdminTricksModifiersCreateRoute: typeof AuthedAdminTricksModifiersCreateRoute
+  AuthedAdminTricksModifiersIndexRoute: typeof AuthedAdminTricksModifiersIndexRoute
 }
 
 const AuthedAdminTricksModifiersRouteChildren: AuthedAdminTricksModifiersRouteChildren =
@@ -1477,20 +1474,20 @@ const AuthedAdminTricksModifiersRouteChildren: AuthedAdminTricksModifiersRouteCh
     AuthedAdminTricksModifiersCreateRoute:
       AuthedAdminTricksModifiersCreateRoute,
     AuthedAdminTricksModifiersIndexRoute: AuthedAdminTricksModifiersIndexRoute,
-  };
+  }
 
 const AuthedAdminTricksModifiersRouteWithChildren =
   AuthedAdminTricksModifiersRoute._addFileChildren(
     AuthedAdminTricksModifiersRouteChildren,
-  );
+  )
 
 interface AuthedAdminRouteChildren {
-  AuthedAdminTricksModifiersRoute: typeof AuthedAdminTricksModifiersRouteWithChildren;
-  AuthedAdminTricksTrickIdEditRoute: typeof AuthedAdminTricksTrickIdEditRoute;
-  AuthedAdminTricksTrickIdVideosRoute: typeof AuthedAdminTricksTrickIdVideosRoute;
-  AuthedAdminTricksElementsCreateRoute: typeof AuthedAdminTricksElementsCreateRoute;
-  AuthedAdminTricksElementsIndexRoute: typeof AuthedAdminTricksElementsIndexRoute;
-  AuthedAdminTricksElementsElementIdEditRoute: typeof AuthedAdminTricksElementsElementIdEditRoute;
+  AuthedAdminTricksModifiersRoute: typeof AuthedAdminTricksModifiersRouteWithChildren
+  AuthedAdminTricksTrickIdEditRoute: typeof AuthedAdminTricksTrickIdEditRoute
+  AuthedAdminTricksTrickIdVideosRoute: typeof AuthedAdminTricksTrickIdVideosRoute
+  AuthedAdminTricksElementsCreateRoute: typeof AuthedAdminTricksElementsCreateRoute
+  AuthedAdminTricksElementsIndexRoute: typeof AuthedAdminTricksElementsIndexRoute
+  AuthedAdminTricksElementsElementIdEditRoute: typeof AuthedAdminTricksElementsElementIdEditRoute
 }
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
@@ -1501,32 +1498,32 @@ const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
   AuthedAdminTricksElementsIndexRoute: AuthedAdminTricksElementsIndexRoute,
   AuthedAdminTricksElementsElementIdEditRoute:
     AuthedAdminTricksElementsElementIdEditRoute,
-};
+}
 
 const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
   AuthedAdminRouteChildren,
-);
+)
 
 interface AuthedRouteChildren {
-  AuthedAdminRoute: typeof AuthedAdminRouteWithChildren;
-  AuthedFeedbackRoute: typeof AuthedFeedbackRoute;
-  AuthedNotificationsSettingsRoute: typeof AuthedNotificationsSettingsRoute;
-  AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute;
-  AuthedTricksCreateRoute: typeof AuthedTricksCreateRoute;
-  AuthedTricksReviewRoute: typeof AuthedTricksReviewRoute;
-  AuthedVaultReviewRoute: typeof AuthedVaultReviewRoute;
-  AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute;
-  AuthedAuthMeEditRoute: typeof AuthedAuthMeEditRoute;
-  AuthedPostsPostIdEditRoute: typeof AuthedPostsPostIdEditRoute;
-  AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute;
-  AuthedTricksTrickIdSuggestRoute: typeof AuthedTricksTrickIdSuggestRoute;
-  AuthedVaultVideoIdSuggestRoute: typeof AuthedVaultVideoIdSuggestRoute;
-  AuthedAuthMeIndexRoute: typeof AuthedAuthMeIndexRoute;
-  AuthedTricksSuggestionsIndexRoute: typeof AuthedTricksSuggestionsIndexRoute;
-  AuthedGamesRiusUpcomingJoinRoute: typeof AuthedGamesRiusUpcomingJoinRoute;
-  AuthedTricksSubmissionsSubmissionIdIndexRoute: typeof AuthedTricksSubmissionsSubmissionIdIndexRoute;
-  AuthedTricksSuggestionsSuggestionIdIndexRoute: typeof AuthedTricksSuggestionsSuggestionIdIndexRoute;
-  AuthedVaultSuggestionsSuggestionIdIndexRoute: typeof AuthedVaultSuggestionsSuggestionIdIndexRoute;
+  AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
+  AuthedFeedbackRoute: typeof AuthedFeedbackRoute
+  AuthedNotificationsSettingsRoute: typeof AuthedNotificationsSettingsRoute
+  AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute
+  AuthedTricksCreateRoute: typeof AuthedTricksCreateRoute
+  AuthedTricksReviewRoute: typeof AuthedTricksReviewRoute
+  AuthedVaultReviewRoute: typeof AuthedVaultReviewRoute
+  AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute
+  AuthedAuthMeEditRoute: typeof AuthedAuthMeEditRoute
+  AuthedPostsPostIdEditRoute: typeof AuthedPostsPostIdEditRoute
+  AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute
+  AuthedTricksTrickIdSuggestRoute: typeof AuthedTricksTrickIdSuggestRoute
+  AuthedVaultVideoIdSuggestRoute: typeof AuthedVaultVideoIdSuggestRoute
+  AuthedAuthMeIndexRoute: typeof AuthedAuthMeIndexRoute
+  AuthedTricksSuggestionsIndexRoute: typeof AuthedTricksSuggestionsIndexRoute
+  AuthedGamesRiusUpcomingJoinRoute: typeof AuthedGamesRiusUpcomingJoinRoute
+  AuthedTricksSubmissionsSubmissionIdIndexRoute: typeof AuthedTricksSubmissionsSubmissionIdIndexRoute
+  AuthedTricksSuggestionsSuggestionIdIndexRoute: typeof AuthedTricksSuggestionsSuggestionIdIndexRoute
+  AuthedVaultSuggestionsSuggestionIdIndexRoute: typeof AuthedVaultSuggestionsSuggestionIdIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -1552,35 +1549,35 @@ const AuthedRouteChildren: AuthedRouteChildren = {
     AuthedTricksSuggestionsSuggestionIdIndexRoute,
   AuthedVaultSuggestionsSuggestionIdIndexRoute:
     AuthedVaultSuggestionsSuggestionIdIndexRoute,
-};
+}
 
 const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren);
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 interface GamesBiusRouteRouteChildren {
-  GamesBiusStartRoute: typeof GamesBiusStartRoute;
-  GamesBiusIndexRoute: typeof GamesBiusIndexRoute;
-  GamesBiusSetsSetIdIndexRoute: typeof GamesBiusSetsSetIdIndexRoute;
+  GamesBiusStartRoute: typeof GamesBiusStartRoute
+  GamesBiusIndexRoute: typeof GamesBiusIndexRoute
+  GamesBiusSetsSetIdIndexRoute: typeof GamesBiusSetsSetIdIndexRoute
 }
 
 const GamesBiusRouteRouteChildren: GamesBiusRouteRouteChildren = {
   GamesBiusStartRoute: GamesBiusStartRoute,
   GamesBiusIndexRoute: GamesBiusIndexRoute,
   GamesBiusSetsSetIdIndexRoute: GamesBiusSetsSetIdIndexRoute,
-};
+}
 
 const GamesBiusRouteRouteWithChildren = GamesBiusRouteRoute._addFileChildren(
   GamesBiusRouteRouteChildren,
-);
+)
 
 interface GamesRiusRouteRouteChildren {
-  GamesRiusActiveRoute: typeof GamesRiusActiveRoute;
-  GamesRiusArchivedRiuIdRoute: typeof GamesRiusArchivedRiuIdRoute;
-  GamesRiusArchivedIndexRoute: typeof GamesRiusArchivedIndexRoute;
-  GamesRiusSetsIndexRoute: typeof GamesRiusSetsIndexRoute;
-  GamesRiusUpcomingIndexRoute: typeof GamesRiusUpcomingIndexRoute;
-  GamesRiusSetsSetIdIndexRoute: typeof GamesRiusSetsSetIdIndexRoute;
-  GamesRiusSubmissionsSubmissionIdIndexRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRoute;
+  GamesRiusActiveRoute: typeof GamesRiusActiveRoute
+  GamesRiusArchivedRiuIdRoute: typeof GamesRiusArchivedRiuIdRoute
+  GamesRiusArchivedIndexRoute: typeof GamesRiusArchivedIndexRoute
+  GamesRiusSetsIndexRoute: typeof GamesRiusSetsIndexRoute
+  GamesRiusUpcomingIndexRoute: typeof GamesRiusUpcomingIndexRoute
+  GamesRiusSetsSetIdIndexRoute: typeof GamesRiusSetsSetIdIndexRoute
+  GamesRiusSubmissionsSubmissionIdIndexRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRoute
 }
 
 const GamesRiusRouteRouteChildren: GamesRiusRouteRouteChildren = {
@@ -1592,27 +1589,27 @@ const GamesRiusRouteRouteChildren: GamesRiusRouteRouteChildren = {
   GamesRiusSetsSetIdIndexRoute: GamesRiusSetsSetIdIndexRoute,
   GamesRiusSubmissionsSubmissionIdIndexRoute:
     GamesRiusSubmissionsSubmissionIdIndexRoute,
-};
+}
 
 const GamesRiusRouteRouteWithChildren = GamesRiusRouteRoute._addFileChildren(
   GamesRiusRouteRouteChildren,
-);
+)
 
 interface GamesSiusRouteRouteChildren {
-  GamesSiusStartRoute: typeof GamesSiusStartRoute;
-  GamesSiusIndexRoute: typeof GamesSiusIndexRoute;
-  GamesSiusStacksStackIdIndexRoute: typeof GamesSiusStacksStackIdIndexRoute;
+  GamesSiusStartRoute: typeof GamesSiusStartRoute
+  GamesSiusIndexRoute: typeof GamesSiusIndexRoute
+  GamesSiusStacksStackIdIndexRoute: typeof GamesSiusStacksStackIdIndexRoute
 }
 
 const GamesSiusRouteRouteChildren: GamesSiusRouteRouteChildren = {
   GamesSiusStartRoute: GamesSiusStartRoute,
   GamesSiusIndexRoute: GamesSiusIndexRoute,
   GamesSiusStacksStackIdIndexRoute: GamesSiusStacksStackIdIndexRoute,
-};
+}
 
 const GamesSiusRouteRouteWithChildren = GamesSiusRouteRoute._addFileChildren(
   GamesSiusRouteRouteChildren,
-);
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1648,14 +1645,16 @@ const rootRouteChildren: RootRouteChildren = {
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
   UsersUserIdIndexRoute: UsersUserIdIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }

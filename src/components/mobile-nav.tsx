@@ -1,7 +1,6 @@
 import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer";
 import { Link, useMatches } from "@tanstack/react-router";
 import {
-  ChevronUpIcon,
   ClipboardPenIcon,
   EarthIcon,
   GaugeIcon,
@@ -12,6 +11,7 @@ import {
   MessagesSquareIcon,
   MonitorIcon,
   MoonIcon,
+  PanelBottomOpenIcon,
   Send,
   ShoppingBagIcon,
   SunIcon,
@@ -113,7 +113,7 @@ export function MobileNavIndentBackground({
 }) {
   return (
     <DrawerPrimitive.IndentBackground
-      className={cn("bg-muted/50 fixed inset-0", className)}
+      className={cn("bg-muted/30 fixed inset-0", className)}
     />
   );
 }
@@ -142,11 +142,11 @@ export function MobileNavTrigger({ className }: { className?: string }) {
   return (
     <Button
       variant="secondary"
-      size="icon-sm"
+      size="icon"
       onClick={openNav}
       className={cn("lg:hidden", className)}
     >
-      <ChevronUpIcon />
+      <PanelBottomOpenIcon />
     </Button>
   );
 }
@@ -184,7 +184,7 @@ export function MobileNavPopup({
     <DrawerPrimitive.Portal container={portalContainer}>
       <DrawerPrimitive.Backdrop className="fixed inset-0 z-50 bg-black opacity-[calc(0.3*(1-var(--drawer-swipe-progress)))] transition-opacity duration-200 data-[ending-style]:opacity-0 data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-[starting-style]:opacity-0 data-[swiping]:duration-0" />
       <DrawerPrimitive.Viewport className="fixed inset-0 z-50 flex items-end">
-        <DrawerPrimitive.Popup className="bg-background flex max-h-[85vh] w-full [transform:translateY(var(--drawer-swipe-movement-y))] flex-col rounded-t-xl border-t transition-transform duration-200 ease-in-out outline-none data-[ending-style]:[transform:translateY(100%)] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-[starting-style]:[transform:translateY(100%)]">
+        <DrawerPrimitive.Popup className="bg-background flex max-h-[90vh] w-full [transform:translateY(var(--drawer-swipe-movement-y))] flex-col rounded-t-xl border-t transition-transform duration-200 ease-in-out outline-none data-[ending-style]:[transform:translateY(100%)] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-[starting-style]:[transform:translateY(100%)]">
           <div
             aria-hidden
             className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"

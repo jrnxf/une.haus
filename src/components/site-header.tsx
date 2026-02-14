@@ -98,7 +98,18 @@ export function SiteHeader() {
       >
         <div className="flex items-center gap-2">
           {hasBreadcrumbs && <MobileBackButton />}
-          <MobileNavTrigger />
+          {hasTabs && (
+            <div className="flex items-center gap-2 lg:hidden">
+              {headerState.tabs}
+              <HeaderDivider />
+            </div>
+          )}
+          {hasActions && (
+            <div className="flex items-center gap-2 lg:hidden">
+              {headerState.actions}
+              <HeaderDivider />
+            </div>
+          )}
           {showTrigger && (
             <SidebarTrigger className="-ml-1 hidden lg:flex" size="icon-xs" />
           )}
@@ -124,18 +135,19 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           {hasTabs && (
-            <>
+            <div className="hidden items-center gap-2 lg:flex">
               {headerState.tabs}
               <HeaderDivider />
-            </>
+            </div>
           )}
           {hasActions && (
-            <>
+            <div className="hidden items-center gap-2 lg:flex">
               {headerState.actions}
               <HeaderDivider />
-            </>
+            </div>
           )}
           <Search />
+          <MobileNavTrigger />
         </div>
       </div>
     </header>
