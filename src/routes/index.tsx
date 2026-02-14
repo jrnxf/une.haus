@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
 function RouteComponent() {
   return (
     <div className="flex flex-1 items-center justify-center p-4">
-      <LogoRandomScatter className="h-auto w-full max-w-sm" />
+      <LogoRandomScatter className="h-auto w-full max-w-48" />
     </div>
   );
 }
