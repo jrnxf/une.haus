@@ -19,13 +19,14 @@ import {
   TrafficConeIcon,
   type LucideIcon,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import {
   MobileNavContext,
   useMobileNav,
 } from "~/components/mobile-nav-context";
 import { Button } from "~/components/ui/button";
+import { usePeripherals } from "~/hooks/use-peripherals";
 import { useTheme, type Theme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 
@@ -90,7 +91,7 @@ function NavItem({
 }
 
 export function MobileNavProvider({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = usePeripherals("nav");
 
   return (
     <MobileNavContext.Provider value={() => setOpen(true)}>

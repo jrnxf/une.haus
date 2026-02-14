@@ -165,7 +165,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                     <SidebarInset>
                       <SiteHeader />
                       <div
-                        className="flex flex-1 flex-col overflow-y-auto"
+                        className="flex flex-1 flex-col overflow-y-auto overscroll-none"
                         id="main-content"
                       >
                         {children}
