@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, desc, eq, gte } from "drizzle-orm";
 
@@ -11,6 +12,7 @@ import {
   authOptionalMiddleware,
 } from "~/lib/middleware";
 import { notifyFollowers } from "~/lib/notifications/helpers";
+
 import {
   backUpSetSchema,
   deleteSetSchema,
@@ -171,10 +173,7 @@ export const backUpSetServerFn = createServerFn({ method: "POST" })
 
     invariant(parentSet, "Parent set not found");
     invariant(parentSet.chain.status === "active", "Chain is not active");
-    invariant(
-      parentSet.userId !== userId,
-      "You cannot back up your own set",
-    );
+    invariant(parentSet.userId !== userId, "You cannot back up your own set");
     invariant(
       !parentSet.flaggedAt || parentSet.flagResolvedAt,
       "Parent set is flagged and pending review",

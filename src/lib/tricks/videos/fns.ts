@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, asc, desc, eq, lt } from "drizzle-orm";
 
@@ -155,10 +156,7 @@ export const reviewVideoServerFn = createServerFn({
       }
 
       // Get the next sort order
-      const maxSortOrder = Math.max(
-        ...activeCount.map((v) => v.sortOrder),
-        -1,
-      );
+      const maxSortOrder = Math.max(...activeCount.map((v) => v.sortOrder), -1);
 
       const [updatedVideo] = await db
         .update(trickVideos)

@@ -1,7 +1,7 @@
 import {
-  type QueryClient,
   useMutation,
   useQueryClient,
+  type QueryClient,
 } from "@tanstack/react-query";
 
 import { notifications } from "~/lib/notifications";

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { usersToGeoJSON } from "../geo-json";
 
@@ -182,7 +182,9 @@ describe("usersToGeoJSON", () => {
     expect(result.features[0]!.properties.label).toBe("SF Downtown");
     // But individual user labels are preserved
     expect(result.features[0]!.properties.users[0]!.label).toBe("SF Downtown");
-    expect(result.features[0]!.properties.users[1]!.label).toBe("San Francisco");
+    expect(result.features[0]!.properties.users[1]!.label).toBe(
+      "San Francisco",
+    );
   });
 
   it("handles precise floating point coordinates", () => {
@@ -203,8 +205,7 @@ describe("usersToGeoJSON", () => {
     const result = usersToGeoJSON(users);
 
     expect(result.features[0]!.geometry.coordinates).toEqual([
-      -122.419_412_345_67,
-      37.774_912_345_67,
+      -122.419_412_345_67, 37.774_912_345_67,
     ]);
   });
 
@@ -268,13 +269,13 @@ describe("usersToGeoJSON", () => {
 
     // Find features by coordinates
     const feature0 = result.features.find(
-      (f) => f.geometry.coordinates[0] === 0
+      (f) => f.geometry.coordinates[0] === 0,
     );
     const feature1 = result.features.find(
-      (f) => f.geometry.coordinates[0] === 1
+      (f) => f.geometry.coordinates[0] === 1,
     );
     const feature2 = result.features.find(
-      (f) => f.geometry.coordinates[0] === 2
+      (f) => f.geometry.coordinates[0] === 2,
     );
 
     expect(feature0!.properties.count).toBe(2);

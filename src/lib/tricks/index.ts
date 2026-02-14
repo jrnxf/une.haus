@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
+import type { ServerFnData, ServerFnReturn } from "~/lib/types";
+
 import {
   createElementServerFn,
   createModifierServerFn,
@@ -75,10 +77,9 @@ import {
   reorderVideosSchema,
   reviewVideoSchema,
   submitVideoSchema,
-  type ListVideosInput,
   type ListPendingVideosInput,
+  type ListVideosInput,
 } from "./videos/schemas";
-import type { ServerFnData, ServerFnReturn } from "~/lib/types";
 
 export type { Trick, TricksData } from "./types";
 
@@ -316,10 +317,14 @@ export type TrickData = ServerFnReturn<typeof getTrickServerFn>;
 export type TrickByIdData = ServerFnReturn<typeof getTrickByIdServerFn>;
 export type TricksListData = ServerFnReturn<typeof listTricksServerFn>;
 export type TrickSearchData = ServerFnReturn<typeof searchTricksServerFn>;
-export type TrickGraphData = ServerFnReturn<typeof getAllTricksForGraphServerFn>;
+export type TrickGraphData = ServerFnReturn<
+  typeof getAllTricksForGraphServerFn
+>;
 export type ModifierData = ServerFnReturn<typeof listModifiersServerFn>;
 export type ElementData = ServerFnReturn<typeof listElementsServerFn>;
 export type SubmissionData = ServerFnReturn<typeof getSubmissionServerFn>;
 export type SuggestionData = ServerFnReturn<typeof getSuggestionServerFn>;
-export type PendingVideosData = ServerFnReturn<typeof listPendingVideosServerFn>;
+export type PendingVideosData = ServerFnReturn<
+  typeof listPendingVideosServerFn
+>;
 export type TrickVideosData = ServerFnReturn<typeof listVideosServerFn>;

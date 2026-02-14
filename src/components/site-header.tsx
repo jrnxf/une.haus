@@ -1,9 +1,11 @@
-import { ChevronRight } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
+import { ChevronLeftIcon, ChevronRight } from "lucide-react";
 import { Children, isValidElement, type ReactNode } from "react";
 
 import { MobileNavTrigger } from "~/components/mobile-nav";
 import { PageHeader } from "~/components/page-header";
 import { Search } from "~/components/search";
+import { Button } from "~/components/ui/button";
 import { SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
 import { usePageHeader } from "~/lib/page-header/context";
 import { cn } from "~/lib/utils";
@@ -37,7 +39,7 @@ function renderBreadcrumbs(breadcrumbsNode: ReactNode) {
   return (
     <nav
       aria-label="breadcrumb"
-      className="flex items-center gap-1.5 text-base lg:text-sm"
+      className="flex items-center gap-1.5 text-xs lg:text-sm"
     >
       {crumbs.map((crumb, i) => (
         <span key={i} className="flex items-center gap-1.5">
@@ -46,6 +48,21 @@ function renderBreadcrumbs(breadcrumbsNode: ReactNode) {
         </span>
       ))}
     </nav>
+  );
+}
+
+function MobileBackButton() {
+  const router = useRouter();
+  return (
+    <Button
+      variant="secondary"
+      size="icon-sm"
+      onClick={() => router.history.back()}
+      className="-ml-1 lg:hidden"
+      aria-label="go back"
+    >
+      <ChevronLeftIcon />
+    </Button>
   );
 }
 
@@ -80,6 +97,8 @@ export function SiteHeader() {
         )}
       >
         <div className="flex items-center gap-2">
+          {hasBreadcrumbs && <MobileBackButton />}
+          <MobileNavTrigger />
           {showTrigger && (
             <SidebarTrigger className="-ml-1 hidden lg:flex" size="icon-xs" />
           )}
@@ -90,7 +109,9 @@ export function SiteHeader() {
                   <HeaderDivider />
                 </div>
               )}
-              {renderBreadcrumbs(headerState.breadcrumbs)}
+              <div className="hidden lg:block">
+                {renderBreadcrumbs(headerState.breadcrumbs)}
+              </div>
             </>
           )}
           {hasWidget && (
@@ -115,7 +136,6 @@ export function SiteHeader() {
             </>
           )}
           <Search />
-          <MobileNavTrigger />
         </div>
       </div>
     </header>

@@ -251,6 +251,26 @@ Every route declares its header content via a `<PageHeader>` compound component 
 - Child routes override parent layouts — the last `useLayoutEffect` wins
 - `<PageHeader>` resets on unmount, so standalone pages show a clean header
 
+## Peripherals (URL-driven open/close)
+
+The `usePeripherals(key)` hook (`src/hooks/use-peripherals.ts`) manages open/close state via the `?p=` URL param. Opening pushes a history entry; closing calls `history.back()` to pop it (enabling iOS swipe-back).
+
+### Never use close wrappers with navigation links
+
+When a peripheral contains navigation links, do **NOT** wrap them in a close trigger (e.g., `DrawerPrimitive.Close`, `SheetClose`). The close trigger calls `history.back()`, which undoes the navigation.
+
+Instead, use plain `Link` components. When the link navigates to a new URL, the `?p=` param is gone, so `usePeripherals` returns `open=false` and the peripheral closes naturally.
+
+```tsx
+// Good - Link navigates, URL change closes the drawer
+<Link to={url}>Go somewhere</Link>
+
+// Bad - DrawerPrimitive.Close calls history.back(), undoing the navigation
+<DrawerPrimitive.Close render={<Link to={url} />}>
+  Go somewhere
+</DrawerPrimitive.Close>
+```
+
 ## Session & Authentication
 
 This project uses TanStack Router with TanStack Query (react-query) for data fetching.

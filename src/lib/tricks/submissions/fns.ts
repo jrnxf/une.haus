@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, asc, desc, eq, lt } from "drizzle-orm";
 
@@ -311,7 +312,9 @@ export const listSuggestionsServerFn = createServerFn({
     const suggestions = await db.query.trickSuggestions.findMany({
       where: and(
         input?.status ? eq(trickSuggestions.status, input.status) : undefined,
-        input?.trickId ? eq(trickSuggestions.trickId, input.trickId) : undefined,
+        input?.trickId
+          ? eq(trickSuggestions.trickId, input.trickId)
+          : undefined,
         input?.cursor ? lt(trickSuggestions.id, input.cursor) : undefined,
       ),
       with: {
@@ -509,9 +512,7 @@ export const reviewSuggestionServerFn = createServerFn({
             .select({ id: trickElements.id, slug: trickElements.slug })
             .from(trickElements);
 
-          const elementMap = new Map(
-            elementResults.map((e) => [e.slug, e.id]),
-          );
+          const elementMap = new Map(elementResults.map((e) => [e.slug, e.id]));
 
           const validElementIds = diff.elements.new
             .map((slug) => elementMap.get(slug))
@@ -561,7 +562,10 @@ export const reviewSuggestionServerFn = createServerFn({
               await db.insert(trickRelationships).values({
                 sourceTrickId: suggestion.trickId,
                 targetTrickId: targetTrick.id,
-                type: rel.type as "prerequisite" | "optional_prerequisite" | "related",
+                type: rel.type as
+                  | "prerequisite"
+                  | "optional_prerequisite"
+                  | "related",
               });
             }
           }

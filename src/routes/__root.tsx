@@ -6,7 +6,6 @@ import {
   HeadContent,
   Outlet,
   Scripts,
-  // useRouter,
 } from "@tanstack/react-router";
 // import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 // import { BugIcon } from "lucide-react";
@@ -142,7 +141,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body className="font-mono antialiased">
+      <body className="overscroll-none font-mono antialiased">
         <ThemeProvider>
           <GlobalShortcuts />
           <Toaster />

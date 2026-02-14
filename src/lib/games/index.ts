@@ -1,8 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { bius } from "./bius";
-import { calculateRiderRankings, type RiderScore } from "./rius/ranking";
-import { sius } from "./sius";
 import {
   adminOnlyRotateRiusServerFn,
   createRiuSetServerFn,
@@ -28,6 +25,10 @@ import {
   updateRiuSetSchema,
 } from "~/lib/games/rius/schemas";
 import { type ServerFnData } from "~/lib/types";
+
+import { bius } from "./bius";
+import { calculateRiderRankings, type RiderScore } from "./rius/ranking";
+import { sius } from "./sius";
 
 export const games = {
   rius: {
@@ -177,7 +178,7 @@ export type RankedRider<T> = {
  * Returns an array sorted by rank (1st place first).
  */
 export function groupSetsByUserWithRankings<T extends SetWithSubmissions>(
-  sets: T[]
+  sets: T[],
 ): RankedRider<T>[] {
   // Calculate rankings using the ranking module
   const rankings = calculateRiderRankings(sets);

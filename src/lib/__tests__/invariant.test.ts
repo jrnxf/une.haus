@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { invariant } from "../invariant";
 
@@ -42,7 +42,7 @@ describe("invariant", () => {
 
   it("throws with custom message", () => {
     expect(() => invariant(false, "Custom error message")).toThrow(
-      "Custom error message"
+      "Custom error message",
     );
   });
 

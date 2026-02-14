@@ -28,7 +28,10 @@ import {
   type MessageParentType,
 } from "~/lib/messages/schemas";
 import { authMiddleware } from "~/lib/middleware";
-import { createNotification, getContentOwner } from "~/lib/notifications/helpers";
+import {
+  createNotification,
+  getContentOwner,
+} from "~/lib/notifications/helpers";
 
 export const listMessagesServerFn = createServerFn({
   method: "GET",
@@ -501,7 +504,9 @@ export const listMessagesServerFn = createServerFn({
   });
 
 // Map message parent types to notification entity types
-const MESSAGE_ENTITY_TYPES: Partial<Record<MessageParentType, NotificationEntityType>> = {
+const MESSAGE_ENTITY_TYPES: Partial<
+  Record<MessageParentType, NotificationEntityType>
+> = {
   post: "post",
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",

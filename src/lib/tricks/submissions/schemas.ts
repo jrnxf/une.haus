@@ -150,7 +150,9 @@ export const trickSuggestionDiffSchema = z.object({
     .optional(),
 });
 
-export type TrickSuggestionDiffInput = z.infer<typeof trickSuggestionDiffSchema>;
+export type TrickSuggestionDiffInput = z.infer<
+  typeof trickSuggestionDiffSchema
+>;
 
 export const createSuggestionSchema = z.object({
   trickId: z.number(),

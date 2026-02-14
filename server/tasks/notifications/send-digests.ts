@@ -1,13 +1,9 @@
-import { defineTask } from "nitro/task";
 import { and, eq, isNull, sql } from "drizzle-orm";
+import { defineTask } from "nitro/task";
 import { Resend } from "resend";
 
 import { db } from "~/db";
-import {
-  notifications,
-  userNotificationSettings,
-  users,
-} from "~/db/schema";
+import { notifications, userNotificationSettings, users } from "~/db/schema";
 import { env } from "~/lib/env";
 import { TASK_NAMES } from "~/lib/tasks/constants";
 

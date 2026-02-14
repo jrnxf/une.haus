@@ -1,5 +1,5 @@
-import { defineTask } from "nitro/task";
 import { and, eq } from "drizzle-orm";
+import { defineTask } from "nitro/task";
 import { Resend } from "resend";
 
 import { db } from "~/db";
@@ -38,7 +38,8 @@ function getDaysUntilNextRotation(): number {
 export default defineTask({
   meta: {
     name: TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS,
-    description: "Send pre-game trick reminder emails to users with sets in upcoming round",
+    description:
+      "Send pre-game trick reminder emails to users with sets in upcoming round",
   },
   async run() {
     console.log("[notifications:pre-trick-reminders] Starting...");
@@ -116,12 +117,10 @@ export default defineTask({
     }
 
     // Filter to users whose reminder day matches
-    const usersToNotify = [...userSetsMap.entries()].filter(
-      ([, user]) => {
-        const targetDays = user.daysBefore ?? 1;
-        return daysUntilStart === targetDays;
-      },
-    );
+    const usersToNotify = [...userSetsMap.entries()].filter(([, user]) => {
+      const targetDays = user.daysBefore ?? 1;
+      return daysUntilStart === targetDays;
+    });
 
     console.log(
       `[notifications:pre-trick-reminders] ${daysUntilStart} days until rotation, ${usersToNotify.length} users to notify`,

@@ -1,7 +1,7 @@
 import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer";
 import { Link, useMatches } from "@tanstack/react-router";
 import {
-  ArrowUpIcon,
+  ChevronUpIcon,
   ClipboardPenIcon,
   EarthIcon,
   GaugeIcon,
@@ -71,22 +71,19 @@ function NavItem({
 }) {
   const ResolvedIcon = isActive && ActiveIcon ? ActiveIcon : Icon;
   return (
-    <DrawerPrimitive.Close
-      render={
-        <Link
-          to={url}
-          className={cn(
-            "flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors",
-            isActive
-              ? "bg-accent text-accent-foreground font-medium"
-              : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-          )}
-        />
-      }
+    <Link
+      to={url}
+      replace
+      className={cn(
+        "flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors",
+        isActive
+          ? "bg-accent text-accent-foreground font-medium"
+          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+      )}
     >
       <ResolvedIcon className="size-5" />
       <span>{title}</span>
-    </DrawerPrimitive.Close>
+    </Link>
   );
 }
 
@@ -144,12 +141,12 @@ export function MobileNavTrigger({ className }: { className?: string }) {
   const openNav = useMobileNav();
   return (
     <Button
-      variant="ghost"
+      variant="secondary"
       size="icon-sm"
       onClick={openNav}
       className={cn("lg:hidden", className)}
     >
-      <ArrowUpIcon />
+      <ChevronUpIcon />
     </Button>
   );
 }
@@ -159,7 +156,8 @@ function ThemeToggle() {
   const ThemeIcon = themeIcon[theme];
 
   const cycleTheme = () => {
-    const next = themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
+    const next =
+      themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
     setTheme(next);
   };
 

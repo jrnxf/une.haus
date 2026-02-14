@@ -32,7 +32,8 @@ export function NavSecondary({
   const ThemeIcon = themeIcon[theme];
 
   const cycleTheme = () => {
-    const next = themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
+    const next =
+      themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
     setTheme(next);
   };
 

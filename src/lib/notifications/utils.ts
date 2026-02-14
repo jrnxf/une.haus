@@ -1,4 +1,8 @@
-import type { NotificationEntityType, NotificationType, NotificationData } from "~/db/schema";
+import type {
+  NotificationData,
+  NotificationEntityType,
+  NotificationType,
+} from "~/db/schema";
 
 /**
  * Get the URL to navigate to when clicking a notification

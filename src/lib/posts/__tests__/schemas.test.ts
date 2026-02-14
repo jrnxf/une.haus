@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
-  getPostSchema,
   createPostSchema,
-  updatePostSchema,
   deletePostSchema,
+  getPostSchema,
   listPostsSchema,
+  updatePostSchema,
 } from "../schemas";
 
 describe("getPostSchema", () => {
@@ -68,7 +68,7 @@ describe("createPostSchema", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          "Title must be less than 60 characters"
+          "Title must be less than 60 characters",
         );
       }
     });
@@ -125,7 +125,7 @@ describe("createPostSchema", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0]?.message).toBe(
-          "At least one tag is required"
+          "At least one tag is required",
         );
       }
     });
@@ -141,7 +141,7 @@ describe("createPostSchema", () => {
         const hasMaxError = result.error.issues.some(
           (issue) =>
             issue.message === "No more than three tags allowed" ||
-            issue.message.includes("maximum")
+            issue.message.includes("maximum"),
         );
         expect(hasMaxError).toBe(true);
       }

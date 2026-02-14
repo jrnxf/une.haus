@@ -52,7 +52,7 @@ export const POINTS_PER_SUBMISSION = 3;
  */
 export function calculatePoints(
   setsCount: number,
-  submissionsCount: number
+  submissionsCount: number,
 ): number {
   return setsCount * POINTS_PER_SET + submissionsCount * POINTS_PER_SUBMISSION;
 }
@@ -106,8 +106,8 @@ export function compareRiders(a: RiderScore, b: RiderScore): number {
  */
 export function calculateRiderRankings(
   sets: (RiuSet & {
-      submissions?: RiuSubmission[];
-    })[]
+    submissions?: RiuSubmission[];
+  })[],
 ): RiderScore[] {
   // Aggregate data by user
   const userMap = new Map<

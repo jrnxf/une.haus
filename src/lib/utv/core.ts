@@ -38,7 +38,9 @@ export const utv = {
   list: {
     fn: listUtvVideosServerFn,
     schema: listUtvVideosSchema,
-    infiniteQueryOptions: (data: ServerFnData<typeof listUtvVideosServerFn>) => {
+    infiniteQueryOptions: (
+      data: ServerFnData<typeof listUtvVideosServerFn>,
+    ) => {
       return infiniteQueryOptions({
         queryKey: ["utv.list", data],
         queryFn: ({ pageParam: cursor }) => {
@@ -128,4 +130,6 @@ export type UtvVideosData = ServerFnReturn<typeof allUtvVideosServerFn>;
 export type UtvVideosListData = ServerFnReturn<typeof listUtvVideosServerFn>;
 export type UtvVideoData = ServerFnReturn<typeof getUtvVideoServerFn>;
 export type UtvSuggestionData = ServerFnReturn<typeof getUtvSuggestionServerFn>;
-export type UtvSuggestionsData = ServerFnReturn<typeof listUtvSuggestionsServerFn>;
+export type UtvSuggestionsData = ServerFnReturn<
+  typeof listUtvSuggestionsServerFn
+>;

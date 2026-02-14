@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { getTrickSortKey, compareTrickNames } from "../compute";
+import { compareTrickNames, getTrickSortKey } from "../compute";
 
 describe("getTrickSortKey", () => {
   describe("leading number extraction", () => {
@@ -188,16 +188,16 @@ describe("compareTrickNames", () => {
       // Within flips: crank < double < triple
       // Within unispins: 90 < 180 < 360
       expect(sorted.indexOf("crankflip")).toBeLessThan(
-        sorted.indexOf("doubleflip")
+        sorted.indexOf("doubleflip"),
       );
       expect(sorted.indexOf("doubleflip")).toBeLessThan(
-        sorted.indexOf("tripleflip")
+        sorted.indexOf("tripleflip"),
       );
       expect(sorted.indexOf("90 unispin")).toBeLessThan(
-        sorted.indexOf("180 unispin")
+        sorted.indexOf("180 unispin"),
       );
       expect(sorted.indexOf("180 unispin")).toBeLessThan(
-        sorted.indexOf("360 unispin")
+        sorted.indexOf("360 unispin"),
       );
     });
 

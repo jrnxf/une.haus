@@ -63,7 +63,9 @@ export function getTrickSortKey(name: string): {
   const leadingMatch = lower.match(/^(\d+(?:\.\d+)?)/);
   const leadingNumber = leadingMatch ? Number.parseFloat(leadingMatch[1]) : 0;
 
-  const rest = leadingMatch ? lower.slice(leadingMatch[0].length).trim() : lower;
+  const rest = leadingMatch
+    ? lower.slice(leadingMatch[0].length).trim()
+    : lower;
 
   let progressionRank = PROGRESSION_ORDER.indexOf("");
   let progressionWord = "";

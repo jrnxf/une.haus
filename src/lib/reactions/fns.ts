@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { zodValidator } from "@tanstack/zod-adapter";
 import {
   likeRecordSchema,
   recordTypeWithLikes,
@@ -7,6 +6,7 @@ import {
   type RecordWithLikesType,
 } from "~/lib/reactions/schemas";
 
+import { zodValidator } from "@tanstack/zod-adapter";
 import { and, eq } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -36,10 +36,15 @@ import {
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
-import { createNotification, getContentOwner } from "~/lib/notifications/helpers";
+import {
+  createNotification,
+  getContentOwner,
+} from "~/lib/notifications/helpers";
 
 // Map reaction types to notification entity types (only primary content, not messages)
-const LIKEABLE_ENTITY_TYPES: Partial<Record<RecordWithLikesType, NotificationEntityType>> = {
+const LIKEABLE_ENTITY_TYPES: Partial<
+  Record<RecordWithLikesType, NotificationEntityType>
+> = {
   post: "post",
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",

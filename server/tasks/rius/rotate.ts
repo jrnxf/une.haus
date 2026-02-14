@@ -1,6 +1,5 @@
-import { defineTask } from "nitro/task";
-
 import { eq } from "drizzle-orm";
+import { defineTask } from "nitro/task";
 
 import { db } from "~/db";
 import { rius } from "~/db/schema";
@@ -9,7 +8,8 @@ import { TASK_NAMES } from "~/lib/tasks/constants";
 export default defineTask({
   meta: {
     name: TASK_NAMES.RIUS_ROTATE,
-    description: "Rotate RIUs: archive active, activate upcoming, create new upcoming",
+    description:
+      "Rotate RIUs: archive active, activate upcoming, create new upcoming",
   },
   async run() {
     console.log("[rius:rotate] Starting RIU rotation...");

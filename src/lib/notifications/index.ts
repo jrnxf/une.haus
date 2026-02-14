@@ -38,7 +38,10 @@ export const notifications = {
   grouped: {
     fn: listGroupedNotificationsServerFn,
     queryOptions: (
-      data?: Omit<ServerFnData<typeof listGroupedNotificationsServerFn>, "cursor">,
+      data?: Omit<
+        ServerFnData<typeof listGroupedNotificationsServerFn>,
+        "cursor"
+      >,
     ) =>
       queryOptions({
         queryKey: ["notifications.grouped", data],

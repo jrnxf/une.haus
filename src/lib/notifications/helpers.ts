@@ -30,8 +30,15 @@ export async function createNotification(
 
   // If settings exist, check if this notification type is enabled
   // Note: archive_request, chain_archived, and review bypass preference checks as they are important admin/system notifications
-  if (settings && input.type !== "archive_request" && input.type !== "chain_archived" && input.type !== "review") {
-    const typeToSetting: Partial<Record<NotificationType, keyof typeof settings>> = {
+  if (
+    settings &&
+    input.type !== "archive_request" &&
+    input.type !== "chain_archived" &&
+    input.type !== "review"
+  ) {
+    const typeToSetting: Partial<
+      Record<NotificationType, keyof typeof settings>
+    > = {
       like: "likesEnabled",
       comment: "commentsEnabled",
       follow: "followsEnabled",

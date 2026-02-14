@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { sendCodeSchema, enterCodeSchema, registerSchema } from "../schemas";
+import { enterCodeSchema, registerSchema, sendCodeSchema } from "../schemas";
 
 describe("sendCodeSchema", () => {
   it("accepts valid email", () => {
@@ -161,7 +161,7 @@ describe("registerSchema", () => {
   it("rejects missing required fields", () => {
     expect(registerSchema.safeParse({ code: "123" }).success).toBe(false);
     expect(
-      registerSchema.safeParse({ email: "test@example.com" }).success
+      registerSchema.safeParse({ email: "test@example.com" }).success,
     ).toBe(false);
     expect(registerSchema.safeParse({ name: "John" }).success).toBe(false);
   });

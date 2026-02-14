@@ -19,14 +19,14 @@ import {
   userLocations,
   users,
   userSocials,
-  utvVideoSuggestions,
   utvVideos,
+  utvVideoSuggestions,
 } from "~/db/schema";
 import { PAGE_SIZE } from "~/lib/constants";
 import { assertFound } from "~/lib/invariant";
 import { authMiddleware } from "~/lib/middleware";
-import { useServerSession } from "~/lib/session/hooks";
 import { createNotification } from "~/lib/notifications/helpers";
+import { useServerSession } from "~/lib/session/hooks";
 import {
   followUserSchema,
   getUserActivitySchema,
@@ -594,7 +594,10 @@ export const getUserActivityServerFn = createServerFn({
               videoTitle: utvVideos.title,
             })
             .from(utvVideoSuggestions)
-            .innerJoin(utvVideos, eq(utvVideoSuggestions.utvVideoId, utvVideos.id))
+            .innerJoin(
+              utvVideos,
+              eq(utvVideoSuggestions.utvVideoId, utvVideos.id),
+            )
             .where(
               cursorDate
                 ? and(
@@ -752,4 +755,3 @@ export const setShopNotifyServerFn = createServerFn({
       .set({ notifyWhenShop: data.notify })
       .where(eq(users.id, context.user.id));
   });
-

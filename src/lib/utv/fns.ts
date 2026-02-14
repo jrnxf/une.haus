@@ -305,7 +305,9 @@ export const listUtvSuggestionsServerFn = createServerFn({
 
     const suggestions = await db.query.utvVideoSuggestions.findMany({
       where: and(
-        input?.status ? eq(utvVideoSuggestions.status, input.status) : undefined,
+        input?.status
+          ? eq(utvVideoSuggestions.status, input.status)
+          : undefined,
         input?.utvVideoId
           ? eq(utvVideoSuggestions.utvVideoId, input.utvVideoId)
           : undefined,

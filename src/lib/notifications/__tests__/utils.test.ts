@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { getNotificationUrl, getNotificationMessage } from "../utils";
+import { getNotificationMessage, getNotificationUrl } from "../utils";
 
 describe("getNotificationUrl", () => {
   it("returns correct URL for post", () => {
@@ -13,7 +13,7 @@ describe("getNotificationUrl", () => {
 
   it("returns correct URL for riuSubmission", () => {
     expect(getNotificationUrl("riuSubmission", 789)).toBe(
-      "/games/rius/submissions/789"
+      "/games/rius/submissions/789",
     );
   });
 
@@ -39,16 +39,25 @@ describe("getNotificationMessage", () => {
   describe("like notifications", () => {
     it("formats single actor like", () => {
       const msg = getNotificationMessage("like", "post", 1, ["Alice"]);
-      expect(msg).toBe('Alice liked your post');
+      expect(msg).toBe("Alice liked your post");
     });
 
     it("formats single actor like with title", () => {
-      const msg = getNotificationMessage("like", "post", 1, ["Alice"], "My Post");
+      const msg = getNotificationMessage(
+        "like",
+        "post",
+        1,
+        ["Alice"],
+        "My Post",
+      );
       expect(msg).toBe('Alice liked your post: "My Post"');
     });
 
     it("formats two actors like", () => {
-      const msg = getNotificationMessage("like", "utvVideo", 2, ["Alice", "Bob"]);
+      const msg = getNotificationMessage("like", "utvVideo", 2, [
+        "Alice",
+        "Bob",
+      ]);
       expect(msg).toBe("Alice and Bob liked your video");
     });
 
@@ -58,7 +67,10 @@ describe("getNotificationMessage", () => {
     });
 
     it("formats two actors with more total", () => {
-      const msg = getNotificationMessage("like", "riuSet", 10, ["Alice", "Bob"]);
+      const msg = getNotificationMessage("like", "riuSet", 10, [
+        "Alice",
+        "Bob",
+      ]);
       expect(msg).toBe("Alice, Bob and 8 others liked your RIU set");
     });
 
@@ -84,7 +96,7 @@ describe("getNotificationMessage", () => {
         "utvVideo",
         1,
         ["Bob"],
-        "Cool Video"
+        "Cool Video",
       );
       expect(msg).toBe('Bob commented on your video: "Cool Video"');
     });
@@ -175,27 +187,45 @@ describe("entity type formatting", () => {
 
 describe("review notifications", () => {
   it("formats approved review notification message", () => {
-    const msg = getNotificationMessage("review", "trickSubmission", 1, ["Admin"], "approved");
+    const msg = getNotificationMessage(
+      "review",
+      "trickSubmission",
+      1,
+      ["Admin"],
+      "approved",
+    );
     expect(msg).toBe("Your trick submission was approved");
   });
 
   it("formats rejected review notification message", () => {
-    const msg = getNotificationMessage("review", "trickVideo", 1, ["Admin"], "rejected");
+    const msg = getNotificationMessage(
+      "review",
+      "trickVideo",
+      1,
+      ["Admin"],
+      "rejected",
+    );
     expect(msg).toBe("Your trick video was rejected");
   });
 });
 
 describe("getNotificationUrl with data", () => {
   it("returns trick URL with slug for trickSubmission", () => {
-    expect(getNotificationUrl("trickSubmission", 123, { trickSlug: "kickflip" })).toBe("/tricks/kickflip");
+    expect(
+      getNotificationUrl("trickSubmission", 123, { trickSlug: "kickflip" }),
+    ).toBe("/tricks/kickflip");
   });
 
   it("returns trick URL with slug for trickSuggestion", () => {
-    expect(getNotificationUrl("trickSuggestion", 456, { trickSlug: "heelflip" })).toBe("/tricks/heelflip");
+    expect(
+      getNotificationUrl("trickSuggestion", 456, { trickSlug: "heelflip" }),
+    ).toBe("/tricks/heelflip");
   });
 
   it("returns trick URL with slug for trickVideo", () => {
-    expect(getNotificationUrl("trickVideo", 789, { trickSlug: "tre-flip" })).toBe("/tricks/tre-flip");
+    expect(
+      getNotificationUrl("trickVideo", 789, { trickSlug: "tre-flip" }),
+    ).toBe("/tricks/tre-flip");
   });
 
   it("returns fallback /tricks when no slug provided", () => {

@@ -746,14 +746,20 @@ export const userNotificationSettings = pgTable("user_notification_settings", {
   gameStartReminderEnabled: boolean("game_start_reminder_enabled")
     .notNull()
     .default(false),
-  gameStartReminderHoursBefore: integer("game_start_reminder_hours_before").default(24),
+  gameStartReminderHoursBefore: integer(
+    "game_start_reminder_hours_before",
+  ).default(24),
   // Pre-game trick reminder preferences (opt-in, default off)
   preTrickReminderEnabled: boolean("pre_trick_reminder_enabled")
     .notNull()
     .default(false),
-  preTrickReminderDaysBefore: integer("pre_trick_reminder_days_before").default(1),
+  preTrickReminderDaysBefore: integer("pre_trick_reminder_days_before").default(
+    1,
+  ),
   // Global email unsubscribe
-  emailUnsubscribedAll: boolean("email_unsubscribed_all").notNull().default(false),
+  emailUnsubscribedAll: boolean("email_unsubscribed_all")
+    .notNull()
+    .default(false),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -769,7 +775,13 @@ export const emailRemindersSent = pgTable(
     riuId: integer("riu_id").references(() => rius.id, { onDelete: "cascade" }),
     sentAt: timestamp("sent_at").notNull().defaultNow(),
   },
-  (t) => [index("email_reminders_sent_user_type_riu_idx").on(t.userId, t.reminderType, t.riuId)],
+  (t) => [
+    index("email_reminders_sent_user_type_riu_idx").on(
+      t.userId,
+      t.reminderType,
+      t.riuId,
+    ),
+  ],
 );
 
 /**
@@ -1729,16 +1741,19 @@ export const trickVideosRelations = relations(trickVideos, ({ one, many }) => ({
   messages: many(trickVideoMessages),
 }));
 
-export const trickVideoLikesRelations = relations(trickVideoLikes, ({ one }) => ({
-  trickVideo: one(trickVideos, {
-    fields: [trickVideoLikes.trickVideoId],
-    references: [trickVideos.id],
+export const trickVideoLikesRelations = relations(
+  trickVideoLikes,
+  ({ one }) => ({
+    trickVideo: one(trickVideos, {
+      fields: [trickVideoLikes.trickVideoId],
+      references: [trickVideos.id],
+    }),
+    user: one(users, {
+      fields: [trickVideoLikes.userId],
+      references: [users.id],
+    }),
   }),
-  user: one(users, {
-    fields: [trickVideoLikes.userId],
-    references: [users.id],
-  }),
-}));
+);
 
 export const trickVideoMessagesRelations = relations(
   trickVideoMessages,

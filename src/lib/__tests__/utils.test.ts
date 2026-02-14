@@ -1,15 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import {
   cn,
-  zodErrorFmt,
   errorFmt,
-  preferCdn,
-  getUserInitials,
-  preprocessText,
-  isDefined,
   getCloudflareImageUrl,
+  getUserInitials,
+  isDefined,
+  preferCdn,
+  preprocessText,
+  zodErrorFmt,
 } from "../utils";
 
 describe("cn", () => {
@@ -93,7 +93,7 @@ describe("preferCdn", () => {
   it("replaces origin with CloudFront CDN", () => {
     const url = "https://example.com/path/to/image.jpg";
     expect(preferCdn(url)).toBe(
-      "https://d21ywshxutk0x0.cloudfront.net/path/to/image.jpg"
+      "https://d21ywshxutk0x0.cloudfront.net/path/to/image.jpg",
     );
   });
 
@@ -103,7 +103,7 @@ describe("preferCdn", () => {
     const url = "https://example.com:8080/image.jpg";
     // The actual behavior: origin includes port, so port is replaced too
     expect(preferCdn(url)).toBe(
-      "https://d21ywshxutk0x0.cloudfront.net/image.jpg"
+      "https://d21ywshxutk0x0.cloudfront.net/image.jpg",
     );
   });
 
@@ -202,21 +202,21 @@ describe("getCloudflareImageUrl", () => {
   it("constructs correct URL with options", () => {
     const url = getCloudflareImageUrl("abc123", { width: 800, quality: 85 });
     expect(url).toBe(
-      "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/abc123/width=800,quality=85"
+      "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/abc123/width=800,quality=85",
     );
   });
 
   it("handles different widths and qualities", () => {
     const url = getCloudflareImageUrl("test-id", { width: 1200, quality: 100 });
     expect(url).toBe(
-      "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/test-id/width=1200,quality=100"
+      "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/test-id/width=1200,quality=100",
     );
   });
 
   it("handles small values", () => {
     const url = getCloudflareImageUrl("id", { width: 1, quality: 1 });
     expect(url).toBe(
-      "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/id/width=1,quality=1"
+      "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/id/width=1,quality=1",
     );
   });
 });

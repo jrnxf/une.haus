@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  NOTIFICATION_ENTITY_TYPES,
-  NOTIFICATION_TYPES,
-} from "~/db/schema";
+import { NOTIFICATION_ENTITY_TYPES, NOTIFICATION_TYPES } from "~/db/schema";
 
 export const listNotificationsSchema = z.object({
   cursor: z.number().optional(),

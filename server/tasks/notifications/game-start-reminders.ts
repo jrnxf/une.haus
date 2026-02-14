@@ -1,5 +1,5 @@
-import { defineTask } from "nitro/task";
 import { and, eq, sql } from "drizzle-orm";
+import { defineTask } from "nitro/task";
 import { Resend } from "resend";
 
 import { db } from "~/db";
@@ -72,7 +72,10 @@ export default defineTask({
       .from(riuSets)
       .where(eq(riuSets.riuId, upcomingRiu.id));
 
-    const { setCount, riderCount } = setStats[0] ?? { setCount: 0, riderCount: 0 };
+    const { setCount, riderCount } = setStats[0] ?? {
+      setCount: 0,
+      riderCount: 0,
+    };
 
     // Find users who want reminders at this hour threshold
     // and haven't been sent a reminder for this RIU yet
@@ -96,7 +99,9 @@ export default defineTask({
     const usersToNotify = eligibleUsers.filter((user) => {
       const targetHours = user.hoursBefore ?? 24;
       // Allow a 1-hour window for the check
-      return hoursUntilStart <= targetHours && hoursUntilStart > targetHours - 1;
+      return (
+        hoursUntilStart <= targetHours && hoursUntilStart > targetHours - 1
+      );
     });
 
     console.log(

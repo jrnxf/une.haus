@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, count, desc, eq, isNull, lt, sql } from "drizzle-orm";
 
@@ -9,8 +10,8 @@ import {
   deleteNotificationSchema,
   listNotificationsSchema,
   markAllReadSchema,
-  markReadSchema,
   markGroupReadSchema,
+  markReadSchema,
 } from "~/lib/notifications/schemas";
 
 export const listNotificationsServerFn = createServerFn({
@@ -122,7 +123,11 @@ export const listGroupedNotificationsServerFn = createServerFn({
       })
       .from(notifications)
       .where(and(...whereConditions))
-      .groupBy(notifications.type, notifications.entityType, notifications.entityId)
+      .groupBy(
+        notifications.type,
+        notifications.entityType,
+        notifications.entityId,
+      )
       .orderBy(sql`MAX(${notifications.createdAt}) DESC`)
       .limit(limit);
 
@@ -166,7 +171,9 @@ export const getUnreadCountServerFn = createServerFn({
     const [result] = await db
       .select({ count: count() })
       .from(notifications)
-      .where(and(eq(notifications.userId, userId), isNull(notifications.readAt)));
+      .where(
+        and(eq(notifications.userId, userId), isNull(notifications.readAt)),
+      );
 
     return result?.count ?? 0;
   });
@@ -222,7 +229,9 @@ export const markAllReadServerFn = createServerFn({
     await db
       .update(notifications)
       .set({ readAt: new Date() })
-      .where(and(eq(notifications.userId, userId), isNull(notifications.readAt)));
+      .where(
+        and(eq(notifications.userId, userId), isNull(notifications.readAt)),
+      );
   });
 
 export const deleteNotificationServerFn = createServerFn({

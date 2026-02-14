@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { stringifySearch } from "../url";
 
@@ -23,7 +23,7 @@ describe("stringifySearch", () => {
   it("handles multiple params with commas", () => {
     const result = stringifySearch({
       riders: "1,2,3",
-      tags: "a,b,c"
+      tags: "a,b,c",
     });
     expect(result).toContain("riders=1,2,3");
     expect(result).toContain("tags=a,b,c");

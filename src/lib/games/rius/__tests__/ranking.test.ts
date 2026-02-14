@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   calculatePoints,
-  compareRiders,
   calculateRiderRankings,
+  compareRiders,
   POINTS_PER_SET,
   POINTS_PER_SUBMISSION,
   type RiderScore,
@@ -23,7 +23,7 @@ const createSet = (
   id: number,
   userId: number,
   createdAt: Date,
-  submissions: RiuSubmission[] = []
+  submissions: RiuSubmission[] = [],
 ): RiuSet & { submissions: RiuSubmission[] } => ({
   id,
   createdAt,
@@ -35,7 +35,7 @@ const createSet = (
 const createSubmission = (
   id: number,
   userId: number,
-  createdAt: Date
+  createdAt: Date,
 ): RiuSubmission => ({
   id,
   createdAt,
@@ -44,7 +44,7 @@ const createSubmission = (
 
 // Helper to create a rider score
 const createRiderScore = (
-  overrides: Partial<RiderScore> & { userId: number }
+  overrides: Partial<RiderScore> & { userId: number },
 ): RiderScore => ({
   user: createUser(overrides.userId),
   setsCount: overrides.setsCount ?? 0,
@@ -73,7 +73,7 @@ describe("calculatePoints", () => {
   it("calculates combined points for sets and submissions", () => {
     // 2 sets (2 points) + 3 submissions (9 points) = 11 points
     expect(calculatePoints(2, 3)).toBe(
-      2 * POINTS_PER_SET + 3 * POINTS_PER_SUBMISSION
+      2 * POINTS_PER_SET + 3 * POINTS_PER_SUBMISSION,
     );
   });
 
@@ -431,7 +431,7 @@ describe("calculateRiderRankings", () => {
 
       expect(rankings[0].lastSetAt).toEqual(new Date("2024-01-03T10:00:00Z"));
       expect(rankings[0].lastSubmissionAt).toEqual(
-        new Date("2024-01-04T12:00:00Z")
+        new Date("2024-01-04T12:00:00Z"),
       );
     });
 

@@ -23,13 +23,25 @@ export const utvVideoSuggestionDiffSchema = z.object({
     .optional(),
   riders: z
     .object({
-      old: z.array(z.object({ userId: z.number().nullable(), name: z.string().nullable() })),
-      new: z.array(z.object({ userId: z.number().nullable(), name: z.string().nullable() })),
+      old: z.array(
+        z.object({
+          userId: z.number().nullable(),
+          name: z.string().nullable(),
+        }),
+      ),
+      new: z.array(
+        z.object({
+          userId: z.number().nullable(),
+          name: z.string().nullable(),
+        }),
+      ),
     })
     .optional(),
 });
 
-export type UtvVideoSuggestionDiffInput = z.infer<typeof utvVideoSuggestionDiffSchema>;
+export type UtvVideoSuggestionDiffInput = z.infer<
+  typeof utvVideoSuggestionDiffSchema
+>;
 
 export const createUtvSuggestionSchema = z.object({
   utvVideoId: z.number(),

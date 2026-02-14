@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { count, countDistinct, eq, sql } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -85,9 +86,9 @@ export const getStatsServerFn = createServerFn({
     db.select({ count: count() }).from(userLocations),
 
     // Distinct countries
-    db.select({ count: countDistinct(userLocations.countryCode) }).from(
-      userLocations,
-    ),
+    db
+      .select({ count: countDistinct(userLocations.countryCode) })
+      .from(userLocations),
 
     // RIU sets count
     db.select({ count: count() }).from(riuSets),

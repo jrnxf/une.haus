@@ -1,14 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, count, desc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
-import {
-  siuChains,
-  siuStackArchiveVotes,
-  siuStacks,
-  users,
-} from "~/db/schema";
+import { siuChains, siuStackArchiveVotes, siuStacks, users } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import {
   adminOnlyMiddleware,
@@ -19,6 +15,7 @@ import {
   createNotification,
   notifyFollowers,
 } from "~/lib/notifications/helpers";
+
 import {
   archiveChainSchema,
   deleteStackSchema,

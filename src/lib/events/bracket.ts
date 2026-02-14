@@ -5,13 +5,15 @@ import { z } from "zod";
  * Base rider entry from URL - userId XOR name, never both, never neither.
  * This is the canonical format for URL serialization.
  */
-export type RiderEntry = {
-  userId: number;
-  name: null;
-} | {
-  userId: null;
-  name: string;
-};
+export type RiderEntry =
+  | {
+      userId: number;
+      name: null;
+    }
+  | {
+      userId: null;
+      name: string;
+    };
 
 /**
  * Resolved rider entry for display - can have both userId AND name
@@ -42,7 +44,9 @@ export function generateOrderId(): string {
  * Prioritizes userId over name (for resolved entries with both).
  * Returns null for invalid entries (neither userId nor name).
  */
-export function encodeRider(rider: RiderEntry | ResolvedRiderEntry): string | null {
+export function encodeRider(
+  rider: RiderEntry | ResolvedRiderEntry,
+): string | null {
   if (rider.userId !== null) {
     return String(rider.userId);
   }
@@ -82,7 +86,9 @@ export function decodeRider(segment: string): RiderEntry | null {
  *
  * Filters out invalid entries (neither userId nor name).
  */
-export function encodeRidersParam(riders: (RiderEntry | ResolvedRiderEntry)[]): string | undefined {
+export function encodeRidersParam(
+  riders: (RiderEntry | ResolvedRiderEntry)[],
+): string | undefined {
   const encoded = riders
     .map(encodeRider)
     .filter((s): s is string => s !== null);
@@ -107,7 +113,9 @@ export function parseRidersParam(val: string | undefined): RiderEntry[] {
 /**
  * Parse riders URL param with orderId for setup page (drag-and-drop)
  */
-export function parseRidersParamOrdered(val: string | undefined): OrderedRiderEntry[] {
+export function parseRidersParamOrdered(
+  val: string | undefined,
+): OrderedRiderEntry[] {
   return parseRidersParam(val).map((rider) => ({
     ...rider,
     orderId: generateOrderId(),
@@ -117,7 +125,9 @@ export function parseRidersParamOrdered(val: string | undefined): OrderedRiderEn
 /**
  * Encode ordered riders (strips orderId)
  */
-export function encodeOrderedRidersParam(riders: OrderedRiderEntry[]): string | undefined {
+export function encodeOrderedRidersParam(
+  riders: OrderedRiderEntry[],
+): string | undefined {
   return encodeRidersParam(riders);
 }
 
@@ -143,17 +153,21 @@ export const bracketPageSearchSchema = bracketSearchSchema.extend({
  * Each character represents a match winner: '1', '2', or '-' (undecided).
  * Matches are ordered by round then position within round.
  */
-export function encodeWinners(matches: { round: number; position: number; winner: 1 | 2 | null }[]): string | null {
+export function encodeWinners(
+  matches: { round: number; position: number; winner: 1 | 2 | null }[],
+): string | null {
   // Sort matches by round, then position
   const sorted = [...matches].sort((a, b) => {
     if (a.round !== b.round) return a.round - b.round;
     return a.position - b.position;
   });
 
-  const encoded = sorted.map((m) => (m.winner === 1 ? "1" : m.winner === 2 ? "2" : "-")).join("");
+  const encoded = sorted
+    .map((m) => (m.winner === 1 ? "1" : m.winner === 2 ? "2" : "-"))
+    .join("");
 
   // Return null if all undecided (no need to store in URL)
-  if (encoded.replaceAll('-', "") === "") return null;
+  if (encoded.replaceAll("-", "") === "") return null;
 
   // Trim trailing dashes for cleaner URLs
   return encoded.replace(/-+$/, "") || null;

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+
 import { zodValidator } from "@tanstack/zod-adapter";
 import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm";
 
@@ -13,6 +14,7 @@ import {
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { adminOnlyMiddleware } from "~/lib/middleware";
+
 import {
   createElementSchema,
   createModifierSchema,
@@ -195,9 +197,7 @@ export const listTricksServerFn = createServerFn({
     // Filter by element if specified
     if (input?.elementId) {
       return tricksData.filter((trick) =>
-        trick.elementAssignments.some(
-          (a) => a.element.id === input.elementId,
-        ),
+        trick.elementAssignments.some((a) => a.element.id === input.elementId),
       );
     }
 
@@ -487,9 +487,13 @@ export const getAllTricksForGraphServerFn = createServerFn({
 }).handler(async () => {
   // Use static JSON data instead of database
   const { getTricksData } = await import("./data");
-  console.log("[getAllTricksForGraphServerFn] Loading tricks from static JSON...");
+  console.log(
+    "[getAllTricksForGraphServerFn] Loading tricks from static JSON...",
+  );
   const tricksData = getTricksData();
-  console.log(`[getAllTricksForGraphServerFn] Loaded ${tricksData.tricks.length} tricks from JSON`);
+  console.log(
+    `[getAllTricksForGraphServerFn] Loaded ${tricksData.tricks.length} tricks from JSON`,
+  );
   return tricksData;
 
   // COMMENTED OUT: Database fetching - keeping for reference

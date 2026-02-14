@@ -13,7 +13,6 @@ import {
   unfollowUserServerFn,
   updateUserServerFn,
   usersWithLocationsServerFn,
-  
   type getUserServerFn,
 } from "~/lib/users/fns";
 import {
@@ -108,7 +107,10 @@ export const users = {
     fn: getUserActivityServerFn,
     schema: getUserActivitySchema,
     infiniteQueryOptions: (
-      data: Omit<ServerFnData<typeof getUserActivityServerFn>, "cursor" | "limit">,
+      data: Omit<
+        ServerFnData<typeof getUserActivityServerFn>,
+        "cursor" | "limit"
+      >,
     ) => {
       return infiniteQueryOptions({
         queryKey: ["users.activity", data],
@@ -141,5 +143,4 @@ export type UsersWithLocationsData = ServerFnReturn<
   typeof usersWithLocationsServerFn
 >;
 
-
-export {type ActivityItem} from "~/lib/users/fns";
+export { type ActivityItem } from "~/lib/users/fns";
