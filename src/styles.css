@@ -165,7 +165,6 @@
   html,
   body {
     font-family: "Geist Mono Variable", ui-monospace, monospace;
-    overscroll-behavior: none;
     @apply bg-background text-foreground;
   }
 
