@@ -74,7 +74,6 @@ function NavItem({
       render={
         <Link
           to={url}
-          replace
           className={cn(
             "flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors",
             isActive
