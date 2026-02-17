@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { TRICK_RELATIONSHIP_TYPES } from "~/db/schema";
+import { CATCH_TYPES, TRICK_RELATIONSHIP_TYPES } from "~/db/schema";
 
 // Modifier schemas
 export const createModifierSchema = z.object({
@@ -54,6 +54,13 @@ export const trickRelationshipSchema = z.object({
   type: z.enum(TRICK_RELATIONSHIP_TYPES),
 });
 
+// Composition schema (for compound tricks)
+export const trickCompositionSchema = z.object({
+  componentTrickId: z.number(),
+  position: z.number().int().min(0).max(2),
+  catchType: z.enum(CATCH_TYPES).nullable(),
+});
+
 // Core trick schemas
 export const createTrickSchema = z.object({
   slug: z
@@ -72,6 +79,8 @@ export const createTrickSchema = z.object({
   notes: z.string().optional().nullable(),
   relationships: z.array(trickRelationshipSchema).default([]),
   elementIds: z.array(z.number()).default([]),
+  isCompound: z.boolean().default(false),
+  compositions: z.array(trickCompositionSchema).default([]),
 });
 
 export type CreateTrickArgs = z.infer<typeof createTrickSchema>;
@@ -135,6 +144,17 @@ export const elementFormSchema = z.object({
 
 export type ElementFormValue = z.infer<typeof elementFormSchema>;
 
+// Form-level composition schema (includes display info)
+export const compositionFormSchema = z.object({
+  componentTrickId: z.number(),
+  componentTrickSlug: z.string(),
+  componentTrickName: z.string(),
+  position: z.number().int().min(0).max(2),
+  catchType: z.enum(CATCH_TYPES).nullable(),
+});
+
+export type CompositionFormValue = z.infer<typeof compositionFormSchema>;
+
 // Form schema - extends createTrickSchema with separate relationship arrays for UI
 export const trickFormSchema = z.object({
   slug: z
@@ -152,6 +172,8 @@ export const trickFormSchema = z.object({
   prerequisites: z.array(trickRelationshipFormSchema),
   relatedTricks: z.array(trickRelationshipFormSchema),
   elements: z.array(elementFormSchema),
+  isCompound: z.boolean(),
+  compositions: z.array(compositionFormSchema),
 });
 
 export type TrickFormValues = z.infer<typeof trickFormSchema>;

@@ -11,14 +11,12 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
+import { type ResolvedRiderEntry } from "~/lib/events/bracket";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
-export type RiderEntry = {
-  userId: number | null;
-  name: string | null;
-};
+export type RiderEntry = ResolvedRiderEntry;
 
 type User = {
   id: number;

@@ -101,13 +101,12 @@ export function SiteHeader() {
           {hasTabs && (
             <div className="flex items-center gap-2 lg:hidden">
               {headerState.tabs}
-              <HeaderDivider />
+              {hasActions && <HeaderDivider />}
             </div>
           )}
           {hasActions && (
             <div className="flex items-center gap-2 lg:hidden">
               {headerState.actions}
-              <HeaderDivider />
             </div>
           )}
           {showTrigger && (
@@ -137,13 +136,12 @@ export function SiteHeader() {
           {hasTabs && (
             <div className="hidden items-center gap-2 lg:flex">
               {headerState.tabs}
-              <HeaderDivider />
+              {hasActions && <HeaderDivider />}
             </div>
           )}
           {hasActions && (
             <div className="hidden items-center gap-2 lg:flex">
               {headerState.actions}
-              <HeaderDivider />
             </div>
           )}
           <Search />

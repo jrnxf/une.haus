@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GhostIcon } from "lucide-react";
+import { GhostIcon, ShieldIcon } from "lucide-react";
 
 import { PageHeader } from "~/components/page-header";
 import { VideoCarousel } from "~/components/tricks/video-carousel";
@@ -13,15 +13,22 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { session } from "~/lib/session";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/$trickId")({
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
+  loader: async ({ context }) => {
+    const [, sessionData] = await Promise.all([
+      context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
+      context.queryClient.ensureQueryData(session.get.queryOptions()),
+    ]);
+    return { isAdmin: sessionData.user?.id === 1 };
+  },
   component: TrickDetailPage,
 });
 
 function TrickDetailPage() {
+  const { isAdmin } = Route.useLoaderData();
   const { trickId } = Route.useParams();
   const { data } = useSuspenseQuery(tricks.graph.queryOptions());
   const trick = data.byId[trickId];
@@ -64,6 +71,16 @@ function TrickDetailPage() {
               Edit
             </Link>
           </Button>
+          {isAdmin && (
+            <Button asChild variant="secondary" size="icon-xs">
+              <Link
+                to="/admin/tricks/$trickId/edit"
+                params={{ trickId: trick.id }}
+              >
+                <ShieldIcon className="size-3.5" />
+              </Link>
+            </Button>
+          )}
         </PageHeader.Actions>
       </PageHeader>
 
@@ -71,6 +88,38 @@ function TrickDetailPage() {
         <div className="space-y-6">
           {/* Videos */}
           {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
+
+          {/* Composition (compound tricks) */}
+          {trick.isCompound && trick.compositions.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                composition
+              </h3>
+              <div className="flex flex-wrap items-center gap-1">
+                {trick.compositions.map((comp, i) => (
+                  <span key={comp.position} className="flex items-center gap-1">
+                    {i > 0 && comp.catchType && (
+                      <Badge variant="outline" className="text-xs">
+                        {comp.catchType}
+                      </Badge>
+                    )}
+                    <Button
+                      className="h-auto px-2 py-1 text-sm"
+                      variant="outline"
+                      asChild
+                    >
+                      <Link
+                        to="/tricks/$trickId"
+                        params={{ trickId: comp.componentId }}
+                      >
+                        {comp.componentName}
+                      </Link>
+                    </Button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Elements */}
           <div className="flex flex-wrap gap-2">
@@ -166,6 +215,41 @@ function TrickDetailPage() {
                 {trick.dependents.length > 8 && (
                   <span className="text-muted-foreground self-center text-sm">
                     +{trick.dependents.length - 8} more
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Nearby (computed neighbors) */}
+          {trick.neighbors.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                nearby
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {trick.neighbors.slice(0, 12).map((neighbor) => {
+                  const neighborTrick = data.byId[neighbor.id];
+                  if (!neighborTrick) return null;
+                  return (
+                    <Button
+                      key={neighbor.id}
+                      className="h-auto px-2 py-1 text-sm"
+                      variant="outline"
+                      asChild
+                    >
+                      <Link
+                        to="/tricks/$trickId"
+                        params={{ trickId: neighbor.id }}
+                      >
+                        {neighborTrick.name}
+                      </Link>
+                    </Button>
+                  );
+                })}
+                {trick.neighbors.length > 12 && (
+                  <span className="text-muted-foreground self-center text-sm">
+                    +{trick.neighbors.length - 12} more
                   </span>
                 )}
               </div>

@@ -9,6 +9,7 @@ import {
   deleteElementServerFn,
   deleteModifierServerFn,
   deleteTrickServerFn,
+  getAllTricksForBuilderServerFn,
   getAllTricksForGraphServerFn,
   getTrickByIdServerFn,
   getTrickServerFn,
@@ -81,7 +82,7 @@ import {
   type ListVideosInput,
 } from "./videos/schemas";
 
-export type { Trick, TricksData } from "./types";
+export type { NeighborLink, Trick, TrickComposition, TrickModifiers, TricksData } from "./types";
 
 export const tricks = {
   // Modifiers
@@ -192,6 +193,17 @@ export const tricks = {
   delete: {
     fn: deleteTrickServerFn,
     schema: deleteTrickSchema,
+  },
+
+  // Builder data (all tricks with modifier columns)
+  builder: {
+    fn: getAllTricksForBuilderServerFn,
+    queryOptions: () =>
+      queryOptions({
+        queryKey: ["tricks.builder"],
+        queryFn: () => getAllTricksForBuilderServerFn(),
+        staleTime: 1000 * 60 * 5, // 5 minutes
+      }),
   },
 
   // Graph data (all tricks for visualization)
@@ -317,6 +329,9 @@ export type TrickData = ServerFnReturn<typeof getTrickServerFn>;
 export type TrickByIdData = ServerFnReturn<typeof getTrickByIdServerFn>;
 export type TricksListData = ServerFnReturn<typeof listTricksServerFn>;
 export type TrickSearchData = ServerFnReturn<typeof searchTricksServerFn>;
+export type TrickBuilderData = ServerFnReturn<
+  typeof getAllTricksForBuilderServerFn
+>;
 export type TrickGraphData = ServerFnReturn<
   typeof getAllTricksForGraphServerFn
 >;

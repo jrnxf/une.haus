@@ -29,6 +29,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { zodValidator } from "@tanstack/zod-adapter";
 import confetti from "canvas-confetti";
+import { toast } from "sonner";
 
 import { SplitTimer } from "~/components/events/split-timer";
 import { Logo } from "~/components/logo";
@@ -682,7 +683,7 @@ function FitText({ text }: { text: string }) {
       style={{ "--chars": text.length } as React.CSSProperties}
     >
       <span
-        className="block text-center font-bold tracking-tight whitespace-nowrap"
+        className="block text-center font-bold whitespace-nowrap"
         style={{ fontSize: "calc(150cqi / var(--chars))" }}
       >
         {text}
@@ -824,6 +825,7 @@ function RouteComponent() {
         const totalRounds = Math.max(...matches.map((m) => m.round));
         let currentRound = match.round;
         let currentPosition = match.position;
+        let clearedCount = 0;
 
         while (currentRound < totalRounds) {
           const nextRound = currentRound + 1;
@@ -835,11 +837,20 @@ function RouteComponent() {
           );
           if (downstreamMatch) {
             const downstreamIndex = sortedMatches.indexOf(downstreamMatch);
-            newWinners.delete(downstreamIndex);
+            if (newWinners.has(downstreamIndex)) {
+              newWinners.delete(downstreamIndex);
+              clearedCount++;
+            }
           }
 
           currentRound = nextRound;
           currentPosition = nextPosition;
+        }
+
+        if (clearedCount > 0) {
+          toast.info(
+            `Winner changed — ${clearedCount} downstream ${clearedCount === 1 ? "result" : "results"} cleared`,
+          );
         }
       }
 
@@ -941,6 +952,7 @@ function RouteComponent() {
       ];
 
       let colorIndex = 0;
+      let rafId: number;
       const frame = () => {
         // Each source fires with a rotating subset of colors to ensure all colors appear
         for (const source of sources) {
@@ -962,11 +974,11 @@ function RouteComponent() {
         }
 
         if (Date.now() < end) {
-          requestAnimationFrame(frame);
+          rafId = requestAnimationFrame(frame);
         }
       };
 
-      frame();
+      rafId = requestAnimationFrame(frame);
 
       // Burst in the center
       fireConfetti({
@@ -975,6 +987,8 @@ function RouteComponent() {
         origin: { x: 0.5, y: 0.5 },
         colors,
       });
+
+      return () => cancelAnimationFrame(rafId);
     } else if (!champion) {
       prevChampionForConfettiRef.current = null;
     }
@@ -1018,7 +1032,12 @@ function RouteComponent() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="secondary" size="icon-xs" onClick={toggleFullscreen}>
+        <Button
+          variant="secondary"
+          size="icon-xs"
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        >
           {isFullscreen ? (
             <MinimizeIcon className="size-3.5" />
           ) : (
@@ -1061,13 +1080,19 @@ function RouteComponent() {
                   Edit
                 </Link>
               </Button>
-              <Button variant="secondary" size="icon-xs" onClick={reset}>
+              <Button
+                variant="secondary"
+                size="icon-xs"
+                onClick={reset}
+                aria-label="Reset bracket"
+              >
                 <RotateCcwIcon className="size-3.5" />
               </Button>
               <Button
                 variant="secondary"
                 size="icon-xs"
                 onClick={toggleFullscreen}
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
               >
                 {isFullscreen ? (
                   <MinimizeIcon className="size-3.5" />
@@ -1086,13 +1111,19 @@ function RouteComponent() {
               >
                 Bracket
               </Button>
-              <Button variant="secondary" size="icon-xs" onClick={reset}>
+              <Button
+                variant="secondary"
+                size="icon-xs"
+                onClick={reset}
+                aria-label="Reset bracket"
+              >
                 <RotateCcwIcon className="size-3.5" />
               </Button>
               <Button
                 variant="secondary"
                 size="icon-xs"
                 onClick={toggleFullscreen}
+                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
               >
                 {isFullscreen ? (
                   <MinimizeIcon className="size-3.5" />
@@ -1128,7 +1159,7 @@ function RouteComponent() {
         {/* Confetti canvas - must be inside fullscreen container */}
         <canvas
           ref={canvasRef}
-          className="pointer-events-none fixed top-0 left-0 z-50 h-screen w-screen"
+          className="pointer-events-none fixed inset-0 z-50 h-dvh w-dvw"
         />
       </div>
     </>

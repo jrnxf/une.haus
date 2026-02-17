@@ -22,6 +22,7 @@ export function ChatMessagesView() {
       record={{ type: "chat", id: -1 }}
       messages={chatMessages.messages}
       handleCreateMessage={createChatMessage}
+      scrollTargetId="main-content"
     />
   );
 }

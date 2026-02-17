@@ -42,7 +42,7 @@ export function UsersCombobox({
       <DropdownMenuContent
         align="center"
         // modify the 6 below to be the number of users to show before overflow
-        className="max-h-[calc((var(--spacing)*8)*6+10px)]"
+        className="max-h-[calc((var(--spacing)*8)*6+10px)] w-max"
       >
         {users.map((user) => (
           <DropdownMenuItem

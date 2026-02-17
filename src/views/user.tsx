@@ -34,7 +34,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           {/* Profile header */}
           <div className="flex items-start gap-4">
             <Avatar
-              className="size-20 shrink-0"
+              className="size-24 shrink-0"
               cloudflareId={user.avatarId}
               alt={user.name}
             >

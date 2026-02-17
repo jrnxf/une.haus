@@ -16,10 +16,9 @@ import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
   loader: async ({ context, params }) => {
-    const trickId = Number(params.trickId);
     await Promise.all([
       context.queryClient.ensureQueryData(
-        tricks.getById.queryOptions({ id: trickId }),
+        tricks.get.queryOptions({ slug: params.trickId }),
       ),
       context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
     ]);
@@ -30,12 +29,9 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
 function RouteComponent() {
   const router = useRouter();
   const qc = useQueryClient();
-  const { trickId } = Route.useParams();
-  const numericTrickId = Number(trickId);
+  const { trickId: slug } = Route.useParams();
 
-  const { data: trick } = useSuspenseQuery(
-    tricks.getById.queryOptions({ id: numericTrickId }),
-  );
+  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }));
 
   const updateTrick = useMutation({
     mutationFn: tricks.update.fn,
@@ -43,12 +39,14 @@ function RouteComponent() {
       toast.success("Trick updated");
       qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey });
       qc.removeQueries({
-        queryKey: tricks.getById.queryOptions({ id: numericTrickId }).queryKey,
+        queryKey: tricks.get.queryOptions({ slug }).queryKey,
       });
-      qc.removeQueries({
-        queryKey: tricks.videos.list.queryOptions({ trickId: numericTrickId })
-          .queryKey,
-      });
+      if (trick) {
+        qc.removeQueries({
+          queryKey: tricks.videos.list.queryOptions({ trickId: trick.id })
+            .queryKey,
+        });
+      }
       router.navigate({ to: "/tricks" });
     },
     onError: (error) => {
@@ -72,7 +70,7 @@ function RouteComponent() {
     definition: trick.definition,
     inventedBy: trick.inventedBy,
     yearLanded: trick.yearLanded,
-    muxAssetIds: trick.videos?.map((v) => v.muxAssetId) ?? [],
+    muxAssetIds: [],
     notes: trick.notes,
     prerequisites: trick.outgoingRelationships
       .filter((r) => r.type === "prerequisite")
@@ -95,6 +93,14 @@ function RouteComponent() {
       slug: a.element.slug,
       name: a.element.name,
     })),
+    isCompound: trick.isCompound,
+    compositions: (trick.compositions ?? []).map((c) => ({
+      componentTrickId: c.componentTrick.id,
+      componentTrickSlug: c.componentTrick.slug,
+      componentTrickName: c.componentTrick.name,
+      position: c.position,
+      catchType: c.catchType,
+    })),
   };
 
   return (
@@ -109,12 +115,12 @@ function RouteComponent() {
         <TrickForm
           defaultValues={defaultValues}
           onSubmit={(data) =>
-            updateTrick.mutate({ data: { ...data, id: numericTrickId } })
+            updateTrick.mutate({ data: { ...data, id: trick.id } })
           }
           onCancel={() => router.navigate({ to: "/tricks" })}
           submitLabel="Save Changes"
           isPending={updateTrick.isPending}
-          excludeTrickId={numericTrickId}
+          excludeTrickId={trick.id}
         />
       </div>
     </>

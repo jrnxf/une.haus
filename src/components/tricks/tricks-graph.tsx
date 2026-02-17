@@ -12,6 +12,7 @@ import "@xyflow/react/dist/style.css";
 
 import { useCallback, useEffect, useRef } from "react";
 
+import { describeModifierDiff } from "~/lib/tricks/compute";
 import type { Trick, TricksData } from "~/lib/tricks";
 
 import { TrickNode, type TrickNodeData } from "./trick-node";
@@ -21,7 +22,7 @@ type TricksGraphProps = {
   selectedTrickId: string | null;
   onSelectTrick: (trick: Trick) => void;
   onOpenTrickDetail: (trick: Trick) => void;
-  onCenterNodeClick?: (trick: Trick) => void;
+  onCenterNodeClick?: (trick: Trick, meta: { metaKey: boolean }) => void;
 };
 
 type FlowNode = {
@@ -37,8 +38,6 @@ type FlowEdge = {
   id: string;
   source: string;
   target: string;
-  sourceHandle?: string;
-  targetHandle?: string;
   animated?: boolean;
   style?: React.CSSProperties;
   className?: string;
@@ -52,55 +51,10 @@ const NODE_WIDTH = 190;
 const NODE_HEIGHT = 90;
 const HORIZONTAL_GAP = 80;
 const VERTICAL_GAP = 150;
-const RELATED_HORIZONTAL_OFFSET = 350;
+
+const MAX_ROW_SIZE = 5;
 
 const TRANSITION_DURATION = 300;
-
-// Extract the base pattern from a trick name for finding related tricks
-// e.g., "720 Side Spin" -> "720", "Tripleflip" -> "tripleflip", "Backflip" -> "backflip"
-function getTrickBasePattern(name: string): string | null {
-  const lower = name.toLowerCase();
-
-  // Extract leading number (e.g., "720" from "720 Side Spin")
-  const numberMatch = lower.match(/^(\d+)/);
-  if (numberMatch) {
-    return numberMatch[1];
-  }
-
-  // For non-numbered tricks, extract the core trick type
-  // e.g., "Tripleflip" -> "flip", "Backflip" -> "flip"
-  const flipMatch = lower.match(/(flip|spin|roll|wrap|twist)$/);
-  if (flipMatch) {
-    return flipMatch[1];
-  }
-
-  return null;
-}
-
-// Find related tricks - same base pattern but different trick
-function findRelatedTricks(
-  centerTrick: Trick,
-  data: TricksData,
-  excludeIds: Set<string>,
-): Trick[] {
-  const basePattern = getTrickBasePattern(centerTrick.name);
-  if (!basePattern) return [];
-
-  const related: Trick[] = [];
-
-  for (const trick of data.tricks) {
-    if (trick.id === centerTrick.id) continue;
-    if (excludeIds.has(trick.id)) continue;
-
-    const trickPattern = getTrickBasePattern(trick.name);
-    if (trickPattern === basePattern && trick.name !== centerTrick.name) {
-      related.push(trick);
-    }
-  }
-
-  // Sort by name similarity and limit
-  return related.sort((a, b) => a.name.localeCompare(b.name)).slice(0, 4);
-}
 
 const animationStyles = `
   .react-flow__node {
@@ -135,85 +89,143 @@ const animationStyles = `
 type NodePosition = {
   x: number;
   y: number;
-  relationshipType: "center" | "before" | "after" | "related";
-  relatedSide?: "left" | "right";
+  relationshipType: "center" | "before" | "after";
+  neighborLabel?: string;
 };
+
+// Key for all modifiers EXCEPT spin — used to find spin progressions.
+function nonSpinKey(trick: Trick): string {
+  const m = trick.modifiers;
+  return `${m.flips}:${m.wrap}:${m.twist}:${m.fakie}:${m.tire}:${m.switchStance}:${m.late}`;
+}
 
 function getNodePositions(
   centerTrick: Trick,
   data: TricksData,
 ): Map<string, NodePosition> {
   const positions = new Map<string, NodePosition>();
+  const positionedIds = new Set<string>();
 
   // Center node
   positions.set(centerTrick.id, { x: 0, y: 0, relationshipType: "center" });
+  positionedIds.add(centerTrick.id);
 
-  // Prerequisites (before)
-  const beforeTricks: Trick[] = [];
-  if (centerTrick.prerequisite && data.byId[centerTrick.prerequisite]) {
-    beforeTricks.push(data.byId[centerTrick.prerequisite]);
+  const beforeItems: { trick: Trick; label: string }[] = [];
+  const afterItems: { trick: Trick; label: string }[] = [];
+
+  // For non-compound tricks, find spin progression at exactly ±90 and ±180
+  if (!centerTrick.isCompound) {
+    const centerKey = nonSpinKey(centerTrick);
+    const centerSpin = centerTrick.modifiers.spin;
+    const targetSpins = new Set<number>();
+    if (centerSpin >= 90) targetSpins.add(centerSpin - 90);
+    if (centerSpin >= 180) targetSpins.add(centerSpin - 180);
+    targetSpins.add(centerSpin + 90);
+    targetSpins.add(centerSpin + 180);
+
+    for (const trick of data.tricks) {
+      if (trick.id === centerTrick.id || trick.isCompound) continue;
+      if (!targetSpins.has(trick.modifiers.spin)) continue;
+      if (nonSpinKey(trick) !== centerKey) continue;
+
+      const item = {
+        trick,
+        label: describeModifierDiff(centerTrick.modifiers, trick.modifiers),
+      };
+
+      if (trick.modifiers.spin < centerSpin) {
+        beforeItems.push(item);
+      } else {
+        afterItems.push(item);
+      }
+      positionedIds.add(trick.id);
+    }
+
+    // Sort: smaller spin on left
+    beforeItems.sort((a, b) => a.trick.modifiers.spin - b.trick.modifiers.spin);
+    afterItems.sort((a, b) => a.trick.modifiers.spin - b.trick.modifiers.spin);
+  }
+
+  // Add curated prerequisites not already positioned
+  if (
+    centerTrick.prerequisite &&
+    data.byId[centerTrick.prerequisite] &&
+    !positionedIds.has(centerTrick.prerequisite)
+  ) {
+    const t = data.byId[centerTrick.prerequisite];
+    beforeItems.push({
+      trick: t,
+      label: describeModifierDiff(centerTrick.modifiers, t.modifiers),
+    });
+    positionedIds.add(t.id);
   }
   if (
     centerTrick.optionalPrerequisite &&
-    data.byId[centerTrick.optionalPrerequisite]
+    data.byId[centerTrick.optionalPrerequisite] &&
+    !positionedIds.has(centerTrick.optionalPrerequisite)
   ) {
-    beforeTricks.push(data.byId[centerTrick.optionalPrerequisite]);
+    const t = data.byId[centerTrick.optionalPrerequisite];
+    beforeItems.push({
+      trick: t,
+      label: describeModifierDiff(centerTrick.modifiers, t.modifiers),
+    });
+    positionedIds.add(t.id);
   }
 
+  // Add curated dependents not already positioned
+  for (const depId of centerTrick.dependents.slice(0, 6)) {
+    if (positionedIds.has(depId)) continue;
+    const t = data.byId[depId];
+    if (t) {
+      afterItems.push({
+        trick: t,
+        label: describeModifierDiff(centerTrick.modifiers, t.modifiers),
+      });
+      positionedIds.add(t.id);
+    }
+  }
+
+  // Computed neighbors not already positioned → before/after based on direction
+  for (const neighbor of centerTrick.neighbors) {
+    if (positionedIds.has(neighbor.id) || !data.byId[neighbor.id]) continue;
+
+    const t = data.byId[neighbor.id];
+    const item = { trick: t, label: neighbor.label };
+
+    if (neighbor.direction === "removes") {
+      if (beforeItems.length < MAX_ROW_SIZE) {
+        beforeItems.push(item);
+        positionedIds.add(neighbor.id);
+      }
+    } else {
+      if (afterItems.length < MAX_ROW_SIZE) {
+        afterItems.push(item);
+        positionedIds.add(neighbor.id);
+      }
+    }
+  }
+
+  // Position before row
   const beforeStartX =
-    -((beforeTricks.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
-  for (const [index, trick] of beforeTricks.entries()) {
-    positions.set(trick.id, {
+    -((beforeItems.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
+  for (const [index, item] of beforeItems.entries()) {
+    positions.set(item.trick.id, {
       x: beforeStartX + index * (NODE_WIDTH + HORIZONTAL_GAP),
       y: -VERTICAL_GAP - NODE_HEIGHT,
       relationshipType: "before",
+      neighborLabel: item.label,
     });
   }
 
-  // Dependents (after)
-  const afterTricks = centerTrick.dependents
-    .slice(0, 6)
-    .map((id) => data.byId[id])
-    .filter(Boolean) as Trick[];
-
+  // Position after row
   const afterStartX =
-    -((afterTricks.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
-  for (const [index, trick] of afterTricks.entries()) {
-    positions.set(trick.id, {
+    -((afterItems.length - 1) * (NODE_WIDTH + HORIZONTAL_GAP)) / 2;
+  for (const [index, item] of afterItems.entries()) {
+    positions.set(item.trick.id, {
       x: afterStartX + index * (NODE_WIDTH + HORIZONTAL_GAP),
       y: VERTICAL_GAP + NODE_HEIGHT,
       relationshipType: "after",
-    });
-  }
-
-  // Related tricks (split evenly left and right of center)
-  const excludeIds = new Set(positions.keys());
-  const relatedTricks = findRelatedTricks(centerTrick, data, excludeIds);
-
-  // Split into left and right groups
-  const midpoint = Math.ceil(relatedTricks.length / 2);
-  const leftTricks = relatedTricks.slice(0, midpoint);
-  const rightTricks = relatedTricks.slice(midpoint);
-
-  // Position left side
-  const leftStartY = -((leftTricks.length - 1) * (NODE_HEIGHT + 20)) / 2;
-  for (const [index, trick] of leftTricks.entries()) {
-    positions.set(trick.id, {
-      x: -RELATED_HORIZONTAL_OFFSET,
-      y: leftStartY + index * (NODE_HEIGHT + 20),
-      relationshipType: "related",
-      relatedSide: "left",
-    });
-  }
-
-  // Position right side
-  const rightStartY = -((rightTricks.length - 1) * (NODE_HEIGHT + 20)) / 2;
-  for (const [index, trick] of rightTricks.entries()) {
-    positions.set(trick.id, {
-      x: RELATED_HORIZONTAL_OFFSET,
-      y: rightStartY + index * (NODE_HEIGHT + 20),
-      relationshipType: "related",
-      relatedSide: "right",
+      neighborLabel: item.label,
     });
   }
 
@@ -231,7 +243,7 @@ function buildGraphFromTrick(
   // Track which handles are connected for each node
   const connectedHandles = new Map<
     string,
-    { top?: boolean; bottom?: boolean; left?: boolean; right?: boolean }
+    { top?: boolean; bottom?: boolean }
   >();
 
   // Initialize all nodes with empty handles
@@ -244,7 +256,7 @@ function buildGraphFromTrick(
     const trick = data.byId[id];
     if (!trick) continue;
 
-    // Create edges for prerequisites pointing to center
+    // Create edges for before nodes pointing to center
     if (pos.relationshipType === "before") {
       edges.push({
         id: `${trick.id}->${centerTrick.id}`,
@@ -252,12 +264,11 @@ function buildGraphFromTrick(
         target: centerTrick.id,
         style: { stroke: "#3b82f6", strokeWidth: 2 },
       });
-      // Before node connects via bottom, center receives via top
       connectedHandles.get(trick.id)!.bottom = true;
       connectedHandles.get(centerTrick.id)!.top = true;
     }
 
-    // Create edges from center to dependents
+    // Create edges from center to after nodes
     if (pos.relationshipType === "after") {
       edges.push({
         id: `${centerTrick.id}->${trick.id}`,
@@ -265,30 +276,8 @@ function buildGraphFromTrick(
         target: trick.id,
         style: { stroke: "#22c55e", strokeWidth: 2 },
       });
-      // Center connects via bottom, after node receives via top
       connectedHandles.get(centerTrick.id)!.bottom = true;
       connectedHandles.get(trick.id)!.top = true;
-    }
-
-    // Create dashed edges from related tricks to center using side handles
-    if (pos.relationshipType === "related" && pos.relatedSide) {
-      const isLeft = pos.relatedSide === "left";
-      edges.push({
-        id: `${centerTrick.id}<->${trick.id}`,
-        source: trick.id,
-        target: centerTrick.id,
-        sourceHandle: isLeft ? "right" : "left",
-        targetHandle: isLeft ? "left" : "right",
-        style: { stroke: "#a855f7", strokeWidth: 1.5, strokeDasharray: "5 3" },
-      });
-      // Related node connects via its side handle
-      if (isLeft) {
-        connectedHandles.get(trick.id)!.right = true;
-        connectedHandles.get(centerTrick.id)!.left = true;
-      } else {
-        connectedHandles.get(trick.id)!.left = true;
-        connectedHandles.get(centerTrick.id)!.right = true;
-      }
     }
   }
 
@@ -305,7 +294,7 @@ function buildGraphFromTrick(
         trick,
         isCenter: pos.relationshipType === "center",
         relationshipType: pos.relationshipType,
-        relatedSide: pos.relatedSide,
+        neighborLabel: pos.neighborLabel,
         connectedHandles: connectedHandles.get(id),
       },
       style: { zIndex: 10 },
@@ -399,7 +388,7 @@ function GraphContent({
   }, [selectedTrickId]);
 
   const handleNodeClick = useCallback(
-    (_event: React.MouseEvent, node: FlowNode) => {
+    (event: React.MouseEvent, node: FlowNode) => {
       if (isTransitioningRef.current) return;
 
       const clickedTrick = data.byId[node.id];
@@ -407,7 +396,7 @@ function GraphContent({
 
       // If clicking the center node, navigate to its detail page
       if (node.id === selectedTrickId) {
-        onCenterNodeClick?.(clickedTrick);
+        onCenterNodeClick?.(clickedTrick, { metaKey: event.metaKey });
         return;
       }
 

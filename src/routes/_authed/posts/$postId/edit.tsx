@@ -38,6 +38,20 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  beforeLoad: async ({ context, params: { postId } }) => {
+    const post = await context.queryClient.ensureQueryData(
+      posts.get.queryOptions({ postId }),
+    );
+
+    if (post.user.id !== context.user.id) {
+      await session.flash.set.fn({
+        data: { message: "You can only edit your own posts" },
+      });
+      throw redirect({ to: "/posts/$postId", params: { postId } });
+    }
+
+    return { post };
+  },
   loader: async ({ context, params: { postId } }) => {
     try {
       return await context.queryClient.ensureQueryData(

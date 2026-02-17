@@ -1,4 +1,3 @@
-import { createParser } from "nuqs";
 import { z } from "zod";
 
 /**
@@ -190,39 +189,3 @@ export function decodeWinners(encoded: string | null): Map<number, 1 | 2> {
   return winners;
 }
 
-/**
- * Nuqs parser for riders param.
- * Format: "1,20,~Sam,30" (comma-delimited, ~ prefix for custom names)
- */
-export const parseAsRiders = createParser<RiderEntry[]>({
-  parse: (value) => parseRidersParam(value),
-  serialize: (riders) => encodeRidersParam(riders) ?? "",
-  eq: (a, b) => encodeRidersParam(a) === encodeRidersParam(b),
-});
-
-/**
- * Nuqs parser for winners param.
- * Format: "12-1" (each char is 1, 2, or - for match winner)
- */
-export const parseAsWinners = createParser<Map<number, 1 | 2>>({
-  parse: (value) => decodeWinners(value),
-  serialize: (winners) => {
-    // Convert map back to string for serialization
-    if (winners.size === 0) return "";
-    const maxIndex = Math.max(...winners.keys());
-    let result = "";
-    for (let i = 0; i <= maxIndex; i++) {
-      const winner = winners.get(i);
-      result += winner === 1 ? "1" : winner === 2 ? "2" : "-";
-    }
-    // Trim trailing dashes
-    return result.replace(/-+$/, "");
-  },
-  eq: (a, b) => {
-    if (a.size !== b.size) return false;
-    for (const [key, value] of a) {
-      if (b.get(key) !== value) return false;
-    }
-    return true;
-  },
-});

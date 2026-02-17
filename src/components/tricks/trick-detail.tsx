@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Pencil, Video } from "lucide-react";
+import { Pencil, ShieldIcon, Video } from "lucide-react";
 
 import { VideoCarousel } from "~/components/tricks/video-carousel";
 import { Badge } from "~/components/ui/badge";
@@ -20,6 +20,7 @@ type TrickDetailProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onNavigateToTrick: (trickId: string) => void;
+  isAdmin?: boolean;
 };
 
 function TrickLink({
@@ -53,6 +54,7 @@ export function TrickDetail({
   open,
   onOpenChange,
   onNavigateToTrick,
+  isAdmin,
 }: TrickDetailProps) {
   const prerequisiteTrick = trick.prerequisite
     ? tricksData.byId[trick.prerequisite]
@@ -77,6 +79,34 @@ export function TrickDetail({
 
             {/* Videos */}
             {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
+
+            {/* Composition (compound tricks) */}
+            {trick.isCompound && trick.compositions.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-muted-foreground text-sm font-medium">
+                  Composition
+                </h3>
+                <div className="flex flex-wrap items-center gap-1">
+                  {trick.compositions.map((comp, i) => (
+                    <span
+                      key={comp.position}
+                      className="flex items-center gap-1"
+                    >
+                      {i > 0 && comp.catchType && (
+                        <Badge variant="outline" className="text-xs">
+                          {comp.catchType}
+                        </Badge>
+                      )}
+                      <TrickLink
+                        trickId={comp.componentId}
+                        tricksData={tricksData}
+                        onNavigate={onNavigateToTrick}
+                      />
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Elements */}
             <div className="flex flex-wrap gap-2">
@@ -146,6 +176,30 @@ export function TrickDetail({
               </div>
             )}
 
+            {/* Nearby (computed neighbors) */}
+            {trick.neighbors.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-muted-foreground text-sm font-medium">
+                  Nearby
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {trick.neighbors.slice(0, 8).map((neighbor) => (
+                    <TrickLink
+                      key={neighbor.id}
+                      onNavigate={onNavigateToTrick}
+                      trickId={neighbor.id}
+                      tricksData={tricksData}
+                    />
+                  ))}
+                  {trick.neighbors.length > 8 && (
+                    <span className="text-muted-foreground self-center text-sm">
+                      +{trick.neighbors.length - 8} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Inventor / Year */}
             {(trick.inventedBy || trick.yearLanded) && (
               <div className="space-y-1">
@@ -193,6 +247,16 @@ export function TrickDetail({
                     Suggest Edit
                   </Link>
                 </Button>
+                {isAdmin && (
+                  <Button variant="secondary" size="icon-xs" asChild>
+                    <Link
+                      to="/admin/tricks/$trickId/edit"
+                      params={{ trickId: trick.id }}
+                    >
+                      <ShieldIcon className="size-3.5" />
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

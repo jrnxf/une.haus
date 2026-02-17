@@ -27,9 +27,10 @@ export function TricksSearch({ data, onSelectTrick }: TricksSearchProps) {
   // Filter tricks by search term
   const filteredTricks = useMemo(() => {
     const searchLower = deferredSearchTerm.toLowerCase().trim();
-    if (!searchLower) return data.tricks.slice(0, 20);
+    const nonPrefix = data.tricks.filter((t) => !t.isPrefix);
+    if (!searchLower) return nonPrefix.slice(0, 20);
 
-    return data.tricks
+    return nonPrefix
       .filter(
         (trick) =>
           trick.name.toLowerCase().includes(searchLower) ||

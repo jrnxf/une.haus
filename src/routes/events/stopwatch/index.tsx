@@ -2,48 +2,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { PauseIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { z } from "zod";
 
 import { CountdownDisplay } from "~/components/events/countdown-display";
+import {
+  encodeRiderParam,
+  parseRiderParam,
+  stopwatchSearchSchema,
+} from "~/lib/events/stopwatch";
 import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
-const searchSchema = z.object({
-  rider: z.string().optional(),
-  time: z.coerce.number().min(1).max(3600).optional().default(60),
-});
-
 export const Route = createFileRoute("/events/stopwatch/")({
   component: RouteComponent,
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: zodValidator(stopwatchSearchSchema),
 });
-
-type RiderData = {
-  userId: number | null;
-  name: string | null;
-};
-
-function parseRiderParam(param: string | undefined): RiderData | null {
-  if (!param) return null;
-  if (param.startsWith("~")) {
-    return { userId: null, name: param.slice(1) };
-  }
-  const userId = Number.parseInt(param, 10);
-  if (Number.isNaN(userId)) return null;
-  return { userId, name: null };
-}
-
-function encodeRiderParam(rider: RiderData | null): string | undefined {
-  if (!rider) return undefined;
-  if (rider.userId !== null) return String(rider.userId);
-  if (rider.name) return `~${rider.name}`;
-  return undefined;
-}
 
 type StopwatchState = "idle" | "running" | "paused" | "finished";
 
@@ -107,6 +84,15 @@ function RouteComponent() {
     setTimeRemaining(initialSeconds * 1000);
     setState("idle");
   }, [clearTimer, initialSeconds]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -188,7 +174,12 @@ function RouteComponent() {
           >
             Settings
           </Button>
-          <Button variant="secondary" size="icon-xs" onClick={resetTimer}>
+          <Button
+            variant="secondary"
+            size="icon-xs"
+            onClick={resetTimer}
+            aria-label="Reset timer"
+          >
             <RotateCcwIcon className="size-3.5" />
           </Button>
         </PageHeader.Actions>
@@ -197,7 +188,7 @@ function RouteComponent() {
         role="application"
         aria-label="Stopwatch timer"
         className={cn(
-          "flex h-full flex-col transition-colors duration-300",
+          "flex h-full flex-col transition-colors duration-200",
           isFinished && "bg-destructive/20",
           isLow && !isFinished && "bg-yellow-500/10",
         )}
@@ -216,7 +207,7 @@ function RouteComponent() {
         </div>
 
         {/* Play/Pause Button */}
-        <div className="flex items-center justify-center border-t py-4">
+        <div className="flex flex-col items-center justify-center gap-1 border-t py-4">
           <Button onClick={handleClick} className="gap-2">
             {state === "finished" ? (
               <>
@@ -235,6 +226,10 @@ function RouteComponent() {
               </>
             )}
           </Button>
+          <p className="text-muted-foreground hidden text-xs sm:block">
+            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">Space</kbd> play/pause
+            {" "}<kbd className="bg-muted rounded px-1 font-mono text-[10px]">R</kbd> reset
+          </p>
         </div>
       </div>
     </>

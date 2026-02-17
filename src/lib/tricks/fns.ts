@@ -5,6 +5,7 @@ import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm";
 
 import { db } from "~/db";
 import {
+  trickCompositions,
   trickElementAssignments,
   trickElements,
   trickModifiers,
@@ -14,6 +15,12 @@ import {
 } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { adminOnlyMiddleware } from "~/lib/middleware";
+
+import {
+  computeAllNeighbors,
+  computeDepthsAndDependents,
+} from "./compute";
+import type { Trick } from "./types";
 
 import {
   createElementSchema,
@@ -239,6 +246,18 @@ export const getTrickServerFn = createServerFn({
             },
           },
         },
+        compositions: {
+          with: {
+            componentTrick: {
+              columns: {
+                id: true,
+                slug: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: [asc(trickCompositions.position)],
+        },
         likes: {
           with: {
             user: {
@@ -307,6 +326,18 @@ export const getTrickByIdServerFn = createServerFn({
             },
           },
         },
+        compositions: {
+          with: {
+            componentTrick: {
+              columns: {
+                id: true,
+                slug: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: [asc(trickCompositions.position)],
+        },
       },
     });
 
@@ -323,6 +354,7 @@ export const searchTricksServerFn = createServerFn({
         id: tricks.id,
         slug: tricks.slug,
         name: tricks.name,
+        isCompound: tricks.isCompound,
       })
       .from(tricks)
       .where(
@@ -350,7 +382,13 @@ export const createTrickServerFn = createServerFn({
   .inputValidator(zodValidator(createTrickSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data, context }) => {
-    const { relationships, muxAssetIds, elementIds, ...trickData } = data;
+    const {
+      relationships,
+      muxAssetIds,
+      elementIds,
+      compositions,
+      ...trickData
+    } = data;
 
     // Insert trick
     const [trick] = await db.insert(tricks).values(trickData).returning();
@@ -392,6 +430,20 @@ export const createTrickServerFn = createServerFn({
       );
     }
 
+    // Insert compositions (for compound tricks)
+    if (compositions.length > 0) {
+      await db.insert(trickCompositions).values(
+        compositions.map((comp) => ({
+          compoundTrickId: trick.id,
+          componentTrickId: comp.componentTrickId,
+          position: comp.position,
+          catchType: comp.catchType,
+        })),
+      );
+    }
+
+    await recomputeAllTrickComputedFields();
+
     return trick;
   });
 
@@ -401,7 +453,14 @@ export const updateTrickServerFn = createServerFn({
   .inputValidator(zodValidator(updateTrickSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data, context }) => {
-    const { id, relationships, muxAssetIds, elementIds, ...trickData } = data;
+    const {
+      id,
+      relationships,
+      muxAssetIds,
+      elementIds,
+      compositions,
+      ...trickData
+    } = data;
 
     // Update trick
     const [trick] = await db
@@ -462,6 +521,24 @@ export const updateTrickServerFn = createServerFn({
       );
     }
 
+    // Update compositions - delete all and re-insert
+    await db
+      .delete(trickCompositions)
+      .where(eq(trickCompositions.compoundTrickId, id));
+
+    if (compositions.length > 0) {
+      await db.insert(trickCompositions).values(
+        compositions.map((comp) => ({
+          compoundTrickId: id,
+          componentTrickId: comp.componentTrickId,
+          position: comp.position,
+          catchType: comp.catchType,
+        })),
+      );
+    }
+
+    await recomputeAllTrickComputedFields();
+
     return trick;
   });
 
@@ -477,58 +554,228 @@ export const deleteTrickServerFn = createServerFn({
       .returning();
 
     invariant(trick, "Trick not found");
+
+    await recomputeAllTrickComputedFields();
+
     return trick;
   });
+
+// ==================== RECOMPUTE ====================
+
+async function recomputeAllTrickComputedFields() {
+  const dbTricks = await db.query.tricks.findMany({
+    with: {
+      outgoingRelationships: {
+        with: {
+          targetTrick: {
+            columns: { id: true, slug: true, name: true },
+          },
+        },
+      },
+      compositions: {
+        with: {
+          componentTrick: {
+            columns: { id: true, slug: true, name: true },
+          },
+        },
+        orderBy: (compositions, { asc }) => [asc(compositions.position)],
+      },
+    },
+  });
+
+  const trickObjects: Trick[] = dbTricks.map((t) => {
+    const prerequisiteRel = t.outgoingRelationships.find(
+      (r) => r.type === "prerequisite",
+    );
+    const optionalPrerequisiteRel = t.outgoingRelationships.find(
+      (r) => r.type === "optional_prerequisite",
+    );
+
+    return {
+      id: t.slug,
+      name: t.name,
+      alternateNames: t.alternateNames ?? [],
+      elements: [],
+      definition: t.definition ?? "",
+      prerequisite: prerequisiteRel?.targetTrick.slug ?? null,
+      optionalPrerequisite: optionalPrerequisiteRel?.targetTrick.slug ?? null,
+      isPrefix: t.isPrefix,
+      isCompound: t.isCompound,
+      compositions: (t.compositions ?? [])
+        .sort((a, b) => a.position - b.position)
+        .map((c) => ({
+          componentId: c.componentTrick.slug,
+          componentName: c.componentTrick.name,
+          position: c.position,
+          catchType: c.catchType,
+        })),
+      notes: t.notes,
+      referenceVideoUrl: null,
+      referenceVideoTimestamp: null,
+      modifiers: {
+        flips: t.flips,
+        spin: t.spin,
+        wrap: t.wrap,
+        twist: t.twist,
+        fakie: t.fakie,
+        tire: t.tire,
+        switchStance: t.switchStance,
+        late: t.late,
+      },
+      videos: [],
+      neighbors: [],
+      depth: 0,
+      dependents: [],
+    };
+  });
+
+  computeDepthsAndDependents(trickObjects);
+  computeAllNeighbors(trickObjects);
+
+  // Build a slug -> DB id map for updates
+  const slugToDbId = new Map(dbTricks.map((t) => [t.slug, t.id]));
+
+  await Promise.all(
+    trickObjects.map((t) => {
+      const dbId = slugToDbId.get(t.id);
+      if (!dbId) return;
+      return db
+        .update(tricks)
+        .set({
+          depth: t.depth,
+          dependentSlugs: t.dependents,
+          neighborLinks: t.neighbors,
+        })
+        .where(eq(tricks.id, dbId));
+    }),
+  );
+}
+
+// ==================== BUILDER ====================
+
+export const getAllTricksForBuilderServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  // Simple tricks (non-compound) with modifier columns for lookup
+  const simpleTricks = await db
+    .select({
+      id: tricks.id,
+      slug: tricks.slug,
+      name: tricks.name,
+      alternateNames: tricks.alternateNames,
+      definition: tricks.definition,
+      isCompound: tricks.isCompound,
+      flips: tricks.flips,
+      spin: tricks.spin,
+      wrap: tricks.wrap,
+      twist: tricks.twist,
+      fakie: tricks.fakie,
+      tire: tricks.tire,
+      switchStance: tricks.switchStance,
+      late: tricks.late,
+    })
+    .from(tricks)
+    .where(eq(tricks.isCompound, false))
+    .orderBy(asc(tricks.name));
+
+  // Compound tricks with compositions eagerly loaded
+  const compoundTricks = await db.query.tricks.findMany({
+    where: eq(tricks.isCompound, true),
+    columns: {
+      id: true,
+      slug: true,
+      name: true,
+      alternateNames: true,
+      definition: true,
+      isCompound: true,
+      flips: true,
+      spin: true,
+      wrap: true,
+      twist: true,
+      fakie: true,
+      tire: true,
+      switchStance: true,
+      late: true,
+    },
+    with: {
+      compositions: {
+        with: {
+          componentTrick: {
+            columns: {
+              id: true,
+              slug: true,
+              name: true,
+              flips: true,
+              spin: true,
+              wrap: true,
+              twist: true,
+              fakie: true,
+              tire: true,
+              switchStance: true,
+              late: true,
+            },
+          },
+        },
+        orderBy: [asc(trickCompositions.position)],
+      },
+    },
+    orderBy: [asc(tricks.name)],
+  });
+
+  return { simpleTricks, compoundTricks };
+});
 
 // ==================== BULK OPERATIONS ====================
 
 export const getAllTricksForGraphServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
-  // Use static JSON data instead of database
-  const { getTricksData } = await import("./data");
+  const { transformDbTricksToTricksData } = await import("./compute");
+  const dbTricks = await db.query.tricks.findMany({
+    with: {
+      videos: {
+        with: {
+          video: {
+            columns: {
+              playbackId: true,
+            },
+          },
+        },
+        orderBy: (videos, { asc }) => [asc(videos.sortOrder)],
+      },
+      elementAssignments: {
+        with: {
+          element: true,
+        },
+      },
+      outgoingRelationships: {
+        with: {
+          targetTrick: {
+            columns: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+      compositions: {
+        with: {
+          componentTrick: {
+            columns: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: (compositions, { asc }) => [asc(compositions.position)],
+      },
+    },
+    orderBy: [asc(tricks.name)],
+  });
   console.log(
-    "[getAllTricksForGraphServerFn] Loading tricks from static JSON...",
+    `[getAllTricksForGraphServerFn] Found ${dbTricks.length} tricks in database`,
   );
-  const tricksData = getTricksData();
-  console.log(
-    `[getAllTricksForGraphServerFn] Loaded ${tricksData.tricks.length} tricks from JSON`,
-  );
-  return tricksData;
-
-  // COMMENTED OUT: Database fetching - keeping for reference
-  // const { transformDbTricksToTricksData } = await import("./compute");
-  // const tricksData = await db.query.tricks.findMany({
-  //   with: {
-  //     videos: {
-  //       with: {
-  //         video: {
-  //           columns: {
-  //             playbackId: true,
-  //           },
-  //         },
-  //       },
-  //       orderBy: (videos, { asc }) => [asc(videos.sortOrder)],
-  //     },
-  //     elementAssignments: {
-  //       with: {
-  //         element: true,
-  //       },
-  //     },
-  //     outgoingRelationships: {
-  //       with: {
-  //         targetTrick: {
-  //           columns: {
-  //             id: true,
-  //             slug: true,
-  //             name: true,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  //   orderBy: [asc(tricks.name)],
-  // });
-  // console.log(`[getAllTricksForGraphServerFn] Found ${tricksData.length} tricks in database`);
-  // return transformDbTricksToTricksData(tricksData);
+  return transformDbTricksToTricksData(dbTricks);
 });

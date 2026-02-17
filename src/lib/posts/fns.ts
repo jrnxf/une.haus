@@ -173,6 +173,13 @@ export const updatePostServerFn = createServerFn({
     const userId = context.user.id;
     const { postId, ...updateData } = data;
 
+    const existing = await db.query.posts.findFirst({
+      where: eq(posts.id, postId),
+    });
+
+    invariant(existing, "Post not found");
+    invariant(existing.userId === userId, "Access denied");
+
     const [post] = await db
       .update(posts)
       .set({ ...updateData, userId })

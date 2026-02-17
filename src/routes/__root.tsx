@@ -1,19 +1,20 @@
-// import { TanStackDevtools } from "@tanstack/react-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import { type QueryClient } from "@tanstack/react-query";
-// import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
+  useRouter,
 } from "@tanstack/react-router";
-// import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-// import { BugIcon } from "lucide-react";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
 
+import { BugIcon } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { ConfirmDialog } from "~/components/confirm-dialog";
 import { GlobalShortcuts } from "~/components/global-shortcuts";
@@ -24,6 +25,7 @@ import {
   MobileNavProvider,
 } from "~/components/mobile-nav";
 import { SiteHeader } from "~/components/site-header";
+import { Button } from "~/components/ui/button";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { PageHeaderProvider } from "~/lib/page-header/context";
@@ -127,6 +129,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  const router = useRouter();
   const { session: sessionData } = useRootRouteContext();
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
     null,
@@ -177,7 +180,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             </div>
           </MobileNavProvider>
         </ThemeProvider>
-        {/* <TanStackDevtools
+        <TanStackDevtools
           config={{
             position: "bottom-left",
             hideUntilHover: true,
@@ -201,7 +204,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               render: <ReactQueryDevtoolsPanel />,
             },
           ]}
-        /> */}
+        />
         <Scripts />
       </body>
     </html>

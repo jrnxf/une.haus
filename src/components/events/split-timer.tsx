@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeftRightIcon,
-  PauseIcon,
   PlayIcon,
   RotateCcwIcon,
 } from "lucide-react";
@@ -11,6 +10,7 @@ import { CountdownDisplay } from "~/components/events/countdown-display";
 import { Logo } from "~/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { type ResolvedRiderEntry } from "~/lib/events/bracket";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
@@ -21,14 +21,9 @@ type TimerData = {
   timeRemaining: number;
 };
 
-export type RiderData = {
-  userId: number | null;
-  name: string | null;
-};
-
 type SplitTimerProps = {
-  rider1?: RiderData;
-  rider2?: RiderData;
+  rider1?: ResolvedRiderEntry;
+  rider2?: ResolvedRiderEntry;
   time: number;
   headerContent?: React.ReactNode;
 };
@@ -215,7 +210,7 @@ export function SplitTimer({
   const ButtonIcon = bothFinished
     ? RotateCcwIcon
     : isAnyRunning
-      ? PauseIcon
+      ? ArrowLeftRightIcon
       : PlayIcon;
 
   return (
@@ -239,7 +234,7 @@ export function SplitTimer({
               variant="secondary"
               size="icon-xs"
               onClick={() => setSwapped((s) => !s)}
-              title="Swap sides"
+              aria-label="Swap sides"
             >
               <ArrowLeftRightIcon className="size-3.5" />
             </Button>
@@ -249,7 +244,7 @@ export function SplitTimer({
         {/* Left Timer */}
         <div
           className={cn(
-            "relative flex flex-1 flex-col items-center justify-center transition-colors duration-300",
+            "relative flex flex-1 flex-col items-center justify-center transition-colors duration-200",
             leftTimer.state === "finished" && "bg-destructive/20",
             leftTimer.timeRemaining <= 10_000 &&
               leftTimer.state === "running" &&
@@ -290,7 +285,7 @@ export function SplitTimer({
         {/* Right Timer */}
         <div
           className={cn(
-            "relative flex flex-1 flex-col items-center justify-center transition-colors duration-300",
+            "relative flex flex-1 flex-col items-center justify-center transition-colors duration-200",
             rightTimer.state === "finished" && "bg-destructive/20",
             rightTimer.timeRemaining <= 10_000 &&
               rightTimer.state === "running" &&
@@ -329,12 +324,23 @@ export function SplitTimer({
         </div>
       </div>
 
-      {/* Play/Pause Button */}
-      <div className="flex items-center justify-center border-t py-4">
-        <Button onClick={handlePlayPause} className="gap-2">
-          <ButtonIcon className="size-4" />
-          {buttonLabel}
-        </Button>
+      {/* Controls */}
+      <div className="flex flex-col items-center justify-center gap-1 border-t py-4">
+        <div className="flex items-center gap-2">
+          <Button onClick={handlePlayPause} className="gap-2">
+            <ButtonIcon className="size-4" />
+            {buttonLabel}
+          </Button>
+          <Button variant="secondary" size="icon" onClick={reset} aria-label="Reset timers">
+            <RotateCcwIcon className="size-4" />
+          </Button>
+        </div>
+        <p className="text-muted-foreground hidden text-xs sm:block">
+          press <kbd className="bg-muted rounded px-1 font-mono text-[10px]">R</kbd> to reset
+        </p>
+        <p className="text-muted-foreground block text-xs sm:hidden">
+          rotate device for best experience
+        </p>
       </div>
 
       <Logo className="pointer-events-none absolute right-4 bottom-4 h-6 w-auto opacity-50" />

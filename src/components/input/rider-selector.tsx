@@ -16,15 +16,13 @@ import {
   SortableItem,
   SortableItemHandle,
 } from "~/components/ui/sortable";
+import {
+  generateOrderId,
+  type OrderedRiderEntry,
+} from "~/lib/events/bracket";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
-
-type RiderEntry = {
-  orderId: string; // Unique ID for sortable
-  userId: number | null;
-  name: string | null;
-};
 
 type User = {
   id: number;
@@ -32,17 +30,12 @@ type User = {
   avatarId: string | null;
 };
 
-// Generate a unique order ID
-function generateOrderId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
 export function RiderSelector({
   value,
   onChange,
 }: {
-  value: RiderEntry[];
-  onChange: (riders: RiderEntry[]) => void;
+  value: OrderedRiderEntry[];
+  onChange: (riders: OrderedRiderEntry[]) => void;
 }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);

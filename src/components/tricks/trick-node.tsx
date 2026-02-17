@@ -8,13 +8,11 @@ import { cn } from "~/lib/utils";
 export type TrickNodeData = {
   trick: Trick;
   isCenter: boolean;
-  relationshipType: "center" | "before" | "after" | "related";
-  relatedSide?: "left" | "right";
+  relationshipType: "center" | "before" | "after";
+  neighborLabel?: string;
   connectedHandles?: {
     top?: boolean;
     bottom?: boolean;
-    left?: boolean;
-    right?: boolean;
   };
 };
 
@@ -27,19 +25,12 @@ const RELATIONSHIP_STYLES = {
   center: "border-primary ring-2 ring-primary/20",
   before: "border-blue-500/50",
   after: "border-green-500/50",
-  related: "border-purple-500/50",
-};
-
-const RELATIONSHIP_LABELS = {
-  center: null,
-  before: "prerequisite",
-  after: "unlocks",
-  related: "related",
 };
 
 function TrickNodeComponent({ data, selected }: TrickNodeProps) {
-  const { trick, relationshipType, connectedHandles } = data;
+  const { trick, relationshipType, neighborLabel, connectedHandles } = data;
   const isCenter = relationshipType === "center";
+  const label = isCenter ? null : (neighborLabel ?? "nearby");
 
   return (
     <>
@@ -53,26 +44,6 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
         />
       )}
 
-      {/* Left handle - for center node and right-side related nodes */}
-      {connectedHandles?.left && (
-        <Handle
-          className="!bg-muted-foreground/50 !h-2 !w-2"
-          id="left"
-          position={Position.Left}
-          type={isCenter ? "target" : "source"}
-        />
-      )}
-
-      {/* Right handle - for center node and left-side related nodes */}
-      {connectedHandles?.right && (
-        <Handle
-          className="!bg-muted-foreground/50 !h-2 !w-2"
-          id="right"
-          position={Position.Right}
-          type={isCenter ? "target" : "source"}
-        />
-      )}
-
       <div
         className={cn(
           "rounded-lg border-2 bg-white px-3.5 py-2.5 shadow-sm transition-all dark:bg-zinc-950",
@@ -82,20 +53,20 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
         )}
       >
         {/* Relationship label */}
-        {RELATIONSHIP_LABELS[relationshipType] && (
-          <span className="text-muted-foreground mb-1 block text-[9px] tracking-wide uppercase">
-            {RELATIONSHIP_LABELS[relationshipType]}
+        {label && (
+          <span className="text-muted-foreground mb-0.5 block text-[7px] tracking-wide uppercase">
+            {label}
           </span>
         )}
 
         {/* Trick name */}
-        <p className="leading-tight font-medium lowercase">{trick.name}</p>
+        <p className="text-sm leading-tight font-medium lowercase">{trick.name}</p>
 
         {/* Elements */}
-        <div className="mt-1.5 flex flex-wrap gap-1">
-          {trick.elements.slice(0, 2).map((elem) => (
+        <div className="mt-1 flex flex-wrap gap-0.5">
+          {trick.elements.map((elem) => (
             <Badge
-              className="px-1.5 py-0 text-[10px] lowercase"
+              className="px-1 py-0 text-[8px] leading-tight lowercase"
               key={elem}
               variant="secondary"
             >

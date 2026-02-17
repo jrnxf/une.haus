@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { PageHeader } from "~/components/page-header";
 import { messages } from "~/lib/messages";
 import { ChatMessagesView } from "~/views/chat-messages";
 
@@ -17,8 +18,16 @@ export const Route = createFileRoute("/chat/")({
 
 function RouteComponent() {
   return (
-    <div className="mx-auto w-full max-w-4xl p-4">
-      <ChatMessagesView />
-    </div>
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>chat</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+
+      <div className="mx-auto w-full max-w-4xl p-4">
+        <ChatMessagesView />
+      </div>
+    </>
   );
 }

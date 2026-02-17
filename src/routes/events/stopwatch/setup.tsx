@@ -2,12 +2,16 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { zodValidator } from "@tanstack/zod-adapter";
-import { z } from "zod";
 
 import {
   SingleRiderSelector,
   type RiderEntry,
 } from "~/components/input/single-rider-selector";
+import {
+  encodeRiderParam,
+  parseRiderParam,
+  stopwatchSearchSchema,
+} from "~/lib/events/stopwatch";
 import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
@@ -20,14 +24,9 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
-const searchSchema = z.object({
-  rider: z.string().optional(),
-  time: z.coerce.number().min(1).max(3600).optional().default(60),
-});
-
 export const Route = createFileRoute("/events/stopwatch/setup")({
   component: RouteComponent,
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: zodValidator(stopwatchSearchSchema),
 });
 
 const presets = [
@@ -37,23 +36,6 @@ const presets = [
   { label: "3m", value: 180 },
   { label: "5m", value: 300 },
 ];
-
-function parseRiderParam(param: string | undefined): RiderEntry | null {
-  if (!param) return null;
-  if (param.startsWith("~")) {
-    return { userId: null, name: param.slice(1) };
-  }
-  const userId = Number.parseInt(param, 10);
-  if (Number.isNaN(userId)) return null;
-  return { userId, name: null };
-}
-
-function encodeRiderParam(rider: RiderEntry | null): string | undefined {
-  if (!rider) return undefined;
-  if (rider.userId !== null) return String(rider.userId);
-  if (rider.name) return `~${rider.name}`;
-  return undefined;
-}
 
 function RouteComponent() {
   const search = Route.useSearch();

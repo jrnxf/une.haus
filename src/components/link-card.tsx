@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRightIcon } from "lucide-react";
+// import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
@@ -32,25 +32,25 @@ function LinkCardRoot({
 }
 
 function LinkCardHeader({
-  icon: Icon,
+  // icon: Icon,
   title,
-  iconClassName,
+  // iconClassName,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{ className?: string }>;
   title: string;
   iconClassName?: string;
 }) {
   return (
-    <CardHeader className="pb-2">
-      <div className="flex items-center gap-3">
-        <div
+    <CardHeader className="pb-0">
+      <div className="flex items-center gap-2">
+        {/* <div
           className={cn(
-            "bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg",
+            "bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md",
             iconClassName,
           )}
         >
-          <Icon className="size-4" />
-        </div>
+          <Icon className="size-3.5" />
+        </div> */}
         <CardTitle className="text-lg">{title}</CardTitle>
       </div>
     </CardHeader>
@@ -76,7 +76,7 @@ function LinkCardCta({ label }: { label: string }) {
     <div className="flex items-center justify-end">
       <span className="text-muted-foreground group-hover:text-foreground group-focus-visible:text-foreground flex items-center gap-1 text-sm transition-colors">
         {label}
-        <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5" />
+        {/* <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5" /> */}
       </span>
     </div>
   );

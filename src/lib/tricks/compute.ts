@@ -1,4 +1,4 @@
-import type { Trick, TricksData } from "./types";
+import type { NeighborLink, Trick, TrickModifiers, TricksData } from "./types";
 
 // Element display order (most common/important first)
 const ELEMENT_ORDER = [
@@ -119,12 +119,18 @@ export function computeDepthsAndDependents(tricks: Trick[]): void {
     t.dependents = [];
   }
 
-  // Build dependents lists (reverse of prerequisites)
+  // Build dependents lists (reverse of prerequisites and optional prerequisites)
   for (const t of tricks) {
     if (t.prerequisite) {
       const prereq = byId.get(t.prerequisite);
       if (prereq) {
         prereq.dependents.push(t.id);
+      }
+    }
+    if (t.optionalPrerequisite) {
+      const optPrereq = byId.get(t.optionalPrerequisite);
+      if (optPrereq) {
+        optPrereq.dependents.push(t.id);
       }
     }
   }
@@ -153,6 +159,272 @@ export function computeDepthsAndDependents(tricks: Trick[]): void {
   // Handle any remaining tricks (cycles or disconnected)
   for (const t of tricks.filter((t) => t.depth === -1)) t.depth = 0;
 }
+
+// ==================== COMPUTED NEIGHBORS ====================
+
+const WRAPS = ["none", "side", "secretside", "backside", "antiside"];
+const TIRES = ["none", "to tire", "from tire", "on tire"];
+
+function modifierKey(m: TrickModifiers): string {
+  return `${m.flips}:${m.spin}:${m.wrap}:${m.twist}:${m.fakie}:${m.tire}:${m.switchStance}:${m.late}`;
+}
+
+// Generate all modifier keys that are exactly one step away from the given modifiers.
+// One step = changing a single dimension by its smallest meaningful increment.
+function generateNeighborKeys(m: TrickModifiers): string[] {
+  const keys: string[] = [];
+
+  // Flips +-1
+  keys.push(modifierKey({ ...m, flips: m.flips + 1 }));
+  if (m.flips > 0) keys.push(modifierKey({ ...m, flips: m.flips - 1 }));
+
+  // Spin +-90 and +-180
+  keys.push(modifierKey({ ...m, spin: m.spin + 90 }));
+  keys.push(modifierKey({ ...m, spin: m.spin + 180 }));
+  if (m.spin > 0) keys.push(modifierKey({ ...m, spin: m.spin - 90 }));
+  if (m.spin >= 180) keys.push(modifierKey({ ...m, spin: m.spin - 180 }));
+
+  // Twist +-180
+  keys.push(modifierKey({ ...m, twist: m.twist + 180 }));
+  if (m.twist > 0) keys.push(modifierKey({ ...m, twist: m.twist - 180 }));
+
+  // Wrap: any single change
+  for (const wrap of WRAPS) {
+    if (wrap !== m.wrap) keys.push(modifierKey({ ...m, wrap }));
+  }
+
+  // Tire: any single change
+  for (const tire of TIRES) {
+    if (tire !== m.tire) keys.push(modifierKey({ ...m, tire }));
+  }
+
+  // Boolean toggles
+  keys.push(modifierKey({ ...m, fakie: !m.fakie }));
+  keys.push(modifierKey({ ...m, switchStance: !m.switchStance }));
+  keys.push(modifierKey({ ...m, late: !m.late }));
+
+  return keys;
+}
+
+// Describe modifier changes between two tricks.
+// Returns all differences joined together.
+export function describeModifierDiff(from: TrickModifiers, to: TrickModifiers): string {
+  const parts: string[] = [];
+  if (to.flips !== from.flips) {
+    parts.push(to.flips > from.flips ? "more flips" : "less flips");
+  }
+  if (to.spin !== from.spin) {
+    parts.push(to.spin > from.spin ? "more spins" : "less spins");
+  }
+  if (to.twist !== from.twist) {
+    parts.push(to.twist > from.twist ? "more twists" : "less twists");
+  }
+  if (to.wrap !== from.wrap) {
+    if (from.wrap === "none") parts.push(`add ${to.wrap}`);
+    else if (to.wrap === "none") parts.push(`remove ${from.wrap}`);
+    else parts.push(`add ${to.wrap}`);
+  }
+  if (to.tire !== from.tire) {
+    if (from.tire === "none") parts.push(`add tire`);
+    else if (to.tire === "none") parts.push("remove tire");
+    else parts.push(`add tire`);
+  }
+  if (to.fakie !== from.fakie) {
+    parts.push(to.fakie ? "add fakie" : "remove fakie");
+  }
+  if (to.switchStance !== from.switchStance) {
+    parts.push(to.switchStance ? "add switch" : "remove switch");
+  }
+  if (to.late !== from.late) {
+    parts.push(to.late ? "add late" : "remove late");
+  }
+  return parts.length > 0 ? parts.join(", ") : "nearby";
+}
+
+// Determine whether going from one modifier set to another "adds" or "removes" complexity.
+export function modifierDirection(
+  from: TrickModifiers,
+  to: TrickModifiers,
+): "adds" | "removes" {
+  let adds = 0;
+  let removes = 0;
+
+  // Flips
+  if (to.flips > from.flips) adds++;
+  else if (to.flips < from.flips) removes++;
+
+  // Spin
+  if (to.spin > from.spin) adds++;
+  else if (to.spin < from.spin) removes++;
+
+  // Twist
+  if (to.twist > from.twist) adds++;
+  else if (to.twist < from.twist) removes++;
+
+  // Wrap: none → something = adds, something → none = removes, lateral = adds
+  if (to.wrap !== from.wrap) {
+    if (from.wrap === "none") adds++;
+    else if (to.wrap === "none") removes++;
+    else adds++;
+  }
+
+  // Tire: none → something = adds, something → none = removes, lateral = adds
+  if (to.tire !== from.tire) {
+    if (from.tire === "none") adds++;
+    else if (to.tire === "none") removes++;
+    else adds++;
+  }
+
+  // Boolean toggles: true = adds, false = removes
+  if (to.fakie !== from.fakie) {
+    if (to.fakie) adds++;
+    else removes++;
+  }
+  if (to.switchStance !== from.switchStance) {
+    if (to.switchStance) adds++;
+    else removes++;
+  }
+  if (to.late !== from.late) {
+    if (to.late) adds++;
+    else removes++;
+  }
+
+  return adds >= removes ? "adds" : "removes";
+}
+
+// Compute neighbors for all tricks in-place.
+//
+// For simple tricks:
+//   - Other simple tricks differing by exactly one modifier step
+//   - Compound tricks that contain this trick as a component
+//
+// For compound tricks:
+//   - Each component trick
+//   - Other compounds sharing at least one component
+//   - Compounds where exactly one component is swapped for its one-step neighbor
+export function computeAllNeighbors(tricks: Trick[]): void {
+  const byId = new Map(tricks.map((t) => [t.id, t]));
+
+  // Index simple tricks by modifier key for O(1) lookup
+  const simpleByModifiers = new Map<string, Trick>();
+  for (const t of tricks) {
+    if (!t.isCompound) {
+      simpleByModifiers.set(modifierKey(t.modifiers), t);
+    }
+  }
+
+  // Index compound tricks by component id
+  const compoundsByComponent = new Map<string, Trick[]>();
+  for (const t of tricks) {
+    if (!t.isCompound) continue;
+    for (const comp of t.compositions) {
+      const list = compoundsByComponent.get(comp.componentId) ?? [];
+      list.push(t);
+      compoundsByComponent.set(comp.componentId, list);
+    }
+  }
+
+  for (const trick of tricks) {
+    const neighborMap = new Map<
+      string,
+      { label: string; direction: "adds" | "removes" }
+    >();
+
+    if (!trick.isCompound) {
+      // Modifier-adjacent simple tricks
+      for (const key of generateNeighborKeys(trick.modifiers)) {
+        const neighbor = simpleByModifiers.get(key);
+        if (neighbor && neighbor.id !== trick.id) {
+          neighborMap.set(neighbor.id, {
+            label: describeModifierDiff(trick.modifiers, neighbor.modifiers),
+            direction: modifierDirection(trick.modifiers, neighbor.modifiers),
+          });
+        }
+      }
+
+      // Compound tricks containing this trick as a component
+      const compounds = compoundsByComponent.get(trick.id) ?? [];
+      for (const compound of compounds) {
+        neighborMap.set(compound.id, { label: "compound", direction: "adds" });
+      }
+    } else {
+      // Component tricks
+      for (const comp of trick.compositions) {
+        neighborMap.set(comp.componentId, {
+          label: "component",
+          direction: "removes",
+        });
+      }
+
+      // Sibling compounds (share at least one component)
+      for (const comp of trick.compositions) {
+        const siblings = compoundsByComponent.get(comp.componentId) ?? [];
+        for (const sibling of siblings) {
+          if (sibling.id !== trick.id && !neighborMap.has(sibling.id)) {
+            neighborMap.set(sibling.id, {
+              label: "variation",
+              direction: "adds",
+            });
+          }
+        }
+      }
+
+      // Compounds with one-step upgraded components:
+      // For each component, find its modifier neighbors, then find
+      // compounds that use those neighbor components at the same position.
+      // Only include if exactly one component differs.
+      const myComponentIds = trick.compositions
+        .sort((a, b) => a.position - b.position)
+        .map((c) => c.componentId);
+
+      for (const comp of trick.compositions) {
+        const componentTrick = byId.get(comp.componentId);
+        if (!componentTrick || componentTrick.isCompound) continue;
+
+        for (const key of generateNeighborKeys(componentTrick.modifiers)) {
+          const neighborComponent = simpleByModifiers.get(key);
+          if (
+            !neighborComponent ||
+            neighborComponent.id === comp.componentId
+          ) {
+            continue;
+          }
+
+          const neighborCompounds =
+            compoundsByComponent.get(neighborComponent.id) ?? [];
+          for (const nc of neighborCompounds) {
+            if (nc.id === trick.id || neighborMap.has(nc.id)) continue;
+
+            // Check that exactly one component differs
+            const theirComponentIds = nc.compositions
+              .sort((a, b) => a.position - b.position)
+              .map((c) => c.componentId);
+
+            if (myComponentIds.length !== theirComponentIds.length) continue;
+
+            let diffs = 0;
+            for (let i = 0; i < myComponentIds.length; i++) {
+              if (myComponentIds[i] !== theirComponentIds[i]) diffs++;
+            }
+
+            if (diffs === 1) {
+              neighborMap.set(nc.id, {
+                label: "variation",
+                direction: "adds",
+              });
+            }
+          }
+        }
+      }
+    }
+
+    trick.neighbors = [...neighborMap.entries()].map(
+      ([id, { label, direction }]): NeighborLink => ({ id, label, direction }),
+    );
+  }
+}
+
+// ==================== INDEXES ====================
 
 export function buildIndexes(tricks: Trick[]): {
   byId: Record<string, Trick>;
@@ -204,6 +476,7 @@ export function buildIndexes(tricks: Trick[]): {
 
 export function buildTricksData(tricks: Trick[]): TricksData {
   computeDepthsAndDependents(tricks);
+  computeAllNeighbors(tricks);
   const { byId, byElement, elements, prefixes } = buildIndexes(tricks);
 
   return {
@@ -224,6 +497,17 @@ export type DbTrickVideo = {
   video: { playbackId: string | null } | null;
 };
 
+// Type for database trick composition
+export type DbTrickComposition = {
+  position: number;
+  catchType: "one-foot" | "two-foot" | null;
+  componentTrick: {
+    id: number;
+    slug: string;
+    name: string;
+  };
+};
+
 // Type for database trick with relations
 export type DbTrickWithRelations = {
   id: number;
@@ -232,9 +516,23 @@ export type DbTrickWithRelations = {
   alternateNames: string[] | null;
   definition: string | null;
   isPrefix: boolean;
+  isCompound: boolean;
   inventedBy: string | null;
   yearLanded: number | null;
   notes: string | null;
+  referenceVideoUrl: string | null;
+  referenceVideoTimestamp: string | null;
+  flips: number;
+  spin: number;
+  wrap: string;
+  twist: number;
+  fakie: boolean;
+  tire: string;
+  switchStance: boolean;
+  late: boolean;
+  depth: number;
+  dependentSlugs: string[];
+  neighborLinks: NeighborLink[];
   videos: DbTrickVideo[];
   elementAssignments: {
     element: {
@@ -251,6 +549,7 @@ export type DbTrickWithRelations = {
       name: string;
     };
   }[];
+  compositions?: DbTrickComposition[];
 };
 
 // Transform database tricks to the Trick type format
@@ -267,7 +566,7 @@ export function transformDbTricksToTricksData(
       (r) => r.type === "optional_prerequisite",
     );
 
-    // Get related tricks (just the related type)
+    // Get related tricks (just the related type) — kept for admin forms
     const relatedTricks = dbTrick.outgoingRelationships
       .filter((r) => r.type === "related")
       .map((r) => r.targetTrick.slug);
@@ -284,6 +583,16 @@ export function transformDbTricksToTricksData(
         notes: v.notes,
       }));
 
+    // Transform compositions
+    const compositions = (dbTrick.compositions ?? [])
+      .sort((a, b) => a.position - b.position)
+      .map((c) => ({
+        componentId: c.componentTrick.slug,
+        componentName: c.componentTrick.name,
+        position: c.position,
+        catchType: c.catchType,
+      }));
+
     return {
       id: dbTrick.slug, // Use slug as id for compatibility
       name: dbTrick.name,
@@ -293,15 +602,31 @@ export function transformDbTricksToTricksData(
       prerequisite: prerequisiteRel?.targetTrick.slug ?? null,
       optionalPrerequisite: optionalPrerequisiteRel?.targetTrick.slug ?? null,
       isPrefix: dbTrick.isPrefix,
+      isCompound: dbTrick.isCompound,
+      compositions,
       notes: dbTrick.notes,
+      referenceVideoUrl: dbTrick.referenceVideoUrl ?? null,
+      referenceVideoTimestamp: dbTrick.referenceVideoTimestamp ?? null,
       relatedTricks,
+      modifiers: {
+        flips: dbTrick.flips,
+        spin: dbTrick.spin,
+        wrap: dbTrick.wrap,
+        twist: dbTrick.twist,
+        fakie: dbTrick.fakie,
+        tire: dbTrick.tire,
+        switchStance: dbTrick.switchStance,
+        late: dbTrick.late,
+      },
+      neighbors: dbTrick.neighborLinks ?? [],
       inventedBy: dbTrick.inventedBy,
       yearLanded: dbTrick.yearLanded,
       videos,
-      depth: 0, // Will be computed
-      dependents: [], // Will be computed
+      depth: dbTrick.depth ?? 0,
+      dependents: dbTrick.dependentSlugs ?? [],
     };
   });
 
-  return buildTricksData(tricks);
+  const { byId, byElement, elements, prefixes } = buildIndexes(tricks);
+  return { tricks, byId, byElement, elements, prefixes };
 }

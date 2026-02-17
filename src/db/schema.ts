@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -10,8 +11,12 @@ import {
   serial,
   text,
   timestamp,
+  unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
+
+import type { NeighborLink } from "~/lib/tricks/types";
 
 export const TRICK_SUBMISSION_STATUSES = [
   "pending",
@@ -1332,6 +1337,9 @@ export type SelectPost = typeof posts.$inferSelect;
 export type SelectUser = typeof users.$inferSelect;
 
 // Trick Enums
+export const CATCH_TYPES = ["one-foot", "two-foot"] as const;
+export const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES);
+
 export const TRICK_RELATIONSHIP_TYPES = [
   "prerequisite",
   "optional_prerequisite",
@@ -1381,10 +1389,64 @@ export const tricks = pgTable(
     inventedBy: text("invented_by"),
     yearLanded: integer("year_landed"),
     notes: text("notes"),
+    flips: integer("flips").notNull().default(0),
+    spin: integer("spin").notNull().default(0),
+    wrap: text("wrap").notNull().default("none"),
+    twist: integer("twist").notNull().default(0),
+    fakie: boolean("fakie").notNull().default(false),
+    tire: text("tire").notNull().default("none"),
+    switchStance: boolean("switch").notNull().default(false),
+    late: boolean("late").notNull().default(false),
+    depth: integer("depth").notNull().default(0),
+    dependentSlugs: json("dependent_slugs")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    neighborLinks: json("neighbor_links")
+      .$type<NeighborLink[]>()
+      .notNull()
+      .default([]),
+    isCompound: boolean("is_compound").notNull().default(false),
+    referenceVideoUrl: text("reference_video_url"),
+    referenceVideoTimestamp: text("reference_video_timestamp"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (t) => [index("tricks_slug_idx").on(t.slug)],
+  (t) => [
+    index("tricks_slug_idx").on(t.slug),
+    uniqueIndex("tricks_modifiers_unique")
+      .on(
+        t.flips,
+        t.spin,
+        t.wrap,
+        t.twist,
+        t.fakie,
+        t.tire,
+        t.switchStance,
+        t.late,
+      )
+      .where(sql`NOT ${t.isCompound}`),
+  ],
+);
+
+// Trick Compositions (compound trick -> component trick mappings)
+export const trickCompositions = pgTable(
+  "trick_compositions",
+  {
+    id: serial("id").primaryKey(),
+    compoundTrickId: integer("compound_trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    componentTrickId: integer("component_trick_id")
+      .notNull()
+      .references(() => tricks.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    catchType: catchTypeEnum("catch_type"),
+  },
+  (t) => [
+    index("trick_compositions_compound_idx").on(t.compoundTrickId),
+    unique("trick_compositions_unique").on(t.compoundTrickId, t.position),
+  ],
 );
 
 // Trick Videos (multiple per trick)
@@ -1715,10 +1777,30 @@ export const tricksRelations = relations(tricks, ({ many }) => ({
   incomingRelationships: many(trickRelationships, {
     relationName: "targetRelationships",
   }),
+  compositions: many(trickCompositions, {
+    relationName: "compoundCompositions",
+  }),
+  usedInCompounds: many(trickCompositions, { relationName: "componentOf" }),
   likes: many(trickLikes),
   messages: many(trickMessages),
   suggestions: many(trickSuggestions),
 }));
+
+export const trickCompositionsRelations = relations(
+  trickCompositions,
+  ({ one }) => ({
+    compoundTrick: one(tricks, {
+      fields: [trickCompositions.compoundTrickId],
+      references: [tricks.id],
+      relationName: "compoundCompositions",
+    }),
+    componentTrick: one(tricks, {
+      fields: [trickCompositions.componentTrickId],
+      references: [tricks.id],
+      relationName: "componentOf",
+    }),
+  }),
+);
 
 export const trickVideosRelations = relations(trickVideos, ({ one, many }) => ({
   trick: one(tricks, {

@@ -5,6 +5,7 @@ import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
 import {
   allUsersServerFn,
   followUserServerFn,
+  getShopWaitlistCountServerFn,
   getUserActivityServerFn,
   getUserFollowsServerFn,
   getUserWithFollowsServerFn,
@@ -130,6 +131,15 @@ export const users = {
   setShopNotify: {
     fn: setShopNotifyServerFn,
     schema: setShopNotifySchema,
+  },
+  shopWaitlistCount: {
+    fn: getShopWaitlistCountServerFn,
+    queryOptions: () => {
+      return queryOptions({
+        queryKey: ["users.shopWaitlistCount"],
+        queryFn: getShopWaitlistCountServerFn,
+      });
+    },
   },
 };
 

@@ -1,4 +1,6 @@
-import { ChevronDownIcon, Info } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronDownIcon, Info, PlusIcon, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +12,16 @@ import {
   TrickRelationshipSelector,
 } from "~/components/input/trick-selector";
 import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,13 +46,26 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { ResponsiveCombobox } from "~/components/ui/responsive-combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
+import type { CATCH_TYPES } from "~/db/schema";
+import { tricks } from "~/lib/tricks";
 import {
   trickFormSchema,
+  type CompositionFormValue,
   type CreateTrickArgs,
   type TrickFormValues,
 } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
+import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
 export type TrickFormDefaultValues = Partial<TrickFormValues>;
 
@@ -75,6 +99,8 @@ export function TrickForm({
       prerequisites: defaultValues?.prerequisites ?? [],
       relatedTricks: defaultValues?.relatedTricks ?? [],
       elements: defaultValues?.elements ?? [],
+      isCompound: defaultValues?.isCompound ?? false,
+      compositions: defaultValues?.compositions ?? [],
     },
     resolver: zodResolver(trickFormSchema),
   });
@@ -108,6 +134,14 @@ export function TrickForm({
       notes: data.notes,
       relationships,
       elementIds: data.elements.map((e) => e.id),
+      isCompound: data.isCompound,
+      compositions: data.isCompound
+        ? data.compositions.map((c) => ({
+            componentTrickId: c.componentTrickId,
+            position: c.position,
+            catchType: c.catchType,
+          }))
+        : [],
     });
   };
 
@@ -211,6 +245,60 @@ export function TrickForm({
                 </Field>
               )}
             />
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSeparator />
+
+        {/* Compound Trick */}
+        <FieldSet>
+          <FieldLegend>Compound</FieldLegend>
+          <FieldDescription>
+            A compound trick is made of multiple tricks joined by catches
+          </FieldDescription>
+          <FieldGroup>
+            <Controller
+              name="isCompound"
+              control={control}
+              render={({ field }) => (
+                <div className="flex items-center justify-between">
+                  <FieldLabel htmlFor={field.name}>Compound trick</FieldLabel>
+                  <Switch
+                    id={field.name}
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked);
+                      if (!checked) {
+                        setValue("compositions", []);
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            />
+
+            {rhf.watch("isCompound") && (
+              <Controller
+                name="compositions"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Components</FieldLabel>
+                    <CompositionEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      excludeIds={excludeIds}
+                    />
+                    <FieldDescription>
+                      Select 2-3 component tricks with catch types between them
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            )}
           </FieldGroup>
         </FieldSet>
 
@@ -452,6 +540,14 @@ export function TrickForm({
                         notes: data.notes,
                         relationships,
                         elementIds: data.elements.map((e) => e.id),
+                        isCompound: data.isCompound,
+                        compositions: data.isCompound
+                          ? data.compositions.map((c) => ({
+                              componentTrickId: c.componentTrickId,
+                              position: c.position,
+                              catchType: c.catchType,
+                            }))
+                          : [],
                       });
                     })}
                   >
@@ -471,5 +567,194 @@ export function TrickForm({
         </div>
       </FieldGroup>
     </Form>
+  );
+}
+
+type CatchType = (typeof CATCH_TYPES)[number];
+
+function CompositionEditor({
+  value,
+  onChange,
+  excludeIds = [],
+}: {
+  value: CompositionFormValue[];
+  onChange: (compositions: CompositionFormValue[]) => void;
+  excludeIds?: number[];
+}) {
+  const sorted = [...value].sort((a, b) => a.position - b.position);
+
+  const handleAdd = (trick: { id: number; slug: string; name: string }) => {
+    const newPosition = sorted.length;
+    if (newPosition >= 3) return;
+    onChange([
+      ...value,
+      {
+        componentTrickId: trick.id,
+        componentTrickSlug: trick.slug,
+        componentTrickName: trick.name,
+        position: newPosition,
+        catchType: newPosition < 2 ? "two-foot" : null,
+      },
+    ]);
+  };
+
+  const handleRemove = (position: number) => {
+    const filtered = value.filter((c) => c.position !== position);
+    // Reindex positions
+    const reindexed = filtered
+      .sort((a, b) => a.position - b.position)
+      .map((c, i) => ({
+        ...c,
+        position: i,
+        // Last component has null catch type
+        catchType: i < filtered.length - 1 ? (c.catchType ?? "two-foot") : null,
+      }));
+    onChange(reindexed);
+  };
+
+  const handleCatchChange = (position: number, catchType: CatchType) => {
+    onChange(
+      value.map((c) => (c.position === position ? { ...c, catchType } : c)),
+    );
+  };
+
+  const selectedIds = value.map((c) => c.componentTrickId);
+
+  return (
+    <div className="flex flex-col gap-2">
+      {sorted.map((comp, i) => (
+        <div key={comp.position}>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="gap-1 pr-1">
+              {comp.componentTrickName}
+              <button
+                type="button"
+                onClick={() => handleRemove(comp.position)}
+                className="hover:bg-muted rounded-sm p-0.5"
+              >
+                <X className="size-3" />
+              </button>
+            </Badge>
+          </div>
+          {/* Catch type between components */}
+          {i < sorted.length - 1 && (
+            <div className="my-2 flex items-center gap-2 pl-4">
+              <span className="text-muted-foreground text-xs">catch:</span>
+              <Select
+                value={comp.catchType ?? "two-foot"}
+                onValueChange={(val) =>
+                  handleCatchChange(comp.position, val as CatchType)
+                }
+              >
+                <SelectTrigger size="sm" className="w-28">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="one-foot">one-foot</SelectItem>
+                  <SelectItem value="two-foot">two-foot</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      ))}
+
+      {sorted.length < 3 && (
+        <CompositionTrickPicker
+          onSelect={handleAdd}
+          excludeIds={[...excludeIds, ...selectedIds]}
+        />
+      )}
+    </div>
+  );
+}
+
+function CompositionTrickPicker({
+  onSelect,
+  excludeIds = [],
+}: {
+  onSelect: (trick: { id: number; slug: string; name: string }) => void;
+  excludeIds?: number[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const { data: allTricks = [] } = useQuery(
+    tricks.search.queryOptions({ excludeIds, limit: 50 }),
+  );
+
+  // Filter out compound tricks (only simple tricks can be components)
+  const availableTricks = useMemo(
+    () =>
+      allTricks.filter(
+        (trick) =>
+          !excludeIds.includes(trick.id) &&
+          !("isCompound" in trick && trick.isCompound),
+      ),
+    [allTricks, excludeIds],
+  );
+
+  const searchReadyTricks = useMemo(
+    () =>
+      availableTricks.map((trick) => ({
+        ...trick,
+        searchKey: `${trick.name.toLowerCase()} ${trick.slug.toLowerCase()}`,
+      })),
+    [availableTricks],
+  );
+
+  const fzf = useFzf([searchReadyTricks, { selector: (t) => t.searchKey }]);
+  const filteredTricks = query
+    ? fzf.find(query.toLowerCase())
+    : searchReadyTricks.map((item) => ({ item }));
+
+  return (
+    <ResponsiveCombobox
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) setQuery("");
+      }}
+      title="Select component trick"
+      trigger={
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+        >
+          <PlusIcon className="size-3.5" />
+          Add
+        </Button>
+      }
+    >
+      <Command shouldFilter={false}>
+        <CommandInput
+          placeholder="search tricks..."
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList>
+          <CommandEmpty>No tricks found</CommandEmpty>
+          <CommandGroup>
+            {filteredTricks.map(({ item: trick }) => (
+              <CommandItem
+                key={trick.id}
+                value={trick.id.toString()}
+                onSelect={() => {
+                  onSelect(trick);
+                  setOpen(false);
+                }}
+              >
+                <span className="truncate">{trick.name}</span>
+                <span className="text-muted-foreground ml-2 text-xs">
+                  {trick.slug}
+                </span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </ResponsiveCombobox>
   );
 }

@@ -755,3 +755,13 @@ export const setShopNotifyServerFn = createServerFn({
       .set({ notifyWhenShop: data.notify })
       .where(eq(users.id, context.user.id));
   });
+
+export const getShopWaitlistCountServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const [result] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(users)
+    .where(eq(users.notifyWhenShop, true));
+  return result.count;
+});

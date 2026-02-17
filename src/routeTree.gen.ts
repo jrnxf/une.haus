@@ -23,6 +23,9 @@ import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as TricksGraphRouteImport } from './routes/tricks/graph'
+import { Route as TricksGlossaryRouteImport } from './routes/tricks/glossary'
+import { Route as TricksBuilderRouteImport } from './routes/tricks/builder'
 import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
 import { Route as StatsContributorsRouteImport } from './routes/stats/contributors'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
@@ -150,6 +153,21 @@ const EventsIndexRoute = EventsIndexRouteImport.update({
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TricksGraphRoute = TricksGraphRouteImport.update({
+  id: '/tricks/graph',
+  path: '/tricks/graph',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TricksGlossaryRoute = TricksGlossaryRouteImport.update({
+  id: '/tricks/glossary',
+  path: '/tricks/glossary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TricksBuilderRoute = TricksBuilderRouteImport.update({
+  id: '/tricks/builder',
+  path: '/tricks/builder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TricksTrickIdRoute = TricksTrickIdRouteImport.update({
@@ -482,6 +500,9 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
+  '/tricks/builder': typeof TricksBuilderRoute
+  '/tricks/glossary': typeof TricksGlossaryRoute
+  '/tricks/graph': typeof TricksGraphRoute
   '/chat': typeof ChatIndexRoute
   '/events': typeof EventsIndexRoute
   '/games': typeof GamesIndexRoute
@@ -554,6 +575,9 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
+  '/tricks/builder': typeof TricksBuilderRoute
+  '/tricks/glossary': typeof TricksGlossaryRoute
+  '/tricks/graph': typeof TricksGraphRoute
   '/chat': typeof ChatIndexRoute
   '/events': typeof EventsIndexRoute
   '/games': typeof GamesIndexRoute
@@ -629,6 +653,9 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/stats/contributors': typeof StatsContributorsRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
+  '/tricks/builder': typeof TricksBuilderRoute
+  '/tricks/glossary': typeof TricksGlossaryRoute
+  '/tricks/graph': typeof TricksGraphRoute
   '/chat/': typeof ChatIndexRoute
   '/events/': typeof EventsIndexRoute
   '/games/': typeof GamesIndexRoute
@@ -705,6 +732,9 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/stats/contributors'
     | '/tricks/$trickId'
+    | '/tricks/builder'
+    | '/tricks/glossary'
+    | '/tricks/graph'
     | '/chat'
     | '/events'
     | '/games'
@@ -777,6 +807,9 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/stats/contributors'
     | '/tricks/$trickId'
+    | '/tricks/builder'
+    | '/tricks/glossary'
+    | '/tricks/graph'
     | '/chat'
     | '/events'
     | '/games'
@@ -851,6 +884,9 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/stats/contributors'
     | '/tricks/$trickId'
+    | '/tricks/builder'
+    | '/tricks/glossary'
+    | '/tricks/graph'
     | '/chat/'
     | '/events/'
     | '/games/'
@@ -925,6 +961,9 @@ export interface RootRouteChildren {
   AuthRegisterRoute: typeof AuthRegisterRoute
   StatsContributorsRoute: typeof StatsContributorsRoute
   TricksTrickIdRoute: typeof TricksTrickIdRoute
+  TricksBuilderRoute: typeof TricksBuilderRoute
+  TricksGlossaryRoute: typeof TricksGlossaryRoute
+  TricksGraphRoute: typeof TricksGraphRoute
   ChatIndexRoute: typeof ChatIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
@@ -1046,6 +1085,27 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/graph': {
+      id: '/tricks/graph'
+      path: '/tricks/graph'
+      fullPath: '/tricks/graph'
+      preLoaderRoute: typeof TricksGraphRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/glossary': {
+      id: '/tricks/glossary'
+      path: '/tricks/glossary'
+      fullPath: '/tricks/glossary'
+      preLoaderRoute: typeof TricksGlossaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tricks/builder': {
+      id: '/tricks/builder'
+      path: '/tricks/builder'
+      fullPath: '/tricks/builder'
+      preLoaderRoute: typeof TricksBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tricks/$trickId': {
@@ -1624,6 +1684,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegisterRoute: AuthRegisterRoute,
   StatsContributorsRoute: StatsContributorsRoute,
   TricksTrickIdRoute: TricksTrickIdRoute,
+  TricksBuilderRoute: TricksBuilderRoute,
+  TricksGlossaryRoute: TricksGlossaryRoute,
+  TricksGraphRoute: TricksGraphRoute,
   ChatIndexRoute: ChatIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
