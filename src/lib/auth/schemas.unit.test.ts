@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { enterCodeSchema, registerSchema, sendCodeSchema } from "../schemas";
+import { enterCodeSchema, registerSchema, sendCodeSchema } from "./schemas";
 
 describe("sendCodeSchema", () => {
   it("accepts valid email", () => {

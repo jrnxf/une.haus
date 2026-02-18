@@ -28,16 +28,16 @@ const db = drizzle(client, { schema });
 function toSlug(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replaceAll(/[^a-z0-9\s-]/g, "")
+    .replaceAll(/\s+/g, "-")
+    .replaceAll(/-+/g, "-")
+    .replaceAll(/^-|-$/g, "");
 }
 
 function parseYear(raw: string | null | undefined): number | null {
   if (!raw) return null;
   const match = raw.match(/\b(19|20)\d{2}\b/);
-  return match ? parseInt(match[0]) : null;
+  return match ? Number.parseInt(match[0]) : null;
 }
 
 function parseAlternateNames(raw: string | null | undefined): string[] {
@@ -115,7 +115,7 @@ async function main() {
 
   // 1. Parse CSV
   const csvPath = path.resolve(import.meta.dirname!, "../../tricks.csv");
-  const csvContent = await readFile(csvPath, "utf-8");
+  const csvContent = await readFile(csvPath, "utf8");
 
   const records = parse(csvContent, {
     columns: [
@@ -424,7 +424,4 @@ async function main() {
   console.log("\nDone!");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+await main();

@@ -179,8 +179,10 @@ function generateNeighborKeys(m: TrickModifiers): string[] {
   if (m.flips > 0) keys.push(modifierKey({ ...m, flips: m.flips - 1 }));
 
   // Spin +-90 and +-180
-  keys.push(modifierKey({ ...m, spin: m.spin + 90 }));
-  keys.push(modifierKey({ ...m, spin: m.spin + 180 }));
+  keys.push(
+    modifierKey({ ...m, spin: m.spin + 90 }),
+    modifierKey({ ...m, spin: m.spin + 180 }),
+  );
   if (m.spin > 0) keys.push(modifierKey({ ...m, spin: m.spin - 90 }));
   if (m.spin >= 180) keys.push(modifierKey({ ...m, spin: m.spin - 180 }));
 
@@ -199,9 +201,11 @@ function generateNeighborKeys(m: TrickModifiers): string[] {
   }
 
   // Boolean toggles
-  keys.push(modifierKey({ ...m, fakie: !m.fakie }));
-  keys.push(modifierKey({ ...m, switchStance: !m.switchStance }));
-  keys.push(modifierKey({ ...m, late: !m.late }));
+  keys.push(
+    modifierKey({ ...m, fakie: !m.fakie }),
+    modifierKey({ ...m, switchStance: !m.switchStance }),
+    modifierKey({ ...m, late: !m.late }),
+  );
 
   return keys;
 }
@@ -330,24 +334,7 @@ export function computeAllNeighbors(tricks: Trick[]): void {
       { label: string; direction: "adds" | "removes" }
     >();
 
-    if (!trick.isCompound) {
-      // Modifier-adjacent simple tricks
-      for (const key of generateNeighborKeys(trick.modifiers)) {
-        const neighbor = simpleByModifiers.get(key);
-        if (neighbor && neighbor.id !== trick.id) {
-          neighborMap.set(neighbor.id, {
-            label: describeModifierDiff(trick.modifiers, neighbor.modifiers),
-            direction: modifierDirection(trick.modifiers, neighbor.modifiers),
-          });
-        }
-      }
-
-      // Compound tricks containing this trick as a component
-      const compounds = compoundsByComponent.get(trick.id) ?? [];
-      for (const compound of compounds) {
-        neighborMap.set(compound.id, { label: "compound", direction: "adds" });
-      }
-    } else {
+    if (trick.isCompound) {
       // Component tricks
       for (const comp of trick.compositions) {
         neighborMap.set(comp.componentId, {
@@ -403,8 +390,8 @@ export function computeAllNeighbors(tricks: Trick[]): void {
             if (myComponentIds.length !== theirComponentIds.length) continue;
 
             let diffs = 0;
-            for (let i = 0; i < myComponentIds.length; i++) {
-              if (myComponentIds[i] !== theirComponentIds[i]) diffs++;
+            for (const [i, myComponentId] of myComponentIds.entries()) {
+              if (myComponentId !== theirComponentIds[i]) diffs++;
             }
 
             if (diffs === 1) {
@@ -415,6 +402,23 @@ export function computeAllNeighbors(tricks: Trick[]): void {
             }
           }
         }
+      }
+    } else {
+      // Modifier-adjacent simple tricks
+      for (const key of generateNeighborKeys(trick.modifiers)) {
+        const neighbor = simpleByModifiers.get(key);
+        if (neighbor && neighbor.id !== trick.id) {
+          neighborMap.set(neighbor.id, {
+            label: describeModifierDiff(trick.modifiers, neighbor.modifiers),
+            direction: modifierDirection(trick.modifiers, neighbor.modifiers),
+          });
+        }
+      }
+
+      // Compound tricks containing this trick as a component
+      const compounds = compoundsByComponent.get(trick.id) ?? [];
+      for (const compound of compounds) {
+        neighborMap.set(compound.id, { label: "compound", direction: "adds" });
       }
     }
 

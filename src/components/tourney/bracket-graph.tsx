@@ -333,7 +333,7 @@ export function buildBracketGraph(
     }
   }
 
-  let boundsWidth =
+  const boundsWidth =
     totalRounds * (NODE_WIDTH + HORIZONTAL_GAP) - HORIZONTAL_GAP;
   let boundsHeight =
     firstRoundMatchCount * (NODE_HEIGHT + BASE_VERTICAL_GAP) -

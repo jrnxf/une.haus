@@ -10,7 +10,7 @@ import {
   preferCdn,
   preprocessText,
   zodErrorFmt,
-} from "../utils";
+} from "./utils";
 
 describe("cn", () => {
   it("merges class names", () => {

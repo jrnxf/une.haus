@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { nano } from "../nanoid";
+import { nano } from "./nanoid";
 
 describe("nano", () => {
   it("generates a string", () => {

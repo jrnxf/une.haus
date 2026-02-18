@@ -10,6 +10,7 @@ export function useTourneySSE(code: string) {
   const qc = useQueryClient();
   const queryKey = tourney.get.queryOptions({ code }).queryKey;
   const [adminConnected, setAdminConnected] = useState(true);
+  // eslint-disable-next-line react-hooks/purity -- initial timestamp for heartbeat tracking
   const lastHeartbeatRef = useRef(Date.now());
 
   useEffect(() => {
@@ -17,10 +18,11 @@ export function useTourneySSE(code: string) {
 
     // When SSE reconnects after a drop, give the admin a grace period to send
     // a heartbeat before we declare them offline.
-    es.onopen = () => {
+    es.addEventListener('open', () => {
       lastHeartbeatRef.current = Date.now();
-    };
+    });
 
+    // eslint-disable-next-line unicorn/prefer-add-event-listener -- EventSource.onmessage is the standard API for unnamed events
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data) as {
@@ -53,7 +55,7 @@ export function useTourneySSE(code: string) {
     const checkInterval = setInterval(() => {
       const elapsed = Date.now() - lastHeartbeatRef.current;
       setAdminConnected(elapsed < ADMIN_TIMEOUT_MS);
-    }, 3_000);
+    }, 3000);
 
     return () => {
       es.close();

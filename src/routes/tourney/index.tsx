@@ -1,15 +1,17 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { GhostIcon } from "lucide-react";
 
-import { Badge } from "~/components/ui/badge";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { useSessionUser } from "~/lib/session/hooks";
 import { tourney } from "~/lib/tourney";
 
@@ -31,44 +33,41 @@ function RouteComponent() {
   const { data: tournaments } = useSuspenseQuery(tourney.list.queryOptions());
 
   return (
-    <div className="mx-auto w-full max-w-lg space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Tournaments</h2>
-        {user && (
-          <Button asChild>
-            <Link to="/tourney/create">Create</Link>
-          </Button>
-        )}
-      </div>
+    <>
+      {user && (
+        <PageHeader>
+          <PageHeader.Actions>
+            <Button asChild>
+              <Link to="/tourney/create">Create</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader>
+      )}
 
-      {tournaments.length === 0 ? (
-        <Card>
-          <CardContent className="py-6 text-center">
-            <p className="text-muted-foreground">No tournaments yet</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {tournaments.map((t) => (
+      <div className="mx-auto w-full max-w-lg space-y-2 p-4">
+        {tournaments.length === 0 ? (
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <GhostIcon />
+              </EmptyMedia>
+              <EmptyTitle>no tournaments</EmptyTitle>
+              <EmptyDescription>check back later</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          tournaments.map((t) => (
             <Card key={t.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base">{t.name}</CardTitle>
-                    <CardDescription className="font-mono text-xs">
-                      {t.code}
-                    </CardDescription>
-                  </div>
-                  <Badge variant="secondary">{t.phase}</Badge>
+              <CardContent className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold">{t.name}</p>
+                  <p className="text-muted-foreground font-mono text-xs">
+                    {t.code}
+                  </p>
                 </div>
-              </CardHeader>
-              <CardContent>
                 <div className="flex items-center gap-2">
                   <Button size="sm" asChild>
-                    <Link
-                      to="/tourney/live/$code"
-                      params={{ code: t.code }}
-                    >
+                    <Link to="/tourney/live/$code" params={{ code: t.code }}>
                       Watch
                     </Link>
                   </Button>
@@ -85,10 +84,10 @@ function RouteComponent() {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
-    </div>
+          ))
+        )}
+      </div>
+    </>
   );
 }
 
@@ -99,14 +98,18 @@ function getPhaseRoute(
   | "/tourney/$code/ranking"
   | "/tourney/$code/bracket" {
   switch (phase) {
-    case "prelims":
+    case "prelims": {
       return "/tourney/$code/prelims";
-    case "ranking":
+    }
+    case "ranking": {
       return "/tourney/$code/ranking";
+    }
     case "bracket":
-    case "complete":
+    case "complete": {
       return "/tourney/$code/bracket";
-    default:
+    }
+    default: {
       return "/tourney/$code/prelims";
+    }
   }
 }

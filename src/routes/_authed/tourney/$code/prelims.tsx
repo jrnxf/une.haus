@@ -32,7 +32,11 @@ import {
   usePrelimAction,
   useSyncedTimer,
 } from "~/lib/tourney/hooks";
-import type { PrelimStatus, TournamentRider } from "~/lib/tourney/types";
+import type {
+  PrelimStatus,
+  TournamentRider,
+  TournamentState,
+} from "~/lib/tourney/types";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
@@ -305,14 +309,15 @@ function TimerView({
     avatarId: string | null;
   };
   nextRiderIndex: number | null;
-  state: import("~/lib/tourney/types").TournamentState;
+  state: TournamentState;
   prelimAction: ReturnType<typeof usePrelimAction>;
   eventName: string;
 }) {
   const resolved = resolveRider(rider);
   const name = resolved.name ?? "Unknown";
+
   const nextResolved =
-    nextRiderIndex !== null ? resolveRider(state.riders[nextRiderIndex]) : null;
+    nextRiderIndex === null ? null : resolveRider(state.riders[nextRiderIndex]);
 
   const timeRemaining = useSyncedTimer(state.timer);
   const isTimerActive = state.timer?.active ?? false;

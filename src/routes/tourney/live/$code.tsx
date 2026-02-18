@@ -7,7 +7,6 @@ import { CountdownDisplay } from "~/components/tourney/countdown-display";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { tourney } from "~/lib/tourney";
 import { decodeWinners } from "~/lib/tourney/bracket";
-import { useTourneySSE } from "~/lib/tourney/use-tourney-sse";
 import {
   applyWinners,
   generateBracket,
@@ -15,8 +14,10 @@ import {
   type Match,
 } from "~/lib/tourney/bracket-logic";
 import { useSyncedTimer } from "~/lib/tourney/hooks";
+import { findNextPending } from "~/lib/tourney/machine";
 import type { TournamentState } from "~/lib/tourney/types";
 import { useChampionCelebration } from "~/lib/tourney/use-champion-celebration";
+import { useTourneySSE } from "~/lib/tourney/use-tourney-sse";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
@@ -165,92 +166,125 @@ function PrelimsView({
   const currentResolved = currentRider ? resolveRider(currentRider) : null;
   const currentName = currentResolved?.name ?? "Unknown";
 
+  // Derive the next pending rider for the "up next" bar
+  const nextPendingIndex = useMemo(() => {
+    if (state.currentRiderIndex === null) return null;
+    return findNextPending(
+      state.riders.length,
+      state.prelimStatuses,
+      state.currentRiderIndex,
+    );
+  }, [state.riders.length, state.prelimStatuses, state.currentRiderIndex]);
+
+  const nextPendingName = useMemo(() => {
+    if (nextPendingIndex === null) return null;
+    return resolveName(state.riders[nextPendingIndex]);
+  }, [nextPendingIndex, state.riders, resolveName]);
+
+  const roster = (
+    <div className="flex-1 overflow-auto">
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">Prelims</h2>
+        <div className="mt-4 divide-y rounded-lg border">
+          {state.riders.map((rider, index) => {
+            const status = state.prelimStatuses[index] ?? "pending";
+            const name = resolveName(rider);
+            const isCurrent = state.currentRiderIndex === index;
+
+            return (
+              <div key={index} className="flex items-center gap-3 px-3 py-2">
+                <div
+                  className={cn(
+                    "size-2 shrink-0 rounded-full",
+                    status === "done" && "bg-green-500",
+                    status === "dq" && "bg-destructive",
+                    isCurrent && "bg-primary animate-pulse",
+                    status === "pending" &&
+                      !isCurrent &&
+                      "bg-muted-foreground/30",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-sm font-medium",
+                    status === "dq" && "line-through opacity-50",
+                    isCurrent && "text-primary font-semibold",
+                  )}
+                >
+                  {name}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  const timer = timerActive && currentResolved && (
+    <div
+      className={cn(
+        "flex flex-1 flex-col items-center justify-center transition-colors duration-200",
+        isTimerRunning && !isLow && "bg-primary/5",
+        isLow && !isFinished && "bg-yellow-500/10",
+        isFinished && "bg-destructive/20",
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <Avatar
+          className="size-12"
+          cloudflareId={currentResolved.avatarId}
+          alt={currentName}
+        >
+          <AvatarImage width={96} quality={70} />
+          <AvatarFallback name={currentName} className="text-sm" />
+        </Avatar>
+        <span className="text-xl font-semibold">{currentName}</span>
+      </div>
+      <CountdownDisplay
+        timeRemaining={timeRemaining ?? state.prelimTime * 1000}
+        maxSeconds={state.prelimTime}
+        isRunning={isTimerRunning}
+        isFinished={isFinished ?? false}
+        className="text-[20vw] md:text-[12vw]"
+      />
+    </div>
+  );
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
-      {/* Timer panel: bottom on mobile, left on desktop */}
-      <div
-        className={cn(
-          "order-2 shrink-0 overflow-hidden transition-all duration-300 ease-in-out md:order-1",
-          timerActive
-            ? "h-2/3 md:h-auto md:w-2/3"
-            : "h-0 md:h-auto md:w-0",
-        )}
-      >
-        {currentResolved && (
-          <div
-            className={cn(
-              "flex h-full flex-col transition-colors duration-200",
-              isTimerRunning && !isLow && "bg-primary/5",
-              isLow && !isFinished && "bg-yellow-500/10",
-              isFinished && "bg-destructive/20",
+      {/* Mobile layout: timer full-height OR roster */}
+      <div className="flex flex-1 flex-col md:hidden">
+        {timerActive ? (
+          <>
+            {timer}
+            {nextPendingName && (
+              <div className="border-t px-4 py-2 text-center">
+                <span className="text-muted-foreground text-sm">
+                  Up next:{" "}
+                  <span className="text-foreground font-medium">
+                    {nextPendingName}
+                  </span>
+                </span>
+              </div>
             )}
-          >
-            <div className="flex items-center gap-3 px-4 pt-4">
-              <Avatar
-                className="size-10"
-                cloudflareId={currentResolved.avatarId}
-                alt={currentName}
-              >
-                <AvatarImage width={80} quality={70} />
-                <AvatarFallback name={currentName} className="text-sm" />
-              </Avatar>
-              <span className="text-lg font-semibold">{currentName}</span>
-            </div>
-            <div className="flex grow flex-col items-center justify-center">
-              <CountdownDisplay
-                timeRemaining={timeRemaining ?? state.prelimTime * 1000}
-                maxSeconds={state.prelimTime}
-                isRunning={isTimerRunning}
-                isFinished={isFinished ?? false}
-                className="text-[15vw] md:text-[12vw]"
-              />
-            </div>
-          </div>
+          </>
+        ) : (
+          roster
         )}
       </div>
 
-      {/* Roster - always visible: top on mobile, right on desktop */}
+      {/* Tablet+ layout: timer slides out left, roster always right */}
       <div
         className={cn(
-          "order-1 flex-1 overflow-auto md:order-2",
-          timerActive && "border-b md:border-b-0 md:border-l",
+          "hidden overflow-hidden transition-all duration-300 ease-in-out md:flex",
+          timerActive ? "md:w-2/3" : "md:w-0",
         )}
       >
-        <div className="p-4">
-          <h2 className="text-lg font-semibold">Prelims</h2>
-          <div className="mt-4 divide-y rounded-lg border">
-            {state.riders.map((rider, index) => {
-              const status = state.prelimStatuses[index] ?? "pending";
-              const name = resolveName(rider);
-              const isCurrent = state.currentRiderIndex === index;
-
-              return (
-                <div key={index} className="flex items-center gap-3 px-3 py-2">
-                  <div
-                    className={cn(
-                      "size-2 shrink-0 rounded-full",
-                      status === "done" && "bg-green-500",
-                      status === "dq" && "bg-destructive",
-                      isCurrent && "bg-primary animate-pulse",
-                      status === "pending" &&
-                        !isCurrent &&
-                        "bg-muted-foreground/30",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "text-sm font-medium",
-                      status === "dq" && "line-through opacity-50",
-                      isCurrent && "text-primary font-semibold",
-                    )}
-                  >
-                    {name}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        {timer}
+      </div>
+      <div className="hidden md:flex md:flex-1 md:flex-col md:border-l">
+        {roster}
       </div>
     </div>
   );
@@ -305,13 +339,13 @@ function BracketView({
   const finalMatch = matches.find((m) => m.round === rounds && m.id !== "3rd");
   const champion = finalMatch ? getWinnerName(finalMatch) : null;
 
-  const { canvasRef, showCelebration } = useChampionCelebration(champion);
+  const { canvasRef } = useChampionCelebration(champion);
 
   // Find the active timer match for battle timer display
   const timerMatch = useMemo(() => {
     if (!state.timer?.matchId) return null;
     return matches.find((m) => m.id === state.timer!.matchId) ?? null;
-  }, [state.timer?.matchId, matches]);
+  }, [state.timer, matches]);
 
   // No-op handlers for read-only bracket
   const noop = useCallback(() => {}, []);
@@ -321,11 +355,22 @@ function BracketView({
   if (timerMatch && state.timer) {
     return (
       <div className="flex flex-1 flex-col">
-        <BattleTimerView
-          state={state}
-          match={timerMatch}
-          usersMap={usersMap}
+        <BattleTimerView state={state} match={timerMatch} usersMap={usersMap} />
+        <canvas
+          ref={canvasRef}
+          className="pointer-events-none fixed inset-0 z-50 h-dvh w-dvw"
         />
+      </div>
+    );
+  }
+
+  // Show celebration when synced state says so
+  if (state.celebrating && champion) {
+    return (
+      <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 items-center justify-center overflow-hidden px-8">
+          <FitText text={champion} />
+        </div>
         <canvas
           ref={canvasRef}
           className="pointer-events-none fixed inset-0 z-50 h-dvh w-dvw"
@@ -336,19 +381,13 @@ function BracketView({
 
   return (
     <div className="flex flex-1 flex-col">
-      {showCelebration && champion ? (
-        <div className="flex flex-1 items-center justify-center overflow-hidden px-8">
-          <FitText text={champion} />
-        </div>
-      ) : (
-        <BracketContainer
-          matches={matches}
-          stageTimes={stageTimes}
-          selectWinner={noop as (matchId: string, winner: 1 | 2) => void}
-          onOpenTimer={noopTimer}
-          interactive={false}
-        />
-      )}
+      <BracketContainer
+        matches={matches}
+        stageTimes={stageTimes}
+        selectWinner={noop as (matchId: string, winner: 1 | 2) => void}
+        onOpenTimer={noopTimer}
+        interactive={false}
+      />
       <canvas
         ref={canvasRef}
         className="pointer-events-none fixed inset-0 z-50 h-dvh w-dvw"

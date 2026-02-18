@@ -71,8 +71,9 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
       pageHeader: {
         breadcrumbOverrides: {
           2: {
-            label: (submissionData as any)?.user?.name
-              ? `${(submissionData as any).user.name}'s submission`
+            label: (submissionData as { user?: { name?: string } } | undefined)
+              ?.user?.name
+              ? `${(submissionData as { user?: { name?: string } }).user!.name}'s submission`
               : "submission",
           },
         },
@@ -157,7 +158,11 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
             </>
           )}
           {sessionUser && (
-            <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={likeUnlike.mutate}
+            >
               <HeartIcon
                 className={cn(
                   "size-4",

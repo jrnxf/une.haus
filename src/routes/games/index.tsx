@@ -36,47 +36,11 @@ export const Route = createFileRoute("/games/")({
   },
 });
 
-function StatRow({
-  // icon: Icon,
-  value,
-  label,
-}: {
-  // icon: React.ComponentType<{ className?: string }>;
-  value: number;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      {/* <Icon className="text-muted-foreground size-4" /> */}
-      <p className="text-muted-foreground text-xs">
-        <span className="text-foreground font-medium">{value}</span> {label}
-      </p>
-    </div>
-  );
-}
-
 function RouteComponent() {
-  const { data: activeRiu } = useSuspenseQuery(
-    games.rius.active.list.queryOptions(),
-  );
-  const { data: upcomingRoster } = useSuspenseQuery(
-    games.rius.upcoming.roster.queryOptions(),
-  );
-  const { data: biusChain } = useSuspenseQuery(
-    games.bius.chain.active.queryOptions(),
-  );
-  const { data: siusChain } = useSuspenseQuery(
-    games.sius.chain.active.queryOptions(),
-  );
-
-  const riuParticipants = new Set(activeRiu.sets.map((s) => s.user.id)).size;
-  const upcomingPlayers = Object.keys(upcomingRoster.roster).length;
-
-  const biusSets = biusChain?.sets ?? [];
-  const biusParticipants = new Set(biusSets.map((s) => s.user.id)).size;
-
-  const siusStacks = siusChain?.stacks ?? [];
-  const siusParticipants = new Set(siusStacks.map((s) => s.user.id)).size;
+  useSuspenseQuery(games.rius.active.list.queryOptions());
+  useSuspenseQuery(games.rius.upcoming.roster.queryOptions());
+  useSuspenseQuery(games.bius.chain.active.queryOptions());
+  useSuspenseQuery(games.sius.chain.active.queryOptions());
 
   return (
     <div className="mx-auto w-full max-w-4xl p-4 md:p-6">

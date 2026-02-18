@@ -23,7 +23,7 @@ export const Route = createFileRoute("/posts/$postId/")({
     },
   },
   loader: async ({ context, params: { postId }, preload }) => {
-    let postData: any;
+    let postData: { title?: string } | undefined;
     const ensurePost = async () => {
       try {
         postData = await context.queryClient.ensureQueryData(

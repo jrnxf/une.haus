@@ -42,7 +42,7 @@ export const Route = createFileRoute("/vault/$videoId/")({
     },
   },
   loader: async ({ context, params: { videoId }, preload }) => {
-    let videoData: any;
+    let videoData: { title?: string; legacyTitle?: string } | undefined;
     const ensureVideo = async () => {
       try {
         videoData = await context.queryClient.ensureQueryData(

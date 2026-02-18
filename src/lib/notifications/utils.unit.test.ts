@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getNotificationMessage, getNotificationUrl } from "../utils";
+import { getNotificationMessage, getNotificationUrl } from "./utils";
 
 describe("getNotificationUrl", () => {
   it("returns correct URL for post", () => {

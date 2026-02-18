@@ -43,10 +43,10 @@ type TerrainPiece = {
   width: number;
   height: number;
 } & (
-    | ({ type: "stairset" } & StairsetInfo)
-    | { type: "spikes" }
-    | ({ type: "ledge" } & LedgeInfo)
-  );
+  | ({ type: "stairset" } & StairsetInfo)
+  | { type: "spikes" }
+  | ({ type: "ledge" } & LedgeInfo)
+);
 
 type Cloud = {
   x: number;
@@ -133,7 +133,11 @@ function createTerrain(
       const run1 = createStairRun(split);
       const landingW = randomBetween(50, 100);
       const run2 = createStairRun(totalCount - split);
-      segments.push({ kind: "stairs", run: run1 }, { kind: "landing", width: landingW }, { kind: "stairs", run: run2 });
+      segments.push(
+        { kind: "stairs", run: run1 },
+        { kind: "landing", width: landingW },
+        { kind: "stairs", run: run2 },
+      );
       stairTotalW = run1.totalW + landingW + run2.totalW;
       totalHeight = run1.totalH + run2.totalH;
     } else {
@@ -495,7 +499,7 @@ function drawStairset(
   groundY: number,
   fg: string,
   bg: string,
-  muted: string,
+  _muted: string,
 ) {
   const topY = groundY - t.height;
   ctx.fillStyle = bg;
@@ -961,6 +965,7 @@ export function UnicycleGame() {
     }
   }, [resetGame]);
 
+  /* eslint-disable react-hooks/immutability -- game loop intentionally mutates ref state each frame and self-references via requestAnimationFrame */
   const gameLoop = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -1005,8 +1010,10 @@ export function UnicycleGame() {
         let onRail = false;
         for (const t of gs.terrain) {
           let railY: number | null = null;
-          if (t.type === "stairset") railY = getStairsetRailY(PLAYER_X, baseGroundY, t);
-          else if (t.type === "ledge") railY = getLedgeRailY(PLAYER_X, baseGroundY, t);
+          if (t.type === "stairset")
+            railY = getStairsetRailY(PLAYER_X, baseGroundY, t);
+          else if (t.type === "ledge")
+            railY = getLedgeRailY(PLAYER_X, baseGroundY, t);
           if (railY !== null) {
             gs.playerY = railY;
             onRail = true;
@@ -1026,8 +1033,10 @@ export function UnicycleGame() {
         if (gs.velocityY > 0) {
           for (const t of gs.terrain) {
             let railY: number | null = null;
-            if (t.type === "stairset") railY = getStairsetRailY(PLAYER_X, baseGroundY, t);
-            else if (t.type === "ledge") railY = getLedgeRailY(PLAYER_X, baseGroundY, t);
+            if (t.type === "stairset")
+              railY = getStairsetRailY(PLAYER_X, baseGroundY, t);
+            else if (t.type === "ledge")
+              railY = getLedgeRailY(PLAYER_X, baseGroundY, t);
             if (
               railY !== null &&
               Math.abs(gs.playerY - railY) < RAIL_TOLERANCE &&
@@ -1070,13 +1079,14 @@ export function UnicycleGame() {
 
         for (const t of gs.terrain) {
           if (t.type === "spikes") {
-            if (playerRight > t.x + 2 && playerLeft < t.x + t.width - 2 && playerBottom >= baseGroundY - 2) {
+            if (
+              playerRight > t.x + 2 &&
+              playerLeft < t.x + t.width - 2 &&
+              playerBottom >= baseGroundY - 2
+            ) {
               gs.status = "dead";
               gs.flatTire = true;
-              gs.highScore = Math.max(
-                gs.highScore,
-                Math.floor(gs.score / 10),
-              );
+              gs.highScore = Math.max(gs.highScore, Math.floor(gs.score / 10));
               break;
             }
           } else if (t.type === "stairset" && t.rampSpikes.length > 0) {
@@ -1221,6 +1231,7 @@ export function UnicycleGame() {
 
     animRef.current = requestAnimationFrame(gameLoop);
   }, [getGroundY]);
+  /* eslint-enable react-hooks/immutability */
 
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -1286,7 +1297,7 @@ export function UnicycleGame() {
       {isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
           <p className="text-muted-foreground text-center font-mono text-xs">
-            this game sucks. play {" "}
+            this game sucks. play{" "}
             <a
               href="https://store.steampowered.com/app/2204900/STREET_UNI_X/"
               target="_blank"
@@ -1295,8 +1306,8 @@ export function UnicycleGame() {
               onPointerDown={(e) => e.stopPropagation()}
             >
               street uni x
-            </a>
-            {" "}instead.
+            </a>{" "}
+            instead.
           </p>
         </div>
       )}

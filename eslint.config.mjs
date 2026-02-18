@@ -23,6 +23,7 @@ export default tseslint.config(
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
     rules: {
+      "react-hooks/incompatible-library": "off",
       // JSX a11y rules
       "jsx-a11y/alt-text": "error",
       "jsx-a11y/heading-has-content": "error",

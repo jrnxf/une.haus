@@ -55,7 +55,7 @@ export const Route = createFileRoute("/vault/$videoId/edit")({
       pageHeader: {
         breadcrumbOverrides: {
           1: {
-            label: (videoData as any)?.title || "video",
+            label: (videoData as { title?: string })?.title || "video",
             to: `/vault/${videoId}`,
           },
         },

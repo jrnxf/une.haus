@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { invariant } from "../invariant";
+import { invariant } from "./invariant";
 
 // Mock the @tanstack/react-router module for assertFound
 vi.mock("@tanstack/react-router", () => ({
@@ -58,13 +58,13 @@ describe("invariant", () => {
 describe("assertFound", () => {
   it("does not throw when condition is truthy", async () => {
     // Re-import to use mocked version
-    const { assertFound } = await import("../invariant");
+    const { assertFound } = await import("./invariant");
     expect(() => assertFound(true)).not.toThrow();
     expect(() => assertFound({})).not.toThrow();
   });
 
   it("throws notFound error when condition is falsy", async () => {
-    const { assertFound } = await import("../invariant");
+    const { assertFound } = await import("./invariant");
     expect(() => assertFound(null)).toThrow("Not Found");
     expect(() => assertFound(undefined)).toThrow("Not Found");
     expect(() => assertFound(false)).toThrow("Not Found");

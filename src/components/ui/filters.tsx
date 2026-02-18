@@ -69,7 +69,7 @@ export const createFilter = <T = unknown,>(
   operator?: string,
   values: T[] = [],
 ): Filter<T> => ({
-  id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+  id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
   field,
   operator: operator || "is",
   values,
@@ -114,7 +114,7 @@ function FilterOperatorDropdown<T = unknown>({
     field.operators || DEFAULT_OPERATORS[field.type || "select"] || [];
   const operatorLabel =
     operators.find((op) => op.value === operator)?.label ||
-    operator.replace(/_/g, " ");
+    operator.replaceAll("_", " ");
 
   return (
     <DropdownMenu>
@@ -160,6 +160,12 @@ function FilterValueSelector<T = unknown>({
   onChange: (values: T[]) => void;
 }) {
   const { size } = useContext(FilterContext);
+  const [open, setOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
 
   if (field.type === "text") {
     return (
@@ -172,13 +178,6 @@ function FilterValueSelector<T = unknown>({
       />
     );
   }
-
-  const [open, setOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (open) inputRef.current?.focus();
-  }, [open]);
 
   const isMultiSelect = field.type === "multiselect" || values.length > 1;
 

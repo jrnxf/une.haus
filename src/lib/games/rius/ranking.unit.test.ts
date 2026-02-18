@@ -9,7 +9,7 @@ import {
   type RiderScore,
   type RiuSet,
   type RiuSubmission,
-} from "../ranking";
+} from "./ranking";
 
 // Helper to create test users
 const createUser = (id: number, name = `User ${id}`) => ({

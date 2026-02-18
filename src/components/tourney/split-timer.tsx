@@ -84,6 +84,7 @@ export function SplitTimer({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const onSyncRef = useRef(onSync);
+  // eslint-disable-next-line react-hooks/refs -- sync ref with latest callback for use in event handlers
   onSyncRef.current = onSync;
 
   const clearTimer = useCallback(() => {
@@ -285,8 +286,8 @@ export function SplitTimer({
             "relative flex flex-1 flex-col items-center justify-center transition-colors duration-200",
             leftTimer.state === "finished" && "bg-destructive/20",
             leftTimer.timeRemaining <= 10_000 &&
-            leftTimer.state === "running" &&
-            "bg-yellow-500/10",
+              leftTimer.state === "running" &&
+              "bg-yellow-500/10",
             leftTimer.state === "running" && "bg-primary/5",
           )}
         >
@@ -329,14 +330,16 @@ export function SplitTimer({
             "relative flex flex-1 flex-col items-center justify-center transition-colors duration-200",
             rightTimer.state === "finished" && "bg-destructive/20",
             rightTimer.timeRemaining <= 10_000 &&
-            rightTimer.state === "running" &&
-            "bg-yellow-500/10",
+              rightTimer.state === "running" &&
+              "bg-yellow-500/10",
             rightTimer.state === "running" && "bg-primary/5",
           )}
         >
           {rightName && (
             <div className="absolute top-4 right-4 flex items-center gap-2 md:left-auto">
-              <span className="text-lg font-semibold md:hidden">{rightName}</span>
+              <span className="text-lg font-semibold md:hidden">
+                {rightName}
+              </span>
               {rightUser?.avatarId && (
                 <Avatar
                   className="size-8"
@@ -347,7 +350,9 @@ export function SplitTimer({
                   <AvatarFallback className="text-xs" name={rightName} />
                 </Avatar>
               )}
-              <span className="hidden text-lg font-semibold md:block">{rightName}</span>
+              <span className="hidden text-lg font-semibold md:block">
+                {rightName}
+              </span>
             </div>
           )}
           <CountdownDisplay
@@ -392,13 +397,10 @@ export function SplitTimer({
             Space
           </kbd>{" "}
           start/switch{" "}
-          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-            R
-          </kbd>{" "}
+          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">R</kbd>{" "}
           reset
         </p>
       </div>
-
     </div>
   );
 }

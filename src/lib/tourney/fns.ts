@@ -21,7 +21,11 @@ import {
   prelimActionSchema,
   rankingActionSchema,
 } from "~/lib/tourney/schemas";
-import type { PrelimStatus, TournamentState } from "~/lib/tourney/types";
+import {
+  applyMachineEvent,
+  type TournamentEvent,
+} from "~/lib/tourney/machine";
+import type { TournamentPhase, TournamentState } from "~/lib/tourney/types";
 
 // Characters that are unambiguous (no 0/O/1/I/L)
 const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -99,6 +103,7 @@ export const createTournamentServerFn = createServerFn({
       ranking: null,
       bracketRiders: null,
       winners: null,
+      celebrating: false,
     };
 
     const [tournament] = await db
@@ -146,102 +151,20 @@ export const prelimActionServerFn = createServerFn({
       "Not authorized",
     );
 
-    const state = { ...tournament.state } as TournamentState;
-    const { action } = input;
+    const event = mapPrelimActionToEvent(input.action);
+    const result = applyMachineEvent(
+      tournament.phase as TournamentPhase,
+      tournament.state as TournamentState,
+      event,
+    );
 
-    switch (action.type) {
-      case "setCurrent": {
-        state.currentRiderIndex =
-          action.riderIndex >= 0 ? action.riderIndex : null;
-        state.timer = null;
-        break;
-      }
-      case "markDone": {
-        invariant(state.currentRiderIndex !== null, "No current rider");
-        state.prelimStatuses[state.currentRiderIndex] = "done";
-        // Advance to next pending rider
-        const nextIndex = findNextPending(
-          state.riders.length,
-          state.prelimStatuses,
-          state.currentRiderIndex,
-        );
-        state.currentRiderIndex = nextIndex;
-        state.timer = null;
-        break;
-      }
-      case "markDQ": {
-        invariant(state.currentRiderIndex !== null, "No current rider");
-        state.prelimStatuses[state.currentRiderIndex] = "dq";
-        const nextIndex = findNextPending(
-          state.riders.length,
-          state.prelimStatuses,
-          state.currentRiderIndex,
-        );
-        state.currentRiderIndex = nextIndex;
-        state.timer = null;
-        break;
-      }
-      case "resetRider": {
-        delete state.prelimStatuses[action.riderIndex];
-        break;
-      }
-      case "disqualifyRider": {
-        state.prelimStatuses[action.riderIndex] = "dq";
-        break;
-      }
-      case "startTimer": {
-        const remaining = state.timer?.pausedRemaining ?? null;
-        state.timer = {
-          active: true,
-          riderIndex: state.currentRiderIndex,
-          matchId: null,
-          side: null,
-          startedAt: Date.now(),
-          pausedRemaining: null,
-          duration: remaining
-            ? remaining / 1000
-            : state.prelimTime,
-          otherSideRemaining: null,
-          swapped: false,
-        };
-        break;
-      }
-      case "pauseTimer": {
-        if (state.timer?.active && state.timer.startedAt) {
-          const elapsed = Date.now() - state.timer.startedAt;
-          const remaining = state.timer.duration * 1000 - elapsed;
-          state.timer = {
-            ...state.timer,
-            active: false,
-            startedAt: null,
-            pausedRemaining: Math.max(0, remaining),
-          };
-        }
-        break;
-      }
-      case "resetTimer": {
-        state.timer = null;
-        break;
-      }
-      case "reorderRiders": {
-        const newRiders = action.order.map((i) => state.riders[i]);
-        // Remap prelim statuses to new indices
-        const newStatuses: Record<number, PrelimStatus> = {};
-        for (const [newIdx, oldIdx] of action.order.entries()) {
-          if (state.prelimStatuses[oldIdx]) {
-            newStatuses[newIdx] = state.prelimStatuses[oldIdx];
-          }
-        }
-        state.riders = newRiders;
-        state.prelimStatuses = newStatuses;
-        state.currentRiderIndex = null;
-        state.timer = null;
-        break;
-      }
-    }
-
-    await updateTournamentState(tournament.id, tournament.code, tournament.phase, state);
-    return { state };
+    await updateTournamentState(
+      tournament.id,
+      tournament.code,
+      tournament.phase,
+      result.state,
+    );
+    return { state: result.state };
   });
 
 export const rankingActionServerFn = createServerFn({
@@ -256,11 +179,23 @@ export const rankingActionServerFn = createServerFn({
       "Not authorized",
     );
 
-    const state = { ...tournament.state } as TournamentState;
-    state.ranking = input.ranking;
+    const event: TournamentEvent = {
+      type: "ranking.save",
+      ranking: input.ranking,
+    };
+    const result = applyMachineEvent(
+      tournament.phase as TournamentPhase,
+      tournament.state as TournamentState,
+      event,
+    );
 
-    await updateTournamentState(tournament.id, tournament.code, tournament.phase, state);
-    return { state };
+    await updateTournamentState(
+      tournament.id,
+      tournament.code,
+      tournament.phase,
+      result.state,
+    );
+    return { state: result.state };
   });
 
 export const bracketActionServerFn = createServerFn({
@@ -275,173 +210,20 @@ export const bracketActionServerFn = createServerFn({
       "Not authorized",
     );
 
-    const state = { ...tournament.state } as TournamentState;
-    const { action } = input;
+    const event = mapBracketActionToEvent(input.action);
+    const result = applyMachineEvent(
+      tournament.phase as TournamentPhase,
+      tournament.state as TournamentState,
+      event,
+    );
 
-    switch (action.type) {
-      case "selectWinner": {
-        // Store winners as compact string using existing encode/decode
-        const { encodeWinners, decodeWinners } = await import(
-          "~/lib/tourney/bracket"
-        );
-        const { generateBracket, applyWinners } = await import(
-          "~/lib/tourney/bracket-logic"
-        );
-
-        invariant(state.bracketRiders, "No bracket riders");
-        const bracket = generateBracket(state.bracketRiders);
-        const currentWinners = decodeWinners(state.winners ?? null);
-
-        // Find match index in sorted order
-        const sortedMatches = [...bracket].sort((a, b) => {
-          if (a.round !== b.round) return a.round - b.round;
-          return a.position - b.position;
-        });
-        const matchIndex = sortedMatches.findIndex(
-          (m) => m.id === action.matchId,
-        );
-        invariant(matchIndex !== -1, "Match not found");
-
-        // Check for downstream clearing needed
-        const match = sortedMatches[matchIndex];
-        const previousWinner = currentWinners.get(matchIndex);
-        if (previousWinner !== undefined && previousWinner !== action.winner) {
-          // Clear downstream winners
-          const totalRounds = Math.max(...bracket.map((m) => m.round));
-          let currentRound = match.round;
-          let currentPosition = match.position;
-          while (currentRound < totalRounds) {
-            const nextRound = currentRound + 1;
-            const nextPosition = Math.floor(currentPosition / 2);
-            const downstream = sortedMatches.find(
-              (m) =>
-                m.round === nextRound &&
-                m.position === nextPosition &&
-                m.id !== "3rd",
-            );
-            if (downstream) {
-              const dsIdx = sortedMatches.indexOf(downstream);
-              currentWinners.delete(dsIdx);
-            }
-            currentRound = nextRound;
-            currentPosition = nextPosition;
-          }
-          // Clear 3rd place
-          if (match.round <= totalRounds - 1) {
-            const thirdPlace = sortedMatches.find((m) => m.id === "3rd");
-            if (thirdPlace) {
-              currentWinners.delete(sortedMatches.indexOf(thirdPlace));
-            }
-          }
-        }
-
-        currentWinners.set(matchIndex, action.winner);
-
-        // Always clear the timer when selecting a winner so the live view
-        // never shows a stale battle timer instead of the bracket/winner.
-        state.timer = null;
-
-        // Re-encode winners
-        const applied = applyWinners(bracket, currentWinners);
-        const encoded = encodeWinners(
-          [...applied].sort((a, b) => {
-            if (a.round !== b.round) return a.round - b.round;
-            return a.position - b.position;
-          }),
-        );
-        state.winners = encoded;
-        break;
-      }
-      case "resetBracket": {
-        state.winners = null;
-        state.timer = null;
-        break;
-      }
-      case "openTimer": {
-        state.timer = {
-          active: false,
-          riderIndex: null,
-          matchId: action.matchId,
-          side: null,
-          startedAt: null,
-          pausedRemaining: null,
-          duration: action.duration,
-          otherSideRemaining: null,
-          swapped: false,
-        };
-        break;
-      }
-      case "startTimer": {
-        let duration: number;
-        if (action.duration != null) {
-          duration = action.duration;
-        } else {
-          const { generateBracket } = await import(
-            "~/lib/tourney/bracket-logic"
-          );
-          invariant(state.bracketRiders, "No bracket riders");
-          const bracket = generateBracket(state.bracketRiders);
-          const match = bracket.find((m) => m.id === action.matchId);
-          const totalRounds = Math.max(...bracket.map((m) => m.round));
-          duration =
-            match?.round === totalRounds
-              ? state.finalsTime
-              : state.battleTime;
-        }
-
-        state.timer = {
-          active: true,
-          riderIndex: null,
-          matchId: action.matchId,
-          side: action.side,
-          startedAt: Date.now(),
-          pausedRemaining: null,
-          duration,
-          otherSideRemaining: action.otherRemaining ?? null,
-          swapped: state.timer?.swapped ?? false,
-        };
-        break;
-      }
-      case "pauseTimer": {
-        if (state.timer?.active && state.timer.startedAt) {
-          const elapsed = Date.now() - state.timer.startedAt;
-          const remaining = state.timer.duration * 1000 - elapsed;
-          state.timer = {
-            ...state.timer,
-            active: false,
-            startedAt: null,
-            pausedRemaining: Math.max(0, remaining),
-          };
-        }
-        break;
-      }
-      case "resetTimer": {
-        state.timer = null;
-        break;
-      }
-      case "softResetTimer": {
-        if (state.timer) {
-          state.timer = {
-            ...state.timer,
-            active: false,
-            side: null,
-            startedAt: null,
-            pausedRemaining: null,
-            otherSideRemaining: null,
-          };
-        }
-        break;
-      }
-      case "swapSides": {
-        if (state.timer) {
-          state.timer = { ...state.timer, swapped: !state.timer.swapped };
-        }
-        break;
-      }
-    }
-
-    await updateTournamentState(tournament.id, tournament.code, tournament.phase, state);
-    return { state };
+    await updateTournamentState(
+      tournament.id,
+      tournament.code,
+      tournament.phase,
+      result.state,
+    );
+    return { state: result.state };
   });
 
 export const advancePhaseServerFn = createServerFn({
@@ -456,29 +238,24 @@ export const advancePhaseServerFn = createServerFn({
       "Not authorized",
     );
 
-    const state = { ...tournament.state } as TournamentState;
-
-    // Phase-specific transitions
-    if (input.phase === "bracket" && !state.bracketRiders && state.ranking) {
-      // Build bracket riders from ranking
-      const topN = state.ranking.slice(0, state.bracketSize);
-      state.bracketRiders = topN.map((i) => state.riders[i]);
-      state.winners = null;
-      state.timer = null;
-    }
-
-    await db
-      .update(tournaments)
-      .set({ phase: input.phase, state, updatedAt: new Date() })
-      .where(eq(tournaments.id, tournament.id));
-
-    publishTourneyUpdate(tournament.code, {
+    const event: TournamentEvent = {
+      type: "phase.advance",
       phase: input.phase,
-      state,
-      updatedAt: Date.now(),
-    });
+    };
+    const result = applyMachineEvent(
+      tournament.phase as TournamentPhase,
+      tournament.state as TournamentState,
+      event,
+    );
 
-    return { phase: input.phase, state };
+    await updateTournamentState(
+      tournament.id,
+      tournament.code,
+      tournament.phase,
+      result.state,
+      result.phase,
+    );
+    return { phase: result.phase, state: result.state };
   });
 
 export const adminHeartbeatServerFn = createServerFn({
@@ -495,16 +272,121 @@ export const adminHeartbeatServerFn = createServerFn({
     publishAdminHeartbeat(tournament.code);
   });
 
-function findNextPending(
-  totalRiders: number,
-  statuses: Record<number, PrelimStatus>,
-  afterIndex: number,
-): number | null {
-  for (let i = afterIndex + 1; i < totalRiders; i++) {
-    if (!statuses[i]) return i;
+// ---------------------------------------------------------------------------
+// Action → Event adapters
+// ---------------------------------------------------------------------------
+
+type PrelimAction = {
+  type:
+    | "setCurrent"
+    | "markDone"
+    | "markDQ"
+    | "resetRider"
+    | "disqualifyRider"
+    | "startTimer"
+    | "pauseTimer"
+    | "resetTimer"
+    | "reorderRiders";
+  riderIndex?: number;
+  order?: number[];
+};
+
+function mapPrelimActionToEvent(action: PrelimAction): TournamentEvent {
+  switch (action.type) {
+    case "setCurrent": {
+      return { type: "prelim.setCurrent", riderIndex: action.riderIndex! };
+    }
+    case "markDone": {
+      return { type: "prelim.markDone" };
+    }
+    case "markDQ": {
+      return { type: "prelim.markDQ" };
+    }
+    case "resetRider": {
+      return { type: "prelim.resetRider", riderIndex: action.riderIndex! };
+    }
+    case "disqualifyRider": {
+      return { type: "prelim.disqualifyRider", riderIndex: action.riderIndex! };
+    }
+    case "startTimer": {
+      return { type: "prelim.startTimer" };
+    }
+    case "pauseTimer": {
+      return { type: "prelim.pauseTimer" };
+    }
+    case "resetTimer": {
+      return { type: "prelim.resetTimer" };
+    }
+    case "reorderRiders": {
+      return { type: "prelim.reorderRiders", order: action.order! };
+    }
   }
-  for (let i = 0; i <= afterIndex; i++) {
-    if (!statuses[i]) return i;
+}
+
+type BracketAction = {
+  type:
+    | "selectWinner"
+    | "resetBracket"
+    | "openTimer"
+    | "startTimer"
+    | "pauseTimer"
+    | "resetTimer"
+    | "softResetTimer"
+    | "swapSides"
+    | "showCelebration"
+    | "dismissCelebration";
+  matchId?: string;
+  winner?: 1 | 2;
+  duration?: number;
+  side?: 1 | 2;
+  otherRemaining?: number;
+};
+
+function mapBracketActionToEvent(action: BracketAction): TournamentEvent {
+  switch (action.type) {
+    case "selectWinner": {
+      return {
+        type: "bracket.selectWinner",
+        matchId: action.matchId!,
+        winner: action.winner!,
+      };
+    }
+    case "resetBracket": {
+      return { type: "bracket.resetBracket" };
+    }
+    case "openTimer": {
+      return {
+        type: "bracket.openTimer",
+        matchId: action.matchId!,
+        duration: action.duration!,
+      };
+    }
+    case "startTimer": {
+      return {
+        type: "bracket.startTimer",
+        matchId: action.matchId!,
+        side: action.side!,
+        duration: action.duration,
+        otherRemaining: action.otherRemaining,
+      };
+    }
+    case "pauseTimer": {
+      return { type: "bracket.pauseTimer" };
+    }
+    case "resetTimer": {
+      return { type: "bracket.resetTimer" };
+    }
+    case "softResetTimer": {
+      return { type: "bracket.softResetTimer" };
+    }
+    case "swapSides": {
+      return { type: "bracket.swapSides" };
+    }
+    case "showCelebration": {
+      return { type: "bracket.showCelebration" };
+    }
+    case "dismissCelebration": {
+      return { type: "bracket.dismissCelebration" };
+    }
   }
-  return null;
 }

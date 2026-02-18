@@ -55,11 +55,10 @@ export function useRoutePageHeader(): ResolvedPageHeader {
 
   // Apply dynamic overrides (label and/or to)
   if (breadcrumbs && loaderOverrides) {
-    breadcrumbs = breadcrumbs.map((crumb, i) =>
-      loaderOverrides![i] !== undefined
-        ? { ...crumb, ...loaderOverrides![i] }
-        : crumb,
-    );
+    breadcrumbs = breadcrumbs.map((crumb, i) => {
+      const override = loaderOverrides![i];
+      return override ? { ...crumb, ...override } : crumb;
+    });
   }
 
   // Client-side store overrides (for routes with conditional breadcrumbs)

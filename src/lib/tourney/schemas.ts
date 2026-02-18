@@ -64,6 +64,8 @@ export const bracketActionSchema = z.object({
     z.object({ type: z.literal("resetTimer") }),
     z.object({ type: z.literal("softResetTimer") }),
     z.object({ type: z.literal("swapSides") }),
+    z.object({ type: z.literal("showCelebration") }),
+    z.object({ type: z.literal("dismissCelebration") }),
   ]),
 });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { compareTrickNames, getTrickSortKey } from "../compute";
+import { compareTrickNames, getTrickSortKey } from "./compute";
 
 describe("getTrickSortKey", () => {
   describe("leading number extraction", () => {

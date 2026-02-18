@@ -612,9 +612,7 @@ function ModifierPanel({
     <div className="flex flex-col gap-4">
       {/* Flips */}
       <div className="flex items-center justify-between">
-        <label className="text-muted-foreground text-sm font-medium">
-          flips
-        </label>
+        <span className="text-muted-foreground text-sm font-medium">flips</span>
         <ButtonGroup>
           <Button
             variant="outline"
@@ -638,9 +636,7 @@ function ModifierPanel({
 
       {/* Spin */}
       <div className="flex items-center justify-between">
-        <label className="text-muted-foreground text-sm font-medium">
-          spin
-        </label>
+        <span className="text-muted-foreground text-sm font-medium">spin</span>
         <Select
           value={String(modifiers.spin)}
           onValueChange={(val) => val && onUpdate("spin", Number(val))}
@@ -660,9 +656,7 @@ function ModifierPanel({
 
       {/* Tire */}
       <div className="flex items-center justify-between">
-        <label className="text-muted-foreground text-sm font-medium">
-          tire
-        </label>
+        <span className="text-muted-foreground text-sm font-medium">tire</span>
         <Select
           value={modifiers.tire as string}
           onValueChange={(val) => val && onUpdate("tire", val)}
@@ -682,9 +676,7 @@ function ModifierPanel({
 
       {/* Twist */}
       <div className="flex items-center justify-between">
-        <label className="text-muted-foreground text-sm font-medium">
-          twist
-        </label>
+        <span className="text-muted-foreground text-sm font-medium">twist</span>
         <Select
           value={String(modifiers.twist)}
           onValueChange={(val) => val && onUpdate("twist", Number(val))}
@@ -704,9 +696,7 @@ function ModifierPanel({
 
       {/* Wrap */}
       <div className="flex items-center justify-between">
-        <label className="text-muted-foreground text-sm font-medium">
-          wrap
-        </label>
+        <span className="text-muted-foreground text-sm font-medium">wrap</span>
         <Select
           value={modifiers.wrap as string}
           onValueChange={(val) => val && onUpdate("wrap", val)}
@@ -727,9 +717,9 @@ function ModifierPanel({
       {/* Fakie (only on first trick before a catch) */}
       {isFirstPanel && (
         <div className="flex items-center justify-between">
-          <label className="text-muted-foreground text-sm font-medium">
+          <span className="text-muted-foreground text-sm font-medium">
             fakie
-          </label>
+          </span>
           <Switch
             checked={modifiers.fakie as boolean}
             onCheckedChange={(checked) => onUpdate("fakie", checked)}
@@ -739,9 +729,9 @@ function ModifierPanel({
 
       {/* Switch */}
       <div className="flex items-center justify-between">
-        <label className="text-muted-foreground text-sm font-medium">
+        <span className="text-muted-foreground text-sm font-medium">
           switch
-        </label>
+        </span>
         <Switch
           checked={modifiers.switchStance as boolean}
           onCheckedChange={(checked) => onUpdate("switchStance", checked)}
@@ -751,9 +741,9 @@ function ModifierPanel({
       {/* Late (only on first trick before a catch) */}
       {isFirstPanel && (
         <div className="flex items-center justify-between">
-          <label className="text-muted-foreground text-sm font-medium">
+          <span className="text-muted-foreground text-sm font-medium">
             late
-          </label>
+          </span>
           <Switch
             checked={modifiers.late as boolean}
             onCheckedChange={(checked) => onUpdate("late", checked)}

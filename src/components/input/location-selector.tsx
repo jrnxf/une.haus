@@ -103,7 +103,7 @@ export function LocationSelector({
           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </PopoverTrigger>
         <PopoverContent align="start" className="w-xs p-0">
-          <Command async fetchInProgress={fetching} shouldFilter={false}>
+          <Command shouldFilter={false}>
             <CommandInput
               className="w-xs"
               containerClassName={

@@ -35,6 +35,7 @@ export type TournamentState = {
 
   bracketRiders: TournamentRider[] | null;
   winners: string | null;
+  celebrating: boolean;
 };
 
 export type TournamentPhase =

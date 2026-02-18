@@ -66,9 +66,9 @@ function RouteComponent() {
 
   const { state } = tournament;
 
-  // Clear any stale timer left from a previous session (e.g. admin refreshed
-  // or navigated away while a battle timer was open).  Without this, spectators
-  // would still see the old battle timer while the admin sees the bracket.
+  // Clear any stale timer left from a previous session. The state machine's
+  // exit actions handle cleanup on phase transitions automatically, but if the
+  // admin refreshed mid-timer we still need a one-shot mount-time reset.
   const clearedStaleTimer = useRef(false);
   useEffect(() => {
     if (state.timer?.matchId && !clearedStaleTimer.current) {
@@ -78,24 +78,6 @@ function RouteComponent() {
       });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // When admin navigates away from bracket while a timer is open, clear it so
-  // spectators aren't left staring at a stale battle screen.
-  const hasOpenTimerRef = useRef(false);
-  const unmountCodeRef = useRef(code);
-  unmountCodeRef.current = code;
-  useEffect(() => {
-    return () => {
-      if (hasOpenTimerRef.current) {
-        tourney.bracket.fn({
-          data: {
-            code: unmountCodeRef.current,
-            action: { type: "resetTimer" },
-          },
-        });
-      }
-    };
-  }, []);
 
   const usersMap = useMemo(() => {
     const map = new Map<
@@ -180,9 +162,11 @@ function RouteComponent() {
   const openTimer = useCallback(
     (match: Match, duration: number) => {
       setActiveTimer({ match, duration });
-      hasOpenTimerRef.current = true;
       bracketAction.mutate({
-        data: { code, action: { type: "openTimer", matchId: match.id, duration } },
+        data: {
+          code,
+          action: { type: "openTimer", matchId: match.id, duration },
+        },
       });
     },
     [bracketAction, code],
@@ -193,10 +177,10 @@ function RouteComponent() {
       data: { code, action: { type: "resetTimer" } },
     });
     setActiveTimer(null);
-    hasOpenTimerRef.current = false;
   }, [bracketAction, code]);
 
   const activeTimerRef = useRef(activeTimer);
+  // eslint-disable-next-line react-hooks/refs -- sync ref with latest value for use in callbacks
   activeTimerRef.current = activeTimer;
 
   const syncTimer = useCallback(
@@ -204,7 +188,7 @@ function RouteComponent() {
       const match = activeTimerRef.current?.match;
       if (!match) return;
       switch (event.type) {
-        case "start":
+        case "start": {
           bracketAction.mutate({
             data: {
               code,
@@ -218,16 +202,19 @@ function RouteComponent() {
             },
           });
           break;
-        case "reset":
+        }
+        case "reset": {
           bracketAction.mutate({
             data: { code, action: { type: "softResetTimer" } },
           });
           break;
-        case "swap":
+        }
+        case "swap": {
           bracketAction.mutate({
             data: { code, action: { type: "swapSides" } },
           });
           break;
+        }
       }
     },
     [bracketAction, code],
@@ -237,12 +224,8 @@ function RouteComponent() {
   const finalMatch = matches.find((m) => m.round === rounds && m.id !== "3rd");
   const champion = finalMatch ? getWinnerName(finalMatch) : null;
 
-  const {
-    canvasRef,
-    showCelebration,
-    dismissCelebration,
-    showCelebrationAgain,
-  } = useChampionCelebration(champion);
+  const showCelebration = state.celebrating;
+  const { canvasRef } = useChampionCelebration(champion);
 
   if (resolvedRiders.length < 2) {
     return (
@@ -296,7 +279,11 @@ function RouteComponent() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => showCelebrationAgain()}
+                  onClick={() =>
+                    bracketAction.mutate({
+                      data: { code, action: { type: "showCelebration" } },
+                    })
+                  }
                   className="gap-2"
                 >
                   <TrophyIcon className="size-4 text-yellow-500" />
@@ -335,7 +322,11 @@ function RouteComponent() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => dismissCelebration()}
+                onClick={() =>
+                  bracketAction.mutate({
+                    data: { code, action: { type: "dismissCelebration" } },
+                  })
+                }
               >
                 Bracket
               </Button>

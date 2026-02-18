@@ -18,6 +18,7 @@ export const Route = createFileRoute("/api/tourney/sse/$code")({
           start(controller) {
             const encoder = new TextEncoder();
             let closed = false;
+            // eslint-disable-next-line unicorn/consistent-function-scoping -- must be in scope to be reassigned by subscribeAdminHeartbeat
             let cleanupHeartbeat = () => {};
 
             const close = () => {

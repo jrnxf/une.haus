@@ -79,7 +79,9 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
     return {
       pageHeader: {
         breadcrumbOverrides: {
-          2: { label: (setData as any)?.name ?? "set" },
+          2: {
+            label: (setData as { name?: string } | undefined)?.name ?? "set",
+          },
         },
       },
     };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { usersToGeoJSON } from "../geo-json";
+import { usersToGeoJSON } from "./geo-json";
 
 // Mock user data type matching UsersWithLocationsData
 type MockUser = {

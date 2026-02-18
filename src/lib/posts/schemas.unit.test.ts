@@ -6,7 +6,7 @@ import {
   getPostSchema,
   listPostsSchema,
   updatePostSchema,
-} from "../schemas";
+} from "./schemas";
 
 describe("getPostSchema", () => {
   it("accepts numeric postId", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { stringifySearch } from "../url";
+import { stringifySearch } from "./url";
 
 describe("stringifySearch", () => {
   it("decodes commas in query values", () => {

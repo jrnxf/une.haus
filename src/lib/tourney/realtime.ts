@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-event-target -- Node.js EventEmitter needed for server-side SSE pub/sub with setMaxListeners */
 import { EventEmitter } from "node:events";
 
 type TourneyUpdate = { phase: string; state: unknown; updatedAt: number };

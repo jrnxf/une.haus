@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { tourney } from "~/lib/tourney";
 import type { TournamentTimer } from "~/lib/tourney/types";
 
-const HEARTBEAT_INTERVAL_MS = 5_000;
+const HEARTBEAT_INTERVAL_MS = 5000;  
 
 export function useCreateTournament() {
   const navigate = useNavigate();
@@ -100,15 +100,18 @@ export function useAdvancePhase(code: string) {
       });
       // Navigate to the new phase
       switch (phase) {
-        case "prelims":
+        case "prelims": {
           navigate({ to: "/tourney/$code/prelims", params: { code } });
           break;
-        case "ranking":
+        }
+        case "ranking": {
           navigate({ to: "/tourney/$code/ranking", params: { code } });
           break;
-        case "bracket":
+        }
+        case "bracket": {
           navigate({ to: "/tourney/$code/bracket", params: { code } });
           break;
+        }
       }
     },
     onError: (error) => {
@@ -141,35 +144,30 @@ export function useAdminHeartbeat(code: string) {
  * Derives timeRemaining (ms) from server-authoritative timer state.
  * Works for both admin (local updates) and spectator (SSE updates).
  */
+/* eslint-disable react-hooks/refs -- timer hook uses render-time ref sync and Date.now() for time calculation */
 export function useSyncedTimer(timer: TournamentTimer | null): number | null {
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(() => {
-    if (!timer) return null;
-    if (timer.pausedRemaining !== null) return timer.pausedRemaining;
-    if (timer.active && timer.startedAt) {
-      return Math.max(0, timer.duration * 1000 - (Date.now() - timer.startedAt));
+  const computeRemaining = (t: TournamentTimer | null): number | null => {
+    if (!t) return null;
+    if (t.pausedRemaining !== null) return t.pausedRemaining;
+    if (t.active && t.startedAt) {
+      return Math.max(0, t.duration * 1000 - (Date.now() - t.startedAt));
     }
-    return timer.duration * 1000;
-  });
+    return t.duration * 1000;
+  };
+
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(() =>
+    computeRemaining(timer),
+  );
 
   const timerRef = useRef(timer);
   timerRef.current = timer;
 
-  // Re-sync when timer prop changes
+  // Re-sync when timer prop changes (render-time state sync per React docs)
   const prevTimerJson = useRef<string>("");
   const currentJson = JSON.stringify(timer);
   if (currentJson !== prevTimerJson.current) {
     prevTimerJson.current = currentJson;
-    if (!timer) {
-      if (timeRemaining !== null) setTimeRemaining(null);
-    } else if (timer.pausedRemaining !== null) {
-      setTimeRemaining(timer.pausedRemaining);
-    } else if (timer.active && timer.startedAt) {
-      setTimeRemaining(
-        Math.max(0, timer.duration * 1000 - (Date.now() - timer.startedAt)),
-      );
-    } else {
-      setTimeRemaining(timer.duration * 1000);
-    }
+    setTimeRemaining(computeRemaining(timer));
   }
 
   useEffect(() => {
@@ -187,3 +185,4 @@ export function useSyncedTimer(timer: TournamentTimer | null): number | null {
 
   return timeRemaining;
 }
+/* eslint-enable react-hooks/refs */

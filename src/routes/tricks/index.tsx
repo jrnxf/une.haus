@@ -322,7 +322,7 @@ function TricksListPage() {
                         style={{ width: header.getSize() }}
                         className={cn(
                           header.column.getCanSort() &&
-                          "cursor-pointer select-none",
+                            "cursor-pointer select-none",
                           meta?.className,
                         )}
                         onClick={header.column.getToggleSortingHandler()}
