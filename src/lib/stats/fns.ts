@@ -8,6 +8,7 @@ import {
   biuSetMessageLikes,
   chatMessageLikes,
   chatMessages,
+  muxVideos,
   postLikes,
   postMessageLikes,
   postMessages,
@@ -66,6 +67,9 @@ export const getStatsServerFn = createServerFn({
     riuSetMessagesResult,
     riuSubmissionMessagesResult,
     utvVideoMessagesResult,
+
+    // Video uploads
+    videoUploadsResult,
 
     // Activity over time (monthly)
     activityByMonthResult,
@@ -127,6 +131,9 @@ export const getStatsServerFn = createServerFn({
     db.select({ count: count() }).from(riuSetMessages),
     db.select({ count: count() }).from(riuSubmissionMessages),
     db.select({ count: count() }).from(utvVideoMessages),
+
+    // Video uploads (MUX)
+    db.select({ count: count() }).from(muxVideos),
 
     // Activity by month (all time) - combines posts, chat messages, sets, and submissions
     db.execute<{ month: string; activityCount: number }>(sql`
@@ -269,6 +276,7 @@ export const getStatsServerFn = createServerFn({
       riuSubmissions: riuSubmissionsResult[0]?.count ?? 0,
       totalLikes,
       totalMessages,
+      videoUploads: videoUploadsResult[0]?.count ?? 0,
     },
     activeRiu: activeRiuResult[0] ?? null,
     activityByMonth: activityByMonthResult.map((row) => ({

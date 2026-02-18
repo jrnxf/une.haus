@@ -240,12 +240,37 @@ describe("phase transitions", () => {
     expect(stateValueToDbPhase(next.value)).toBe("prelims");
   });
 
-  it("advances from prelims to ranking", () => {
-    const next = apply("prelims", makeContext(), {
+  it("advances from prelims to ranking with enough qualified riders", () => {
+    const ctx = makeContext({
+      prelimStatuses: { 0: "done", 1: "done", 2: "done", 3: "dq" },
+    });
+    const next = apply("prelims", ctx, {
       type: "phase.advance",
       phase: "ranking",
     });
     expect(stateValueToDbPhase(next.value)).toBe("ranking");
+  });
+
+  it("blocks prelims to ranking when all riders disqualified", () => {
+    const ctx = makeContext({
+      prelimStatuses: { 0: "dq", 1: "dq", 2: "dq", 3: "dq" },
+    });
+    const next = apply("prelims", ctx, {
+      type: "phase.advance",
+      phase: "ranking",
+    });
+    expect(stateValueToDbPhase(next.value)).toBe("prelims");
+  });
+
+  it("blocks prelims to ranking with 2 or fewer qualified riders", () => {
+    const ctx = makeContext({
+      prelimStatuses: { 0: "done", 1: "done", 2: "dq", 3: "dq" },
+    });
+    const next = apply("prelims", ctx, {
+      type: "phase.advance",
+      phase: "ranking",
+    });
+    expect(stateValueToDbPhase(next.value)).toBe("prelims");
   });
 
   it("advances from ranking to bracket (builds bracketRiders)", () => {
@@ -477,6 +502,7 @@ describe("exit actions", () => {
   it("clears timer when advancing from prelims to ranking", () => {
     const ctx = makeContext({
       currentRiderIndex: 0,
+      prelimStatuses: { 0: "done", 1: "done", 2: "done", 3: "done" },
       timer: {
         active: true,
         riderIndex: 0,

@@ -19,22 +19,20 @@ type ActivityChartProps = {
 
 const chartConfig = {
   activityCount: {
-    label: "Activity",
+    label: "activity",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
 export function ActivityChart({ data }: ActivityChartProps) {
-  // Format month labels for display (e.g., "2024-01" -> "Jan 24")
-  const formattedData = data.map((item) => {
+  const formattedData = data.slice(-12).map((item) => {
     const [year, month] = item.month.split("-");
     const date = new Date(Number(year), Number(month) - 1);
     return {
       ...item,
-      label: date.toLocaleDateString("en-US", {
-        month: "short",
-        year: "2-digit",
-      }),
+      label: date
+        .toLocaleDateString("en-US", { month: "short" })
+        .toLowerCase(),
     };
   });
 
@@ -44,7 +42,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <CardTitle className="cursor-help text-sm font-medium">
-              activity over time
+              activity
             </CardTitle>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[200px] text-xs">
@@ -82,14 +80,13 @@ export function ActivityChart({ data }: ActivityChartProps) {
               axisLine={false}
               tickMargin={8}
               fontSize={10}
-              interval="preserveStartEnd"
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               fontSize={10}
-              width={30}
+              width={40}
             />
             <ChartTooltip
               cursor={false}

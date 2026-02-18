@@ -1,12 +1,10 @@
 import {
-  ArrowDownToLineIcon,
-  GlobeIcon,
+  EarthIcon,
   HeartIcon,
-  LayersIcon,
-  MapPinIcon,
   MessageCircleIcon,
-  SendIcon,
+  StickyNoteIcon,
   UsersIcon,
+  VideoIcon,
 } from "lucide-react";
 
 import { ActivityChart } from "~/components/stats/activity-chart";
@@ -22,70 +20,55 @@ type StatsGridProps = {
 export function StatsGrid({ data }: StatsGridProps) {
   return (
     <div className="grid gap-3 lg:grid-cols-4">
-      {/* Rows 1-2: Hero stats - 4 columns on all screen sizes */}
-      <div className="grid grid-cols-4 gap-1 md:gap-2 lg:col-span-4 lg:gap-3">
+      {/* Rows 1-2: Hero stats - 3 columns on all screen sizes */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:col-span-4">
         <StatCard
-          label="total users"
+          label="users"
           value={data.counts.users}
           icon={UsersIcon}
           description="all registered community members"
           size="responsive"
         />
         <StatCard
-          label="total messages"
+          label="countries"
+          value={data.counts.countries}
+          icon={EarthIcon}
+          description="countries represented by the community"
+          size="responsive"
+          to="/map"
+        />
+        <StatCard
+          label="messages"
           value={data.counts.totalMessages}
           icon={MessageCircleIcon}
           description="messages and comments across chat, posts, sets, and submissions"
           size="responsive"
         />
         <StatCard
-          label="total posts"
+          label="posts"
           value={data.counts.posts}
-          icon={SendIcon}
+          icon={StickyNoteIcon}
           description="posts shared in the feed"
           size="responsive"
         />
         <StatCard
-          label="likes given"
+          label="likes"
           value={data.counts.totalLikes}
           icon={HeartIcon}
           description="likes given across posts, sets, submissions, messages, and vault videos"
           size="responsive"
         />
         <StatCard
-          label="sets"
-          value={data.counts.riuSets}
-          icon={LayersIcon}
-          description="challenge sets created in rack it up games"
+          label="video uploads"
+          value={data.counts.videoUploads}
+          icon={VideoIcon}
+          description="videos uploaded to the platform"
           size="responsive"
-        />
-        <StatCard
-          label="submissions"
-          value={data.counts.riuSubmissions}
-          icon={ArrowDownToLineIcon}
-          description="video responses to game sets"
-          size="responsive"
-        />
-        <StatCard
-          label="users on map"
-          value={data.counts.usersOnMap}
-          icon={MapPinIcon}
-          description="community members who have added their location"
-          size="responsive"
-          to="/map"
-        />
-        <StatCard
-          label="countries"
-          value={data.counts.countries}
-          icon={GlobeIcon}
-          description="countries represented by the community"
-          size="responsive"
-          to="/map"
         />
       </div>
 
       {/* Row 3: Activity chart + discipline chart (equal heights) */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:col-span-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:col-span-4">
         <ActivityChart data={data.activityByMonth} />
         <DisciplineChart data={data.disciplineDistribution} />
       </div>

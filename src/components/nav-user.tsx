@@ -36,7 +36,7 @@ export function NavUser() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" asChild>
-            <Link to="/auth/code/send">Log in</Link>
+            <Link to="/auth/code/send">log in</Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

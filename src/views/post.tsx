@@ -80,15 +80,17 @@ export function PostView({ postId }: { postId: number }) {
               />
             </Button>
           )}
-          <UsersDialog
-            users={post.likes.map((like) => like.user)}
-            title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
-            trigger={
-              <Button size="icon-sm" variant="outline" aria-label="View likes">
-                <TrendingUpIcon className="size-4" />
-              </Button>
-            }
-          />
+          {post.likes.length > 0 && (
+            <UsersDialog
+              users={post.likes.map((like) => like.user)}
+              title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
+              trigger={
+                <Button size="icon-sm" variant="outline" aria-label="View likes">
+                  <TrendingUpIcon className="size-4" />
+                </Button>
+              }
+            />
+          )}
           <ShareButton />
           {isOwner && (
             <>

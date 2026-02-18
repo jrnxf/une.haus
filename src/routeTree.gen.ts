@@ -19,8 +19,8 @@ import { Route as VaultIndexRouteImport } from './routes/vault/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TricksIndexRouteImport } from './routes/tricks/index'
 import { Route as TourneyIndexRouteImport } from './routes/tourney/index'
-import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
+import { Route as MetricsIndexRouteImport } from './routes/metrics/index'
 import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
@@ -28,7 +28,7 @@ import { Route as TricksGraphRouteImport } from './routes/tricks/graph'
 import { Route as TricksGlossaryRouteImport } from './routes/tricks/glossary'
 import { Route as TricksBuilderRouteImport } from './routes/tricks/builder'
 import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
-import { Route as StatsContributorsRouteImport } from './routes/stats/contributors'
+import { Route as MetricsUsersRouteImport } from './routes/metrics/users'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
 import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
@@ -139,14 +139,14 @@ const TourneyIndexRoute = TourneyIndexRouteImport.update({
   path: '/tourney/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StatsIndexRoute = StatsIndexRouteImport.update({
-  id: '/stats/',
-  path: '/stats/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PostsIndexRoute = PostsIndexRouteImport.update({
   id: '/posts/',
   path: '/posts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetricsIndexRoute = MetricsIndexRouteImport.update({
+  id: '/metrics/',
+  path: '/metrics/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapIndexRoute = MapIndexRouteImport.update({
@@ -184,9 +184,9 @@ const TricksTrickIdRoute = TricksTrickIdRouteImport.update({
   path: '/tricks/$trickId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StatsContributorsRoute = StatsContributorsRouteImport.update({
-  id: '/stats/contributors',
-  path: '/stats/contributors',
+const MetricsUsersRoute = MetricsUsersRouteImport.update({
+  id: '/metrics/users',
+  path: '/metrics/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
@@ -526,7 +526,7 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/stats/contributors': typeof StatsContributorsRoute
+  '/metrics/users': typeof MetricsUsersRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/tricks/builder': typeof TricksBuilderRoute
   '/tricks/glossary': typeof TricksGlossaryRoute
@@ -534,8 +534,8 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
+  '/metrics': typeof MetricsIndexRoute
   '/posts': typeof PostsIndexRoute
-  '/stats': typeof StatsIndexRoute
   '/tourney': typeof TourneyIndexRoute
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
@@ -605,7 +605,7 @@ export interface FileRoutesByTo {
   '/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/stats/contributors': typeof StatsContributorsRoute
+  '/metrics/users': typeof MetricsUsersRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/tricks/builder': typeof TricksBuilderRoute
   '/tricks/glossary': typeof TricksGlossaryRoute
@@ -613,8 +613,8 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
+  '/metrics': typeof MetricsIndexRoute
   '/posts': typeof PostsIndexRoute
-  '/stats': typeof StatsIndexRoute
   '/tourney': typeof TourneyIndexRoute
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
@@ -687,7 +687,7 @@ export interface FileRoutesById {
   '/_authed/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
-  '/stats/contributors': typeof StatsContributorsRoute
+  '/metrics/users': typeof MetricsUsersRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/tricks/builder': typeof TricksBuilderRoute
   '/tricks/glossary': typeof TricksGlossaryRoute
@@ -695,8 +695,8 @@ export interface FileRoutesById {
   '/chat/': typeof ChatIndexRoute
   '/games/': typeof GamesIndexRoute
   '/map/': typeof MapIndexRoute
+  '/metrics/': typeof MetricsIndexRoute
   '/posts/': typeof PostsIndexRoute
-  '/stats/': typeof StatsIndexRoute
   '/tourney/': typeof TourneyIndexRoute
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -770,7 +770,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
-    | '/stats/contributors'
+    | '/metrics/users'
     | '/tricks/$trickId'
     | '/tricks/builder'
     | '/tricks/glossary'
@@ -778,8 +778,8 @@ export interface FileRouteTypes {
     | '/chat'
     | '/games'
     | '/map'
+    | '/metrics'
     | '/posts'
-    | '/stats'
     | '/tourney'
     | '/tricks'
     | '/users'
@@ -849,7 +849,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
-    | '/stats/contributors'
+    | '/metrics/users'
     | '/tricks/$trickId'
     | '/tricks/builder'
     | '/tricks/glossary'
@@ -857,8 +857,8 @@ export interface FileRouteTypes {
     | '/chat'
     | '/games'
     | '/map'
+    | '/metrics'
     | '/posts'
-    | '/stats'
     | '/tourney'
     | '/tricks'
     | '/users'
@@ -930,7 +930,7 @@ export interface FileRouteTypes {
     | '/_authed/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
-    | '/stats/contributors'
+    | '/metrics/users'
     | '/tricks/$trickId'
     | '/tricks/builder'
     | '/tricks/glossary'
@@ -938,8 +938,8 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/games/'
     | '/map/'
+    | '/metrics/'
     | '/posts/'
-    | '/stats/'
     | '/tourney/'
     | '/tricks/'
     | '/users/'
@@ -1011,7 +1011,7 @@ export interface RootRouteChildren {
   GamesSiusRouteRoute: typeof GamesSiusRouteRouteWithChildren
   ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
-  StatsContributorsRoute: typeof StatsContributorsRoute
+  MetricsUsersRoute: typeof MetricsUsersRoute
   TricksTrickIdRoute: typeof TricksTrickIdRoute
   TricksBuilderRoute: typeof TricksBuilderRoute
   TricksGlossaryRoute: typeof TricksGlossaryRoute
@@ -1019,8 +1019,8 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
   MapIndexRoute: typeof MapIndexRoute
+  MetricsIndexRoute: typeof MetricsIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
-  StatsIndexRoute: typeof StatsIndexRoute
   TourneyIndexRoute: typeof TourneyIndexRoute
   TricksIndexRoute: typeof TricksIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
@@ -1110,18 +1110,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TourneyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stats/': {
-      id: '/stats/'
-      path: '/stats'
-      fullPath: '/stats'
-      preLoaderRoute: typeof StatsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/posts/': {
       id: '/posts/'
       path: '/posts'
       fullPath: '/posts'
       preLoaderRoute: typeof PostsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metrics/': {
+      id: '/metrics/'
+      path: '/metrics'
+      fullPath: '/metrics'
+      preLoaderRoute: typeof MetricsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/map/': {
@@ -1173,11 +1173,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TricksTrickIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stats/contributors': {
-      id: '/stats/contributors'
-      path: '/stats/contributors'
-      fullPath: '/stats/contributors'
-      preLoaderRoute: typeof StatsContributorsRouteImport
+    '/metrics/users': {
+      id: '/metrics/users'
+      path: '/metrics/users'
+      fullPath: '/metrics/users'
+      preLoaderRoute: typeof MetricsUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register': {
@@ -1770,7 +1770,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesSiusRouteRoute: GamesSiusRouteRouteWithChildren,
   ApiUnsubscribeRoute: ApiUnsubscribeRoute,
   AuthRegisterRoute: AuthRegisterRoute,
-  StatsContributorsRoute: StatsContributorsRoute,
+  MetricsUsersRoute: MetricsUsersRoute,
   TricksTrickIdRoute: TricksTrickIdRoute,
   TricksBuilderRoute: TricksBuilderRoute,
   TricksGlossaryRoute: TricksGlossaryRoute,
@@ -1778,8 +1778,8 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
   MapIndexRoute: MapIndexRoute,
+  MetricsIndexRoute: MetricsIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
-  StatsIndexRoute: StatsIndexRoute,
   TourneyIndexRoute: TourneyIndexRoute,
   TricksIndexRoute: TricksIndexRoute,
   UsersIndexRoute: UsersIndexRoute,

@@ -13,10 +13,11 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   FilterIcon,
-  FunnelXIcon,
   GhostIcon,
 } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
+
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 
 import { PageHeader } from "~/components/page-header";
 import { Badge } from "~/components/ui/badge";
@@ -137,11 +138,50 @@ function TricksListPage() {
     { id: "name", desc: false },
   ]);
 
-  const [filters, setFilters] = useState<Filter<string>[]>([]);
+  const [filterField, setFilterField] = useQueryState("field", {
+    defaultValue: "",
+    shallow: true,
+    history: "replace",
+  });
+  const [filterOp, setFilterOp] = useQueryState("op", {
+    defaultValue: "",
+    shallow: true,
+    history: "replace",
+  });
+  const [filterValues, setFilterValues] = useQueryState("v", {
+    ...parseAsArrayOf(parseAsString, ","),
+    defaultValue: [] as string[],
+    shallow: true,
+    history: "replace",
+  });
 
-  const handleFiltersChange = useCallback((next: Filter<string>[]) => {
-    setFilters(next);
-  }, []);
+  const filters = useMemo<Filter<string>[]>(() => {
+    if (!filterField) return [];
+    return [
+      {
+        id: "url-filter",
+        field: filterField,
+        operator: filterOp || "contains",
+        values: filterValues,
+      },
+    ];
+  }, [filterField, filterOp, filterValues]);
+
+  const handleFiltersChange = useCallback(
+    (next: Filter<string>[]) => {
+      if (next.length === 0) {
+        setFilterField(null);
+        setFilterOp(null);
+        setFilterValues(null);
+      } else {
+        const f = next[0]!;
+        setFilterField(f.field);
+        setFilterOp(f.operator);
+        setFilterValues(f.values.length > 0 ? f.values : null);
+      }
+    },
+    [setFilterField, setFilterOp, setFilterValues],
+  );
 
   // Build filter field config from available elements
   const filterFields: FilterFieldConfig<string>[] = useMemo(
@@ -284,12 +324,6 @@ function TricksListPage() {
             </Button>
           }
         />
-        {filters.length > 0 && (
-          <Button variant="outline" size="sm" onClick={() => setFilters([])}>
-            <FunnelXIcon className="size-3.5" />
-            Clear
-          </Button>
-        )}
       </div>
 
       {filteredTricks.length === 0 ? (

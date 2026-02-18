@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Badge } from "~/components/ui/badge";
 import { Card, CardContent } from "~/components/ui/card";
 import { UtvSuggestionCard } from "~/components/vault/suggestion-card";
 import { utv } from "~/lib/utv/core";
@@ -28,14 +27,7 @@ function RouteComponent() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
-      <div className="flex items-center gap-2">
-        <p className="text-muted-foreground text-sm">
-          Community suggestions for video metadata
-        </p>
-        {suggestions.length > 0 && (
-          <Badge variant="secondary">{suggestions.length}</Badge>
-        )}
-      </div>
+      <h1 className="text-lg font-semibold">Community suggestions</h1>
 
       {suggestions.length === 0 ? (
         <Card>

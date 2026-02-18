@@ -138,18 +138,20 @@ function RouteComponent() {
                   />
                 </Button>
               )}
-              <UsersDialog
-                users={video.likes.map((like) => like.user)}
-                title={`${video.likes.length} ${video.likes.length === 1 ? "Like" : "Likes"}`}
-                trigger={
-                  <Button size="icon-sm" variant="outline">
-                    <TrendingUpIcon className="size-4" />
-                  </Button>
-                }
-              />
+              {video.likes.length > 0 && (
+                <UsersDialog
+                  users={video.likes.map((like) => like.user)}
+                  title={`${video.likes.length} ${video.likes.length === 1 ? "Like" : "Likes"}`}
+                  trigger={
+                    <Button size="icon-sm" variant="outline">
+                      <TrendingUpIcon className="size-4" />
+                    </Button>
+                  }
+                />
+              )}
               <ShareButton />
               {sessionUser && (
-                <Button variant="secondary" size="icon-sm" asChild>
+                <Button variant="outline" size="icon-sm" asChild>
                   <Link to="/vault/$videoId/suggest" params={{ videoId }}>
                     <PencilIcon className="size-4" />
                   </Link>

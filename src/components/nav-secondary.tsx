@@ -75,7 +75,7 @@ export function NavSecondary({
                   <ThemeIcon />
                 </SidebarMenuButton>
               </TooltipTrigger>
-              <TooltipContent side="top">Color mode ({theme})</TooltipContent>
+              <TooltipContent side="top">color mode ({theme})</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -85,7 +85,7 @@ export function NavSecondary({
                   </Link>
                 </SidebarMenuButton>
               </TooltipTrigger>
-              <TooltipContent side="top">Play</TooltipContent>
+              <TooltipContent side="top">arcade</TooltipContent>
             </Tooltip>
           </SidebarMenuItem>
         </SidebarMenu>

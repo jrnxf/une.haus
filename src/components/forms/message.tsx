@@ -48,7 +48,7 @@ export function BaseMessageForm({
               redirect: location.href,
             }}
           >
-            Log in to chat
+            log in to chat
           </Link>
         </Button>
       </div>

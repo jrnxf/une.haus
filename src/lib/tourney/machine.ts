@@ -245,7 +245,14 @@ export const tournamentMachine = setup({
       on: {
         "phase.advance": {
           target: "ranking",
-          guard: ({ event }) => event.type === "phase.advance" && event.phase === "ranking",
+          guard: ({ context, event }) => {
+            if (event.type !== "phase.advance" || event.phase !== "ranking")
+              return false;
+            const qualified = context.riders.filter(
+              (_, i) => context.prelimStatuses[i] === "done",
+            ).length;
+            return qualified >= 3;
+          },
         },
         "prelim.resetRider": {
           actions: assign({

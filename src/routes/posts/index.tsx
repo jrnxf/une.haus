@@ -1,22 +1,17 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
-  FilterIcon,
   GhostIcon,
   HeartIcon,
   MessageCircleIcon,
   PaperclipIcon,
-  XIcon,
 } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { InView } from "react-intersection-observer";
 
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useDebounceValue } from "usehooks-ts";
+import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
-import { FilterPanel } from "~/components/filter-drawer";
-import { BadgeInput } from "~/components/input/badge-input";
 import { PageHeader } from "~/components/page-header";
 import { TimeAgo } from "~/components/time-ago";
 import { Button } from "~/components/ui/button";
@@ -27,7 +22,11 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { Input } from "~/components/ui/input";
+import {
+  Filters,
+  type Filter,
+  type FilterFieldConfig,
+} from "~/components/ui/filters";
 import { getMuxPoster } from "~/components/video-player";
 import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
@@ -49,41 +48,119 @@ export const Route = createFileRoute("/posts/")({
   component: RouteComponent,
 });
 
-/** Nuqs parser for comma-delimited tags */
-const parseAsTags = parseAsArrayOf(parseAsString, ",");
-
 function RouteComponent() {
-  // Use nuqs for URL state (stringifySearch keeps commas readable)
-  const [query, setQuery] = useQueryState("q", {
-    defaultValue: "",
-    shallow: false,
-    history: "replace",
-  });
-  const [tags, setTags] = useQueryState("tags", {
-    ...parseAsTags,
-    defaultValue: [] as string[],
-    shallow: false,
-    history: "replace",
-  });
+  const searchParams = Route.useSearch();
+  const router = useRouter();
 
-  // Debounce query for API calls
-  const [debouncedQuery] = useDebounceValue(query, 300);
-  const deferredQuery = useDeferredValue(debouncedQuery);
+  // --- Text filter: local state for immediate input feedback ---
+  const [queryInput, setQueryInput] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(queryInput);
+
+  // URL update is for bookmarking only — debounced so it doesn't fire on every keystroke
+  const debouncedNavigate = useDebounceCallback((updates: {
+    q?: string;
+    tags?: string[];
+  }) => {
+    router.navigate({
+      to: "/posts",
+      search: (prev) => ({
+        ...prev,
+        q: updates.q || undefined,
+        tags:
+          updates.tags && updates.tags.length > 0 ? updates.tags : undefined,
+        cursor: undefined,
+      }),
+      replace: true,
+    });
+  }, 300);
+
+  // --- Multiselect filter: local state, deferred for query ---
+  const [tags, setTags] = useState<string[]>(searchParams.tags ?? []);
   const deferredTags = useDeferredValue(tags);
 
-  const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(query || tags.length > 0),
+  // Track which filter fields are open (text filters can be open with empty value)
+  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    if (queryInput) initial.add("q");
+    if (tags.length > 0) initial.add("tags");
+    return initial;
+  });
+
+  const filterFields: FilterFieldConfig<string>[] = useMemo(
+    () => [
+      {
+        key: "q",
+        label: "Search",
+        type: "text" as const,
+        placeholder: "search...",
+        operators: [{ value: "contains", label: "contains" }],
+        defaultOperator: "contains",
+      },
+      {
+        key: "tags",
+        label: "Tags",
+        type: "multiselect" as const,
+        operators: [{ value: "is_any_of", label: "includes" }],
+        defaultOperator: "is_any_of",
+        options: POST_TAGS.map((t) => ({ value: t, label: t })),
+      },
+    ],
+    [],
   );
 
-  const hasActiveFilters = Boolean(query || tags.length > 0);
+  // Derive filters from LOCAL state (immediate feedback, not URL)
+  const filters = useMemo<Filter<string>[]>(() => {
+    const result: Filter<string>[] = [];
+    if (activeFields.has("q")) {
+      result.push({
+        id: "q",
+        field: "q",
+        operator: "contains",
+        values: queryInput ? [queryInput] : [],
+      });
+    }
+    if (activeFields.has("tags") || tags.length > 0) {
+      result.push({
+        id: "tags",
+        field: "tags",
+        operator: "is_any_of",
+        values: tags,
+      });
+    }
+    return result;
+  }, [queryInput, tags, activeFields]);
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value || null);
-  };
+  const handleFiltersChange = useCallback(
+    (next: Filter<string>[]) => {
+      const qFilter = next.find((f) => f.field === "q");
+      const tagsFilter = next.find((f) => f.field === "tags");
 
-  const handleTagsChange = (newTags: (typeof POST_TAGS)[number][]) => {
-    setTags(newTags.length > 0 ? newTags : null);
-  };
+      setActiveFields((prev) => {
+        const wantQ = Boolean(qFilter);
+        const wantTags = Boolean(tagsFilter);
+        if (prev.has("q") === wantQ && prev.has("tags") === wantTags) {
+          return prev;
+        }
+        const s = new Set<string>();
+        if (wantQ) s.add("q");
+        if (wantTags) s.add("tags");
+        return s;
+      });
+
+      // Text: update local state immediately (URL updates via debounce)
+      const newQuery = qFilter?.values[0] || "";
+      setQueryInput(newQuery);
+
+      // Multiselect: update local state immediately
+      const newTags =
+        tagsFilter && tagsFilter.values.length > 0 ? tagsFilter.values : [];
+      setTags(newTags);
+
+      // Debounce URL update
+      debouncedNavigate({ q: newQuery, tags: newTags });
+    },
+    [debouncedNavigate],
+  );
 
   const {
     data: postsPages,
@@ -107,50 +184,23 @@ function RouteComponent() {
     <>
       <PageHeader>
         <PageHeader.Actions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFiltersOpen(!filtersOpen)}
-            className="relative"
-          >
-            <FilterIcon className="size-4" />
-            Filters
-            {hasActiveFilters && !filtersOpen && (
-              <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
-            )}
-          </Button>
-          <Button asChild size="sm">
+          <Button asChild>
             <Link to="/posts/create">Create</Link>
           </Button>
         </PageHeader.Actions>
       </PageHeader>
 
+      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+        <Filters
+          filters={filters}
+          fields={filterFields}
+          onChange={handleFiltersChange}
+          size="sm"
+        />
+      </div>
+
       <div className="h-full overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-          <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <div className="relative">
-              <Input
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search posts..."
-                className="pr-8"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => handleQueryChange("")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              )}
-            </div>
-            <BadgeInput
-              defaultSelections={tags as (typeof POST_TAGS)[number][]}
-              onChange={handleTagsChange}
-              options={POST_TAGS}
-            />
-          </FilterPanel>
           {displayedPosts.length === 0 && (
             <Empty>
               <EmptyHeader>

@@ -24,6 +24,7 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { useDebounceCallback } from "usehooks-ts";
 
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
@@ -88,6 +89,14 @@ function RouteComponent() {
 
   return (
     <>
+      <PageHeader>
+        <PageHeader.Actions>
+          <Button asChild variant="secondary">
+            <Link to="/vault/review">Review</Link>
+          </Button>
+        </PageHeader.Actions>
+      </PageHeader>
+
       <div className="flex h-full flex-col">
         <div className="bg-background sticky top-0 z-10">
           <div className="mx-auto flex max-w-4xl items-center gap-2 p-4">

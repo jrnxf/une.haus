@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import {
-  ArrowRight,
   CheckCircle,
   Clock,
   Heart,
@@ -13,7 +12,6 @@ import { Badge } from "~/components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -68,10 +66,10 @@ function formatDiffSummary(diff: UtvVideoSuggestionDiff): string {
   if (diff.disciplines) changes.push("disciplines");
   if (diff.riders) changes.push("riders");
 
-  if (changes.length === 0) return "No changes";
-  if (changes.length === 1) return `Changed ${changes[0]}`;
-  if (changes.length === 2) return `Changed ${changes[0]} and ${changes[1]}`;
-  return `Changed ${changes.slice(0, -1).join(", ")}, and ${changes.at(-1)}`;
+  if (changes.length === 0) return "no changes";
+  if (changes.length === 1) return `changed ${changes[0]}`;
+  if (changes.length === 2) return `changed ${changes[0]} and ${changes[1]}`;
+  return `changed ${changes.slice(0, -1).join(", ")}, and ${changes.at(-1)}`;
 }
 
 export function UtvSuggestionCard({
@@ -91,22 +89,11 @@ export function UtvSuggestionCard({
     >
       <Card className="hover:bg-accent/50 transition-colors">
         <CardHeader>
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-2 overflow-hidden">
             <div className="min-w-0 flex-1">
-              <CardTitle className="flex min-w-0 items-center gap-2 text-base">
-                <span className="min-w-0 truncate">{displayTitle}</span>
-                {suggestion.diff.title && (
-                  <>
-                    <ArrowRight className="text-muted-foreground size-3 shrink-0" />
-                    <span className="text-primary min-w-0 truncate">
-                      {suggestion.diff.title.new}
-                    </span>
-                  </>
-                )}
+              <CardTitle className="truncate text-base">
+                {displayTitle}
               </CardTitle>
-              <CardDescription className="truncate text-xs">
-                Edit suggestion
-              </CardDescription>
             </div>
             {showStatus && (
               <Badge

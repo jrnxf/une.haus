@@ -5,19 +5,32 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { MonitorIcon, TvIcon } from "lucide-react";
+import { MonitorIcon, ShieldIcon, TvIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { DisciplineSelector } from "~/components/input/discipline-selector";
+import { RiderSelector } from "~/components/input/rider-selector";
 import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import type { UserDiscipline } from "~/db/schema";
 import { getMuxPoster, VideoPlayer } from "~/components/video-player";
 import { invariant } from "~/lib/invariant";
 import { session } from "~/lib/session";
+import {
+  generateOrderId,
+  type OrderedRiderEntry,
+} from "~/lib/tourney/bracket";
 import { utv } from "~/lib/utv/core";
 
 const pathParametersSchema = z.object({
@@ -74,90 +87,97 @@ function RouteComponent() {
 
   invariant(video, "Video not found");
 
-  const [localScale, setLocalScale] = useState(video.thumbnailScale);
-  const [localSeconds, setLocalSeconds] = useState(video.thumbnailSeconds);
-  const [localTitle, setLocalTitle] = useState(video.title);
+  const [title, setTitle] = useState(video.title);
+  const [disciplines, setDisciplines] = useState<UserDiscipline[]>(
+    video.disciplines ?? [],
+  );
+  const [riders, setRiders] = useState<OrderedRiderEntry[]>(
+    video.riders.map((r) => ({
+      orderId: generateOrderId(),
+      userId: r.userId,
+      name: r.user?.name ?? r.name,
+    })),
+  );
+  const [scale, setScale] = useState(video.thumbnailScale);
+  const [thumbnailSeconds, setThumbnailSeconds] = useState(
+    video.thumbnailSeconds,
+  );
   const playerRef = useRef<MuxPlayerRefAttributes>(null);
 
-  const updateScale = useMutation({ mutationFn: utv.updateScale.fn });
-  const updateThumbnailSeconds = useMutation({
-    mutationFn: utv.updateThumbnailSeconds.fn,
-  });
-  const updateTitle = useMutation({ mutationFn: utv.updateTitle.fn });
-
-  const isSaving =
-    updateScale.isPending ||
-    updateThumbnailSeconds.isPending ||
-    updateTitle.isPending;
-
-  const handleCaptureTimestamp = () => {
-    const currentTime = playerRef.current?.currentTime;
-    if (currentTime !== undefined) {
-      setLocalSeconds(Math.floor(currentTime));
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      const promises: Promise<unknown>[] = [];
-
-      if (localTitle !== video.title) {
-        promises.push(
-          updateTitle.mutateAsync({ data: { id: videoId, title: localTitle } }),
-        );
-      }
-      if (localScale !== video.thumbnailScale) {
-        promises.push(
-          updateScale.mutateAsync({ data: { id: videoId, scale: localScale } }),
-        );
-      }
-      if (localSeconds !== video.thumbnailSeconds) {
-        promises.push(
-          updateThumbnailSeconds.mutateAsync({
-            data: { id: videoId, thumbnailSeconds: localSeconds },
-          }),
-        );
-      }
-
-      if (promises.length === 0) {
-        router.navigate({ to: "/vault/$videoId", params: { videoId } });
-        return;
-      }
-
-      await Promise.all(promises);
+  const save = useMutation({
+    mutationFn: utv.adminUpdate.fn,
+    onSuccess: () => {
       toast.success("Saved");
       qc.removeQueries({ queryKey: utv.get.queryOptions(videoId).queryKey });
       qc.removeQueries({
         queryKey: utv.list.infiniteQueryOptions({}).queryKey,
       });
       router.navigate({ to: "/vault/$videoId", params: { videoId } });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to save");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleCaptureTimestamp = () => {
+    const currentTime = playerRef.current?.currentTime;
+    if (currentTime !== undefined) {
+      setThumbnailSeconds(Math.floor(currentTime));
     }
+  };
+
+  const handleSave = () => {
+    save.mutate({
+      data: {
+        id: videoId,
+        title,
+        disciplines: disciplines.length > 0 ? disciplines : null,
+        riders: riders.map((r) => ({ userId: r.userId, name: r.name })),
+        thumbnailScale: scale,
+        thumbnailSeconds,
+      },
+    });
   };
 
   return (
     <>
       <PageHeader>
         <PageHeader.Actions>
-          {video.video?.assetId && (
-            <Button variant="secondary" size="sm" asChild>
-              <a
-                href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
-                target="_blank"
-                rel="noopener noreferrer"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon-xs"
+                aria-label="Admin menu"
               >
-                <MonitorIcon className="size-3" />
-                Mux
-              </a>
-            </Button>
-          )}
-          <Button variant="secondary" size="sm" asChild>
-            <a href={video.legacyUrl} target="_blank" rel="noopener noreferrer">
-              <TvIcon className="size-3" />
-              UTV
-            </a>
-          </Button>
+                <ShieldIcon className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {video.video?.assetId && (
+                <DropdownMenuItem asChild>
+                  <a
+                    href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MonitorIcon className="size-4" />
+                    Mux
+                  </a>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem asChild>
+                <a
+                  href={video.legacyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <TvIcon className="size-4" />
+                  UTV
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </PageHeader.Actions>
       </PageHeader>
       <div className="h-full overflow-y-auto">
@@ -167,10 +187,23 @@ function RouteComponent() {
             <Input
               id="title"
               type="text"
-              value={localTitle}
-              onChange={(e) => setLocalTitle(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="Video title"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Disciplines</Label>
+            <DisciplineSelector
+              value={disciplines}
+              onChange={setDisciplines}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Riders</Label>
+            <RiderSelector value={riders} onChange={setRiders} />
           </div>
 
           <div className="space-y-2">
@@ -181,13 +214,13 @@ function RouteComponent() {
                   <img
                     src={getMuxPoster({
                       playbackId: video.video.playbackId,
-                      time: localSeconds,
+                      time: thumbnailSeconds,
                       width: 160,
                     })}
                     alt="Thumbnail preview"
                     className="h-full w-full object-cover"
                     style={{
-                      transform: `scale(${localScale})`,
+                      transform: `scale(${scale})`,
                     }}
                   />
                 </div>
@@ -197,14 +230,14 @@ function RouteComponent() {
                 min={1}
                 max={3}
                 step={0.01}
-                value={localScale}
+                value={scale}
                 onChange={(e) =>
-                  setLocalScale(Number.parseFloat(e.target.value))
+                  setScale(Number.parseFloat(e.target.value))
                 }
                 className="accent-primary h-2 grow cursor-pointer"
               />
               <span className="text-muted-foreground w-12 text-sm tabular-nums">
-                {(localScale * 100).toFixed(0)}%
+                {(scale * 100).toFixed(0)}%
               </span>
             </div>
           </div>
@@ -222,14 +255,16 @@ function RouteComponent() {
                 className="w-fit"
                 onClick={handleCaptureTimestamp}
               >
-                Capture Timestamp ({localSeconds}s)
+                Capture Timestamp ({thumbnailSeconds}s)
               </Button>
             </div>
           )}
 
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
+          <div className="flex justify-end">
+            <Button onClick={handleSave} disabled={save.isPending}>
+              {save.isPending ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </div>
       </div>
     </>

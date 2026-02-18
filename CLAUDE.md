@@ -143,45 +143,61 @@ loader: ({ context }) => {
 
 ### Filtered Lists with Suspense
 
-For pages with search/filter inputs that use `useSuspenseInfiniteQuery`, use this pattern to prevent UI disappearance during data fetching:
+For pages with search/filter inputs that use `useSuspenseInfiniteQuery`, filter state must be **local React state** — never nuqs or URL-driven on every keystroke. URL updates are debounced and used only for bookmarking.
 
 **Canonical examples:**
 
-- `src/routes/posts/index.tsx`
-- `src/routes/users/index.tsx`
-- `src/routes/vault/index.tsx`
+- `src/routes/vault/index.tsx` — text input only
+- `src/routes/users/index.tsx` — `<Filters>` component with text + multiselect
+- `src/routes/posts/index.tsx` — `<Filters>` component with text + multiselect
+
+**The pattern has two layers:**
+
+1. **`useState`** — local state for immediate input feedback (initialized from `Route.useSearch()`)
+2. **`useDeferredValue`** — tells React "keep showing old UI while new data loads", prevents suspense flash
+
+URL updates go through `useDebounceCallback` + `router.navigate({ replace: true })` so the URL stays bookmarkable without triggering router navigations on every keystroke.
 
 ```tsx
-import { useDeferredValue, useRef, useState } from "react";
-
-import { useDebounceValue } from "usehooks-ts";
+import { useDeferredValue, useState } from "react";
+import { useDebounceCallback } from "usehooks-ts";
 
 function RouteComponent() {
-  // 1. inputValue: immediate feedback for the input field
-  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
+  const searchParams = Route.useSearch();
+  const router = useRouter();
 
-  // 2. debouncedInput: reduces query frequency (200ms delay)
-  const [debouncedInput] = useDebounceValue(inputValue, 200);
+  // Local state for immediate feedback — NOT nuqs
+  const [query, setQuery] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(query);
 
-  // 3. deferredQuery: prevents UI disappearance during suspense
-  const deferredQuery = useDeferredValue(debouncedInput);
-
-  // For non-text filters (tags, categories), also defer them
-  const [tags, setTags] = useState(searchParams.tags ?? []);
+  // Non-text filters (tags, categories) — also local state + defer
+  const [tags, setTags] = useState<string[]>(searchParams.tags ?? []);
   const deferredTags = useDeferredValue(tags);
 
-  // Update URL when debounced input changes (for bookmarking)
-  const lastUrlQuery = useRef(searchParams.q ?? "");
-  if (debouncedInput !== lastUrlQuery.current) {
-    lastUrlQuery.current = debouncedInput;
+  // URL update is for bookmarking only — debounced, never on every keystroke
+  const debouncedNavigate = useDebounceCallback((updates: {
+    q?: string;
+    tags?: string[];
+  }) => {
     router.navigate({
       to: "/current-route",
-      search: (prev) => ({ ...prev, q: debouncedInput || undefined }),
+      search: (prev) => ({
+        ...prev,
+        q: updates.q || undefined,
+        tags: updates.tags?.length ? updates.tags : undefined,
+        cursor: undefined,
+      }),
       replace: true,
     });
-  }
+  }, 300);
 
-  // Query uses DEFERRED values - never raw state
+  // Handlers update local state immediately, debounce URL
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    debouncedNavigate({ q: value, tags });
+  };
+
+  // Query uses DEFERRED values — never raw state
   const { data } = useSuspenseInfiniteQuery(
     domain.list.infiniteQueryOptions({
       q: deferredQuery || undefined,
@@ -191,13 +207,13 @@ function RouteComponent() {
 }
 ```
 
-**Why this pattern?**
+**Why local state, not nuqs?**
 
-1. **`useDebounceValue`** - Prevents query spam. Without it, every keystroke fires a query.
+- nuqs with `shallow: false` triggers a TanStack Router navigation on every setter call — re-running `loaderDeps`, the async loader, and entering a pending state that disrupts the component tree (especially deep component trees like the `<Filters>` chip bar)
+- nuqs with `shallow: true` avoids router navigation but still ties input value to URL serialization/deserialization on every keystroke, adding unnecessary overhead
+- Plain `useState` gives instant feedback with zero overhead. The URL only needs to update for bookmarking, which `useDebounceCallback` + `router.navigate` handles cleanly
 
-2. **`useDeferredValue`** - Tells React "keep showing old UI while new data loads". Without it, `useSuspenseInfiniteQuery` suspends on query key change, and TanStack Router's internal Suspense boundary shows an empty fallback (page disappears).
-
-3. **Both are needed** - Debouncing alone still causes UI disappearance when the debounced value finally changes. Deferring alone still fires queries on every keystroke.
+**Do NOT use nuqs `useQueryState` for text inputs on filtered list pages.** It causes page reloads / UI disruption because every keystroke either triggers a router navigation (`shallow: false`) or unnecessary URL serialization (`shallow: true`).
 
 **Important:** The loader must await `ensureInfiniteQueryData` for SSR to work:
 

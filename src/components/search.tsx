@@ -223,12 +223,12 @@ export function Search() {
       },
     },
     {
-      id: "stats",
-      label: "Stats",
-      value: "/stats",
+      id: "metrics",
+      label: "Metrics",
+      value: "/metrics",
       primaryAction: {
         label: "Open",
-        onAction: () => closeAndNavigate("/stats"),
+        onAction: () => closeAndNavigate("/metrics"),
       },
     },
     {

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeftRightIcon, PlayIcon, RotateCcwIcon } from "lucide-react";
+import { ArrowLeftRightIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -131,80 +131,89 @@ export function SplitTimer({
   }, [clearTimer, initialSeconds]);
 
   const handlePlayPause = useCallback(() => {
+    // Determine which side is visually first (left/top) based on swap state
+    const first: 1 | 2 = swapped ? 2 : 1;
+    const second: 1 | 2 = swapped ? 1 : 2;
+    const firstState = first === 1 ? timer1 : timer2;
+    const secondState = second === 1 ? timer1 : timer2;
+    const setFirstTimer = first === 1 ? setTimer1 : setTimer2;
+    const setSecondTimer = second === 1 ? setTimer1 : setTimer2;
+
     // Both finished - reset
-    if (timer1.state === "finished" && timer2.state === "finished") {
+    if (firstState.state === "finished" && secondState.state === "finished") {
       reset();
       return;
     }
 
-    // No timer active yet - start timer 1
+    // No timer active yet - start first (visual left/top)
     if (activeTimer === null) {
-      startTimerLoop(1);
+      startTimerLoop(first);
       onSyncRef.current?.({
         type: "start",
-        side: 1,
-        duration: timer1.timeRemaining / 1000,
-        otherRemaining: timer2.timeRemaining,
+        side: first,
+        duration: firstState.timeRemaining / 1000,
+        otherRemaining: secondState.timeRemaining,
       });
       return;
     }
 
-    // Timer 1 is running - pause it, start timer 2
-    if (activeTimer === 1 && timer1.state === "running") {
+    // First timer running - pause it, start second
+    if (activeTimer === first && firstState.state === "running") {
       clearTimer();
-      setTimer1((prev) => ({ ...prev, state: "paused" }));
-      if (timer2.state !== "finished") {
-        startTimerLoop(2);
+      setFirstTimer((prev) => ({ ...prev, state: "paused" }));
+      if (secondState.state !== "finished") {
+        startTimerLoop(second);
         onSyncRef.current?.({
           type: "start",
-          side: 2,
-          duration: timer2.timeRemaining / 1000,
-          otherRemaining: timer1.timeRemaining,
+          side: second,
+          duration: secondState.timeRemaining / 1000,
+          otherRemaining: firstState.timeRemaining,
         });
       }
       return;
     }
 
-    // Timer 2 is running - pause it, resume timer 1
-    if (activeTimer === 2 && timer2.state === "running") {
+    // Second timer running - pause it, resume first
+    if (activeTimer === second && secondState.state === "running") {
       clearTimer();
-      setTimer2((prev) => ({ ...prev, state: "paused" }));
-      if (timer1.state !== "finished") {
-        startTimerLoop(1);
+      setSecondTimer((prev) => ({ ...prev, state: "paused" }));
+      if (firstState.state !== "finished") {
+        startTimerLoop(first);
         onSyncRef.current?.({
           type: "start",
-          side: 1,
-          duration: timer1.timeRemaining / 1000,
-          otherRemaining: timer2.timeRemaining,
+          side: first,
+          duration: firstState.timeRemaining / 1000,
+          otherRemaining: secondState.timeRemaining,
         });
       }
       return;
     }
 
-    // Timer 1 is paused and timer 2 finished - resume timer 1
-    if (timer1.state === "paused" && timer2.state === "finished") {
-      startTimerLoop(1);
+    // First timer paused and second finished - resume first
+    if (firstState.state === "paused" && secondState.state === "finished") {
+      startTimerLoop(first);
       onSyncRef.current?.({
         type: "start",
-        side: 1,
-        duration: timer1.timeRemaining / 1000,
+        side: first,
+        duration: firstState.timeRemaining / 1000,
         otherRemaining: 0,
       });
       return;
     }
 
-    // Timer 2 is paused and timer 1 finished - resume timer 2
-    if (timer2.state === "paused" && timer1.state === "finished") {
-      startTimerLoop(2);
+    // Second timer paused and first finished - resume second
+    if (secondState.state === "paused" && firstState.state === "finished") {
+      startTimerLoop(second);
       onSyncRef.current?.({
         type: "start",
-        side: 2,
-        duration: timer2.timeRemaining / 1000,
+        side: second,
+        duration: secondState.timeRemaining / 1000,
         otherRemaining: 0,
       });
       return;
     }
   }, [
+    swapped,
     activeTimer,
     timer1.state,
     timer1.timeRemaining,
@@ -217,6 +226,7 @@ export function SplitTimer({
 
   useHotkeys("space", handlePlayPause);
   useHotkeys("r", reset);
+  useHotkeys("b", () => onClose?.());
 
   // Cleanup on unmount
   useEffect(() => {
@@ -227,24 +237,7 @@ export function SplitTimer({
     };
   }, []);
 
-  const bothFinished =
-    timer1.state === "finished" && timer2.state === "finished";
   const bothIdle = timer1.state === "idle" && timer2.state === "idle";
-
-  // Determine button label based on state
-  const isAnyRunning = timer1.state === "running" || timer2.state === "running";
-  const buttonLabel = bothFinished
-    ? "Reset"
-    : isAnyRunning
-      ? "Switch"
-      : bothIdle
-        ? "Start"
-        : "Switch";
-  const ButtonIcon = bothFinished
-    ? RotateCcwIcon
-    : isAnyRunning
-      ? ArrowLeftRightIcon
-      : PlayIcon;
 
   return (
     <div ref={containerRef} className="bg-background flex h-full flex-col">
@@ -371,34 +364,26 @@ export function SplitTimer({
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex flex-col items-center justify-center gap-1 border-t py-3">
-        <div className="flex items-center gap-2">
-          {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              Bracket
-            </Button>
-          )}
-          <Button onClick={handlePlayPause} className="gap-2" size="sm">
-            <ButtonIcon className="size-4" />
-            {buttonLabel}
-          </Button>
-          <Button
-            variant="secondary"
-            size="icon-sm"
-            onClick={reset}
-            aria-label="Reset timers"
-          >
-            <RotateCcwIcon className="size-4" />
-          </Button>
-        </div>
-        <p className="text-muted-foreground hidden text-xs sm:block">
+      {/* Hotkey hints */}
+      <div className="flex items-center justify-end border-t px-4 py-3">
+        <p className="text-muted-foreground text-xs">
           <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
             Space
           </kbd>{" "}
           start/switch{" "}
-          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">R</kbd>{" "}
+          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+            R
+          </kbd>{" "}
           reset
+          {onClose && (
+            <>
+              {" "}
+              <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+                B
+              </kbd>{" "}
+              bracket
+            </>
+          )}
         </p>
       </div>
     </div>

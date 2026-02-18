@@ -9,7 +9,6 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { BugIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
@@ -25,7 +24,6 @@ import {
   MobileNavProvider,
 } from "~/components/mobile-nav";
 import { SiteHeader } from "~/components/site-header";
-import { Button } from "~/components/ui/button";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { PageHeaderProvider } from "~/lib/page-header/context";
@@ -184,11 +182,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           config={{
             position: "bottom-left",
             hideUntilHover: true,
-            customTrigger: (
-              <Button variant="outline" size="icon-sm" className="rounded-full">
-                <BugIcon className="size-4" />
-              </Button>
-            ),
           }}
           plugins={[
             {

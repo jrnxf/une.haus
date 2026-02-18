@@ -4,12 +4,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { StatsGrid } from "~/components/stats/stats-grid";
 import { stats } from "~/lib/stats";
 
-export const Route = createFileRoute("/stats/")({
+export const Route = createFileRoute("/metrics/")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(stats.get.queryOptions());
   },
   staticData: {
-    pageHeader: { breadcrumbs: [{ label: "stats" }], maxWidth: "4xl" },
+    pageHeader: { breadcrumbs: [{ label: "metrics" }], maxWidth: "4xl" },
   },
   component: RouteComponent,
 });

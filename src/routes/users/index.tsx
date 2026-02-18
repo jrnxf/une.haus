@@ -1,18 +1,14 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { FilterIcon, GhostIcon, XIcon } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { GhostIcon } from "lucide-react";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
 
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useDebounceValue } from "usehooks-ts";
+import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
-import { FilterPanel } from "~/components/filter-drawer";
-import { BadgeInput } from "~/components/input/badge-input";
 import { PageHeader } from "~/components/page-header";
-import { Button } from "~/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -20,7 +16,11 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { Input } from "~/components/ui/input";
+import {
+  Filters,
+  type Filter,
+  type FilterFieldConfig,
+} from "~/components/ui/filters";
 import { USER_DISCIPLINES } from "~/db/schema";
 import { users } from "~/lib/users";
 import { cn, getCloudflareImageUrl } from "~/lib/utils";
@@ -42,43 +42,127 @@ export const Route = createFileRoute("/users/")({
   component: RouteComponent,
 });
 
-/** Nuqs parser for comma-delimited disciplines */
-const parseAsDisciplines = parseAsArrayOf(parseAsString, ",");
-
 function RouteComponent() {
-  // Use nuqs for URL state (stringifySearch keeps commas readable)
-  const [query, setQuery] = useQueryState("name", {
-    defaultValue: "",
-    shallow: false,
-    history: "replace",
-  });
-  const [disciplines, setDisciplines] = useQueryState("disciplines", {
-    ...parseAsDisciplines,
-    defaultValue: [] as string[],
-    shallow: false,
-    history: "replace",
-  });
+  const searchParams = Route.useSearch();
+  const router = useRouter();
 
-  // Debounce query for API calls
-  const [debouncedQuery] = useDebounceValue(query, 300);
-  const deferredQuery = useDeferredValue(debouncedQuery);
+  // --- Text filter: local state for immediate input feedback ---
+  const [nameInput, setNameInput] = useState(searchParams.name ?? "");
+  const deferredName = useDeferredValue(nameInput);
+
+  // URL update is for bookmarking only — debounced so it doesn't fire on every keystroke
+  const debouncedNavigate = useDebounceCallback((updates: {
+    name?: string;
+    disciplines?: string[];
+  }) => {
+    router.navigate({
+      to: "/users",
+      search: (prev) => ({
+        ...prev,
+        name: updates.name || undefined,
+        disciplines:
+          updates.disciplines && updates.disciplines.length > 0
+            ? updates.disciplines
+            : undefined,
+        cursor: undefined,
+      }),
+      replace: true,
+    });
+  }, 300);
+
+  // --- Multiselect filter: local state, deferred for query ---
+  const [disciplines, setDisciplines] = useState<string[]>(
+    searchParams.disciplines ?? [],
+  );
   const deferredDisciplines = useDeferredValue(disciplines);
 
-  const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(query || disciplines.length > 0),
+  // Track which filter fields are open (text filters can be open with empty value)
+  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    if (nameInput) initial.add("name");
+    if (disciplines.length > 0) initial.add("disciplines");
+    return initial;
+  });
+
+  const filterFields: FilterFieldConfig<string>[] = useMemo(
+    () => [
+      {
+        key: "name",
+        label: "Name",
+        type: "text" as const,
+        placeholder: "search...",
+        operators: [{ value: "contains", label: "contains" }],
+        defaultOperator: "contains",
+      },
+      {
+        key: "disciplines",
+        label: "Disciplines",
+        type: "multiselect" as const,
+        operators: [{ value: "includes_all", label: "includes" }],
+        defaultOperator: "includes_all",
+        options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
+      },
+    ],
+    [],
   );
 
-  const hasActiveFilters = Boolean(query || disciplines.length > 0);
+  // Derive filters from LOCAL state (immediate feedback, not URL)
+  const filters = useMemo<Filter<string>[]>(() => {
+    const result: Filter<string>[] = [];
+    if (activeFields.has("name")) {
+      result.push({
+        id: "name",
+        field: "name",
+        operator: "contains",
+        values: nameInput ? [nameInput] : [],
+      });
+    }
+    if (activeFields.has("disciplines") || disciplines.length > 0) {
+      result.push({
+        id: "disciplines",
+        field: "disciplines",
+        operator: "includes_all",
+        values: disciplines,
+      });
+    }
+    return result;
+  }, [nameInput, disciplines, activeFields]);
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value || null);
-  };
+  const handleFiltersChange = useCallback(
+    (next: Filter<string>[]) => {
+      const nameFilter = next.find((f) => f.field === "name");
+      const discFilter = next.find((f) => f.field === "disciplines");
 
-  const handleDisciplinesChange = (
-    newDisciplines: (typeof USER_DISCIPLINES)[number][],
-  ) => {
-    setDisciplines(newDisciplines.length > 0 ? newDisciplines : null);
-  };
+      setActiveFields((prev) => {
+        const wantName = Boolean(nameFilter);
+        const wantDisc = Boolean(discFilter);
+        if (
+          prev.has("name") === wantName &&
+          prev.has("disciplines") === wantDisc
+        ) {
+          return prev;
+        }
+        const s = new Set<string>();
+        if (wantName) s.add("name");
+        if (wantDisc) s.add("disciplines");
+        return s;
+      });
+
+      // Text: update local state immediately (URL updates via debounce)
+      const newName = nameFilter?.values[0] || "";
+      setNameInput(newName);
+
+      // Multiselect: update local state immediately
+      const newDisc =
+        discFilter && discFilter.values.length > 0 ? discFilter.values : [];
+      setDisciplines(newDisc);
+
+      // Debounce URL update for text, immediate for multiselect removal/addition
+      // (both go through the same debounced navigate for simplicity)
+      debouncedNavigate({ name: newName, disciplines: newDisc });
+    },
+    [debouncedNavigate],
+  );
 
   const {
     data: usersPages,
@@ -87,7 +171,7 @@ function RouteComponent() {
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(
     users.list.infiniteQueryOptions({
-      name: deferredQuery || undefined,
+      name: deferredName || undefined,
       disciplines:
         deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
     }),
@@ -98,52 +182,19 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Actions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFiltersOpen(!filtersOpen)}
-            className="relative"
-          >
-            <FilterIcon className="size-3.5" />
-            Filters
-            {hasActiveFilters && !filtersOpen && (
-              <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
-            )}
-          </Button>
-        </PageHeader.Actions>
-      </PageHeader>
+      <PageHeader />
+
+      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+        <Filters
+          filters={filters}
+          fields={filterFields}
+          onChange={handleFiltersChange}
+          size="sm"
+        />
+      </div>
 
       <div className="overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-          <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <div className="relative">
-              <Input
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="search users..."
-                className="pr-8"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => handleQueryChange("")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              )}
-            </div>
-            <BadgeInput
-              defaultSelections={
-                disciplines as (typeof USER_DISCIPLINES)[number][]
-              }
-              onChange={handleDisciplinesChange}
-              options={USER_DISCIPLINES}
-            />
-          </FilterPanel>
-
           {displayedUsers.length === 0 && (
             <Empty>
               <EmptyHeader>

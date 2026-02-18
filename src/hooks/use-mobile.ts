@@ -1,6 +1,6 @@
 import * as React from "react";
 
-const TABLET_BREAKPOINT = 1024;
+const TABLET_BREAKPOINT = 768;
 
 export function useIsTablet() {
   const [isTablet, setIsTablet] = React.useState<boolean | undefined>(

@@ -3,13 +3,13 @@ import { USER_DISCIPLINES, type UserDiscipline } from "~/db/schema";
 import { cn } from "~/lib/utils";
 
 const DISCIPLINE_LABELS: Record<UserDiscipline, string> = {
-  street: "Street",
-  flatland: "Flatland",
-  trials: "Trials",
-  freestyle: "Freestyle",
-  mountain: "Mountain",
-  distance: "Distance",
-  other: "Other",
+  street: "street",
+  flatland: "flatland",
+  trials: "trials",
+  freestyle: "freestyle",
+  mountain: "mountain",
+  distance: "distance",
+  other: "other",
 };
 
 export function DisciplineSelector({

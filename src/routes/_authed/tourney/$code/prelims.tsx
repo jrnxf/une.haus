@@ -1,18 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import {
-  EllipsisVerticalIcon,
-  InfoIcon,
-  PauseIcon,
-  PlayIcon,
-  RotateCcwIcon,
-} from "lucide-react";
+import { EllipsisVerticalIcon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { PageHeader } from "~/components/page-header";
 import { CountdownDisplay } from "~/components/tourney/countdown-display";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -20,11 +13,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { tourney } from "~/lib/tourney";
 import {
   useAdminHeartbeat,
@@ -117,6 +105,12 @@ function RouteComponent() {
         const status = state.prelimStatuses[i];
         return status === "done" || status === "dq";
       }),
+    [state.riders, state.prelimStatuses],
+  );
+
+  const qualifiedCount = useMemo(
+    () =>
+      state.riders.filter((_, i) => state.prelimStatuses[i] === "done").length,
     [state.riders, state.prelimStatuses],
   );
 
@@ -273,19 +267,28 @@ function RouteComponent() {
         })}
       </div>
 
-      {allFinished && (
-        <Button
-          onClick={() =>
-            advancePhase.mutate({
-              data: { code, phase: "ranking" },
-            })
-          }
-          className="w-full"
-          disabled={advancePhase.isPending}
-        >
-          Ranking
-        </Button>
-      )}
+      {allFinished &&
+        (qualifiedCount <= 2 ? (
+          <div className="rounded-lg border border-dashed p-4 text-center">
+            <p className="text-muted-foreground text-sm">
+              {qualifiedCount === 0
+                ? "All riders were disqualified"
+                : `Not enough riders qualified (${qualifiedCount} of ${state.riders.length})`}
+            </p>
+          </div>
+        ) : (
+          <Button
+            onClick={() =>
+              advancePhase.mutate({
+                data: { code, phase: "ranking" },
+              })
+            }
+            className="w-full"
+            disabled={advancePhase.isPending}
+          >
+            Ranking
+          </Button>
+        ))}
     </div>
   );
 }
@@ -321,10 +324,6 @@ function TimerView({
 
   const timeRemaining = useSyncedTimer(state.timer);
   const isTimerActive = state.timer?.active ?? false;
-  const isPaused =
-    state.timer !== null &&
-    !state.timer.active &&
-    state.timer.pausedRemaining !== null;
   const isFinished =
     timeRemaining !== null && timeRemaining <= 0 && !isTimerActive;
   const isLow = (timeRemaining ?? 0) <= 10_000 && isTimerActive;
@@ -351,6 +350,8 @@ function TimerView({
 
   useHotkeys("space", toggleTimer);
   useHotkeys("r", resetTimer);
+  useHotkeys("d", markDQ);
+  useHotkeys("n", markDone, { enabled: !isTimerActive });
 
   return (
     <>
@@ -387,16 +388,8 @@ function TimerView({
           isFinished && "bg-destructive/20",
         )}
       >
-        <div className="flex items-center gap-3 px-4 pt-4">
-          <Avatar
-            className="size-10"
-            cloudflareId={resolved.avatarId}
-            alt={name}
-          >
-            <AvatarImage width={80} quality={70} />
-            <AvatarFallback name={name} className="text-sm" />
-          </Avatar>
-          <span className="text-lg font-semibold">{name}</span>
+        <div className="px-4 pt-4">
+          <span className="block truncate text-lg font-semibold">{name}</span>
         </div>
 
         <div className="flex grow flex-col items-center justify-center">
@@ -409,24 +402,13 @@ function TimerView({
           />
         </div>
 
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center border-t px-4 py-2">
+        <div className="flex items-center justify-between border-t px-4 py-2">
           <div className="min-w-0">
             {nextResolved && (
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground shrink-0 text-xs">
-                  next
+                  next up
                 </span>
-                <Avatar
-                  className="size-5 shrink-0"
-                  cloudflareId={nextResolved.avatarId}
-                  alt={nextResolved.name ?? "Unknown"}
-                >
-                  <AvatarImage width={40} quality={60} />
-                  <AvatarFallback
-                    name={nextResolved.name ?? "Unknown"}
-                    className="text-[10px]"
-                  />
-                </Avatar>
                 <span className="truncate text-sm font-medium">
                   {nextResolved.name ?? "Unknown"}
                 </span>
@@ -434,57 +416,20 @@ function TimerView({
             )}
           </div>
 
-          <div className="flex flex-col items-center gap-1">
-            <div className="flex items-center gap-2">
-              <Button variant="destructive" onClick={markDQ}>
-                disqualify
-              </Button>
-              <Button onClick={toggleTimer}>
-                {isFinished ? (
-                  <>
-                    <RotateCcwIcon className="size-3.5" />
-                    Reset
-                  </>
-                ) : isTimerActive ? (
-                  <>
-                    <PauseIcon className="size-3.5" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <PlayIcon className="size-3.5" />
-                    {isPaused ? "Resume" : "Start"}
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={markDone}
-                disabled={isTimerActive}
-              >
-                next
-              </Button>
-            </div>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button className="text-muted-foreground hidden sm:block">
-                  <InfoIcon className="size-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-                  Space
-                </kbd>{" "}
-                start/stop{" "}
-                <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-                  R
-                </kbd>{" "}
-                reset
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          <div />
+          <p className="text-muted-foreground shrink-0 text-xs">
+            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+              D
+            </kbd>{" "}
+            disqualify{" "}
+            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+              Space
+            </kbd>{" "}
+            start/stop{" "}
+            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+              N
+            </kbd>{" "}
+            next
+          </p>
         </div>
       </div>
     </>

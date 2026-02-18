@@ -3,24 +3,23 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import {
-  ArrowLeft,
   Bell,
   CalendarClock,
   Heart,
   Mail,
   MessageCircle,
   Sparkles,
+  TrafficConeIcon,
   Trophy,
-  UserPlus,
+  UserPlus
 } from "lucide-react";
 import { useEffect } from "react";
 
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -162,20 +161,14 @@ function RouteComponent() {
       <div className="mx-auto max-w-2xl p-6">
         {/* Header */}
         <div className="mb-6">
-          <Button variant="ghost" size="sm" className="mb-4" asChild>
-            <Link to="/notifications">
-              <ArrowLeft className="mr-2 size-4" />
-              Back to notifications
-            </Link>
-          </Button>
           <div className="flex items-center gap-3">
             <div className="bg-muted flex size-10 items-center justify-center rounded-lg">
               <Bell className="text-muted-foreground size-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Notification Settings</h1>
+              <h1 className="text-2xl font-bold">notifications settings</h1>
               <p className="text-muted-foreground text-sm">
-                Choose what notifications you want to receive
+                choose what notifications you want to receive
               </p>
             </div>
           </div>
@@ -185,9 +178,9 @@ function RouteComponent() {
           {/* In-App Notifications */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle>In-App Notifications</CardTitle>
+              <CardTitle>in-app notifications</CardTitle>
               <CardDescription>
-                Control which activities trigger notifications
+                control which activities trigger notifications
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -233,10 +226,10 @@ function RouteComponent() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2">
                 <Mail className="size-5" />
-                Email Digest
+                digest
               </CardTitle>
               <CardDescription>
-                Get a summary of notifications you may have missed
+                get an email summary of notifications you may have missed
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -246,10 +239,10 @@ function RouteComponent() {
                     htmlFor="emailDigestEnabled"
                     className="cursor-pointer text-sm font-medium"
                   >
-                    Send me a digest of missed notifications
+                    send me a digest of missed notifications
                   </Label>
                   <p className="text-muted-foreground text-sm">
-                    Receive a summary of likes, comments, and new followers
+                    receive a summary of likes, comments, and new followers
                   </p>
                 </div>
                 <Checkbox
@@ -266,7 +259,7 @@ function RouteComponent() {
                 <div className="ml-0 space-y-4 border-l-2 pl-4">
                   <div className="flex items-center gap-4">
                     <Label className="text-muted-foreground w-20 text-sm">
-                      Frequency
+                      frequency
                     </Label>
                     <Select
                       value={settings.emailDigestFrequency ?? "weekly"}
@@ -290,7 +283,7 @@ function RouteComponent() {
                   {settings.emailDigestFrequency === "weekly" && (
                     <div className="flex items-center gap-4">
                       <Label className="text-muted-foreground w-20 text-sm">
-                        Day
+                        day
                       </Label>
                       <Select
                         value={String(settings.emailDigestDayOfWeek ?? 0)}
@@ -315,7 +308,7 @@ function RouteComponent() {
 
                   <div className="flex items-center gap-4">
                     <Label className="text-muted-foreground w-20 text-sm">
-                      Time
+                      time
                     </Label>
                     <Select
                       value={String(settings.emailDigestHourUtc ?? 9)}
@@ -346,10 +339,10 @@ function RouteComponent() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2">
                 <Trophy className="size-5" />
-                Game Reminders
+                game reminders
               </CardTitle>
               <CardDescription>
-                Get notified about RIU rounds and your submissions
+                get email notifications about rack-it-up rounds starting and what
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -365,10 +358,10 @@ function RouteComponent() {
                         htmlFor="gameStartReminderEnabled"
                         className="cursor-pointer text-sm font-medium"
                       >
-                        Round start reminder
+                        round start reminder
                       </Label>
                       <p className="text-muted-foreground text-sm">
-                        Get notified when a new RIU round is about to start
+                        get notified when a new rack-it-up round is about to start
                       </p>
                     </div>
                   </div>
@@ -387,7 +380,7 @@ function RouteComponent() {
                 {settings.gameStartReminderEnabled && !isEmailDisabled && (
                   <div className="mt-4 ml-11 flex items-center gap-4">
                     <Label className="text-muted-foreground text-sm">
-                      Remind me
+                      remind me
                     </Label>
                     <Select
                       value={String(
@@ -423,17 +416,17 @@ function RouteComponent() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <div className="bg-muted mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md">
-                      <Sparkles className="text-muted-foreground size-4" />
+                      <TrafficConeIcon className="text-muted-foreground size-4" />
                     </div>
                     <div>
                       <Label
                         htmlFor="preTrickReminderEnabled"
                         className="cursor-pointer text-sm font-medium"
                       >
-                        Pre-game trick reminder
+                        pre-game trick reminder
                       </Label>
                       <p className="text-muted-foreground text-sm">
-                        Get a reminder of your submitted sets before the round
+                        get a reminder of your submitted sets before the round
                         starts
                       </p>
                     </div>
@@ -453,7 +446,7 @@ function RouteComponent() {
                 {settings.preTrickReminderEnabled && !isEmailDisabled && (
                   <div className="mt-4 ml-11 flex items-center gap-4">
                     <Label className="text-muted-foreground text-sm">
-                      Remind me
+                      remind me
                     </Label>
                     <Select
                       value={String(settings.preTrickReminderDaysBefore ?? 1)}
@@ -492,17 +485,17 @@ function RouteComponent() {
                 : undefined
             }
           >
-            <CardContent className="flex items-start justify-between gap-4 pt-6">
+            <CardContent className="flex items-start justify-between gap-4">
               <div>
                 <Label
                   htmlFor="emailUnsubscribedAll"
                   className="cursor-pointer text-sm font-medium"
                 >
-                  Unsubscribe from all emails
+                  unsubscribe from all emails
                 </Label>
                 <p className="text-muted-foreground text-sm">
-                  Stop receiving all email notifications (except account
-                  security emails)
+                  stop receiving all email notifications (except account
+                  related emails)
                 </p>
               </div>
               <Checkbox

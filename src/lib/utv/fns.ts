@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { db } from "~/db";
 import {
+  USER_DISCIPLINES,
   muxVideos,
   utvClaps,
   utvVideoLikes,
@@ -263,6 +264,55 @@ export const updateUtvTitleServerFn = createServerFn({
       .where(eq(utvVideos.id, data.id));
 
     return { id: data.id, title: data.title };
+  });
+
+const adminUpdateSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  disciplines: z.array(z.enum(USER_DISCIPLINES)).nullable(),
+  riders: z.array(
+    z.object({
+      userId: z.number().nullable(),
+      name: z.string().nullable(),
+    }),
+  ),
+  thumbnailScale: z.number().min(1).max(3),
+  thumbnailSeconds: z.number().min(0),
+});
+
+export const adminUpdateUtvVideoServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(adminUpdateSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async ({ data }) => {
+    await db
+      .update(utvVideos)
+      .set({
+        title: data.title,
+        disciplines: data.disciplines,
+        thumbnailScale: data.thumbnailScale,
+        thumbnailSeconds: data.thumbnailSeconds,
+      })
+      .where(eq(utvVideos.id, data.id));
+
+    // Replace riders
+    await db
+      .delete(utvVideoRiders)
+      .where(eq(utvVideoRiders.utvVideoId, data.id));
+
+    if (data.riders.length > 0) {
+      await db.insert(utvVideoRiders).values(
+        data.riders.map((rider, index) => ({
+          utvVideoId: data.id,
+          userId: rider.userId,
+          name: rider.name,
+          order: index,
+        })),
+      );
+    }
+
+    return { id: data.id };
   });
 
 export const getUtvClapsServerFn = createServerFn({

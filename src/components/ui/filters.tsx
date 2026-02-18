@@ -174,7 +174,7 @@ function FilterValueSelector<T = unknown>({
         value={(values[0] as string) || ""}
         onChange={(e) => onChange([e.target.value] as T[])}
         placeholder={field.placeholder}
-        className={cn("w-36 shadow-xs", size === "sm" && "h-8 text-xs")}
+        className={cn("w-36 text-base", size === "sm" && "h-8")}
       />
     );
   }
@@ -310,7 +310,7 @@ export function Filters<T = unknown>({
   size = "default",
   trigger,
   allowMultiple = true,
-  searchable = true,
+  searchable = false,
   className,
 }: FiltersProps<T>) {
   const [addFilterOpen, setAddFilterOpen] = useState(false);
@@ -380,7 +380,7 @@ export function Filters<T = unknown>({
   const defaultTrigger = (
     <Button variant="outline" size={size}>
       <FilterIcon className="size-3.5" />
-      Filter
+      filters
     </Button>
   );
 
@@ -452,8 +452,8 @@ export function Filters<T = unknown>({
                                 if (isMultiSelect) {
                                   const nextValues = isSelected
                                     ? (currentValues.filter(
-                                        (v) => v !== value,
-                                      ) as T[])
+                                      (v) => v !== value,
+                                    ) as T[])
                                     : ([...currentValues, value] as T[]);
 
                                   if (sessionFilter) {
@@ -527,7 +527,7 @@ export function Filters<T = unknown>({
             <ButtonGroup key={filter.id}>
               <ButtonGroupText className="bg-background dark:bg-input/30">
                 {field.icon}
-                {field.label}
+                {field.label.toLowerCase()}
               </ButtonGroupText>
               <FilterOperatorDropdown<T>
                 field={field}
@@ -549,6 +549,7 @@ export function Filters<T = unknown>({
             </ButtonGroup>
           );
         })}
+
       </div>
     </FilterContext.Provider>
   );

@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import {
-  ClipboardPenIcon,
+  ActivityIcon,
+  StickyNoteIcon,
   EarthIcon,
-  GaugeIcon,
   LockIcon,
   LockOpenIcon,
   MapPinIcon,
@@ -10,7 +10,7 @@ import {
   MessagesSquareIcon,
   Send,
   ShoppingBagIcon,
-  TrafficConeIcon,
+  TrafficConeIcon
 } from "lucide-react";
 import * as React from "react";
 
@@ -47,7 +47,7 @@ const data = {
     {
       title: "Posts",
       url: "/posts",
-      icon: ClipboardPenIcon,
+      icon: StickyNoteIcon,
     },
     {
       title: "Chat",
@@ -76,9 +76,9 @@ const data = {
       icon: BracketIcon,
     },
     {
-      title: "Stats",
-      url: "/stats",
-      icon: GaugeIcon,
+      title: "Metrics",
+      url: "/metrics",
+      icon: ActivityIcon,
     },
     {
       title: "Shop",
@@ -88,7 +88,7 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Feedback",
+      title: "feedback",
       url: "/feedback",
       icon: Send,
     },

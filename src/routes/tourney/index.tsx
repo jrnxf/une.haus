@@ -3,8 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { GhostIcon } from "lucide-react";
 
 import { PageHeader } from "~/components/page-header";
+import { TimeAgo } from "~/components/time-ago";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
 import {
   Empty,
   EmptyDescription,
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/tourney/")({
   staticData: {
     pageHeader: {
       breadcrumbs: [{ label: "tourney" }],
-      maxWidth: "lg",
+      maxWidth: "4xl",
     },
   },
   component: RouteComponent,
@@ -44,7 +45,7 @@ function RouteComponent() {
         </PageHeader>
       )}
 
-      <div className="mx-auto w-full max-w-lg space-y-2 p-4">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
         {tournaments.length === 0 ? (
           <Empty>
             <EmptyHeader>
@@ -57,33 +58,36 @@ function RouteComponent() {
           </Empty>
         ) : (
           tournaments.map((t) => (
-            <Card key={t.id}>
-              <CardContent className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{t.name}</p>
-                  <p className="text-muted-foreground font-mono text-xs">
-                    {t.code}
-                  </p>
+            <Link
+              key={t.id}
+              to="/tourney/live/$code"
+              params={{ code: t.code }}
+              className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+            >
+              <div className="bg-card flex flex-col gap-2 rounded-md border p-3">
+                <div className="flex items-center justify-between">
+                  <p className="truncate font-semibold">{t.name}</p>
+                  <Badge variant="secondary">{t.phase}</Badge>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" asChild>
-                    <Link to="/tourney/live/$code" params={{ code: t.code }}>
-                      Watch
-                    </Link>
-                  </Button>
+                <div className="flex items-center justify-between">
+                  <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
+                    <span className="font-mono">{t.code}</span>
+                    <span>·</span>
+                    <TimeAgo date={t.createdAt} />
+                  </p>
                   {user?.id === t.createdByUserId && (
-                    <Button variant="secondary" size="sm" asChild>
-                      <Link
-                        to={getPhaseRoute(t.phase)}
-                        params={{ code: t.code }}
-                      >
-                        Manage
-                      </Link>
-                    </Button>
+                    <Link
+                      to={getPhaseRoute(t.phase)}
+                      params={{ code: t.code }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-muted-foreground hover:text-foreground text-xs font-medium"
+                    >
+                      Manage
+                    </Link>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
           ))
         )}
       </div>

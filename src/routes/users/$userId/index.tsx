@@ -53,7 +53,7 @@ function RouteComponent() {
       <PageHeader>
         {isOwnProfile && (
           <PageHeader.Actions>
-            <Button asChild variant="secondary">
+            <Button asChild>
               <Link to="/auth/me/edit">Edit</Link>
             </Button>
           </PageHeader.Actions>

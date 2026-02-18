@@ -12,6 +12,7 @@ import {
   listUtvSuggestionsServerFn,
   listUtvVideosServerFn,
   reviewUtvSuggestionServerFn,
+  adminUpdateUtvVideoServerFn,
   updateUtvScaleServerFn,
   updateUtvThumbnailSecondsServerFn,
   updateUtvTitleServerFn,
@@ -92,6 +93,9 @@ export const utv = {
   },
   updateTitle: {
     fn: updateUtvTitleServerFn,
+  },
+  adminUpdate: {
+    fn: adminUpdateUtvVideoServerFn,
   },
 
   // Suggestions (edits to existing videos)

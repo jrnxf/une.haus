@@ -1,4 +1,4 @@
-import { RadialBar, RadialBarChart } from "recharts";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -17,20 +17,29 @@ type DisciplineChartProps = {
   data: { discipline: string; count: number }[];
 };
 
-const chartConfig = {
-  count: { label: "Users" },
-  street: { label: "Street", color: "var(--chart-1)" },
-  flatland: { label: "Flatland", color: "var(--chart-2)" },
-  trials: { label: "Trials", color: "var(--chart-3)" },
-  freestyle: { label: "Freestyle", color: "var(--chart-4)" },
-  mountain: { label: "Mountain", color: "var(--chart-5)" },
-  distance: { label: "Distance", color: "var(--chart-1)" },
-} satisfies ChartConfig;
+const DISCIPLINE_COLORS: Record<string, string> = {
+  street: "var(--chart-1)",
+  flatland: "var(--chart-2)",
+  trials: "var(--chart-3)",
+  freestyle: "var(--chart-4)",
+  mountain: "var(--chart-5)",
+  distance: "var(--chart-1)",
+};
 
 export function DisciplineChart({ data }: DisciplineChartProps) {
-  // Transform data for radial bar chart - use discipline name as key for colors
+  const chartConfig = Object.fromEntries([
+    ["count", { label: "users" }],
+    ...data.map((item) => [
+      item.discipline.toLowerCase(),
+      {
+        label: item.discipline,
+        color: DISCIPLINE_COLORS[item.discipline.toLowerCase()] ?? "var(--chart-1)",
+      },
+    ]),
+  ]) satisfies ChartConfig;
+
   const chartData = data.map((item) => ({
-    discipline: item.discipline,
+    discipline: item.discipline.toLowerCase(),
     count: item.count,
     fill: `var(--color-${item.discipline.toLowerCase()})`,
   }));
@@ -49,46 +58,33 @@ export function DisciplineChart({ data }: DisciplineChartProps) {
           </TooltipContent>
         </Tooltip>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col justify-center px-4">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square w-full max-w-[200px]"
-        >
-          <RadialBarChart data={chartData} innerRadius={30} outerRadius={100}>
+      <CardContent className="flex flex-1 flex-col justify-center">
+        <ChartContainer config={chartConfig}>
+          <BarChart
+            accessibilityLayer
+            data={chartData}
+            layout="vertical"
+            margin={{ left: 0 }}
+          >
+            <YAxis
+              dataKey="discipline"
+              type="category"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              width={80}
+              tickFormatter={(value: string) =>
+                chartConfig[value as keyof typeof chartConfig]?.label ?? value
+              }
+            />
+            <XAxis dataKey="count" type="number" hide />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel nameKey="discipline" />}
+              content={<ChartTooltipContent hideLabel />}
             />
-            <RadialBar dataKey="count" background />
-          </RadialBarChart>
+            <Bar dataKey="count" layout="vertical" radius={5} />
+          </BarChart>
         </ChartContainer>
-        <div className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1">
-          {chartData.slice(0, 6).map((item) => {
-            const key =
-              item.discipline.toLowerCase() as keyof typeof chartConfig;
-            const config = chartConfig[key];
-            const color =
-              config && "color" in config ? config.color : undefined;
-            return (
-              <Tooltip key={item.discipline}>
-                <TooltipTrigger asChild>
-                  <div className="flex cursor-help items-center gap-1.5">
-                    <div
-                      className="size-2 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-muted-foreground text-xs">
-                      {item.discipline}
-                    </span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs">
-                  {item.count} {item.count === 1 ? "user" : "users"}
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </div>
       </CardContent>
     </Card>
   );
