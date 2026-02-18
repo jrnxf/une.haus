@@ -12,7 +12,6 @@ import { z } from "zod";
 
 import { DisciplineBadge } from "~/components/badges";
 import { UsersDialog } from "~/components/likes-dialog";
-import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -36,10 +35,17 @@ export const Route = createFileRoute("/vault/$videoId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "vault", to: "/vault" }, { label: "" }],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params: { videoId }, preload }) => {
+    let videoData: any;
     const ensureVideo = async () => {
       try {
-        await context.queryClient.ensureQueryData(
+        videoData = await context.queryClient.ensureQueryData(
           utv.get.queryOptions(videoId),
         );
       } catch {
@@ -61,6 +67,16 @@ export const Route = createFileRoute("/vault/$videoId/")({
     };
 
     await Promise.all([ensureVideo(), ensureMessages()]);
+
+    return {
+      pageHeader: {
+        breadcrumbOverrides: {
+          1: {
+            label: videoData?.title || videoData?.legacyTitle || "video",
+          },
+        },
+      },
+    };
   },
 });
 
@@ -101,13 +117,6 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
-          <PageHeader.Crumb>{displayTitle}</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
-
       <div className="h-full min-h-0 overflow-y-auto">
         <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4 md:p-6">
           <div className="flex items-center gap-2">
@@ -115,18 +124,20 @@ function RouteComponent() {
               {displayTitle}
             </h1>
             <div className="flex shrink-0 items-center gap-1">
-              <Button
-                size="icon-sm"
-                variant="outline"
-                onClick={likeUnlikeVideo}
-              >
-                <HeartIcon
-                  className={cn(
-                    "size-4",
-                    authUserLiked && "fill-red-700/50 stroke-red-700",
-                  )}
-                />
-              </Button>
+              {sessionUser && (
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  onClick={likeUnlikeVideo}
+                >
+                  <HeartIcon
+                    className={cn(
+                      "size-4",
+                      authUserLiked && "fill-red-700/50 stroke-red-700",
+                    )}
+                  />
+                </Button>
+              )}
               <UsersDialog
                 users={video.likes.map((like) => like.user)}
                 title={`${video.likes.length} ${video.likes.length === 1 ? "Like" : "Likes"}`}

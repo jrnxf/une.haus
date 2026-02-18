@@ -1,10 +1,9 @@
-import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   ArchiveIcon,
+  ArrowDownToLineIcon,
   CalendarIcon,
-  PlayCircleIcon,
   RefreshCwIcon,
-  RotateCcwIcon,
   ShieldIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -22,20 +21,23 @@ import { useIsAdmin } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/games/rius")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "games", to: "/games" }, { label: "rack it up" }],
+      tabs: [
+        {
+          path: "/games/rius/active",
+          label: "active",
+          icon: ArrowDownToLineIcon,
+        },
+        { path: "/games/rius/upcoming", label: "upcoming", icon: CalendarIcon },
+        { path: "/games/rius/archived", label: "archived", icon: ArchiveIcon },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   component: RouteComponent,
 });
-
-type TabConfig = {
-  path: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
-
-const tabs: TabConfig[] = [
-  { path: "/games/rius/active", label: "active", icon: PlayCircleIcon },
-  { path: "/games/rius/upcoming", label: "upcoming", icon: CalendarIcon },
-  { path: "/games/rius/archived", label: "archived", icon: ArchiveIcon },
-];
 
 const pad = (n: number) => n.toString().padStart(2, "0");
 
@@ -100,20 +102,12 @@ function Countdown() {
 }
 
 function RouteComponent() {
-  const location = useLocation();
   const isAdmin = useIsAdmin();
   const rotateRius = useAdminRotateRius();
-
-  const isActive = (path: string) => location.pathname.includes(path);
 
   return (
     <>
       <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb icon={RotateCcwIcon}>rack it up</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-        <PageHeader.Tabs items={tabs} isActive={isActive} />
         <PageHeader.Widget>
           <Countdown />
         </PageHeader.Widget>

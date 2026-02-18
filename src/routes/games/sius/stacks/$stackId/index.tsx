@@ -22,7 +22,6 @@ import { TrickLine } from "~/components/games/sius/trick-line";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
-import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -54,6 +53,16 @@ export const Route = createFileRoute("/games/sius/stacks/$stackId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "games", to: "/games" },
+        { label: "stack it up", to: "/games/sius" },
+        { label: "stack" },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params: { stackId }, preload }) => {
     try {
       await context.queryClient.ensureQueryData(
@@ -80,15 +89,6 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/sius" icon={LayersIcon}>
-            stack it up
-          </PageHeader.Crumb>
-          <PageHeader.Crumb>stack</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
         <StackView stackId={stackId} />
       </div>
@@ -167,19 +167,21 @@ function StackView({ stackId }: { stackId: number }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={likeUnlike.mutate}
-            aria-label={authUserLiked ? "Unlike" : "Like"}
-          >
-            <HeartIcon
-              className={cn(
-                "size-4",
-                authUserLiked && "fill-red-700/50 stroke-red-700",
-              )}
-            />
-          </Button>
+          {sessionUser && (
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={likeUnlike.mutate}
+              aria-label={authUserLiked ? "Unlike" : "Like"}
+            >
+              <HeartIcon
+                className={cn(
+                  "size-4",
+                  authUserLiked && "fill-red-700/50 stroke-red-700",
+                )}
+              />
+            </Button>
+          )}
           {stack.likes.length > 0 && (
             <UsersDialog
               users={stack.likes.map(

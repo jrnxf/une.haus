@@ -43,8 +43,13 @@ import {
 import { tricks, type Trick } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
-
 export const Route = createFileRoute("/tricks/")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks" }],
+      maxWidth: "full",
+    },
+  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(tricks.graph.queryOptions());
   },
@@ -55,8 +60,9 @@ const columnHelper = createColumnHelper<Trick>();
 
 const columns = [
   columnHelper.accessor("name", {
-    header: "Name",
-    size: 200,
+    header: "name",
+    size: 150,
+    meta: { className: "truncate" },
     cell: (info) => (
       <Link
         to="/tricks/$trickId"
@@ -70,7 +76,7 @@ const columns = [
             <span key={i}>
               {part}
               {i < arr.length - 1 && (
-                <span className="mx-0.5 inline-block size-0.5 rounded-full bg-muted-foreground/35 align-middle" />
+                <span className="bg-muted-foreground/35 mx-0.5 inline-block size-0.5 rounded-full align-middle" />
               )}
             </span>
           ))}
@@ -91,24 +97,29 @@ const columns = [
     },
   }),
   columnHelper.accessor("definition", {
-    header: "Description",
+    header: "description",
     cell: (info) => {
       const val = info.getValue();
       if (!val) return null;
       return val.length > 50 ? `${val.slice(0, 50)}...` : val;
     },
-    meta: { className: "hidden md:table-cell" },
+    size: 250,
+    meta: { className: "hidden md:table-cell truncate" },
   }),
   columnHelper.accessor("elements", {
-    header: "Elements",
-    size: 200,
+    header: "elements",
+    size: 100,
     cell: (info) => {
       const elems = info.getValue();
       if (elems.length === 0) return null;
       return (
         <div className="flex gap-1">
           {elems.map((e) => (
-            <Badge key={e} variant="secondary" className="text-xs px-1.5 py-0.5 md:px-2.5">
+            <Badge
+              key={e}
+              variant="secondary"
+              className="px-1.5 py-0.5 text-xs md:px-2.5"
+            >
               {e}
             </Badge>
           ))}
@@ -120,7 +131,6 @@ const columns = [
 ];
 
 function TricksListPage() {
-
   const { data } = useSuspenseQuery(tricks.graph.queryOptions());
 
   const [sorting, setSorting] = useState<SortingState>([
@@ -170,9 +180,10 @@ function TricksListPage() {
     for (const filter of filters) {
       if (filter.field === "name" && filter.values.length > 0) {
         const raw = (filter.values[0] || "").toLowerCase().trim();
-        const q = raw.replace(/[^a-z0-9]/g, "");
+        const q = raw.replaceAll(/[^a-z0-9]/g, "");
         if (q) {
-          const strip = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const strip = (s: string) =>
+            s.toLowerCase().replaceAll(/[^a-z0-9]/g, "");
           switch (filter.operator) {
             case "contains": {
               result = result.filter(
@@ -193,9 +204,7 @@ function TricksListPage() {
               break;
             }
             case "is": {
-              result = result.filter(
-                (t) => strip(t.name) === q,
-              );
+              result = result.filter((t) => strip(t.name) === q);
 
               break;
             }
@@ -246,57 +255,45 @@ function TricksListPage() {
 
   const virtualRows = virtualizer.getVirtualItems();
   const totalSize = virtualizer.getTotalSize();
-  const paddingTop =
-    virtualRows.length > 0 ? virtualRows[0]!.start : 0;
+  const paddingTop = virtualRows.length > 0 ? virtualRows[0]!.start : 0;
   const paddingBottom =
-    virtualRows.length > 0
-      ? totalSize - virtualRows.at(-1)!.end
-      : 0;
+    virtualRows.length > 0 ? totalSize - virtualRows.at(-1)!.end : 0;
 
   return (
     <>
-      <PageHeader maxWidth="full">
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>tricks</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
+      <PageHeader>
         <PageHeader.Actions>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/tricks/glossary">Glossary</Link>
+          <Button asChild>
+            <Link to="/tricks/create">Create</Link>
           </Button>
         </PageHeader.Actions>
       </PageHeader>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 p-4 md:p-6">
-        <div className="flex shrink-0 items-start gap-2">
-          <div className="flex-1">
-            <Filters
-              filters={filters}
-              fields={filterFields}
-              onChange={handleFiltersChange}
-              allowMultiple={false}
-              searchable={false}
-              size="sm"
-              trigger={
-                <Button variant="outline" size="sm">
-                  <FilterIcon className="size-3.5" />
-                  filters
-                </Button>
-              }
-            />
-          </div>
-          {filters.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFilters([])}
-            >
-              <FunnelXIcon className="size-3.5" />
-              Clear
+      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+        <Filters
+          filters={filters}
+          fields={filterFields}
+          onChange={handleFiltersChange}
+          allowMultiple={false}
+          searchable={false}
+          size="sm"
+          trigger={
+            <Button variant="outline" size="sm">
+              <FilterIcon className="size-3.5" />
+              filters
             </Button>
-          )}
-        </div>
+          }
+        />
+        {filters.length > 0 && (
+          <Button variant="outline" size="sm" onClick={() => setFilters([])}>
+            <FunnelXIcon className="size-3.5" />
+            Clear
+          </Button>
+        )}
+      </div>
 
-        {filteredTricks.length === 0 ? (
+      {filteredTricks.length === 0 ? (
+        <div className="flex flex-1 items-center justify-center p-4">
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -308,94 +305,82 @@ function TricksListPage() {
               try adjusting your filters
             </p>
           </Empty>
-        ) : (
-          <>
-            <div
-              ref={scrollRef}
-              className="min-h-0 overflow-auto rounded-lg border text-xs"
-            >
-              <Table containerClassName="overflow-visible" className="table-fixed">
-                <TableHeader className="sticky top-0 z-10 bg-card">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        const meta = header.column.columnDef.meta as
-                          | { className?: string }
-                          | undefined;
-                        return (
-                          <TableHead
-                            key={header.id}
-                            style={{ width: header.getSize() }}
-                            className={cn(
-                              header.column.getCanSort() &&
-                              "cursor-pointer select-none",
-                              meta?.className,
-                            )}
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            <span className="flex items-center gap-1">
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                              {{
-                                asc: <ArrowUpIcon className="size-3.5" />,
-                                desc: <ArrowDownIcon className="size-3.5" />,
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </span>
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {paddingTop > 0 && (
-                    <tr>
-                      <td style={{ height: paddingTop }} />
-                    </tr>
-                  )}
-                  {virtualRows.map((virtualRow) => {
-                    const row = rows[virtualRow.index]!;
+        </div>
+      ) : (
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto text-xs">
+          <Table containerClassName="overflow-visible" className="table-fixed">
+            <TableHeader className="bg-card sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const meta = header.column.columnDef.meta as
+                      | { className?: string }
+                      | undefined;
                     return (
-                      <TableRow
-                        key={row.id}
-                        className="relative cursor-pointer"
+                      <TableHead
+                        key={header.id}
+                        style={{ width: header.getSize() }}
+                        className={cn(
+                          header.column.getCanSort() &&
+                          "cursor-pointer select-none",
+                          meta?.className,
+                        )}
+                        onClick={header.column.getToggleSortingHandler()}
                       >
-                        {row.getVisibleCells().map((cell) => {
-                          const meta = cell.column.columnDef.meta as
-                            | { className?: string }
-                            | undefined;
-                          return (
-                            <TableCell
-                              key={cell.id}
-                              className={cn("py-1.5", meta?.className)}
-                            >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
+                        <span className="flex items-center gap-1">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                          {{
+                            asc: <ArrowUpIcon className="size-3.5" />,
+                            desc: <ArrowDownIcon className="size-3.5" />,
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </span>
+                      </TableHead>
                     );
                   })}
-                  {paddingBottom > 0 && (
-                    <tr>
-                      <td style={{ height: paddingBottom }} />
-                    </tr>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            <p className="text-muted-foreground shrink-0 text-sm">
-              {filteredTricks.length} tricks
-            </p>
-          </>
-        )}
-      </div >
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {paddingTop > 0 && (
+                <tr>
+                  <td style={{ height: paddingTop }} />
+                </tr>
+              )}
+              {virtualRows.map((virtualRow) => {
+                const row = rows[virtualRow.index]!;
+                return (
+                  <TableRow key={row.id} className="relative cursor-pointer">
+                    {row.getVisibleCells().map((cell) => {
+                      const meta = cell.column.columnDef.meta as
+                        | { className?: string }
+                        | undefined;
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={cn("py-1.5", meta?.className)}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
+              {paddingBottom > 0 && (
+                <tr>
+                  <td style={{ height: paddingBottom }} />
+                </tr>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </>
   );
 }

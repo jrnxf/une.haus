@@ -104,7 +104,7 @@ export function VideoSubmitForm({
                 id={field.name}
                 aria-invalid={fieldState.invalid}
                 value={field.value ?? ""}
-                placeholder="e.g., POV angle, slow motion, rear view..."
+                placeholder="pov angle, slow motion, rear view..."
                 rows={2}
               />
               <FieldDescription>

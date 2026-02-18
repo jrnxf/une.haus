@@ -1,19 +1,18 @@
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter, type LinkProps } from "@tanstack/react-router";
 import { ChevronLeftIcon, ChevronRight } from "lucide-react";
-import { Children, isValidElement, type ReactNode } from "react";
 
 import { MobileNavTrigger } from "~/components/mobile-nav";
-import { PageHeader } from "~/components/page-header";
 import { Search } from "~/components/search";
 import { Button } from "~/components/ui/button";
-import { SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
-import { usePageHeader } from "~/lib/page-header/context";
+import { SidebarTrigger } from "~/components/ui/sidebar";
+import { useRoutePageHeader } from "~/lib/page-header/hooks";
+import type { CrumbConfig, TabConfig } from "~/lib/page-header/types";
 import { cn } from "~/lib/utils";
 
 const maxWidthClasses = {
-  lg: "max-w-lg",
-  "2xl": "max-w-2xl",
-  "4xl": "max-w-4xl",
+  lg: "lg:max-w-lg",
+  "2xl": "lg:max-w-2xl",
+  "4xl": "lg:max-w-4xl",
   full: "",
 } as const;
 
@@ -21,21 +20,7 @@ function HeaderDivider() {
   return <div className="bg-border h-4 w-px" />;
 }
 
-function renderBreadcrumbs(breadcrumbsNode: ReactNode) {
-  // Extract Crumb children from the Breadcrumbs wrapper
-  const crumbs: ReactNode[] = [];
-  if (isValidElement(breadcrumbsNode)) {
-    const children = (breadcrumbsNode.props as { children?: ReactNode })
-      .children;
-    Children.forEach(children, (child) => {
-      if (isValidElement(child) && child.type === PageHeader.Crumb) {
-        crumbs.push(child);
-      }
-    });
-  }
-
-  if (crumbs.length === 0) return null;
-
+function Breadcrumbs({ crumbs }: { crumbs: CrumbConfig[] }) {
   return (
     <nav
       aria-label="breadcrumb"
@@ -44,9 +29,50 @@ function renderBreadcrumbs(breadcrumbsNode: ReactNode) {
       {crumbs.map((crumb, i) => (
         <span key={i} className="flex items-center gap-1.5">
           {i > 0 && <ChevronRight className="text-muted-foreground size-3.5" />}
-          {crumb}
+          {crumb.to ? (
+            <Link
+              to={crumb.to as LinkProps["to"]}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {crumb.icon && <crumb.icon className="mr-1.5 inline size-3.5" />}
+              {crumb.label}
+            </Link>
+          ) : (
+            <span className="text-foreground flex items-center gap-1.5 font-medium">
+              {crumb.icon && (
+                <span className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded">
+                  <crumb.icon className="size-3" />
+                </span>
+              )}
+              {crumb.label}
+            </span>
+          )}
         </span>
       ))}
+    </nav>
+  );
+}
+
+function Tabs({ tabs }: { tabs: (TabConfig & { isActive: boolean })[] }) {
+  return (
+    <nav className="flex gap-1" aria-label="Page sections">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        return (
+          <Link
+            key={tab.path}
+            to={tab.path}
+            className={
+              tab.isActive
+                ? "bg-secondary text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors"
+            }
+          >
+            {Icon && <Icon className="size-3.5" />}
+            <span className="hidden md:inline">{tab.label}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }
@@ -67,12 +93,12 @@ function MobileBackButton() {
 }
 
 export function SiteHeader() {
-  const { open, isMobile } = useSidebar();
-  const headerState = usePageHeader();
+  const headerState = useRoutePageHeader();
 
-  const showTrigger = isMobile || !open;
-  const hasBreadcrumbs = headerState.breadcrumbs !== null;
-  const hasTabs = headerState.tabs !== null;
+  const showTrigger = true;
+  const hasBreadcrumbs =
+    headerState.breadcrumbs !== null && headerState.breadcrumbs.length > 0;
+  const hasTabs = headerState.tabs !== null && headerState.tabs.length > 0;
   const hasActions = headerState.actions !== null;
   const hasWidget = headerState.widget !== null;
   const hasMobileRow = headerState.mobileRow !== null;
@@ -92,7 +118,7 @@ export function SiteHeader() {
 
       <div
         className={cn(
-          "mx-auto flex h-14 w-full items-center gap-2 px-4 lg:h-(--header-height) lg:px-6",
+          "mx-auto flex h-14 w-full items-center gap-2 px-4 lg:h-(--header-height)",
           maxWidthClasses[headerState.maxWidth],
         )}
       >
@@ -100,7 +126,7 @@ export function SiteHeader() {
           {hasBreadcrumbs && <MobileBackButton />}
           {hasTabs && (
             <div className="flex items-center gap-2 lg:hidden">
-              {headerState.tabs}
+              <Tabs tabs={headerState.tabs!} />
               {hasActions && <HeaderDivider />}
             </div>
           )}
@@ -120,7 +146,7 @@ export function SiteHeader() {
                 </div>
               )}
               <div className="hidden lg:block">
-                {renderBreadcrumbs(headerState.breadcrumbs)}
+                <Breadcrumbs crumbs={headerState.breadcrumbs!} />
               </div>
             </>
           )}
@@ -135,7 +161,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-2">
           {hasTabs && (
             <div className="hidden items-center gap-2 lg:flex">
-              {headerState.tabs}
+              <Tabs tabs={headerState.tabs!} />
               {hasActions && <HeaderDivider />}
             </div>
           )}

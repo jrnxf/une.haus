@@ -8,7 +8,6 @@ import { ArrowDown, ArrowUp, CheckCircle, Trash2, XCircle } from "lucide-react";
 
 import { toast } from "sonner";
 
-import { PageHeader } from "~/components/page-header";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -19,9 +18,15 @@ import { tricks } from "~/lib/tricks";
 const MAX_ACTIVE_VIDEOS = 5;
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/videos")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "" }],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params }) => {
     const trickId = Number(params.trickId);
-    await Promise.all([
+    const [trickData] = await Promise.all([
       context.queryClient.ensureQueryData(
         tricks.getById.queryOptions({ id: trickId }),
       ),
@@ -29,6 +34,13 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/videos")({
         tricks.videos.list.queryOptions({ trickId }),
       ),
     ]);
+    return {
+      pageHeader: {
+        breadcrumbOverrides: {
+          1: { label: `videos: ${trickData?.name ?? params.trickId}` },
+        },
+      },
+    };
   },
   component: RouteComponent,
 });
@@ -140,12 +152,6 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>videos: {trick.name}</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
           {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active videos

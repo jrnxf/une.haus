@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
@@ -87,32 +86,6 @@ export function NavUser() {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar
-                    className="h-8 w-8 rounded-lg"
-                    cloudflareId={sessionUser.avatarId}
-                    alt={sessionUser.name}
-                  >
-                    <AvatarImage width={64} quality={85} />
-                    <AvatarFallback
-                      name={sessionUser.name}
-                      className="rounded-lg"
-                    />
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {sessionUser.name}
-                    </span>
-                    <span className="truncate text-xs">
-                      {sessionUser.email}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link to="/users/$userId" params={{ userId: sessionUser.id }}>

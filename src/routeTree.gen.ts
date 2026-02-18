@@ -12,16 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as GameRouteImport } from './routes/game'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TricksIndexRouteImport } from './routes/tricks/index'
+import { Route as TourneyIndexRouteImport } from './routes/tourney/index'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
-import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as TricksGraphRouteImport } from './routes/tricks/graph'
 import { Route as TricksGlossaryRouteImport } from './routes/tricks/glossary'
@@ -37,25 +38,24 @@ import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
 import { Route as GamesBiusRouteRouteImport } from './routes/games/bius/route'
 import { Route as VaultVideoIdIndexRouteImport } from './routes/vault/$videoId/index'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
+import { Route as TourneyLiveIndexRouteImport } from './routes/tourney/live/index'
 import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
 import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
 import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
-import { Route as EventsStopwatchIndexRouteImport } from './routes/events/stopwatch/index'
-import { Route as EventsBracketIndexRouteImport } from './routes/events/bracket/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
 import { Route as VaultValutBakRouteImport } from './routes/vault/valut.bak'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
+import { Route as TourneyLiveCodeRouteImport } from './routes/tourney/live/$code'
 import { Route as GamesSiusStartRouteImport } from './routes/games/sius/start'
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
 import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
-import { Route as EventsStopwatchSetupRouteImport } from './routes/events/stopwatch/setup'
-import { Route as EventsBracketSetupRouteImport } from './routes/events/bracket/setup'
 import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
 import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
 import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
 import { Route as AuthedVaultReviewRouteImport } from './routes/_authed/vault/review'
 import { Route as AuthedTricksReviewRouteImport } from './routes/_authed/tricks/review'
 import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/create'
+import { Route as AuthedTourneyCreateRouteImport } from './routes/_authed/tourney/create'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
 import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/upcoming/index'
@@ -64,9 +64,13 @@ import { Route as GamesRiusArchivedIndexRouteImport } from './routes/games/rius/
 import { Route as AuthedTricksSuggestionsIndexRouteImport } from './routes/_authed/tricks/suggestions/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as GamesRiusArchivedRiuIdRouteImport } from './routes/games/rius/archived/$riuId'
+import { Route as ApiTourneySseCodeRouteImport } from './routes/api/tourney/sse.$code'
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
+import { Route as AuthedTourneyCodeRankingRouteImport } from './routes/_authed/tourney/$code/ranking'
+import { Route as AuthedTourneyCodePrelimsRouteImport } from './routes/_authed/tourney/$code/prelims'
+import { Route as AuthedTourneyCodeBracketRouteImport } from './routes/_authed/tourney/$code/bracket'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
 import { Route as AuthedAdminTricksModifiersRouteImport } from './routes/_authed/admin/tricks/modifiers'
@@ -101,6 +105,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GameRoute = GameRouteImport.update({
+  id: '/game',
+  path: '/game',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
@@ -125,6 +134,11 @@ const TricksIndexRoute = TricksIndexRouteImport.update({
   path: '/tricks/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TourneyIndexRoute = TourneyIndexRouteImport.update({
+  id: '/tourney/',
+  path: '/tourney/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StatsIndexRoute = StatsIndexRouteImport.update({
   id: '/stats/',
   path: '/stats/',
@@ -143,11 +157,6 @@ const MapIndexRoute = MapIndexRouteImport.update({
 const GamesIndexRoute = GamesIndexRouteImport.update({
   id: '/games/',
   path: '/games/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsIndexRoute = EventsIndexRouteImport.update({
-  id: '/events/',
-  path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
@@ -225,6 +234,11 @@ const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
   path: '/users/$userId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TourneyLiveIndexRoute = TourneyLiveIndexRouteImport.update({
+  id: '/tourney/live/',
+  path: '/tourney/live/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostsPostIdIndexRoute = PostsPostIdIndexRouteImport.update({
   id: '/posts/$postId/',
   path: '/posts/$postId/',
@@ -239,16 +253,6 @@ const GamesBiusIndexRoute = GamesBiusIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => GamesBiusRouteRoute,
-} as any)
-const EventsStopwatchIndexRoute = EventsStopwatchIndexRouteImport.update({
-  id: '/events/stopwatch/',
-  path: '/events/stopwatch/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsBracketIndexRoute = EventsBracketIndexRouteImport.update({
-  id: '/events/bracket/',
-  path: '/events/bracket/',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedNotificationsIndexRoute =
   AuthedNotificationsIndexRouteImport.update({
@@ -266,6 +270,11 @@ const VaultVideoIdEditRoute = VaultVideoIdEditRouteImport.update({
   path: '/vault/$videoId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TourneyLiveCodeRoute = TourneyLiveCodeRouteImport.update({
+  id: '/tourney/live/$code',
+  path: '/tourney/live/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesSiusStartRoute = GamesSiusStartRouteImport.update({
   id: '/start',
   path: '/start',
@@ -280,16 +289,6 @@ const GamesBiusStartRoute = GamesBiusStartRouteImport.update({
   id: '/start',
   path: '/start',
   getParentRoute: () => GamesBiusRouteRoute,
-} as any)
-const EventsStopwatchSetupRoute = EventsStopwatchSetupRouteImport.update({
-  id: '/events/stopwatch/setup',
-  path: '/events/stopwatch/setup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsBracketSetupRoute = EventsBracketSetupRouteImport.update({
-  id: '/events/bracket/setup',
-  path: '/events/bracket/setup',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCodeVerifyRoute = AuthCodeVerifyRouteImport.update({
   id: '/auth/code/verify',
@@ -319,6 +318,11 @@ const AuthedTricksReviewRoute = AuthedTricksReviewRouteImport.update({
 const AuthedTricksCreateRoute = AuthedTricksCreateRouteImport.update({
   id: '/tricks/create',
   path: '/tricks/create',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedTourneyCreateRoute = AuthedTourneyCreateRouteImport.update({
+  id: '/tourney/create',
+  path: '/tourney/create',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedPostsCreateRoute = AuthedPostsCreateRouteImport.update({
@@ -363,6 +367,11 @@ const GamesRiusArchivedRiuIdRoute = GamesRiusArchivedRiuIdRouteImport.update({
   path: '/archived/$riuId',
   getParentRoute: () => GamesRiusRouteRoute,
 } as any)
+const ApiTourneySseCodeRoute = ApiTourneySseCodeRouteImport.update({
+  id: '/api/tourney/sse/$code',
+  path: '/api/tourney/sse/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedVaultVideoIdSuggestRoute =
   AuthedVaultVideoIdSuggestRouteImport.update({
     id: '/vault/$videoId/suggest',
@@ -379,6 +388,24 @@ const AuthedTricksTrickIdSubmitVideoRoute =
   AuthedTricksTrickIdSubmitVideoRouteImport.update({
     id: '/tricks/$trickId/submit-video',
     path: '/tricks/$trickId/submit-video',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedTourneyCodeRankingRoute =
+  AuthedTourneyCodeRankingRouteImport.update({
+    id: '/tourney/$code/ranking',
+    path: '/tourney/$code/ranking',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedTourneyCodePrelimsRoute =
+  AuthedTourneyCodePrelimsRouteImport.update({
+    id: '/tourney/$code/prelims',
+    path: '/tourney/$code/prelims',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedTourneyCodeBracketRoute =
+  AuthedTourneyCodeBracketRouteImport.update({
+    id: '/tourney/$code/bracket',
+    path: '/tourney/$code/bracket',
     getParentRoute: () => AuthedRoute,
   } as any)
 const AuthedPostsPostIdEditRoute = AuthedPostsPostIdEditRouteImport.update({
@@ -488,6 +515,7 @@ const AuthedAdminTricksElementsElementIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/game': typeof GameRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -504,43 +532,46 @@ export interface FileRoutesByFullPath {
   '/tricks/glossary': typeof TricksGlossaryRoute
   '/tricks/graph': typeof TricksGraphRoute
   '/chat': typeof ChatIndexRoute
-  '/events': typeof EventsIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
   '/stats': typeof StatsIndexRoute
+  '/tourney': typeof TourneyIndexRoute
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
+  '/tourney/create': typeof AuthedTourneyCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
   '/tricks/review': typeof AuthedTricksReviewRoute
   '/vault/review': typeof AuthedVaultReviewRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
-  '/events/bracket/setup': typeof EventsBracketSetupRoute
-  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
+  '/tourney/live/$code': typeof TourneyLiveCodeRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
-  '/events/bracket': typeof EventsBracketIndexRoute
-  '/events/stopwatch': typeof EventsStopwatchIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/tourney/live': typeof TourneyLiveIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRouteWithChildren
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
+  '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
+  '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
@@ -565,6 +596,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/game': typeof GameRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -579,42 +611,45 @@ export interface FileRoutesByTo {
   '/tricks/glossary': typeof TricksGlossaryRoute
   '/tricks/graph': typeof TricksGraphRoute
   '/chat': typeof ChatIndexRoute
-  '/events': typeof EventsIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
   '/posts': typeof PostsIndexRoute
   '/stats': typeof StatsIndexRoute
+  '/tourney': typeof TourneyIndexRoute
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
+  '/tourney/create': typeof AuthedTourneyCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
   '/tricks/review': typeof AuthedTricksReviewRoute
   '/vault/review': typeof AuthedVaultReviewRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
-  '/events/bracket/setup': typeof EventsBracketSetupRoute
-  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
+  '/tourney/live/$code': typeof TourneyLiveCodeRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
-  '/events/bracket': typeof EventsBracketIndexRoute
-  '/events/stopwatch': typeof EventsStopwatchIndexRoute
   '/games/bius': typeof GamesBiusIndexRoute
   '/games/sius': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
+  '/tourney/live': typeof TourneyLiveIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
+  '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
+  '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/tricks/suggestions': typeof AuthedTricksSuggestionsIndexRoute
@@ -641,6 +676,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
+  '/game': typeof GameRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -657,43 +693,46 @@ export interface FileRoutesById {
   '/tricks/glossary': typeof TricksGlossaryRoute
   '/tricks/graph': typeof TricksGraphRoute
   '/chat/': typeof ChatIndexRoute
-  '/events/': typeof EventsIndexRoute
   '/games/': typeof GamesIndexRoute
   '/map/': typeof MapIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/stats/': typeof StatsIndexRoute
+  '/tourney/': typeof TourneyIndexRoute
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
   '/_authed/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
+  '/_authed/tourney/create': typeof AuthedTourneyCreateRoute
   '/_authed/tricks/create': typeof AuthedTricksCreateRoute
   '/_authed/tricks/review': typeof AuthedTricksReviewRoute
   '/_authed/vault/review': typeof AuthedVaultReviewRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/auth/code/send': typeof AuthCodeSendRoute
   '/auth/code/verify': typeof AuthCodeVerifyRoute
-  '/events/bracket/setup': typeof EventsBracketSetupRoute
-  '/events/stopwatch/setup': typeof EventsStopwatchSetupRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
+  '/tourney/live/$code': typeof TourneyLiveCodeRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
-  '/events/bracket/': typeof EventsBracketIndexRoute
-  '/events/stopwatch/': typeof EventsStopwatchIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
+  '/tourney/live/': typeof TourneyLiveIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
   '/_authed/admin/tricks/modifiers': typeof AuthedAdminTricksModifiersRouteWithChildren
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/_authed/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
+  '/_authed/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
+  '/_authed/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
+  '/_authed/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
   '/_authed/tricks/suggestions/': typeof AuthedTricksSuggestionsIndexRoute
@@ -720,6 +759,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/game'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -736,43 +776,46 @@ export interface FileRouteTypes {
     | '/tricks/glossary'
     | '/tricks/graph'
     | '/chat'
-    | '/events'
     | '/games'
     | '/map'
     | '/posts'
     | '/stats'
+    | '/tourney'
     | '/tricks'
     | '/users'
     | '/vault'
     | '/notifications/settings'
     | '/posts/create'
+    | '/tourney/create'
     | '/tricks/create'
     | '/tricks/review'
     | '/vault/review'
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
-    | '/events/bracket/setup'
-    | '/events/stopwatch/setup'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
+    | '/tourney/live/$code'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/notifications'
-    | '/events/bracket'
-    | '/events/stopwatch'
     | '/games/bius/'
     | '/games/sius/'
     | '/posts/$postId'
+    | '/tourney/live'
     | '/users/$userId'
     | '/vault/$videoId'
     | '/admin/tricks/modifiers'
     | '/auth/me/edit'
     | '/posts/$postId/edit'
+    | '/tourney/$code/bracket'
+    | '/tourney/$code/prelims'
+    | '/tourney/$code/ranking'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
+    | '/api/tourney/sse/$code'
     | '/games/rius/archived/$riuId'
     | '/auth/me'
     | '/tricks/suggestions'
@@ -797,6 +840,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/game'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -811,42 +855,45 @@ export interface FileRouteTypes {
     | '/tricks/glossary'
     | '/tricks/graph'
     | '/chat'
-    | '/events'
     | '/games'
     | '/map'
     | '/posts'
     | '/stats'
+    | '/tourney'
     | '/tricks'
     | '/users'
     | '/vault'
     | '/notifications/settings'
     | '/posts/create'
+    | '/tourney/create'
     | '/tricks/create'
     | '/tricks/review'
     | '/vault/review'
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
-    | '/events/bracket/setup'
-    | '/events/stopwatch/setup'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
+    | '/tourney/live/$code'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/notifications'
-    | '/events/bracket'
-    | '/events/stopwatch'
     | '/games/bius'
     | '/games/sius'
     | '/posts/$postId'
+    | '/tourney/live'
     | '/users/$userId'
     | '/vault/$videoId'
     | '/auth/me/edit'
     | '/posts/$postId/edit'
+    | '/tourney/$code/bracket'
+    | '/tourney/$code/prelims'
+    | '/tourney/$code/ranking'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
+    | '/api/tourney/sse/$code'
     | '/games/rius/archived/$riuId'
     | '/auth/me'
     | '/tricks/suggestions'
@@ -872,6 +919,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authed'
+    | '/game'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -888,43 +936,46 @@ export interface FileRouteTypes {
     | '/tricks/glossary'
     | '/tricks/graph'
     | '/chat/'
-    | '/events/'
     | '/games/'
     | '/map/'
     | '/posts/'
     | '/stats/'
+    | '/tourney/'
     | '/tricks/'
     | '/users/'
     | '/vault/'
     | '/_authed/notifications/settings'
     | '/_authed/posts/create'
+    | '/_authed/tourney/create'
     | '/_authed/tricks/create'
     | '/_authed/tricks/review'
     | '/_authed/vault/review'
     | '/api/mux/webhook'
     | '/auth/code/send'
     | '/auth/code/verify'
-    | '/events/bracket/setup'
-    | '/events/stopwatch/setup'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
+    | '/tourney/live/$code'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/_authed/notifications/'
-    | '/events/bracket/'
-    | '/events/stopwatch/'
     | '/games/bius/'
     | '/games/sius/'
     | '/posts/$postId/'
+    | '/tourney/live/'
     | '/users/$userId/'
     | '/vault/$videoId/'
     | '/_authed/admin/tricks/modifiers'
     | '/_authed/auth/me/edit'
     | '/_authed/posts/$postId/edit'
+    | '/_authed/tourney/$code/bracket'
+    | '/_authed/tourney/$code/prelims'
+    | '/_authed/tourney/$code/ranking'
     | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/vault/$videoId/suggest'
+    | '/api/tourney/sse/$code'
     | '/games/rius/archived/$riuId'
     | '/_authed/auth/me/'
     | '/_authed/tricks/suggestions/'
@@ -951,6 +1002,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
+  GameRoute: typeof GameRoute
   PrivacyRoute: typeof PrivacyRoute
   SandboxRoute: typeof SandboxRoute
   ShopRoute: typeof ShopRoute
@@ -965,26 +1017,25 @@ export interface RootRouteChildren {
   TricksGlossaryRoute: typeof TricksGlossaryRoute
   TricksGraphRoute: typeof TricksGraphRoute
   ChatIndexRoute: typeof ChatIndexRoute
-  EventsIndexRoute: typeof EventsIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
   MapIndexRoute: typeof MapIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
+  TourneyIndexRoute: typeof TourneyIndexRoute
   TricksIndexRoute: typeof TricksIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
   ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   AuthCodeSendRoute: typeof AuthCodeSendRoute
   AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
-  EventsBracketSetupRoute: typeof EventsBracketSetupRoute
-  EventsStopwatchSetupRoute: typeof EventsStopwatchSetupRoute
+  TourneyLiveCodeRoute: typeof TourneyLiveCodeRoute
   VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
   VaultValutBakRoute: typeof VaultValutBakRoute
-  EventsBracketIndexRoute: typeof EventsBracketIndexRoute
-  EventsStopwatchIndexRoute: typeof EventsStopwatchIndexRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
+  TourneyLiveIndexRoute: typeof TourneyLiveIndexRoute
   UsersUserIdIndexRoute: typeof UsersUserIdIndexRoute
   VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
+  ApiTourneySseCodeRoute: typeof ApiTourneySseCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1008,6 +1059,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/game': {
+      id: '/game'
+      path: '/game'
+      fullPath: '/game'
+      preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed': {
@@ -1045,6 +1103,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TricksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tourney/': {
+      id: '/tourney/'
+      path: '/tourney'
+      fullPath: '/tourney'
+      preLoaderRoute: typeof TourneyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stats/': {
       id: '/stats/'
       path: '/stats'
@@ -1071,13 +1136,6 @@ declare module '@tanstack/react-router' {
       path: '/games'
       fullPath: '/games'
       preLoaderRoute: typeof GamesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events/': {
-      id: '/events/'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -1185,6 +1243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tourney/live/': {
+      id: '/tourney/live/'
+      path: '/tourney/live'
+      fullPath: '/tourney/live'
+      preLoaderRoute: typeof TourneyLiveIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/posts/$postId/': {
       id: '/posts/$postId/'
       path: '/posts/$postId'
@@ -1205,20 +1270,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/bius/'
       preLoaderRoute: typeof GamesBiusIndexRouteImport
       parentRoute: typeof GamesBiusRouteRoute
-    }
-    '/events/stopwatch/': {
-      id: '/events/stopwatch/'
-      path: '/events/stopwatch'
-      fullPath: '/events/stopwatch'
-      preLoaderRoute: typeof EventsStopwatchIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events/bracket/': {
-      id: '/events/bracket/'
-      path: '/events/bracket'
-      fullPath: '/events/bracket'
-      preLoaderRoute: typeof EventsBracketIndexRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authed/notifications/': {
       id: '/_authed/notifications/'
@@ -1241,6 +1292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VaultVideoIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tourney/live/$code': {
+      id: '/tourney/live/$code'
+      path: '/tourney/live/$code'
+      fullPath: '/tourney/live/$code'
+      preLoaderRoute: typeof TourneyLiveCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/sius/start': {
       id: '/games/sius/start'
       path: '/start'
@@ -1261,20 +1319,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/bius/start'
       preLoaderRoute: typeof GamesBiusStartRouteImport
       parentRoute: typeof GamesBiusRouteRoute
-    }
-    '/events/stopwatch/setup': {
-      id: '/events/stopwatch/setup'
-      path: '/events/stopwatch/setup'
-      fullPath: '/events/stopwatch/setup'
-      preLoaderRoute: typeof EventsStopwatchSetupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events/bracket/setup': {
-      id: '/events/bracket/setup'
-      path: '/events/bracket/setup'
-      fullPath: '/events/bracket/setup'
-      preLoaderRoute: typeof EventsBracketSetupRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/auth/code/verify': {
       id: '/auth/code/verify'
@@ -1316,6 +1360,13 @@ declare module '@tanstack/react-router' {
       path: '/tricks/create'
       fullPath: '/tricks/create'
       preLoaderRoute: typeof AuthedTricksCreateRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tourney/create': {
+      id: '/_authed/tourney/create'
+      path: '/tourney/create'
+      fullPath: '/tourney/create'
+      preLoaderRoute: typeof AuthedTourneyCreateRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/posts/create': {
@@ -1374,6 +1425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesRiusArchivedRiuIdRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
+    '/api/tourney/sse/$code': {
+      id: '/api/tourney/sse/$code'
+      path: '/api/tourney/sse/$code'
+      fullPath: '/api/tourney/sse/$code'
+      preLoaderRoute: typeof ApiTourneySseCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/vault/$videoId/suggest': {
       id: '/_authed/vault/$videoId/suggest'
       path: '/vault/$videoId/suggest'
@@ -1393,6 +1451,27 @@ declare module '@tanstack/react-router' {
       path: '/tricks/$trickId/submit-video'
       fullPath: '/tricks/$trickId/submit-video'
       preLoaderRoute: typeof AuthedTricksTrickIdSubmitVideoRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tourney/$code/ranking': {
+      id: '/_authed/tourney/$code/ranking'
+      path: '/tourney/$code/ranking'
+      fullPath: '/tourney/$code/ranking'
+      preLoaderRoute: typeof AuthedTourneyCodeRankingRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tourney/$code/prelims': {
+      id: '/_authed/tourney/$code/prelims'
+      path: '/tourney/$code/prelims'
+      fullPath: '/tourney/$code/prelims'
+      preLoaderRoute: typeof AuthedTourneyCodePrelimsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tourney/$code/bracket': {
+      id: '/_authed/tourney/$code/bracket'
+      path: '/tourney/$code/bracket'
+      fullPath: '/tourney/$code/bracket'
+      preLoaderRoute: typeof AuthedTourneyCodeBracketRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/posts/$postId/edit': {
@@ -1569,12 +1648,16 @@ interface AuthedRouteChildren {
   AuthedFeedbackRoute: typeof AuthedFeedbackRoute
   AuthedNotificationsSettingsRoute: typeof AuthedNotificationsSettingsRoute
   AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute
+  AuthedTourneyCreateRoute: typeof AuthedTourneyCreateRoute
   AuthedTricksCreateRoute: typeof AuthedTricksCreateRoute
   AuthedTricksReviewRoute: typeof AuthedTricksReviewRoute
   AuthedVaultReviewRoute: typeof AuthedVaultReviewRoute
   AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute
   AuthedAuthMeEditRoute: typeof AuthedAuthMeEditRoute
   AuthedPostsPostIdEditRoute: typeof AuthedPostsPostIdEditRoute
+  AuthedTourneyCodeBracketRoute: typeof AuthedTourneyCodeBracketRoute
+  AuthedTourneyCodePrelimsRoute: typeof AuthedTourneyCodePrelimsRoute
+  AuthedTourneyCodeRankingRoute: typeof AuthedTourneyCodeRankingRoute
   AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute
   AuthedTricksTrickIdSuggestRoute: typeof AuthedTricksTrickIdSuggestRoute
   AuthedVaultVideoIdSuggestRoute: typeof AuthedVaultVideoIdSuggestRoute
@@ -1591,12 +1674,16 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedFeedbackRoute: AuthedFeedbackRoute,
   AuthedNotificationsSettingsRoute: AuthedNotificationsSettingsRoute,
   AuthedPostsCreateRoute: AuthedPostsCreateRoute,
+  AuthedTourneyCreateRoute: AuthedTourneyCreateRoute,
   AuthedTricksCreateRoute: AuthedTricksCreateRoute,
   AuthedTricksReviewRoute: AuthedTricksReviewRoute,
   AuthedVaultReviewRoute: AuthedVaultReviewRoute,
   AuthedNotificationsIndexRoute: AuthedNotificationsIndexRoute,
   AuthedAuthMeEditRoute: AuthedAuthMeEditRoute,
   AuthedPostsPostIdEditRoute: AuthedPostsPostIdEditRoute,
+  AuthedTourneyCodeBracketRoute: AuthedTourneyCodeBracketRoute,
+  AuthedTourneyCodePrelimsRoute: AuthedTourneyCodePrelimsRoute,
+  AuthedTourneyCodeRankingRoute: AuthedTourneyCodeRankingRoute,
   AuthedTricksTrickIdSubmitVideoRoute: AuthedTricksTrickIdSubmitVideoRoute,
   AuthedTricksTrickIdSuggestRoute: AuthedTricksTrickIdSuggestRoute,
   AuthedVaultVideoIdSuggestRoute: AuthedVaultVideoIdSuggestRoute,
@@ -1674,6 +1761,7 @@ const GamesSiusRouteRouteWithChildren = GamesSiusRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
+  GameRoute: GameRoute,
   PrivacyRoute: PrivacyRoute,
   SandboxRoute: SandboxRoute,
   ShopRoute: ShopRoute,
@@ -1688,26 +1776,25 @@ const rootRouteChildren: RootRouteChildren = {
   TricksGlossaryRoute: TricksGlossaryRoute,
   TricksGraphRoute: TricksGraphRoute,
   ChatIndexRoute: ChatIndexRoute,
-  EventsIndexRoute: EventsIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
   MapIndexRoute: MapIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
+  TourneyIndexRoute: TourneyIndexRoute,
   TricksIndexRoute: TricksIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
   ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   AuthCodeSendRoute: AuthCodeSendRoute,
   AuthCodeVerifyRoute: AuthCodeVerifyRoute,
-  EventsBracketSetupRoute: EventsBracketSetupRoute,
-  EventsStopwatchSetupRoute: EventsStopwatchSetupRoute,
+  TourneyLiveCodeRoute: TourneyLiveCodeRoute,
   VaultVideoIdEditRoute: VaultVideoIdEditRoute,
   VaultValutBakRoute: VaultValutBakRoute,
-  EventsBracketIndexRoute: EventsBracketIndexRoute,
-  EventsStopwatchIndexRoute: EventsStopwatchIndexRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
+  TourneyLiveIndexRoute: TourneyLiveIndexRoute,
   UsersUserIdIndexRoute: UsersUserIdIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
+  ApiTourneySseCodeRoute: ApiTourneySseCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

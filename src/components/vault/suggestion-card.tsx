@@ -93,12 +93,12 @@ export function UtvSuggestionCard({
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <span className="truncate">{displayTitle}</span>
+              <CardTitle className="flex min-w-0 items-center gap-2 text-base">
+                <span className="min-w-0 truncate">{displayTitle}</span>
                 {suggestion.diff.title && (
                   <>
                     <ArrowRight className="text-muted-foreground size-3 shrink-0" />
-                    <span className="text-primary truncate">
+                    <span className="text-primary min-w-0 truncate">
                       {suggestion.diff.title.new}
                     </span>
                   </>

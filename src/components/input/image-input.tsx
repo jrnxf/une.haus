@@ -10,7 +10,7 @@ import { useFormField, useFormMedia } from "~/components/ui/form";
 import { invariant } from "~/lib/invariant";
 import { media } from "~/lib/media";
 import { nano } from "~/lib/nanoid";
-import { cn } from "~/lib/utils";
+import { cn, getCloudflareImageUrl } from "~/lib/utils";
 
 const cloudflareDirectUploadResponseSchema = z.object({
   result: z.object({
@@ -80,7 +80,11 @@ export const ImageInput = ({
     onDrop,
   });
 
-  const previewSource = file ? URL.createObjectURL(file) : value;
+  const previewSource = file
+    ? URL.createObjectURL(file)
+    : value
+      ? getCloudflareImageUrl(value, { width: 400, quality: 80 })
+      : null;
 
   if (previewSource) {
     return (

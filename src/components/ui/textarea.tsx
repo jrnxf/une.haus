@@ -12,7 +12,7 @@ function Textarea({
   return (
     <textarea
       className={cn(
-        "border-input bg-background ring-offset-background flex w-full rounded-md border px-3 py-2 text-base",
+        "border-input dark:bg-input/30 ring-offset-background flex w-full rounded-md border bg-transparent px-3 py-2 text-base",
         "placeholder:text-muted-foreground",
         "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         "disabled:cursor-not-allowed disabled:opacity-50",

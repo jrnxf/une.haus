@@ -9,7 +9,6 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { PageHeader } from "~/components/page-header";
 import { SubmissionCard } from "~/components/tricks/submission-card";
 import { SuggestionCard } from "~/components/tricks/suggestion-card";
 import { Badge } from "~/components/ui/badge";
@@ -49,6 +48,12 @@ export const Route = createFileRoute("/_authed/tricks/review")({
     ]);
     return { isAdmin };
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "review" }],
+      maxWidth: "4xl",
+    },
+  },
   component: RouteComponent,
 });
 
@@ -67,84 +72,71 @@ function RouteComponent() {
   const defaultTab = search.tab ?? "submissions";
 
   return (
-    <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>review</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
-
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-        <Tabs defaultValue={defaultTab}>
-          <TabsList>
-            <TabsTrigger value="submissions">
-              Submissions
-              {submissions.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {submissions.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="suggestions">
-              Suggestions
-              {suggestions.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {suggestions.length}
-                </Badge>
-              )}
-            </TabsTrigger>
-            {isAdmin && <AdminVideosTabTrigger />}
-          </TabsList>
-
-          <TabsContent value="submissions" className="mt-6">
-            {submissions.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">
-                    No pending submissions
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {submissions.map((submission) => (
-                  <SubmissionCard
-                    key={submission.id}
-                    submission={submission}
-                    showStatus={false}
-                  />
-                ))}
-              </div>
+    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+      <Tabs defaultValue={defaultTab}>
+        <TabsList>
+          <TabsTrigger value="submissions">
+            Submissions
+            {submissions.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {submissions.length}
+              </Badge>
             )}
-          </TabsContent>
-
-          <TabsContent value="suggestions" className="mt-6">
-            {suggestions.length === 0 ? (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">
-                    No pending suggestions
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {suggestions.map((suggestion) => (
-                  <SuggestionCard
-                    key={suggestion.id}
-                    suggestion={suggestion}
-                    showStatus={false}
-                  />
-                ))}
-              </div>
+          </TabsTrigger>
+          <TabsTrigger value="suggestions">
+            Suggestions
+            {suggestions.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {suggestions.length}
+              </Badge>
             )}
-          </TabsContent>
+          </TabsTrigger>
+          {isAdmin && <AdminVideosTabTrigger />}
+        </TabsList>
 
-          {isAdmin && <AdminVideosTabContent />}
-        </Tabs>
-      </div>
-    </>
+        <TabsContent value="submissions" className="mt-6">
+          {submissions.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No pending submissions</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {submissions.map((submission) => (
+                <SubmissionCard
+                  key={submission.id}
+                  submission={submission}
+                  showStatus={false}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="suggestions" className="mt-6">
+          {suggestions.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No pending suggestions</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {suggestions.map((suggestion) => (
+                <SuggestionCard
+                  key={suggestion.id}
+                  suggestion={suggestion}
+                  showStatus={false}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {isAdmin && <AdminVideosTabContent />}
+      </Tabs>
+    </div>
   );
 }
 

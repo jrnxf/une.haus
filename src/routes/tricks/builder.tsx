@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRightIcon,
   PlusIcon,
@@ -40,6 +40,17 @@ import type { TrickBuilderData } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/tricks/builder")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks" }],
+      tabs: [
+        { path: "/tricks", label: "list" },
+        { path: "/tricks/graph", label: "graph" },
+        { path: "/tricks/builder", label: "builder" },
+      ],
+      maxWidth: "lg",
+    },
+  },
   loader: async ({ context }) => {
     const [, sessionData] = await Promise.all([
       context.queryClient.ensureQueryData(tricks.builder.queryOptions()),
@@ -112,20 +123,8 @@ function isDefaultModifiers(m: Modifiers) {
 type SimpleTrick = TrickBuilderData["simpleTricks"][number];
 type CompoundTrick = TrickBuilderData["compoundTricks"][number];
 
-const tricksTabs = [
-  { path: "/tricks", label: "list" },
-  { path: "/tricks/graph", label: "graph" },
-  { path: "/tricks/builder", label: "builder" },
-];
-
-const tricksIsActive = (pathname: string) => (path: string) =>
-  path === "/tricks"
-    ? pathname === "/tricks" || pathname === "/tricks/"
-    : pathname.includes(path);
-
 function TricksPage() {
   const { isLoggedIn } = Route.useLoaderData();
-  const location = useLocation();
   const { data: builderData } = useSuspenseQuery(tricks.builder.queryOptions());
   const { simpleTricks, compoundTricks } = builderData;
 
@@ -300,13 +299,6 @@ function TricksPage() {
   return (
     <>
       <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>tricks</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-        <PageHeader.Tabs
-          items={tricksTabs}
-          isActive={tricksIsActive(location.pathname)}
-        />
         <PageHeader.Actions>
           {isLoggedIn && (
             <Button asChild size="sm">

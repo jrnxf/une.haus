@@ -26,6 +26,12 @@ import { users } from "~/lib/users";
 import { cn, getCloudflareImageUrl } from "~/lib/utils";
 
 export const Route = createFileRoute("/users/")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "users" }],
+      maxWidth: "4xl",
+    },
+  },
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
@@ -93,9 +99,6 @@ function RouteComponent() {
   return (
     <>
       <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>users</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button
             variant="outline"
@@ -103,7 +106,7 @@ function RouteComponent() {
             onClick={() => setFiltersOpen(!filtersOpen)}
             className="relative"
           >
-            <FilterIcon className="size-4" />
+            <FilterIcon className="size-3.5" />
             Filters
             {hasActiveFilters && !filtersOpen && (
               <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
@@ -119,7 +122,7 @@ function RouteComponent() {
               <Input
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search users..."
+                placeholder="search users..."
                 className="pr-8"
               />
               {query && (

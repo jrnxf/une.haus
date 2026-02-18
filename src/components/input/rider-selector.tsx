@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { GripVerticalIcon, Plus, X } from "lucide-react";
+import { GripVerticalIcon, X } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -16,10 +16,7 @@ import {
   SortableItem,
   SortableItemHandle,
 } from "~/components/ui/sortable";
-import {
-  generateOrderId,
-  type OrderedRiderEntry,
-} from "~/lib/events/bracket";
+import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
@@ -170,7 +167,7 @@ export function RiderSelector({
               hasDropdownItems && "border-transparent",
             )}
             ref={inputRef}
-            placeholder="search users or add a custom name..."
+            placeholder="search..."
             value={query}
             onValueChange={setQuery}
             onKeyDown={(e) => {
@@ -200,17 +197,6 @@ export function RiderSelector({
                       value={user.id.toString()}
                       onSelect={() => handleSelectUser(user)}
                     >
-                      <Avatar
-                        className="size-5"
-                        cloudflareId={user.avatarId}
-                        alt={user.name}
-                      >
-                        <AvatarImage width={20} quality={85} />
-                        <AvatarFallback
-                          className="text-[10px]"
-                          name={user.name}
-                        />
-                      </Avatar>
                       <span>{user.name}</span>
                     </CommandItem>
                   ))}
@@ -220,9 +206,8 @@ export function RiderSelector({
                       onSelect={handleAddCustom}
                       className="text-muted-foreground"
                     >
-                      <Plus className="size-4" />
                       <span>
-                        Add "
+                        "
                         <span className="text-foreground font-medium">
                           {trimmedQuery}
                         </span>
@@ -261,30 +246,17 @@ export function RiderSelector({
                 <span className="text-muted-foreground w-4 text-center text-xs font-medium tabular-nums">
                   {seed}
                 </span>
-                {user ? (
-                  <Avatar
-                    className="size-5"
-                    cloudflareId={user.avatarId}
-                    alt={user.name}
-                  >
-                    <AvatarImage width={20} quality={85} />
-                    <AvatarFallback className="text-[10px]" name={user.name} />
-                  </Avatar>
-                ) : (
-                  <div className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded-full text-[10px] font-medium">
-                    {displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
                 <span className="min-w-0 flex-1 truncate text-sm">
                   {displayName}
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => handleRemove(rider.orderId)}
-                  className="text-muted-foreground hover:text-foreground rounded-sm p-0.5"
                 >
                   <X className="size-3.5" />
-                </button>
+                </Button>
               </SortableItem>
             );
           })}

@@ -145,10 +145,12 @@ export function MessageBubble({
                 align: "shift",
               }}
             >
-              <ReactionMenuItem
-                handleLikeUnlike={handleLikeUnlike}
-                authUserLiked={authUserLiked}
-              />
+              {sessionUser && (
+                <ReactionMenuItem
+                  handleLikeUnlike={handleLikeUnlike}
+                  authUserLiked={authUserLiked}
+                />
+              )}
               <MenuItem onClick={handleCopy}>
                 <CopyIcon className="size-4" />
                 Copy

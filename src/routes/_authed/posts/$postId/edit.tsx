@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { BadgeInput } from "~/components/input/badge-input";
-import { PageHeader } from "~/components/page-header";
 import {
   Form,
   FormControl,
@@ -38,6 +37,16 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "posts", to: "/posts" },
+        { label: "" },
+        { label: "edit" },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   beforeLoad: async ({ context, params: { postId } }) => {
     const post = await context.queryClient.ensureQueryData(
       posts.get.queryOptions({ postId }),
@@ -54,9 +63,17 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
   },
   loader: async ({ context, params: { postId } }) => {
     try {
-      return await context.queryClient.ensureQueryData(
+      const postData = await context.queryClient.ensureQueryData(
         posts.get.queryOptions({ postId }),
       );
+      return {
+        ...postData,
+        pageHeader: {
+          breadcrumbOverrides: {
+            1: { label: postData.title, to: `/posts/${postId}` },
+          },
+        },
+      };
     } catch (error) {
       await session.flash.set.fn({ data: { message: errorFmt(error) } });
       throw redirect({ to: "/posts" });
@@ -138,15 +155,6 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/posts/${postId}`}>
-            {post.title}
-          </PageHeader.Crumb>
-          <PageHeader.Crumb>edit</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
       <Form
         rhf={rhf}
         className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"

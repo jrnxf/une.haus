@@ -17,6 +17,7 @@ import {
 import { relations } from "drizzle-orm/relations";
 
 import type { NeighborLink } from "~/lib/tricks/types";
+import type { TournamentState } from "~/lib/tourney/types";
 
 export const TRICK_SUBMISSION_STATUSES = [
   "pending",
@@ -2087,6 +2088,38 @@ export const trickSuggestionMessageLikesRelations = relations(
     }),
   }),
 );
+
+// Tournaments
+
+export const TOURNEY_PHASES = [
+  "setup",
+  "prelims",
+  "ranking",
+  "bracket",
+  "complete",
+] as const;
+
+export const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES);
+
+export const tournaments = pgTable("tournaments", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  phase: tourneyPhaseEnum("phase").notNull().default("setup"),
+  createdByUserId: integer("created_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  state: json("state").$type<TournamentState>().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const tournamentsRelations = relations(tournaments, ({ one }) => ({
+  createdBy: one(users, {
+    fields: [tournaments.createdByUserId],
+    references: [users.id],
+  }),
+}));
 
 // make sure to reset sequences when seeding. eg
 // SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), true);

@@ -12,8 +12,8 @@ import "@xyflow/react/dist/style.css";
 
 import { useCallback, useEffect, useRef } from "react";
 
-import { describeModifierDiff } from "~/lib/tricks/compute";
 import type { Trick, TricksData } from "~/lib/tricks";
+import { describeModifierDiff } from "~/lib/tricks/compute";
 
 import { TrickNode, type TrickNodeData } from "./trick-node";
 

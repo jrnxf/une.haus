@@ -14,6 +14,12 @@ const mapSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/map/")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "map" }],
+      maxWidth: "full",
+    },
+  },
   validateSearch: mapSearchSchema,
   loader: async ({ context }) => {
     return await context.queryClient.ensureQueryData(

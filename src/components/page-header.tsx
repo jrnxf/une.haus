@@ -1,152 +1,62 @@
-import { Link, type LinkProps } from "@tanstack/react-router";
 import { useLayoutEffect, type ReactNode } from "react";
 
-import { usePageHeaderStore } from "~/lib/page-header/context";
+import { usePageHeaderStoreApi } from "~/lib/page-header/context";
+import type { CrumbConfig } from "~/lib/page-header/types";
 
-// --- Slot collectors ---
-// These components don't render anything visible.
-// They're used to declaratively collect config for the header.
-
-type CrumbProps = {
-  to?: LinkProps["to"] | (string & {});
-  icon?: React.ComponentType<{ className?: string }>;
-  children: ReactNode;
-};
-
-function Crumb({ to, icon: Icon, children }: CrumbProps) {
-  if (to) {
-    return (
-      <Link
-        to={to as LinkProps["to"]}
-        className="text-muted-foreground hover:text-foreground transition-colors"
-      >
-        {Icon && <Icon className="mr-1.5 inline size-3.5" />}
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <span className="text-foreground flex items-center gap-1.5 font-medium">
-      {Icon && (
-        <span className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded">
-          <Icon className="size-3" />
-        </span>
-      )}
-      {children}
-    </span>
-  );
-}
-
-type TabItem = {
-  path: string;
-  label: string;
-  icon?: React.ComponentType<{ className?: string }>;
-};
-
-// --- Internal types for slot collection ---
-
-type SlotState = {
-  breadcrumbs: ReactNode | null;
-  tabs: ReactNode | null;
-  actions: ReactNode | null;
-  widget: ReactNode | null;
-  mobileRow: ReactNode | null;
-};
-
-// --- PageHeader root ---
-
-type PageHeaderMaxWidth = "lg" | "2xl" | "4xl" | "full";
+type MaxWidth = "lg" | "2xl" | "4xl" | "full";
 
 function PageHeaderRoot({
   children,
-  maxWidth = "4xl",
+  maxWidth,
+  breadcrumbs,
 }: {
-  children: ReactNode;
-  maxWidth?: PageHeaderMaxWidth;
+  children?: ReactNode;
+  maxWidth?: MaxWidth;
+  breadcrumbs?: CrumbConfig[];
 }) {
-  const store = usePageHeaderStore();
+  const store = usePageHeaderStoreApi();
 
-  // Walk children to extract slot content
-  const slots: SlotState = {
-    breadcrumbs: null,
-    tabs: null,
+  const slots: {
+    actions: ReactNode | null;
+    widget: ReactNode | null;
+    mobileRow: ReactNode | null;
+    breadcrumbs: CrumbConfig[] | null;
+    maxWidth: MaxWidth | null;
+  } = {
     actions: null,
     widget: null,
     mobileRow: null,
+    breadcrumbs: breadcrumbs ?? null,
+    maxWidth: maxWidth ?? null,
   };
 
-  // We use children as a declarative config — extract slot types
-  const childArray = Array.isArray(children) ? children : [children];
-  for (const child of childArray) {
-    if (!child || typeof child !== "object" || !("type" in child)) continue;
-    switch (child.type) {
-      case Breadcrumbs: {
-        slots.breadcrumbs = child;
-        break;
-      }
-      case Tabs: {
-        slots.tabs = child;
-        break;
-      }
-      case Actions: {
-        slots.actions = child;
-        break;
-      }
-      case Widget: {
-        slots.widget = child;
-        break;
-      }
-      case MobileRow: {
-        slots.mobileRow = child;
-        break;
+  if (children) {
+    const childArray = Array.isArray(children) ? children : [children];
+    for (const child of childArray) {
+      if (!child || typeof child !== "object" || !("type" in child)) continue;
+      switch (child.type) {
+        case Actions: {
+          slots.actions = child;
+          break;
+        }
+        case Widget: {
+          slots.widget = child;
+          break;
+        }
+        case MobileRow: {
+          slots.mobileRow = child;
+          break;
+        }
       }
     }
   }
 
   useLayoutEffect(() => {
-    store.setState({ ...slots, maxWidth });
+    store.setState(slots);
     return () => store.reset();
   });
 
   return null;
-}
-
-// --- Slot components ---
-
-function Breadcrumbs({ children }: { children: ReactNode }) {
-  return <>{children}</>;
-}
-
-function Tabs({
-  items,
-  isActive,
-}: {
-  items: TabItem[];
-  isActive: (path: string) => boolean;
-}) {
-  return (
-    <nav className="flex gap-1" aria-label="Page sections">
-      {items.map((tab) => {
-        const active = isActive(tab.path);
-        const Icon = tab.icon;
-        return (
-          <Link
-            key={tab.path}
-            to={tab.path}
-            className={
-              active
-                ? "bg-secondary text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors"
-            }
-          >
-            {Icon && <Icon className="size-3.5" />}
-            <span className="hidden md:inline">{tab.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
-  );
 }
 
 function Actions({ children }: { children: ReactNode }) {
@@ -161,12 +71,7 @@ function MobileRow({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-// --- Compound export ---
-
 export const PageHeader = Object.assign(PageHeaderRoot, {
-  Breadcrumbs,
-  Crumb,
-  Tabs,
   Actions,
   Widget,
   MobileRow,

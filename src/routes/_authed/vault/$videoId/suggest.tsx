@@ -3,8 +3,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowLeftIcon } from "lucide-react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,8 +37,30 @@ export const Route = createFileRoute("/_authed/vault/$videoId/suggest")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "vault", to: "/vault" },
+        { label: "" },
+        { label: "suggest" },
+      ],
+      maxWidth: "2xl",
+    },
+  },
   loader: async ({ context, params: { videoId } }) => {
-    await context.queryClient.ensureQueryData(utv.get.queryOptions(videoId));
+    const video = await context.queryClient.ensureQueryData(
+      utv.get.queryOptions(videoId),
+    );
+    return {
+      pageHeader: {
+        breadcrumbOverrides: {
+          1: {
+            label: video?.title || video?.legacyTitle || "video",
+            to: `/vault/${videoId}`,
+          },
+        },
+      },
+    };
   },
   component: RouteComponent,
 });
@@ -153,22 +174,6 @@ function RouteComponent() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-        <Button variant="ghost" size="sm" asChild className="-ml-3 self-start">
-          <Link to="/vault/$videoId" params={{ videoId }}>
-            <ArrowLeftIcon className="size-4" />
-            Back
-          </Link>
-        </Button>
-
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            suggest edit
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Suggest changes for &ldquo;{displayTitle}&rdquo;
-          </p>
-        </div>
-
         <Form
           rhf={rhf}
           className="flex flex-col gap-6"

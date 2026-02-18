@@ -1,4 +1,4 @@
-import { PanelLeftIcon } from "lucide-react";
+import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import * as React from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
@@ -29,8 +29,6 @@ import { cn } from "~/lib/utils";
 const SIDEBAR_WIDTH = "12rem";
 const SIDEBAR_WIDTH_MOBILE = "16rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
-const SIDEBAR_KEYBOARD_SHORTCUT = "b";
-
 export const SIDEBAR_CLOSE_DURATION = 200;
 
 type SidebarContextProps = {
@@ -95,23 +93,6 @@ function SidebarProvider({
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);
   }, [open, setOpen]);
-
-  // Keyboard shortcut to toggle sidebar (cmd+b / ctrl+b)
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-        (event.metaKey || event.ctrlKey) &&
-        !event.repeat
-      ) {
-        event.preventDefault();
-        toggleSidebar();
-      }
-    };
-
-    globalThis.addEventListener("keydown", handleKeyDown);
-    return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [toggleSidebar]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
@@ -261,7 +242,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, open } = useSidebar();
 
   return (
     <Button
@@ -276,7 +257,11 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon className="size-4" />
+      {open ? (
+        <PanelLeftCloseIcon className="size-4" />
+      ) : (
+        <PanelLeftOpenIcon className="size-4" />
+      )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

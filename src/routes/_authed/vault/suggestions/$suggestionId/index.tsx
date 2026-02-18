@@ -3,21 +3,9 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
-import {
-  ArrowLeftIcon,
-  ArrowRight,
-  CheckCircleIcon,
-  HeartIcon,
-  TrendingUpIcon,
-  XCircleIcon,
-} from "lucide-react";
+import { ArrowRight, HeartIcon, TrendingUpIcon } from "lucide-react";
 
 import { toast } from "sonner";
 import { z } from "zod";
@@ -33,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { VideoPlayer } from "~/components/video-player";
 import type { UserDiscipline, UtvVideoSuggestionDiff } from "~/db/schema";
 import { flashMessage } from "~/lib/flash";
 import { invariant } from "~/lib/invariant";
@@ -254,13 +243,9 @@ function SuggestionView({
 
   return (
     <>
-      <Link
-        to="/vault/review"
-        className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
-      >
-        <ArrowLeftIcon className="size-4" />
-        <span>back to review</span>
-      </Link>
+      {suggestion.utvVideo.video?.playbackId && (
+        <VideoPlayer playbackId={suggestion.utvVideo.video.playbackId} />
+      )}
 
       <Card>
         <CardHeader>
@@ -380,7 +365,7 @@ function SuggestionView({
       {isAdmin && isPending && (
         <div className="flex justify-end gap-2">
           <Button
-            variant="outline"
+            variant="destructive"
             onClick={() =>
               reviewSuggestion.mutate({
                 data: { id: suggestionId, status: "rejected" },
@@ -388,7 +373,6 @@ function SuggestionView({
             }
             disabled={reviewSuggestion.isPending}
           >
-            <XCircleIcon className="mr-2 size-4" />
             Reject
           </Button>
           <Button
@@ -399,7 +383,6 @@ function SuggestionView({
             }
             disabled={reviewSuggestion.isPending}
           >
-            <CheckCircleIcon className="mr-2 size-4" />
             Approve
           </Button>
         </div>

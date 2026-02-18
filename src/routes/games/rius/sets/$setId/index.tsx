@@ -20,7 +20,6 @@ import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
-import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { VideoPlayer } from "~/components/video-player";
@@ -42,6 +41,16 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "games", to: "/games" },
+        { label: "rack it up", to: "/games/rius/active" },
+        { label: "" },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params: { setId }, preload }) => {
     const ensureSet = async () => {
       try {
@@ -62,26 +71,26 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
     };
 
     await ensureSet();
+
+    const setData = context.queryClient.getQueryData(
+      games.rius.sets.get.queryOptions({ setId }).queryKey,
+    );
+
+    return {
+      pageHeader: {
+        breadcrumbOverrides: {
+          2: { label: (setData as any)?.name ?? "set" },
+        },
+      },
+    };
   },
 });
 
 function RouteComponent() {
   const { setId } = Route.useParams();
-  const { data: set } = useSuspenseQuery(
-    games.rius.sets.get.queryOptions({ setId }),
-  );
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/rius/active">
-            rack it up
-          </PageHeader.Crumb>
-          <PageHeader.Crumb>{set?.name ?? "set"}</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
           <SetView setId={setId} />
@@ -130,19 +139,21 @@ function SetView({ setId }: { setId: number }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={likeUnlike.mutate}
-            aria-label={authUserLiked ? "Unlike" : "Like"}
-          >
-            <HeartIcon
-              className={cn(
-                "size-4",
-                authUserLiked && "fill-red-700/50 stroke-red-700",
-              )}
-            />
-          </Button>
+          {sessionUser && (
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={likeUnlike.mutate}
+              aria-label={authUserLiked ? "Unlike" : "Like"}
+            >
+              <HeartIcon
+                className={cn(
+                  "size-4",
+                  authUserLiked && "fill-red-700/50 stroke-red-700",
+                )}
+              />
+            </Button>
+          )}
           {set.likes.length > 0 && (
             <UsersDialog
               users={set.likes?.map((l) => l.user) ?? []}

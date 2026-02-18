@@ -54,6 +54,15 @@ export const Route = createFileRoute(
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "tricks", to: "/tricks" },
+        { label: "suggestion" },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params: { suggestionId }, preload }) => {
     try {
       const [sessionData] = await Promise.all([

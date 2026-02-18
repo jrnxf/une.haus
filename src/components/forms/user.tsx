@@ -62,7 +62,7 @@ export function UserForm({
   return (
     <Form
       rhf={rhf}
-      className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-8"
+      className="mx-auto flex w-full flex-col gap-4"
       id="main-content"
       method="post"
       onSubmit={(event) => {

@@ -7,7 +7,6 @@ import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
 import { UsersDialog } from "~/components/likes-dialog";
-import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
@@ -31,6 +30,16 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "games", to: "/games" },
+        { label: "rack it up", to: "/games/rius/active" },
+        { label: "" },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params: { submissionId }, preload }) => {
     const ensureSubmission = async () => {
       try {
@@ -53,28 +62,30 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
     };
 
     await ensureSubmission();
+
+    const submissionData = context.queryClient.getQueryData(
+      games.rius.submissions.get.queryOptions({ submissionId }).queryKey,
+    );
+
+    return {
+      pageHeader: {
+        breadcrumbOverrides: {
+          2: {
+            label: (submissionData as any)?.user?.name
+              ? `${(submissionData as any).user.name}'s submission`
+              : "submission",
+          },
+        },
+      },
+    };
   },
 });
 
 function RouteComponent() {
   const { submissionId } = Route.useParams();
-  const { data: submission } = useSuspenseQuery(
-    games.rius.submissions.get.queryOptions({ submissionId }),
-  );
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/rius/active">
-            rack it up
-          </PageHeader.Crumb>
-          <PageHeader.Crumb>
-            {submission?.user.name ?? "submission"}
-          </PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
           <SubmissionView submissionId={submissionId} />
@@ -145,14 +156,16 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               <Separator orientation="vertical" className="mx-1 h-6" />
             </>
           )}
-          <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
-            <HeartIcon
-              className={cn(
-                "size-4",
-                authUserLiked && "fill-red-700/50 stroke-red-700",
-              )}
-            />
-          </Button>
+          {sessionUser && (
+            <Button size="icon-sm" variant="outline" onClick={likeUnlike.mutate}>
+              <HeartIcon
+                className={cn(
+                  "size-4",
+                  authUserLiked && "fill-red-700/50 stroke-red-700",
+                )}
+              />
+            </Button>
+          )}
           {submission.likes.length > 0 && (
             <UsersDialog
               users={submission.likes.map((l) => l.user)}

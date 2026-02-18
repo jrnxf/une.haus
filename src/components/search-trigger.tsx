@@ -12,8 +12,8 @@ export function SearchTrigger({ className }: { className?: string }) {
       type="button"
       onClick={() => setOpen(true)}
       className={cn(
-        "group/search border-input bg-background text-muted-foreground flex h-9 w-full items-center gap-2 rounded-md border px-2 text-sm transition-colors",
-        "hover:bg-accent hover:text-accent-foreground",
+        "group/search border-input dark:bg-input/30 text-muted-foreground flex h-9 w-full items-center gap-2 rounded-md border bg-transparent px-2 text-sm transition-colors",
+        "hover:bg-card hover:text-accent-foreground",
         "focus-visible:ring-ring focus-visible:ring-1 focus-visible:outline-none",
         "[[data-mobile=true]_&]:hidden",
         className,

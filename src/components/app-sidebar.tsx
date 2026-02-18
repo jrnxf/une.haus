@@ -10,11 +10,11 @@ import {
   MessagesSquareIcon,
   Send,
   ShoppingBagIcon,
-  TimerIcon,
   TrafficConeIcon,
 } from "lucide-react";
 import * as React from "react";
 
+import { BracketIcon } from "~/components/icons/bracket-icon";
 import { Logo } from "~/components/logo";
 import { NavMain } from "~/components/nav-main";
 import { NavSecondary } from "~/components/nav-secondary";
@@ -71,9 +71,9 @@ const data = {
       activeIcon: LockOpenIcon,
     },
     {
-      title: "Events",
-      url: "/events",
-      icon: TimerIcon,
+      title: "Tourney",
+      url: "/tourney",
+      icon: BracketIcon,
     },
     {
       title: "Stats",

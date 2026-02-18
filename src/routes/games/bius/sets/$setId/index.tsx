@@ -21,7 +21,6 @@ import { BaseMessageForm } from "~/components/forms/message";
 import { UsersDialog } from "~/components/likes-dialog";
 import { MessageAuthor } from "~/components/messages/message-author";
 import { MessageBubble } from "~/components/messages/message-bubble";
-import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -53,6 +52,16 @@ export const Route = createFileRoute("/games/bius/sets/$setId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "games", to: "/games" },
+        { label: "back it up", to: "/games/bius" },
+        { label: "set" },
+      ],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context, params: { setId }, preload }) => {
     try {
       await context.queryClient.ensureQueryData(
@@ -76,15 +85,6 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/bius" icon={RotateCcwIcon}>
-            back it up
-          </PageHeader.Crumb>
-          <PageHeader.Crumb>set</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
         <SetView setId={setId} />
       </div>
@@ -164,19 +164,21 @@ function SetView({ setId }: { setId: number }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={likeUnlike.mutate}
-            aria-label={authUserLiked ? "Unlike" : "Like"}
-          >
-            <HeartIcon
-              className={cn(
-                "size-4",
-                authUserLiked && "fill-red-700/50 stroke-red-700",
-              )}
-            />
-          </Button>
+          {sessionUser && (
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={likeUnlike.mutate}
+              aria-label={authUserLiked ? "Unlike" : "Like"}
+            >
+              <HeartIcon
+                className={cn(
+                  "size-4",
+                  authUserLiked && "fill-red-700/50 stroke-red-700",
+                )}
+              />
+            </Button>
+          )}
           {set.likes.length > 0 && (
             <UsersDialog
               users={set.likes.map(

@@ -1,11 +1,11 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
+  ArrowDownToLineIcon,
   EditIcon,
   FileTextIcon,
   LayersIcon,
   MessageCircleIcon,
-  PlayCircleIcon,
   SendIcon,
   VideoIcon,
 } from "lucide-react";
@@ -41,6 +41,11 @@ const TYPE_LABELS: Record<ActivityTypeFilter, string> = {
   trickVideo: "Trick Videos",
   utvVideoSuggestion: "Vault Suggestions",
   siuStack: "SIU Stacks",
+};
+
+const ACTIVITY_ITEMS: Record<string, string> = {
+  all: "All activity",
+  ...TYPE_LABELS,
 };
 
 type ActivityGroup = {
@@ -117,14 +122,17 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     <Select
       value={typeFilter}
       onValueChange={(v) => setTypeFilter(v as ActivityTypeFilter | "all")}
+      items={ACTIVITY_ITEMS}
     >
       <SelectTrigger className="h-7 w-36 text-xs">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">All activity</SelectItem>
+        <SelectItem value="all" label="All activity">
+          All activity
+        </SelectItem>
         {ACTIVITY_TYPES.map((type) => (
-          <SelectItem key={type} value={type}>
+          <SelectItem key={type} value={type} label={TYPE_LABELS[type]}>
             {TYPE_LABELS[type]}
           </SelectItem>
         ))}
@@ -327,7 +335,7 @@ function getActivityDisplay(item: ActivityItem): {
     }
     case "riuSubmission": {
       return {
-        icon: <PlayCircleIcon className="size-2.5" />,
+        icon: <ArrowDownToLineIcon className="size-2.5" />,
         label: `Submitted to ${item.parentTitle ?? "a set"}`,
         url: `/games/rius/submissions/${item.id}`,
       };

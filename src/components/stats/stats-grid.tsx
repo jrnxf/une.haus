@@ -1,10 +1,10 @@
 import {
+  ArrowDownToLineIcon,
   GlobeIcon,
   HeartIcon,
   LayersIcon,
   MapPinIcon,
   MessageCircleIcon,
-  PlayCircleIcon,
   SendIcon,
   UsersIcon,
 } from "lucide-react";
@@ -62,7 +62,7 @@ export function StatsGrid({ data }: StatsGridProps) {
         <StatCard
           label="submissions"
           value={data.counts.riuSubmissions}
-          icon={PlayCircleIcon}
+          icon={ArrowDownToLineIcon}
           description="video responses to game sets"
           size="responsive"
         />

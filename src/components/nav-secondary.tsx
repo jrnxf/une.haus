@@ -1,5 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { MonitorIcon, MoonIcon, SunIcon, type LucideIcon } from "lucide-react";
+import {
+  JoystickIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+  type LucideIcon,
+} from "lucide-react";
 import * as React from "react";
 
 import {
@@ -9,6 +15,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "~/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useTheme, type Theme } from "~/lib/theme/context";
 
 const themeOrder: Theme[] = ["system", "dark", "light"];
@@ -43,26 +54,39 @@ export function NavSecondary({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-1">
             {items.map((item) => (
-              <SidebarMenuButton
-                key={item.title}
-                asChild
-                className="w-fit"
-                size="sm"
-              >
-                <Link to={item.url} replace>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
+              <Tooltip key={item.title}>
+                <TooltipTrigger asChild>
+                  <SidebarMenuButton asChild className="w-fit" size="sm">
+                    <Link to={item.url} replace>
+                      <item.icon />
+                    </Link>
+                  </SidebarMenuButton>
+                </TooltipTrigger>
+                <TooltipContent side="top">{item.title}</TooltipContent>
+              </Tooltip>
             ))}
-            <SidebarMenuButton
-              className="w-fit"
-              size="sm"
-              onClick={cycleTheme}
-              tooltip={theme}
-            >
-              <ThemeIcon />
-            </SidebarMenuButton>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarMenuButton
+                  className="w-fit"
+                  size="sm"
+                  onClick={cycleTheme}
+                >
+                  <ThemeIcon />
+                </SidebarMenuButton>
+              </TooltipTrigger>
+              <TooltipContent side="top">Color mode ({theme})</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarMenuButton asChild className="w-fit" size="sm">
+                  <Link to="/game">
+                    <JoystickIcon />
+                  </Link>
+                </SidebarMenuButton>
+              </TooltipTrigger>
+              <TooltipContent side="top">Play</TooltipContent>
+            </Tooltip>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>

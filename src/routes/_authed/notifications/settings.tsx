@@ -45,6 +45,15 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/_authed/notifications/settings")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "notifications", to: "/notifications" },
+        { label: "settings" },
+      ],
+      maxWidth: "2xl",
+    },
+  },
   validateSearch: searchSchema,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(

@@ -65,19 +65,21 @@ export function PostView({ postId }: { postId: number }) {
         </div>
 
         <div className="flex shrink-0 grow items-center justify-end gap-1">
-          <Button
-            size="icon-sm"
-            variant="outline"
-            onClick={likeUnlikePost}
-            aria-label={authUserLiked ? "Unlike" : "Like"}
-          >
-            <HeartIcon
-              className={cn(
-                "size-4",
-                authUserLiked && "fill-red-700/50 stroke-red-700",
-              )}
-            />
-          </Button>
+          {sessionUser && (
+            <Button
+              size="icon-sm"
+              variant="outline"
+              onClick={likeUnlikePost}
+              aria-label={authUserLiked ? "Unlike" : "Like"}
+            >
+              <HeartIcon
+                className={cn(
+                  "size-4",
+                  authUserLiked && "fill-red-700/50 stroke-red-700",
+                )}
+              />
+            </Button>
+          )}
           <UsersDialog
             users={post.likes.map((like) => like.user)}
             title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}

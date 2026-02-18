@@ -144,11 +144,7 @@ function FollowButton({
   );
 
   if (isOwnProfile) {
-    return (
-      <Button className="shrink-0" variant="secondary" asChild>
-        <Link to="/auth/me/edit">Edit</Link>
-      </Button>
-    );
+    return null;
   }
 
   if (!sessionUser) {

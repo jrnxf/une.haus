@@ -8,25 +8,27 @@ import {
   LockOpenIcon,
   MapPinIcon,
   MedalIcon,
+  MenuIcon,
   MessagesSquareIcon,
   MonitorIcon,
   MoonIcon,
-  PanelBottomOpenIcon,
+  PencilIcon,
   Send,
   ShoppingBagIcon,
   SunIcon,
-  TimerIcon,
   TrafficConeIcon,
   type LucideIcon,
 } from "lucide-react";
 import { type ReactNode } from "react";
 
+import { BracketIcon } from "~/components/icons/bracket-icon";
 import {
   MobileNavContext,
   useMobileNav,
 } from "~/components/mobile-nav-context";
 import { Button } from "~/components/ui/button";
 import { usePeripherals } from "~/hooks/use-peripherals";
+import { useSessionUser } from "~/lib/session/hooks";
 import { useTheme, type Theme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 
@@ -43,7 +45,7 @@ const navItems = [
     icon: LockIcon,
     activeIcon: LockOpenIcon,
   },
-  { title: "events", url: "/events", icon: TimerIcon },
+  { title: "tourney", url: "/tourney", icon: BracketIcon },
   { title: "stats", url: "/stats", icon: GaugeIcon },
   { title: "shop", url: "/shop", icon: ShoppingBagIcon },
   { title: "feedback", url: "/feedback", icon: Send },
@@ -78,7 +80,7 @@ function NavItem({
         "flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors",
         isActive
           ? "bg-accent text-accent-foreground font-medium"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+          : "text-foreground hover:bg-accent/50",
       )}
     >
       <ResolvedIcon className="size-5" />
@@ -146,7 +148,7 @@ export function MobileNavTrigger({ className }: { className?: string }) {
       onClick={openNav}
       className={cn("lg:hidden", className)}
     >
-      <PanelBottomOpenIcon />
+      <MenuIcon />
     </Button>
   );
 }
@@ -164,7 +166,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={cycleTheme}
-      className="text-muted-foreground hover:bg-accent/50 hover:text-foreground flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors"
+      className="text-foreground hover:bg-accent/50 flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors"
     >
       <ThemeIcon className="size-5" />
       <span>color mode ({theme})</span>
@@ -179,6 +181,7 @@ export function MobileNavPopup({
 }) {
   const matches = useMatches();
   const currentPath = matches.at(-1)?.pathname ?? "/";
+  const sessionUser = useSessionUser();
 
   return (
     <DrawerPrimitive.Portal container={portalContainer}>
@@ -203,6 +206,18 @@ export function MobileNavPopup({
                   isActive={currentPath.startsWith(item.url)}
                 />
               ))}
+              {sessionUser && (
+                <Link
+                  to="/auth/me/edit"
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors",
+                    "text-foreground hover:bg-accent/50",
+                  )}
+                >
+                  <PencilIcon className="size-5" />
+                  <span>edit profile</span>
+                </Link>
+              )}
               <ThemeToggle />
             </nav>
           </DrawerPrimitive.Content>

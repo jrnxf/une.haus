@@ -32,6 +32,12 @@ import {
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/elements/")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "elements" }],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       tricks.elements.list.queryOptions(),
@@ -87,10 +93,6 @@ function RouteComponent() {
   return (
     <>
       <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>elements</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button asChild>
             <Link to="/admin/tricks/elements/create">Create</Link>

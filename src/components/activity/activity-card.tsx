@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LayersIcon, PaperclipIcon, PlayCircleIcon } from "lucide-react";
+import { ArrowDownToLineIcon, LayersIcon, PaperclipIcon } from "lucide-react";
 
 import { TimeAgo } from "~/components/time-ago";
 import { Badge } from "~/components/ui/badge";
@@ -110,7 +110,7 @@ function getCardDisplay(item: ActivityItem): CardDisplay {
     }
     case "riuSubmission": {
       return {
-        icon: <PlayCircleIcon className="size-3" />,
+        icon: <ArrowDownToLineIcon className="size-3" />,
         typeLabel: "RIU Submission",
         title: `Submitted to: ${item.parentTitle ?? "a set"}`,
         url: `/games/rius/submissions/${item.id}`,

@@ -60,7 +60,9 @@ function TrickNodeComponent({ data, selected }: TrickNodeProps) {
         )}
 
         {/* Trick name */}
-        <p className="text-sm leading-tight font-medium lowercase">{trick.name}</p>
+        <p className="text-sm leading-tight font-medium lowercase">
+          {trick.name}
+        </p>
 
         {/* Elements */}
         <div className="mt-1 flex flex-wrap gap-0.5">

@@ -24,7 +24,6 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { useDebounceCallback } from "usehooks-ts";
 
-import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { getMuxPoster } from "~/components/video-player";
@@ -40,6 +39,9 @@ export const Route = createFileRoute("/vault/")({
       ),
       context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
     ]);
+  },
+  staticData: {
+    pageHeader: { breadcrumbs: [{ label: "vault" }], maxWidth: "4xl" },
   },
   component: RouteComponent,
 });
@@ -86,12 +88,6 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>vault</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
-
       <div className="flex h-full flex-col">
         <div className="bg-background sticky top-0 z-10">
           <div className="mx-auto flex max-w-4xl items-center gap-2 p-4">
@@ -100,7 +96,7 @@ function RouteComponent() {
                 id="vault-search"
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search vault"
+                placeholder="search vault"
                 className="pr-8"
               />
               {query && (
@@ -130,74 +126,74 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
-          <div className="mx-auto flex max-w-4xl flex-col gap-4 p-4">
-            <motion.div
-              initial={false}
-              animate={{
-                height: historyOpen ? "auto" : 0,
-                opacity: historyOpen ? 1 : 0,
-              }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <div className="bg-card space-y-4 rounded-lg border p-4">
-                <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
-                  <p>
-                    In December 2005, Olaf Schlote launched{" "}
-                    <span className="text-foreground font-medium">
-                      unicycle.tv
-                    </span>{" "}
-                    — a pioneering video platform built specifically for the
-                    unicycling community. Before YouTube became mainstream and
-                    years before social media made video sharing effortless,
-                    unicycle.tv provided riders around the world a dedicated
-                    space to upload, share, and preserve their footage.
-                  </p>
-                  <p>
-                    The platform captured countless historic moments:
-                    competition runs, groundbreaking tricks, and the raw
-                    progression of street, trials, and freestyle riding. When
-                    videos disappeared from other platforms, unicycle.tv
-                    remained as an archive. This vault preserves that legacy.
-                  </p>
-                  <p className="text-foreground font-medium">
-                    We are deeply grateful to Olaf for his vision and the
-                    incredible contribution he made to documenting une history.
-                  </p>
-                </div>
-
-                <ClapButton />
+        <motion.div
+          initial={false}
+          animate={{
+            height: historyOpen ? "auto" : 0,
+            opacity: historyOpen ? 1 : 0,
+          }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="overflow-hidden"
+        >
+          <div className="mx-auto max-w-4xl px-4 pb-4">
+            <div className="bg-card space-y-4 rounded-lg border p-4">
+              <div className="text-muted-foreground space-y-3 text-sm leading-relaxed lowercase">
+                <p>
+                  In December 2005, Olaf Schlote launched{" "}
+                  <span className="text-foreground font-medium">
+                    unicycle.tv
+                  </span>{" "}
+                  — a pioneering video platform built specifically for the
+                  unicycling community. Before YouTube became mainstream and
+                  years before social media made video sharing effortless,
+                  unicycle.tv provided riders around the world a dedicated space
+                  to upload, share, and preserve their footage.
+                </p>
+                <p>
+                  The platform captured countless historic moments: competition
+                  runs, groundbreaking tricks, and the raw progression of
+                  street, trials, and freestyle riding. When videos disappeared
+                  from other platforms, unicycle.tv remained as an archive. This
+                  vault preserves that legacy.
+                </p>
+                <p className="text-foreground font-medium">
+                  We are deeply grateful to Olaf for his vision and the
+                  incredible contribution he made to documenting une history.
+                </p>
               </div>
-            </motion.div>
 
+              <ClapButton />
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
+          <div className="mx-auto flex max-w-4xl flex-col px-4">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {displayedVideos.map((video) => (
                 <Link
                   key={video.id}
                   to="/vault/$videoId"
                   params={{ videoId: video.id }}
-                  className="bg-card group flex flex-col overflow-clip rounded-md border"
+                  className="group relative aspect-video overflow-clip rounded-md"
                 >
-                  <div className="relative aspect-video overflow-clip">
-                    <img
-                      src={getMuxPoster({
-                        playbackId: video.playbackId,
-                        time: video.thumbnailSeconds,
-                        width: 320,
-                      })}
-                      alt={video.title}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      style={{
-                        transform: `scale(${video.scale})`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 p-2">
-                    <h2 className="truncate text-sm font-semibold">
+                  <img
+                    src={getMuxPoster({
+                      playbackId: video.playbackId,
+                      time: video.thumbnailSeconds,
+                      width: 320,
+                    })}
+                    alt={video.title}
+                    className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                    style={{
+                      transform: `scale(${video.scale})`,
+                    }}
+                  />
+                  <div className="absolute inset-x-0 bottom-0 rounded-b-md bg-black/60 px-2 py-1.5 backdrop-blur-xs">
+                    <h2 className="truncate text-xs font-semibold text-white">
                       {video.title}
                     </h2>
-                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                    <div className="flex items-center gap-2 text-xs text-white/70">
                       <div
                         className="flex items-center gap-1"
                         title={`${video.likesCount} likes`}
@@ -325,7 +321,7 @@ function ClapButton() {
         className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors"
       >
         <span className="text-base">👏</span>
-        Clap for Olaf
+        clap for olaf
       </motion.button>
       <span className="text-muted-foreground text-sm tabular-nums">
         {displayCount.toLocaleString()} {displayCount === 1 ? "clap" : "claps"}

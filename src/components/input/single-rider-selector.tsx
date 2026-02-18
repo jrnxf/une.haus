@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -11,7 +11,7 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
-import { type ResolvedRiderEntry } from "~/lib/events/bracket";
+import { type ResolvedRiderEntry } from "~/lib/tourney/bracket";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
@@ -27,7 +27,7 @@ type User = {
 export function SingleRiderSelector({
   value,
   onChange,
-  placeholder = "Search users or add a custom name...",
+  placeholder = "rider name",
 }: {
   value: RiderEntry | null;
   onChange: (rider: RiderEntry | null) => void;
@@ -149,9 +149,8 @@ export function SingleRiderSelector({
                       onSelect={handleAddCustom}
                       className="text-muted-foreground"
                     >
-                      <Plus className="size-4" />
                       <span>
-                        Add "
+                        "
                         <span className="text-foreground font-medium">
                           {trimmedQuery}
                         </span>

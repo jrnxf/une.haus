@@ -5,7 +5,6 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
 
-import { Button } from "~/components/ui/button";
 import {
   Command,
   CommandGroup,
@@ -94,23 +93,22 @@ export function LocationSelector({
   return (
     <div>
       <Popover onOpenChange={setOpen} open={open}>
-        <PopoverTrigger asChild>
-          <Button
-            id={formItemId}
-            aria-expanded={open}
-            className="w-full justify-between overflow-hidden hover:bg-inherit"
-            role="combobox"
-            size="lg"
-            variant="outline"
-          >
-            <span className="truncate">{displayedValue}</span>
-            <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-          </Button>
+        <PopoverTrigger
+          id={formItemId}
+          aria-expanded={open}
+          className="border-input dark:bg-input/30 ring-offset-background focus-visible:ring-ring flex h-9 w-full items-center justify-between overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+          role="combobox"
+        >
+          <span className="truncate">{displayedValue}</span>
+          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
         </PopoverTrigger>
         <PopoverContent align="start" className="w-xs p-0">
           <Command async fetchInProgress={fetching} shouldFilter={false}>
             <CommandInput
               className="w-xs"
+              containerClassName={
+                !noResults && options.length === 0 ? "border-b-0" : undefined
+              }
               isFetching={fetching}
               onValueChange={(nextQuery) => {
                 if (!nextQuery) {

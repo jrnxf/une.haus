@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon, FilterIcon, XIcon } from "lucide-react";
 import {
   createContext,
   useCallback,
@@ -9,8 +10,6 @@ import {
   useRef,
   useState,
 } from "react";
-
-import { CheckIcon, FilterIcon, XIcon } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
@@ -169,10 +168,7 @@ function FilterValueSelector<T = unknown>({
         value={(values[0] as string) || ""}
         onChange={(e) => onChange([e.target.value] as T[])}
         placeholder={field.placeholder}
-        className={cn(
-          "w-36 shadow-xs",
-          size === "sm" && "h-8 text-xs",
-        )}
+        className={cn("w-36 shadow-xs", size === "sm" && "h-8 text-xs")}
       />
     );
   }
@@ -219,7 +215,10 @@ function FilterValueSelector<T = unknown>({
           </Button>
         }
       />
-      <DropdownMenuContent align="start" className={cn("w-[200px] px-0", field.className)}>
+      <DropdownMenuContent
+        align="start"
+        className={cn("w-[200px] px-0", field.className)}
+      >
         {field.searchable !== false && (
           <>
             <Input
@@ -370,8 +369,7 @@ export function Filters<T = unknown>({
   const filteredMenuFields = useMemo(() => {
     return selectableFields.filter(
       (f) =>
-        !menuSearch ||
-        f.label.toLowerCase().includes(menuSearch.toLowerCase()),
+        !menuSearch || f.label.toLowerCase().includes(menuSearch.toLowerCase()),
     );
   }, [selectableFields, menuSearch]);
 
@@ -420,105 +418,104 @@ export function Filters<T = unknown>({
                 </>
               )}
               <div className="max-h-[min(var(--available-height),24rem)] overflow-y-auto overscroll-contain">
-                    {filteredMenuFields.length === 0 ? (
-                      <div className="text-muted-foreground py-2 text-center text-sm">
-                        No filters found.
-                      </div>
-                    ) : (
-                      filteredMenuFields.map((field) => {
-                        const hasSubMenu =
-                          (field.type === "select" ||
-                            field.type === "multiselect") &&
-                          field.options?.length;
+                {filteredMenuFields.length === 0 ? (
+                  <div className="text-muted-foreground py-2 text-center text-sm">
+                    No filters found.
+                  </div>
+                ) : (
+                  filteredMenuFields.map((field) => {
+                    const hasSubMenu =
+                      (field.type === "select" ||
+                        field.type === "multiselect") &&
+                      field.options?.length;
 
-                        if (hasSubMenu) {
-                          const isMultiSelect = field.type === "multiselect";
-                          const fieldKey = field.key;
-                          const sessionFilterId = sessionFilterIds[fieldKey];
-                          const sessionFilter = sessionFilterId
-                            ? filters.find((f) => f.id === sessionFilterId)
-                            : null;
-                          const currentValues = sessionFilter?.values || [];
+                    if (hasSubMenu) {
+                      const isMultiSelect = field.type === "multiselect";
+                      const fieldKey = field.key;
+                      const sessionFilterId = sessionFilterIds[fieldKey];
+                      const sessionFilter = sessionFilterId
+                        ? filters.find((f) => f.id === sessionFilterId)
+                        : null;
+                      const currentValues = sessionFilter?.values || [];
 
-                          return (
-                            <DropdownMenuSub key={fieldKey}>
-                              <DropdownMenuSubTrigger>
-                                {field.icon}
-                                <span>{field.label}</span>
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent className="w-[200px] px-0">
-                                <SubMenuContent
-                                  field={field}
-                                  currentValues={currentValues}
-                                  isMultiSelect={isMultiSelect}
-                                  onToggle={(value, isSelected) => {
-                                    if (isMultiSelect) {
-                                      const nextValues = isSelected
-                                        ? (currentValues.filter(
-                                            (v) => v !== value,
-                                          ) as T[])
-                                        : ([...currentValues, value] as T[]);
-
-                                      if (sessionFilter) {
-                                        if (nextValues.length === 0) {
-                                          onChange(
-                                            filters.filter(
-                                              (f) =>
-                                                f.id !== sessionFilter.id,
-                                            ),
-                                          );
-                                          setSessionFilterIds((prev) => ({
-                                            ...prev,
-                                            [fieldKey]: "",
-                                          }));
-                                        } else {
-                                          onChange(
-                                            filters.map((f) =>
-                                              f.id === sessionFilter.id
-                                                ? { ...f, values: nextValues }
-                                                : f,
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        const newFilter = createFilter<T>(
-                                          fieldKey,
-                                          field.defaultOperator || "is_any_of",
-                                          nextValues,
-                                        );
-                                        onChange([...filters, newFilter]);
-                                        setSessionFilterIds((prev) => ({
-                                          ...prev,
-                                          [fieldKey]: newFilter.id,
-                                        }));
-                                      }
-                                    } else {
-                                      const newFilter = createFilter<T>(
-                                        fieldKey,
-                                        field.defaultOperator || "is",
-                                        [value] as T[],
-                                      );
-                                      onChange([...filters, newFilter]);
-                                      setAddFilterOpen(false);
-                                    }
-                                  }}
-                                />
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                          );
-                        }
-
-                        return (
-                          <DropdownMenuItem
-                            key={field.key}
-                            onClick={() => addFilter(field.key)}
-                          >
+                      return (
+                        <DropdownMenuSub key={fieldKey}>
+                          <DropdownMenuSubTrigger>
                             {field.icon}
                             <span>{field.label}</span>
-                          </DropdownMenuItem>
-                        );
-                      })
-                    )}
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent className="w-[200px] px-0">
+                            <SubMenuContent
+                              field={field}
+                              currentValues={currentValues}
+                              isMultiSelect={isMultiSelect}
+                              onToggle={(value, isSelected) => {
+                                if (isMultiSelect) {
+                                  const nextValues = isSelected
+                                    ? (currentValues.filter(
+                                        (v) => v !== value,
+                                      ) as T[])
+                                    : ([...currentValues, value] as T[]);
+
+                                  if (sessionFilter) {
+                                    if (nextValues.length === 0) {
+                                      onChange(
+                                        filters.filter(
+                                          (f) => f.id !== sessionFilter.id,
+                                        ),
+                                      );
+                                      setSessionFilterIds((prev) => ({
+                                        ...prev,
+                                        [fieldKey]: "",
+                                      }));
+                                    } else {
+                                      onChange(
+                                        filters.map((f) =>
+                                          f.id === sessionFilter.id
+                                            ? { ...f, values: nextValues }
+                                            : f,
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    const newFilter = createFilter<T>(
+                                      fieldKey,
+                                      field.defaultOperator || "is_any_of",
+                                      nextValues,
+                                    );
+                                    onChange([...filters, newFilter]);
+                                    setSessionFilterIds((prev) => ({
+                                      ...prev,
+                                      [fieldKey]: newFilter.id,
+                                    }));
+                                  }
+                                } else {
+                                  const newFilter = createFilter<T>(
+                                    fieldKey,
+                                    field.defaultOperator || "is",
+                                    [value] as T[],
+                                  );
+                                  onChange([...filters, newFilter]);
+                                  setAddFilterOpen(false);
+                                }
+                              }}
+                            />
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                      );
+                    }
+
+                    return (
+                      <DropdownMenuItem
+                        key={field.key}
+                        onClick={() => addFilter(field.key)}
+                      >
+                        {field.icon}
+                        <span>{field.label}</span>
+                      </DropdownMenuItem>
+                    );
+                  })
+                )}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -536,16 +533,12 @@ export function Filters<T = unknown>({
               <FilterOperatorDropdown<T>
                 field={field}
                 operator={filter.operator}
-                onChange={(operator) =>
-                  updateFilter(filter.id, { operator })
-                }
+                onChange={(operator) => updateFilter(filter.id, { operator })}
               />
               <FilterValueSelector<T>
                 field={field}
                 values={filter.values}
-                onChange={(values) =>
-                  updateFilter(filter.id, { values })
-                }
+                onChange={(values) => updateFilter(filter.id, { values })}
               />
               <Button
                 variant="outline"

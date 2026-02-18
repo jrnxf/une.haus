@@ -68,14 +68,14 @@ export function BaseMessageForm({
         })(event);
       }}
     >
-      <div className="flex items-end px-2">
+      <div className="dark:bg-input/30 flex items-end bg-transparent px-2">
         <div className="w-full space-y-2">
           <Textarea
             {...register("content")}
-            className="[field-sizing:content] min-h-11 resize-none rounded-none border-0 px-1.5 py-3 shadow-none focus-visible:ring-0"
+            className="[field-sizing:content] min-h-11 resize-none rounded-none border-0 border-transparent px-1.5 py-3 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent"
             id="content"
             rows={1}
-            placeholder="Write a message..."
+            placeholder="write a message..."
             onFocus={onFocus}
             onKeyDown={(event) => {
               if (event.code === "Enter" && (event.metaKey || event.ctrlKey)) {

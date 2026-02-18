@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useLocation } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-adapter";
+import { createFileRoute } from "@tanstack/react-router";
 import { ReactFlowProvider } from "@xyflow/react";
+
+import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
-import { PageHeader } from "~/components/page-header";
 import { TricksGraph } from "~/components/tricks/tricks-graph";
 import { TricksSearch } from "~/components/tricks/tricks-search";
 import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
@@ -15,6 +15,17 @@ const graphSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/tricks/graph")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks" }],
+      tabs: [
+        { path: "/tricks", label: "list" },
+        { path: "/tricks/graph", label: "graph" },
+        { path: "/tricks/builder", label: "builder" },
+      ],
+      maxWidth: "full",
+    },
+  },
   validateSearch: zodValidator(graphSearchSchema),
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(tricks.graph.queryOptions());
@@ -22,21 +33,9 @@ export const Route = createFileRoute("/tricks/graph")({
   component: TricksGraphPage,
 });
 
-const tricksTabs = [
-  { path: "/tricks", label: "list" },
-  { path: "/tricks/graph", label: "graph" },
-  { path: "/tricks/builder", label: "builder" },
-];
-
-const tricksIsActive = (pathname: string) => (path: string) =>
-  path === "/tricks"
-    ? pathname === "/tricks" || pathname === "/tricks/"
-    : pathname.includes(path);
-
 function TricksGraphPage() {
   const { trick: selectedSlug } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const location = useLocation();
   const { data } = useSuspenseQuery(tricks.graph.queryOptions());
 
   const nonPrefixTricks = data.tricks.filter((t) => !t.isPrefix);
@@ -69,43 +68,28 @@ function TricksGraphPage() {
   }
 
   return (
-    <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>tricks</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-        <PageHeader.Tabs
-          items={tricksTabs}
-          isActive={tricksIsActive(location.pathname)}
-        />
-      </PageHeader>
-
-      <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
-        <div className="shrink-0 border-b p-4 md:hidden">
-          <TricksSearch
-            data={data}
-            onSelectTrick={handleSelectTrick}
-          />
-        </div>
-
-        <TricksSidebar
-          tricks={nonPrefixTricks}
-          selectedId={activeTrickId}
-          onSelect={handleSelectTrick}
-        />
-
-        <div className="min-h-0 flex-1">
-          <ReactFlowProvider>
-            <TricksGraph
-              data={data}
-              selectedTrickId={activeTrickId}
-              onSelectTrick={handleSelectTrick}
-              onOpenTrickDetail={handleOpenTrickDetail}
-              onCenterNodeClick={handleCenterNodeClick}
-            />
-          </ReactFlowProvider>
-        </div>
+    <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
+      <div className="shrink-0 border-b p-4 md:hidden">
+        <TricksSearch data={data} onSelectTrick={handleSelectTrick} />
       </div>
-    </>
+
+      <TricksSidebar
+        tricks={nonPrefixTricks}
+        selectedId={activeTrickId}
+        onSelect={handleSelectTrick}
+      />
+
+      <div className="min-h-0 flex-1">
+        <ReactFlowProvider>
+          <TricksGraph
+            data={data}
+            selectedTrickId={activeTrickId}
+            onSelectTrick={handleSelectTrick}
+            onOpenTrickDetail={handleOpenTrickDetail}
+            onCenterNodeClick={handleCenterNodeClick}
+          />
+        </ReactFlowProvider>
+      </div>
+    </div>
   );
 }

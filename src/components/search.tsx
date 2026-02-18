@@ -170,7 +170,7 @@ export function Search() {
       secondaryActions: [
         {
           id: "search-users",
-          label: "Search Users",
+          label: "search users",
           shortcut: { key: "↵", meta: true },
           hotkey: "mod+enter",
           onAction: () => pushPage("search-users"),
@@ -206,7 +206,7 @@ export function Search() {
       secondaryActions: [
         {
           id: "search-vault",
-          label: "Search Vault",
+          label: "search vault",
           shortcut: { key: "↵", meta: true },
           hotkey: "mod+enter",
           onAction: () => pushPage("search-vault"),
@@ -281,9 +281,9 @@ export function Search() {
   const hasSecondaryActions =
     selectedItem?.secondaryActions && selectedItem.secondaryActions.length > 0;
 
-  // Cmd+B to toggle actions dropdown
+  // Cmd+A to toggle actions dropdown
   useHotkeys(
-    "mod+b",
+    "mod+a",
     (e) => {
       if (!open || activePage !== "root" || !hasSecondaryActions) return;
       e.preventDefault();
@@ -364,7 +364,7 @@ export function Search() {
             <Button variant="ghost" size="sm" className="gap-1.5">
               <span>Actions</span>
               <Kbd>{metaSymbol}</Kbd>
-              <Kbd>B</Kbd>
+              <Kbd>A</Kbd>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="top" className="min-w-[200px]">
@@ -441,10 +441,10 @@ export function Search() {
         }}
         placeholder={
           activePage === "search-users"
-            ? "Search users..."
+            ? "search users..."
             : activePage === "search-vault"
-              ? "Search vault..."
-              : "Search for anything..."
+              ? "search vault..."
+              : "search for anything..."
         }
         value={input}
       />

@@ -13,18 +13,18 @@ import {
 
 import { Button, type ButtonProps } from "~/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerTrigger,
+} from "~/components/ui/drawer";
 import { Label } from "~/components/ui/label";
-import { Json } from "~/lib/dx/json";
+import { LazyCodeMirror } from "~/components/ui/lazy-codemirror";
 import { isProduction } from "~/lib/env";
 import { invariant } from "~/lib/invariant";
 import { useIsAdmin } from "~/lib/session/hooks";
 import { Slot } from "~/lib/slot";
+import { useTheme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 
 type VideoUploadStatus = "idle" | number | "processing";
@@ -218,7 +218,12 @@ function FormLabel({
   const { formItemId } = useFormField();
 
   return (
-    <Label ref={ref} className={className} htmlFor={formItemId} {...props} />
+    <Label
+      ref={ref}
+      className={cn("lowercase", className)}
+      htmlFor={formItemId}
+      {...props}
+    />
   );
 }
 FormLabel.displayName = "FormLabel";
@@ -335,6 +340,7 @@ function FormSubmitButton({
 
 function FormDebug() {
   const isAdmin = useIsAdmin();
+  const { resolvedTheme } = useTheme();
   const {
     watch,
     formState: { errors },
@@ -347,25 +353,27 @@ function FormDebug() {
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="icon-sm" className="">
+    <Drawer direction="bottom">
+      <DrawerTrigger asChild>
+        <Button type="button" variant="outline" size="icon-sm">
           <BugIcon className="size-4" />
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader className="sr-only">
-          <DialogTitle>debug</DialogTitle>
-        </DialogHeader>
-        <Json
-          className="w-full border-none"
-          data={{
-            values,
-            errors,
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerTitle className="sr-only">debug</DrawerTitle>
+        <div className="m-4 min-h-0 grow overflow-auto rounded-lg border">
+          <div className="pointer-events-none">
+            <LazyCodeMirror
+              value={JSON.stringify({ values, errors }, null, 2)}
+              readOnly
+              editable={false}
+              theme={resolvedTheme ?? "dark"}
+              basicSetup={{ lineNumbers: false, foldGutter: false }}
+            />
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }
 

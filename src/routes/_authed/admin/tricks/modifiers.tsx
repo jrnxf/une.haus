@@ -54,6 +54,12 @@ import { createModifierSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
 
 export const Route = createFileRoute("/_authed/admin/tricks/modifiers")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "modifiers" }],
+      maxWidth: "4xl",
+    },
+  },
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       tricks.modifiers.list.queryOptions(),
@@ -121,10 +127,6 @@ function RouteComponent() {
   return (
     <>
       <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>modifiers</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button onClick={() => setIsCreateOpen(true)}>Create</Button>
         </PageHeader.Actions>

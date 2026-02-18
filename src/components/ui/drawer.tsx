@@ -110,7 +110,7 @@ const popupClasses: Record<DrawerDirection, string> = {
   top: "w-full max-h-[90vh] rounded-b-lg border-b [transform:translateY(var(--drawer-swipe-movement-y))] data-[starting-style]:[transform:translateY(-100%)] data-[ending-style]:[transform:translateY(-100%)]",
   right:
     "h-full w-3/4 border-l sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(100%)] data-[ending-style]:[transform:translateX(100%)]",
-  left: "h-full w-3/4 border-r sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(-100%)] data-[ending-style]:[transform:translateX(-100%)]",
+  left: "h-full w-3/4 border-r sm:max-w-lg [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(-100%)] data-[ending-style]:[transform:translateX(-100%)]",
 };
 
 function DrawerContent({
@@ -135,11 +135,15 @@ function DrawerContent({
           )}
           {...props}
         >
-          <div
-            aria-hidden
-            className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"
-          />
-          <DrawerPrimitive.Content>{children}</DrawerPrimitive.Content>
+          {(direction === "top" || direction === "bottom") && (
+            <div
+              aria-hidden
+              className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"
+            />
+          )}
+          <DrawerPrimitive.Content className="flex min-h-0 flex-1 flex-col">
+            {children}
+          </DrawerPrimitive.Content>
         </DrawerPrimitive.Popup>
       </DrawerPrimitive.Viewport>
     </DrawerPortal>

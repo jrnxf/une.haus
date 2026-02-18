@@ -33,6 +33,12 @@ import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
 
 export const Route = createFileRoute("/posts/")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [{ label: "posts" }],
+      maxWidth: "4xl",
+    },
+  },
   validateSearch: posts.list.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
@@ -100,9 +106,6 @@ function RouteComponent() {
   return (
     <>
       <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>posts</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button
             variant="outline"

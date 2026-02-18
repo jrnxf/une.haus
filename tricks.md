@@ -113,16 +113,16 @@ The `tricks` table has a unique constraint on `(flips, spin, wrap, twist, fakie,
 
 Each simple trick is fully described by 8 modifier dimensions:
 
-| Column        | Type    | Values                                          |
-| ------------- | ------- | ----------------------------------------------- |
-| `flips`       | int     | 0, 1, 2, 3... (crank rotations)                |
-| `spin`        | int     | 0, 90, 180, 270, 360... (unispin degrees)       |
-| `wrap`        | text    | none, side, secretside, backside, antiside       |
-| `twist`       | int     | 0, 180, 360, 540 (body twist degrees)           |
-| `fakie`       | bool    | riding backwards                                |
-| `tire`        | text    | none, to tire, from tire, on tire                |
-| `switchStance`| bool    | opposite foot forward                           |
-| `late`        | bool    | delayed rotation                                |
+| Column         | Type | Values                                     |
+| -------------- | ---- | ------------------------------------------ |
+| `flips`        | int  | 0, 1, 2, 3... (crank rotations)            |
+| `spin`         | int  | 0, 90, 180, 270, 360... (unispin degrees)  |
+| `wrap`         | text | none, side, secretside, backside, antiside |
+| `twist`        | int  | 0, 180, 360, 540 (body twist degrees)      |
+| `fakie`        | bool | riding backwards                           |
+| `tire`         | text | none, to tire, from tire, on tire          |
+| `switchStance` | bool | opposite foot forward                      |
+| `late`         | bool | delayed rotation                           |
 
 ### Relationships (Directed Graph)
 
@@ -183,14 +183,14 @@ Both follow the same review workflow: pending -> approved/rejected.
 
 ## Server Functions (`src/lib/tricks/fns.ts`)
 
-| Function | Purpose | Used By |
-| --- | --- | --- |
-| `getAllTricksForGraphServerFn` | Loads ALL tricks + relations, runs `transformDbTricksToTricksData()` | Graph, Detail pages |
-| `getAllTricksForBuilderServerFn` | Loads simple + compound tricks with modifiers | Builder page |
-| `getTrickServerFn` | Single trick by slug with full relations | (available but pages use graph data) |
-| `getTrickByIdServerFn` | Single trick by ID with videos | Admin edit |
-| `searchTricksServerFn` | ILIKE search, minimal fields | Relationship selectors in forms |
-| `listTricksServerFn` | Paginated list with filters | Trick list views |
+| Function                         | Purpose                                                              | Used By                              |
+| -------------------------------- | -------------------------------------------------------------------- | ------------------------------------ |
+| `getAllTricksForGraphServerFn`   | Loads ALL tricks + relations, runs `transformDbTricksToTricksData()` | Graph, Detail pages                  |
+| `getAllTricksForBuilderServerFn` | Loads simple + compound tricks with modifiers                        | Builder page                         |
+| `getTrickServerFn`               | Single trick by slug with full relations                             | (available but pages use graph data) |
+| `getTrickByIdServerFn`           | Single trick by ID with videos                                       | Admin edit                           |
+| `searchTricksServerFn`           | ILIKE search, minimal fields                                         | Relationship selectors in forms      |
+| `listTricksServerFn`             | Paginated list with filters                                          | Trick list views                     |
 
 ### The Graph Endpoint
 
@@ -226,20 +226,20 @@ flowchart TD
 
 ### What's Computed vs. Stored
 
-| Data | Stored in DB? | Computed Where? | Notes |
-| --- | --- | --- | --- |
-| Trick properties (name, modifiers, etc.) | Yes | - | Core data |
-| Relationships (prerequisite, related) | Yes | - | `trickRelationships` table |
-| Compositions | Yes | - | `trickCompositions` table |
-| Videos | Yes | - | `trickVideos` table |
-| Element assignments | Yes | - | `trickElementAssignments` table |
-| **`depth`** | **No** | Server (`computeDepthsAndDependents`) | BFS from prerequisite roots |
-| **`dependents`** | **No** (queryable) | Server (`computeDepthsAndDependents`) | Reverse of prerequisite edges |
-| **`neighbors`** | **No** | Server (`computeAllNeighbors`) | Algorithmic: one modifier step away |
-| **`byId` / `byElement` indexes** | No | Server (`buildIndexes`) | In-memory lookup maps |
-| **Sort order within elements** | No | Server (`compareTrickNames`) | Parsed from trick names |
-| **Graph layout positions** | No | Client (`getNodePositions`) | Pure UI concern |
-| **Builder lookup maps** | No | Client (route component) | `modifierKey -> Trick` maps |
+| Data                                     | Stored in DB?      | Computed Where?                       | Notes                               |
+| ---------------------------------------- | ------------------ | ------------------------------------- | ----------------------------------- |
+| Trick properties (name, modifiers, etc.) | Yes                | -                                     | Core data                           |
+| Relationships (prerequisite, related)    | Yes                | -                                     | `trickRelationships` table          |
+| Compositions                             | Yes                | -                                     | `trickCompositions` table           |
+| Videos                                   | Yes                | -                                     | `trickVideos` table                 |
+| Element assignments                      | Yes                | -                                     | `trickElementAssignments` table     |
+| **`depth`**                              | **No**             | Server (`computeDepthsAndDependents`) | BFS from prerequisite roots         |
+| **`dependents`**                         | **No** (queryable) | Server (`computeDepthsAndDependents`) | Reverse of prerequisite edges       |
+| **`neighbors`**                          | **No**             | Server (`computeAllNeighbors`)        | Algorithmic: one modifier step away |
+| **`byId` / `byElement` indexes**         | No                 | Server (`buildIndexes`)               | In-memory lookup maps               |
+| **Sort order within elements**           | No                 | Server (`compareTrickNames`)          | Parsed from trick names             |
+| **Graph layout positions**               | No                 | Client (`getNodePositions`)           | Pure UI concern                     |
+| **Builder lookup maps**                  | No                 | Client (route component)              | `modifierKey -> Trick` maps         |
 
 ## Computation Details
 
@@ -281,11 +281,13 @@ flowchart LR
 ```
 
 For compound tricks, neighbors include:
+
 - Each component trick (direction: "removes")
 - Sibling compounds sharing a component (direction: "adds")
 - Compounds where exactly one component is swapped for its one-step neighbor
 
 **Algorithm:**
+
 1. Build `Map<modifierKey, Trick>` for O(1) simple trick lookup
 2. Build `Map<componentId, Trick[]>` for compound lookup
 3. For each trick, generate all possible one-step modifier keys
@@ -329,11 +331,13 @@ The graph uses a manual 3-row layout (not force-directed):
 ```
 
 **Before row** (simpler tricks, blue edges):
+
 1. Spin progression at -90 and -180 degrees (same modifiers except less spin)
 2. Curated prerequisites
 3. Computed neighbors with direction "removes"
 
 **After row** (harder tricks, green edges):
+
 1. Spin progression at +90 and +180 degrees
 2. Curated dependents (up to 6)
 3. Computed neighbors with direction "adds"
@@ -387,6 +391,7 @@ flowchart TD
 **Current:** Computed by iterating all tricks and building reverse-prerequisite lists in `computeDepthsAndDependents`. The data already exists in `trickRelationships` (just queried from the other direction).
 
 **Proposed:** Query incoming prerequisite relationships directly instead of computing them. The `getTrickServerFn` already does this (`incomingRelationships`), but the graph endpoint doesn't use it. For the graph endpoint, either:
+
 - Add `incomingRelationships` to the graph query and use them directly
 - Or use a SQL subquery to get dependent IDs per trick
 
@@ -415,6 +420,7 @@ Rebuild affected rows whenever a trick is created, updated, or deleted.
 **Why:** This is the most expensive computation. The neighbor algorithm is O(n) over all tricks for each trick, making it O(n^2) overall. It's deterministic and only changes when tricks change. Materializing it turns every graph request from O(n^2) compute into a simple join.
 
 **Complexity:** Medium. Requires:
+
 - New table + migration
 - Rebuild logic in create/update/delete mutation handlers
 - A "rebuild all neighbors" admin function for initial population
@@ -432,28 +438,28 @@ Rebuild affected rows whenever a trick is created, updated, or deleted.
 
 ### Summary
 
-| Computation | Effort | Impact | Recommendation |
-| --- | --- | --- | --- |
-| `dependents` | Very low | Eliminates redundant iteration | Do first -- just change the query |
-| `depth` | Low | Eliminates BFS on every request | Do second -- add column + recompute in mutations |
-| Sort key | Low | Enables SQL-level sorting | Nice to have |
-| `neighbors` | Medium | Eliminates O(n^2) computation | Most impactful but needs careful migration |
+| Computation  | Effort   | Impact                          | Recommendation                                   |
+| ------------ | -------- | ------------------------------- | ------------------------------------------------ |
+| `dependents` | Very low | Eliminates redundant iteration  | Do first -- just change the query                |
+| `depth`      | Low      | Eliminates BFS on every request | Do second -- add column + recompute in mutations |
+| Sort key     | Low      | Enables SQL-level sorting       | Nice to have                                     |
+| `neighbors`  | Medium   | Eliminates O(n^2) computation   | Most impactful but needs careful migration       |
 
 ## File Reference
 
-| File | Purpose |
-| --- | --- |
-| `src/db/schema.ts` | Database table definitions (Drizzle ORM) |
-| `src/lib/tricks/fns.ts` | Server functions (CRUD + bulk queries) |
-| `src/lib/tricks/schemas.ts` | Zod validation schemas |
-| `src/lib/tricks/types.ts` | TypeScript types (`Trick`, `TricksData`, etc.) |
-| `src/lib/tricks/compute.ts` | Computation pipeline (depth, neighbors, indexes, sorting) |
-| `src/lib/tricks/index.ts` | Barrel export / facade object |
-| `src/components/tricks/tricks-graph.tsx` | ReactFlow graph with layout algorithm |
-| `src/components/tricks/trick-node.tsx` | Individual graph node component |
-| `src/components/tricks/trick-detail.tsx` | Trick detail modal (used in older flows) |
-| `src/components/forms/trick.tsx` | Create/edit form |
-| `src/routes/tricks/index.tsx` | Builder page (modifier panel) |
-| `src/routes/tricks/$trickId.tsx` | Detail page |
-| `src/routes/tricks/graph.tsx` | Graph explorer page |
-| `src/routes/_authed/admin/tricks/$trickId/edit.tsx` | Admin edit page |
+| File                                                | Purpose                                                   |
+| --------------------------------------------------- | --------------------------------------------------------- |
+| `src/db/schema.ts`                                  | Database table definitions (Drizzle ORM)                  |
+| `src/lib/tricks/fns.ts`                             | Server functions (CRUD + bulk queries)                    |
+| `src/lib/tricks/schemas.ts`                         | Zod validation schemas                                    |
+| `src/lib/tricks/types.ts`                           | TypeScript types (`Trick`, `TricksData`, etc.)            |
+| `src/lib/tricks/compute.ts`                         | Computation pipeline (depth, neighbors, indexes, sorting) |
+| `src/lib/tricks/index.ts`                           | Barrel export / facade object                             |
+| `src/components/tricks/tricks-graph.tsx`            | ReactFlow graph with layout algorithm                     |
+| `src/components/tricks/trick-node.tsx`              | Individual graph node component                           |
+| `src/components/tricks/trick-detail.tsx`            | Trick detail modal (used in older flows)                  |
+| `src/components/forms/trick.tsx`                    | Create/edit form                                          |
+| `src/routes/tricks/index.tsx`                       | Builder page (modifier panel)                             |
+| `src/routes/tricks/$trickId.tsx`                    | Detail page                                               |
+| `src/routes/tricks/graph.tsx`                       | Graph explorer page                                       |
+| `src/routes/_authed/admin/tricks/$trickId/edit.tsx` | Admin edit page                                           |

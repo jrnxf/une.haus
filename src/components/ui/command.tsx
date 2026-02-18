@@ -26,7 +26,7 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+        "dark:bg-input/30 text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md bg-transparent",
         // flips the command input and list if the popover is on top - means the input is always close to the trigger
         "group-data-[side=top]/popover-content:flex-col-reverse",
         className,
@@ -145,9 +145,9 @@ const CommandInput = React.forwardRef<
       data-slot="command-input-wrapper"
     >
       {isFetching ? (
-        <Loader2Icon className="text-muted-foreground size-4 shrink-0 animate-spin" />
+        <Loader2Icon className="text-muted-foreground size-3.5 shrink-0 animate-spin" />
       ) : (
-        <SearchIcon className="text-muted-foreground size-4 shrink-0" />
+        <SearchIcon className="text-muted-foreground size-3.5 shrink-0" />
       )}
       <CommandPrimitive.Input
         ref={ref}

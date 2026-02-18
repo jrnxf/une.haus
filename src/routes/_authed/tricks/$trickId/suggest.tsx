@@ -29,11 +29,32 @@ import type { TrickSuggestionDiff } from "~/db/schema";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/tricks/$trickId/suggest")({
+  staticData: {
+    pageHeader: {
+      breadcrumbs: [
+        { label: "tricks", to: "/tricks" },
+        { label: "" },
+        { label: "suggest" },
+      ],
+      maxWidth: "2xl",
+    },
+  },
   loader: async ({ context, params }) => {
     // trickId is actually the slug in this route
-    await context.queryClient.ensureQueryData(
+    const trickData = await context.queryClient.ensureQueryData(
       tricks.get.queryOptions({ slug: params.trickId }),
     );
+    return {
+      pageHeader: {
+        breadcrumbOverrides: {
+          1: {
+            label: trickData?.name ?? params.trickId,
+            to: "/tricks/$trickId",
+            params: { trickId: params.trickId },
+          },
+        },
+      },
+    };
   },
   component: RouteComponent,
 });

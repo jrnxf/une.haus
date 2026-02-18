@@ -44,12 +44,12 @@ describe("stringifySearch", () => {
   it("handles numeric values", () => {
     const result = stringifySearch({
       riders: "1,2,3",
-      prelimsTime: 60,
-      semifinalsTime: 90,
+      prelimTime: 60,
+      battleTime: 90,
     });
     expect(result).toContain("riders=1,2,3");
-    expect(result).toContain("prelimsTime=60");
-    expect(result).toContain("semifinalsTime=90");
+    expect(result).toContain("prelimTime=60");
+    expect(result).toContain("battleTime=90");
   });
 
   it("handles uppercase encoded sequences", () => {
@@ -67,8 +67,8 @@ describe("stringifySearch", () => {
   it("handles complex bracket URL", () => {
     const result = stringifySearch({
       riders: "1,446,151,~Custom,331",
-      prelimsTime: 60,
-      semifinalsTime: 90,
+      prelimTime: 60,
+      battleTime: 90,
       finalsTime: 120,
       w: "121-2",
     });

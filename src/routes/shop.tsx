@@ -70,8 +70,8 @@ function RouteComponent() {
                 <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
               </span>
               <p className="text-muted-foreground text-sm">
-                {waitlistCount} {waitlistCount === 1 ? "person" : "people"}{" "}
-                on the waitlist
+                {waitlistCount} {waitlistCount === 1 ? "person" : "people"} on
+                the waitlist
               </p>
             </div>
           )}

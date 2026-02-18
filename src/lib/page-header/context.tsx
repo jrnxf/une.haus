@@ -6,24 +6,24 @@ import {
   type ReactNode,
 } from "react";
 
+import type { CrumbConfig } from "~/lib/page-header/types";
+
 type MaxWidth = "lg" | "2xl" | "4xl" | "full";
 
 type PageHeaderState = {
-  breadcrumbs: ReactNode | null;
-  tabs: ReactNode | null;
   actions: ReactNode | null;
   widget: ReactNode | null;
   mobileRow: ReactNode | null;
-  maxWidth: MaxWidth;
+  breadcrumbs: CrumbConfig[] | null;
+  maxWidth: MaxWidth | null;
 };
 
 const EMPTY_STATE: PageHeaderState = {
-  breadcrumbs: null,
-  tabs: null,
   actions: null,
   widget: null,
   mobileRow: null,
-  maxWidth: "full",
+  breadcrumbs: null,
+  maxWidth: null,
 };
 
 function createPageHeaderStore() {
@@ -54,16 +54,18 @@ const PageHeaderContext = createContext<PageHeaderStore | null>(null);
 function useStore() {
   const store = useContext(PageHeaderContext);
   if (!store)
-    throw new Error("usePageHeader must be used within PageHeaderProvider");
+    throw new Error(
+      "usePageHeaderStore must be used within PageHeaderProvider",
+    );
   return store;
 }
 
-export function usePageHeader() {
+export function usePageHeaderStore() {
   const store = useStore();
   return useSyncExternalStore(store.subscribe, store.getState, store.getState);
 }
 
-export function usePageHeaderStore() {
+export function usePageHeaderStoreApi() {
   return useStore();
 }
 

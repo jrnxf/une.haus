@@ -9,12 +9,12 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { BugIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { z } from "zod";
 
-import { BugIcon } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { ConfirmDialog } from "~/components/confirm-dialog";
 import { GlobalShortcuts } from "~/components/global-shortcuts";
@@ -146,7 +146,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="overscroll-none font-mono antialiased">
         <ThemeProvider>
-          <GlobalShortcuts />
           <Toaster />
           <ConfirmDialog />
           <MobileNavProvider>
@@ -162,6 +161,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                     } as React.CSSProperties
                   }
                 >
+                  <GlobalShortcuts />
                   <AppSidebar variant="inset" />
                   <PageHeaderProvider>
                     <SidebarInset>
@@ -185,11 +185,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             position: "bottom-left",
             hideUntilHover: true,
             customTrigger: (
-              <Button
-                variant="outline"
-                size="icon-sm"
-                className="rounded-full"
-              >
+              <Button variant="outline" size="icon-sm" className="rounded-full">
                 <BugIcon className="size-4" />
               </Button>
             ),
