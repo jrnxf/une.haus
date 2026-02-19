@@ -59,8 +59,8 @@ export function DisciplineChart({ data }: DisciplineChartProps) {
           </TooltipContent>
         </Tooltip>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col justify-center">
-        <ChartContainer config={chartConfig}>
+      <CardContent className="flex min-h-0 flex-1 flex-col justify-center">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart
             accessibilityLayer
             data={chartData}

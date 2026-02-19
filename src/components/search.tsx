@@ -118,6 +118,7 @@ export function Search() {
   // Close the menu without triggering history.back()
   // Clear the 'p' param directly instead of calling setOpen
   const closeMenu = () => {
+    reset();
     navigate({
       search: (prev: Record<string, unknown>) => {
         const { p, ...rest } = prev;
@@ -129,6 +130,7 @@ export function Search() {
 
   // Navigate and close the menu without triggering history.back()
   const closeAndNavigate = (to: string) => {
+    reset();
     navigate({
       to,
       replace: true,

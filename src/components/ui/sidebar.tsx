@@ -6,13 +6,6 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
 import {
   Tooltip,
@@ -21,13 +14,11 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { useIsTablet } from "~/hooks/use-mobile";
-import { usePeripherals } from "~/hooks/use-peripherals";
 import { session } from "~/lib/session/index";
 import { Slot } from "~/lib/slot";
 import { cn } from "~/lib/utils";
 
 const SIDEBAR_WIDTH = "12rem";
-const SIDEBAR_WIDTH_MOBILE = "16rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 export const SIDEBAR_CLOSE_DURATION = 200;
 
@@ -35,8 +26,6 @@ type SidebarContextProps = {
   state: "expanded" | "collapsed";
   open: boolean;
   setOpen: (open: boolean) => void;
-  openMobile: boolean;
-  setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
 };
@@ -61,41 +50,31 @@ function SidebarProvider({
 }: React.ComponentProps<"div"> & {
   defaultOpen?: boolean;
 }) {
-  const [urlOpen, setUrlOpen] = usePeripherals("sidebar");
   const isMobile = useIsTablet();
+  const [open, setOpenState] = React.useState(defaultOpen);
 
-  // Desktop state from session (SSR), Mobile state from URL
-  const [openDesktop, setOpenDesktop] = React.useState(defaultOpen);
-
-  const open = isMobile ? urlOpen : openDesktop;
-  const openMobile = urlOpen;
-
-  const setOpenMobile = React.useCallback(
-    (nextOpen: boolean) => {
-      setUrlOpen(nextOpen);
-    },
-    [setUrlOpen],
-  );
+  // Close sidebar when crossing to mobile
+  const prevIsMobile = React.useRef(isMobile);
+  React.useEffect(() => {
+    if (isMobile && !prevIsMobile.current) {
+      setOpenState(false);
+    }
+    prevIsMobile.current = isMobile;
+  }, [isMobile]);
 
   const setOpen = React.useCallback(
     (nextOpen: boolean) => {
-      if (isMobile) {
-        setOpenMobile(nextOpen);
-      } else {
-        setOpenDesktop(nextOpen);
-        // Persist desktop state to session
-        session.sidebar.set.fn({ data: nextOpen });
-      }
+      setOpenState(nextOpen);
+      // Persist state to session
+      session.sidebar.set.fn({ data: nextOpen });
     },
-    [isMobile, setOpenMobile],
+    [],
   );
 
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);
   }, [open, setOpen]);
 
-  // We add a state so that we can do data-state="expanded" or "collapsed".
-  // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed";
 
   const contextValue = React.useMemo<SidebarContextProps>(
@@ -103,12 +82,10 @@ function SidebarProvider({
       state,
       open,
       setOpen,
-      openMobile,
-      setOpenMobile,
       isMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, openMobile, setOpenMobile, isMobile, toggleSidebar],
+    [state, open, setOpen, isMobile, toggleSidebar],
   );
 
   return (
@@ -148,7 +125,7 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
-  const { isMobile, state, open, setOpen } = useSidebar();
+  const { state } = useSidebar();
 
   if (collapsible === "none") {
     return (
@@ -162,30 +139,6 @@ function Sidebar({
       >
         {children}
       </div>
-    );
-  }
-
-  if (isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={setOpen} side={side} {...props}>
-        <SheetContent
-          data-sidebar="sidebar"
-          data-slot="sidebar"
-          data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
-        >
-          <SheetHeader className="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
-          </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
-        </SheetContent>
-      </Sheet>
     );
   }
 
@@ -279,7 +232,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       onClick={toggleSidebar}
       title="Toggle Sidebar"
       className={cn(
-        "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
+        "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] md:flex",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
         "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
         "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full",
@@ -301,12 +254,12 @@ function SidebarInset({
     <main
       data-slot="sidebar-inset"
       className={cn(
-        "bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-[padding] sm:p-2",
+        "bg-sidebar relative flex h-dvh w-full flex-col overflow-hidden p-0 transition-[padding] md:p-2",
         className,
       )}
       {...props}
     >
-      <div className="bg-background flex grow flex-col overflow-hidden sm:rounded-xl sm:border">
+      <div className="bg-background flex grow flex-col overflow-hidden md:rounded-xl md:border">
         {children}
       </div>
     </main>

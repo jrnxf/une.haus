@@ -1,4 +1,5 @@
 import { useHotkey } from "@tanstack/react-hotkeys";
+import { useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { toast } from "sonner";
@@ -23,8 +24,18 @@ const THEME_CYCLE: Theme[] = ["light", "dark", "system"];
  */
 export function GlobalShortcuts() {
   const { theme, setTheme } = useTheme();
-  const { isMobile, toggleSidebar } = useSidebar();
-  const [navOpen, setNavOpen] = usePeripherals("nav");
+  const { isMobile, toggleSidebar, setOpen: setSidebarOpen } = useSidebar();
+  const [navOpen, setNavOpen, dismissNav] = usePeripherals("nav");
+
+  // When crossing to desktop with the drawer open, hand off to the sidebar
+  const prevIsMobile = useRef(isMobile);
+  useEffect(() => {
+    if (prevIsMobile.current && !isMobile && navOpen) {
+      dismissNav();
+      setSidebarOpen(true);
+    }
+    prevIsMobile.current = isMobile;
+  }, [isMobile, navOpen, dismissNav, setSidebarOpen]);
 
   useHotkeys(
     SHORTCUTS.toggleTheme.keys,

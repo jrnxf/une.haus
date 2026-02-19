@@ -68,9 +68,13 @@ export function StatsGrid({ data }: StatsGridProps) {
       </div>
 
       {/* Row 3: Activity chart + discipline chart (equal heights) */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <ActivityChart data={data.activityByMonth} />
-        <DisciplineChart data={data.disciplineDistribution} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="h-[290px]">
+          <ActivityChart data={data.activityByMonth} />
+        </div>
+        <div className="h-[290px]">
+          <DisciplineChart data={data.disciplineDistribution} />
+        </div>
       </div>
 
       {/* Row 4: Top contributors (full row) */}

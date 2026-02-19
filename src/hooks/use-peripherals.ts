@@ -41,5 +41,17 @@ export function usePeripherals(key: string) {
     [key, setPeripherals, router],
   );
 
-  return [open, setOpen] as const;
+  // Programmatic close via URL replace (no history.back)
+  const dismiss = React.useCallback(() => {
+    setPeripherals(
+      (prev) => {
+        if (!prev) return prev;
+        const next = prev.filter((k) => k !== key);
+        return next.length > 0 ? next : null;
+      },
+      { history: "replace" },
+    );
+  }, [key, setPeripherals]);
+
+  return [open, setOpen, dismiss] as const;
 }

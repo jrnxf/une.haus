@@ -24,27 +24,27 @@ function Breadcrumbs({ crumbs }: { crumbs: CrumbConfig[] }) {
   return (
     <nav
       aria-label="breadcrumb"
-      className="flex items-center gap-1.5 text-xs md:text-sm"
+      className="flex min-w-0 items-center gap-1.5 text-sm"
     >
       {crumbs.map((crumb, i) => (
-        <span key={i} className="flex items-center gap-1.5">
-          {i > 0 && <ChevronRight className="text-muted-foreground size-3.5" />}
+        <span key={i} className="flex min-w-0 items-center gap-1.5">
+          {i > 0 && <ChevronRight className="text-muted-foreground size-3.5 shrink-0" />}
           {crumb.to ? (
             <Link
               to={crumb.to as LinkProps["to"]}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground truncate transition-colors"
             >
               {crumb.icon && <crumb.icon className="mr-1.5 inline size-3.5" />}
               {crumb.label}
             </Link>
           ) : (
-            <span className="text-foreground flex items-center gap-1.5 font-medium">
+            <span className="text-foreground flex min-w-0 items-center gap-1.5 font-medium">
               {crumb.icon && (
-                <span className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded">
+                <span className="bg-muted text-muted-foreground flex size-5 shrink-0 items-center justify-center rounded">
                   <crumb.icon className="size-3" />
                 </span>
               )}
-              {crumb.label}
+              <span className="truncate">{crumb.label}</span>
             </span>
           )}
         </span>
@@ -82,7 +82,7 @@ export function MobileFooter() {
   const openNav = useMobileNav();
 
   return (
-    <footer className="shrink-0 border-t sm:hidden">
+    <footer className="shrink-0 border-t md:hidden">
       <div className="flex h-14 items-center justify-between px-4">
         <Button
           variant="secondary"
@@ -116,7 +116,7 @@ export function SiteHeader() {
       {hasMobileRow && (
         <div
           className={cn(
-            "mx-auto w-full border-b px-4 py-2 sm:hidden",
+            "mx-auto w-full border-b px-4 py-2 md:hidden",
             maxWidthClasses[headerState.maxWidth],
           )}
         >
@@ -130,14 +130,14 @@ export function SiteHeader() {
           maxWidthClasses[headerState.maxWidth],
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           {showTrigger && (
-            <SidebarTrigger className="-ml-1 hidden sm:flex" size="icon-xs" />
+            <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
           )}
           {hasBreadcrumbs && (
             <>
               {showTrigger && (
-                <div className="hidden sm:block">
+                <div className="hidden md:block">
                   <HeaderDivider />
                 </div>
               )}

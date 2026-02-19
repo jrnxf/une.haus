@@ -200,9 +200,14 @@ function MobileNavFooter() {
   if (!sessionUser) {
     return (
       <div className="mt-2 flex items-center gap-2 border-t pt-3">
-        <Link to="/auth/code/send" className="flex-1 px-2 text-sm font-medium">
-          log in
-        </Link>
+        <div className="flex-1">
+          <Button asChild size="sm" variant="ghost">
+            <Link to="/auth/code/send">
+              log in
+            </Link>
+          </Button>
+        </div>
+
         <IconLink to="/feedback">
           <Send className="size-4" />
         </IconLink>

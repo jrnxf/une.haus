@@ -48,10 +48,10 @@ export function ActivityChart({ data }: ActivityChartProps) {
           </TooltipContent>
         </Tooltip>
       </CardHeader>
-      <CardContent className="flex-1">
+      <CardContent className="min-h-0 flex-1">
         <ChartContainer
           config={chartConfig}
-          className="h-full min-h-[200px] w-full"
+          className="h-full w-full"
         >
           <AreaChart
             data={formattedData}
