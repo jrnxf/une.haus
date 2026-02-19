@@ -13,17 +13,13 @@ import { tricks } from "~/lib/tricks";
 import type { CreateTrickArgs } from "~/lib/tricks/schemas";
 import { createSubmissionSchema } from "~/lib/tricks/submissions/schemas";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/_authed/tricks/create")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       tricks.elements.list.queryOptions(),
     );
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "create" }],
-      maxWidth: "2xl",
-    },
   },
   component: RouteComponent,
 });
@@ -82,14 +78,22 @@ function RouteComponent() {
   const isPending = createSubmission.isPending || createTrickDirectly.isPending;
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <TrickForm
-        onSubmit={handleSubmit}
-        onAdminSubmit={isAdmin ? handleAdminSubmit : undefined}
-        onCancel={() => router.navigate({ to: "/tricks" })}
-        submitLabel="Submit"
-        isPending={isPending}
-      />
-    </div>
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>create</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+        <TrickForm
+          onSubmit={handleSubmit}
+          onAdminSubmit={isAdmin ? handleAdminSubmit : undefined}
+          onCancel={() => router.navigate({ to: "/tricks" })}
+          submitLabel="Submit"
+          isPending={isPending}
+        />
+      </div>
+    </>
   );
 }

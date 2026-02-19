@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { messages } from "~/lib/messages";
 import { ChatMessagesView } from "~/views/chat-messages";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/chat/")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
@@ -12,16 +14,20 @@ export const Route = createFileRoute("/chat/")({
       }),
     );
   },
-  staticData: {
-    pageHeader: { breadcrumbs: [{ label: "chat" }], maxWidth: "4xl" },
-  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
-    <div className="mx-auto w-full max-w-4xl p-4">
-      <ChatMessagesView />
-    </div>
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>chat</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl p-4">
+        <ChatMessagesView />
+      </div>
+    </>
   );
 }

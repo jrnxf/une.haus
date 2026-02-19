@@ -21,13 +21,9 @@ import { useTourneySSE } from "~/lib/tourney/use-tourney-sse";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/tourney/live/$code")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tourney" }, { label: "live" }],
-      maxWidth: "full",
-    },
-  },
   component: RouteComponent,
   loader: async ({ context, params }) => {
     await Promise.all([
@@ -85,7 +81,14 @@ function RouteComponent() {
   const { phase, state } = tournament;
 
   return (
-    <div className="bg-background fixed inset-0 z-50 flex flex-col">
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>live</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="bg-background fixed inset-0 z-50 flex flex-col">
       {phase === "setup" && <SetupView name={tournament.name} code={code} />}
       {phase === "prelims" && (
         <PrelimsView
@@ -121,6 +124,7 @@ function RouteComponent() {
         </span>
       </div>
     </div>
+    </>
   );
 }
 
@@ -200,8 +204,8 @@ function PrelimsView({
                     status === "dq" && "bg-destructive",
                     isCurrent && "bg-primary animate-pulse",
                     status === "pending" &&
-                      !isCurrent &&
-                      "bg-muted-foreground/30",
+                    !isCurrent &&
+                    "bg-muted-foreground/30",
                   )}
                 />
                 <span
@@ -348,8 +352,8 @@ function BracketView({
   }, [state.timer, matches]);
 
   // No-op handlers for read-only bracket
-  const noop = useCallback(() => {}, []);
-  const noopTimer = useCallback((_match: Match, _duration: number) => {}, []);
+  const noop = useCallback(() => { }, []);
+  const noopTimer = useCallback((_match: Match, _duration: number) => { }, []);
 
   // Show battle timer when admin has one active
   if (timerMatch && state.timer) {

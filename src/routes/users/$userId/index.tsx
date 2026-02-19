@@ -12,29 +12,14 @@ import { UserView } from "~/views/user";
 export const Route = createFileRoute("/users/$userId/")({
   component: RouteComponent,
   params: users.get.schema,
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "users", to: "/users" }, { label: "" }],
-      maxWidth: "2xl",
-    },
-  },
   loader: async ({ context, params: { userId } }) => {
     try {
-      const [userData] = await Promise.all([
+      await Promise.all([
         context.queryClient.ensureQueryData(users.get.queryOptions({ userId })),
         context.queryClient.ensureInfiniteQueryData(
           users.activity.infiniteQueryOptions({ userId }),
         ),
       ]);
-
-      return {
-        ...userData,
-        pageHeader: {
-          breadcrumbOverrides: {
-            1: { label: userData.name },
-          },
-        },
-      };
     } catch (error) {
       await session.flash.set.fn({ data: { message: errorFmt(error) } });
       throw redirect({ to: "/users" });
@@ -50,7 +35,11 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/users">users</PageHeader.Crumb>
+          <PageHeader.Crumb>{data.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         {isOwnProfile && (
           <PageHeader.Actions>
             <Button asChild>

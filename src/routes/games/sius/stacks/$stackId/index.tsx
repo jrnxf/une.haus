@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArchiveIcon,
   ChevronDownIcon,
@@ -11,6 +10,7 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -53,16 +53,6 @@ export const Route = createFileRoute("/games/sius/stacks/$stackId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "games", to: "/games" },
-        { label: "stack it up", to: "/games/sius" },
-        { label: "stack" },
-      ],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params: { stackId }, preload }) => {
     try {
       await context.queryClient.ensureQueryData(
@@ -88,11 +78,9 @@ function RouteComponent() {
   const { stackId } = Route.useParams();
 
   return (
-    <>
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
-        <StackView stackId={stackId} />
-      </div>
-    </>
+    <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+      <StackView stackId={stackId} />
+    </div>
   );
 }
 

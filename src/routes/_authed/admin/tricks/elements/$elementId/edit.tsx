@@ -26,31 +26,15 @@ import { tricks } from "~/lib/tricks";
 import { createElementSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute(
   "/_authed/admin/tricks/elements/$elementId/edit",
 )({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "tricks", to: "/tricks" },
-        { label: "elements", to: "/admin/tricks/elements" },
-        { label: "" },
-      ],
-      maxWidth: "2xl",
-    },
-  },
-  loader: async ({ context, params: { elementId } }) => {
-    const elements = await context.queryClient.ensureQueryData(
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
       tricks.elements.list.queryOptions(),
     );
-    const element = elements.find((e) => e.id === Number(elementId));
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          2: { label: `edit: ${element?.name ?? elementId}` },
-        },
-      },
-    };
   },
   component: RouteComponent,
 });
@@ -103,6 +87,13 @@ function RouteComponent() {
 
   return (
     <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb to="/admin/tricks/elements">elements</PageHeader.Crumb>
+          <PageHeader.Crumb>{element.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
       <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
         <Form
           rhf={rhf}

@@ -33,12 +33,11 @@ export function StatCard({
   const content = (
     <Card
       className={cn(
-        "rounded-md transition-colors",
+        "rounded-md",
         isCompact && "py-1.5",
         isResponsive && "py-1.5",
         !isCompact && !isResponsive && "py-2.5",
-        description && "hover:border-primary/30 cursor-help",
-        to && "hover:border-primary/30 cursor-pointer",
+        to && "cursor-pointer",
         className,
       )}
     >

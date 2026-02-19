@@ -9,7 +9,7 @@ import {
   LockIcon,
   LockOpenIcon,
   LogOutIcon,
-  MapPinIcon,
+  UsersIcon,
   MedalIcon,
   MenuIcon,
   MessagesSquareIcon,
@@ -40,10 +40,10 @@ import { cn } from "~/lib/utils";
 
 const navItems = [
   { title: "games", url: "/games", icon: MedalIcon },
-  { title: "users", url: "/users", icon: EarthIcon },
+  { title: "users", url: "/users", icon: UsersIcon },
   { title: "posts", url: "/posts", icon: StickyNoteIcon },
   { title: "chat", url: "/chat", icon: MessagesSquareIcon },
-  { title: "map", url: "/map", icon: MapPinIcon },
+  { title: "map", url: "/map", icon: EarthIcon },
   { title: "tricks", url: "/tricks", icon: TrafficConeIcon },
   {
     title: "vault",

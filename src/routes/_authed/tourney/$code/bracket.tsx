@@ -29,12 +29,6 @@ import { useChampionCelebration } from "~/lib/tourney/use-champion-celebration";
 import { users as usersApi } from "~/lib/users";
 
 export const Route = createFileRoute("/_authed/tourney/$code/bracket")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tourney", to: "/tourney" }, { label: "bracket" }],
-      maxWidth: "full",
-    },
-  },
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const tournament = await context.queryClient.ensureQueryData(
@@ -266,12 +260,11 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader
-        breadcrumbs={[
-          { label: "tourney", to: "/tourney" },
-          { label: tournament.name || "bracket" },
-        ]}
-      >
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>{tournament.name || "bracket"}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           {!activeTimer && !showCelebration && (
             <>

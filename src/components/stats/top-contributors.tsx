@@ -21,39 +21,11 @@ import { cn } from "~/lib/utils";
 
 const STAT_COLS = [
   {
-    key: "riuSetsCount",
-    label: "riu sets",
+    key: "contentCount",
+    label: "content",
     pts: 5,
     dot: "bg-rose-500",
     text: "text-rose-500",
-  },
-  {
-    key: "riuSubmissionsCount",
-    label: "riu subs",
-    pts: 5,
-    dot: "bg-orange-500",
-    text: "text-orange-500",
-  },
-  {
-    key: "biuSetsCount",
-    label: "biu sets",
-    pts: 5,
-    dot: "bg-amber-500",
-    text: "text-amber-500",
-  },
-  {
-    key: "siuStacksCount",
-    label: "siu stacks",
-    pts: 5,
-    dot: "bg-lime-500",
-    text: "text-lime-500",
-  },
-  {
-    key: "postsCount",
-    label: "posts",
-    pts: 5,
-    dot: "bg-chart-3",
-    text: "text-chart-3",
   },
   {
     key: "messagesCount",
@@ -75,11 +47,7 @@ type Contributor = {
   id: number;
   name: string;
   avatarId: string | null;
-  riuSetsCount: number;
-  riuSubmissionsCount: number;
-  biuSetsCount: number;
-  siuStacksCount: number;
-  postsCount: number;
+  contentCount: number;
   messagesCount: number;
   likesCount: number;
   totalPoints: number;
@@ -113,8 +81,7 @@ export function TopContributors({ data }: TopContributorsProps) {
             </CardTitle>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[220px] text-xs">
-            ranked by points: sets/submissions/posts (5pts), messages (2pts),
-            likes (1pt)
+            ranked by points: content (5pts), messages (2pts), likes (1pt)
           </TooltipContent>
         </Tooltip>
         <Button variant="ghost" size="sm" asChild>

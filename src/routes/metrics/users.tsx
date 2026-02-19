@@ -28,15 +28,13 @@ import {
 import { stats } from "~/lib/stats";
 import { cn } from "~/lib/utils";
 
+import { PageHeader } from "~/components/page-header";
+
 type Contributor = {
   id: number;
   name: string;
   avatarId: string | null;
-  riuSetsCount: number;
-  riuSubmissionsCount: number;
-  biuSetsCount: number;
-  siuStacksCount: number;
-  postsCount: number;
+  contentCount: number;
   messagesCount: number;
   likesCount: number;
   totalPoints: number;
@@ -46,39 +44,11 @@ const columnHelper = createColumnHelper<Contributor>();
 
 const STAT_COLS = [
   {
-    key: "riuSetsCount" as const,
-    label: "riu sets",
+    key: "contentCount" as const,
+    label: "content",
     pts: 5,
     dot: "bg-rose-500",
     text: "text-rose-500",
-  },
-  {
-    key: "riuSubmissionsCount" as const,
-    label: "riu subs",
-    pts: 5,
-    dot: "bg-orange-500",
-    text: "text-orange-500",
-  },
-  {
-    key: "biuSetsCount" as const,
-    label: "biu sets",
-    pts: 5,
-    dot: "bg-amber-500",
-    text: "text-amber-500",
-  },
-  {
-    key: "siuStacksCount" as const,
-    label: "siu stacks",
-    pts: 5,
-    dot: "bg-lime-500",
-    text: "text-lime-500",
-  },
-  {
-    key: "postsCount" as const,
-    label: "posts",
-    pts: 5,
-    dot: "bg-chart-3",
-    text: "text-chart-3",
   },
   {
     key: "messagesCount" as const,
@@ -176,12 +146,6 @@ export const Route = createFileRoute("/metrics/users")({
       stats.contributors.queryOptions(),
     );
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "metrics", to: "/metrics" }, { label: "users" }],
-      maxWidth: "full",
-    },
-  },
   component: RouteComponent,
 });
 
@@ -204,7 +168,14 @@ function RouteComponent() {
   });
 
   return (
-    <div className="min-h-0 flex-1 overflow-auto text-xs">
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/metrics">metrics</PageHeader.Crumb>
+          <PageHeader.Crumb>users</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="min-h-0 flex-1 overflow-auto text-xs">
       <Table containerClassName="overflow-visible">
         <TableHeader className="bg-card sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -218,7 +189,7 @@ function RouteComponent() {
                     key={header.id}
                     className={cn(
                       header.column.getCanSort() &&
-                        "cursor-pointer select-none",
+                      "cursor-pointer select-none",
                       meta?.className,
                     )}
                     onClick={header.column.getToggleSortingHandler()}
@@ -259,6 +230,7 @@ function RouteComponent() {
           ))}
         </TableBody>
       </Table>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,12 +1,12 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   HeartIcon,
   PencilIcon,
   ShieldIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -26,6 +26,8 @@ import { cn } from "~/lib/utils";
 import { utv } from "~/lib/utv/core";
 import { MessagesView } from "~/views/messages";
 
+import { PageHeader } from "~/components/page-header";
+
 const pathParametersSchema = z.object({
   videoId: z.coerce.number(),
 });
@@ -35,17 +37,10 @@ export const Route = createFileRoute("/vault/$videoId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "vault", to: "/vault" }, { label: "" }],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params: { videoId }, preload }) => {
-    let videoData: { title?: string; legacyTitle?: string } | undefined;
     const ensureVideo = async () => {
       try {
-        videoData = await context.queryClient.ensureQueryData(
+        await context.queryClient.ensureQueryData(
           utv.get.queryOptions(videoId),
         );
       } catch {
@@ -67,16 +62,6 @@ export const Route = createFileRoute("/vault/$videoId/")({
     };
 
     await Promise.all([ensureVideo(), ensureMessages()]);
-
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: {
-            label: videoData?.title || videoData?.legacyTitle || "video",
-          },
-        },
-      },
-    };
   },
 });
 
@@ -117,6 +102,12 @@ function RouteComponent() {
 
   return (
     <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb>{displayTitle}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
         <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4 md:p-6">
           <div className="flex items-center gap-2">

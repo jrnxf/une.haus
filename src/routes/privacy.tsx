@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/privacy")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+    <>
+      <PageHeader maxWidth="max-w-4xl" />
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
       <div className="prose prose-neutral dark:prose-invert max-w-none">
         <h1>Privacy Policy</h1>
 
@@ -75,6 +79,7 @@ function RouteComponent() {
           <a href="mailto:privacy@une.haus">privacy@une.haus</a>.
         </p>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

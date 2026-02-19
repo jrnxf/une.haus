@@ -28,6 +28,8 @@ import { VideoPlayer } from "~/components/video-player";
 import { feedback } from "~/lib/feedback";
 import { useVideoUpload } from "~/lib/media";
 
+import { PageHeader } from "~/components/page-header";
+
 const MEDIA_OPTIONS = {
   none: "None",
   image: "Image",
@@ -37,9 +39,6 @@ const MEDIA_OPTIONS = {
 type MediaOption = keyof typeof MEDIA_OPTIONS;
 
 export const Route = createFileRoute("/_authed/feedback")({
-  staticData: {
-    pageHeader: { breadcrumbs: [{ label: "feedback" }], maxWidth: "4xl" },
-  },
   component: RouteComponent,
 });
 
@@ -71,113 +70,120 @@ function RouteComponent() {
   } = rhf;
 
   return (
-    <Form
-      rhf={rhf}
-      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
-      id="main-content"
-      method="post"
-      onSubmit={(event) => {
-        handleSubmit(async (data) => {
-          await mutateAsync({ data });
-        })(event);
-      }}
-    >
-      <p className="text-muted-foreground">
-        Share your thoughts, report bugs, or suggest improvements.
-      </p>
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>feedback</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <Form
+        rhf={rhf}
+        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        id="main-content"
+        method="post"
+        onSubmit={(event) => {
+          handleSubmit(async (data) => {
+            await mutateAsync({ data });
+          })(event);
+        }}
+      >
+        <p className="text-muted-foreground">
+          Share your thoughts, report bugs, or suggest improvements.
+        </p>
 
-      <FormField
-        control={control}
-        name="content"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Your feedback</FormLabel>
-            <FormControl>
-              <Textarea
-                {...field}
-                placeholder="What's on your mind?"
-                rows={6}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="media"
-        render={({ field }) => {
-          return (
+        <FormField
+          control={control}
+          name="content"
+          render={({ field }) => (
             <FormItem>
-              <FormLabel>Attachment</FormLabel>
-              <RadioGroup
-                className="flex gap-6 py-2"
-                onValueChange={(value) => {
-                  field.onChange(undefined);
-                  setMediaOption(value as MediaOption);
-                }}
-                value={mediaOption}
-              >
-                {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
-                  <Label
-                    htmlFor={k}
-                    className="flex items-center space-x-2"
-                    key={k}
-                  >
-                    <RadioGroupItem id={k} value={k} />
-                    {v}
-                  </Label>
-                ))}
-              </RadioGroup>
+              <FormLabel>Your feedback</FormLabel>
               <FormControl>
-                <>
-                  {mediaOption === "image" && (
-                    <ImageInput
-                      previewClassNames="rounded-md size-86"
-                      value={
-                        field.value?.type === "image"
-                          ? field.value.value
-                          : undefined
-                      }
-                      onChange={(data) => {
-                        field.onChange(
-                          data ? { type: "image", value: data } : undefined,
-                        );
-                      }}
-                    />
-                  )}
+                <Textarea
+                  {...field}
+                  placeholder="What's on your mind?"
+                  rows={6}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-                  {mediaOption === "video" && (
-                    <FeedbackVideoInput
-                      value={
-                        field.value?.type === "video" ? field.value : undefined
-                      }
-                      onChange={(data) => {
-                        field.onChange(
-                          data
-                            ? {
+        <FormField
+          control={control}
+          name="media"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Attachment</FormLabel>
+                <RadioGroup
+                  className="flex gap-6 py-2"
+                  onValueChange={(value) => {
+                    field.onChange(undefined);
+                    setMediaOption(value as MediaOption);
+                  }}
+                  value={mediaOption}
+                >
+                  {Object.entries(MEDIA_OPTIONS).map(([k, v]) => (
+                    <Label
+                      htmlFor={k}
+                      className="flex items-center space-x-2"
+                      key={k}
+                    >
+                      <RadioGroupItem id={k} value={k} />
+                      {v}
+                    </Label>
+                  ))}
+                </RadioGroup>
+                <FormControl>
+                  <>
+                    {mediaOption === "image" && (
+                      <ImageInput
+                        previewClassNames="rounded-md size-86"
+                        value={
+                          field.value?.type === "image"
+                            ? field.value.value
+                            : undefined
+                        }
+                        onChange={(data) => {
+                          field.onChange(
+                            data ? { type: "image", value: data } : undefined,
+                          );
+                        }}
+                      />
+                    )}
+
+                    {mediaOption === "video" && (
+                      <FeedbackVideoInput
+                        value={
+                          field.value?.type === "video" ? field.value : undefined
+                        }
+                        onChange={(data) => {
+                          field.onChange(
+                            data
+                              ? {
                                 type: "video",
                                 assetId: data.assetId,
                                 playbackId: data.playbackId,
                               }
-                            : undefined,
-                        );
-                      }}
-                    />
-                  )}
-                </>
-              </FormControl>
+                              : undefined,
+                          );
+                        }}
+                      />
+                    )}
+                  </>
+                </FormControl>
 
-              <FormMessage />
-            </FormItem>
-          );
-        }}
-      />
-      <div className="flex justify-end">
-        <FormSubmitButton busy={isSubmitting} />
-      </div>
-    </Form>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <div className="flex justify-end">
+          <FormSubmitButton busy={isSubmitting} />
+        </div>
+      </Form>
+    </>
   );
 }
 

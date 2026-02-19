@@ -20,13 +20,9 @@ import type { TournamentRider } from "~/lib/tourney/types";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/_authed/tourney/$code/ranking")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tourney", to: "/tourney" }, { label: "ranking" }],
-      maxWidth: "lg",
-    },
-  },
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const tournament = await context.queryClient.ensureQueryData(
@@ -120,8 +116,15 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-lg space-y-4 p-4">
-      <div>
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>ranking</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-lg space-y-4 p-4">
+        <div>
         <h2 className="text-lg font-semibold">Ranking</h2>
         <p className="text-muted-foreground text-sm">
           Drag to rank riders. Top {state.bracketSize} advance to the bracket.
@@ -194,5 +197,6 @@ function RouteComponent() {
         Start
       </Button>
     </div>
+    </>
   );
 }

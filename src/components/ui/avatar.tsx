@@ -65,7 +65,7 @@ function AvatarImage({
   return (
     <img
       data-slot="avatar-image"
-      className={cn("aspect-square size-full object-cover", className)}
+      className={cn("absolute inset-0 size-full object-cover", className)}
       src={getCloudflareImageUrl(cloudflareId, { width, quality })}
       onError={() => setImageStatus("error")}
       onLoad={() => setImageStatus("success")}

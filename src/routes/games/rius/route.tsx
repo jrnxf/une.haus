@@ -21,21 +21,6 @@ import { useIsAdmin } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/games/rius")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "games", to: "/games" }, { label: "rack it up" }],
-      tabs: [
-        {
-          path: "/games/rius/active",
-          label: "active",
-          icon: ArrowDownToLineIcon,
-        },
-        { path: "/games/rius/upcoming", label: "upcoming", icon: CalendarIcon },
-        { path: "/games/rius/archived", label: "archived", icon: ArchiveIcon },
-      ],
-      maxWidth: "4xl",
-    },
-  },
   component: RouteComponent,
 });
 
@@ -107,13 +92,17 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Widget>
-          <Countdown />
-        </PageHeader.Widget>
-        <PageHeader.MobileRow>
-          <Countdown />
-        </PageHeader.MobileRow>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+          <PageHeader.Crumb>rack it up</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <Countdown />
+        <PageHeader.Tabs>
+          <PageHeader.Tab to="/games/rius/active" icon={ArrowDownToLineIcon}>active</PageHeader.Tab>
+          <PageHeader.Tab to="/games/rius/upcoming" icon={CalendarIcon}>upcoming</PageHeader.Tab>
+          <PageHeader.Tab to="/games/rius/archived" icon={ArchiveIcon}>archived</PageHeader.Tab>
+        </PageHeader.Tabs>
         <PageHeader.Actions>
           {isAdmin && (
             <DropdownMenu>

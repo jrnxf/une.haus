@@ -19,6 +19,8 @@ import { VideoPlayer } from "~/components/video-player";
 import { session } from "~/lib/session";
 import { tricks, type PendingVideosData } from "~/lib/tricks";
 
+import { PageHeader } from "~/components/page-header";
+
 const searchSchema = z.object({
   submissionId: z.number().optional(),
   suggestionId: z.number().optional(),
@@ -42,17 +44,11 @@ export const Route = createFileRoute("/_authed/tricks/review")({
       // Only load pending videos for admin
       isAdmin
         ? context.queryClient.ensureQueryData(
-            tricks.videos.listPending.queryOptions(),
-          )
+          tricks.videos.listPending.queryOptions(),
+        )
         : Promise.resolve([]),
     ]);
     return { isAdmin };
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "review" }],
-      maxWidth: "4xl",
-    },
   },
   component: RouteComponent,
 });
@@ -72,8 +68,15 @@ function RouteComponent() {
   const defaultTab = search.tab ?? "submissions";
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
-      <Tabs defaultValue={defaultTab}>
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>review</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-6">
+        <Tabs defaultValue={defaultTab}>
         <TabsList>
           <TabsTrigger value="submissions">
             Submissions
@@ -137,6 +140,7 @@ function RouteComponent() {
         {isAdmin && <AdminVideosTabContent />}
       </Tabs>
     </div>
+    </>
   );
 }
 

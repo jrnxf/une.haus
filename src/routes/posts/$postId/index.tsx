@@ -1,7 +1,9 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { flashMessage } from "~/lib/flash";
 import { messages } from "~/lib/messages";
 import { posts } from "~/lib/posts";
@@ -16,17 +18,10 @@ export const Route = createFileRoute("/posts/$postId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "posts", to: "/posts" }, { label: "" }],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params: { postId }, preload }) => {
-    let postData: { title?: string } | undefined;
     const ensurePost = async () => {
       try {
-        postData = await context.queryClient.ensureQueryData(
+        await context.queryClient.ensureQueryData(
           posts.get.queryOptions({ postId }),
         );
 
@@ -55,22 +50,21 @@ export const Route = createFileRoute("/posts/$postId/")({
     };
 
     await Promise.all([ensurePost(), ensureMessages()]);
-
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: { label: postData?.title ?? "post" },
-        },
-      },
-    };
   },
 });
 
 function RouteComponent() {
   const { postId } = Route.useParams();
+  const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }));
 
   return (
     <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
+          <PageHeader.Crumb>{post.title}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
         <div className="mx-auto h-full w-full max-w-4xl">
           <PostView postId={postId} />

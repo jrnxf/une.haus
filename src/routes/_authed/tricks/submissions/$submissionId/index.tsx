@@ -9,7 +9,6 @@ import {
   redirect,
   useRouter,
 } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeft,
   CheckCircle,
@@ -17,6 +16,7 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { toast } from "sonner";
 import { z } from "zod";
@@ -42,6 +42,8 @@ import { tricks } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 import { MessagesView } from "~/views/messages";
 
+import { PageHeader } from "~/components/page-header";
+
 const pathParametersSchema = z.object({
   submissionId: z.coerce.number(),
 });
@@ -51,15 +53,6 @@ export const Route = createFileRoute(
 )({
   params: {
     parse: pathParametersSchema.parse,
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "tricks", to: "/tricks" },
-        { label: "submission" },
-      ],
-      maxWidth: "4xl",
-    },
   },
   loader: async ({ context, params: { submissionId }, preload }) => {
     try {
@@ -92,11 +85,19 @@ function RouteComponent() {
   const { isAdmin } = Route.useLoaderData();
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-        <SubmissionView submissionId={submissionId} isAdmin={isAdmin} />
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>submission</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="h-full min-h-0 overflow-y-auto" id="main-content">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+          <SubmissionView submissionId={submissionId} isAdmin={isAdmin} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -183,11 +184,11 @@ function SubmissionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 submission.status === "pending" &&
-                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 submission.status === "approved" &&
-                  "bg-green-500/20 text-green-700 dark:text-green-300",
+                "bg-green-500/20 text-green-700 dark:text-green-300",
                 submission.status === "rejected" &&
-                  "bg-red-500/20 text-red-700 dark:text-red-300",
+                "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {submission.status === "pending" && "Pending"}

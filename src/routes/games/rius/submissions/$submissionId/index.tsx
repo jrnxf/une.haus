@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { HeartIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -30,16 +30,6 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "games", to: "/games" },
-        { label: "rack it up", to: "/games/rius/active" },
-        { label: "" },
-      ],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params: { submissionId }, preload }) => {
     const ensureSubmission = async () => {
       try {
@@ -63,22 +53,6 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
 
     await ensureSubmission();
 
-    const submissionData = context.queryClient.getQueryData(
-      games.rius.submissions.get.queryOptions({ submissionId }).queryKey,
-    );
-
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          2: {
-            label: (submissionData as { user?: { name?: string } } | undefined)
-              ?.user?.name
-              ? `${(submissionData as { user?: { name?: string } }).user!.name}'s submission`
-              : "submission",
-          },
-        },
-      },
-    };
   },
 });
 
@@ -86,13 +60,11 @@ function RouteComponent() {
   const { submissionId } = Route.useParams();
 
   return (
-    <>
-      <div className="h-full min-h-0 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-          <SubmissionView submissionId={submissionId} />
-        </div>
+    <div className="h-full min-h-0 overflow-y-auto">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+        <SubmissionView submissionId={submissionId} />
       </div>
-    </>
+    </div>
   );
 }
 

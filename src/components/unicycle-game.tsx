@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const GROUND_Y_RATIO = 0.78;
 const GRAVITY = 0.35;
 const JUMP_FORCE = -8;
+const DOUBLE_JUMP_FORCE = -7;
 const INITIAL_SPEED = 4;
 const MAX_SPEED = 8;
 const SPEED_INCREMENT = 0.0005;
@@ -13,6 +14,15 @@ const PLAYER_X = 60;
 const WHEEL_R = 10;
 const RAIL_TOLERANCE = 10;
 const RAIL_OFFSET = 8;
+const GRIND_SCORE_MULTIPLIER = 3;
+const COMBO_BONUS = 1;
+const MILESTONE_INTERVAL = 500;
+const MILESTONE_DISPLAY_FRAMES = 60;
+const DEATH_ANIM_FRAMES = 40;
+const DUST_COUNT = 7;
+const DUST_LIFE = 16;
+const SPEED_LINE_THRESHOLD = 5;
+const LS_HIGH_SCORE_KEY = "unicycle-high-score";
 
 // --- Types ---
 type StairRun = { count: number; totalW: number; totalH: number };
@@ -54,23 +64,45 @@ type Cloud = {
   width: number;
 };
 
+type DustParticle = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+};
+
+type SpeedLine = {
+  x: number;
+  y: number;
+  length: number;
+};
+
 type GameState = {
   status: "idle" | "running" | "dead";
   playerY: number;
   velocityY: number;
   isAirborne: boolean;
   isGrinding: boolean;
+  hasDoubleJump: boolean;
   speed: number;
   score: number;
   highScore: number;
+  comboCount: number;
   terrain: TerrainPiece[];
   clouds: Cloud[];
+  dustParticles: DustParticle[];
+  speedLines: SpeedLine[];
   nextSpawnIn: number;
   groundOffset: number;
   wheelAngle: number;
   pedalAngle: number;
   flatTire: boolean;
   grindFrozenAngle: number;
+  deathTimer: number;
+  deathSpeed: number;
+  milestoneTimer: number;
+  lastMilestone: number;
 };
 
 // --- Helpers ---
@@ -80,6 +112,22 @@ function randomBetween(min: number, max: number) {
 
 function randomInt(min: number, max: number) {
   return Math.floor(randomBetween(min, max + 1));
+}
+
+function loadHighScore(): number {
+  try {
+    return Number(localStorage.getItem(LS_HIGH_SCORE_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveHighScore(score: number) {
+  try {
+    localStorage.setItem(LS_HIGH_SCORE_KEY, String(score));
+  } catch {
+    /* ignore */
+  }
 }
 
 // Fixed step dimensions — height is always proportional to count
@@ -101,23 +149,39 @@ function lastHadSpikes(prev: TerrainPiece | undefined): boolean {
   return false;
 }
 
+// --- Difficulty scaling ---
+function getDifficulty(score: number) {
+  const displayScore = Math.floor(score / 10);
+  const t = Math.min(displayScore / 3000, 1);
+  return {
+    stairsetMax: 0.65 - t * 0.15,
+    ledgeMax: 0.85 - t * 0.05,
+    rampSpikeChance: 0.25 + t * 0.2,
+    minStairs: 5 + Math.floor(t * 5),
+    maxStairs: 40 + Math.floor(t * 20),
+    gapMultiplier: 1 - t * 0.3,
+  };
+}
+
 function createTerrain(
   x: number,
   prev: TerrainPiece | undefined,
+  score: number,
 ): TerrainPiece {
-  // Force stairset if previous piece had spikes to keep them spaced out
+  const diff = getDifficulty(score);
   const roll = Math.random();
-  if (roll < 0.65 || lastHadSpikes(prev)) {
+  if (roll < diff.stairsetMax || lastHadSpikes(prev)) {
     // Stairset
     const platW = randomBetween(60, 120);
 
-    // Decide stair count tier (minimum 5 stairs)
+    // Decide stair count tier
     const tierRoll = Math.random();
     let totalCount: number;
-    if (tierRoll < 0.3) totalCount = randomInt(5, 8);
-    else if (tierRoll < 0.55) totalCount = randomInt(9, 15);
+    if (tierRoll < 0.3) totalCount = randomInt(diff.minStairs, 8);
+    else if (tierRoll < 0.55)
+      totalCount = randomInt(9, Math.max(15, diff.minStairs));
     else if (tierRoll < 0.8) totalCount = randomInt(16, 25);
-    else totalCount = randomInt(26, 40);
+    else totalCount = randomInt(26, diff.maxStairs);
 
     const segments: StairSegment[] = [];
     let stairTotalW = 0;
@@ -150,11 +214,14 @@ function createTerrain(
     // Ramp width derived from height at consistent angle
     const rampW = totalHeight * RAMP_SLOPE;
 
-    // Occasionally place spikes on the ramp (~25% chance, only if ramp is long enough and prev had no spikes)
+    // Occasionally place spikes on the ramp
     const rampSpikes: RampSpike[] = [];
-    if (rampW > 60 && !lastHadSpikes(prev) && Math.random() < 0.25) {
+    if (
+      rampW > 60 &&
+      !lastHadSpikes(prev) &&
+      Math.random() < diff.rampSpikeChance
+    ) {
       const spikeW = randomBetween(24, 48);
-      // Place spike somewhere in the middle 60% of the ramp
       const minOffset = rampW * 0.2;
       const maxOffset = rampW * 0.8 - spikeW;
       if (maxOffset > minOffset) {
@@ -177,8 +244,8 @@ function createTerrain(
       rampSpikes,
     };
   }
-  // Ledge (~15% chance, but not after spikes)
-  if (roll < 0.85 && !lastHadSpikes(prev)) {
+  // Ledge
+  if (roll < diff.ledgeMax && !lastHadSpikes(prev)) {
     const stairCount = randomInt(4, 6);
     const run = createStairRun(stairCount);
     const totalHeight = run.totalH;
@@ -208,6 +275,26 @@ function createCloud(canvasWidth: number, offscreen = false): Cloud {
     y: randomBetween(20, 80),
     width: randomBetween(40, 80),
   };
+}
+
+function spawnDust(x: number, groundY: number): DustParticle[] {
+  return Array.from({ length: DUST_COUNT }, () => ({
+    x: x + randomBetween(-8, 8),
+    y: groundY + WHEEL_R,
+    vx: randomBetween(-2, 2),
+    vy: randomBetween(-2.5, -0.5),
+    life: DUST_LIFE,
+  }));
+}
+
+function spawnDoubleJumpPuff(x: number, playerY: number): DustParticle[] {
+  return Array.from({ length: 4 }, () => ({
+    x: x + randomBetween(-4, 4),
+    y: playerY + WHEEL_R,
+    vx: randomBetween(-1.5, 1.5),
+    vy: randomBetween(1, 3),
+    life: 10,
+  }));
 }
 
 // --- Stairset geometry helpers ---
@@ -343,6 +430,18 @@ function getSurfaceY(
   return baseGroundY;
 }
 
+// --- Dynamic lean ---
+function computeLean(gs: GameState): number {
+  if (gs.isGrinding) return 5;
+  if (gs.isAirborne) {
+    if (gs.velocityY < -3) return 1;
+    if (gs.velocityY < 0) return 2;
+    if (gs.velocityY > 3) return 7;
+    return 5;
+  }
+  return 3;
+}
+
 // --- Drawing ---
 function drawUnicyclist(
   ctx: CanvasRenderingContext2D,
@@ -353,16 +452,35 @@ function drawUnicyclist(
   fg: string,
   flatTire: boolean,
   grinding: boolean,
+  lean: number,
+  deathTilt: number,
 ) {
   const wheelR = WHEEL_R;
   const wheelCenterY = y;
+
+  ctx.save();
+  if (deathTilt > 0) {
+    const pivotX = x;
+    const pivotY = y + wheelR;
+    ctx.translate(pivotX, pivotY);
+    ctx.rotate(deathTilt);
+    ctx.translate(-pivotX, -pivotY);
+  }
 
   // Tire
   ctx.strokeStyle = fg;
   ctx.lineWidth = flatTire ? 2 : 3.5;
   ctx.beginPath();
   if (flatTire) {
-    ctx.ellipse(x, wheelCenterY + 2, wheelR + 3, wheelR - 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(
+      x,
+      wheelCenterY + 2,
+      wheelR + 3,
+      wheelR - 3,
+      0,
+      0,
+      Math.PI * 2,
+    );
   } else {
     ctx.arc(x, wheelCenterY, wheelR, 0, Math.PI * 2);
   }
@@ -381,9 +499,6 @@ function drawUnicyclist(
     );
     ctx.stroke();
   }
-
-  // Lean: body offset forward
-  const lean = 4;
 
   // Seat post
   ctx.lineWidth = 2;
@@ -466,11 +581,12 @@ function drawUnicyclist(
   ctx.lineTo(px1, py1);
   ctx.stroke();
 
-  // Grinding sparks — shower of sparks shooting up-left at ~45°
-  if (grinding) {
+  ctx.restore();
+
+  // Grinding sparks — drawn outside transform so they stay world-aligned
+  if (grinding && deathTilt === 0) {
     ctx.strokeStyle = fg;
     const sparkBase = wheelCenterY + wheelR;
-    // Spark lines
     ctx.lineWidth = 1;
     for (let i = 0; i < 12; i++) {
       const sx = x + randomBetween(-4, 4);
@@ -478,10 +594,12 @@ function drawUnicyclist(
       const angle = Math.PI * 1.25 + randomBetween(-0.35, 0.35);
       ctx.beginPath();
       ctx.moveTo(sx, sparkBase);
-      ctx.lineTo(sx + Math.cos(angle) * len, sparkBase + Math.sin(angle) * len);
+      ctx.lineTo(
+        sx + Math.cos(angle) * len,
+        sparkBase + Math.sin(angle) * len,
+      );
       ctx.stroke();
     }
-    // Spark dots scattered up-left
     for (let i = 0; i < 8; i++) {
       const dx = randomBetween(-28, -4);
       const dy = randomBetween(-22, -2);
@@ -892,6 +1010,60 @@ function drawGround(
   }
 }
 
+function drawDustParticles(
+  ctx: CanvasRenderingContext2D,
+  particles: DustParticle[],
+  fg: string,
+) {
+  for (const p of particles) {
+    const opacity = p.life / DUST_LIFE;
+    ctx.save();
+    ctx.globalAlpha = opacity * 0.6;
+    ctx.strokeStyle = fg;
+    ctx.lineWidth = 1;
+    const len = 3 + (1 - opacity) * 4;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x + p.vx * len * 0.5, p.y + p.vy * len * 0.5);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawSpeedLines(
+  ctx: CanvasRenderingContext2D,
+  lines: SpeedLine[],
+  muted: string,
+) {
+  ctx.strokeStyle = muted;
+  ctx.lineWidth = 1;
+  for (const line of lines) {
+    ctx.beginPath();
+    ctx.moveTo(line.x, line.y);
+    ctx.lineTo(line.x + line.length, line.y);
+    ctx.stroke();
+  }
+}
+
+function drawMilestone(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  milestone: number,
+  timer: number,
+  fg: string,
+) {
+  if (timer <= 0) return;
+  const opacity = timer / MILESTONE_DISPLAY_FRAMES;
+  const scale = 1 + (1 - opacity) * 0.3;
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = fg;
+  ctx.font = `${Math.floor(18 * scale)}px monospace`;
+  ctx.textAlign = "center";
+  ctx.fillText(`${milestone}!`, w / 2, 50 - (1 - opacity) * 10);
+  ctx.restore();
+}
+
 // --- Component ---
 export function UnicycleGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -903,17 +1075,25 @@ export function UnicycleGame() {
     velocityY: 0,
     isAirborne: false,
     isGrinding: false,
+    hasDoubleJump: true,
     speed: INITIAL_SPEED,
     score: 0,
-    highScore: 0,
+    highScore: loadHighScore(),
+    comboCount: 0,
     terrain: [],
     clouds: [],
+    dustParticles: [],
+    speedLines: [],
     nextSpawnIn: 100,
     groundOffset: 0,
     wheelAngle: 0,
     pedalAngle: 0,
     flatTire: false,
     grindFrozenAngle: 0,
+    deathTimer: 0,
+    deathSpeed: 0,
+    milestoneTimer: 0,
+    lastMilestone: 0,
   });
   const animRef = useRef<number>(0);
   const colorsRef = useRef({
@@ -924,7 +1104,8 @@ export function UnicycleGame() {
   });
 
   const getGroundY = useCallback((canvas: HTMLCanvasElement) => {
-    return canvas.height * GROUND_Y_RATIO;
+    const dpr = window.devicePixelRatio || 1;
+    return (canvas.height / dpr) * GROUND_Y_RATIO;
   }, []);
 
   const resetGame = useCallback(() => {
@@ -937,31 +1118,50 @@ export function UnicycleGame() {
     gs.velocityY = 0;
     gs.isAirborne = false;
     gs.isGrinding = false;
+    gs.hasDoubleJump = true;
     gs.speed = INITIAL_SPEED;
     gs.score = 0;
+    gs.comboCount = 0;
     gs.terrain = [];
+    gs.dustParticles = [];
+    gs.speedLines = [];
     gs.nextSpawnIn = 200;
     gs.groundOffset = 0;
     gs.wheelAngle = 0;
     gs.pedalAngle = 0;
     gs.flatTire = false;
     gs.grindFrozenAngle = 0;
+    gs.deathTimer = 0;
+    gs.deathSpeed = 0;
+    gs.milestoneTimer = 0;
+    gs.lastMilestone = 0;
   }, [getGroundY]);
 
   const jump = useCallback(() => {
     const gs = stateRef.current;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvasRef.current) return;
 
     if (gs.status === "idle" || gs.status === "dead") {
       resetGame();
       return;
     }
 
-    if (!gs.isAirborne || gs.isGrinding) {
+    if (gs.isGrinding) {
+      // Jump off grind
       gs.velocityY = JUMP_FORCE;
       gs.isAirborne = true;
       gs.isGrinding = false;
+    } else if (!gs.isAirborne) {
+      // Ground jump
+      gs.velocityY = JUMP_FORCE;
+      gs.isAirborne = true;
+    } else if (gs.hasDoubleJump) {
+      // Double jump
+      gs.velocityY = DOUBLE_JUMP_FORCE;
+      gs.hasDoubleJump = false;
+      gs.dustParticles.push(
+        ...spawnDoubleJumpPuff(PLAYER_X, gs.playerY),
+      );
     }
   }, [resetGame]);
 
@@ -973,9 +1173,11 @@ export function UnicycleGame() {
     if (!ctx) return;
 
     const gs = stateRef.current;
-    const w = canvas.width;
-    const h = canvas.height;
-    const baseGroundY = getGroundY(canvas);
+    const dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
+    const baseGroundY = h * GROUND_Y_RATIO;
 
     // Recompute colors every 60 frames
     const colors = colorsRef.current;
@@ -998,11 +1200,35 @@ export function UnicycleGame() {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
+    // --- Update dust particles (always, even during death) ---
+    for (const p of gs.dustParticles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.1;
+      p.life--;
+    }
+    gs.dustParticles = gs.dustParticles.filter((p) => p.life > 0);
+
     // --- Update ---
     if (gs.status === "running") {
       gs.speed = Math.min(MAX_SPEED, gs.speed + SPEED_INCREMENT);
-      gs.score += 1;
+
+      // Score: base 1 per frame, multiplied during grind
+      const grindMultiplier = gs.isGrinding
+        ? GRIND_SCORE_MULTIPLIER + (gs.comboCount - 1) * COMBO_BONUS
+        : 1;
+      gs.score += grindMultiplier;
       gs.groundOffset += gs.speed;
+
+      // Milestone check
+      const displayScore = Math.floor(gs.score / 10);
+      const nextMilestone =
+        Math.floor(displayScore / MILESTONE_INTERVAL) * MILESTONE_INTERVAL;
+      if (nextMilestone > gs.lastMilestone && nextMilestone > 0) {
+        gs.lastMilestone = nextMilestone;
+        gs.milestoneTimer = MILESTONE_DISPLAY_FRAMES;
+      }
+      if (gs.milestoneTimer > 0) gs.milestoneTimer--;
 
       const surfaceY = getSurfaceY(PLAYER_X, baseGroundY, gs.terrain);
 
@@ -1024,6 +1250,8 @@ export function UnicycleGame() {
           gs.isGrinding = false;
           gs.isAirborne = false;
           gs.playerY = surfaceY;
+          gs.comboCount = 0;
+          gs.hasDoubleJump = true;
         }
       } else if (gs.isAirborne) {
         gs.velocityY += GRAVITY;
@@ -1046,15 +1274,23 @@ export function UnicycleGame() {
               gs.playerY = railY;
               gs.velocityY = 0;
               gs.grindFrozenAngle = gs.wheelAngle;
+              gs.comboCount++;
+              gs.hasDoubleJump = true;
               break;
             }
           }
         }
 
         if (!gs.isGrinding && gs.playerY >= surfaceY) {
+          // Landing — spawn dust
+          if (gs.isAirborne) {
+            gs.dustParticles.push(...spawnDust(PLAYER_X, surfaceY));
+            gs.comboCount = 0;
+          }
           gs.playerY = surfaceY;
           gs.velocityY = 0;
           gs.isAirborne = false;
+          gs.hasDoubleJump = true;
         }
       } else {
         gs.playerY = surfaceY;
@@ -1071,6 +1307,23 @@ export function UnicycleGame() {
         gs.pedalAngle += gs.speed * 0.04;
       }
 
+      // Speed lines
+      if (gs.speed > SPEED_LINE_THRESHOLD) {
+        const intensity =
+          (gs.speed - SPEED_LINE_THRESHOLD) / (MAX_SPEED - SPEED_LINE_THRESHOLD);
+        if (Math.random() < intensity * 0.4) {
+          gs.speedLines.push({
+            x: w + 10,
+            y: randomBetween(20, baseGroundY - 10),
+            length: randomBetween(20, 50) * intensity + 10,
+          });
+        }
+      }
+      for (const line of gs.speedLines) {
+        line.x -= gs.speed * 1.5;
+      }
+      gs.speedLines = gs.speedLines.filter((l) => l.x + l.length > 0);
+
       // Spike collision (before terrain moves so positions match playerY)
       if (!gs.isGrinding) {
         const playerLeft = PLAYER_X - 8;
@@ -1086,7 +1339,13 @@ export function UnicycleGame() {
             ) {
               gs.status = "dead";
               gs.flatTire = true;
-              gs.highScore = Math.max(gs.highScore, Math.floor(gs.score / 10));
+              gs.deathTimer = 0;
+              gs.deathSpeed = gs.speed;
+              gs.highScore = Math.max(
+                gs.highScore,
+                Math.floor(gs.score / 10),
+              );
+              saveHighScore(gs.highScore);
               break;
             }
           } else if (t.type === "stairset" && t.rampSpikes.length > 0) {
@@ -1103,10 +1362,13 @@ export function UnicycleGame() {
                   ) {
                     gs.status = "dead";
                     gs.flatTire = true;
+                    gs.deathTimer = 0;
+                    gs.deathSpeed = gs.speed;
                     gs.highScore = Math.max(
                       gs.highScore,
                       Math.floor(gs.score / 10),
                     );
+                    saveHighScore(gs.highScore);
                     break;
                   }
                 }
@@ -1121,10 +1383,13 @@ export function UnicycleGame() {
               if (gs.playerY > topY) {
                 gs.status = "dead";
                 gs.flatTire = true;
+                gs.deathTimer = 0;
+                gs.deathSpeed = gs.speed;
                 gs.highScore = Math.max(
                   gs.highScore,
                   Math.floor(gs.score / 10),
                 );
+                saveHighScore(gs.highScore);
                 break;
               }
             }
@@ -1133,14 +1398,16 @@ export function UnicycleGame() {
       }
 
       // Spawn terrain (ensure no overlap)
+      const diff = getDifficulty(gs.score);
       gs.nextSpawnIn -= gs.speed;
       if (gs.nextSpawnIn <= 0) {
         const last = gs.terrain.at(-1);
         const minX = last ? last.x + last.width + 80 : w + 20;
         const spawnX = Math.max(w + 20, minX);
-        gs.terrain.push(createTerrain(spawnX, last));
+        gs.terrain.push(createTerrain(spawnX, last, gs.score));
         gs.nextSpawnIn =
           randomBetween(MIN_SPAWN_GAP, MAX_SPAWN_GAP) *
+          diff.gapMultiplier *
           (INITIAL_SPEED / gs.speed);
       }
 
@@ -1158,9 +1425,44 @@ export function UnicycleGame() {
       if (gs.clouds.length < 4 && Math.random() < 0.01) {
         gs.clouds.push(createCloud(w, true));
       }
+    } else if (gs.status === "dead" && gs.deathTimer < DEATH_ANIM_FRAMES) {
+      // Death animation: decelerate and tumble
+      gs.deathTimer++;
+      const progress = gs.deathTimer / DEATH_ANIM_FRAMES;
+      const currentSpeed = gs.deathSpeed * (1 - progress);
+      gs.groundOffset += currentSpeed;
+
+      // Still move terrain during death
+      for (const t of gs.terrain) {
+        t.x -= currentSpeed;
+      }
+      gs.terrain = gs.terrain.filter((t) => t.x + t.width > -50);
+
+      // Move clouds
+      for (const cloud of gs.clouds) {
+        cloud.x -= currentSpeed * 0.3;
+      }
+
+      // Speed lines fade out
+      for (const line of gs.speedLines) {
+        line.x -= currentSpeed * 1.5;
+      }
+      gs.speedLines = gs.speedLines.filter((l) => l.x + l.length > 0);
+
+      if (gs.milestoneTimer > 0) gs.milestoneTimer--;
+
+      if (gs.deathTimer >= DEATH_ANIM_FRAMES) {
+        setIsDead(true);
+      }
+    } else if (gs.status === "dead") {
+      // Fully dead — milestone can still tick down
+      if (gs.milestoneTimer > 0) gs.milestoneTimer--;
     }
 
     // --- Draw ---
+    // Speed lines (behind everything)
+    drawSpeedLines(ctx, gs.speedLines, muted);
+
     for (const cloud of gs.clouds) {
       drawCloud(ctx, cloud, muted);
     }
@@ -1177,7 +1479,16 @@ export function UnicycleGame() {
       }
     }
 
+    // Dust particles
+    drawDustParticles(ctx, gs.dustParticles, fg);
+
+    // Player
     const playerDrawY = gs.status === "idle" ? baseGroundY : gs.playerY;
+    const lean = gs.status === "idle" ? 3 : computeLean(gs);
+    const deathTilt =
+      gs.status === "dead"
+        ? Math.min(gs.deathTimer / DEATH_ANIM_FRAMES, 1) * (Math.PI / 3)
+        : 0;
     drawUnicyclist(
       ctx,
       PLAYER_X,
@@ -1187,6 +1498,8 @@ export function UnicycleGame() {
       fg,
       gs.flatTire,
       gs.isGrinding,
+      lean,
+      deathTilt,
     );
 
     // Score
@@ -1205,12 +1518,20 @@ export function UnicycleGame() {
       ctx.fillText(`hi ${String(gs.highScore).padStart(5, "0")}`, w - 16, 40);
     }
 
+    // Grind + combo indicator
     if (gs.isGrinding) {
       ctx.fillStyle = fg;
       ctx.font = "12px monospace";
       ctx.textAlign = "left";
-      ctx.fillText("grinding!", 16, 24);
+      if (gs.comboCount > 1) {
+        ctx.fillText(`grind x${gs.comboCount}!`, 16, 24);
+      } else {
+        ctx.fillText("grind!", 16, 24);
+      }
     }
+
+    // Milestone flash
+    drawMilestone(ctx, w, gs.lastMilestone, gs.milestoneTimer, fg);
 
     if (gs.status === "idle") {
       ctx.fillStyle = fg;
@@ -1219,8 +1540,7 @@ export function UnicycleGame() {
       ctx.fillText("press space or tap to ride", w / 2, h / 2 + 20);
     }
 
-    if (gs.status === "dead") {
-      setIsDead(true);
+    if (gs.status === "dead" && gs.deathTimer >= DEATH_ANIM_FRAMES) {
       ctx.fillStyle = fg;
       ctx.font = "16px monospace";
       ctx.textAlign = "center";
@@ -1238,8 +1558,9 @@ export function UnicycleGame() {
     const container = containerRef.current;
     if (!canvas || !container) return;
     const rect = container.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
     const gs = stateRef.current;
     if (gs.status === "idle") {
       gs.playerY = getGroundY(canvas);
@@ -1250,8 +1571,10 @@ export function UnicycleGame() {
     resizeCanvas();
     const canvas = canvasRef.current;
     if (canvas) {
+      const dpr = window.devicePixelRatio || 1;
+      const logicalWidth = canvas.width / dpr;
       stateRef.current.clouds = Array.from({ length: 3 }, () =>
-        createCloud(canvas.width),
+        createCloud(logicalWidth),
       );
       stateRef.current.playerY = getGroundY(canvas);
     }
@@ -1286,10 +1609,10 @@ export function UnicycleGame() {
       {!isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
           <p className="text-muted-foreground font-mono text-xs">
-            <span className="md:hidden">tap to jump</span>
+            <span className="md:hidden">tap to jump · double tap for air jump</span>
             <span className="hidden md:inline">
               <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
-              jump
+              jump · press again mid-air for double jump
             </span>
           </p>
         </div>

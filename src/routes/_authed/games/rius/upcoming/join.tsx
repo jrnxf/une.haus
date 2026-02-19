@@ -5,17 +5,9 @@ import { CreateRiuSetForm } from "~/components/forms/games/rius";
 import { Button } from "~/components/ui/button";
 import { games } from "~/lib/games";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/_authed/games/rius/upcoming/join")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "games", to: "/games" },
-        { label: "rack it up", to: "/games/rius/upcoming" },
-        { label: "join" },
-      ],
-      maxWidth: "2xl",
-    },
-  },
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
@@ -28,7 +20,15 @@ function RouteComponent() {
   const { data } = useSuspenseQuery(games.rius.upcoming.roster.queryOptions());
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/rius/upcoming">rack it up</PageHeader.Crumb>
+          <PageHeader.Crumb>join</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
       <h1 className="text-2xl font-bold">upload set</h1>
       {data.authUserSets && data.authUserSets.length === 3 ? (
         <>
@@ -41,5 +41,6 @@ function RouteComponent() {
         <CreateRiuSetForm />
       )}
     </div>
+    </>
   );
 }

@@ -32,10 +32,9 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from "~/components/ui/tabs";
 import { Textarea } from "~/components/ui/textarea";
 import { Toggle } from "~/components/ui/toggle";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/sandbox")({
-  staticData: {
-    pageHeader: { breadcrumbs: [{ label: "sandbox" }], maxWidth: "4xl" },
-  },
   component: RouteComponent,
 });
 
@@ -118,8 +117,14 @@ function RouteComponent() {
   const [togglePressed, setTogglePressed] = useState(false);
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-      <div className="flex flex-col gap-6">
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>sandbox</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="flex flex-col gap-6">
         {/* Buttons */}
         <Section title="buttons">
           <div className="flex flex-wrap gap-2">
@@ -491,6 +496,7 @@ function RouteComponent() {
           </div>
         </Section>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

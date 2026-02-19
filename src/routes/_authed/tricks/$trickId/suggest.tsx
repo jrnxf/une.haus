@@ -28,33 +28,14 @@ import { Textarea } from "~/components/ui/textarea";
 import type { TrickSuggestionDiff } from "~/db/schema";
 import { tricks } from "~/lib/tricks";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/_authed/tricks/$trickId/suggest")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "tricks", to: "/tricks" },
-        { label: "" },
-        { label: "suggest" },
-      ],
-      maxWidth: "2xl",
-    },
-  },
   loader: async ({ context, params }) => {
     // trickId is actually the slug in this route
-    const trickData = await context.queryClient.ensureQueryData(
+    await context.queryClient.ensureQueryData(
       tricks.get.queryOptions({ slug: params.trickId }),
     );
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: {
-            label: trickData?.name ?? params.trickId,
-            to: "/tricks/$trickId",
-            params: { trickId: params.trickId },
-          },
-        },
-      },
-    };
   },
   component: RouteComponent,
 });
@@ -170,8 +151,16 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/tricks/${slug}`}>{trick.name}</PageHeader.Crumb>
+          <PageHeader.Crumb>suggest</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+        <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/tricks/$trickId" params={{ trickId: slug }}>
             <ArrowLeft className="size-4" />
@@ -362,5 +351,6 @@ function RouteComponent() {
         </div>
       </Form>
     </div>
+    </>
   );
 }

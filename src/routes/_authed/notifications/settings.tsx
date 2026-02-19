@@ -39,20 +39,13 @@ import {
 import { notificationSettings } from "~/lib/notification-settings";
 import type { UpdateNotificationSettingsInput } from "~/lib/notification-settings/schemas";
 
+import { PageHeader } from "~/components/page-header";
+
 const searchSchema = z.object({
   unsubscribed: z.enum(["digest", "game_start", "pre_trick", "all"]).optional(),
 });
 
 export const Route = createFileRoute("/_authed/notifications/settings")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "notifications", to: "/notifications" },
-        { label: "settings" },
-      ],
-      maxWidth: "2xl",
-    },
-  },
   validateSearch: searchSchema,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
@@ -157,8 +150,15 @@ function RouteComponent() {
   const isEmailDisabled = settings.emailUnsubscribedAll;
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-2xl p-6">
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/notifications">notifications</PageHeader.Crumb>
+          <PageHeader.Crumb>settings</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto max-w-2xl p-6">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3">
@@ -513,5 +513,6 @@ function RouteComponent() {
         </div>
       </div>
     </div>
+    </>
   );
 }

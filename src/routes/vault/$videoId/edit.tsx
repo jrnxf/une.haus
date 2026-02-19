@@ -38,16 +38,6 @@ export const Route = createFileRoute("/vault/$videoId/edit")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "vault", to: "/vault" },
-        { label: "" },
-        { label: "edit" },
-      ],
-      maxWidth: "4xl",
-    },
-  },
   beforeLoad: async ({ context }) => {
     const sessionData = await context.queryClient.ensureQueryData(
       session.get.queryOptions(),
@@ -58,19 +48,9 @@ export const Route = createFileRoute("/vault/$videoId/edit")({
     }
   },
   loader: async ({ context, params: { videoId } }) => {
-    const videoData = await context.queryClient.ensureQueryData(
+    await context.queryClient.ensureQueryData(
       utv.get.queryOptions(videoId),
     );
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: {
-            label: (videoData as { title?: string })?.title || "video",
-            to: `/vault/${videoId}`,
-          },
-        },
-      },
-    };
   },
   component: RouteComponent,
 });
@@ -138,7 +118,12 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/vault/${videoId}`}>{video.title || "video"}</PageHeader.Crumb>
+          <PageHeader.Crumb>edit</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

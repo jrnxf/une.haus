@@ -228,45 +228,75 @@ loader: async ({ context, deps }) => {
 
 ## Page Header System
 
-Every route declares its header content via a `<PageHeader>` compound component that renders nothing visible — it writes to a React Context consumed by `SiteHeader`. This gives every page consistent breadcrumbs, tabs, actions, and widgets in the global header bar.
+Every route renders a `<PageHeader>` compound component that displays the sticky header bar with sidebar trigger, breadcrumbs, tabs, actions, and search. All header content is declared as JSX children — no external stores, context, or `staticData`.
 
-**Key files:**
-
-- `src/lib/page-header/context.tsx` — Store + Provider + hooks
-- `src/components/page-header.tsx` — Declarative compound component
-- `src/components/site-header.tsx` — Consumes context, renders header
+**Key file:** `src/components/page-header.tsx`
 
 ### Usage
 
 ```tsx
+// Minimal — just sidebar trigger + search
+<PageHeader />
+
+// With breadcrumbs
+<PageHeader>
+  <PageHeader.Breadcrumbs>
+    <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+    <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+  </PageHeader.Breadcrumbs>
+</PageHeader>
+
+// With breadcrumbs, tabs, and actions
+<PageHeader>
+  <PageHeader.Breadcrumbs>
+    <PageHeader.Crumb>tricks</PageHeader.Crumb>
+  </PageHeader.Breadcrumbs>
+  <PageHeader.Tabs>
+    <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+    <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+  </PageHeader.Tabs>
+  <PageHeader.Actions>
+    <Button asChild><Link to="/tricks/create">Create</Link></Button>
+  </PageHeader.Actions>
+</PageHeader>
+
+// With inline content (rendered after breadcrumbs with divider)
 <PageHeader>
   <PageHeader.Breadcrumbs>
     <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-    <PageHeader.Crumb>current page</PageHeader.Crumb>
+    <PageHeader.Crumb>rack it up</PageHeader.Crumb>
   </PageHeader.Breadcrumbs>
-  <PageHeader.Tabs items={[{ to: "/games/rius/active", label: "active" }]} />
-  <PageHeader.Actions>{actionButtons}</PageHeader.Actions>
-  <PageHeader.Widget>{desktopWidget}</PageHeader.Widget>
-  <PageHeader.MobileRow>{mobileContent}</PageHeader.MobileRow>
+  <Countdown />
+  <PageHeader.Actions>{adminMenu}</PageHeader.Actions>
 </PageHeader>
 ```
 
+### Compound Component API
+
+- `<PageHeader.Breadcrumbs>` — wrapper for crumbs
+- `<PageHeader.Crumb to="/path">label</PageHeader.Crumb>` — link crumb (has `to`) or current page (no `to`)
+- `<PageHeader.Crumb icon={Icon}>label</PageHeader.Crumb>` — optional icon
+- `<PageHeader.Tabs>` — wrapper for tab links
+- `<PageHeader.Tab to="/path" icon={Icon}>label</PageHeader.Tab>` — tab link, active state derived from `useLocation()`
+- `<PageHeader.Actions>` — right-aligned action buttons
+- Other children render inline after breadcrumbs with a divider
+
 ### Breadcrumb Depth
 
-| Route Type                              | Breadcrumbs        | Example                         |
-| --------------------------------------- | ------------------ | ------------------------------- |
-| Standalone (home, chat, shop)           | None               | Minimal header                  |
-| Hub pages (`/games`, `/stats`)          | 1 crumb (non-link) | `games`                         |
-| Sub-sections (`/games/rius/active`)     | 2 crumbs           | `games > rack it up`            |
-| Detail pages (`/vault/$videoId`)        | 2 crumbs           | `vault > video title`           |
-| Deep detail (`/games/rius/sets/$setId`) | 3 crumbs           | `games > rack it up > set name` |
+| Route Type                          | Breadcrumbs        | Example                    |
+| ----------------------------------- | ------------------ | -------------------------- |
+| Standalone (home, shop, privacy)    | None               | Minimal header             |
+| Hub pages (`/games`, `/vault`)      | 1 crumb (non-link) | `games`                    |
+| Sub-sections (`/tricks/create`)     | 2 crumbs           | `tricks > create`          |
+| Detail pages (`/vault/$videoId`)    | 2 crumbs           | `vault > video title`      |
+| Deep detail (`/vault/$id/edit`)     | 3 crumbs           | `vault > video title > edit` |
 
 ### Rules
 
-- Every route with navigation context should have a `<PageHeader>` — no standalone back buttons or h1 titles
+- Every route must render `<PageHeader>` (provides sidebar trigger + search)
 - The last `<PageHeader.Crumb>` (without `to` prop) represents the current page
-- Child routes override parent layouts — the last `useLayoutEffect` wins
-- `<PageHeader>` resets on unmount, so standalone pages show a clean header
+- Layout routes render `<PageHeader>` with breadcrumbs; child routes inside layouts do NOT render their own `<PageHeader>` (avoids duplicate headers)
+- Dynamic breadcrumb labels use query data directly: `<PageHeader.Crumb>{trick.name}</PageHeader.Crumb>`
 
 ## Peripherals (URL-driven open/close)
 

@@ -23,10 +23,9 @@ import {
   MobileNavPopup,
   MobileNavProvider,
 } from "~/components/mobile-nav";
-import { MobileFooter, SiteHeader } from "~/components/site-header";
+import { MobileFooter } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { PageHeaderProvider } from "~/lib/page-header/context";
 import { useRootRouteContext } from "~/lib/session/hooks";
 import { session } from "~/lib/session/index";
 import { type HausSession } from "~/lib/session/schema";
@@ -161,18 +160,15 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                 >
                   <GlobalShortcuts />
                   <AppSidebar variant="inset" />
-                  <PageHeaderProvider>
-                    <SidebarInset>
-                      <SiteHeader />
-                      <div
-                        className="flex flex-1 flex-col overflow-y-auto overscroll-none"
-                        id="main-content"
-                      >
-                        {children}
-                      </div>
-                      <MobileFooter />
-                    </SidebarInset>
-                  </PageHeaderProvider>
+                  <SidebarInset>
+                    <div
+                      className="flex flex-1 flex-col overflow-y-auto overscroll-none"
+                      id="main-content"
+                    >
+                      {children}
+                    </div>
+                    <MobileFooter />
+                  </SidebarInset>
                 </SidebarProvider>
               </MobileNavIndent>
               <MobileNavPopup portalContainer={portalContainer} />

@@ -7,13 +7,9 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { tourney } from "~/lib/tourney";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/tourney/live/")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tourney" }, { label: "live" }],
-      maxWidth: "lg",
-    },
-  },
   component: RouteComponent,
 });
 
@@ -39,7 +35,14 @@ function RouteComponent() {
   };
 
   return (
-    <div className="bg-background fixed inset-0 z-50 flex items-center justify-center p-4 lowercase">
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>live</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="bg-background fixed inset-0 z-50 flex items-center justify-center p-4 lowercase">
       <div className="w-full max-w-xs space-y-6 text-center">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold">Join Tournament</h1>
@@ -67,5 +70,6 @@ function RouteComponent() {
         </form>
       </div>
     </div>
+    </>
   );
 }

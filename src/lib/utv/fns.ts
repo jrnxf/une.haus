@@ -11,6 +11,7 @@ import { db } from "~/db";
 import {
   USER_DISCIPLINES,
   muxVideos,
+  users,
   utvClaps,
   utvVideoLikes,
   utvVideoMessages,
@@ -118,6 +119,22 @@ export const allUtvVideosServerFn = createServerFn({
     .orderBy(asc(utvVideos.id));
 });
 
+export const listUtvWritersServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const rows = await db
+    .selectDistinct({
+      name: sql<string>`COALESCE(${users.name}, ${utvVideoRiders.name})`,
+    })
+    .from(utvVideoRiders)
+    .leftJoin(users, eq(utvVideoRiders.userId, users.id))
+    .where(
+      sql`COALESCE(${users.name}, ${utvVideoRiders.name}) IS NOT NULL`,
+    )
+    .orderBy(sql`COALESCE(${users.name}, ${utvVideoRiders.name})`);
+  return rows.map((r) => r.name);
+});
+
 export const listUtvVideosServerFn = createServerFn({
   method: "GET",
 })
@@ -161,6 +178,23 @@ export const listUtvVideosServerFn = createServerFn({
         and(
           input.q ? ilike(utvVideos.title, `%${input.q}%`) : undefined,
           input.cursor ? gt(utvVideos.id, input.cursor) : undefined,
+          input.disciplines && input.disciplines.length > 0
+            ? sql`${utvVideos.disciplines}::jsonb ?| array[${sql.join(
+                input.disciplines.map((d) => sql`${d}`),
+                sql`,`,
+              )}]`
+            : undefined,
+          input.writers && input.writers.length > 0
+            ? sql`EXISTS (
+                SELECT 1 FROM ${utvVideoRiders}
+                LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
+                WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
+                AND COALESCE(${users.name}, ${utvVideoRiders.name}) IN (${sql.join(
+                  input.writers.map((w) => sql`${w}`),
+                  sql`,`,
+                )})
+              )`
+            : undefined,
         ),
       )
       .orderBy(asc(utvVideos.id))

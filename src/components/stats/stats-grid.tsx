@@ -38,17 +38,17 @@ export function StatsGrid({ data }: StatsGridProps) {
           to="/map"
         />
         <StatCard
-          label="messages"
-          value={data.counts.totalMessages}
-          icon={MessageCircleIcon}
-          description="messages and comments across chat, posts, sets, and submissions"
-          size="responsive"
-        />
-        <StatCard
           label="posts"
           value={data.counts.posts}
           icon={StickyNoteIcon}
           description="posts shared in the feed"
+          size="responsive"
+        />
+        <StatCard
+          label="messages"
+          value={data.counts.totalMessages}
+          icon={MessageCircleIcon}
+          description="messages and comments across chat, posts, sets, and submissions"
           size="responsive"
         />
         <StatCard

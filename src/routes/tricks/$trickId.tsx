@@ -28,25 +28,13 @@ import { session } from "~/lib/session";
 import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/$trickId")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "" }],
-      maxWidth: "4xl",
-    },
-  },
-  loader: async ({ context, params: { trickId } }) => {
-    const [graphData, sessionData] = await Promise.all([
+  loader: async ({ context }) => {
+    const [, sessionData] = await Promise.all([
       context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
       context.queryClient.ensureQueryData(session.get.queryOptions()),
     ]);
-    const trick = graphData.byId[trickId];
     return {
       isAdmin: sessionData.user?.id === 1,
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: { label: trick?.name ?? trickId },
-        },
-      },
     };
   },
   component: TrickDetailPage,
@@ -85,7 +73,11 @@ function TrickDetailPage() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button asChild size="sm">
             <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
@@ -190,89 +182,89 @@ function TrickDetailPage() {
           {(prerequisiteTrick ||
             optionalPrerequisiteTrick ||
             trick.dependents.length > 0) && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* Prerequisites */}
-              {(prerequisiteTrick || optionalPrerequisiteTrick) && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">prerequisites</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {prerequisiteTrick && (
-                        <Button
-                          className="h-auto px-2 py-1 text-sm"
-                          variant="outline"
-                          asChild
-                        >
-                          <Link
-                            to="/tricks/$trickId"
-                            params={{ trickId: prerequisiteTrick.id }}
-                          >
-                            {prerequisiteTrick.name}
-                          </Link>
-                        </Button>
-                      )}
-                      {optionalPrerequisiteTrick && (
-                        <Button
-                          className="h-auto px-2 py-1 text-sm"
-                          variant="outline"
-                          asChild
-                        >
-                          <Link
-                            to="/tricks/$trickId"
-                            params={{ trickId: optionalPrerequisiteTrick.id }}
-                          >
-                            {optionalPrerequisiteTrick.name}
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Unlocks */}
-              {trick.dependents.length > 0 && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-sm">
-                      <LockOpenIcon className="text-muted-foreground size-4" />
-                      unlocks
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {trick.dependents.slice(0, 8).map((depId) => {
-                        const depTrick = data.byId[depId];
-                        if (!depTrick) return null;
-                        return (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Prerequisites */}
+                {(prerequisiteTrick || optionalPrerequisiteTrick) && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">prerequisites</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {prerequisiteTrick && (
                           <Button
-                            key={depId}
                             className="h-auto px-2 py-1 text-sm"
                             variant="outline"
                             asChild
                           >
                             <Link
                               to="/tricks/$trickId"
-                              params={{ trickId: depId }}
+                              params={{ trickId: prerequisiteTrick.id }}
                             >
-                              {depTrick.name}
+                              {prerequisiteTrick.name}
                             </Link>
                           </Button>
-                        );
-                      })}
-                      {trick.dependents.length > 8 && (
-                        <span className="text-muted-foreground self-center text-sm">
-                          +{trick.dependents.length - 8} more
-                        </span>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+                        )}
+                        {optionalPrerequisiteTrick && (
+                          <Button
+                            className="h-auto px-2 py-1 text-sm"
+                            variant="outline"
+                            asChild
+                          >
+                            <Link
+                              to="/tricks/$trickId"
+                              params={{ trickId: optionalPrerequisiteTrick.id }}
+                            >
+                              {optionalPrerequisiteTrick.name}
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Unlocks */}
+                {trick.dependents.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center gap-2 text-sm">
+                        <LockOpenIcon className="text-muted-foreground size-4" />
+                        unlocks
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {trick.dependents.slice(0, 8).map((depId) => {
+                          const depTrick = data.byId[depId];
+                          if (!depTrick) return null;
+                          return (
+                            <Button
+                              key={depId}
+                              className="h-auto px-2 py-1 text-sm"
+                              variant="outline"
+                              asChild
+                            >
+                              <Link
+                                to="/tricks/$trickId"
+                                params={{ trickId: depId }}
+                              >
+                                {depTrick.name}
+                              </Link>
+                            </Button>
+                          );
+                        })}
+                        {trick.dependents.length > 8 && (
+                          <span className="text-muted-foreground self-center text-sm">
+                            +{trick.dependents.length - 8} more
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
 
           {/* Nearby (computed neighbors) */}
           {trick.neighbors.length > 0 && (

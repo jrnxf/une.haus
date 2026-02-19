@@ -11,6 +11,7 @@ import {
   getUtvVideoServerFn,
   listUtvSuggestionsServerFn,
   listUtvVideosServerFn,
+  listUtvWritersServerFn,
   reviewUtvSuggestionServerFn,
   adminUpdateUtvVideoServerFn,
   updateUtvScaleServerFn,
@@ -70,6 +71,15 @@ export const utv = {
         queryFn: () => getUtvVideoServerFn({ data: { id } }),
       });
     },
+  },
+  writers: {
+    fn: listUtvWritersServerFn,
+    queryOptions: () =>
+      queryOptions({
+        queryKey: ["utv.writers"],
+        queryFn: listUtvWritersServerFn,
+        staleTime: 1000 * 60 * 5,
+      }),
   },
   claps: {
     get: {

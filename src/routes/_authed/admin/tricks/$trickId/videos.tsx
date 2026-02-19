@@ -15,18 +15,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { VideoPlayer } from "~/components/video-player";
 import { tricks } from "~/lib/tricks";
 
+import { PageHeader } from "~/components/page-header";
+
 const MAX_ACTIVE_VIDEOS = 5;
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/videos")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "" }],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params }) => {
     const trickId = Number(params.trickId);
-    const [trickData] = await Promise.all([
+    await Promise.all([
       context.queryClient.ensureQueryData(
         tricks.getById.queryOptions({ id: trickId }),
       ),
@@ -34,13 +30,6 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/videos")({
         tricks.videos.list.queryOptions({ trickId }),
       ),
     ]);
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: { label: `videos: ${trickData?.name ?? params.trickId}` },
-        },
-      },
-    };
   },
   component: RouteComponent,
 });
@@ -152,6 +141,12 @@ function RouteComponent() {
 
   return (
     <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
           {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active videos

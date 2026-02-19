@@ -2,13 +2,13 @@ import {
   useQuery,
   useQueryClient,
   useSuspenseInfiniteQuery,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   ChevronDownIcon,
   HeartIcon,
   MessageCircleIcon,
-  XIcon,
 } from "lucide-react";
 import {
   useCallback,
@@ -26,8 +26,13 @@ import { useDebounceCallback } from "usehooks-ts";
 
 import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import {
+  Filters,
+  type Filter,
+  type FilterFieldConfig,
+} from "~/components/ui/filters";
 import { getMuxPoster } from "~/components/video-player";
+import { USER_DISCIPLINES } from "~/db/schema";
 import { utv } from "~/lib/utv/core";
 
 export const Route = createFileRoute("/vault/")({
@@ -39,10 +44,8 @@ export const Route = createFileRoute("/vault/")({
         utv.list.infiniteQueryOptions(deps),
       ),
       context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
+      context.queryClient.ensureQueryData(utv.writers.queryOptions()),
     ]);
-  },
-  staticData: {
-    pageHeader: { breadcrumbs: [{ label: "vault" }], maxWidth: "4xl" },
   },
   component: RouteComponent,
 });
@@ -51,26 +54,163 @@ function RouteComponent() {
   const searchParams = Route.useSearch();
   const router = useRouter();
 
-  // React state drives the query - NOT the URL
-  // This allows useDeferredValue to actually defer during suspense
-  const [query, setQuery] = useState(searchParams.q ?? "");
-  const deferredQuery = useDeferredValue(query);
+  const { data: writerNames } = useSuspenseQuery(utv.writers.queryOptions());
+
+  // --- Local state for immediate feedback (not URL-driven) ---
+  const [queryInput, setQueryInput] = useState(searchParams.q ?? "");
+  const deferredQuery = useDeferredValue(queryInput);
+
+  const [disciplines, setDisciplines] = useState<string[]>(
+    searchParams.disciplines ?? [],
+  );
+  const deferredDisciplines = useDeferredValue(disciplines);
+
+  const [writers, setWriters] = useState<string[]>(searchParams.writers ?? []);
+  const deferredWriters = useDeferredValue(writers);
 
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  const debouncedNavigate = useDebounceCallback((q: string) => {
-    // URL update is for bookmarking only - doesn't drive the query
-    router.navigate({
-      to: "/vault",
-      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
-      replace: true,
-    });
-  }, 300);
+  // Track which filter fields are open
+  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    if (queryInput) initial.add("q");
+    if (disciplines.length > 0) initial.add("disciplines");
+    if (writers.length > 0) initial.add("writers");
+    return initial;
+  });
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value);
-    debouncedNavigate(value);
-  };
+  // URL update is for bookmarking only — debounced
+  const debouncedNavigate = useDebounceCallback(
+    (updates: { q?: string; disciplines?: string[]; writers?: string[] }) => {
+      router.navigate({
+        to: "/vault",
+        search: (prev) => ({
+          ...prev,
+          q: updates.q || undefined,
+          disciplines:
+            updates.disciplines && updates.disciplines.length > 0
+              ? updates.disciplines
+              : undefined,
+          writers:
+            updates.writers && updates.writers.length > 0
+              ? updates.writers
+              : undefined,
+          cursor: undefined,
+        }),
+        replace: true,
+      });
+    },
+    300,
+  );
+
+  const filterFields: FilterFieldConfig<string>[] = useMemo(
+    () => [
+      {
+        key: "q",
+        label: "Search",
+        type: "text" as const,
+        placeholder: "search...",
+        operators: [{ value: "contains", label: "contains" }],
+        defaultOperator: "contains",
+      },
+      {
+        key: "disciplines",
+        label: "Disciplines",
+        type: "multiselect" as const,
+        operators: [{ value: "is_any_of", label: "includes" }],
+        defaultOperator: "is_any_of",
+        options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
+      },
+      {
+        key: "writers",
+        label: "Writers",
+        type: "multiselect" as const,
+        operators: [{ value: "is_any_of", label: "includes" }],
+        defaultOperator: "is_any_of",
+        searchable: true,
+        options: writerNames.map((w) => ({ value: w, label: w })),
+      },
+    ],
+    [writerNames],
+  );
+
+  // Derive filters from LOCAL state
+  const filters = useMemo<Filter<string>[]>(() => {
+    const result: Filter<string>[] = [];
+    if (activeFields.has("q")) {
+      result.push({
+        id: "q",
+        field: "q",
+        operator: "contains",
+        values: queryInput ? [queryInput] : [],
+      });
+    }
+    if (activeFields.has("disciplines") || disciplines.length > 0) {
+      result.push({
+        id: "disciplines",
+        field: "disciplines",
+        operator: "is_any_of",
+        values: disciplines,
+      });
+    }
+    if (activeFields.has("writers") || writers.length > 0) {
+      result.push({
+        id: "writers",
+        field: "writers",
+        operator: "is_any_of",
+        values: writers,
+      });
+    }
+    return result;
+  }, [queryInput, disciplines, writers, activeFields]);
+
+  const handleFiltersChange = useCallback(
+    (next: Filter<string>[]) => {
+      const qFilter = next.find((f) => f.field === "q");
+      const disciplinesFilter = next.find((f) => f.field === "disciplines");
+      const writersFilter = next.find((f) => f.field === "writers");
+
+      setActiveFields((prev) => {
+        const wantQ = Boolean(qFilter);
+        const wantDisciplines = Boolean(disciplinesFilter);
+        const wantWriters = Boolean(writersFilter);
+        if (
+          prev.has("q") === wantQ &&
+          prev.has("disciplines") === wantDisciplines &&
+          prev.has("writers") === wantWriters
+        ) {
+          return prev;
+        }
+        const s = new Set<string>();
+        if (wantQ) s.add("q");
+        if (wantDisciplines) s.add("disciplines");
+        if (wantWriters) s.add("writers");
+        return s;
+      });
+
+      const newQuery = qFilter?.values[0] || "";
+      setQueryInput(newQuery);
+
+      const newDisciplines =
+        disciplinesFilter && disciplinesFilter.values.length > 0
+          ? disciplinesFilter.values
+          : [];
+      setDisciplines(newDisciplines);
+
+      const newWriters =
+        writersFilter && writersFilter.values.length > 0
+          ? writersFilter.values
+          : [];
+      setWriters(newWriters);
+
+      debouncedNavigate({
+        q: newQuery,
+        disciplines: newDisciplines,
+        writers: newWriters,
+      });
+    },
+    [debouncedNavigate],
+  );
 
   const {
     data: videosPages,
@@ -78,7 +218,12 @@ function RouteComponent() {
     hasNextPage,
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(
-    utv.list.infiniteQueryOptions({ q: deferredQuery || undefined }),
+    utv.list.infiniteQueryOptions({
+      q: deferredQuery || undefined,
+      disciplines:
+        deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
+      writers: deferredWriters.length > 0 ? deferredWriters : undefined,
+    }),
   );
 
   const displayedVideos = useMemo(
@@ -89,7 +234,10 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>vault</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button asChild variant="secondary">
             <Link to="/vault/review">Review</Link>
@@ -100,23 +248,13 @@ function RouteComponent() {
       <div className="flex h-full flex-col">
         <div className="bg-background sticky top-0 z-10">
           <div className="mx-auto flex max-w-4xl items-center gap-2 p-4">
-            <div className="relative min-w-0 flex-1">
-              <Input
-                id="vault-search"
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="search vault"
-                className="pr-8"
+            <div className="min-w-0 flex-1">
+              <Filters
+                filters={filters}
+                fields={filterFields}
+                onChange={handleFiltersChange}
+                size="sm"
               />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => handleQueryChange("")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              )}
             </div>
             <Button
               variant="ghost"

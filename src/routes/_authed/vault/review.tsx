@@ -5,17 +5,13 @@ import { Card, CardContent } from "~/components/ui/card";
 import { UtvSuggestionCard } from "~/components/vault/suggestion-card";
 import { utv } from "~/lib/utv/core";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/_authed/vault/review")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       utv.suggestions.list.queryOptions({ status: "pending" }),
     );
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "vault", to: "/vault" }, { label: "review" }],
-      maxWidth: "4xl",
-    },
   },
   component: RouteComponent,
 });
@@ -26,7 +22,14 @@ function RouteComponent() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb>review</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
       <h1 className="text-lg font-semibold">Community suggestions</h1>
 
       {suggestions.length === 0 ? (
@@ -47,5 +50,6 @@ function RouteComponent() {
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -10,8 +10,8 @@ import {
 import { useDeferredValue, useMemo, useState } from "react";
 
 import { PageHeader } from "~/components/page-header";
-import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
 import type { SidebarTrick } from "~/components/tricks/tricks-sidebar";
+import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group";
@@ -35,22 +35,11 @@ import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
 import type { CATCH_TYPES } from "~/db/schema";
 import { session } from "~/lib/session";
-import { tricks } from "~/lib/tricks";
 import type { TrickBuilderData } from "~/lib/tricks";
+import { tricks } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/tricks/builder")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks" }],
-      tabs: [
-        { path: "/tricks", label: "list" },
-        { path: "/tricks/graph", label: "graph" },
-        { path: "/tricks/builder", label: "builder" },
-      ],
-      maxWidth: "lg",
-    },
-  },
   loader: async ({ context }) => {
     const [, sessionData] = await Promise.all([
       context.queryClient.ensureQueryData(tricks.builder.queryOptions()),
@@ -298,7 +287,15 @@ function TricksPage() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>tricks</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Tabs>
+          <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+          <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+          <PageHeader.Tab to="/tricks/builder">builder</PageHeader.Tab>
+        </PageHeader.Tabs>
         <PageHeader.Actions>
           {isLoggedIn && (
             <Button asChild size="sm">

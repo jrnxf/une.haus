@@ -7,6 +7,8 @@ import { z } from "zod";
 import { users } from "~/lib/users";
 import { MapView } from "~/views/map";
 
+import { PageHeader } from "~/components/page-header";
+
 const mapSearchSchema = z.object({
   lat: z.number().optional(),
   lng: z.number().optional(),
@@ -14,12 +16,6 @@ const mapSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/map/")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "map" }],
-      maxWidth: "full",
-    },
-  },
   validateSearch: mapSearchSchema,
   loader: async ({ context }) => {
     return await context.queryClient.ensureQueryData(
@@ -50,15 +46,22 @@ function RouteComponent() {
   );
 
   return (
-    <MapView
-      users={data}
-      initialCenter={
-        search.lng !== undefined && search.lat !== undefined
-          ? [search.lng, search.lat]
-          : undefined
-      }
-      initialZoom={search.z}
-      onMapMove={handleMapMove}
-    />
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>map</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <MapView
+        users={data}
+        initialCenter={
+          search.lng !== undefined && search.lat !== undefined
+            ? [search.lng, search.lat]
+            : undefined
+        }
+        initialZoom={search.z}
+        onMapMove={handleMapMove}
+      />
+    </>
   );
 }

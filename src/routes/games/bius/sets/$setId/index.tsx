@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   AlertTriangleIcon,
   ChevronDownIcon,
@@ -12,6 +11,7 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -52,16 +52,6 @@ export const Route = createFileRoute("/games/bius/sets/$setId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "games", to: "/games" },
-        { label: "back it up", to: "/games/bius" },
-        { label: "set" },
-      ],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params: { setId }, preload }) => {
     try {
       await context.queryClient.ensureQueryData(
@@ -84,11 +74,9 @@ function RouteComponent() {
   const { setId } = Route.useParams();
 
   return (
-    <>
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
-        <SetView setId={setId} />
-      </div>
-    </>
+    <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+      <SetView setId={setId} />
+    </div>
   );
 }
 

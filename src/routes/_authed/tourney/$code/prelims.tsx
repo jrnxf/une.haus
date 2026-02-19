@@ -29,12 +29,6 @@ import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/_authed/tourney/$code/prelims")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tourney", to: "/tourney" }, { label: "prelims" }],
-      maxWidth: "lg",
-    },
-  },
   component: RouteComponent,
   beforeLoad: async ({ context, params }) => {
     const tournament = await context.queryClient.ensureQueryData(
@@ -135,8 +129,15 @@ function RouteComponent() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg space-y-4 p-4">
-      <div className="divide-y rounded-lg border">
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>prelims</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-lg space-y-4 p-4">
+        <div className="divide-y rounded-lg border">
         {state.riders.map((rider, index) => {
           const status = getRiderStatus(index);
           const resolved = resolveRider(rider);
@@ -289,7 +290,8 @@ function RouteComponent() {
             Ranking
           </Button>
         ))}
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -355,13 +357,11 @@ function TimerView({
 
   return (
     <>
-      <PageHeader
-        breadcrumbs={[
-          { label: "tourney", to: "/tourney" },
-          { label: eventName || "prelims" },
-        ]}
-        maxWidth="full"
-      >
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>{eventName || "prelims"}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button
             variant="secondary"

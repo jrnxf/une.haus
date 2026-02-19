@@ -9,7 +9,6 @@ import {
   redirect,
   useRouter,
 } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,6 +17,7 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { toast } from "sonner";
 import { z } from "zod";
@@ -44,6 +44,8 @@ import { tricks } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 import { MessagesView } from "~/views/messages";
 
+import { PageHeader } from "~/components/page-header";
+
 const pathParametersSchema = z.object({
   suggestionId: z.coerce.number(),
 });
@@ -53,15 +55,6 @@ export const Route = createFileRoute(
 )({
   params: {
     parse: pathParametersSchema.parse,
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "tricks", to: "/tricks" },
-        { label: "suggestion" },
-      ],
-      maxWidth: "4xl",
-    },
   },
   loader: async ({ context, params: { suggestionId }, preload }) => {
     try {
@@ -94,11 +87,19 @@ function RouteComponent() {
   const { isAdmin } = Route.useLoaderData();
 
   return (
-    <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
-        <SuggestionView suggestionId={suggestionId} isAdmin={isAdmin} />
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>suggestion</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="h-full min-h-0 overflow-y-auto" id="main-content">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+          <SuggestionView suggestionId={suggestionId} isAdmin={isAdmin} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -223,11 +224,11 @@ function SuggestionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 suggestion.status === "pending" &&
-                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 suggestion.status === "approved" &&
-                  "bg-green-500/20 text-green-700 dark:text-green-300",
+                "bg-green-500/20 text-green-700 dark:text-green-300",
                 suggestion.status === "rejected" &&
-                  "bg-red-500/20 text-red-700 dark:text-red-300",
+                "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {suggestion.status === "pending" && "Pending"}

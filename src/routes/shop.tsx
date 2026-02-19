@@ -12,6 +12,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { PageHeader } from "~/components/page-header";
 import { useSessionUser } from "~/lib/session/hooks";
 import { users } from "~/lib/users";
 
@@ -42,8 +43,14 @@ function RouteComponent() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-      <Empty>
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>shop</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <ShoppingBagIcon />
@@ -77,6 +84,7 @@ function RouteComponent() {
           )}
         </EmptyContent>
       </Empty>
-    </div>
+      </div>
+    </>
   );
 }

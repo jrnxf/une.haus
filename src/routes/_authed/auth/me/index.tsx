@@ -7,12 +7,6 @@ import { users } from "~/lib/users";
 import { UserView } from "~/views/user";
 
 export const Route = createFileRoute("/_authed/auth/me/")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "profile" }],
-      maxWidth: "2xl",
-    },
-  },
   component: RouteComponent,
   loader: async ({ context }) => {
     const authUser = await context.queryClient.ensureQueryData(
@@ -35,7 +29,10 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>profile</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button asChild>
             <Link to="/auth/me/edit">Edit</Link>

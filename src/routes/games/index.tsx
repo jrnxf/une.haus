@@ -13,10 +13,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LinkCard } from "~/components/link-card";
 import { games } from "~/lib/games";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/games/")({
-  staticData: {
-    pageHeader: { breadcrumbs: [{ label: "games" }], maxWidth: "4xl" },
-  },
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
@@ -43,8 +42,14 @@ function RouteComponent() {
   useSuspenseQuery(games.sius.chain.active.queryOptions());
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>games</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <LinkCard.Root href="/games/rius/active">
           {/* <LinkCard.Header icon={CoinsIcon} title="rack it up" /> */}
           <LinkCard.Header title="rack it up" />
@@ -124,6 +129,7 @@ function RouteComponent() {
           </LinkCard.Content>
         </LinkCard.Root>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

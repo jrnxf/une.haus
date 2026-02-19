@@ -29,6 +29,8 @@ import { USER_DISCIPLINES, type UtvVideoSuggestionDiff } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { utv } from "~/lib/utv/core";
 
+import { PageHeader } from "~/components/page-header";
+
 const pathParametersSchema = z.object({
   videoId: z.coerce.number(),
 });
@@ -37,30 +39,10 @@ export const Route = createFileRoute("/_authed/vault/$videoId/suggest")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "vault", to: "/vault" },
-        { label: "" },
-        { label: "suggest" },
-      ],
-      maxWidth: "2xl",
-    },
-  },
   loader: async ({ context, params: { videoId } }) => {
-    const video = await context.queryClient.ensureQueryData(
+    await context.queryClient.ensureQueryData(
       utv.get.queryOptions(videoId),
     );
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: {
-            label: video?.title || video?.legacyTitle || "video",
-            to: `/vault/${videoId}`,
-          },
-        },
-      },
-    };
   },
   component: RouteComponent,
 });
@@ -172,7 +154,15 @@ function RouteComponent() {
   };
 
   return (
-    <div className="h-full overflow-y-auto">
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/vault/${videoId}`}>{displayTitle}</PageHeader.Crumb>
+          <PageHeader.Crumb>suggest</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
         <Form
           rhf={rhf}
@@ -278,5 +268,6 @@ function RouteComponent() {
         </Form>
       </div>
     </div>
+    </>
   );
 }

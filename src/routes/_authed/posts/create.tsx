@@ -27,6 +27,8 @@ import { Textarea } from "~/components/ui/textarea";
 import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
 
+import { PageHeader } from "~/components/page-header";
+
 const MEDIA_OPTIONS = {
   none: "None",
   image: "Image",
@@ -37,12 +39,6 @@ const MEDIA_OPTIONS = {
 type MediaOption = keyof typeof MEDIA_OPTIONS;
 
 export const Route = createFileRoute("/_authed/posts/create")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "posts", to: "/posts" }, { label: "create" }],
-      maxWidth: "4xl",
-    },
-  },
   component: RouteComponent,
 });
 
@@ -81,17 +77,24 @@ function RouteComponent() {
   } = rhf;
 
   return (
-    <Form
-      rhf={rhf}
-      className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
-      id="main-content"
-      method="post"
-      onSubmit={(event) => {
-        handleSubmit(async (data) => {
-          await mutateAsync({ data });
-        })(event);
-      }}
-    >
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
+          <PageHeader.Crumb>create</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <Form
+        rhf={rhf}
+        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        id="main-content"
+        method="post"
+        onSubmit={(event) => {
+          handleSubmit(async (data) => {
+            await mutateAsync({ data });
+          })(event);
+        }}
+      >
       <FormField
         control={control}
         name="title"
@@ -212,5 +215,6 @@ function RouteComponent() {
         <FormSubmitButton busy={isSubmitting} />
       </div>
     </Form>
+    </>
   );
 }

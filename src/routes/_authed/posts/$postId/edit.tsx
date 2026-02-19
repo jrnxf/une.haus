@@ -28,6 +28,8 @@ import { session } from "~/lib/session/index";
 import { type ServerFnReturn } from "~/lib/types";
 import { errorFmt } from "~/lib/utils";
 
+import { PageHeader } from "~/components/page-header";
+
 const pathParametersSchema = z.object({
   postId: z.coerce.number(),
 });
@@ -36,16 +38,6 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
   component: RouteComponent,
   params: {
     parse: pathParametersSchema.parse,
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "posts", to: "/posts" },
-        { label: "" },
-        { label: "edit" },
-      ],
-      maxWidth: "4xl",
-    },
   },
   beforeLoad: async ({ context, params: { postId } }) => {
     const post = await context.queryClient.ensureQueryData(
@@ -63,17 +55,9 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
   },
   loader: async ({ context, params: { postId } }) => {
     try {
-      const postData = await context.queryClient.ensureQueryData(
+      await context.queryClient.ensureQueryData(
         posts.get.queryOptions({ postId }),
       );
-      return {
-        ...postData,
-        pageHeader: {
-          breadcrumbOverrides: {
-            1: { label: postData.title, to: `/posts/${postId}` },
-          },
-        },
-      };
     } catch (error) {
       await session.flash.set.fn({ data: { message: errorFmt(error) } });
       throw redirect({ to: "/posts" });
@@ -100,9 +84,9 @@ function RouteComponent() {
       qc.setQueryData(posts.get.queryOptions({ postId }).queryKey, (prev) => {
         return prev
           ? {
-              ...prev,
-              ...data,
-            }
+            ...prev,
+            ...data,
+          }
           : undefined;
       });
 
@@ -155,6 +139,13 @@ function RouteComponent() {
 
   return (
     <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/posts/${postId}`}>{post.title}</PageHeader.Crumb>
+          <PageHeader.Crumb>edit</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
       <Form
         rhf={rhf}
         className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
@@ -224,19 +215,19 @@ function buildDefaultValues(post: ServerFnReturn<typeof posts.get.fn>) {
     content: post.content,
     media: post.imageId
       ? {
-          type: "image" as const,
-          value: post.imageId,
-        }
+        type: "image" as const,
+        value: post.imageId,
+      }
       : post.video && post.video.playbackId
         ? {
-            type: "video" as const,
-            value: post.video.playbackId,
-          }
+          type: "video" as const,
+          value: post.video.playbackId,
+        }
         : post.youtubeVideoId
           ? {
-              type: "youtube" as const,
-              value: post.youtubeVideoId,
-            }
+            type: "youtube" as const,
+            value: post.youtubeVideoId,
+          }
           : undefined,
     tags: post.tags ?? [],
     title: post.title,

@@ -21,12 +21,6 @@ import {
 } from "~/lib/notifications/hooks";
 
 export const Route = createFileRoute("/_authed/notifications/")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "notifications" }],
-      maxWidth: "2xl",
-    },
-  },
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
@@ -59,7 +53,10 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>notifications</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           {unreadCount > 0 && (
             <Button

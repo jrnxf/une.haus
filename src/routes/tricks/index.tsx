@@ -56,12 +56,6 @@ const tricksSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/tricks/")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks" }],
-      maxWidth: "full",
-    },
-  },
   validateSearch: tricksSearchSchema,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(tricks.graph.queryOptions());
@@ -383,6 +377,9 @@ function TricksListPage() {
   return (
     <>
       <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>tricks</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
         <PageHeader.Actions>
           <Button asChild>
             <Link to="/tricks/create">Create</Link>
@@ -428,7 +425,7 @@ function TricksListPage() {
                         key={header.id}
                         className={cn(
                           header.column.getCanSort() &&
-                            "cursor-pointer select-none",
+                          "cursor-pointer select-none",
                           meta?.className,
                         )}
                         onClick={header.column.getToggleSortingHandler()}

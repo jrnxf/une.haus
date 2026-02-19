@@ -3,15 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { tricks } from "~/lib/tricks";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/tricks/glossary")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(tricks.graph.queryOptions());
-  },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "glossary" }],
-      maxWidth: "4xl",
-    },
   },
   component: TricksGlossaryPage,
 });
@@ -24,8 +20,15 @@ function TricksGlossaryPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
-      <div className="flex flex-col gap-4">
+    <>
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>glossary</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+        <div className="flex flex-col gap-4">
         {prefixes.map((prefix) => (
           <Link
             key={prefix.id}
@@ -44,6 +47,7 @@ function TricksGlossaryPage() {
           </Link>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -26,12 +26,6 @@ import { users } from "~/lib/users";
 import { cn, getCloudflareImageUrl } from "~/lib/utils";
 
 export const Route = createFileRoute("/users/")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "users" }],
-      maxWidth: "4xl",
-    },
-  },
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {
@@ -182,7 +176,11 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader />
+      <PageHeader maxWidth="max-w-4xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>users</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
 
       <div className="overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">

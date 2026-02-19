@@ -24,6 +24,8 @@ import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket";
 import { useCreateTournament } from "~/lib/tourney/hooks";
 import { users } from "~/lib/users";
 
+import { PageHeader } from "~/components/page-header";
+
 const seedPresets = [4, 8, 16, 32];
 
 const timePresets = [
@@ -36,12 +38,6 @@ const timePresets = [
 const bracketSizeOptions = [4, 8, 16, 32] as const;
 
 export const Route = createFileRoute("/_authed/tourney/create")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tourney", to: "/tourney" }, { label: "create" }],
-      maxWidth: "lg",
-    },
-  },
   component: RouteComponent,
 });
 
@@ -97,8 +93,15 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-lg p-4">
-      <Card>
+    <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
+          <PageHeader.Crumb>create</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-lg p-4">
+        <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-1">
@@ -246,5 +249,6 @@ function RouteComponent() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }

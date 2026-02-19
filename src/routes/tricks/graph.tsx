@@ -10,22 +10,13 @@ import { TricksSearch } from "~/components/tricks/tricks-search";
 import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
 import { tricks, type Trick } from "~/lib/tricks";
 
+import { PageHeader } from "~/components/page-header";
+
 const graphSearchSchema = z.object({
   trick: z.string().optional(),
 });
 
 export const Route = createFileRoute("/tricks/graph")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks" }],
-      tabs: [
-        { path: "/tricks", label: "list" },
-        { path: "/tricks/graph", label: "graph" },
-        { path: "/tricks/builder", label: "builder" },
-      ],
-      maxWidth: "full",
-    },
-  },
   validateSearch: zodValidator(graphSearchSchema),
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(tricks.graph.queryOptions());
@@ -68,7 +59,18 @@ function TricksGraphPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>tricks</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Tabs>
+          <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+          <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+          <PageHeader.Tab to="/tricks/builder">builder</PageHeader.Tab>
+        </PageHeader.Tabs>
+      </PageHeader>
+      <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
       <div className="shrink-0 border-b p-4 md:hidden">
         <TricksSearch data={data} onSelectTrick={handleSelectTrick} />
       </div>
@@ -90,6 +92,7 @@ function TricksGraphPage() {
           />
         </ReactFlowProvider>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

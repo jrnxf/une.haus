@@ -13,27 +13,16 @@ import {
 } from "~/components/forms/trick";
 import { tricks } from "~/lib/tricks";
 
+import { PageHeader } from "~/components/page-header";
+
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [{ label: "tricks", to: "/tricks" }, { label: "" }],
-      maxWidth: "2xl",
-    },
-  },
   loader: async ({ context, params }) => {
-    const [trickData] = await Promise.all([
+    await Promise.all([
       context.queryClient.ensureQueryData(
         tricks.get.queryOptions({ slug: params.trickId }),
       ),
       context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
     ]);
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          1: { label: `edit: ${trickData?.name ?? params.trickId}` },
-        },
-      },
-    };
   },
   component: RouteComponent,
 });
@@ -117,6 +106,12 @@ function RouteComponent() {
 
   return (
     <>
+      <PageHeader maxWidth="max-w-2xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
       <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
         <TrickForm
           defaultValues={defaultValues}

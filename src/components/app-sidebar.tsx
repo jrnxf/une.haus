@@ -4,7 +4,7 @@ import {
   EarthIcon,
   LockIcon,
   LockOpenIcon,
-  MapPinIcon,
+  UsersIcon,
   MedalIcon,
   MessagesSquareIcon,
   Send,
@@ -42,7 +42,7 @@ const data = {
     {
       title: "Users",
       url: "/users",
-      icon: EarthIcon,
+      icon: UsersIcon,
     },
     {
       title: "Posts",
@@ -57,7 +57,7 @@ const data = {
     {
       title: "Map",
       url: "/map",
-      icon: MapPinIcon,
+      icon: EarthIcon,
     },
     {
       title: "Tricks",

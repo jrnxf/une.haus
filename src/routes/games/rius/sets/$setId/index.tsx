@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -11,6 +10,7 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
 
@@ -41,16 +41,6 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
   params: {
     parse: pathParametersSchema.parse,
   },
-  staticData: {
-    pageHeader: {
-      breadcrumbs: [
-        { label: "games", to: "/games" },
-        { label: "rack it up", to: "/games/rius/active" },
-        { label: "" },
-      ],
-      maxWidth: "4xl",
-    },
-  },
   loader: async ({ context, params: { setId }, preload }) => {
     const ensureSet = async () => {
       try {
@@ -72,19 +62,6 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
 
     await ensureSet();
 
-    const setData = context.queryClient.getQueryData(
-      games.rius.sets.get.queryOptions({ setId }).queryKey,
-    );
-
-    return {
-      pageHeader: {
-        breadcrumbOverrides: {
-          2: {
-            label: (setData as { name?: string } | undefined)?.name ?? "set",
-          },
-        },
-      },
-    };
   },
 });
 
@@ -92,13 +69,11 @@ function RouteComponent() {
   const { setId } = Route.useParams();
 
   return (
-    <>
-      <div className="h-full min-h-0 overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
-          <SetView setId={setId} />
-        </div>
+    <div className="h-full min-h-0 overflow-y-auto">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+        <SetView setId={setId} />
       </div>
-    </>
+    </div>
   );
 }
 
