@@ -97,21 +97,21 @@ export function AuthButton() {
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
-                onSelect={() => {
+                onClick={() => {
                   setTheme("light");
                 }}
               >
                 light
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => {
+                onClick={() => {
                   setTheme("dark");
                 }}
               >
                 dark
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => {
+                onClick={() => {
                   setTheme("system");
                 }}
               >
@@ -122,7 +122,7 @@ export function AuthButton() {
         </DropdownMenuSub>
 
         <DropdownMenuItem
-          onSelect={() => {
+          onClick={() => {
             logout({});
           }}
         >

@@ -184,26 +184,25 @@ function RouteComponent() {
     <>
       <PageHeader />
 
-      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
-        <Filters
-          filters={filters}
-          fields={filterFields}
-          onChange={handleFiltersChange}
-          size="sm"
-        />
-      </div>
 
       <div className="overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
+          <Filters
+            filters={filters}
+            fields={filterFields}
+            onChange={handleFiltersChange}
+            size="sm"
+          />
+
           {displayedUsers.length === 0 && (
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">
                   <GhostIcon />
                 </EmptyMedia>
-                <EmptyTitle>No users</EmptyTitle>
+                <EmptyTitle>no users</EmptyTitle>
                 <EmptyDescription>
-                  There are no users to display at the moment.
+                  try adjusting your filters
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

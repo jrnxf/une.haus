@@ -76,4 +76,22 @@ describe("stringifySearch", () => {
     expect(result).not.toContain("%2C");
     expect(result).not.toContain("%7E");
   });
+
+  it("flattens string arrays into comma-separated values", () => {
+    const result = stringifySearch({ tags: ["flatland", "street"] });
+    expect(result).toBe("?tags=flatland,street");
+    expect(result).not.toContain("%5B");
+    expect(result).not.toContain("%5D");
+  });
+
+  it("flattens number arrays into comma-separated values", () => {
+    const result = stringifySearch({ ids: [1, 2, 3] });
+    expect(result).toBe("?ids=1,2,3");
+  });
+
+  it("leaves non-array values unchanged", () => {
+    const result = stringifySearch({ q: "hello", page: 1 });
+    expect(result).toContain("q=hello");
+    expect(result).toContain("page=1");
+  });
 });

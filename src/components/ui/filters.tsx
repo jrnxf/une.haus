@@ -169,12 +169,15 @@ function FilterValueSelector<T = unknown>({
 
   if (field.type === "text") {
     return (
-      <Input
+      <input
         autoFocus
         value={(values[0] as string) || ""}
         onChange={(e) => onChange([e.target.value] as T[])}
         placeholder={field.placeholder}
-        className={cn("w-36 text-base", size === "sm" && "h-8")}
+        className={cn(
+          "border-border bg-background bg-clip-padding text-foreground placeholder:text-muted-foreground dark:border-input dark:bg-input/30 w-36 rounded-md border px-3 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+          size === "sm" ? "h-8" : "h-9",
+        )}
       />
     );
   }
@@ -372,11 +375,6 @@ export function Filters<T = unknown>({
     );
   }, [selectableFields, menuSearch]);
 
-  // Submenu state for multiselect fields
-  const [sessionFilterIds, setSessionFilterIds] = useState<
-    Record<string, string>
-  >({});
-
   const defaultTrigger = (
     <Button variant="outline" size={size}>
       <FilterIcon className="size-3.5" />
@@ -394,7 +392,6 @@ export function Filters<T = unknown>({
               setAddFilterOpen(open);
               if (!open) {
                 setMenuSearch("");
-                setSessionFilterIds({});
               }
             }}
           >
@@ -431,11 +428,10 @@ export function Filters<T = unknown>({
                     if (hasSubMenu) {
                       const isMultiSelect = field.type === "multiselect";
                       const fieldKey = field.key;
-                      const sessionFilterId = sessionFilterIds[fieldKey];
-                      const sessionFilter = sessionFilterId
-                        ? filters.find((f) => f.id === sessionFilterId)
-                        : null;
-                      const currentValues = sessionFilter?.values || [];
+                      const existingFilter = filters.find(
+                        (f) => f.field === fieldKey,
+                      );
+                      const currentValues = existingFilter?.values || [];
 
                       return (
                         <DropdownMenuSub key={fieldKey}>
@@ -456,21 +452,17 @@ export function Filters<T = unknown>({
                                     ) as T[])
                                     : ([...currentValues, value] as T[]);
 
-                                  if (sessionFilter) {
+                                  if (existingFilter) {
                                     if (nextValues.length === 0) {
                                       onChange(
                                         filters.filter(
-                                          (f) => f.id !== sessionFilter.id,
+                                          (f) => f.id !== existingFilter.id,
                                         ),
                                       );
-                                      setSessionFilterIds((prev) => ({
-                                        ...prev,
-                                        [fieldKey]: "",
-                                      }));
                                     } else {
                                       onChange(
                                         filters.map((f) =>
-                                          f.id === sessionFilter.id
+                                          f.id === existingFilter.id
                                             ? { ...f, values: nextValues }
                                             : f,
                                         ),
@@ -483,10 +475,6 @@ export function Filters<T = unknown>({
                                       nextValues,
                                     );
                                     onChange([...filters, newFilter]);
-                                    setSessionFilterIds((prev) => ({
-                                      ...prev,
-                                      [fieldKey]: newFilter.id,
-                                    }));
                                   }
                                 } else {
                                   const newFilter = createFilter<T>(
@@ -525,7 +513,7 @@ export function Filters<T = unknown>({
           if (!field) return null;
           return (
             <ButtonGroup key={filter.id}>
-              <ButtonGroupText className="bg-background dark:bg-input/30">
+              <ButtonGroupText className="border-border bg-background bg-clip-padding dark:border-input dark:bg-input/30">
                 {field.icon}
                 {field.label.toLowerCase()}
               </ButtonGroupText>

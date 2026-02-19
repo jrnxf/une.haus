@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { UnicycleGame } from "~/components/unicycle-game";
 
-export const Route = createFileRoute("/game")({
+export const Route = createFileRoute("/arcade")({
   component: RouteComponent,
 });
 

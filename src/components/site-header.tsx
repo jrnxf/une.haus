@@ -1,7 +1,7 @@
 import { Link, useRouter, type LinkProps } from "@tanstack/react-router";
-import { ChevronLeftIcon, ChevronRight } from "lucide-react";
+import { ChevronLeftIcon, ChevronRight, MenuIcon } from "lucide-react";
 
-import { MobileNavTrigger } from "~/components/mobile-nav";
+import { useMobileNav } from "~/components/mobile-nav-context";
 import { Search } from "~/components/search";
 import { Button } from "~/components/ui/button";
 import { SidebarTrigger } from "~/components/ui/sidebar";
@@ -69,7 +69,7 @@ function Tabs({ tabs }: { tabs: (TabConfig & { isActive: boolean })[] }) {
             }
           >
             {Icon && <Icon className="size-3.5" />}
-            <span className="hidden md:inline">{tab.label}</span>
+            <span>{tab.label}</span>
           </Link>
         );
       })}
@@ -77,18 +77,30 @@ function Tabs({ tabs }: { tabs: (TabConfig & { isActive: boolean })[] }) {
   );
 }
 
-function MobileBackButton() {
+export function MobileFooter() {
   const router = useRouter();
+  const openNav = useMobileNav();
+
   return (
-    <Button
-      variant="secondary"
-      size="icon-sm"
-      onClick={() => router.history.back()}
-      className="-ml-1 md:hidden"
-      aria-label="go back"
-    >
-      <ChevronLeftIcon />
-    </Button>
+    <footer className="shrink-0 border-t sm:hidden">
+      <div className="flex h-14 items-center justify-between px-4">
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={() => router.history.back()}
+          aria-label="go back"
+        >
+          <ChevronLeftIcon />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={openNav}
+        >
+          <MenuIcon />
+        </Button>
+      </div>
+    </footer>
   );
 }
 
@@ -104,11 +116,11 @@ export function SiteHeader() {
   const hasMobileRow = headerState.mobileRow !== null;
 
   return (
-    <header className="order-last shrink-0 border-t md:order-first md:border-t-0 md:border-b">
+    <header className="shrink-0 border-b">
       {hasMobileRow && (
         <div
           className={cn(
-            "mx-auto w-full border-b px-4 py-2 md:hidden",
+            "mx-auto w-full border-b px-4 py-2 sm:hidden",
             maxWidthClasses[headerState.maxWidth],
           )}
         >
@@ -118,60 +130,45 @@ export function SiteHeader() {
 
       <div
         className={cn(
-          "mx-auto flex h-14 w-full items-center gap-2 px-4 md:h-(--header-height)",
+          "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
           maxWidthClasses[headerState.maxWidth],
         )}
       >
         <div className="flex items-center gap-2">
-          {hasBreadcrumbs && <MobileBackButton />}
-          {hasTabs && (
-            <div className="flex items-center gap-2 md:hidden">
-              <Tabs tabs={headerState.tabs!} />
-              {hasActions && <HeaderDivider />}
-            </div>
-          )}
-          {hasActions && (
-            <div className="flex items-center gap-2 md:hidden">
-              {headerState.actions}
-            </div>
-          )}
           {showTrigger && (
-            <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
+            <SidebarTrigger className="-ml-1 hidden sm:flex" size="icon-xs" />
           )}
           {hasBreadcrumbs && (
             <>
               {showTrigger && (
-                <div className="hidden md:block">
+                <div className="hidden sm:block">
                   <HeaderDivider />
                 </div>
               )}
-              <div className="hidden md:block">
-                <Breadcrumbs crumbs={headerState.breadcrumbs!} />
-              </div>
+              <Breadcrumbs crumbs={headerState.breadcrumbs!} />
             </>
           )}
           {hasWidget && (
             <>
               <HeaderDivider />
-              <div className="hidden md:block">{headerState.widget}</div>
+              {headerState.widget}
             </>
           )}
         </div>
 
         <div className="ml-auto flex items-center gap-2">
           {hasTabs && (
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="flex items-center gap-2">
               <Tabs tabs={headerState.tabs!} />
               {hasActions && <HeaderDivider />}
             </div>
           )}
           {hasActions && (
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="flex items-center gap-2">
               {headerState.actions}
             </div>
           )}
           <Search />
-          <MobileNavTrigger />
         </div>
       </div>
     </header>

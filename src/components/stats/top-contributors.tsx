@@ -63,7 +63,7 @@ export function TopContributors({ data }: TopContributorsProps) {
 
   return (
     <Card className="gap-0 divide-y overflow-hidden py-0">
-      <CardHeader className="py-4">
+      <CardHeader className="flex flex-row items-center justify-between py-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <CardTitle className="cursor-help text-sm font-medium">
@@ -75,6 +75,12 @@ export function TopContributors({ data }: TopContributorsProps) {
             likes (1pt)
           </TooltipContent>
         </Tooltip>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/metrics/users" className="group">
+            View all
+            <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </Button>
       </CardHeader>
       <CardContent className="p-0 text-xs">
         <Table containerClassName="overflow-visible" className="table-fixed">
@@ -167,14 +173,6 @@ export function TopContributors({ data }: TopContributorsProps) {
           </TableBody>
         </Table>
       </CardContent>
-      <div className="flex justify-center px-4 py-2">
-        <Button variant="ghost" asChild>
-          <Link to="/metrics/users" className="group">
-            View all
-            <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </Button>
-      </div>
     </Card>
   );
 }

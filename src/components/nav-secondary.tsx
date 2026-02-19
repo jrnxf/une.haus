@@ -80,7 +80,7 @@ export function NavSecondary({
             <Tooltip>
               <TooltipTrigger asChild>
                 <SidebarMenuButton asChild className="w-fit" size="sm">
-                  <Link to="/game">
+                  <Link to="/arcade">
                     <JoystickIcon />
                   </Link>
                 </SidebarMenuButton>

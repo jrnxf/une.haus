@@ -4,7 +4,6 @@ import { Link, useMatches } from "@tanstack/react-router";
 import {
   ActivityIcon,
   BellIcon,
-  StickyNoteIcon,
   EarthIcon,
   JoystickIcon,
   LockIcon,
@@ -19,6 +18,7 @@ import {
   PencilIcon,
   Send,
   ShoppingBagIcon,
+  StickyNoteIcon,
   SunIcon,
   TrafficConeIcon,
   type LucideIcon,
@@ -221,7 +221,7 @@ function MobileNavFooter() {
         <IconLink to="/feedback">
           <Send className="size-4" />
         </IconLink>
-        <IconLink to="/game">
+        <IconLink to="/arcade">
           <JoystickIcon className="size-4" />
         </IconLink>
         <IconButton onClick={cycleTheme}>
@@ -254,7 +254,7 @@ function MobileNavFooter() {
         <IconLink to="/feedback">
           <Send className="size-4" />
         </IconLink>
-        <IconLink to="/game">
+        <IconLink to="/arcade">
           <JoystickIcon className="size-4" />
         </IconLink>
         <IconButton onClick={cycleTheme}>

@@ -75,7 +75,7 @@ export function RecordOptions({
           )}
 
           {record.likes.length > 0 && (
-            <DropdownMenuItem onSelect={onShowReactions}>
+            <DropdownMenuItem onClick={onShowReactions}>
               Reactions
             </DropdownMenuItem>
           )}

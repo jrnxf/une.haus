@@ -23,7 +23,7 @@ import {
   MobileNavPopup,
   MobileNavProvider,
 } from "~/components/mobile-nav";
-import { SiteHeader } from "~/components/site-header";
+import { MobileFooter, SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { PageHeaderProvider } from "~/lib/page-header/context";
@@ -170,6 +170,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                       >
                         {children}
                       </div>
+                      <MobileFooter />
                     </SidebarInset>
                   </PageHeaderProvider>
                 </SidebarProvider>

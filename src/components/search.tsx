@@ -35,8 +35,8 @@ import { utv } from "~/lib/utv/core";
 import { useFzf } from "~/lib/ux/hooks/use-fzf";
 
 type Page =
-  | "games"
-  | "games-menu"
+  | "arcade"
+  | "arcade-menu"
   | "posts"
   | "root"
   | "search-users"
@@ -142,20 +142,20 @@ export function Search() {
   // Define command items with their actions
   const commandItems: CommandItemConfig[] = [
     {
-      id: "games",
-      label: "Games",
-      value: "/games",
+      id: "arcade",
+      label: "Arcade",
+      value: "/arcade",
       primaryAction: {
         label: "Open",
-        onAction: () => closeAndNavigate("/games"),
+        onAction: () => closeAndNavigate("/arcade"),
       },
       secondaryActions: [
         {
-          id: "games-menu",
+          id: "arcade-menu",
           label: "Choose Game",
           shortcut: { key: "↵", meta: true },
           hotkey: "mod+enter",
-          onAction: () => pushPage("games-menu"),
+          onAction: () => pushPage("arcade-menu"),
         },
       ],
     },
@@ -330,7 +330,7 @@ export function Search() {
     if (activePage === "theme") {
       return "Select";
     }
-    if (activePage === "games-menu") {
+    if (activePage === "arcade-menu") {
       return "Open Game";
     }
     return "Select";
@@ -373,7 +373,7 @@ export function Search() {
               return (
                 <DropdownMenuItem
                   key={action.id}
-                  onSelect={() => handleDropdownSelect(action)}
+                  onClick={() => handleDropdownSelect(action)}
                 >
                   {action.label}
                   {shortcutParts && (
@@ -558,32 +558,32 @@ export function Search() {
           </CommandGroup>
         )}
 
-        {activePage === "games-menu" && (
+        {activePage === "arcade-menu" && (
           <CommandGroup heading="Games">
             <CommandItem
-              value="/games/rius/active"
-              onSelect={() => closeAndNavigate("/games/rius/active")}
+              value="/arcade/rius/active"
+              onSelect={() => closeAndNavigate("/arcade/rius/active")}
               asChild
             >
-              <Link to="/games/rius/active" replace>
+              <Link to="/arcade/rius/active" replace>
                 Rack It Up
               </Link>
             </CommandItem>
             <CommandItem
-              value="/games/bius"
-              onSelect={() => closeAndNavigate("/games/bius")}
+              value="/arcade/bius"
+              onSelect={() => closeAndNavigate("/arcade/bius")}
               asChild
             >
-              <Link to="/games/bius" replace>
+              <Link to="/arcade/bius" replace>
                 Back It Up
               </Link>
             </CommandItem>
             <CommandItem
-              value="/games/sius"
-              onSelect={() => closeAndNavigate("/games/sius")}
+              value="/arcade/sius"
+              onSelect={() => closeAndNavigate("/arcade/sius")}
               asChild
             >
-              <Link to="/games/sius" replace>
+              <Link to="/arcade/sius" replace>
                 Stack It Up
               </Link>
             </CommandItem>

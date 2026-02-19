@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as GameRouteImport } from './routes/game'
+import { Route as ArcadeRouteImport } from './routes/arcade'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
@@ -105,9 +105,9 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GameRoute = GameRouteImport.update({
-  id: '/game',
-  path: '/game',
+const ArcadeRoute = ArcadeRouteImport.update({
+  id: '/arcade',
+  path: '/arcade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedRoute = AuthedRouteImport.update({
@@ -515,7 +515,7 @@ const AuthedAdminTricksElementsElementIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/game': typeof GameRoute
+  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -596,7 +596,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/game': typeof GameRoute
+  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -676,7 +676,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
-  '/game': typeof GameRoute
+  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -759,7 +759,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/game'
+    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -840,7 +840,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/game'
+    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -919,7 +919,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authed'
-    | '/game'
+    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -1002,7 +1002,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
-  GameRoute: typeof GameRoute
+  ArcadeRoute: typeof ArcadeRoute
   PrivacyRoute: typeof PrivacyRoute
   SandboxRoute: typeof SandboxRoute
   ShopRoute: typeof ShopRoute
@@ -1061,11 +1061,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/game': {
-      id: '/game'
-      path: '/game'
-      fullPath: '/game'
-      preLoaderRoute: typeof GameRouteImport
+    '/arcade': {
+      id: '/arcade'
+      path: '/arcade'
+      fullPath: '/arcade'
+      preLoaderRoute: typeof ArcadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed': {
@@ -1761,7 +1761,7 @@ const GamesSiusRouteRouteWithChildren = GamesSiusRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
-  GameRoute: GameRoute,
+  ArcadeRoute: ArcadeRoute,
   PrivacyRoute: PrivacyRoute,
   SandboxRoute: SandboxRoute,
   ShopRoute: ShopRoute,

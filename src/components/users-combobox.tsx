@@ -48,7 +48,7 @@ export function UsersCombobox({
           <DropdownMenuItem
             key={user.id}
             asChild
-            onSelect={() => {
+            onClick={() => {
               isNavigatingRef.current = true;
             }}
           >
