@@ -74,8 +74,7 @@ const columnHelper = createColumnHelper<Trick>();
 const columns = [
   columnHelper.accessor("name", {
     header: "name",
-    size: 150,
-    meta: { className: "truncate" },
+    meta: { className: "w-[280px] min-w-[280px] max-w-[280px] truncate" },
     cell: (info) => (
       <Link
         to="/tricks/$trickId"
@@ -116,12 +115,10 @@ const columns = [
       if (!val) return null;
       return val.length > 50 ? `${val.slice(0, 50)}...` : val;
     },
-    size: 250,
     meta: { className: "hidden md:table-cell truncate" },
   }),
   columnHelper.accessor("elements", {
     header: "elements",
-    size: 100,
     cell: (info) => {
       const elems = info.getValue();
       if (elems.length === 0) return null;
@@ -418,7 +415,7 @@ function TricksListPage() {
         </div>
       ) : (
         <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto text-xs">
-          <Table containerClassName="overflow-visible" className="table-fixed">
+          <Table containerClassName="overflow-visible">
             <TableHeader className="bg-card sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -429,10 +426,9 @@ function TricksListPage() {
                     return (
                       <TableHead
                         key={header.id}
-                        style={{ width: header.getSize() }}
                         className={cn(
                           header.column.getCanSort() &&
-                          "cursor-pointer select-none",
+                            "cursor-pointer select-none",
                           meta?.className,
                         )}
                         onClick={header.column.getToggleSortingHandler()}
@@ -462,7 +458,7 @@ function TricksListPage() {
               {virtualRows.map((virtualRow) => {
                 const row = rows[virtualRow.index]!;
                 return (
-                  <TableRow key={row.id} className="relative cursor-pointer">
+                  <TableRow key={row.id} className="cursor-pointer">
                     {row.getVisibleCells().map((cell) => {
                       const meta = cell.column.columnDef.meta as
                         | { className?: string }
@@ -470,7 +466,7 @@ function TricksListPage() {
                       return (
                         <TableCell
                           key={cell.id}
-                          className={cn("py-1.5", meta?.className)}
+                          className={cn("relative py-1.5", meta?.className)}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

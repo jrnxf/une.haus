@@ -19,9 +19,9 @@ type StatsGridProps = {
 
 export function StatsGrid({ data }: StatsGridProps) {
   return (
-    <div className="grid gap-3 lg:grid-cols-4">
+    <div className="grid gap-3">
       {/* Rows 1-2: Hero stats - 3 columns on all screen sizes */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:col-span-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <StatCard
           label="users"
           value={data.counts.users}
@@ -68,15 +68,13 @@ export function StatsGrid({ data }: StatsGridProps) {
       </div>
 
       {/* Row 3: Activity chart + discipline chart (equal heights) */}
-      <div className="grid gap-4 md:grid-cols-2 lg:col-span-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <ActivityChart data={data.activityByMonth} />
         <DisciplineChart data={data.disciplineDistribution} />
       </div>
 
       {/* Row 4: Top contributors (full row) */}
-      <div className="lg:col-span-4">
-        <TopContributors data={data.topContributors} />
-      </div>
+      <TopContributors data={data.topContributors} />
     </div>
   );
 }

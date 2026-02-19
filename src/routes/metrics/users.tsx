@@ -58,7 +58,7 @@ const columns = [
   columnHelper.display({
     id: "rank",
     header: "#",
-    size: 48,
+    meta: { className: "w-[48px] min-w-[48px] max-w-[48px]" },
     enableSorting: false,
     cell: (info) => (
       <span className="text-muted-foreground tabular-nums">
@@ -68,7 +68,7 @@ const columns = [
   }),
   columnHelper.accessor("name", {
     header: "user",
-    size: 160,
+    meta: { className: "w-[160px] min-w-[160px] max-w-[160px]" },
     cell: (info) => (
       <Link
         to="/users/$userId"
@@ -101,8 +101,7 @@ const columns = [
           </TooltipContent>
         </Tooltip>
       ),
-      size: 52,
-      meta: { className: "text-center hidden md:table-cell" },
+      meta: { className: "text-center" },
       cell: (info) => {
         const val = info.getValue();
         return (
@@ -122,7 +121,6 @@ const columns = [
   ),
   columnHelper.accessor("totalPoints", {
     header: "pts",
-    size: 56,
     meta: { className: "text-right" },
     cell: (info) => (
       <span className="font-bold tabular-nums">{info.getValue()}</span>
@@ -168,7 +166,7 @@ function RouteComponent() {
 
   return (
     <div className="min-h-0 flex-1 overflow-auto text-xs">
-      <Table containerClassName="overflow-visible" className="table-fixed">
+      <Table containerClassName="overflow-visible">
         <TableHeader className="bg-card sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -179,7 +177,6 @@ function RouteComponent() {
                 return (
                   <TableHead
                     key={header.id}
-                    style={{ width: header.getSize() }}
                     className={cn(
                       header.column.getCanSort() &&
                         "cursor-pointer select-none",
@@ -205,7 +202,7 @@ function RouteComponent() {
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} className="relative cursor-pointer">
+            <TableRow key={row.id} className="cursor-pointer">
               {row.getVisibleCells().map((cell) => {
                 const meta = cell.column.columnDef.meta as
                   | { className?: string }
@@ -213,7 +210,7 @@ function RouteComponent() {
                 return (
                   <TableCell
                     key={cell.id}
-                    className={cn("py-1.5", meta?.className)}
+                    className={cn("relative py-1.5", meta?.className)}
                   >
                     {flexRender(
                       cell.column.columnDef.cell,

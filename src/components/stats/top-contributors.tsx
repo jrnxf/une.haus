@@ -82,17 +82,16 @@ export function TopContributors({ data }: TopContributorsProps) {
           </Link>
         </Button>
       </CardHeader>
-      <CardContent className="p-0 text-xs">
-        <Table containerClassName="overflow-visible" className="table-fixed">
+      <CardContent className="overflow-auto p-0 text-xs">
+        <Table>
           <TableHeader>
             <TableRow>
-              <TableHead style={{ width: 40 }} className="h-7">#</TableHead>
-              <TableHead style={{ width: 140 }} className="h-7">user</TableHead>
+              <TableHead className="h-7 w-[40px] min-w-[40px] max-w-[40px]">#</TableHead>
+              <TableHead className="h-7 w-[140px] min-w-[140px] max-w-[140px]">user</TableHead>
               {STAT_COLS.map((col) => (
                 <TableHead
                   key={col.key}
-                  style={{ width: 44 }}
-                  className="hidden h-7 text-center md:table-cell"
+                  className="h-7 text-center"
                 >
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -108,20 +107,20 @@ export function TopContributors({ data }: TopContributorsProps) {
                   </Tooltip>
                 </TableHead>
               ))}
-              <TableHead style={{ width: 48 }} className="h-7 text-right">
+              <TableHead className="h-7 text-right">
                 pts
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((contributor, index) => (
-              <TableRow key={contributor.id} className="relative cursor-pointer">
-                <TableCell className="py-1.5">
+              <TableRow key={contributor.id} className="cursor-pointer">
+                <TableCell className="relative py-1.5">
                   <span className="text-muted-foreground tabular-nums">
                     {index + 1}
                   </span>
                 </TableCell>
-                <TableCell className="py-1.5">
+                <TableCell className="relative py-1.5">
                   <Link
                     to="/users/$userId"
                     params={{ userId: contributor.id }}
@@ -148,7 +147,7 @@ export function TopContributors({ data }: TopContributorsProps) {
                   return (
                     <TableCell
                       key={col.key}
-                      className="hidden py-1.5 text-center md:table-cell"
+                      className="relative py-1.5 text-center"
                     >
                       <span
                         className={cn(
@@ -163,7 +162,7 @@ export function TopContributors({ data }: TopContributorsProps) {
                     </TableCell>
                   );
                 })}
-                <TableCell className="py-1.5 text-right">
+                <TableCell className="relative py-1.5 text-right">
                   <span className="tabular-nums">
                     {contributor.totalPoints}
                   </span>
