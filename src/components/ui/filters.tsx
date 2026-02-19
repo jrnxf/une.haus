@@ -175,7 +175,7 @@ function FilterValueSelector<T = unknown>({
         onChange={(e) => onChange([e.target.value] as T[])}
         placeholder={field.placeholder}
         className={cn(
-          "border-border bg-background bg-clip-padding text-foreground placeholder:text-muted-foreground dark:border-input dark:bg-input/30 w-36 rounded-md border px-3 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+          "border-border bg-background text-foreground placeholder:text-muted-foreground dark:border-input dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 w-36 rounded-md border bg-clip-padding px-3 text-base shadow-xs outline-none focus-visible:ring-3",
           size === "sm" ? "h-8" : "h-9",
         )}
       />
@@ -448,8 +448,8 @@ export function Filters<T = unknown>({
                                 if (isMultiSelect) {
                                   const nextValues = isSelected
                                     ? (currentValues.filter(
-                                      (v) => v !== value,
-                                    ) as T[])
+                                        (v) => v !== value,
+                                      ) as T[])
                                     : ([...currentValues, value] as T[]);
 
                                   if (existingFilter) {
@@ -513,7 +513,7 @@ export function Filters<T = unknown>({
           if (!field) return null;
           return (
             <ButtonGroup key={filter.id}>
-              <ButtonGroupText className="border-border bg-background bg-clip-padding dark:border-input dark:bg-input/30">
+              <ButtonGroupText className="border-border bg-background dark:border-input dark:bg-input/30 bg-clip-padding">
                 {field.icon}
                 {field.label.toLowerCase()}
               </ButtonGroupText>
@@ -537,7 +537,6 @@ export function Filters<T = unknown>({
             </ButtonGroup>
           );
         })}
-
       </div>
     </FilterContext.Provider>
   );

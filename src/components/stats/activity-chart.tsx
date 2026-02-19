@@ -30,9 +30,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
     const date = new Date(Number(year), Number(month) - 1);
     return {
       ...item,
-      label: date
-        .toLocaleDateString("en-US", { month: "short" })
-        .toLowerCase(),
+      label: date.toLocaleDateString("en-US", { month: "short" }).toLowerCase(),
     };
   });
 

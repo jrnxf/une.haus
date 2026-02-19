@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
   ActivityIcon,
-  StickyNoteIcon,
   EarthIcon,
   LockIcon,
   LockOpenIcon,
@@ -10,7 +9,8 @@ import {
   MessagesSquareIcon,
   Send,
   ShoppingBagIcon,
-  TrafficConeIcon
+  StickyNoteIcon,
+  TrafficConeIcon,
 } from "lucide-react";
 import * as React from "react";
 

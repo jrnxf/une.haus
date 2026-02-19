@@ -212,17 +212,7 @@ export function SplitTimer({
       });
       return;
     }
-  }, [
-    swapped,
-    activeTimer,
-    timer1.state,
-    timer1.timeRemaining,
-    timer2.state,
-    timer2.timeRemaining,
-    clearTimer,
-    startTimerLoop,
-    reset,
-  ]);
+  }, [swapped, activeTimer, timer1, timer2, clearTimer, startTimerLoop, reset]);
 
   useHotkeys("space", handlePlayPause);
   useHotkeys("r", reset);
@@ -371,9 +361,7 @@ export function SplitTimer({
             Space
           </kbd>{" "}
           start/switch{" "}
-          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-            R
-          </kbd>{" "}
+          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">R</kbd>{" "}
           reset
           {onClose && (
             <>

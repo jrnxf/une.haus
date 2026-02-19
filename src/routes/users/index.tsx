@@ -51,24 +51,24 @@ function RouteComponent() {
   const deferredName = useDeferredValue(nameInput);
 
   // URL update is for bookmarking only — debounced so it doesn't fire on every keystroke
-  const debouncedNavigate = useDebounceCallback((updates: {
-    name?: string;
-    disciplines?: string[];
-  }) => {
-    router.navigate({
-      to: "/users",
-      search: (prev) => ({
-        ...prev,
-        name: updates.name || undefined,
-        disciplines:
-          updates.disciplines && updates.disciplines.length > 0
-            ? updates.disciplines
-            : undefined,
-        cursor: undefined,
-      }),
-      replace: true,
-    });
-  }, 300);
+  const debouncedNavigate = useDebounceCallback(
+    (updates: { name?: string; disciplines?: string[] }) => {
+      router.navigate({
+        to: "/users",
+        search: (prev) => ({
+          ...prev,
+          name: updates.name || undefined,
+          disciplines:
+            updates.disciplines && updates.disciplines.length > 0
+              ? updates.disciplines
+              : undefined,
+          cursor: undefined,
+        }),
+        replace: true,
+      });
+    },
+    300,
+  );
 
   // --- Multiselect filter: local state, deferred for query ---
   const [disciplines, setDisciplines] = useState<string[]>(
@@ -184,7 +184,6 @@ function RouteComponent() {
     <>
       <PageHeader />
 
-
       <div className="overflow-y-auto" ref={setScrollRoot}>
         <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
           <Filters
@@ -201,9 +200,7 @@ function RouteComponent() {
                   <GhostIcon />
                 </EmptyMedia>
                 <EmptyTitle>no users</EmptyTitle>
-                <EmptyDescription>
-                  try adjusting your filters
-                </EmptyDescription>
+                <EmptyDescription>try adjusting your filters</EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}

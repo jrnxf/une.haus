@@ -45,13 +45,55 @@ type Contributor = {
 const columnHelper = createColumnHelper<Contributor>();
 
 const STAT_COLS = [
-  { key: "riuSetsCount" as const, label: "riu sets", pts: 5, dot: "bg-rose-500", text: "text-rose-500" },
-  { key: "riuSubmissionsCount" as const, label: "riu subs", pts: 5, dot: "bg-orange-500", text: "text-orange-500" },
-  { key: "biuSetsCount" as const, label: "biu sets", pts: 5, dot: "bg-amber-500", text: "text-amber-500" },
-  { key: "siuStacksCount" as const, label: "siu stacks", pts: 5, dot: "bg-lime-500", text: "text-lime-500" },
-  { key: "postsCount" as const, label: "posts", pts: 5, dot: "bg-chart-3", text: "text-chart-3" },
-  { key: "messagesCount" as const, label: "messages", pts: 2, dot: "bg-chart-4", text: "text-chart-4" },
-  { key: "likesCount" as const, label: "likes", pts: 1, dot: "bg-chart-2", text: "text-chart-2" },
+  {
+    key: "riuSetsCount" as const,
+    label: "riu sets",
+    pts: 5,
+    dot: "bg-rose-500",
+    text: "text-rose-500",
+  },
+  {
+    key: "riuSubmissionsCount" as const,
+    label: "riu subs",
+    pts: 5,
+    dot: "bg-orange-500",
+    text: "text-orange-500",
+  },
+  {
+    key: "biuSetsCount" as const,
+    label: "biu sets",
+    pts: 5,
+    dot: "bg-amber-500",
+    text: "text-amber-500",
+  },
+  {
+    key: "siuStacksCount" as const,
+    label: "siu stacks",
+    pts: 5,
+    dot: "bg-lime-500",
+    text: "text-lime-500",
+  },
+  {
+    key: "postsCount" as const,
+    label: "posts",
+    pts: 5,
+    dot: "bg-chart-3",
+    text: "text-chart-3",
+  },
+  {
+    key: "messagesCount" as const,
+    label: "messages",
+    pts: 2,
+    dot: "bg-chart-4",
+    text: "text-chart-4",
+  },
+  {
+    key: "likesCount" as const,
+    label: "likes",
+    pts: 1,
+    dot: "bg-chart-2",
+    text: "text-chart-2",
+  },
 ];
 
 const columns = [
@@ -136,10 +178,7 @@ export const Route = createFileRoute("/metrics/users")({
   },
   staticData: {
     pageHeader: {
-      breadcrumbs: [
-        { label: "metrics", to: "/metrics" },
-        { label: "users" },
-      ],
+      breadcrumbs: [{ label: "metrics", to: "/metrics" }, { label: "users" }],
       maxWidth: "full",
     },
   },
@@ -212,10 +251,7 @@ function RouteComponent() {
                     key={cell.id}
                     className={cn("relative py-1.5", meta?.className)}
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 );
               })}

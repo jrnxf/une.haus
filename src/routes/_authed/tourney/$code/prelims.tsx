@@ -417,17 +417,13 @@ function TimerView({
           </div>
 
           <p className="text-muted-foreground shrink-0 text-xs">
-            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-              D
-            </kbd>{" "}
+            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">D</kbd>{" "}
             disqualify{" "}
             <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
               Space
             </kbd>{" "}
             start/stop{" "}
-            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-              N
-            </kbd>{" "}
+            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">N</kbd>{" "}
             next
           </p>
         </div>

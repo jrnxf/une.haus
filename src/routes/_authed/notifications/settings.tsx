@@ -13,7 +13,7 @@ import {
   Sparkles,
   TrafficConeIcon,
   Trophy,
-  UserPlus
+  UserPlus,
 } from "lucide-react";
 import { useEffect } from "react";
 
@@ -342,7 +342,8 @@ function RouteComponent() {
                 game reminders
               </CardTitle>
               <CardDescription>
-                get email notifications about rack-it-up rounds starting and what
+                get email notifications about rack-it-up rounds starting and
+                what
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -361,7 +362,8 @@ function RouteComponent() {
                         round start reminder
                       </Label>
                       <p className="text-muted-foreground text-sm">
-                        get notified when a new rack-it-up round is about to start
+                        get notified when a new rack-it-up round is about to
+                        start
                       </p>
                     </div>
                   </div>
@@ -494,8 +496,8 @@ function RouteComponent() {
                   unsubscribe from all emails
                 </Label>
                 <p className="text-muted-foreground text-sm">
-                  stop receiving all email notifications (except account
-                  related emails)
+                  stop receiving all email notifications (except account related
+                  emails)
                 </p>
               </div>
               <Checkbox

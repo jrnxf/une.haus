@@ -33,7 +33,8 @@ export function DisciplineChart({ data }: DisciplineChartProps) {
       item.discipline.toLowerCase(),
       {
         label: item.discipline,
-        color: DISCIPLINE_COLORS[item.discipline.toLowerCase()] ?? "var(--chart-1)",
+        color:
+          DISCIPLINE_COLORS[item.discipline.toLowerCase()] ?? "var(--chart-1)",
       },
     ]),
   ]) satisfies ChartConfig;

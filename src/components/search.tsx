@@ -561,29 +561,29 @@ export function Search() {
         {activePage === "arcade-menu" && (
           <CommandGroup heading="Games">
             <CommandItem
-              value="/arcade/rius/active"
-              onSelect={() => closeAndNavigate("/arcade/rius/active")}
+              value="/games/rius/active"
+              onSelect={() => closeAndNavigate("/games/rius/active")}
               asChild
             >
-              <Link to="/arcade/rius/active" replace>
+              <Link to="/games/rius/active" replace>
                 Rack It Up
               </Link>
             </CommandItem>
             <CommandItem
-              value="/arcade/bius"
-              onSelect={() => closeAndNavigate("/arcade/bius")}
+              value="/games/bius"
+              onSelect={() => closeAndNavigate("/games/bius")}
               asChild
             >
-              <Link to="/arcade/bius" replace>
+              <Link to="/games/bius" replace>
                 Back It Up
               </Link>
             </CommandItem>
             <CommandItem
-              value="/arcade/sius"
-              onSelect={() => closeAndNavigate("/arcade/sius")}
+              value="/games/sius"
+              onSelect={() => closeAndNavigate("/games/sius")}
               asChild
             >
-              <Link to="/arcade/sius" replace>
+              <Link to="/games/sius" replace>
                 Stack It Up
               </Link>
             </CommandItem>

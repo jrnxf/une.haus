@@ -23,14 +23,11 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import type { UserDiscipline } from "~/db/schema";
 import { getMuxPoster, VideoPlayer } from "~/components/video-player";
+import type { UserDiscipline } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { session } from "~/lib/session";
-import {
-  generateOrderId,
-  type OrderedRiderEntry,
-} from "~/lib/tourney/bracket";
+import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket";
 import { utv } from "~/lib/utv/core";
 
 const pathParametersSchema = z.object({
@@ -195,10 +192,7 @@ function RouteComponent() {
 
           <div className="space-y-2">
             <Label>Disciplines</Label>
-            <DisciplineSelector
-              value={disciplines}
-              onChange={setDisciplines}
-            />
+            <DisciplineSelector value={disciplines} onChange={setDisciplines} />
           </div>
 
           <div className="space-y-2">
@@ -231,9 +225,7 @@ function RouteComponent() {
                 max={3}
                 step={0.01}
                 value={scale}
-                onChange={(e) =>
-                  setScale(Number.parseFloat(e.target.value))
-                }
+                onChange={(e) => setScale(Number.parseFloat(e.target.value))}
                 className="accent-primary h-2 grow cursor-pointer"
               />
               <span className="text-muted-foreground w-12 text-sm tabular-nums">

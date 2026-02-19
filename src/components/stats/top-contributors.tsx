@@ -20,13 +20,55 @@ import {
 import { cn } from "~/lib/utils";
 
 const STAT_COLS = [
-  { key: "riuSetsCount", label: "riu sets", pts: 5, dot: "bg-rose-500", text: "text-rose-500" },
-  { key: "riuSubmissionsCount", label: "riu subs", pts: 5, dot: "bg-orange-500", text: "text-orange-500" },
-  { key: "biuSetsCount", label: "biu sets", pts: 5, dot: "bg-amber-500", text: "text-amber-500" },
-  { key: "siuStacksCount", label: "siu stacks", pts: 5, dot: "bg-lime-500", text: "text-lime-500" },
-  { key: "postsCount", label: "posts", pts: 5, dot: "bg-chart-3", text: "text-chart-3" },
-  { key: "messagesCount", label: "messages", pts: 2, dot: "bg-chart-4", text: "text-chart-4" },
-  { key: "likesCount", label: "likes", pts: 1, dot: "bg-chart-2", text: "text-chart-2" },
+  {
+    key: "riuSetsCount",
+    label: "riu sets",
+    pts: 5,
+    dot: "bg-rose-500",
+    text: "text-rose-500",
+  },
+  {
+    key: "riuSubmissionsCount",
+    label: "riu subs",
+    pts: 5,
+    dot: "bg-orange-500",
+    text: "text-orange-500",
+  },
+  {
+    key: "biuSetsCount",
+    label: "biu sets",
+    pts: 5,
+    dot: "bg-amber-500",
+    text: "text-amber-500",
+  },
+  {
+    key: "siuStacksCount",
+    label: "siu stacks",
+    pts: 5,
+    dot: "bg-lime-500",
+    text: "text-lime-500",
+  },
+  {
+    key: "postsCount",
+    label: "posts",
+    pts: 5,
+    dot: "bg-chart-3",
+    text: "text-chart-3",
+  },
+  {
+    key: "messagesCount",
+    label: "messages",
+    pts: 2,
+    dot: "bg-chart-4",
+    text: "text-chart-4",
+  },
+  {
+    key: "likesCount",
+    label: "likes",
+    pts: 1,
+    dot: "bg-chart-2",
+    text: "text-chart-2",
+  },
 ] as const;
 
 type Contributor = {
@@ -86,19 +128,18 @@ export function TopContributors({ data }: TopContributorsProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="h-7 w-[40px] min-w-[40px] max-w-[40px]">#</TableHead>
-              <TableHead className="h-7 w-[140px] min-w-[140px] max-w-[140px]">user</TableHead>
+              <TableHead className="h-7 w-[40px] max-w-[40px] min-w-[40px]">
+                #
+              </TableHead>
+              <TableHead className="h-7 w-[140px] max-w-[140px] min-w-[140px]">
+                user
+              </TableHead>
               {STAT_COLS.map((col) => (
-                <TableHead
-                  key={col.key}
-                  className="h-7 text-center"
-                >
+                <TableHead key={col.key} className="h-7 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex w-full justify-center">
-                        <div
-                          className={cn("size-2 rounded-full", col.dot)}
-                        />
+                        <div className={cn("size-2 rounded-full", col.dot)} />
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="text-xs">
@@ -107,9 +148,7 @@ export function TopContributors({ data }: TopContributorsProps) {
                   </Tooltip>
                 </TableHead>
               ))}
-              <TableHead className="h-7 text-right">
-                pts
-              </TableHead>
+              <TableHead className="h-7 text-right">pts</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

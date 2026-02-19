@@ -92,11 +92,7 @@ export function MobileFooter() {
         >
           <ChevronLeftIcon />
         </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={openNav}
-        >
+        <Button variant="secondary" size="icon" onClick={openNav}>
           <MenuIcon />
         </Button>
       </div>
@@ -164,9 +160,7 @@ export function SiteHeader() {
             </div>
           )}
           {hasActions && (
-            <div className="flex items-center gap-2">
-              {headerState.actions}
-            </div>
+            <div className="flex items-center gap-2">{headerState.actions}</div>
           )}
           <Search />
         </div>

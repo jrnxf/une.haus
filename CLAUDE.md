@@ -160,6 +160,7 @@ URL updates go through `useDebounceCallback` + `router.navigate({ replace: true 
 
 ```tsx
 import { useDeferredValue, useState } from "react";
+
 import { useDebounceCallback } from "usehooks-ts";
 
 function RouteComponent() {
@@ -175,21 +176,21 @@ function RouteComponent() {
   const deferredTags = useDeferredValue(tags);
 
   // URL update is for bookmarking only — debounced, never on every keystroke
-  const debouncedNavigate = useDebounceCallback((updates: {
-    q?: string;
-    tags?: string[];
-  }) => {
-    router.navigate({
-      to: "/current-route",
-      search: (prev) => ({
-        ...prev,
-        q: updates.q || undefined,
-        tags: updates.tags?.length ? updates.tags : undefined,
-        cursor: undefined,
-      }),
-      replace: true,
-    });
-  }, 300);
+  const debouncedNavigate = useDebounceCallback(
+    (updates: { q?: string; tags?: string[] }) => {
+      router.navigate({
+        to: "/current-route",
+        search: (prev) => ({
+          ...prev,
+          q: updates.q || undefined,
+          tags: updates.tags?.length ? updates.tags : undefined,
+          cursor: undefined,
+        }),
+        replace: true,
+      });
+    },
+    300,
+  );
 
   // Handlers update local state immediately, debounce URL
   const handleQueryChange = (value: string) => {

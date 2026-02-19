@@ -158,34 +158,22 @@ export function MobileNavTrigger({ className }: { className?: string }) {
   );
 }
 
-function IconButton({
-  children,
-  ...props
-}: React.ComponentProps<"button">) {
+function IconButton({ children, ...props }: React.ComponentProps<"button">) {
   return (
     <button
       {...props}
-      className={cn(
-        "hover:bg-accent/50 rounded-md p-2",
-        props.className,
-      )}
+      className={cn("hover:bg-accent/50 rounded-md p-2", props.className)}
     >
       {children}
     </button>
   );
 }
 
-function IconLink({
-  children,
-  ...props
-}: React.ComponentProps<typeof Link>) {
+function IconLink({ children, ...props }: React.ComponentProps<typeof Link>) {
   return (
     <Link
       {...props}
-      className={cn(
-        "hover:bg-accent/50 rounded-md p-2",
-        props.className,
-      )}
+      className={cn("hover:bg-accent/50 rounded-md p-2", props.className)}
     >
       {children}
     </Link>
@@ -212,10 +200,7 @@ function MobileNavFooter() {
   if (!sessionUser) {
     return (
       <div className="mt-2 flex items-center gap-2 border-t pt-3">
-        <Link
-          to="/auth/code/send"
-          className="text-sm font-medium flex-1 px-2"
-        >
+        <Link to="/auth/code/send" className="flex-1 px-2 text-sm font-medium">
           log in
         </Link>
         <IconLink to="/feedback">
@@ -236,7 +221,7 @@ function MobileNavFooter() {
       <Link
         to="/users/$userId"
         params={{ userId: sessionUser.id }}
-        className="hover:bg-accent/50 flex items-center gap-2 rounded-md p-1 pr-2 min-w-0"
+        className="hover:bg-accent/50 flex min-w-0 items-center gap-2 rounded-md p-1 pr-2"
       >
         <Avatar
           className="size-7 rounded-lg"
@@ -244,11 +229,12 @@ function MobileNavFooter() {
           alt={sessionUser.name}
         >
           <AvatarImage width={64} quality={85} />
-          <AvatarFallback name={sessionUser.name} className="rounded-lg text-xs" />
+          <AvatarFallback
+            name={sessionUser.name}
+            className="rounded-lg text-xs"
+          />
         </Avatar>
-        <span className="truncate text-sm font-medium">
-          {sessionUser.name}
-        </span>
+        <span className="truncate text-sm font-medium">{sessionUser.name}</span>
       </Link>
       <div className="flex items-center">
         <IconLink to="/feedback">
