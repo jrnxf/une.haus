@@ -51,8 +51,8 @@ function RouteComponent() {
           <p>
             We store the content you choose to post, including videos, text
             posts, comments, trick submissions, game entries, and tournament
-            participation. We also store engagement data like likes, follows, and
-            votes.
+            participation. We also store engagement data like likes, follows,
+            and votes.
           </p>
 
           <h2>Videos &amp; Images</h2>
@@ -105,13 +105,6 @@ function RouteComponent() {
             </a>
             . You can unsubscribe from all non-authentication emails in your
             notification settings or via unsubscribe links.
-          </p>
-
-          <h2>Device Detection</h2>
-          <p>
-            We read the User-Agent header to detect whether you're on mobile or
-            desktop, so we can adjust the UI. This is not stored beyond your
-            session.
           </p>
 
           <h2>Third-Party Services</h2>

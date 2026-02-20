@@ -1,18 +1,19 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   HeartIcon,
   PencilIcon,
   ShieldIcon,
   TrendingUpIcon,
 } from "lucide-react";
-import pluralize from "pluralize";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
+import pluralize from "pluralize";
 import { z } from "zod";
 
 import { DisciplineBadge } from "~/components/badges";
 import { UsersDialog } from "~/components/likes-dialog";
+import { PageHeader } from "~/components/page-header";
 import { ShareButton } from "~/components/share-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -26,8 +27,6 @@ import { useIsAdmin, useSessionUser } from "~/lib/session/hooks";
 import { cn } from "~/lib/utils";
 import { utv } from "~/lib/utv/core";
 import { MessagesView } from "~/views/messages";
-
-import { PageHeader } from "~/components/page-header";
 
 const pathParametersSchema = z.object({
   videoId: z.coerce.number(),

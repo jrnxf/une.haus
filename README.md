@@ -1,94 +1,88 @@
 <p align="center">
-  <img src="./public/icons/logo-black.svg" alt="une.haus" width="80" height="80" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/icons/wordmark-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="public/icons/wordmark-black.svg">
+    <img src="public/icons/wordmark-black.svg" width="260" alt="une.haus">
+  </picture>
 </p>
 
-<h1 align="center">une.haus</h1>
+<p align="center">a home for the unicycling community</p>
 
 <p align="center">
-  A modern web application built with TanStack Start, React, and Drizzle ORM.
+  <a href="https://une.haus">une.haus</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/jrnxf/une.haus/actions/workflows/ci.yml">
+    <img src="https://github.com/jrnxf/une.haus/actions/workflows/ci.yml/badge.svg" alt="CI">
+  </a>
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-default.svg" alt="License">
+  </a>
 </p>
 
 ---
 
-## Getting Started
+### about
 
-### Prerequisites
+une.haus is a platform for unicyclists to share tricks, compete in games, organize tournaments, and connect with each other.
 
-- [Bun](https://bun.sh) (v1.0+)
-- [PostgreSQL](https://www.postgresql.org/) database
+- **tricks** — browse, submit, and review tricks with video proof
+- **games** — play community games like bius, rius, and sius
+- **vault** — archive and share unicycling videos
+- **tourneys** — organize and compete in bracket-style tournaments
+- **map** — find riders around the world
 
-### Installation
+### tech stack
 
-```bash
-# Clone the repository
-git clone https://github.com/jrnxf/une.haus.git
-cd une.haus
+- [tanstack start](https://tanstack.com/start) — react 19 ssr framework
+- [drizzle](https://orm.drizzle.team) — typescript orm for postgresql
+- [tailwind css](https://tailwindcss.com) v4
+- [tanstack router](https://tanstack.com/router) + [tanstack query](https://tanstack.com/query)
+- [mux](https://mux.com) — video processing
+- [maplibre](https://maplibre.org) — maps
+- [bun](https://bun.sh) — package manager + runtime
 
-# Install dependencies
+### getting started
+
+```sh
 bun install
-
-# Set up environment variables
-cp .env.local .env
-```
-
-### Development
-
-```bash
+cp .env.example .env
 bun dev
 ```
 
-### Build
+### scripts
 
-```bash
-bun run build
+| command                | description                      |
+| ---------------------- | -------------------------------- |
+| `bun dev`              | start dev server                 |
+| `bun run build`        | build for production             |
+| `bun start`            | run production server            |
+| `bun run lint`         | lint and auto-fix                |
+| `bun run format`       | format with prettier             |
+| `bun run typecheck`    | type check                       |
+| `bun test`             | run unit tests                   |
+| `bunx playwright test` | run e2e tests                    |
+| `bun run db:migrate`   | push database migrations         |
+| `bun run db:seed`      | wipe, migrate, and seed database |
+
+### contributing
+
+1. fork the repo
+2. create a branch (`git checkout -b feature/my-feature`)
+3. make your changes
+4. run checks before committing
+
+```sh
+bun run format
+bun run lint
+bun run typecheck
+bun test
 ```
 
-### Production
+5. commit and push
+6. open a pull request
 
-```bash
-bun run build
-bun start
-```
+### license
 
-### Database
-
-```bash
-# Run migrations
-bun run db:migrate
-
-# Seed database (development only)
-bun run db:seed
-```
-
----
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Pull Requests
-
-- Keep PRs focused and atomic
-- Include a clear description of changes
-- Ensure all tests pass
-- Follow existing code style
-
-### Issues
-
-Found a bug or have a feature request? [Open an issue](https://github.com/jrnxf/une.haus/issues/new) with:
-
-- A clear title and description
-- Steps to reproduce (for bugs)
-- Expected vs actual behavior
-
----
-
-## License
-
-ISC
+[mit](LICENSE)

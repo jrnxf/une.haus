@@ -3,6 +3,7 @@ import { ShieldIcon } from "lucide-react";
 import { useState } from "react";
 
 import { RiderSelector } from "~/components/input/rider-selector";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -23,8 +24,6 @@ import { useIsAdmin } from "~/lib/session/hooks";
 import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket";
 import { useCreateTournament } from "~/lib/tourney/hooks";
 import { users } from "~/lib/users";
-
-import { PageHeader } from "~/components/page-header";
 
 const seedPresets = [4, 8, 16, 32];
 
@@ -181,7 +180,9 @@ function RouteComponent() {
               <Label>Timer Durations</Label>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground text-xs">prelims</Label>
+                  <Label className="text-muted-foreground text-xs">
+                    prelims
+                  </Label>
                   <div className="flex flex-wrap gap-2">
                     {timePresets.map((preset) => (
                       <Button
@@ -198,7 +199,9 @@ function RouteComponent() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-muted-foreground text-xs">battles</Label>
+                  <Label className="text-muted-foreground text-xs">
+                    battles
+                  </Label>
                   <div className="flex flex-wrap gap-2">
                     {timePresets.map((preset) => (
                       <Button

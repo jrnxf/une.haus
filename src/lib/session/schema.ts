@@ -4,7 +4,6 @@ export const hausSessionSchema = z.object({
   flash: z.string().optional(),
   theme: z.enum(["light", "dark", "system"]).default("system"),
   sidebarOpen: z.boolean().default(true),
-  deviceType: z.enum(["mobile", "desktop"]).optional(),
   user: z
     .object({
       avatarId: z.string().nullable(),

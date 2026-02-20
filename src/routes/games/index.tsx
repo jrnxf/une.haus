@@ -62,8 +62,8 @@ function RouteComponent() {
             <LinkCard.Header title="rack it up" />
             <LinkCard.Content>
               <LinkCard.Description>
-                the original. post creative sets weekly, reply to others, and grow
-                via feedback.
+                the original. post creative sets weekly, reply to others, and
+                grow via feedback.
               </LinkCard.Description>
               {/* <div className="flex grow flex-col gap-2 border-t pt-4">
                 <StatRow
@@ -91,8 +91,8 @@ function RouteComponent() {
             <LinkCard.Header title="back it up" />
             <LinkCard.Content>
               <LinkCard.Description>
-                match the last trick, then set a new one. build an evolving chain
-                of creativity.
+                match the last trick, then set a new one. build an evolving
+                chain of creativity.
               </LinkCard.Description>
               {/* <div className="flex grow flex-col gap-2 border-t pt-4">
                 <StatRow

@@ -11,9 +11,8 @@ import {
   TrickForm,
   type TrickFormDefaultValues,
 } from "~/components/forms/trick";
-import { tricks } from "~/lib/tricks";
-
 import { PageHeader } from "~/components/page-header";
+import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
   loader: async ({ context, params }) => {

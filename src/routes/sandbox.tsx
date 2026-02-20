@@ -3,6 +3,7 @@ import { CoinsIcon, TimerIcon, TrophyIcon } from "lucide-react";
 import { useState } from "react";
 
 import { LinkCard } from "~/components/link-card";
+import { PageHeader } from "~/components/page-header";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -31,8 +32,6 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "~/components/ui/tabs";
 import { Textarea } from "~/components/ui/textarea";
 import { Toggle } from "~/components/ui/toggle";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/sandbox")({
   component: RouteComponent,
@@ -243,7 +242,10 @@ function RouteComponent() {
           {/* Toggle */}
           <Section title="toggle">
             <div className="flex gap-2">
-              <Toggle pressed={togglePressed} onPressedChange={setTogglePressed}>
+              <Toggle
+                pressed={togglePressed}
+                onPressedChange={setTogglePressed}
+              >
                 {togglePressed ? "on" : "off"}
               </Toggle>
               <Toggle variant="outline">outline</Toggle>
@@ -325,8 +327,8 @@ function RouteComponent() {
                 <LinkCard.Header icon={CoinsIcon} title="Default" />
                 <LinkCard.Content>
                   <LinkCard.Description>
-                    A link card with icon, title, description, and call-to-action
-                    arrow. Hover or tab to see effects.
+                    A link card with icon, title, description, and
+                    call-to-action arrow. Hover or tab to see effects.
                   </LinkCard.Description>
                   <LinkCard.Cta label="View" />
                 </LinkCard.Content>

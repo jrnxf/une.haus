@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { CheckIcon } from "lucide-react";
 import * as React from "react";
 import { Suspense, useMemo, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -28,7 +29,6 @@ import {
 import { useSidebar } from "~/components/ui/sidebar";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks";
-import { SHORTCUTS } from "~/lib/shortcuts/constants";
 import { useTheme } from "~/lib/theme/context";
 import { users as usersApi } from "~/lib/users";
 import { utv } from "~/lib/utv/core";
@@ -70,7 +70,7 @@ export function Search() {
   const isAuthenticated = Boolean(sessionUser);
   const isAdmin = useIsAdmin();
 
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const logout = useLogout();
   const { toggleSidebar } = useSidebar();
@@ -90,6 +90,7 @@ export function Search() {
     "mod+k",
     (e) => {
       e.preventDefault();
+      if (!open) reset();
       setOpen(!open);
     },
     { enableOnFormTags: true },
@@ -117,8 +118,10 @@ export function Search() {
 
   // Close the menu without triggering history.back()
   // Clear the 'p' param directly instead of calling setOpen
+  // State is NOT reset here — it resets on next open so content stays
+  // visible during the close animation.
   const closeMenu = () => {
-    reset();
+    setActionsOpen(false);
     navigate({
       search: (prev: Record<string, unknown>) => {
         const { p, ...rest } = prev;
@@ -129,8 +132,10 @@ export function Search() {
   };
 
   // Navigate and close the menu without triggering history.back()
+  // State is NOT reset here — it resets on next open so content stays
+  // visible during the close animation.
   const closeAndNavigate = (to: string) => {
-    reset();
+    setActionsOpen(false);
     navigate({
       to,
       replace: true,
@@ -144,22 +149,13 @@ export function Search() {
   // Define command items with their actions
   const commandItems: CommandItemConfig[] = [
     {
-      id: "arcade",
-      label: "Arcade",
-      value: "/arcade",
+      id: "games",
+      label: "Games",
+      value: "/games",
       primaryAction: {
         label: "Open",
-        onAction: () => closeAndNavigate("/arcade"),
+        onAction: () => pushPage("arcade-menu"),
       },
-      secondaryActions: [
-        {
-          id: "arcade-menu",
-          label: "Choose Game",
-          shortcut: { key: "↵", meta: true },
-          hotkey: "mod+enter",
-          onAction: () => pushPage("arcade-menu"),
-        },
-      ],
     },
     {
       id: "users",
@@ -397,8 +393,8 @@ export function Search() {
   return (
     <CommandDialog
       onOpenChange={(open) => {
+        if (open) reset();
         setOpen(open);
-        if (!open) reset();
       }}
       open={open}
       title="Command Menu"
@@ -481,6 +477,12 @@ export function Search() {
                 }}
               >
                 Toggle Sidebar
+                <CommandShortcut>
+                  <KbdGroup>
+                    <Kbd>{metaSymbol}</Kbd>
+                    <Kbd>B</Kbd>
+                  </KbdGroup>
+                </CommandShortcut>
               </CommandItem>
               <CommandItem
                 onSelect={() => {
@@ -488,13 +490,6 @@ export function Search() {
                 }}
               >
                 Theme
-                <CommandShortcut>
-                  <KbdGroup>
-                    {SHORTCUTS.toggleTheme.display.map((key) => (
-                      <Kbd key={key}>{key}</Kbd>
-                    ))}
-                  </KbdGroup>
-                </CommandShortcut>
               </CommandItem>
               {isAuthenticated ? (
                 <>
@@ -533,30 +528,18 @@ export function Search() {
 
         {activePage === "theme" && (
           <CommandGroup heading="Theme">
-            <CommandItem
-              onSelect={() => {
-                setTheme("light");
-                closeMenu();
-              }}
-            >
-              Light
-            </CommandItem>
-            <CommandItem
-              onSelect={() => {
-                setTheme("dark");
-                closeMenu();
-              }}
-            >
-              Dark
-            </CommandItem>
-            <CommandItem
-              onSelect={() => {
-                setTheme("system");
-                closeMenu();
-              }}
-            >
-              System
-            </CommandItem>
+            {(["light", "dark", "system"] as const).map((value) => (
+              <CommandItem
+                key={value}
+                onSelect={() => {
+                  setTheme(value);
+                  closeMenu();
+                }}
+              >
+                {value.charAt(0).toUpperCase() + value.slice(1)}
+                {theme === value && <CheckIcon className="ml-auto size-4" />}
+              </CommandItem>
+            ))}
           </CommandGroup>
         )}
 
@@ -587,6 +570,15 @@ export function Search() {
             >
               <Link to="/games/sius" replace>
                 Stack It Up
+              </Link>
+            </CommandItem>
+            <CommandItem
+              value="/games/arcade"
+              onSelect={() => closeAndNavigate("/games/arcade")}
+              asChild
+            >
+              <Link to="/games/arcade" replace>
+                Arcade
               </Link>
             </CommandItem>
           </CommandGroup>

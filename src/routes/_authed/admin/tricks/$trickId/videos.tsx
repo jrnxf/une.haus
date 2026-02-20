@@ -5,18 +5,17 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, CheckCircle, Trash2, XCircle } from "lucide-react";
-import pluralize from "pluralize";
 
+import pluralize from "pluralize";
 import { toast } from "sonner";
 
+import { PageHeader } from "~/components/page-header";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { VideoPlayer } from "~/components/video-player";
 import { tricks } from "~/lib/tricks";
-
-import { PageHeader } from "~/components/page-header";
 
 const MAX_ACTIVE_VIDEOS = 5;
 
@@ -150,7 +149,8 @@ function RouteComponent() {
       </PageHeader>
       <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
-          {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active {pluralize("video", activeVideos.length)}
+          {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active{" "}
+          {pluralize("video", activeVideos.length)}
         </p>
 
         {/* Active Videos */}
@@ -165,8 +165,8 @@ function RouteComponent() {
           {isAtLimit && (
             <Alert>
               <AlertDescription>
-                This trick has the maximum of {MAX_ACTIVE_VIDEOS} active {pluralize("video", MAX_ACTIVE_VIDEOS)}.
-                Demote one to add more.
+                This trick has the maximum of {MAX_ACTIVE_VIDEOS} active{" "}
+                {pluralize("video", MAX_ACTIVE_VIDEOS)}. Demote one to add more.
               </AlertDescription>
             </Alert>
           )}

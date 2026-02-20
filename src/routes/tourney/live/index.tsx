@@ -3,11 +3,10 @@ import { useState } from "react";
 
 import { toast } from "sonner";
 
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { tourney } from "~/lib/tourney";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/tourney/live/")({
   component: RouteComponent,
@@ -43,33 +42,35 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="bg-background fixed inset-0 z-50 flex items-center justify-center p-4 lowercase">
-      <div className="w-full max-w-xs space-y-6 text-center">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold">Join Tournament</h1>
-          <p className="text-muted-foreground text-sm">
-            Enter the 4-digit code to watch live
-          </p>
-        </div>
+        <div className="w-full max-w-xs space-y-6 text-center">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Join Tournament</h1>
+            <p className="text-muted-foreground text-sm">
+              Enter the 4-digit code to watch live
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 4))}
-            placeholder="a3k9"
-            className="text-center font-mono text-2xl tracking-widest"
-            maxLength={4}
-            autoFocus
-          />
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={code.trim().length !== 4 || loading}
-          >
-            {loading ? "Joining..." : "Join"}
-          </Button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              value={code}
+              onChange={(e) =>
+                setCode(e.target.value.toUpperCase().slice(0, 4))
+              }
+              placeholder="a3k9"
+              className="text-center font-mono text-2xl tracking-widest"
+              maxLength={4}
+              autoFocus
+            />
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={code.trim().length !== 4 || loading}
+            >
+              {loading ? "Joining..." : "Join"}
+            </Button>
+          </form>
+        </div>
       </div>
-    </div>
     </>
   );
 }

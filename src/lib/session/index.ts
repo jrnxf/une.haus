@@ -8,7 +8,7 @@ import {
   setSessionThemeServerFn,
 } from "~/lib/session/fns";
 
-export const HAUS_SESSION_KEY = "haus_session";
+export const HAUS_SESSION_KEY = "haus.session";
 
 export const session = {
   get: {

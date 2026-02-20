@@ -143,8 +143,7 @@ function RouteComponent() {
               </span>
             </Button>
             <FieldDescription>
-              didn&apos;t receive a code?{" "}
-              <Link to="/auth">resend</Link>
+              didn&apos;t receive a code? <Link to="/auth">resend</Link>
             </FieldDescription>
           </div>
         </Form>

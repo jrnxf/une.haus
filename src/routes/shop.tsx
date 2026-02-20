@@ -1,8 +1,8 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingBagIcon } from "lucide-react";
-import pluralize from "pluralize";
 
+import pluralize from "pluralize";
 import { toast } from "sonner";
 
 import { PageHeader } from "~/components/page-header";
@@ -78,8 +78,8 @@ function RouteComponent() {
                   <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
                 </span>
                 <p className="text-muted-foreground text-sm">
-                  {waitlistCount} {pluralize("person", waitlistCount)} on
-                  the waitlist
+                  {waitlistCount} {pluralize("person", waitlistCount)} on the
+                  waitlist
                 </p>
               </div>
             )}

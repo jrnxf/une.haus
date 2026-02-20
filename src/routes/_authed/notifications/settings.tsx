@@ -20,6 +20,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import {
   Card,
   CardContent,
@@ -38,8 +39,6 @@ import {
 } from "~/components/ui/select";
 import { notificationSettings } from "~/lib/notification-settings";
 import type { UpdateNotificationSettingsInput } from "~/lib/notification-settings/schemas";
-
-import { PageHeader } from "~/components/page-header";
 
 const searchSchema = z.object({
   unsubscribed: z.enum(["digest", "game_start", "pre_trick", "all"]).optional(),
@@ -288,7 +287,9 @@ function RouteComponent() {
                         <Select
                           value={String(settings.emailDigestDayOfWeek ?? 0)}
                           onValueChange={(value) =>
-                            handleUpdate({ emailDigestDayOfWeek: Number(value) })
+                            handleUpdate({
+                              emailDigestDayOfWeek: Number(value),
+                            })
                           }
                           disabled={updateSettings.isPending}
                         >
@@ -496,8 +497,8 @@ function RouteComponent() {
                     unsubscribe from all emails
                   </Label>
                   <p className="text-muted-foreground text-sm">
-                    stop receiving all email notifications (except account related
-                    emails)
+                    stop receiving all email notifications (except account
+                    related emails)
                   </p>
                 </div>
                 <Checkbox

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { StringListInput } from "~/components/input/string-list-input";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -27,8 +28,6 @@ import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import type { TrickSuggestionDiff } from "~/db/schema";
 import { tricks } from "~/lib/tricks";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/_authed/tricks/$trickId/suggest")({
   loader: async ({ context, params }) => {
@@ -155,7 +154,9 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/tricks/${slug}`}>{trick.name}</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/tricks/${slug}`}>
+            {trick.name}
+          </PageHeader.Crumb>
           <PageHeader.Crumb>suggest</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>

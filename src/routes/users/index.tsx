@@ -1,6 +1,6 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { EarthIcon, GhostIcon } from "lucide-react";
+import { GhostIcon } from "lucide-react";
 import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { preload } from "react-dom";
 import { InView } from "react-intersection-observer";
@@ -9,7 +9,6 @@ import { useDebounceCallback } from "usehooks-ts";
 
 import { Badges } from "~/components/badges";
 import { PageHeader } from "~/components/page-header";
-import { Button } from "~/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -181,16 +180,6 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>users</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            <Button variant="secondary" asChild>
-              <Link to="/map">
-                <EarthIcon className="size-4" />
-                Map
-              </Link>
-            </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
 
       <div className="overflow-y-auto" ref={setScrollRoot}>

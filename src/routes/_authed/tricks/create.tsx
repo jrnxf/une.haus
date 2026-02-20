@@ -8,12 +8,11 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { TrickForm } from "~/components/forms/trick";
+import { PageHeader } from "~/components/page-header";
 import { session } from "~/lib/session";
 import { tricks } from "~/lib/tricks";
 import type { CreateTrickArgs } from "~/lib/tricks/schemas";
 import { createSubmissionSchema } from "~/lib/tricks/submissions/schemas";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/_authed/tricks/create")({
   loader: async ({ context }) => {

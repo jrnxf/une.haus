@@ -105,7 +105,6 @@ export function NavUser() {
               sideOffset={4}
             >
               <DropdownMenuGroup>
-                <ThemeSubmenu />
                 <DropdownMenuItem asChild>
                   <Link to="/feedback">
                     <Send className="size-4" />
@@ -113,7 +112,6 @@ export function NavUser() {
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
-              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
                   <Link to="/privacy">
@@ -128,6 +126,9 @@ export function NavUser() {
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <ThemeSubmenu />
+
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/auth">
@@ -187,6 +188,28 @@ export function NavUser() {
           >
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
+                <Link to="/feedback">
+                  <Send className="size-4" />
+                  Feedback
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/privacy">
+                  <EyeOff className="size-4" />
+                  Privacy
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/terms">
+                  <ScrollText className="size-4" />
+                  Terms
+                </Link>
+              </DropdownMenuItem>
+              <ThemeSubmenu />
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
                 <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
                   <UserIcon className="size-4" />
                   Profile
@@ -201,31 +224,6 @@ export function NavUser() {
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                   )}
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <ThemeSubmenu />
-              <DropdownMenuItem asChild>
-                <Link to="/feedback">
-                  <Send className="size-4" />
-                  Feedback
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link to="/privacy">
-                  <EyeOff className="size-4" />
-                  Privacy
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/terms">
-                  <ScrollText className="size-4" />
-                  Terms
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

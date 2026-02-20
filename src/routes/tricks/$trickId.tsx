@@ -81,7 +81,10 @@ function TrickDetailPage() {
         <PageHeader.Right>
           <PageHeader.Actions>
             <Button asChild size="sm">
-              <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
+              <Link
+                to="/tricks/$trickId/suggest"
+                params={{ trickId: trick.id }}
+              >
                 Edit
               </Link>
             </Button>
@@ -101,22 +104,28 @@ function TrickDetailPage() {
 
       <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
         <div className="space-y-6">
-          {/* Hero: Name + Aliases */}
+          {/* Hero: Name + Description */}
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{trick.name}</h1>
-            {trick.alternateNames.length > 0 && (
-              <p className="text-muted-foreground mt-1 text-sm">
-                aka {trick.alternateNames.join(", ")}
+            {trick.definition && (
+              <p className="text-muted-foreground mt-1 text-base leading-relaxed">
+                {trick.definition}
               </p>
             )}
           </div>
 
-          {/* Videos */}
-          {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
-
-          {/* Definition */}
-          {trick.definition && (
-            <p className="text-base leading-relaxed">{trick.definition}</p>
+          {/* Aka */}
+          {trick.alternateNames.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm font-medium">aka</h3>
+              <div className="flex flex-wrap gap-2">
+                {trick.alternateNames.map((name) => (
+                  <Badge key={name} variant="secondary">
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Elements */}
@@ -134,6 +143,9 @@ function TrickDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Videos */}
+          {trick.videos.length > 0 && <VideoCarousel videos={trick.videos} />}
 
           {/* Composition (compound tricks) */}
           {trick.isCompound && trick.compositions.length > 0 && (
@@ -184,89 +196,89 @@ function TrickDetailPage() {
           {(prerequisiteTrick ||
             optionalPrerequisiteTrick ||
             trick.dependents.length > 0) && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {/* Prerequisites */}
-                {(prerequisiteTrick || optionalPrerequisiteTrick) && (
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">prerequisites</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {prerequisiteTrick && (
-                          <Button
-                            className="h-auto px-2 py-1 text-sm"
-                            variant="outline"
-                            asChild
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Prerequisites */}
+              {(prerequisiteTrick || optionalPrerequisiteTrick) && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">prerequisites</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {prerequisiteTrick && (
+                        <Button
+                          className="h-auto px-2 py-1 text-sm"
+                          variant="outline"
+                          asChild
+                        >
+                          <Link
+                            to="/tricks/$trickId"
+                            params={{ trickId: prerequisiteTrick.id }}
                           >
-                            <Link
-                              to="/tricks/$trickId"
-                              params={{ trickId: prerequisiteTrick.id }}
-                            >
-                              {prerequisiteTrick.name}
-                            </Link>
-                          </Button>
-                        )}
-                        {optionalPrerequisiteTrick && (
-                          <Button
-                            className="h-auto px-2 py-1 text-sm"
-                            variant="outline"
-                            asChild
+                            {prerequisiteTrick.name}
+                          </Link>
+                        </Button>
+                      )}
+                      {optionalPrerequisiteTrick && (
+                        <Button
+                          className="h-auto px-2 py-1 text-sm"
+                          variant="outline"
+                          asChild
+                        >
+                          <Link
+                            to="/tricks/$trickId"
+                            params={{ trickId: optionalPrerequisiteTrick.id }}
                           >
-                            <Link
-                              to="/tricks/$trickId"
-                              params={{ trickId: optionalPrerequisiteTrick.id }}
-                            >
-                              {optionalPrerequisiteTrick.name}
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                            {optionalPrerequisiteTrick.name}
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-                {/* Unlocks */}
-                {trick.dependents.length > 0 && (
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-sm">
-                        <LockOpenIcon className="text-muted-foreground size-4" />
-                        unlocks
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {trick.dependents.slice(0, 8).map((depId) => {
-                          const depTrick = data.byId[depId];
-                          if (!depTrick) return null;
-                          return (
-                            <Button
-                              key={depId}
-                              className="h-auto px-2 py-1 text-sm"
-                              variant="outline"
-                              asChild
+              {/* Unlocks */}
+              {trick.dependents.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                      <LockOpenIcon className="text-muted-foreground size-4" />
+                      unlocks
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {trick.dependents.slice(0, 8).map((depId) => {
+                        const depTrick = data.byId[depId];
+                        if (!depTrick) return null;
+                        return (
+                          <Button
+                            key={depId}
+                            className="h-auto px-2 py-1 text-sm"
+                            variant="outline"
+                            asChild
+                          >
+                            <Link
+                              to="/tricks/$trickId"
+                              params={{ trickId: depId }}
                             >
-                              <Link
-                                to="/tricks/$trickId"
-                                params={{ trickId: depId }}
-                              >
-                                {depTrick.name}
-                              </Link>
-                            </Button>
-                          );
-                        })}
-                        {trick.dependents.length > 8 && (
-                          <span className="text-muted-foreground self-center text-sm">
-                            +{trick.dependents.length - 8} more
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
+                              {depTrick.name}
+                            </Link>
+                          </Button>
+                        );
+                      })}
+                      {trick.dependents.length > 8 && (
+                        <span className="text-muted-foreground self-center text-sm">
+                          +{trick.dependents.length - 8} more
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
 
           {/* Nearby (computed neighbors) */}
           {trick.neighbors.length > 0 && (

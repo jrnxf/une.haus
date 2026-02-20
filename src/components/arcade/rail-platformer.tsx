@@ -61,7 +61,8 @@ function getRailY(rail: Rail): number | null {
 }
 
 function generateRail(prev: Rail | null, score: number): Rail {
-  if (!prev) return { x: PLAYER_X - 60, y: 250, width: 400, slope: 0, obstacles: [] };
+  if (!prev)
+    return { x: PLAYER_X - 60, y: 250, width: 400, slope: 0, obstacles: [] };
   const endX = prev.x + prev.width;
   const t = Math.min(score / 25000, 1);
   const gap = randomBetween(60 + t * 20, 130 + t * 30);
@@ -164,10 +165,7 @@ function drawRider(
       const angle = Math.PI * 1.25 + randomBetween(-0.3, 0.3);
       ctx.beginPath();
       ctx.moveTo(sx, y + r);
-      ctx.lineTo(
-        sx + Math.cos(angle) * len,
-        y + r + Math.sin(angle) * len,
-      );
+      ctx.lineTo(sx + Math.cos(angle) * len, y + r + Math.sin(angle) * len);
       ctx.stroke();
     }
   }
@@ -245,7 +243,12 @@ export function RailPlatformer() {
     flatTire: false,
   });
   const animRef = useRef(0);
-  const colorsRef = useRef({ fg: "#000", bg: "#fff", muted: "rgba(0,0,0,0.3)", frame: 0 });
+  const colorsRef = useRef({
+    fg: "#000",
+    bg: "#fff",
+    muted: "rgba(0,0,0,0.3)",
+    frame: 0,
+  });
 
   const initRails = useCallback(() => {
     const gs = stateRef.current;
@@ -408,7 +411,16 @@ export function RailPlatformer() {
       gs.status === "dead"
         ? Math.min(gs.deathTimer / 30, 1) * (Math.PI / 3)
         : 0;
-    drawRider(ctx, PLAYER_X, psy, gs.wheelAngle, fg, gs.isGrinding, gs.flatTire, tilt);
+    drawRider(
+      ctx,
+      PLAYER_X,
+      psy,
+      gs.wheelAngle,
+      fg,
+      gs.isGrinding,
+      gs.flatTire,
+      tilt,
+    );
 
     ctx.fillStyle = fg;
     ctx.font = "14px monospace";
@@ -490,7 +502,9 @@ export function RailPlatformer() {
       {!isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
           <p className="text-muted-foreground font-mono text-xs">
-            <span className="md:hidden">tap to jump · hop obstacles · reach the next rail</span>
+            <span className="md:hidden">
+              tap to jump · hop obstacles · reach the next rail
+            </span>
             <span className="hidden md:inline">
               <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
               jump · hop obstacles · reach the next rail

@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   cn,
   errorFmt,
+  generateSlug,
   getCloudflareImageUrl,
   getUserInitials,
   isDefined,
@@ -217,6 +218,43 @@ describe("getCloudflareImageUrl", () => {
     const url = getCloudflareImageUrl("id", { width: 1, quality: 1 });
     expect(url).toBe(
       "https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/id/width=1,quality=1",
+    );
+  });
+});
+
+describe("generateSlug", () => {
+  it("converts to lowercase and replaces spaces with hyphens", () => {
+    expect(generateSlug("Hello World")).toBe("hello-world");
+  });
+
+  it("removes special characters", () => {
+    expect(generateSlug("Hello! @World# $2024")).toBe("hello-world-2024");
+  });
+
+  it("strips leading and trailing hyphens", () => {
+    expect(generateSlug("--hello--")).toBe("hello");
+  });
+
+  it("collapses multiple non-alphanumeric chars into single hyphen", () => {
+    expect(generateSlug("hello   world")).toBe("hello-world");
+    expect(generateSlug("hello---world")).toBe("hello-world");
+  });
+
+  it("handles already-valid slugs", () => {
+    expect(generateSlug("hello-world")).toBe("hello-world");
+  });
+
+  it("handles empty string", () => {
+    expect(generateSlug("")).toBe("");
+  });
+
+  it("handles numbers", () => {
+    expect(generateSlug("180 Unispin")).toBe("180-unispin");
+  });
+
+  it("handles mixed case with special chars", () => {
+    expect(generateSlug("Hick Double Backflip!")).toBe(
+      "hick-double-backflip",
     );
   });
 });

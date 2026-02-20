@@ -71,9 +71,15 @@ function getRailY(rail: Rail): number | null {
   return rail.y + rail.slope * (PLAYER_X - rail.x);
 }
 
-function generateRail(prev: Rail | null, score: number): Rail {
+function generateSingleRail(prev: Rail | null, score: number): Rail {
   if (!prev)
-    return { x: PLAYER_X - 60, y: 200, width: 500, slope: 0.18, type: "staircase" };
+    return {
+      x: PLAYER_X - 60,
+      y: 200,
+      width: 500,
+      slope: 0.18,
+      type: "staircase",
+    };
 
   const endY = prev.y + prev.slope * prev.width;
   const endX = prev.x + prev.width;
@@ -163,6 +169,92 @@ function generateRail(prev: Rail | null, score: number): Rail {
   return { x: endX + gap, y: endY + yOff, width, slope, type: "staircase" };
 }
 
+function generateKinked(endX: number, endY: number, t: number): Rail[] {
+  const gap = randomBetween(40, 70);
+  const numSegs = Math.random() < 0.4 ? 5 : 3;
+  const rails: Rail[] = [];
+  let x = endX + gap;
+  let y = endY + randomBetween(-5, 10);
+
+  for (let i = 0; i < numSegs; i++) {
+    const isFlat = i % 2 === 1;
+    const width = isFlat ? randomBetween(40, 100) : randomBetween(60, 160);
+    const slope = isFlat
+      ? randomBetween(-0.02, 0.02)
+      : randomBetween(0.12, 0.3 + t * 0.05);
+    const type: RailType = isFlat ? "flat" : "staircase";
+    rails.push({ x, y, width, slope, type });
+    y += slope * width;
+    x += width;
+  }
+  return rails;
+}
+
+function generateCurveUp(endX: number, endY: number, _t: number): Rail[] {
+  const gap = randomBetween(30, 60);
+  const numSegs = 4 + Math.floor(Math.random() * 3);
+  const startSlope = randomBetween(0.1, 0.25);
+  const endSlope = randomBetween(-0.25, -0.1);
+  const rails: Rail[] = [];
+  let x = endX + gap;
+  let y = endY + randomBetween(-5, 10);
+
+  for (let i = 0; i < numSegs; i++) {
+    const p = i / (numSegs - 1);
+    const slope = startSlope + (endSlope - startSlope) * p;
+    const width = randomBetween(40, 80);
+    rails.push({ x, y, width, slope, type: "flat" });
+    y += slope * width;
+    x += width;
+  }
+  return rails;
+}
+
+function generateValley(endX: number, endY: number, _t: number): Rail[] {
+  const gap = randomBetween(40, 70);
+  let x = endX + gap;
+  let y = endY + randomBetween(-5, 10);
+
+  const downWidth = randomBetween(80, 180);
+  const downSlope = randomBetween(0.15, 0.35);
+  const down: Rail = {
+    x,
+    y,
+    width: downWidth,
+    slope: downSlope,
+    type: "staircase",
+  };
+  x += downWidth;
+  y += downSlope * downWidth;
+
+  const upWidth = randomBetween(80, 160);
+  const upSlope = randomBetween(-0.3, -0.1);
+  const up: Rail = { x, y, width: upWidth, slope: upSlope, type: "staircase" };
+
+  return [down, up];
+}
+
+function generateRailBatch(prev: Rail | null, score: number): Rail[] {
+  if (!prev) return [generateSingleRail(null, 0)];
+
+  const wasStep = prev.slope > 0.25;
+  if (wasStep) return [generateSingleRail(prev, score)];
+
+  const endX = prev.x + prev.width;
+  const endY = prev.y + prev.slope * prev.width;
+  const t = Math.min(score / 30000, 1);
+
+  const roll = Math.random();
+  if (roll < 0.25) {
+    const typeRoll = Math.random();
+    if (typeRoll < 0.45) return generateKinked(endX, endY, t);
+    if (typeRoll < 0.75) return generateCurveUp(endX, endY, t);
+    return generateValley(endX, endY, t);
+  }
+
+  return [generateSingleRail(prev, score)];
+}
+
 function toSY(worldY: number, camY: number) {
   return worldY - camY;
 }
@@ -242,10 +334,7 @@ function drawRider(
       const angle = Math.PI * 1.25 + randomBetween(-0.3, 0.3);
       ctx.beginPath();
       ctx.moveTo(sx, y + r);
-      ctx.lineTo(
-        sx + Math.cos(angle) * len,
-        y + r + Math.sin(angle) * len,
-      );
+      ctx.lineTo(sx + Math.cos(angle) * len, y + r + Math.sin(angle) * len);
       ctx.stroke();
     }
   }
@@ -458,9 +547,9 @@ export function EternalStaircase() {
 
   const initRails = useCallback(() => {
     const gs = stateRef.current;
-    gs.rails = [generateRail(null, 0)];
+    gs.rails = [generateSingleRail(null, 0)];
     for (let i = 0; i < 8; i++)
-      gs.rails.push(generateRail(gs.rails.at(-1)!, 0));
+      gs.rails.push(...generateRailBatch(gs.rails.at(-1)!, 0));
     gs.playerY = gs.rails[0].y;
     gs.cameraY = gs.playerY - 100;
   }, []);
@@ -578,10 +667,7 @@ export function EternalStaircase() {
               gs.status = "dead";
               gs.flatTire = true;
               gs.deathTimer = 0;
-              gs.highScore = Math.max(
-                gs.highScore,
-                Math.floor(gs.score / 10),
-              );
+              gs.highScore = Math.max(gs.highScore, Math.floor(gs.score / 10));
               saveHi(gs.highScore);
             }
             onRail = true;
@@ -653,7 +739,7 @@ export function EternalStaircase() {
       // Spawn rails ahead
       const lastRail = gs.rails.at(-1);
       if (lastRail && lastRail.x + lastRail.width < w + 300) {
-        gs.rails.push(generateRail(lastRail, gs.score));
+        gs.rails.push(...generateRailBatch(lastRail, gs.score));
       }
       gs.rails = gs.rails.filter((r) => r.x + r.width > -100);
     } else if (gs.status === "dead") {

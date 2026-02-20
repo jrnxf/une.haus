@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayersIcon, PlusIcon } from "lucide-react";
+
 import pluralize from "pluralize";
 
 import { StackUpForm } from "~/components/forms/games/sius";

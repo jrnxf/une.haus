@@ -4,10 +4,10 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { ArrowRight, HeartIcon, TrendingUpIcon } from "lucide-react";
-import pluralize from "pluralize";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
+import { ArrowRight, HeartIcon, TrendingUpIcon } from "lucide-react";
 
+import pluralize from "pluralize";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -268,11 +268,11 @@ function SuggestionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 suggestion.status === "pending" &&
-                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 suggestion.status === "approved" &&
-                "bg-green-500/20 text-green-700 dark:text-green-300",
+                  "bg-green-500/20 text-green-700 dark:text-green-300",
                 suggestion.status === "rejected" &&
-                "bg-red-500/20 text-red-700 dark:text-red-300",
+                  "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {suggestion.status === "pending" && "Pending"}

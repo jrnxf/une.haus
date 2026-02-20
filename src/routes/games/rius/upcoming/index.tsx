@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GhostIcon, PlusIcon } from "lucide-react";
+
 import pluralize from "pluralize";
 
 import { Badges } from "~/components/badges";
@@ -98,8 +99,8 @@ function RouteComponent() {
             <h2 className="text-lg font-semibold">roster</h2>
             {playerRoster.length > 0 && (
               <p className="text-muted-foreground text-sm">
-                {playerRoster.length}{" "}
-                {pluralize("rider", playerRoster.length)} joined
+                {playerRoster.length} {pluralize("rider", playerRoster.length)}{" "}
+                joined
               </p>
             )}
           </div>

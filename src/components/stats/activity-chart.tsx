@@ -49,10 +49,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
         </Tooltip>
       </CardHeader>
       <CardContent className="min-h-0 flex-1">
-        <ChartContainer
-          config={chartConfig}
-          className="h-full w-full"
-        >
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <AreaChart
             data={formattedData}
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon, UploadIcon } from "lucide-react";
+
 import pluralize from "pluralize";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -109,7 +110,10 @@ type StatBadgeProps = {
 
 function StatBadge({ icon: Icon, count, label }: StatBadgeProps) {
   return (
-    <div className="flex items-center gap-1" title={`${count} ${pluralize(label, count)}`}>
+    <div
+      className="flex items-center gap-1"
+      title={`${count} ${pluralize(label, count)}`}
+    >
       <Icon className="size-3.5" />
       <span>{count}</span>
     </div>

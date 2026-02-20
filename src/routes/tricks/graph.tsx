@@ -5,12 +5,11 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { TricksGraph } from "~/components/tricks/tricks-graph";
 import { TricksSearch } from "~/components/tricks/tricks-search";
 import { TricksSidebar } from "~/components/tricks/tricks-sidebar";
 import { tricks, type Trick } from "~/lib/tricks";
-
-import { PageHeader } from "~/components/page-header";
 
 const graphSearchSchema = z.object({
   trick: z.string().optional(),
@@ -73,27 +72,27 @@ function TricksGraphPage() {
         </PageHeader.Right>
       </PageHeader>
       <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
-      <div className="shrink-0 border-b p-4 md:hidden">
-        <TricksSearch data={data} onSelectTrick={handleSelectTrick} />
-      </div>
+        <div className="shrink-0 border-b p-4 md:hidden">
+          <TricksSearch data={data} onSelectTrick={handleSelectTrick} />
+        </div>
 
-      <TricksSidebar
-        tricks={nonPrefixTricks}
-        selectedId={activeTrickId}
-        onSelect={handleSelectTrick}
-      />
+        <TricksSidebar
+          tricks={nonPrefixTricks}
+          selectedId={activeTrickId}
+          onSelect={handleSelectTrick}
+        />
 
-      <div className="min-h-0 flex-1">
-        <ReactFlowProvider>
-          <TricksGraph
-            data={data}
-            selectedTrickId={activeTrickId}
-            onSelectTrick={handleSelectTrick}
-            onOpenTrickDetail={handleOpenTrickDetail}
-            onCenterNodeClick={handleCenterNodeClick}
-          />
-        </ReactFlowProvider>
-      </div>
+        <div className="min-h-0 flex-1">
+          <ReactFlowProvider>
+            <TricksGraph
+              data={data}
+              selectedTrickId={activeTrickId}
+              onSelectTrick={handleSelectTrick}
+              onOpenTrickDetail={handleOpenTrickDetail}
+              onCenterNodeClick={handleCenterNodeClick}
+            />
+          </ReactFlowProvider>
+        </div>
       </div>
     </>
   );

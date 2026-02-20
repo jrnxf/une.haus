@@ -8,9 +8,9 @@ import {
   Trash2Icon,
   TrendingUpIcon,
 } from "lucide-react";
-import pluralize from "pluralize";
 import React from "react";
 
+import pluralize from "pluralize";
 import { toast } from "sonner";
 
 import { confirm } from "~/components/confirm-dialog";
@@ -126,6 +126,7 @@ export function MessageBubble({
         >
           <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
             <MenuTrigger
+              aria-label={`Message: ${message.content}`}
               className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
               style={{ wordBreak: "break-word" }}
             >
@@ -190,6 +191,7 @@ export function MessageBubble({
               title={`${message.likes.length} ${pluralize("Like", message.likes.length)}`}
               trigger={
                 <button
+                  aria-label={`${message.likes.length} likes`}
                   className={cn(
                     "absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
                     isOwnMessage

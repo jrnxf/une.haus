@@ -1,9 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import { tricks } from "~/lib/tricks";
-
 import { PageHeader } from "~/components/page-header";
+import { tricks } from "~/lib/tricks";
 
 export const Route = createFileRoute("/tricks/glossary")({
   loader: async ({ context }) => {

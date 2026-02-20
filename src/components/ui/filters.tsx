@@ -528,6 +528,7 @@ export function Filters<T = unknown>({
                 onChange={(values) => updateFilter(filter.id, { values })}
               />
               <Button
+                aria-label="Remove filter"
                 variant="outline"
                 size={size === "sm" ? "icon-sm" : "icon"}
                 onClick={() => removeFilter(filter.id)}

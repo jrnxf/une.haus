@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { getNotificationMessage, getNotificationUrl } from "./utils";
+import {
+  getNotificationAction,
+  getNotificationMessage,
+  getNotificationUrl,
+} from "./utils";
 
 describe("getNotificationUrl", () => {
   it("returns correct URL for post", () => {
@@ -206,6 +210,65 @@ describe("review notifications", () => {
       "rejected",
     );
     expect(msg).toBe("Your trick video was rejected");
+  });
+});
+
+describe("getNotificationAction", () => {
+  it("formats like action", () => {
+    expect(getNotificationAction("like", "post")).toBe("liked your post");
+  });
+
+  it("formats like action with title", () => {
+    expect(getNotificationAction("like", "post", "My Post")).toBe(
+      'liked your post "My Post"',
+    );
+  });
+
+  it("formats comment action", () => {
+    expect(getNotificationAction("comment", "utvVideo")).toBe(
+      "commented on your video",
+    );
+  });
+
+  it("formats comment action with title", () => {
+    expect(getNotificationAction("comment", "riuSet", "Cool Set")).toBe(
+      'commented on your RIU set "Cool Set"',
+    );
+  });
+
+  it("formats follow action", () => {
+    expect(getNotificationAction("follow", "user")).toBe(
+      "started following you",
+    );
+  });
+
+  it("formats new_content action", () => {
+    expect(getNotificationAction("new_content", "post")).toBe("posted post");
+  });
+
+  it("formats new_content action with title", () => {
+    expect(getNotificationAction("new_content", "utvVideo", "My Video")).toBe(
+      'posted video "My Video"',
+    );
+  });
+
+  it("formats review action", () => {
+    expect(getNotificationAction("review", "trickSubmission", "approved")).toBe(
+      "trick submission was approved",
+    );
+  });
+
+  it("formats review rejection", () => {
+    expect(getNotificationAction("review", "trickVideo", "rejected")).toBe(
+      "trick video was rejected",
+    );
+  });
+
+  it("handles unknown type", () => {
+    // @ts-expect-error - testing unknown type
+    expect(getNotificationAction("unknown", "post")).toBe(
+      "sent you a notification",
+    );
   });
 });
 

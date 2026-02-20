@@ -2,9 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { UserForm } from "~/components/forms/user";
-import { users } from "~/lib/users";
-
 import { PageHeader } from "~/components/page-header";
+import { users } from "~/lib/users";
 
 export const Route = createFileRoute("/_authed/auth/me/edit")({
   component: RouteComponent,

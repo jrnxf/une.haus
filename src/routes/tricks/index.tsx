@@ -430,7 +430,7 @@ function TricksListPage() {
                             key={header.id}
                             className={cn(
                               header.column.getCanSort() &&
-                              "cursor-pointer select-none",
+                                "cursor-pointer select-none",
                               meta?.className,
                             )}
                             onClick={header.column.getToggleSortingHandler()}
@@ -468,10 +468,7 @@ function TricksListPage() {
                           return (
                             <TableCell
                               key={cell.id}
-                              className={cn(
-                                "relative py-1.5",
-                                meta?.className,
-                              )}
+                              className={cn("relative py-1.5", meta?.className)}
                             >
                               {flexRender(
                                 cell.column.columnDef.cell,

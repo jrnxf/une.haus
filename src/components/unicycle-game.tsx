@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 // --- Constants ---
 const GROUND_Y_RATIO = 0.78;
-const GRAVITY = 0.35;
-const JUMP_FORCE = -8;
+const GRAVITY = 0.25;
+const JUMP_FORCE = -9;
 const DOUBLE_JUMP_FORCE = -7;
+const JUMP_CUT = 0.4;
 const INITIAL_SPEED = 4;
 const MAX_SPEED = 8;
 const SPEED_INCREMENT = 0.0005;
@@ -22,7 +23,17 @@ const DEATH_ANIM_FRAMES = 40;
 const DUST_COUNT = 7;
 const DUST_LIFE = 16;
 const SPEED_LINE_THRESHOLD = 5;
+const SEAT_SPIN_FRAMES = 45;
+const SEAT_SPIN_SPEED = (Math.PI * 2) / SEAT_SPIN_FRAMES;
 const LS_HIGH_SCORE_KEY = "unicycle-high-score";
+const LETTER_WORD = "UNEHAUS";
+const LETTER_SIZE = 16;
+const LETTER_BOB_SPEED = 0.05;
+const LETTER_BOB_AMPLITUDE = 6;
+const LETTER_SPAWN_INTERVAL = 180;
+const LETTER_COLLECT_RADIUS = 20;
+const LETTER_BONUS = 77770;
+const LETTER_BONUS_DISPLAY_FRAMES = 120;
 
 // --- Types ---
 type StairRun = { count: number; totalW: number; totalH: number };
@@ -56,6 +67,7 @@ type TerrainPiece = {
   | ({ type: "stairset" } & StairsetInfo)
   | { type: "spikes" }
   | ({ type: "ledge" } & LedgeInfo)
+  | { type: "bump"; count: number }
 );
 
 type Cloud = {
@@ -76,6 +88,14 @@ type SpeedLine = {
   x: number;
   y: number;
   length: number;
+};
+
+type CollectibleLetter = {
+  x: number;
+  y: number;
+  letter: string;
+  index: number;
+  bobPhase: number;
 };
 
 type GameState = {
@@ -99,10 +119,18 @@ type GameState = {
   pedalAngle: number;
   flatTire: boolean;
   grindFrozenAngle: number;
+  jumpHeld: boolean;
   deathTimer: number;
   deathSpeed: number;
   milestoneTimer: number;
   lastMilestone: number;
+  seatSpin: number;
+  seatSpinning: boolean;
+  seatSpinDir: 1 | -1;
+  letters: CollectibleLetter[];
+  collectedLetters: boolean[];
+  letterSpawnTimer: number;
+  bonusTimer: number;
 };
 
 // --- Helpers ---
@@ -163,89 +191,120 @@ function getDifficulty(score: number) {
   };
 }
 
+function createStairsetTerrain(
+  x: number,
+  prev: TerrainPiece | undefined,
+  diff: ReturnType<typeof getDifficulty>,
+): TerrainPiece {
+  const platW = randomBetween(60, 120);
+
+  // Decide stair count tier
+  const tierRoll = Math.random();
+  let totalCount: number;
+  if (tierRoll < 0.3) totalCount = randomInt(diff.minStairs, 8);
+  else if (tierRoll < 0.55)
+    totalCount = randomInt(9, Math.max(15, diff.minStairs));
+  else if (tierRoll < 0.8) totalCount = randomInt(16, 25);
+  else totalCount = randomInt(26, diff.maxStairs);
+
+  const segments: StairSegment[] = [];
+  let stairTotalW = 0;
+  let totalHeight = 0;
+
+  // Kinked set: split into two runs with a landing (30% chance, only if enough stairs)
+  const kinked = totalCount >= 4 && Math.random() < 0.3;
+  if (kinked) {
+    const split = randomInt(
+      Math.max(1, Math.floor(totalCount * 0.3)),
+      Math.floor(totalCount * 0.7),
+    );
+    const run1 = createStairRun(split);
+    const landingW = randomBetween(50, 100);
+    const run2 = createStairRun(totalCount - split);
+    segments.push(
+      { kind: "stairs", run: run1 },
+      { kind: "landing", width: landingW },
+      { kind: "stairs", run: run2 },
+    );
+    stairTotalW = run1.totalW + landingW + run2.totalW;
+    totalHeight = run1.totalH + run2.totalH;
+  } else {
+    const run = createStairRun(totalCount);
+    segments.push({ kind: "stairs", run });
+    stairTotalW = run.totalW;
+    totalHeight = run.totalH;
+  }
+
+  // Ramp width derived from height at consistent angle
+  const rampW = totalHeight * RAMP_SLOPE;
+
+  // Occasionally place spikes on the ramp
+  const rampSpikes: RampSpike[] = [];
+  if (
+    rampW > 60 &&
+    !lastHadSpikes(prev) &&
+    Math.random() < diff.rampSpikeChance
+  ) {
+    const spikeW = randomBetween(24, 48);
+    const minOffset = rampW * 0.2;
+    const maxOffset = rampW * 0.8 - spikeW;
+    if (maxOffset > minOffset) {
+      rampSpikes.push({
+        offset: randomBetween(minOffset, maxOffset),
+        width: spikeW,
+      });
+    }
+  }
+
+  return {
+    x,
+    width: rampW + platW + stairTotalW,
+    height: totalHeight,
+    type: "stairset",
+    rampW,
+    platW,
+    segments,
+    stairTotalW,
+    rampSpikes,
+  };
+}
+
 function createTerrain(
   x: number,
   prev: TerrainPiece | undefined,
   score: number,
 ): TerrainPiece {
   const diff = getDifficulty(score);
-  const roll = Math.random();
-  if (roll < diff.stairsetMax || lastHadSpikes(prev)) {
-    // Stairset
-    const platW = randomBetween(60, 120);
 
-    // Decide stair count tier
-    const tierRoll = Math.random();
-    let totalCount: number;
-    if (tierRoll < 0.3) totalCount = randomInt(diff.minStairs, 8);
-    else if (tierRoll < 0.55)
-      totalCount = randomInt(9, Math.max(15, diff.minStairs));
-    else if (tierRoll < 0.8) totalCount = randomInt(16, 25);
-    else totalCount = randomInt(26, diff.maxStairs);
-
-    const segments: StairSegment[] = [];
-    let stairTotalW = 0;
-    let totalHeight = 0;
-
-    // Kinked set: split into two runs with a landing (30% chance, only if enough stairs)
-    const kinked = totalCount >= 4 && Math.random() < 0.3;
-    if (kinked) {
-      const split = randomInt(
-        Math.max(1, Math.floor(totalCount * 0.3)),
-        Math.floor(totalCount * 0.7),
-      );
-      const run1 = createStairRun(split);
-      const landingW = randomBetween(50, 100);
-      const run2 = createStairRun(totalCount - split);
-      segments.push(
-        { kind: "stairs", run: run1 },
-        { kind: "landing", width: landingW },
-        { kind: "stairs", run: run2 },
-      );
-      stairTotalW = run1.totalW + landingW + run2.totalW;
-      totalHeight = run1.totalH + run2.totalH;
-    } else {
-      const run = createStairRun(totalCount);
-      segments.push({ kind: "stairs", run });
-      stairTotalW = run.totalW;
-      totalHeight = run.totalH;
+  // After spikes/ledge, always generate a safe terrain
+  if (lastHadSpikes(prev)) {
+    // 40% bump, 60% stairset
+    if (Math.random() < 0.4) {
+      const width = randomBetween(80, 160);
+      const amplitude = randomBetween(8, 20);
+      const count = randomInt(1, 3);
+      return { x, width, height: amplitude, type: "bump", count };
     }
-
-    // Ramp width derived from height at consistent angle
-    const rampW = totalHeight * RAMP_SLOPE;
-
-    // Occasionally place spikes on the ramp
-    const rampSpikes: RampSpike[] = [];
-    if (
-      rampW > 60 &&
-      !lastHadSpikes(prev) &&
-      Math.random() < diff.rampSpikeChance
-    ) {
-      const spikeW = randomBetween(24, 48);
-      const minOffset = rampW * 0.2;
-      const maxOffset = rampW * 0.8 - spikeW;
-      if (maxOffset > minOffset) {
-        rampSpikes.push({
-          offset: randomBetween(minOffset, maxOffset),
-          width: spikeW,
-        });
-      }
-    }
-
-    return {
-      x,
-      width: rampW + platW + stairTotalW,
-      height: totalHeight,
-      type: "stairset",
-      rampW,
-      platW,
-      segments,
-      stairTotalW,
-      rampSpikes,
-    };
+    return createStairsetTerrain(x, prev, diff);
   }
+
+  const roll = Math.random();
+
+  // Bump: ~15%
+  if (roll < 0.15) {
+    const width = randomBetween(80, 160);
+    const amplitude = randomBetween(8, 20);
+    const count = randomInt(1, 3);
+    return { x, width, height: amplitude, type: "bump", count };
+  }
+
+  // Stairset
+  if (roll < 0.15 + (diff.stairsetMax - 0.15) * 0.6) {
+    return createStairsetTerrain(x, prev, diff);
+  }
+
   // Ledge
-  if (roll < diff.ledgeMax && !lastHadSpikes(prev)) {
+  if (roll < 0.75) {
     const stairCount = randomInt(4, 6);
     const run = createStairRun(stairCount);
     const totalHeight = run.totalH;
@@ -264,6 +323,7 @@ function createTerrain(
     };
   }
 
+  // Spikes: remainder
   return { x, width: randomBetween(40, 80), height: SPIKE_H, type: "spikes" };
 }
 
@@ -413,6 +473,18 @@ function getLedgeRailY(
   return result ? result.railY : null;
 }
 
+function getBumpSurfaceY(
+  worldX: number,
+  baseGroundY: number,
+  t: TerrainPiece & { type: "bump" },
+): number | null {
+  if (worldX < t.x || worldX > t.x + t.width) return null;
+  const localX = worldX - t.x;
+  const amplitude = t.height;
+  const s = Math.sin((Math.PI * localX * t.count) / t.width);
+  return baseGroundY - amplitude * s * s;
+}
+
 function getSurfaceY(
   worldX: number,
   baseGroundY: number,
@@ -424,6 +496,9 @@ function getSurfaceY(
       if (y !== null) return y;
     } else if (t.type === "ledge") {
       const y = getLedgeSurfaceY(worldX, baseGroundY, t);
+      if (y !== null) return y;
+    } else if (t.type === "bump") {
+      const y = getBumpSurfaceY(worldX, baseGroundY, t);
       if (y !== null) return y;
     }
   }
@@ -454,6 +529,7 @@ function drawUnicyclist(
   grinding: boolean,
   lean: number,
   deathTilt: number,
+  seatSpin: number,
 ) {
   const wheelR = WHEEL_R;
   const wheelCenterY = y;
@@ -472,15 +548,7 @@ function drawUnicyclist(
   ctx.lineWidth = flatTire ? 2 : 3.5;
   ctx.beginPath();
   if (flatTire) {
-    ctx.ellipse(
-      x,
-      wheelCenterY + 2,
-      wheelR + 3,
-      wheelR - 3,
-      0,
-      0,
-      Math.PI * 2,
-    );
+    ctx.ellipse(x, wheelCenterY + 2, wheelR + 3, wheelR - 3, 0, 0, Math.PI * 2);
   } else {
     ctx.arc(x, wheelCenterY, wheelR, 0, Math.PI * 2);
   }
@@ -500,30 +568,43 @@ function drawUnicyclist(
     ctx.stroke();
   }
 
+  // Seat post, seat, and pedal — rotate around wheel center during unispin
+  const seatY = wheelCenterY - wheelR - 16;
+  const pedalLen = 6;
+  const px1 = x + Math.cos(pedalAngle) * pedalLen;
+  const py1 = wheelCenterY + Math.sin(pedalAngle) * pedalLen;
+
+  if (seatSpin !== 0) {
+    ctx.save();
+    ctx.translate(x, wheelCenterY);
+    ctx.rotate(seatSpin);
+    ctx.translate(-x, -wheelCenterY);
+  }
+
   // Seat post
   ctx.lineWidth = 2;
-  const seatY = wheelCenterY - wheelR - 16;
   ctx.beginPath();
   ctx.moveTo(x, wheelCenterY - wheelR);
   ctx.lineTo(x + lean, seatY);
   ctx.stroke();
 
-  // Curved seat (quadratic curve, dips in the middle)
+  // Curved seat
   ctx.beginPath();
   ctx.moveTo(x + lean - 4, seatY - 1);
   ctx.quadraticCurveTo(x + lean + 1, seatY + 2, x + lean + 7, seatY - 1);
   ctx.stroke();
 
   // Pedal
-  const pedalLen = 6;
-  const px1 = x + Math.cos(pedalAngle) * pedalLen;
-  const py1 = wheelCenterY + Math.sin(pedalAngle) * pedalLen;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(px1 - 3, py1);
   ctx.lineTo(px1 + 3, py1);
   ctx.stroke();
   ctx.lineWidth = 2;
+
+  if (seatSpin !== 0) {
+    ctx.restore();
+  }
 
   // Body
   const hipX = x + lean;
@@ -578,7 +659,12 @@ function drawUnicyclist(
   // Single leg
   ctx.beginPath();
   ctx.moveTo(hipX, hipY);
-  ctx.lineTo(px1, py1);
+  if (seatSpin !== 0) {
+    // During unispin, leg tucks (not connected to spinning pedal)
+    ctx.lineTo(hipX - 2, hipY + 10);
+  } else {
+    ctx.lineTo(px1, py1);
+  }
   ctx.stroke();
 
   ctx.restore();
@@ -594,10 +680,7 @@ function drawUnicyclist(
       const angle = Math.PI * 1.25 + randomBetween(-0.35, 0.35);
       ctx.beginPath();
       ctx.moveTo(sx, sparkBase);
-      ctx.lineTo(
-        sx + Math.cos(angle) * len,
-        sparkBase + Math.sin(angle) * len,
-      );
+      ctx.lineTo(sx + Math.cos(angle) * len, sparkBase + Math.sin(angle) * len);
       ctx.stroke();
     }
     for (let i = 0; i < 8; i++) {
@@ -970,6 +1053,44 @@ function drawSpikes(
   }
 }
 
+function drawBump(
+  ctx: CanvasRenderingContext2D,
+  t: TerrainPiece & { type: "bump" },
+  groundY: number,
+  fg: string,
+  bg: string,
+) {
+  const steps = 40;
+  const stepW = t.width / steps;
+
+  // Fill under the sine² curve (smooth rounded bottoms)
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.moveTo(t.x, groundY);
+  for (let i = 0; i <= steps; i++) {
+    const localX = i * stepW;
+    const s = Math.sin((Math.PI * localX * t.count) / t.width);
+    const y = groundY - t.height * s * s;
+    ctx.lineTo(t.x + localX, y);
+  }
+  ctx.lineTo(t.x + t.width, groundY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Stroke the curve
+  ctx.strokeStyle = fg;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const localX = i * stepW;
+    const s = Math.sin((Math.PI * localX * t.count) / t.width);
+    const y = groundY - t.height * s * s;
+    if (i === 0) ctx.moveTo(t.x + localX, y);
+    else ctx.lineTo(t.x + localX, y);
+  }
+  ctx.stroke();
+}
+
 function drawCloud(ctx: CanvasRenderingContext2D, cloud: Cloud, color: string) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 1;
@@ -1045,6 +1166,68 @@ function drawSpeedLines(
   }
 }
 
+function drawCollectibleLetter(
+  ctx: CanvasRenderingContext2D,
+  l: CollectibleLetter,
+  fg: string,
+  isNext: boolean,
+) {
+  const bobY = l.y + Math.sin(l.bobPhase) * LETTER_BOB_AMPLITUDE;
+  const radius = LETTER_SIZE;
+
+  ctx.save();
+  if (!isNext) ctx.globalAlpha = 0.3;
+
+  ctx.strokeStyle = fg;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(l.x, bobY, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.fillStyle = fg;
+  ctx.font = `bold ${LETTER_SIZE}px monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(l.letter, l.x, bobY);
+
+  ctx.restore();
+}
+
+function drawLetterHUD(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  collectedLetters: boolean[],
+  fg: string,
+  muted: string,
+  bonusTimer: number,
+) {
+  const letterSpacing = 28;
+  const totalWidth = (LETTER_WORD.length - 1) * letterSpacing;
+  const startX = (w - totalWidth) / 2;
+  const y = 24;
+
+  for (let i = 0; i < LETTER_WORD.length; i++) {
+    const x = startX + i * letterSpacing;
+    ctx.font = "14px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = collectedLetters[i] ? fg : muted;
+    ctx.fillText(LETTER_WORD[i], x, y);
+  }
+
+  if (bonusTimer > 0) {
+    const opacity = bonusTimer / LETTER_BONUS_DISPLAY_FRAMES;
+    const scale = 1 + (1 - opacity) * 0.5;
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = fg;
+    ctx.font = `bold ${Math.floor(24 * scale)}px monospace`;
+    ctx.textAlign = "center";
+    ctx.fillText("UNEHAUS! +7777", w / 2, 60 - (1 - opacity) * 15);
+    ctx.restore();
+  }
+}
+
 function drawMilestone(
   ctx: CanvasRenderingContext2D,
   w: number,
@@ -1090,10 +1273,18 @@ export function UnicycleGame() {
     pedalAngle: 0,
     flatTire: false,
     grindFrozenAngle: 0,
+    jumpHeld: false,
     deathTimer: 0,
     deathSpeed: 0,
     milestoneTimer: 0,
     lastMilestone: 0,
+    seatSpin: 0,
+    seatSpinning: false,
+    seatSpinDir: 1,
+    letters: [],
+    collectedLetters: Array(LETTER_WORD.length).fill(false) as boolean[],
+    letterSpawnTimer: LETTER_SPAWN_INTERVAL,
+    bonusTimer: 0,
   });
   const animRef = useRef<number>(0);
   const colorsRef = useRef({
@@ -1131,10 +1322,18 @@ export function UnicycleGame() {
     gs.pedalAngle = 0;
     gs.flatTire = false;
     gs.grindFrozenAngle = 0;
+    gs.jumpHeld = false;
     gs.deathTimer = 0;
     gs.deathSpeed = 0;
     gs.milestoneTimer = 0;
     gs.lastMilestone = 0;
+    gs.seatSpin = 0;
+    gs.seatSpinning = false;
+    gs.seatSpinDir = 1;
+    gs.letters = [];
+    gs.collectedLetters = Array(LETTER_WORD.length).fill(false) as boolean[];
+    gs.letterSpawnTimer = LETTER_SPAWN_INTERVAL;
+    gs.bonusTimer = 0;
   }, [getGroundY]);
 
   const jump = useCallback(() => {
@@ -1151,19 +1350,31 @@ export function UnicycleGame() {
       gs.velocityY = JUMP_FORCE;
       gs.isAirborne = true;
       gs.isGrinding = false;
+      gs.jumpHeld = true;
     } else if (!gs.isAirborne) {
       // Ground jump
       gs.velocityY = JUMP_FORCE;
       gs.isAirborne = true;
+      gs.jumpHeld = true;
     } else if (gs.hasDoubleJump) {
       // Double jump
       gs.velocityY = DOUBLE_JUMP_FORCE;
       gs.hasDoubleJump = false;
-      gs.dustParticles.push(
-        ...spawnDoubleJumpPuff(PLAYER_X, gs.playerY),
-      );
+      gs.jumpHeld = true;
+      gs.seatSpinning = true;
+      gs.seatSpin = 0;
+      gs.seatSpinDir = Math.random() < 0.5 ? 1 : -1;
+      gs.dustParticles.push(...spawnDoubleJumpPuff(PLAYER_X, gs.playerY));
     }
   }, [resetGame]);
+
+  const releaseJump = useCallback(() => {
+    const gs = stateRef.current;
+    if (gs.jumpHeld && gs.isAirborne && gs.velocityY < 0) {
+      gs.velocityY *= JUMP_CUT;
+    }
+    gs.jumpHeld = false;
+  }, []);
 
   /* eslint-disable react-hooks/immutability -- game loop intentionally mutates ref state each frame and self-references via requestAnimationFrame */
   const gameLoop = useCallback(() => {
@@ -1276,6 +1487,8 @@ export function UnicycleGame() {
               gs.grindFrozenAngle = gs.wheelAngle;
               gs.comboCount++;
               gs.hasDoubleJump = true;
+              gs.seatSpinning = false;
+              gs.seatSpin = 0;
               break;
             }
           }
@@ -1291,9 +1504,21 @@ export function UnicycleGame() {
           gs.velocityY = 0;
           gs.isAirborne = false;
           gs.hasDoubleJump = true;
+          gs.seatSpinning = false;
+          gs.seatSpin = 0;
         }
       } else {
+        // On ground — follow surface
         gs.playerY = surfaceY;
+      }
+
+      // Update seat spin (unispin animation)
+      if (gs.seatSpinning) {
+        gs.seatSpin += SEAT_SPIN_SPEED * gs.seatSpinDir;
+        if (Math.abs(gs.seatSpin) >= Math.PI * 2) {
+          gs.seatSpin = 0;
+          gs.seatSpinning = false;
+        }
       }
 
       // Animate wheel
@@ -1310,7 +1535,8 @@ export function UnicycleGame() {
       // Speed lines
       if (gs.speed > SPEED_LINE_THRESHOLD) {
         const intensity =
-          (gs.speed - SPEED_LINE_THRESHOLD) / (MAX_SPEED - SPEED_LINE_THRESHOLD);
+          (gs.speed - SPEED_LINE_THRESHOLD) /
+          (MAX_SPEED - SPEED_LINE_THRESHOLD);
         if (Math.random() < intensity * 0.4) {
           gs.speedLines.push({
             x: w + 10,
@@ -1341,10 +1567,7 @@ export function UnicycleGame() {
               gs.flatTire = true;
               gs.deathTimer = 0;
               gs.deathSpeed = gs.speed;
-              gs.highScore = Math.max(
-                gs.highScore,
-                Math.floor(gs.score / 10),
-              );
+              gs.highScore = Math.max(gs.highScore, Math.floor(gs.score / 10));
               saveHighScore(gs.highScore);
               break;
             }
@@ -1397,6 +1620,12 @@ export function UnicycleGame() {
         }
       }
 
+      // Stop seat spin on death
+      if (gs.status === "dead") {
+        gs.seatSpinning = false;
+        gs.seatSpin = 0;
+      }
+
       // Spawn terrain (ensure no overlap)
       const diff = getDifficulty(gs.score);
       gs.nextSpawnIn -= gs.speed;
@@ -1425,6 +1654,55 @@ export function UnicycleGame() {
       if (gs.clouds.length < 4 && Math.random() < 0.01) {
         gs.clouds.push(createCloud(w, true));
       }
+
+      // --- Letter collectibles ---
+      gs.letterSpawnTimer -= 1;
+      if (gs.letterSpawnTimer <= 0) {
+        const nextIdx = gs.collectedLetters.indexOf(false);
+        if (nextIdx !== -1 && gs.letters.length === 0) {
+          gs.letters.push({
+            x: w + 20,
+            y: baseGroundY - randomBetween(40, 100),
+            letter: LETTER_WORD[nextIdx],
+            index: nextIdx,
+            bobPhase: Math.random() * Math.PI * 2,
+          });
+        }
+        gs.letterSpawnTimer = LETTER_SPAWN_INTERVAL;
+      }
+
+      for (const l of gs.letters) {
+        l.x -= gs.speed;
+        l.bobPhase += LETTER_BOB_SPEED;
+        // Keep letter above terrain (accounts for bob + circle radius)
+        const surfaceAtLetter = getSurfaceY(l.x, baseGroundY, gs.terrain);
+        l.y = Math.min(l.y, surfaceAtLetter - 25);
+      }
+      gs.letters = gs.letters.filter((l) => l.x > -30);
+
+      const nextLetterIdx = gs.collectedLetters.indexOf(false);
+      for (let i = gs.letters.length - 1; i >= 0; i--) {
+        const l = gs.letters[i];
+        const bobY = l.y + Math.sin(l.bobPhase) * LETTER_BOB_AMPLITUDE;
+        const dx = PLAYER_X - l.x;
+        const dy = gs.playerY - bobY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < LETTER_COLLECT_RADIUS && l.index === nextLetterIdx) {
+          gs.collectedLetters[l.index] = true;
+          gs.letters.splice(i, 1);
+          gs.dustParticles.push(...spawnDust(l.x, bobY));
+          if (gs.collectedLetters.every(Boolean)) {
+            gs.score += LETTER_BONUS;
+            gs.bonusTimer = LETTER_BONUS_DISPLAY_FRAMES;
+            gs.collectedLetters = Array(LETTER_WORD.length).fill(
+              false,
+            ) as boolean[];
+            gs.letters = [];
+          }
+        }
+      }
+
+      if (gs.bonusTimer > 0) gs.bonusTimer--;
     } else if (gs.status === "dead" && gs.deathTimer < DEATH_ANIM_FRAMES) {
       // Death animation: decelerate and tumble
       gs.deathTimer++;
@@ -1438,6 +1716,15 @@ export function UnicycleGame() {
       }
       gs.terrain = gs.terrain.filter((t) => t.x + t.width > -50);
 
+      // Move letters during death
+      for (const l of gs.letters) {
+        l.x -= currentSpeed;
+        l.bobPhase += LETTER_BOB_SPEED;
+        const surfaceAtLetter = getSurfaceY(l.x, baseGroundY, gs.terrain);
+        l.y = Math.min(l.y, surfaceAtLetter - 25);
+      }
+      gs.letters = gs.letters.filter((l) => l.x > -30);
+
       // Move clouds
       for (const cloud of gs.clouds) {
         cloud.x -= currentSpeed * 0.3;
@@ -1450,6 +1737,7 @@ export function UnicycleGame() {
       gs.speedLines = gs.speedLines.filter((l) => l.x + l.length > 0);
 
       if (gs.milestoneTimer > 0) gs.milestoneTimer--;
+      if (gs.bonusTimer > 0) gs.bonusTimer--;
 
       if (gs.deathTimer >= DEATH_ANIM_FRAMES) {
         setIsDead(true);
@@ -1457,6 +1745,7 @@ export function UnicycleGame() {
     } else if (gs.status === "dead") {
       // Fully dead — milestone can still tick down
       if (gs.milestoneTimer > 0) gs.milestoneTimer--;
+      if (gs.bonusTimer > 0) gs.bonusTimer--;
     }
 
     // --- Draw ---
@@ -1474,9 +1763,17 @@ export function UnicycleGame() {
         drawStairset(ctx, t, baseGroundY, fg, bg, muted);
       } else if (t.type === "ledge") {
         drawLedge(ctx, t, baseGroundY, fg, bg, muted);
+      } else if (t.type === "bump") {
+        drawBump(ctx, t, baseGroundY, fg, bg);
       } else {
         drawSpikes(ctx, t, baseGroundY, fg);
       }
+    }
+
+    // Collectible letters
+    const nextLetterHudIdx = gs.collectedLetters.indexOf(false);
+    for (const l of gs.letters) {
+      drawCollectibleLetter(ctx, l, fg, l.index === nextLetterHudIdx);
     }
 
     // Dust particles
@@ -1500,6 +1797,7 @@ export function UnicycleGame() {
       gs.isGrinding,
       lean,
       deathTilt,
+      gs.seatSpin,
     );
 
     // Score
@@ -1532,6 +1830,9 @@ export function UnicycleGame() {
 
     // Milestone flash
     drawMilestone(ctx, w, gs.lastMilestone, gs.milestoneTimer, fg);
+
+    // Letter collection HUD
+    drawLetterHUD(ctx, w, gs.collectedLetters, fg, muted, gs.bonusTimer);
 
     if (gs.status === "idle") {
       ctx.fillStyle = fg;
@@ -1588,19 +1889,28 @@ export function UnicycleGame() {
         jump();
       }
     };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.code === "ArrowUp") {
+        releaseJump();
+      }
+    };
     globalThis.addEventListener("keydown", handleKeyDown);
+    globalThis.addEventListener("keyup", handleKeyUp);
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", handleResize);
       globalThis.removeEventListener("keydown", handleKeyDown);
+      globalThis.removeEventListener("keyup", handleKeyUp);
     };
-  }, [gameLoop, getGroundY, jump, resizeCanvas]);
+  }, [gameLoop, getGroundY, jump, releaseJump, resizeCanvas]);
 
   return (
     <div
       ref={containerRef}
       className="relative flex flex-1 cursor-pointer items-center justify-center select-none"
       onPointerDown={jump}
+      onPointerUp={releaseJump}
+      onPointerCancel={releaseJump}
     >
       <canvas
         ref={canvasRef}
@@ -1609,7 +1919,9 @@ export function UnicycleGame() {
       {!isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
           <p className="text-muted-foreground font-mono text-xs">
-            <span className="md:hidden">tap to jump · double tap for air jump</span>
+            <span className="md:hidden">
+              tap to jump · double tap for air jump
+            </span>
             <span className="hidden md:inline">
               <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
               jump · press again mid-air for double jump

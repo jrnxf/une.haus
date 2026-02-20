@@ -11,6 +11,7 @@ import {
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import { useState } from "react";
 
+import { PageHeader } from "~/components/page-header";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
   Table,
@@ -22,8 +23,6 @@ import {
 } from "~/components/ui/table";
 import { stats } from "~/lib/stats";
 import { cn } from "~/lib/utils";
-
-import { PageHeader } from "~/components/page-header";
 
 type Contributor = {
   id: number;

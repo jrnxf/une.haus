@@ -5,11 +5,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import {
-  ChevronDownIcon,
-  HeartIcon,
-  MessageCircleIcon,
-} from "lucide-react";
+import { ChevronDownIcon, HeartIcon, MessageCircleIcon } from "lucide-react";
 import {
   useCallback,
   useDeferredValue,

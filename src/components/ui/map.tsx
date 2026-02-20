@@ -1270,7 +1270,12 @@ function MapClusterLayer<
       map.setPaintProperty(unclusteredLayerId, "circle-color", pointColor);
     }
 
-    stylePropsRef.current = { clusterColors, clusterThresholds, clusterSizes, pointColor };
+    stylePropsRef.current = {
+      clusterColors,
+      clusterThresholds,
+      clusterSizes,
+      pointColor,
+    };
   }, [
     isLoaded,
     map,

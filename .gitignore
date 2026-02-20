@@ -15,3 +15,8 @@ dist-ssr
 **/db/skrrrt
 
 mux-scripts/
+
+e2e/.auth/
+test-results/
+playwright-report/
+.playwright-mcp/

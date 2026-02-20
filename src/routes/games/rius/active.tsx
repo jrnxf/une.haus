@@ -1,11 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import pluralize from "pluralize";
+import { GhostIcon } from "lucide-react";
 import { useMemo } from "react";
 
+import pluralize from "pluralize";
 import { z } from "zod";
-
-import { GhostIcon } from "lucide-react";
 
 import { SetsGroupedList } from "~/components/games/sets-grouped-list";
 import {

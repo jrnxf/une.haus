@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
-import pluralize from "pluralize";
 import { useMemo } from "react";
 
+import pluralize from "pluralize";
 import { VList } from "virtua";
 import { z } from "zod";
 

@@ -33,9 +33,7 @@ function PageHeaderRoot({
         )}
       >
         <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          {children}
-        </div>
+        <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
         <Search />
       </div>
     </header>
@@ -64,9 +62,7 @@ function Breadcrumbs({ children }: { children: ReactNode }) {
 }
 
 function Right({ children }: { children: ReactNode }) {
-  return (
-    <div className="ml-auto flex items-center gap-2">{children}</div>
-  );
+  return <div className="ml-auto flex items-center gap-2">{children}</div>;
 }
 
 function Crumb({

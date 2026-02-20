@@ -19,8 +19,8 @@ import {
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
-  UsersIcon,
   UserIcon,
+  UsersIcon,
   type LucideIcon,
 } from "lucide-react";
 import { type ReactNode } from "react";

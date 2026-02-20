@@ -4,10 +4,9 @@ import { useCallback } from "react";
 
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { users } from "~/lib/users";
 import { MapView } from "~/views/map";
-
-import { PageHeader } from "~/components/page-header";
 
 const mapSearchSchema = z.object({
   lat: z.number().optional(),

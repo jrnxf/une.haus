@@ -4,12 +4,12 @@ import {
   EarthIcon,
   LockIcon,
   LockOpenIcon,
-  UsersIcon,
   MedalIcon,
   MessagesSquareIcon,
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
+  UsersIcon,
 } from "lucide-react";
 import * as React from "react";
 

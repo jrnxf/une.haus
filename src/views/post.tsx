@@ -1,8 +1,9 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { HeartIcon, PencilIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
-import pluralize from "pluralize";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
+import { HeartIcon, PencilIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
+
+import pluralize from "pluralize";
 
 import { Badges } from "~/components/badges";
 import { confirm } from "~/components/confirm-dialog";

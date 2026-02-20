@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { type z } from "zod";
 
 import { ImageInput } from "~/components/input/image-input";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -27,8 +28,6 @@ import { Textarea } from "~/components/ui/textarea";
 import { VideoPlayer } from "~/components/video-player";
 import { feedback } from "~/lib/feedback";
 import { useVideoUpload } from "~/lib/media";
-
-import { PageHeader } from "~/components/page-header";
 
 const MEDIA_OPTIONS = {
   none: "None",
@@ -87,7 +86,6 @@ function RouteComponent() {
           })(event);
         }}
       >
-
         <FormField
           control={control}
           name="content"
@@ -153,16 +151,18 @@ function RouteComponent() {
                     {mediaOption === "video" && (
                       <FeedbackVideoInput
                         value={
-                          field.value?.type === "video" ? field.value : undefined
+                          field.value?.type === "video"
+                            ? field.value
+                            : undefined
                         }
                         onChange={(data) => {
                           field.onChange(
                             data
                               ? {
-                                type: "video",
-                                assetId: data.assetId,
-                                playbackId: data.playbackId,
-                              }
+                                  type: "video",
+                                  assetId: data.assetId,
+                                  playbackId: data.playbackId,
+                                }
                               : undefined,
                           );
                         }}

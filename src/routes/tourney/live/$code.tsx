@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 
+import { PageHeader } from "~/components/page-header";
 import { BracketContainer, FitText } from "~/components/tourney/bracket-graph";
 import { CountdownDisplay } from "~/components/tourney/countdown-display";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -20,8 +21,6 @@ import { useChampionCelebration } from "~/lib/tourney/use-champion-celebration";
 import { useTourneySSE } from "~/lib/tourney/use-tourney-sse";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/tourney/live/$code")({
   component: RouteComponent,
@@ -89,41 +88,41 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="bg-background fixed inset-0 z-50 flex flex-col">
-      {phase === "setup" && <SetupView name={tournament.name} code={code} />}
-      {phase === "prelims" && (
-        <PrelimsView
-          state={state}
-          resolveName={resolveName}
-          resolveRider={resolveRider}
-          code={code}
-        />
-      )}
-      {phase === "ranking" && (
-        <RankingView name={tournament.name} code={code} />
-      )}
-      {(phase === "bracket" || phase === "complete") && (
-        <BracketView state={state} usersMap={usersMap} code={code} />
-      )}
+        {phase === "setup" && <SetupView name={tournament.name} code={code} />}
+        {phase === "prelims" && (
+          <PrelimsView
+            state={state}
+            resolveName={resolveName}
+            resolveRider={resolveRider}
+            code={code}
+          />
+        )}
+        {phase === "ranking" && (
+          <RankingView name={tournament.name} code={code} />
+        )}
+        {(phase === "bracket" || phase === "complete") && (
+          <BracketView state={state} usersMap={usersMap} code={code} />
+        )}
 
-      {!adminConnected && (
-        <div className="bg-background/80 fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm">
-          <div className="space-y-2 text-center">
-            <p className="text-muted-foreground text-xl font-semibold">
-              Tournament paused
-            </p>
-            <p className="text-muted-foreground/70 text-sm">
-              Waiting for host to resume...
-            </p>
+        {!adminConnected && (
+          <div className="bg-background/80 fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm">
+            <div className="space-y-2 text-center">
+              <p className="text-muted-foreground text-xl font-semibold">
+                Tournament paused
+              </p>
+              <p className="text-muted-foreground/70 text-sm">
+                Waiting for host to resume...
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="border-t px-4 py-2 text-center">
-        <span className="text-muted-foreground font-mono text-sm tracking-widest">
-          {code}
-        </span>
+        <div className="border-t px-4 py-2 text-center">
+          <span className="text-muted-foreground font-mono text-sm tracking-widest">
+            {code}
+          </span>
+        </div>
       </div>
-    </div>
     </>
   );
 }
@@ -204,8 +203,8 @@ function PrelimsView({
                     status === "dq" && "bg-destructive",
                     isCurrent && "bg-primary animate-pulse",
                     status === "pending" &&
-                    !isCurrent &&
-                    "bg-muted-foreground/30",
+                      !isCurrent &&
+                      "bg-muted-foreground/30",
                   )}
                 />
                 <span
@@ -352,8 +351,8 @@ function BracketView({
   }, [state.timer, matches]);
 
   // No-op handlers for read-only bracket
-  const noop = useCallback(() => { }, []);
-  const noopTimer = useCallback((_match: Match, _duration: number) => { }, []);
+  const noop = useCallback(() => {}, []);
+  const noopTimer = useCallback((_match: Match, _duration: number) => {}, []);
 
   // Show battle timer when admin has one active
   if (timerMatch && state.timer) {

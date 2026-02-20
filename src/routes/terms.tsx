@@ -44,13 +44,15 @@ function RouteComponent() {
             <li>Violate any applicable laws or regulations</li>
             <li>Harass, abuse, or harm other users</li>
             <li>Upload malicious software or interfere with the service</li>
-            <li>Attempt to gain unauthorized access to any part of the service</li>
+            <li>
+              Attempt to gain unauthorized access to any part of the service
+            </li>
           </ul>
 
           <h2>Termination</h2>
           <p>
-            We reserve the right to suspend or terminate your account at any time
-            for violations of these terms or for any other reason at our
+            We reserve the right to suspend or terminate your account at any
+            time for violations of these terms or for any other reason at our
             discretion.
           </p>
 

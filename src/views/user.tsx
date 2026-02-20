@@ -7,6 +7,7 @@ import {
   SiYoutube,
 } from "@icons-pack/react-simple-icons";
 import { Link } from "@tanstack/react-router";
+
 import pluralize from "pluralize";
 
 import { ActivityFeed } from "~/components/activity-feed";

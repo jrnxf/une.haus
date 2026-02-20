@@ -18,9 +18,9 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
         <EmptyMedia variant="icon">
           <GhostIcon />
         </EmptyMedia>
-        <EmptyTitle>Not Found</EmptyTitle>
+        <EmptyTitle>not found</EmptyTitle>
         <EmptyDescription>
-          {children || "The page you're looking for doesn't exist."}
+          {children || "the page you're looking for doesn't exist"}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>

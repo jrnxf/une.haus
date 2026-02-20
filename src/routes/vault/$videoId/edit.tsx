@@ -48,9 +48,7 @@ export const Route = createFileRoute("/vault/$videoId/edit")({
     }
   },
   loader: async ({ context, params: { videoId } }) => {
-    await context.queryClient.ensureQueryData(
-      utv.get.queryOptions(videoId),
-    );
+    await context.queryClient.ensureQueryData(utv.get.queryOptions(videoId));
   },
   component: RouteComponent,
 });
@@ -121,7 +119,9 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/vault/${videoId}`}>{video.title || "video"}</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/vault/${videoId}`}>
+            {video.title || "video"}
+          </PageHeader.Crumb>
           <PageHeader.Crumb>edit</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>

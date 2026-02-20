@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { BadgeInput } from "~/components/input/badge-input";
+import { PageHeader } from "~/components/page-header";
 import {
   Form,
   FormControl,
@@ -27,8 +28,6 @@ import { posts } from "~/lib/posts";
 import { session } from "~/lib/session/index";
 import { type ServerFnReturn } from "~/lib/types";
 import { errorFmt } from "~/lib/utils";
-
-import { PageHeader } from "~/components/page-header";
 
 const pathParametersSchema = z.object({
   postId: z.coerce.number(),
@@ -84,9 +83,9 @@ function RouteComponent() {
       qc.setQueryData(posts.get.queryOptions({ postId }).queryKey, (prev) => {
         return prev
           ? {
-            ...prev,
-            ...data,
-          }
+              ...prev,
+              ...data,
+            }
           : undefined;
       });
 
@@ -142,7 +141,9 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/posts/${postId}`}>{post.title}</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/posts/${postId}`}>
+            {post.title}
+          </PageHeader.Crumb>
           <PageHeader.Crumb>edit</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
@@ -215,19 +216,19 @@ function buildDefaultValues(post: ServerFnReturn<typeof posts.get.fn>) {
     content: post.content,
     media: post.imageId
       ? {
-        type: "image" as const,
-        value: post.imageId,
-      }
+          type: "image" as const,
+          value: post.imageId,
+        }
       : post.video && post.video.playbackId
         ? {
-          type: "video" as const,
-          value: post.video.playbackId,
-        }
+            type: "video" as const,
+            value: post.video.playbackId,
+          }
         : post.youtubeVideoId
           ? {
-            type: "youtube" as const,
-            value: post.youtubeVideoId,
-          }
+              type: "youtube" as const,
+              value: post.youtubeVideoId,
+            }
           : undefined,
     tags: post.tags ?? [],
     title: post.title,

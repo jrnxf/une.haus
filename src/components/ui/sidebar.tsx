@@ -62,14 +62,11 @@ function SidebarProvider({
     prevIsMobile.current = isMobile;
   }, [isMobile]);
 
-  const setOpen = React.useCallback(
-    (nextOpen: boolean) => {
-      setOpenState(nextOpen);
-      // Persist state to session
-      session.sidebar.set.fn({ data: nextOpen });
-    },
-    [],
-  );
+  const setOpen = React.useCallback((nextOpen: boolean) => {
+    setOpenState(nextOpen);
+    // Persist state to session
+    session.sidebar.set.fn({ data: nextOpen });
+  }, []);
 
   const toggleSidebar = React.useCallback(() => {
     setOpen(!open);

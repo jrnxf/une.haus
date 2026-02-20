@@ -1,7 +1,8 @@
 import { Loader2Icon, Plus, TrashIcon } from "lucide-react";
-import pluralize from "pluralize";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
+
+import pluralize from "pluralize";
 
 import { Button } from "~/components/ui/button";
 import { Progress } from "~/components/ui/progress";

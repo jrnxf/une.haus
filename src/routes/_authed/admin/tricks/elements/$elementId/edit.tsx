@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { type z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -25,8 +26,6 @@ import { Textarea } from "~/components/ui/textarea";
 import { tricks } from "~/lib/tricks";
 import { createElementSchema } from "~/lib/tricks/schemas";
 import { generateSlug } from "~/lib/utils";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute(
   "/_authed/admin/tricks/elements/$elementId/edit",
@@ -90,7 +89,9 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb to="/admin/tricks/elements">elements</PageHeader.Crumb>
+          <PageHeader.Crumb to="/admin/tricks/elements">
+            elements
+          </PageHeader.Crumb>
           <PageHeader.Crumb>{element.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>

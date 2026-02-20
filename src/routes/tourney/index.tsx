@@ -73,14 +73,15 @@ function RouteComponent() {
                     <TimeAgo date={t.createdAt} />
                   </p>
                   {user?.id === t.createdByUserId && (
-                    <Link
-                      to={getPhaseRoute(t.phase)}
-                      params={{ code: t.code }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-muted-foreground hover:text-foreground text-xs font-medium"
-                    >
-                      Manage
-                    </Link>
+                    <Button variant="ghost" size="xs" asChild>
+                      <Link
+                        to={getPhaseRoute(t.phase)}
+                        params={{ code: t.code }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Manage
+                      </Link>
+                    </Button>
                   )}
                 </div>
               </div>

@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { HeartIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
-import pluralize from "pluralize";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
+import { HeartIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
 
+import pluralize from "pluralize";
 import { z } from "zod";
 
 import { confirm } from "~/components/confirm-dialog";
@@ -53,7 +53,6 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
     };
 
     await ensureSubmission();
-
   },
 });
 

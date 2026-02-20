@@ -1,6 +1,7 @@
 import { SearchIcon, XIcon } from "lucide-react";
-import pluralize from "pluralize";
 import { useDeferredValue, useMemo, useState } from "react";
+
+import pluralize from "pluralize";
 
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";

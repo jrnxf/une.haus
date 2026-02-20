@@ -11,6 +11,7 @@ import { BadgeInput } from "~/components/input/badge-input";
 import { ImageInput } from "~/components/input/image-input";
 import { VideoInput } from "~/components/input/video-input";
 import { YoutubeInput } from "~/components/input/youtube-input";
+import { PageHeader } from "~/components/page-header";
 import {
   Form,
   FormControl,
@@ -26,8 +27,6 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
 import { POST_TAGS } from "~/db/schema";
 import { posts } from "~/lib/posts";
-
-import { PageHeader } from "~/components/page-header";
 
 const MEDIA_OPTIONS = {
   none: "None",

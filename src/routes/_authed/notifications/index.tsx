@@ -3,8 +3,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, GhostIcon, Loader2, WrenchIcon } from "lucide-react";
 import { useState } from "react";
 
-import { NotificationItem } from "~/components/notifications/notification-item";
+import {
+  formatActorNames,
+  NotificationIcon,
+} from "~/components/notifications/notification-item";
 import { PageHeader } from "~/components/page-header";
+import { TimeAgo } from "~/components/time-ago";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Empty,
@@ -19,6 +24,11 @@ import {
   useMarkAllNotificationsRead,
   useMarkGroupRead,
 } from "~/lib/notifications/hooks";
+import {
+  getNotificationAction,
+  getNotificationUrl,
+} from "~/lib/notifications/utils";
+import { cn } from "~/lib/utils";
 
 export const Route = createFileRoute("/_authed/notifications/")({
   loader: async ({ context }) => {
@@ -106,37 +116,114 @@ function RouteComponent() {
             </TabsList>
           </Tabs>
 
-          {/* Notification list */}
+          {/* Notification list - timeline */}
           {groupedNotifications && groupedNotifications.length > 0 ? (
-            <div className="grid grid-cols-1 gap-2">
-              {groupedNotifications.map((notification) => (
-                <NotificationItem
-                  key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
-                  type={notification.type}
-                  entityType={notification.entityType}
-                  entityId={notification.entityId}
-                  count={notification.count}
-                  actors={
-                    notification.actors as {
-                      id: number;
-                      name: string;
-                      avatarId: string | null;
-                    }[]
-                  }
-                  data={notification.data}
-                  latestAt={notification.latestAt}
-                  isRead={notification.isRead}
-                  onMarkRead={() =>
-                    markGroupRead.mutate({
-                      data: {
-                        type: notification.type,
-                        entityType: notification.entityType,
-                        entityId: notification.entityId,
-                      },
-                    })
-                  }
-                />
-              ))}
+            <div className="relative flex flex-col">
+              {groupedNotifications.map((notification, index) => {
+                const isLast = index === groupedNotifications.length - 1;
+                const actors = notification.actors as {
+                  id: number;
+                  name: string;
+                  avatarId: string | null;
+                }[];
+                const primaryActor = actors[0];
+                const url = getNotificationUrl(
+                  notification.entityType,
+                  notification.entityId,
+                  notification.data,
+                );
+                const action = getNotificationAction(
+                  notification.type,
+                  notification.entityType,
+                  notification.data?.entityTitle,
+                );
+                const names = formatActorNames(
+                  actors.map((a) => a.name),
+                  notification.count,
+                );
+
+                return (
+                  <div
+                    key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
+                    className="relative flex items-center py-2 pl-7"
+                  >
+                    {/* Timeline line */}
+                    {!isLast && (
+                      <div className="bg-border absolute top-1/2 -bottom-6 left-[9px] w-px" />
+                    )}
+                    {/* Timeline dot */}
+                    <div
+                      className={cn(
+                        "absolute top-1/2 left-0 flex size-5 -translate-y-1/2 items-center justify-center rounded-full border",
+                        notification.isRead
+                          ? "bg-background"
+                          : "bg-primary/10 border-primary/30",
+                      )}
+                    >
+                      <NotificationIcon type={notification.type} />
+                    </div>
+                    {/* Content */}
+                    <Link
+                      to={url}
+                      onClick={
+                        !notification.isRead
+                          ? () =>
+                              markGroupRead.mutate({
+                                data: {
+                                  type: notification.type,
+                                  entityType: notification.entityType,
+                                  entityId: notification.entityId,
+                                },
+                              })
+                          : undefined
+                      }
+                      className="group hover:bg-accent/50 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 transition-colors"
+                    >
+                      {primaryActor && (
+                        <Avatar
+                          cloudflareId={primaryActor.avatarId}
+                          alt={primaryActor.name}
+                          className="size-5 shrink-0"
+                        >
+                          <AvatarImage width={20} quality={75} />
+                          <AvatarFallback
+                            name={primaryActor.name}
+                            className="text-[8px]"
+                          />
+                        </Avatar>
+                      )}
+                      <p className="min-w-0 flex-1 truncate text-sm">
+                        <span className="font-medium">{names}</span>{" "}
+                        <span className="text-muted-foreground">{action}</span>
+                      </p>
+                      <span className="text-muted-foreground shrink-0 text-xs">
+                        <TimeAgo date={new Date(notification.latestAt)} />
+                      </span>
+                      {!notification.isRead && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            markGroupRead.mutate({
+                              data: {
+                                type: notification.type,
+                                entityType: notification.entityType,
+                                entityId: notification.entityId,
+                              },
+                            });
+                          }}
+                        >
+                          <Check className="size-3" />
+                          <span className="sr-only">Mark as read</span>
+                        </Button>
+                      )}
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <Empty>

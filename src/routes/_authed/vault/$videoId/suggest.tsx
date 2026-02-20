@@ -12,6 +12,7 @@ import { z } from "zod";
 
 import { DisciplineSelector } from "~/components/input/discipline-selector";
 import { RiderSelector } from "~/components/input/rider-selector";
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -29,8 +30,6 @@ import { USER_DISCIPLINES, type UtvVideoSuggestionDiff } from "~/db/schema";
 import { invariant } from "~/lib/invariant";
 import { utv } from "~/lib/utv/core";
 
-import { PageHeader } from "~/components/page-header";
-
 const pathParametersSchema = z.object({
   videoId: z.coerce.number(),
 });
@@ -40,9 +39,7 @@ export const Route = createFileRoute("/_authed/vault/$videoId/suggest")({
     parse: pathParametersSchema.parse,
   },
   loader: async ({ context, params: { videoId } }) => {
-    await context.queryClient.ensureQueryData(
-      utv.get.queryOptions(videoId),
-    );
+    await context.queryClient.ensureQueryData(utv.get.queryOptions(videoId));
   },
   component: RouteComponent,
 });
@@ -158,7 +155,9 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/vault/${videoId}`}>{displayTitle}</PageHeader.Crumb>
+          <PageHeader.Crumb to={`/vault/${videoId}`}>
+            {displayTitle}
+          </PageHeader.Crumb>
           <PageHeader.Crumb>suggest</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
@@ -256,7 +255,10 @@ function RouteComponent() {
                 type="button"
                 variant="secondary"
                 onClick={() =>
-                  router.navigate({ to: "/vault/$videoId", params: { videoId } })
+                  router.navigate({
+                    to: "/vault/$videoId",
+                    params: { videoId },
+                  })
                 }
               >
                 Cancel

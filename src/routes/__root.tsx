@@ -137,6 +137,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       lang="en"
       // necessary for theming - only applies one level (html tag)
       suppressHydrationWarning
+      // Hydration signal for e2e tests — Playwright's actionability checks pass on
+      // SSR-rendered elements before React attaches handlers, so tests wait for this
+      // attribute to know the app is interactive.
+      // https://playwright.dev/docs/actionability
+      ref={(el) => el?.setAttribute("data-hydrated", "")}
     >
       <head>
         <HeadContent />

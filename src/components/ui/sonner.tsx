@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 import { Toaster as Sonner, toast } from "sonner";
 
+import { useIsMobile } from "~/hooks/use-mobile";
 import { useSessionFlash } from "~/lib/session/hooks";
 import { useTheme } from "~/lib/theme/context";
 
@@ -9,13 +10,14 @@ type ToasterProperties = React.ComponentProps<typeof Sonner>;
 
 export function Toaster(properties: ToasterProperties) {
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
 
   useFlashToaster();
 
   return (
     <Sonner
       className="toaster group"
-      position="top-center"
+      position={isMobile ? "bottom-center" : "bottom-right"}
       theme={theme as ToasterProperties["theme"]}
       toastOptions={{
         classNames: {

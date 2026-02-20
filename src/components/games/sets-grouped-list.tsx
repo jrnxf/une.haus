@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+
 import pluralize from "pluralize";
 
 import {
@@ -73,9 +74,7 @@ function RiderStats({ ranking }: { ranking: RiderScore }) {
   const parts: string[] = [];
 
   if (ranking.setsCount > 0) {
-    parts.push(
-      `${ranking.setsCount} ${pluralize("set", ranking.setsCount)}`,
-    );
+    parts.push(`${ranking.setsCount} ${pluralize("set", ranking.setsCount)}`);
   }
   if (ranking.submissionsCount > 0) {
     parts.push(

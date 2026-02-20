@@ -40,7 +40,7 @@ type NotificationItemProps = {
   onMarkRead?: () => void;
 };
 
-function NotificationIcon({ type }: { type: NotificationType }) {
+export function NotificationIcon({ type }: { type: NotificationType }) {
   switch (type) {
     case "like": {
       return <Heart className="size-3 text-red-500" />;
@@ -63,7 +63,7 @@ function NotificationIcon({ type }: { type: NotificationType }) {
   }
 }
 
-function formatActorNames(names: string[], count: number): string {
+export function formatActorNames(names: string[], count: number): string {
   if (names.length === 0) return "";
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
@@ -98,7 +98,7 @@ export function NotificationItem({
       to={url}
       onClick={!isRead ? onMarkRead : undefined}
       className={cn(
-        "ring-offset-background focus-visible:ring-ring group block rounded-md p-3 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+        "ring-offset-background focus-visible:ring-ring group hover:bg-accent block rounded-md p-3 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         !isRead && "bg-accent/50",
       )}
     >

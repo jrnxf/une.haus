@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { GripVerticalIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
+import { PageHeader } from "~/components/page-header";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -19,8 +20,6 @@ import {
 import type { TournamentRider } from "~/lib/tourney/types";
 import { users as usersApi } from "~/lib/users";
 import { cn } from "~/lib/utils";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/_authed/tourney/$code/ranking")({
   component: RouteComponent,

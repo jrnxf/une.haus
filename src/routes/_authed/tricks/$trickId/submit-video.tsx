@@ -7,10 +7,9 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { toast } from "sonner";
 
+import { PageHeader } from "~/components/page-header";
 import { VideoSubmitForm } from "~/components/tricks/video-submit-form";
 import { tricks } from "~/lib/tricks";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/_authed/tricks/$trickId/submit-video")({
   loader: async ({ context, params }) => {

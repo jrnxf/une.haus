@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { PageHeader } from "~/components/page-header";
 import { messages } from "~/lib/messages";
 import { ChatMessagesView } from "~/views/chat-messages";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/chat/")({
   loader: async ({ context }) => {

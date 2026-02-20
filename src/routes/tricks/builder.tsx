@@ -363,6 +363,7 @@ function TricksPage() {
                         </SelectContent>
                       </Select>
                       <Button
+                        aria-label="Remove catch"
                         variant="ghost"
                         size="icon-xs"
                         onClick={() => removeCatch(panelIndex - 1)}
@@ -614,6 +615,7 @@ function ModifierPanel({
         <span className="text-muted-foreground text-sm font-medium">flips</span>
         <ButtonGroup>
           <Button
+            aria-label="Decrease flips"
             variant="outline"
             size="sm"
             onClick={() => onUpdate("flips", (modifiers.flips as number) - 1)}
@@ -624,6 +626,7 @@ function ModifierPanel({
             {modifiers.flips}
           </ButtonGroupText>
           <Button
+            aria-label="Increase flips"
             variant="outline"
             size="sm"
             onClick={() => onUpdate("flips", (modifiers.flips as number) + 1)}

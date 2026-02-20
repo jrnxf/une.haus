@@ -211,7 +211,10 @@ function RouteComponent() {
                             prelimAction.mutate({
                               data: {
                                 code,
-                                action: { type: "setCurrent", riderIndex: index },
+                                action: {
+                                  type: "setCurrent",
+                                  riderIndex: index,
+                                },
                               },
                             })
                           }
@@ -238,7 +241,10 @@ function RouteComponent() {
                             prelimAction.mutate({
                               data: {
                                 code,
-                                action: { type: "resetRider", riderIndex: index },
+                                action: {
+                                  type: "resetRider",
+                                  riderIndex: index,
+                                },
                               },
                             })
                           }

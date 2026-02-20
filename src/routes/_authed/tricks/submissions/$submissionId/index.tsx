@@ -9,6 +9,7 @@ import {
   redirect,
   useRouter,
 } from "@tanstack/react-router";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import {
   ArrowLeft,
   CheckCircle,
@@ -16,13 +17,13 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
-import pluralize from "pluralize";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
+import pluralize from "pluralize";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { UsersDialog } from "~/components/likes-dialog";
+import { PageHeader } from "~/components/page-header";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -42,8 +43,6 @@ import { useSessionUser } from "~/lib/session/hooks";
 import { tricks } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
 import { MessagesView } from "~/views/messages";
-
-import { PageHeader } from "~/components/page-header";
 
 const pathParametersSchema = z.object({
   submissionId: z.coerce.number(),
@@ -185,11 +184,11 @@ function SubmissionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 submission.status === "pending" &&
-                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 submission.status === "approved" &&
-                "bg-green-500/20 text-green-700 dark:text-green-300",
+                  "bg-green-500/20 text-green-700 dark:text-green-300",
                 submission.status === "rejected" &&
-                "bg-red-500/20 text-red-700 dark:text-red-300",
+                  "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {submission.status === "pending" && "Pending"}

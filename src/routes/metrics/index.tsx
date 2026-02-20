@@ -1,10 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
+import { PageHeader } from "~/components/page-header";
 import { StatsGrid } from "~/components/stats/stats-grid";
 import { stats } from "~/lib/stats";
-
-import { PageHeader } from "~/components/page-header";
 
 export const Route = createFileRoute("/metrics/")({
   loader: async ({ context }) => {
