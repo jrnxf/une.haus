@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, mock } from "bun:test";
 
 import { invariant } from "./invariant";
 
 // Mock the @tanstack/react-router module for assertFound
-vi.mock("@tanstack/react-router", () => ({
+mock.module("@tanstack/react-router", () => ({
   notFound: () => {
     const error = new Error("Not Found");
     (error as Error & { isNotFound: boolean }).isNotFound = true;

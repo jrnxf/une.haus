@@ -19,10 +19,7 @@ async function navigateToFirstPost(page: Page) {
   await page.goto("/posts");
   await page.waitForLoadState("networkidle");
 
-  const postLink = page
-    .getByRole("main")
-    .locator('a[href^="/posts/"]:not([href="/posts/create"])')
-    .first();
+  const postLink = page.getByTestId("post-card").first();
   const isVisible = await postLink.isVisible().catch(() => false);
   test.skip(!isVisible, "No posts available to click");
 
@@ -35,8 +32,7 @@ async function navigateToFirstPost(page: Page) {
       await page.goto("/posts", { waitUntil: "commit" });
       await page.waitForLoadState("networkidle");
       const href = await page
-        .getByRole("main")
-        .locator('a[href^="/posts/"]:not([href="/posts/create"])')
+        .getByTestId("post-card")
         .first()
         .getAttribute("href");
       if (href) {
@@ -47,7 +43,7 @@ async function navigateToFirstPost(page: Page) {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible({
       timeout: 5000,
     });
-  }).toPass({ timeout: 30000 });
+  }).toPass({ timeout: 30_000 });
 
   await page.waitForLoadState("networkidle");
   await dismissOverlay(page);
@@ -74,8 +70,7 @@ test.describe("posts flow", () => {
     // Should show at least one post card or empty state
     await expect(
       page
-        .getByRole("main")
-        .locator("a")
+        .getByTestId("post-card")
         .first()
         .or(page.getByText("no posts")),
     ).toBeVisible();
@@ -84,11 +79,7 @@ test.describe("posts flow", () => {
   test("clicking a post card navigates to detail page", async ({ page }) => {
     await page.goto("/posts");
 
-    // Post card links go to /posts/{id} — exclude /posts/create
-    const firstPost = page
-      .getByRole("main")
-      .locator('a[href^="/posts/"]:not([href="/posts/create"])')
-      .first();
+    const firstPost = page.getByTestId("post-card").first();
     const isVisible = await firstPost.isVisible().catch(() => false);
     test.skip(!isVisible, "No posts available to click");
 
@@ -124,7 +115,7 @@ test.describe("posts flow", () => {
 
     const uniqueText = `e2e-post-comment-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
 
     await expect(page.getByText(uniqueText)).toBeVisible();
   });
@@ -134,7 +125,7 @@ test.describe("posts flow", () => {
 
     const uniqueText = `e2e-post-clike-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -144,12 +135,15 @@ test.describe("posts flow", () => {
       name: `Message: ${uniqueText}`,
     });
 
+    const messageContainer = page
+      .getByTestId("message-container")
+      .filter({ has: messageBubble });
+
     // Retry the full like flow — the click may not register if DOM detaches mid-animation,
     // and the refetch can temporarily remove the badge. Combining action + verification
     // in one retry block ensures we re-attempt the like if it didn't take effect.
     await expect(async () => {
-      const badgeVisible = await messageBubble
-        .locator("..")
+      const badgeVisible = await messageContainer
         .getByRole("button", { name: /likes/ })
         .isVisible()
         .catch(() => false);
@@ -165,9 +159,9 @@ test.describe("posts flow", () => {
       }
 
       await expect(
-        messageBubble.locator("..").getByRole("button", { name: /likes/ }),
+        messageContainer.getByRole("button", { name: /likes/ }),
       ).toBeVisible({ timeout: 5000 });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
   });
 
   test("can copy a post comment", async ({ page }) => {
@@ -175,7 +169,7 @@ test.describe("posts flow", () => {
 
     const uniqueText = `e2e-post-ccopy-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -192,7 +186,7 @@ test.describe("posts flow", () => {
       await page
         .getByRole("menuitem", { name: "Copy" })
         .click({ force: true, timeout: 3000 });
-    }).toPass({ timeout: 15000 });
+    }).toPass({ timeout: 15_000 });
 
     await expect(page.getByText("Message copied")).toBeVisible();
   });
@@ -226,7 +220,7 @@ test.describe("posts flow", () => {
     page.on("framenavigated", onNav);
 
     await page.getByRole("button", { name: "submit" }).click();
-    await expect(page).toHaveURL(/\/posts\/\d+/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/posts\/\d+/, { timeout: 15_000 });
     if (!postDetailUrl) postDetailUrl = page.url();
     page.off("framenavigated", onNav);
 
@@ -239,6 +233,6 @@ test.describe("posts flow", () => {
       await expect(
         page.getByRole("heading", { name: "Playwright Test Post" }),
       ).toBeVisible({ timeout: 3000 });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
   });
 });

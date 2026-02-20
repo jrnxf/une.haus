@@ -28,15 +28,9 @@ test.describe("vault", () => {
     // Collapse it
     await historyButton.click();
 
-    // Wait for animation to complete (300ms duration + buffer)
-    await page.waitForTimeout(400);
-
-    // motion.div animates to height:0 — pick the closest overflow-hidden ancestor
-    const historyContainer = page
-      .getByText("unicycle.tv", { exact: true })
-      .first()
-      .locator("xpath=ancestor::div[contains(@class,'overflow-hidden')][1]");
-    await expect(historyContainer).toHaveCSS("height", "0px");
+    // The history panel animates to height:0 — assert it becomes hidden
+    const historyPanel = page.getByTestId("history-panel");
+    await expect(historyPanel).toHaveCSS("height", "0px");
   });
 
   test("Clap for Olaf increments count", async ({ page }) => {

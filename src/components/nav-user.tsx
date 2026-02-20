@@ -106,14 +106,6 @@ export function NavUser() {
             >
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <Link to="/feedback">
-                    <Send className="size-4" />
-                    Feedback
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
                   <Link to="/privacy">
                     <EyeOff className="size-4" />
                     Privacy

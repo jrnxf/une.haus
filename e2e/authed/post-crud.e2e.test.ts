@@ -14,17 +14,15 @@ async function dismissOverlay(page: Page) {
   }
 }
 
-/** Wait for alert dialog popup, then click the confirm button */
+/** Wait for alert dialog, then click the confirm button */
 async function confirmAlertDialog(page: Page, buttonName: string) {
-  await page
-    .locator("[data-slot='alert-dialog-popup']")
-    .waitFor({ state: "visible", timeout: 5000 });
+  const dialog = page.getByRole("alertdialog");
+  await dialog.waitFor({ state: "visible", timeout: 5000 });
   await expect(async () => {
-    await page
-      .locator("[data-slot='alert-dialog-popup']")
-      .getByRole("button", { name: buttonName })
-      .click({ timeout: 3000 });
-  }).toPass({ timeout: 10000 });
+    await dialog.getByRole("button", { name: buttonName }).click({
+      timeout: 3000,
+    });
+  }).toPass({ timeout: 10_000 });
 }
 
 const POST_TITLE = "e2e-crud-post";
@@ -61,7 +59,7 @@ test.describe("post edit + delete", () => {
     page.on("framenavigated", onNav);
 
     await page.getByRole("button", { name: "submit" }).click();
-    await expect(page).toHaveURL(/\/posts\/\d+/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/posts\/\d+/, { timeout: 15_000 });
     if (!postDetailUrl) postDetailUrl = page.url();
     page.off("framenavigated", onNav);
 
@@ -73,12 +71,12 @@ test.describe("post edit + delete", () => {
       await expect(
         page.getByRole("heading", { name: POST_TITLE }),
       ).toBeVisible({ timeout: 3000 });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
 
     // --- EDIT ---
     // Edit uses asChild + Link, rendered as <a> not <button>
     await page.getByLabel("Edit").click();
-    await expect(page).toHaveURL(/\/posts\/\d+\/edit/, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/posts\/\d+\/edit/, { timeout: 10_000 });
     await page.waitForLoadState("networkidle");
     await dismissOverlay(page);
 
@@ -90,7 +88,7 @@ test.describe("post edit + delete", () => {
     await page.getByRole("button", { name: "submit" }).click();
 
     // Should navigate back to detail page with updated title
-    await expect(page).toHaveURL(/\/posts\/\d+$/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/posts\/\d+$/, { timeout: 15_000 });
 
     await expect(async () => {
       if (!/\/posts\/\d+$/.test(page.url())) {
@@ -99,7 +97,7 @@ test.describe("post edit + delete", () => {
       await expect(
         page.getByRole("heading", { name: POST_TITLE_EDITED }),
       ).toBeVisible({ timeout: 3000 });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
 
     // --- DELETE ---
     await dismissOverlay(page);
@@ -110,9 +108,9 @@ test.describe("post edit + delete", () => {
     await confirmAlertDialog(page, "Delete");
 
     // Should redirect to /posts after deletion
-    await expect(page).toHaveURL("/posts", { timeout: 15000 });
+    await expect(page).toHaveURL("/posts", { timeout: 15_000 });
     await expect(page.getByText("Post deleted")).toBeVisible({
-      timeout: 10000,
+      timeout: 10_000,
     });
   });
 });

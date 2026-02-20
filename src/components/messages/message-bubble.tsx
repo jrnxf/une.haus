@@ -119,6 +119,7 @@ export function MessageBubble({
         )}
       >
         <div
+          data-testid="message-container"
           className={cn(
             "group relative flex w-max max-w-[80%] items-center gap-2",
             isOwnMessage ? "flex-row-reverse" : "flex-row",

@@ -217,6 +217,7 @@ function RouteComponent() {
                 `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`);
             return (
               <Link
+                data-testid="post-card"
                 className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
                 key={post.id}
                 params={{ postId: post.id }}

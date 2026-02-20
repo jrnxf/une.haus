@@ -35,7 +35,7 @@ test.describe("chat", () => {
 
     const uniqueText = `e2e-chat-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
 
     await expect(page.getByText(uniqueText)).toBeVisible();
   });
@@ -47,7 +47,7 @@ test.describe("chat", () => {
 
     const uniqueText = `e2e-chat-like-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -57,12 +57,15 @@ test.describe("chat", () => {
       name: `Message: ${uniqueText}`,
     });
 
+    const messageContainer = page
+      .getByTestId("message-container")
+      .filter({ has: messageBubble });
+
     // Retry the full like flow — the click may not register if DOM detaches mid-animation,
     // and the refetch can temporarily remove the badge. Combining action + verification
     // in one retry block ensures we re-attempt the like if it didn't take effect.
     await expect(async () => {
-      const badgeVisible = await messageBubble
-        .locator("..")
+      const badgeVisible = await messageContainer
         .getByRole("button", { name: /likes/ })
         .isVisible()
         .catch(() => false);
@@ -78,9 +81,9 @@ test.describe("chat", () => {
       }
 
       await expect(
-        messageBubble.locator("..").getByRole("button", { name: /likes/ }),
+        messageContainer.getByRole("button", { name: /likes/ }),
       ).toBeVisible({ timeout: 5000 });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
   });
 
   test("can copy a message", async ({ page }) => {
@@ -90,7 +93,7 @@ test.describe("chat", () => {
 
     const uniqueText = `e2e-chat-copy-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -106,7 +109,7 @@ test.describe("chat", () => {
       await page
         .getByRole("menuitem", { name: "Copy" })
         .click({ timeout: 3000 });
-    }).toPass({ timeout: 15000 });
+    }).toPass({ timeout: 15_000 });
 
     await expect(page.getByText("Message copied")).toBeVisible();
   });

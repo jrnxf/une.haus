@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 
 import { enterCodeSchema, registerSchema, sendCodeSchema } from "./schemas";
 

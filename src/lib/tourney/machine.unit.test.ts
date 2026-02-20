@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import { transition, type StateValue } from "xstate";
 
 import {

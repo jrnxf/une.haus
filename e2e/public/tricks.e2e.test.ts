@@ -5,18 +5,14 @@ test.describe("tricks", () => {
     await page.goto("/tricks");
 
     await expect(page.getByRole("table")).toBeVisible();
-    await expect(
-      page.getByRole("table").locator("tbody tr").first(),
-    ).toBeVisible();
+    await expect(page.getByRole("row").nth(1)).toBeVisible();
   });
 
   test("clicking a trick navigates to detail page", async ({ page }) => {
     await page.goto("/tricks");
 
-    const firstTrickLink = page
-      .getByRole("table")
-      .locator("tbody tr a")
-      .first();
+    // First data row's link
+    const firstTrickLink = page.getByRole("row").nth(1).getByRole("link");
     const isVisible = await firstTrickLink.isVisible().catch(() => false);
     test.skip(!isVisible, "No tricks available");
 

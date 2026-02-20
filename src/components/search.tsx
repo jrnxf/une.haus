@@ -85,6 +85,13 @@ export function Search() {
 
   const [open, setOpen] = usePeripherals("search");
 
+  const reset = () => {
+    setPages(["root"]);
+    setInput("");
+    setSelectedValue("");
+    setActionsOpen(false);
+  };
+
   // Keyboard shortcut to open menu
   useHotkeys(
     "mod+k",
@@ -107,13 +114,6 @@ export function Search() {
     setPages((pages) => pages.slice(0, -1));
     setInput("");
     setSelectedValue("");
-  };
-
-  const reset = () => {
-    setPages(["root"]);
-    setInput("");
-    setSelectedValue("");
-    setActionsOpen(false);
   };
 
   // Close the menu without triggering history.back()
@@ -230,14 +230,27 @@ export function Search() {
       },
     },
     {
-      id: "notifications",
-      label: "Notifications",
-      value: "/notifications",
+      id: "tourney",
+      label: "Tourney",
+      value: "/tourney",
       primaryAction: {
         label: "Open",
-        onAction: () => closeAndNavigate("/notifications"),
+        onAction: () => closeAndNavigate("/tourney"),
       },
     },
+    ...(isAuthenticated
+      ? [
+          {
+            id: "notifications",
+            label: "Notifications",
+            value: "/notifications",
+            primaryAction: {
+              label: "Open",
+              onAction: () => closeAndNavigate("/notifications"),
+            },
+          },
+        ]
+      : []),
     {
       id: "feedback",
       label: "Feedback",

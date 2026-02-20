@@ -4,8 +4,6 @@ import { expect, test } from "../fixtures";
 // Helper: open the command palette via the sidebar search button
 // (Meta+k is intercepted by Chromium in headless mode)
 async function openSearch(page: Page) {
-  // Wait for React hydration before interacting (see __root.tsx)
-  await page.locator("html[data-hydrated]").waitFor();
   await page.getByRole("button", { name: /search.*⌘.*K/i }).click();
   await page.getByPlaceholder("search for anything...").waitFor();
 }

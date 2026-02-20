@@ -273,6 +273,7 @@ function RouteComponent() {
         </div>
 
         <motion.div
+          data-testid="history-panel"
           initial={false}
           animate={{
             height: historyOpen ? "auto" : 0,

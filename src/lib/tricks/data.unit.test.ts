@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 
 import { compareTrickNames, getTrickSortKey } from "./compute";
 

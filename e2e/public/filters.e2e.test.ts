@@ -6,7 +6,7 @@ import { expect, test } from "../fixtures";
 // the pointer events Base UI expects in headless Chromium
 async function nativeClick(locator: Locator) {
   await locator.waitFor();
-  await locator.evaluate((el) => el.click());
+  await locator.evaluate((el) => (el as HTMLElement).click());
 }
 
 async function addTextFilter(page: Page, filterName: string) {
@@ -14,16 +14,10 @@ async function addTextFilter(page: Page, filterName: string) {
   const menuitem = page.getByRole("menuitem", { name: filterName });
 
   // Base UI Menu can be flaky in headless Chromium — retry opening if needed
-  for (let i = 0; i < 3; i++) {
+  await expect(async () => {
     await nativeClick(filterButton);
-    try {
-      await menuitem.waitFor({ timeout: 2000 });
-      break;
-    } catch {
-      await page.keyboard.press("Escape");
-      await page.waitForTimeout(100);
-    }
-  }
+    await menuitem.waitFor({ timeout: 2000 });
+  }).toPass({ timeout: 10_000 });
 
   await nativeClick(menuitem);
   await page.getByPlaceholder("search...").waitFor();
@@ -46,7 +40,7 @@ test.describe("filtered lists", () => {
 
   test("users search narrows results", async ({ page }) => {
     await page.goto("/users");
-    await page.getByRole("main").locator("a").first().waitFor();
+    await page.getByRole("main").getByRole("link").first().waitFor();
 
     await addTextFilter(page, "Name");
 
@@ -58,7 +52,7 @@ test.describe("filtered lists", () => {
 
   test("posts search narrows results", async ({ page }) => {
     await page.goto("/posts");
-    await page.getByRole("main").locator("a").first().waitFor();
+    await page.getByRole("main").getByRole("link").first().waitFor();
 
     await addTextFilter(page, "Search");
 
@@ -70,7 +64,7 @@ test.describe("filtered lists", () => {
 
   test("vault search narrows results", async ({ page }) => {
     await page.goto("/vault");
-    await page.getByRole("main").locator("a").first().waitFor();
+    await page.getByRole("main").getByRole("link").first().waitFor();
 
     await addTextFilter(page, "Search");
 
@@ -83,7 +77,7 @@ test.describe("filtered lists", () => {
 
   test("clearing a filter restores results", async ({ page }) => {
     await page.goto("/users");
-    await page.getByRole("main").locator("a").first().waitFor();
+    await page.getByRole("main").getByRole("link").first().waitFor();
 
     await addTextFilter(page, "Name");
 
@@ -95,6 +89,8 @@ test.describe("filtered lists", () => {
     await page.getByRole("button", { name: "Remove filter" }).click();
 
     // Results should be restored
-    await expect(page.getByRole("main").locator("a").first()).toBeVisible();
+    await expect(
+      page.getByRole("main").getByRole("link").first(),
+    ).toBeVisible();
   });
 });

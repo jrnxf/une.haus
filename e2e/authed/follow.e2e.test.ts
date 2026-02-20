@@ -9,6 +9,11 @@ test.describe("follow / unfollow", () => {
     const sql = postgres(process.env.DATABASE_URL!);
     try {
       // The test is idempotent (unfollows at end), but clean up just in case
+      await sql`
+        DELETE FROM follows
+        WHERE follower_id = (SELECT id FROM users WHERE email = 'colby@jrnxf.co')
+          AND created_at > now() - interval '5 minutes'
+      `;
     } finally {
       await sql.end();
     }
@@ -20,14 +25,14 @@ test.describe("follow / unfollow", () => {
     await page.waitForLoadState("networkidle");
 
     // Collect all user profile hrefs while still on the /users page
-    const userLinks = page.getByRole("main").locator('a[href^="/users/"]');
+    const userLinks = page.getByRole("main").getByRole("link");
     const count = await userLinks.count();
     test.skip(count < 2, "Not enough users to find a non-self profile");
 
     const hrefs: string[] = [];
     for (let i = 0; i < Math.min(count, 5); i++) {
       const href = await userLinks.nth(i).getAttribute("href");
-      if (href) hrefs.push(href);
+      if (href?.startsWith("/users/")) hrefs.push(href);
     }
 
     // Try each user until we find one with a Follow/Unfollow button (not our own)

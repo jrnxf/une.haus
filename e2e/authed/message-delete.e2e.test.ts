@@ -34,7 +34,7 @@ test.describe("message deletion", () => {
     // Send a message
     const uniqueText = `e2e-del-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
     await dismissOverlay(page);
@@ -84,7 +84,7 @@ test.describe("message deletion", () => {
       await expect(page.getByText("Message deleted")).toBeVisible({
         timeout: 5000,
       });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
 
     await expect(messageBubble).not.toBeVisible({ timeout: 5000 });
   });
@@ -97,7 +97,7 @@ test.describe("message deletion", () => {
     // Send a message
     const uniqueText = `e2e-del-edit-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.locator("button[type='submit']").click();
+    await page.getByRole("button", { name: "submit" }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
     await dismissOverlay(page);
@@ -153,7 +153,7 @@ test.describe("message deletion", () => {
       await expect(page.getByText("Message deleted")).toBeVisible({
         timeout: 5000,
       });
-    }).toPass({ timeout: 30000 });
+    }).toPass({ timeout: 30_000 });
 
     // Use messageBubble reference — getByText would match the edit drawer textarea too
     await expect(messageBubble).not.toBeVisible({ timeout: 5000 });
