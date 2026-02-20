@@ -58,7 +58,7 @@ test.describe("post edit + delete", () => {
     };
     page.on("framenavigated", onNav);
 
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page).toHaveURL(/\/posts\/\d+/, { timeout: 15_000 });
     if (!postDetailUrl) postDetailUrl = page.url();
     page.off("framenavigated", onNav);
@@ -85,7 +85,7 @@ test.describe("post edit + delete", () => {
     await titleInput.clear();
     await titleInput.fill(POST_TITLE_EDITED);
 
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
 
     // Should navigate back to detail page with updated title
     await expect(page).toHaveURL(/\/posts\/\d+$/, { timeout: 15_000 });

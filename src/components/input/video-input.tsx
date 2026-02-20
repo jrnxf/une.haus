@@ -78,6 +78,7 @@ export const VideoInput = ({
             type="button"
             size="icon-sm"
             variant="secondary"
+            aria-label="Remove video"
           >
             <TrashIcon className="size-4" />
           </Button>

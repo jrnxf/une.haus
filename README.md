@@ -30,7 +30,7 @@ une.haus is a platform for unicyclists to share tricks, compete in games, organi
 **core features**
 
 - **tricks** — browse a comprehensive trick encyclopedia with detail pages showing full trick info, videos, and prerequisites
-- **games** — three collaborative games: *rack it up* (post creative sets weekly and reply to others), *back it up* (match the last trick then set a new one, building evolving chains), and *stack it up* (nail every trick in the stack then add your own to the end)
+- **games** — three collaborative games: _rack it up_ (post creative sets weekly and reply to others), _back it up_ (match the last trick then set a new one, building evolving chains), and _stack it up_ (nail every trick in the stack then add your own to the end)
 - **vault** — explore unicycle.tv videos with community metadata curation, rider attribution, and filtering by discipline
 - **community** — share stories in posts with tags (freestyle, street, trials, etc.), leave comments, and like content
 - **tournaments** — create and manage bracket-style tournaments with live tournament features

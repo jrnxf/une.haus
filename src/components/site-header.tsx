@@ -19,7 +19,12 @@ export function MobileFooter() {
         >
           <ChevronLeftIcon />
         </Button>
-        <Button variant="secondary" size="icon" onClick={openNav}>
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={openNav}
+          aria-label="Menu"
+        >
           <MenuIcon />
         </Button>
       </div>

@@ -52,6 +52,7 @@ export function StringListInput({
           onClick={handleAdd}
           disabled={!inputValue.trim()}
           className="absolute top-1/2 right-1 -translate-y-1/2"
+          aria-label="Add"
         >
           <Plus className="size-4" />
         </Button>
@@ -65,6 +66,7 @@ export function StringListInput({
                 type="button"
                 onClick={() => handleRemove(item)}
                 className="hover:bg-muted rounded-sm p-0.5"
+                aria-label={`Remove ${item}`}
               >
                 <X className="size-3" />
               </button>

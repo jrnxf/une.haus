@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const GRAVITY = 0.3;
-const JUMP_FORCE = -3.0;
+const JUMP_FORCE = -3;
 const JUMP_HOLD_BOOST = -0.3;
 const MAX_HOLD_FRAMES = 16;
 const INITIAL_SPEED = 3.5;
@@ -83,7 +83,7 @@ function generateSingleRail(prev: Rail | null, score: number): Rail {
 
   const endY = prev.y + prev.slope * prev.width;
   const endX = prev.x + prev.width;
-  const t = Math.min(score / 30000, 1);
+  const t = Math.min(score / 30_000, 1);
   const wasStep = prev.slope > 0.25;
 
   // After a steep downhill, always generate a climb or flat to regulate speed
@@ -242,7 +242,7 @@ function generateRailBatch(prev: Rail | null, score: number): Rail[] {
 
   const endX = prev.x + prev.width;
   const endY = prev.y + prev.slope * prev.width;
-  const t = Math.min(score / 30000, 1);
+  const t = Math.min(score / 30_000, 1);
 
   const roll = Math.random();
   if (roll < 0.25) {
@@ -595,7 +595,7 @@ export function EternalStaircase() {
       gs.jumpHeld = true;
       gs.jumpHeldFrames = 0;
     }
-  }, [resetGame]);
+  }, [resetGame, startRunning]);
 
   const releaseJump = useCallback(() => {
     stateRef.current.jumpHeld = false;

@@ -166,8 +166,9 @@ function RouteComponent() {
                     <Link
                       to={url}
                       onClick={
-                        !notification.isRead
-                          ? () =>
+                        notification.isRead
+                          ? undefined
+                          : () =>
                               markGroupRead.mutate({
                                 data: {
                                   type: notification.type,
@@ -175,7 +176,6 @@ function RouteComponent() {
                                   entityId: notification.entityId,
                                 },
                               })
-                          : undefined
                       }
                       className="group hover:bg-accent/50 flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 transition-colors"
                     >

@@ -9,7 +9,7 @@ test.describe("feedback", () => {
     await expect(page.getByLabel("Image")).toBeVisible();
     await expect(page.getByLabel("Video")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "submit" }),
+      page.getByRole("button", { name: "submit", exact: true }),
     ).toBeVisible();
   });
 
@@ -17,7 +17,7 @@ test.describe("feedback", () => {
     await page.goto("/feedback");
 
     // Try submitting without filling in the message
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
 
     // Should stay on the feedback page (form validation prevents submit)
     await expect(page).toHaveURL("/feedback");

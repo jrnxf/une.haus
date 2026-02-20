@@ -185,15 +185,17 @@ export const listUtvVideosServerFn = createServerFn({
               )}]`
             : undefined,
           input.writers && input.writers.length > 0
-            ? sql`EXISTS (
-                SELECT 1 FROM ${utvVideoRiders}
-                LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
-                WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
-                AND COALESCE(${users.name}, ${utvVideoRiders.name}) IN (${sql.join(
+            ? sql`
+              EXISTS (
+                              SELECT 1 FROM ${utvVideoRiders}
+                              LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
+                              WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
+                              AND COALESCE(${users.name}, ${utvVideoRiders.name}) IN (${sql.join(
                   input.writers.map((w) => sql`${w}`),
                   sql`,`,
                 )})
-              )`
+                            )
+            `
             : undefined,
         ),
       )

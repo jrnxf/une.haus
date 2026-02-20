@@ -35,7 +35,7 @@ test.describe("chat", () => {
 
     const uniqueText = `e2e-chat-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
 
     await expect(page.getByText(uniqueText)).toBeVisible();
   });
@@ -47,7 +47,7 @@ test.describe("chat", () => {
 
     const uniqueText = `e2e-chat-like-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -93,7 +93,7 @@ test.describe("chat", () => {
 
     const uniqueText = `e2e-chat-copy-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 

@@ -32,7 +32,7 @@ const LETTER_BOB_SPEED = 0.05;
 const LETTER_BOB_AMPLITUDE = 6;
 const LETTER_SPAWN_INTERVAL = 180;
 const LETTER_COLLECT_RADIUS = 20;
-const LETTER_BONUS = 77770;
+const LETTER_BONUS = 77_770;
 const LETTER_BONUS_DISPLAY_FRAMES = 120;
 
 // --- Types ---
@@ -491,15 +491,26 @@ function getSurfaceY(
   terrain: TerrainPiece[],
 ): number {
   for (const t of terrain) {
-    if (t.type === "stairset") {
-      const y = getStairsetSurfaceY(worldX, baseGroundY, t);
-      if (y !== null) return y;
-    } else if (t.type === "ledge") {
-      const y = getLedgeSurfaceY(worldX, baseGroundY, t);
-      if (y !== null) return y;
-    } else if (t.type === "bump") {
-      const y = getBumpSurfaceY(worldX, baseGroundY, t);
-      if (y !== null) return y;
+    switch (t.type) {
+      case "stairset": {
+        const y = getStairsetSurfaceY(worldX, baseGroundY, t);
+        if (y !== null) return y;
+
+        break;
+      }
+      case "ledge": {
+        const y = getLedgeSurfaceY(worldX, baseGroundY, t);
+        if (y !== null) return y;
+
+        break;
+      }
+      case "bump": {
+        const y = getBumpSurfaceY(worldX, baseGroundY, t);
+        if (y !== null) return y;
+
+        break;
+      }
+      // No default
     }
   }
   return baseGroundY;
@@ -659,11 +670,11 @@ function drawUnicyclist(
   // Single leg
   ctx.beginPath();
   ctx.moveTo(hipX, hipY);
-  if (seatSpin !== 0) {
+  if (seatSpin === 0) {
+    ctx.lineTo(px1, py1);
+  } else {
     // During unispin, leg tucks (not connected to spinning pedal)
     ctx.lineTo(hipX - 2, hipY + 10);
-  } else {
-    ctx.lineTo(px1, py1);
   }
   ctx.stroke();
 
@@ -1282,7 +1293,9 @@ export function UnicycleGame() {
     seatSpinning: false,
     seatSpinDir: 1,
     letters: [],
-    collectedLetters: Array(LETTER_WORD.length).fill(false) as boolean[],
+    collectedLetters: Array.from({ length: LETTER_WORD.length }).fill(
+      false,
+    ) as boolean[],
     letterSpawnTimer: LETTER_SPAWN_INTERVAL,
     bonusTimer: 0,
   });
@@ -1331,7 +1344,9 @@ export function UnicycleGame() {
     gs.seatSpinning = false;
     gs.seatSpinDir = 1;
     gs.letters = [];
-    gs.collectedLetters = Array(LETTER_WORD.length).fill(false) as boolean[];
+    gs.collectedLetters = Array.from({ length: LETTER_WORD.length }).fill(
+      false,
+    ) as boolean[];
     gs.letterSpawnTimer = LETTER_SPAWN_INTERVAL;
     gs.bonusTimer = 0;
   }, [getGroundY]);
@@ -1686,7 +1701,7 @@ export function UnicycleGame() {
         const bobY = l.y + Math.sin(l.bobPhase) * LETTER_BOB_AMPLITUDE;
         const dx = PLAYER_X - l.x;
         const dy = gs.playerY - bobY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dist = Math.hypot(dx, dy);
         if (dist < LETTER_COLLECT_RADIUS && l.index === nextLetterIdx) {
           gs.collectedLetters[l.index] = true;
           gs.letters.splice(i, 1);
@@ -1694,9 +1709,9 @@ export function UnicycleGame() {
           if (gs.collectedLetters.every(Boolean)) {
             gs.score += LETTER_BONUS;
             gs.bonusTimer = LETTER_BONUS_DISPLAY_FRAMES;
-            gs.collectedLetters = Array(LETTER_WORD.length).fill(
-              false,
-            ) as boolean[];
+            gs.collectedLetters = Array.from({
+              length: LETTER_WORD.length,
+            }).fill(false) as boolean[];
             gs.letters = [];
           }
         }
@@ -1759,14 +1774,25 @@ export function UnicycleGame() {
     drawGround(ctx, baseGroundY, w, gs.groundOffset, fg, muted);
 
     for (const t of gs.terrain) {
-      if (t.type === "stairset") {
-        drawStairset(ctx, t, baseGroundY, fg, bg, muted);
-      } else if (t.type === "ledge") {
-        drawLedge(ctx, t, baseGroundY, fg, bg, muted);
-      } else if (t.type === "bump") {
-        drawBump(ctx, t, baseGroundY, fg, bg);
-      } else {
-        drawSpikes(ctx, t, baseGroundY, fg);
+      switch (t.type) {
+        case "stairset": {
+          drawStairset(ctx, t, baseGroundY, fg, bg, muted);
+
+          break;
+        }
+        case "ledge": {
+          drawLedge(ctx, t, baseGroundY, fg, bg, muted);
+
+          break;
+        }
+        case "bump": {
+          drawBump(ctx, t, baseGroundY, fg, bg);
+
+          break;
+        }
+        default: {
+          drawSpikes(ctx, t, baseGroundY, fg);
+        }
       }
     }
 
@@ -1851,7 +1877,7 @@ export function UnicycleGame() {
     }
 
     animRef.current = requestAnimationFrame(gameLoop);
-  }, [getGroundY]);
+  }, []);
   /* eslint-enable react-hooks/immutability */
 
   const resizeCanvas = useCallback(() => {

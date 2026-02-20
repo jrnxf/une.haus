@@ -34,7 +34,7 @@ test.describe("profile editing", () => {
     await bioField.fill(TEST_BIO);
 
     // Submit
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
 
     // Should redirect to profile page
     await expect(page).toHaveURL("/auth/me", { timeout: 15000 });

@@ -115,7 +115,7 @@ test.describe("posts flow", () => {
 
     const uniqueText = `e2e-post-comment-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
 
     await expect(page.getByText(uniqueText)).toBeVisible();
   });
@@ -125,7 +125,7 @@ test.describe("posts flow", () => {
 
     const uniqueText = `e2e-post-clike-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -169,7 +169,7 @@ test.describe("posts flow", () => {
 
     const uniqueText = `e2e-post-ccopy-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
 
@@ -219,7 +219,7 @@ test.describe("posts flow", () => {
     };
     page.on("framenavigated", onNav);
 
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page).toHaveURL(/\/posts\/\d+/, { timeout: 15_000 });
     if (!postDetailUrl) postDetailUrl = page.url();
     page.off("framenavigated", onNav);

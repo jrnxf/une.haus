@@ -254,6 +254,7 @@ export function RiderSelector({
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => handleRemove(rider.orderId)}
+                  aria-label={`Remove ${displayName}`}
                 >
                   <X className="size-3.5" />
                 </Button>

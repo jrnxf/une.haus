@@ -40,7 +40,7 @@ test.describe("filtered lists", () => {
 
   test("users search narrows results", async ({ page }) => {
     await page.goto("/users");
-    await page.getByRole("main").getByRole("link").first().waitFor();
+    await page.getByTestId("user-card").first().waitFor();
 
     await addTextFilter(page, "Name");
 
@@ -77,7 +77,7 @@ test.describe("filtered lists", () => {
 
   test("clearing a filter restores results", async ({ page }) => {
     await page.goto("/users");
-    await page.getByRole("main").getByRole("link").first().waitFor();
+    await page.getByTestId("user-card").first().waitFor();
 
     await addTextFilter(page, "Name");
 
@@ -89,8 +89,6 @@ test.describe("filtered lists", () => {
     await page.getByRole("button", { name: "Remove filter" }).click();
 
     // Results should be restored
-    await expect(
-      page.getByRole("main").getByRole("link").first(),
-    ).toBeVisible();
+    await expect(page.getByTestId("user-card").first()).toBeVisible();
   });
 });

@@ -96,7 +96,7 @@ export function NotificationItem({
   return (
     <Link
       to={url}
-      onClick={!isRead ? onMarkRead : undefined}
+      onClick={isRead ? undefined : onMarkRead}
       className={cn(
         "ring-offset-background focus-visible:ring-ring group hover:bg-accent block rounded-md p-3 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         !isRead && "bg-accent/50",

@@ -34,7 +34,7 @@ test.describe("message deletion", () => {
     // Send a message
     const uniqueText = `e2e-del-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
     await dismissOverlay(page);
@@ -97,7 +97,7 @@ test.describe("message deletion", () => {
     // Send a message
     const uniqueText = `e2e-del-edit-${Date.now()}`;
     await page.getByPlaceholder("write a message...").fill(uniqueText);
-    await page.getByRole("button", { name: "submit" }).click();
+    await page.getByRole("button", { name: "submit", exact: true }).click();
     await expect(page.getByText(uniqueText)).toBeVisible();
     await page.waitForLoadState("networkidle");
     await dismissOverlay(page);

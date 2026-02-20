@@ -64,7 +64,7 @@ function generateRail(prev: Rail | null, score: number): Rail {
   if (!prev)
     return { x: PLAYER_X - 60, y: 250, width: 400, slope: 0, obstacles: [] };
   const endX = prev.x + prev.width;
-  const t = Math.min(score / 25000, 1);
+  const t = Math.min(score / 25_000, 1);
   const gap = randomBetween(60 + t * 20, 130 + t * 30);
   const width = Math.max(100, randomBetween(120, 300 - t * 60));
   const slope = randomBetween(-0.02, 0.06);

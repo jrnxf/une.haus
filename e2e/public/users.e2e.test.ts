@@ -7,8 +7,7 @@ test.describe("users", () => {
     // Should show user cards or empty state
     await expect(
       page
-        .getByRole("main")
-        .getByRole("link")
+        .getByTestId("user-card")
         .first()
         .or(page.getByText("no users")),
     ).toBeVisible();
@@ -17,7 +16,7 @@ test.describe("users", () => {
   test("clicking a user card navigates to profile", async ({ page }) => {
     await page.goto("/users");
 
-    const userCard = page.getByRole("main").getByRole("link").first();
+    const userCard = page.getByTestId("user-card").first();
     const isVisible = await userCard.isVisible().catch(() => false);
     test.skip(!isVisible, "No users available");
 

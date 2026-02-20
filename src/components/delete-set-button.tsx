@@ -28,6 +28,7 @@ export function DeleteSetButton({ setId }: { setId: number }) {
       size="icon-sm"
       type="button"
       variant="ghost"
+      aria-label="Delete"
     >
       {deleteSet.isPending ? (
         <Loader2Icon className="size-4 animate-spin" />

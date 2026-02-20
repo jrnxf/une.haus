@@ -96,6 +96,7 @@ export function BaseMessageForm({
           size="icon-sm"
           variant="secondary"
           className="mb-1.5"
+          aria-label="submit"
         >
           <CornerDownLeftIcon className="size-4" />
         </Button>

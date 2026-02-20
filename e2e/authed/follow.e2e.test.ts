@@ -10,9 +10,8 @@ test.describe("follow / unfollow", () => {
     try {
       // The test is idempotent (unfollows at end), but clean up just in case
       await sql`
-        DELETE FROM follows
-        WHERE follower_id = (SELECT id FROM users WHERE email = 'colby@jrnxf.co')
-          AND created_at > now() - interval '5 minutes'
+        DELETE FROM user_follows
+        WHERE followed_by_user_id = (SELECT id FROM users WHERE email = 'colby@jrnxf.co')
       `;
     } finally {
       await sql.end();
@@ -25,13 +24,13 @@ test.describe("follow / unfollow", () => {
     await page.waitForLoadState("networkidle");
 
     // Collect all user profile hrefs while still on the /users page
-    const userLinks = page.getByRole("main").getByRole("link");
-    const count = await userLinks.count();
+    const userCards = page.getByTestId("user-card");
+    const count = await userCards.count();
     test.skip(count < 2, "Not enough users to find a non-self profile");
 
     const hrefs: string[] = [];
     for (let i = 0; i < Math.min(count, 5); i++) {
-      const href = await userLinks.nth(i).getAttribute("href");
+      const href = await userCards.nth(i).getAttribute("href");
       if (href?.startsWith("/users/")) hrefs.push(href);
     }
 

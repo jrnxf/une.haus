@@ -223,6 +223,7 @@ function RouteComponent() {
                 className={cn(
                   "ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
                 )}
+                data-testid="user-card"
                 data-user-name={user.name}
               >
                 <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
