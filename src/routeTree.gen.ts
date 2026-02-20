@@ -9,10 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ArcadeRouteImport } from './routes/arcade'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
@@ -24,11 +24,14 @@ import { Route as MetricsIndexRouteImport } from './routes/metrics/index'
 import { Route as MapIndexRouteImport } from './routes/map/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as TricksGraphRouteImport } from './routes/tricks/graph'
 import { Route as TricksGlossaryRouteImport } from './routes/tricks/glossary'
 import { Route as TricksBuilderRouteImport } from './routes/tricks/builder'
 import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
 import { Route as MetricsUsersRouteImport } from './routes/metrics/users'
+import { Route as GamesArcadeRouteImport } from './routes/games/arcade'
+import { Route as AuthVerifyRouteImport } from './routes/auth/verify'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
 import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
@@ -49,8 +52,6 @@ import { Route as TourneyLiveCodeRouteImport } from './routes/tourney/live/$code
 import { Route as GamesSiusStartRouteImport } from './routes/games/sius/start'
 import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
 import { Route as GamesBiusStartRouteImport } from './routes/games/bius/start'
-import { Route as AuthCodeVerifyRouteImport } from './routes/auth/code/verify'
-import { Route as AuthCodeSendRouteImport } from './routes/auth/code/send'
 import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
 import { Route as AuthedVaultReviewRouteImport } from './routes/_authed/vault/review'
 import { Route as AuthedTricksReviewRouteImport } from './routes/_authed/tricks/review'
@@ -90,6 +91,11 @@ import { Route as AuthedAdminTricksTrickIdVideosRouteImport } from './routes/_au
 import { Route as AuthedAdminTricksTrickIdEditRouteImport } from './routes/_authed/admin/tricks/$trickId/edit'
 import { Route as AuthedAdminTricksElementsElementIdEditRouteImport } from './routes/_authed/admin/tricks/elements/$elementId/edit'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -103,11 +109,6 @@ const SandboxRoute = SandboxRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ArcadeRoute = ArcadeRouteImport.update({
-  id: '/arcade',
-  path: '/arcade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedRoute = AuthedRouteImport.update({
@@ -164,6 +165,11 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TricksGraphRoute = TricksGraphRouteImport.update({
   id: '/tricks/graph',
   path: '/tricks/graph',
@@ -187,6 +193,16 @@ const TricksTrickIdRoute = TricksTrickIdRouteImport.update({
 const MetricsUsersRoute = MetricsUsersRouteImport.update({
   id: '/metrics/users',
   path: '/metrics/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesArcadeRoute = GamesArcadeRouteImport.update({
+  id: '/games/arcade',
+  path: '/games/arcade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthVerifyRoute = AuthVerifyRouteImport.update({
+  id: '/auth/verify',
+  path: '/auth/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
@@ -289,16 +305,6 @@ const GamesBiusStartRoute = GamesBiusStartRouteImport.update({
   id: '/start',
   path: '/start',
   getParentRoute: () => GamesBiusRouteRoute,
-} as any)
-const AuthCodeVerifyRoute = AuthCodeVerifyRouteImport.update({
-  id: '/auth/code/verify',
-  path: '/auth/code/verify',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthCodeSendRoute = AuthCodeSendRouteImport.update({
-  id: '/auth/code/send',
-  path: '/auth/code/send',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMuxWebhookRoute = ApiMuxWebhookRouteImport.update({
   id: '/api/mux/webhook',
@@ -515,10 +521,10 @@ const AuthedAdminTricksElementsElementIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/games/bius': typeof GamesBiusRouteRouteWithChildren
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/games/sius': typeof GamesSiusRouteRouteWithChildren
@@ -526,11 +532,14 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/verify': typeof AuthVerifyRoute
+  '/games/arcade': typeof GamesArcadeRoute
   '/metrics/users': typeof MetricsUsersRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/tricks/builder': typeof TricksBuilderRoute
   '/tricks/glossary': typeof TricksGlossaryRoute
   '/tricks/graph': typeof TricksGraphRoute
+  '/auth': typeof AuthIndexRoute
   '/chat': typeof ChatIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
@@ -547,8 +556,6 @@ export interface FileRoutesByFullPath {
   '/tricks/review': typeof AuthedTricksReviewRoute
   '/vault/review': typeof AuthedVaultReviewRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
-  '/auth/code/send': typeof AuthCodeSendRoute
-  '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
@@ -596,20 +603,23 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/admin': typeof AuthedAdminRouteWithChildren
   '/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/verify': typeof AuthVerifyRoute
+  '/games/arcade': typeof GamesArcadeRoute
   '/metrics/users': typeof MetricsUsersRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/tricks/builder': typeof TricksBuilderRoute
   '/tricks/glossary': typeof TricksGlossaryRoute
   '/tricks/graph': typeof TricksGraphRoute
+  '/auth': typeof AuthIndexRoute
   '/chat': typeof ChatIndexRoute
   '/games': typeof GamesIndexRoute
   '/map': typeof MapIndexRoute
@@ -626,8 +636,6 @@ export interface FileRoutesByTo {
   '/tricks/review': typeof AuthedTricksReviewRoute
   '/vault/review': typeof AuthedVaultReviewRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
-  '/auth/code/send': typeof AuthCodeSendRoute
-  '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
@@ -676,10 +684,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
-  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/games/bius': typeof GamesBiusRouteRouteWithChildren
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/games/sius': typeof GamesSiusRouteRouteWithChildren
@@ -687,11 +695,14 @@ export interface FileRoutesById {
   '/_authed/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/verify': typeof AuthVerifyRoute
+  '/games/arcade': typeof GamesArcadeRoute
   '/metrics/users': typeof MetricsUsersRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/tricks/builder': typeof TricksBuilderRoute
   '/tricks/glossary': typeof TricksGlossaryRoute
   '/tricks/graph': typeof TricksGraphRoute
+  '/auth/': typeof AuthIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/games/': typeof GamesIndexRoute
   '/map/': typeof MapIndexRoute
@@ -708,8 +719,6 @@ export interface FileRoutesById {
   '/_authed/tricks/review': typeof AuthedTricksReviewRoute
   '/_authed/vault/review': typeof AuthedVaultReviewRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
-  '/auth/code/send': typeof AuthCodeSendRoute
-  '/auth/code/verify': typeof AuthCodeVerifyRoute
   '/games/bius/start': typeof GamesBiusStartRoute
   '/games/rius/active': typeof GamesRiusActiveRoute
   '/games/sius/start': typeof GamesSiusStartRoute
@@ -759,10 +768,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
+    | '/terms'
     | '/games/bius'
     | '/games/rius'
     | '/games/sius'
@@ -770,11 +779,14 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
+    | '/auth/verify'
+    | '/games/arcade'
     | '/metrics/users'
     | '/tricks/$trickId'
     | '/tricks/builder'
     | '/tricks/glossary'
     | '/tricks/graph'
+    | '/auth'
     | '/chat'
     | '/games'
     | '/map'
@@ -791,8 +803,6 @@ export interface FileRouteTypes {
     | '/tricks/review'
     | '/vault/review'
     | '/api/mux/webhook'
-    | '/auth/code/send'
-    | '/auth/code/verify'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
@@ -840,20 +850,23 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
+    | '/terms'
     | '/games/rius'
     | '/admin'
     | '/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
+    | '/auth/verify'
+    | '/games/arcade'
     | '/metrics/users'
     | '/tricks/$trickId'
     | '/tricks/builder'
     | '/tricks/glossary'
     | '/tricks/graph'
+    | '/auth'
     | '/chat'
     | '/games'
     | '/map'
@@ -870,8 +883,6 @@ export interface FileRouteTypes {
     | '/tricks/review'
     | '/vault/review'
     | '/api/mux/webhook'
-    | '/auth/code/send'
-    | '/auth/code/verify'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
@@ -919,10 +930,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authed'
-    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
+    | '/terms'
     | '/games/bius'
     | '/games/rius'
     | '/games/sius'
@@ -930,11 +941,14 @@ export interface FileRouteTypes {
     | '/_authed/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
+    | '/auth/verify'
+    | '/games/arcade'
     | '/metrics/users'
     | '/tricks/$trickId'
     | '/tricks/builder'
     | '/tricks/glossary'
     | '/tricks/graph'
+    | '/auth/'
     | '/chat/'
     | '/games/'
     | '/map/'
@@ -951,8 +965,6 @@ export interface FileRouteTypes {
     | '/_authed/tricks/review'
     | '/_authed/vault/review'
     | '/api/mux/webhook'
-    | '/auth/code/send'
-    | '/auth/code/verify'
     | '/games/bius/start'
     | '/games/rius/active'
     | '/games/sius/start'
@@ -1002,20 +1014,23 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
-  ArcadeRoute: typeof ArcadeRoute
   PrivacyRoute: typeof PrivacyRoute
   SandboxRoute: typeof SandboxRoute
   ShopRoute: typeof ShopRoute
+  TermsRoute: typeof TermsRoute
   GamesBiusRouteRoute: typeof GamesBiusRouteRouteWithChildren
   GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren
   GamesSiusRouteRoute: typeof GamesSiusRouteRouteWithChildren
   ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthVerifyRoute: typeof AuthVerifyRoute
+  GamesArcadeRoute: typeof GamesArcadeRoute
   MetricsUsersRoute: typeof MetricsUsersRoute
   TricksTrickIdRoute: typeof TricksTrickIdRoute
   TricksBuilderRoute: typeof TricksBuilderRoute
   TricksGlossaryRoute: typeof TricksGlossaryRoute
   TricksGraphRoute: typeof TricksGraphRoute
+  AuthIndexRoute: typeof AuthIndexRoute
   ChatIndexRoute: typeof ChatIndexRoute
   GamesIndexRoute: typeof GamesIndexRoute
   MapIndexRoute: typeof MapIndexRoute
@@ -1026,8 +1041,6 @@ export interface RootRouteChildren {
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
   ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
-  AuthCodeSendRoute: typeof AuthCodeSendRoute
-  AuthCodeVerifyRoute: typeof AuthCodeVerifyRoute
   TourneyLiveCodeRoute: typeof TourneyLiveCodeRoute
   VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
   VaultValutBakRoute: typeof VaultValutBakRoute
@@ -1040,6 +1053,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -1059,13 +1079,6 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/arcade': {
-      id: '/arcade'
-      path: '/arcade'
-      fullPath: '/arcade'
-      preLoaderRoute: typeof ArcadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed': {
@@ -1145,6 +1158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tricks/graph': {
       id: '/tricks/graph'
       path: '/tricks/graph'
@@ -1178,6 +1198,20 @@ declare module '@tanstack/react-router' {
       path: '/metrics/users'
       fullPath: '/metrics/users'
       preLoaderRoute: typeof MetricsUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/arcade': {
+      id: '/games/arcade'
+      path: '/games/arcade'
+      fullPath: '/games/arcade'
+      preLoaderRoute: typeof GamesArcadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/verify': {
+      id: '/auth/verify'
+      path: '/auth/verify'
+      fullPath: '/auth/verify'
+      preLoaderRoute: typeof AuthVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register': {
@@ -1319,20 +1353,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/bius/start'
       preLoaderRoute: typeof GamesBiusStartRouteImport
       parentRoute: typeof GamesBiusRouteRoute
-    }
-    '/auth/code/verify': {
-      id: '/auth/code/verify'
-      path: '/auth/code/verify'
-      fullPath: '/auth/code/verify'
-      preLoaderRoute: typeof AuthCodeVerifyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/code/send': {
-      id: '/auth/code/send'
-      path: '/auth/code/send'
-      fullPath: '/auth/code/send'
-      preLoaderRoute: typeof AuthCodeSendRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/mux/webhook': {
       id: '/api/mux/webhook'
@@ -1761,20 +1781,23 @@ const GamesSiusRouteRouteWithChildren = GamesSiusRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
-  ArcadeRoute: ArcadeRoute,
   PrivacyRoute: PrivacyRoute,
   SandboxRoute: SandboxRoute,
   ShopRoute: ShopRoute,
+  TermsRoute: TermsRoute,
   GamesBiusRouteRoute: GamesBiusRouteRouteWithChildren,
   GamesRiusRouteRoute: GamesRiusRouteRouteWithChildren,
   GamesSiusRouteRoute: GamesSiusRouteRouteWithChildren,
   ApiUnsubscribeRoute: ApiUnsubscribeRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  AuthVerifyRoute: AuthVerifyRoute,
+  GamesArcadeRoute: GamesArcadeRoute,
   MetricsUsersRoute: MetricsUsersRoute,
   TricksTrickIdRoute: TricksTrickIdRoute,
   TricksBuilderRoute: TricksBuilderRoute,
   TricksGlossaryRoute: TricksGlossaryRoute,
   TricksGraphRoute: TricksGraphRoute,
+  AuthIndexRoute: AuthIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
   GamesIndexRoute: GamesIndexRoute,
   MapIndexRoute: MapIndexRoute,
@@ -1785,8 +1808,6 @@ const rootRouteChildren: RootRouteChildren = {
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
   ApiMuxWebhookRoute: ApiMuxWebhookRoute,
-  AuthCodeSendRoute: AuthCodeSendRoute,
-  AuthCodeVerifyRoute: AuthCodeVerifyRoute,
   TourneyLiveCodeRoute: TourneyLiveCodeRoute,
   VaultVideoIdEditRoute: VaultVideoIdEditRoute,
   VaultValutBakRoute: VaultValutBakRoute,

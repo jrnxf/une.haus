@@ -5,22 +5,22 @@ import {
   ActivityIcon,
   BellIcon,
   EarthIcon,
-  JoystickIcon,
+  EyeOff,
   LockIcon,
   LockOpenIcon,
+  LogIn,
   LogOutIcon,
-  UsersIcon,
   MedalIcon,
   MenuIcon,
   MessagesSquareIcon,
-  MonitorIcon,
-  MoonIcon,
-  PencilIcon,
+  PowerIcon,
+  ScrollText,
   Send,
   ShoppingBagIcon,
   StickyNoteIcon,
-  SunIcon,
   TrafficConeIcon,
+  UsersIcon,
+  UserIcon,
   type LucideIcon,
 } from "lucide-react";
 import { type ReactNode } from "react";
@@ -30,12 +30,20 @@ import {
   MobileNavContext,
   useMobileNav,
 } from "~/components/mobile-nav-context";
+import { ThemeSubmenu } from "~/components/nav-user";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { usePeripherals } from "~/hooks/use-peripherals";
 import { notifications } from "~/lib/notifications";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
-import { useTheme, type Theme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
 
 const navItems = [
@@ -55,13 +63,6 @@ const navItems = [
   { title: "metrics", url: "/metrics", icon: ActivityIcon },
   { title: "shop", url: "/shop", icon: ShoppingBagIcon },
 ] as const;
-
-const themeOrder: Theme[] = ["system", "dark", "light"];
-const themeIcon: Record<Theme, LucideIcon> = {
-  system: MonitorIcon,
-  dark: MoonIcon,
-  light: SunIcon,
-};
 
 function NavItem({
   title,
@@ -158,114 +159,145 @@ export function MobileNavTrigger({ className }: { className?: string }) {
   );
 }
 
-function IconButton({ children, ...props }: React.ComponentProps<"button">) {
-  return (
-    <button
-      {...props}
-      className={cn("hover:bg-accent/50 rounded-md p-2", props.className)}
-    >
-      {children}
-    </button>
-  );
-}
-
-function IconLink({ children, ...props }: React.ComponentProps<typeof Link>) {
-  return (
-    <Link
-      {...props}
-      className={cn("hover:bg-accent/50 rounded-md p-2", props.className)}
-    >
-      {children}
-    </Link>
-  );
-}
-
 function MobileNavFooter() {
   const sessionUser = useSessionUser();
   const logout = useLogout();
-  const { theme, setTheme } = useTheme();
-  const ThemeIcon = themeIcon[theme];
 
   const { data: unreadCount = 0 } = useQuery({
     ...notifications.unreadCount.queryOptions(),
     enabled: !!sessionUser,
   });
 
-  const cycleTheme = () => {
-    const next =
-      themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
-    setTheme(next);
-  };
-
   if (!sessionUser) {
     return (
-      <div className="mt-2 flex items-center gap-2 border-t pt-3">
-        <div className="flex-1">
-          <Button asChild size="sm" variant="ghost">
-            <Link to="/auth/code/send">
-              log in
-            </Link>
-          </Button>
-        </div>
-
-        <IconLink to="/feedback">
-          <Send className="size-4" />
-        </IconLink>
-        <IconLink to="/arcade">
-          <JoystickIcon className="size-4" />
-        </IconLink>
-        <IconButton onClick={cycleTheme}>
-          <ThemeIcon className="size-4" />
-        </IconButton>
+      <div className="mt-2 flex items-center justify-end border-t pt-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <PowerIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="z-(--z-overlay) min-w-48 rounded-lg"
+            side="top"
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to="/feedback">
+                  <Send className="size-4" />
+                  Feedback
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/privacy">
+                  <EyeOff className="size-4" />
+                  Privacy
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/terms">
+                  <ScrollText className="size-4" />
+                  Terms
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <ThemeSubmenu />
+              <DropdownMenuItem asChild>
+                <Link to="/auth">
+                  <LogIn className="size-4" />
+                  Log in
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }
 
   return (
-    <div className="mt-2 flex items-center justify-between gap-2 border-t pt-3">
-      <Link
-        to="/users/$userId"
-        params={{ userId: sessionUser.id }}
-        className="hover:bg-accent/50 flex min-w-0 items-center gap-2 rounded-md p-1 pr-2"
-      >
-        <Avatar
-          className="size-7 rounded-lg"
-          cloudflareId={sessionUser.avatarId}
-          alt={sessionUser.name}
-        >
-          <AvatarImage width={64} quality={85} />
-          <AvatarFallback
-            name={sessionUser.name}
-            className="rounded-lg text-xs"
-          />
-        </Avatar>
-        <span className="truncate text-sm font-medium">{sessionUser.name}</span>
-      </Link>
-      <div className="flex items-center">
-        <IconLink to="/feedback">
-          <Send className="size-4" />
-        </IconLink>
-        <IconLink to="/arcade">
-          <JoystickIcon className="size-4" />
-        </IconLink>
-        <IconButton onClick={cycleTheme}>
-          <ThemeIcon className="size-4" />
-        </IconButton>
-        <IconLink to="/notifications" className="relative">
-          <BellIcon className="size-4" />
-          {unreadCount > 0 && (
-            <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[9px] font-medium">
-              {unreadCount > 9 ? "9+" : unreadCount}
+    <div className="mt-2 flex items-center justify-end border-t pt-3">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="hover:bg-accent/50 relative flex items-center gap-2 rounded-md p-1 pr-2">
+            <Avatar
+              className="size-7 rounded-lg"
+              cloudflareId={sessionUser.avatarId}
+              alt={sessionUser.name}
+            >
+              <AvatarImage width={64} quality={85} />
+              <AvatarFallback
+                name={sessionUser.name}
+                className="rounded-lg text-xs"
+              />
+            </Avatar>
+            <span className="truncate text-sm font-medium">
+              {sessionUser.name}
             </span>
-          )}
-        </IconLink>
-        <IconLink to="/auth/me/edit">
-          <PencilIcon className="size-4" />
-        </IconLink>
-        <IconButton onClick={() => logout({})}>
-          <LogOutIcon className="size-4" />
-        </IconButton>
-      </div>
+            {unreadCount > 0 && (
+              <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[9px] font-medium">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="z-(--z-overlay) min-w-48 rounded-lg"
+          side="top"
+          align="end"
+          sideOffset={4}
+        >
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Link to="/feedback">
+                <Send className="size-4" />
+                Feedback
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/privacy">
+                <EyeOff className="size-4" />
+                Privacy
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/terms">
+                <ScrollText className="size-4" />
+                Terms
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <ThemeSubmenu />
+            <DropdownMenuItem asChild>
+              <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
+                <UserIcon className="size-4" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/notifications">
+                <BellIcon className="size-4" />
+                Notifications
+                {unreadCount > 0 && (
+                  <span className="bg-primary text-primary-foreground ml-auto rounded-full px-1.5 py-0.5 text-xs">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => logout({})}>
+              <LogOutIcon className="size-4" />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

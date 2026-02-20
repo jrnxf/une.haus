@@ -64,11 +64,13 @@ function TricksGraphPage() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tricks</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Tabs>
-          <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
-          <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
-          <PageHeader.Tab to="/tricks/builder">builder</PageHeader.Tab>
-        </PageHeader.Tabs>
+        <PageHeader.Right>
+          <PageHeader.Tabs>
+            <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+            <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+            <PageHeader.Tab to="/tricks/builder">builder</PageHeader.Tab>
+          </PageHeader.Tabs>
+        </PageHeader.Right>
       </PageHeader>
       <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
       <div className="shrink-0 border-b p-4 md:hidden">

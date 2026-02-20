@@ -1,14 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Bell, ChevronsUpDown, LogOut, UserIcon } from "lucide-react";
+import {
+  Bell,
+  ChevronsUpDown,
+  EyeOff,
+  LogIn,
+  LogOut,
+  MonitorIcon,
+  MoonIcon,
+  PowerIcon,
+  ScrollText,
+  Send,
+  SunIcon,
+  UserIcon,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
@@ -19,7 +36,44 @@ import {
 } from "~/components/ui/sidebar";
 import { notifications } from "~/lib/notifications";
 import { useLogout, useSessionUser } from "~/lib/session/hooks";
+import { useTheme } from "~/lib/theme/context";
 import { cn } from "~/lib/utils";
+
+export function ThemeSubmenu() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        {theme === "dark" ? (
+          <MoonIcon className="size-4" />
+        ) : theme === "light" ? (
+          <SunIcon className="size-4" />
+        ) : (
+          <MonitorIcon className="size-4" />
+        )}
+        Theme
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <MonitorIcon className="size-4" />
+          System
+          {theme === "system" && <span className="ml-auto text-xs">✓</span>}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <SunIcon className="size-4" />
+          Light
+          {theme === "light" && <span className="ml-auto text-xs">✓</span>}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <MoonIcon className="size-4" />
+          Dark
+          {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
+        </DropdownMenuItem>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  );
+}
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -35,9 +89,54 @@ export function NavUser() {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" asChild>
-            <Link to="/auth/code/send">log in</Link>
-          </SidebarMenuButton>
+          <DropdownMenu modal={!isMobile}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <PowerIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={cn(
+                "min-w-48 rounded-lg",
+                isMobile && "z-(--z-overlay)",
+              )}
+              side={isMobile ? "bottom" : "right"}
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuGroup>
+                <ThemeSubmenu />
+                <DropdownMenuItem asChild>
+                  <Link to="/feedback">
+                    <Send className="size-4" />
+                    Feedback
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to="/privacy">
+                    <EyeOff className="size-4" />
+                    Privacy
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/terms">
+                    <ScrollText className="size-4" />
+                    Terms
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/auth">
+                  <LogIn className="size-4" />
+                  Log in
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
     );
@@ -102,6 +201,31 @@ export function NavUser() {
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                   )}
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <ThemeSubmenu />
+              <DropdownMenuItem asChild>
+                <Link to="/feedback">
+                  <Send className="size-4" />
+                  Feedback
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link to="/privacy">
+                  <EyeOff className="size-4" />
+                  Privacy
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/terms">
+                  <ScrollText className="size-4" />
+                  Terms
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

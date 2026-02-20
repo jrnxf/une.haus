@@ -176,19 +176,21 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>posts</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button asChild>
-            <Link to="/posts/create">Create</Link>
-          </Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button asChild>
+              <Link to="/posts/create">Create</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
       <div className="h-full overflow-y-auto" ref={setScrollRoot}>
-        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 p-4">
           <Filters
             filters={filters}
             fields={filterFields}

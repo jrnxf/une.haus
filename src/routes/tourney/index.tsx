@@ -29,20 +29,22 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tourney</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         {user && (
-          <PageHeader.Actions>
-            <Button asChild>
-              <Link to="/tourney/create">Create</Link>
-            </Button>
-          </PageHeader.Actions>
+          <PageHeader.Right>
+            <PageHeader.Actions>
+              <Button asChild>
+                <Link to="/tourney/create">Create</Link>
+              </Button>
+            </PageHeader.Actions>
+          </PageHeader.Right>
         )}
       </PageHeader>
 
-      <div className="mx-auto grid max-w-xl w-full grid-cols-1 gap-3 p-4">
+      <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-3 p-4">
         {tournaments.length === 0 ? (
           <Empty>
             <EmptyHeader>

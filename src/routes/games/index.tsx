@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 // import {
 //   CalendarIcon,
@@ -11,9 +11,9 @@ import { createFileRoute } from "@tanstack/react-router";
 // } from "lucide-react";
 
 import { LinkCard } from "~/components/link-card";
-import { games } from "~/lib/games";
-
 import { PageHeader } from "~/components/page-header";
+import { Button } from "~/components/ui/button";
+import { games } from "~/lib/games";
 
 export const Route = createFileRoute("/games/")({
   component: RouteComponent,
@@ -43,22 +43,29 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>games</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button variant="secondary" asChild>
+              <Link to="/games/arcade">Arcade</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+      <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <LinkCard.Root href="/games/rius/active">
-          {/* <LinkCard.Header icon={CoinsIcon} title="rack it up" /> */}
-          <LinkCard.Header title="rack it up" />
-          <LinkCard.Content>
-            <LinkCard.Description>
-              the original. post creative sets weekly, reply to others, and grow
-              via feedback.
-            </LinkCard.Description>
-            {/* <div className="flex grow flex-col gap-2 border-t pt-4">
+          <LinkCard.Root href="/games/rius/active">
+            {/* <LinkCard.Header icon={CoinsIcon} title="rack it up" /> */}
+            <LinkCard.Header title="rack it up" />
+            <LinkCard.Content>
+              <LinkCard.Description>
+                the original. post creative sets weekly, reply to others, and grow
+                via feedback.
+              </LinkCard.Description>
+              {/* <div className="flex grow flex-col gap-2 border-t pt-4">
                 <StatRow
                   value={activeRiu.sets.length}
                   label="active sets"
@@ -75,19 +82,19 @@ function RouteComponent() {
                 />
                 <LinkCard.Cta label="enter" />
               </div> */}
-            <LinkCard.Cta label="enter" />
-          </LinkCard.Content>
-        </LinkCard.Root>
+              <LinkCard.Cta label="enter" />
+            </LinkCard.Content>
+          </LinkCard.Root>
 
-        <LinkCard.Root href="/games/bius">
-          {/* <LinkCard.Header icon={RotateCcwIcon} title="back it up" /> */}
-          <LinkCard.Header title="back it up" />
-          <LinkCard.Content>
-            <LinkCard.Description>
-              match the last trick, then set a new one. build an evolving chain
-              of creativity.
-            </LinkCard.Description>
-            {/* <div className="flex grow flex-col gap-2 border-t pt-4">
+          <LinkCard.Root href="/games/bius">
+            {/* <LinkCard.Header icon={RotateCcwIcon} title="back it up" /> */}
+            <LinkCard.Header title="back it up" />
+            <LinkCard.Content>
+              <LinkCard.Description>
+                match the last trick, then set a new one. build an evolving chain
+                of creativity.
+              </LinkCard.Description>
+              {/* <div className="flex grow flex-col gap-2 border-t pt-4">
                 <StatRow
                   value={biusSets.length}
                   label={
@@ -99,19 +106,19 @@ function RouteComponent() {
                   label={biusParticipants === 1 ? "player" : "players"}
                 />
               </div> */}
-            <LinkCard.Cta label="enter" />
-          </LinkCard.Content>
-        </LinkCard.Root>
+              <LinkCard.Cta label="enter" />
+            </LinkCard.Content>
+          </LinkCard.Root>
 
-        <LinkCard.Root href="/games/sius">
-          {/* <LinkCard.Header icon={LayersIcon} title="stack it up" /> */}
-          <LinkCard.Header title="stack it up" />
-          <LinkCard.Content>
-            <LinkCard.Description>
-              nail every trick in the stack then add your own to the end. keep
-              the line going.
-            </LinkCard.Description>
-            {/* <div className="flex grow flex-col gap-2 border-t pt-4">
+          <LinkCard.Root href="/games/sius">
+            {/* <LinkCard.Header icon={LayersIcon} title="stack it up" /> */}
+            <LinkCard.Header title="stack it up" />
+            <LinkCard.Content>
+              <LinkCard.Description>
+                nail every trick in the stack then add your own to the end. keep
+                the line going.
+              </LinkCard.Description>
+              {/* <div className="flex grow flex-col gap-2 border-t pt-4">
                 <StatRow
                   value={siusStacks.length}
                   label={
@@ -125,10 +132,10 @@ function RouteComponent() {
                   label={siusParticipants === 1 ? "player" : "players"}
                 />
               </div> */}
-            <LinkCard.Cta label="enter" />
-          </LinkCard.Content>
-        </LinkCard.Root>
-      </div>
+              <LinkCard.Cta label="enter" />
+            </LinkCard.Content>
+          </LinkCard.Root>
+        </div>
       </div>
     </>
   );

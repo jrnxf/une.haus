@@ -1,4 +1,5 @@
 import { Loader2Icon, Plus, TrashIcon } from "lucide-react";
+import pluralize from "pluralize";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone-esm";
 
@@ -139,7 +140,7 @@ export function MultiVideoInput({
       {/* Max reached indicator */}
       {!canAddMore && value.length >= maxVideos && (
         <p className="text-muted-foreground text-center text-sm">
-          Maximum {maxVideos} videos reached
+          Maximum {maxVideos} {pluralize("video", maxVideos)} reached
         </p>
       )}
     </div>

@@ -1046,6 +1046,8 @@ type MapClusterLayerProps<
   clusterColors?: [string, string, string];
   /** Point count thresholds for color/size steps: [medium, large] (default: [100, 750]) */
   clusterThresholds?: [number, number];
+  /** Circle radius for cluster sizes: [small, medium, large] in pixels (default: [20, 30, 40]) */
+  clusterSizes?: [number, number, number];
   /** Color for unclustered individual points (default: "#3b82f6") */
   pointColor?: string;
   /** Callback when an unclustered point is clicked */
@@ -1069,6 +1071,7 @@ function MapClusterLayer<
   clusterRadius = 50,
   clusterColors = ["#51bbd6", "#f1f075", "#f28cb1"],
   clusterThresholds = [100, 750],
+  clusterSizes = [20, 30, 40],
   pointColor = "#3b82f6",
   onPointClick,
   onClusterClick,
@@ -1083,6 +1086,7 @@ function MapClusterLayer<
   const stylePropsRef = useRef({
     clusterColors,
     clusterThresholds,
+    clusterSizes,
     pointColor,
   });
 
@@ -1137,11 +1141,11 @@ function MapClusterLayer<
         "circle-radius": [
           "step",
           ["get", "point_count"],
-          20,
+          currentProps.clusterSizes[0],
           currentProps.clusterThresholds[0],
-          30,
+          currentProps.clusterSizes[1],
           currentProps.clusterThresholds[1],
-          40,
+          currentProps.clusterSizes[2],
         ],
       },
     });
@@ -1236,7 +1240,8 @@ function MapClusterLayer<
     const prev = stylePropsRef.current;
     const colorsChanged =
       prev.clusterColors !== clusterColors ||
-      prev.clusterThresholds !== clusterThresholds;
+      prev.clusterThresholds !== clusterThresholds ||
+      prev.clusterSizes !== clusterSizes;
 
     // Update cluster layer colors and sizes
     if (map.getLayer(clusterLayerId) && colorsChanged) {
@@ -1252,11 +1257,11 @@ function MapClusterLayer<
       map.setPaintProperty(clusterLayerId, "circle-radius", [
         "step",
         ["get", "point_count"],
-        20,
+        clusterSizes[0],
         clusterThresholds[0],
-        30,
+        clusterSizes[1],
         clusterThresholds[1],
-        40,
+        clusterSizes[2],
       ]);
     }
 
@@ -1265,7 +1270,7 @@ function MapClusterLayer<
       map.setPaintProperty(unclusteredLayerId, "circle-color", pointColor);
     }
 
-    stylePropsRef.current = { clusterColors, clusterThresholds, pointColor };
+    stylePropsRef.current = { clusterColors, clusterThresholds, clusterSizes, pointColor };
   }, [
     isLoaded,
     map,
@@ -1273,6 +1278,7 @@ function MapClusterLayer<
     unclusteredLayerId,
     clusterColors,
     clusterThresholds,
+    clusterSizes,
     pointColor,
   ]);
 

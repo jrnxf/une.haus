@@ -9,6 +9,7 @@ import {
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import pluralize from "pluralize";
 import { useState } from "react";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
@@ -78,7 +79,7 @@ function RouteComponent() {
   const { stackId } = Route.useParams();
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
       <StackView stackId={stackId} />
     </div>
   );
@@ -177,7 +178,7 @@ function StackView({ stackId }: { stackId: number }) {
                   user: { id: number; name: string; avatarId: string | null };
                 }) => l.user,
               )}
-              title={`${stack.likes.length} Likes`}
+              title={`${stack.likes.length} ${pluralize("Like", stack.likes.length)}`}
               trigger={
                 <Button
                   size="icon-sm"
@@ -222,7 +223,7 @@ function StackView({ stackId }: { stackId: number }) {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <LayersIcon className="size-4" />
-              The Line ({line.length} {line.length === 1 ? "trick" : "tricks"})
+              the stack ({line.length} {pluralize("trick", line.length)})
             </CardTitle>
           </CardHeader>
           <CardContent>

@@ -20,11 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { stats } from "~/lib/stats";
 import { cn } from "~/lib/utils";
 
@@ -102,18 +97,13 @@ const columns = [
   ...STAT_COLS.map((col) =>
     columnHelper.accessor(col.key, {
       header: () => (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex w-full justify-center">
-              <div className={cn("size-2 rounded-full", col.dot)} />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="text-xs">
-            {col.label} ({col.pts}pts)
-          </TooltipContent>
-        </Tooltip>
+        <span className="flex items-center justify-end gap-1.5">
+          <span className={cn("size-2 shrink-0 rounded-full", col.dot)} />
+          {col.label}
+          <span className="text-muted-foreground">&times;{col.pts}</span>
+        </span>
       ),
-      meta: { className: "text-center" },
+      meta: { className: "text-right" },
       cell: (info) => {
         const val = info.getValue();
         return (
@@ -169,67 +159,81 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/metrics">metrics</PageHeader.Crumb>
           <PageHeader.Crumb>users</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="min-h-0 flex-1 overflow-auto text-xs">
-      <Table containerClassName="overflow-visible">
-        <TableHeader className="bg-card sticky top-0 z-10">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const meta = header.column.columnDef.meta as
-                  | { className?: string }
-                  | undefined;
-                return (
-                  <TableHead
-                    key={header.id}
-                    className={cn(
-                      header.column.getCanSort() &&
-                      "cursor-pointer select-none",
-                      meta?.className,
-                    )}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <span className="flex items-center gap-1">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                      {{
-                        asc: <ArrowUpIcon className="size-3.5" />,
-                        desc: <ArrowDownIcon className="size-3.5" />,
-                      }[header.column.getIsSorted() as string] ?? null}
-                    </span>
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} className="cursor-pointer">
-              {row.getVisibleCells().map((cell) => {
-                const meta = cell.column.columnDef.meta as
-                  | { className?: string }
-                  | undefined;
-                return (
-                  <TableCell
-                    key={cell.id}
-                    className={cn("relative py-1.5", meta?.className)}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+
+      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col p-4">
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-lg border">
+          <div className="min-h-0 flex-1 overflow-auto text-xs">
+            <Table containerClassName="overflow-visible">
+              <TableHeader className="bg-card sticky top-0 z-10">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      const meta = header.column.columnDef.meta as
+                        | { className?: string }
+                        | undefined;
+                      return (
+                        <TableHead
+                          key={header.id}
+                          className={cn(
+                            header.column.getCanSort() &&
+                              "cursor-pointer select-none",
+                            meta?.className,
+                          )}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <span
+                            className={cn(
+                              "flex items-center gap-1",
+                              meta?.className?.includes("text-right") &&
+                                "justify-end",
+                            )}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {{
+                              asc: <ArrowUpIcon className="size-3.5" />,
+                              desc: <ArrowDownIcon className="size-3.5" />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </span>
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="cursor-pointer">
+                    {row.getVisibleCells().map((cell) => {
+                      const meta = cell.column.columnDef.meta as
+                        | { className?: string }
+                        | undefined;
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={cn("relative py-1.5", meta?.className)}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </>
   );

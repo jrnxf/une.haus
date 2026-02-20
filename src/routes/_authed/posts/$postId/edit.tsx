@@ -139,7 +139,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
           <PageHeader.Crumb to={`/posts/${postId}`}>{post.title}</PageHeader.Crumb>
@@ -148,7 +148,7 @@ function RouteComponent() {
       </PageHeader>
       <Form
         rhf={rhf}
-        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        className="mx-auto flex min-h-0 w-full max-w-5xl grow flex-col gap-4 p-4 md:p-6"
         id="main-content"
         method="post"
         onSubmit={(event) => {

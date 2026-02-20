@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { UserForm } from "~/components/forms/user";
+import { PageHeader } from "~/components/page-header";
 import { flashMessage } from "~/lib/flash";
 
 const searchParamsSchema = z
@@ -31,5 +32,17 @@ function RouteComponent() {
   // TODO use search
   // const search = useSearch({ from: "/auth/register" });
 
-  return <UserForm />;
+  return (
+    <>
+      <PageHeader maxWidth="max-w-5xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/auth">auth</PageHeader.Crumb>
+          <PageHeader.Crumb>register</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-5xl flex-col gap-4 p-4">
+        <UserForm />
+      </div>
+    </>
+  );
 }

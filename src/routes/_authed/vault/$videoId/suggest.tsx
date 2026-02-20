@@ -155,7 +155,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
           <PageHeader.Crumb to={`/vault/${videoId}`}>{displayTitle}</PageHeader.Crumb>
@@ -163,111 +163,111 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full overflow-y-auto">
-      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-        <Form
-          rhf={rhf}
-          className="flex flex-col gap-6"
-          onSubmit={(event) => {
-            event.preventDefault();
-            handleSubmit(handleFormSubmit)(event);
-          }}
-        >
-          <FormField
-            control={control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+          <Form
+            rhf={rhf}
+            className="flex flex-col gap-6"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSubmit(handleFormSubmit)(event);
+            }}
+          >
+            <FormField
+              control={control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="disciplines"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Disciplines</FormLabel>
-                <FormControl>
-                  <DisciplineSelector
-                    value={field.value ?? []}
-                    onChange={(disciplines) =>
-                      field.onChange(
-                        disciplines.length > 0 ? disciplines : null,
-                      )
-                    }
-                  />
-                </FormControl>
-                <FormDescription>
-                  Select all disciplines shown in this video
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="disciplines"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Disciplines</FormLabel>
+                  <FormControl>
+                    <DisciplineSelector
+                      value={field.value ?? []}
+                      onChange={(disciplines) =>
+                        field.onChange(
+                          disciplines.length > 0 ? disciplines : null,
+                        )
+                      }
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Select all disciplines shown in this video
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="riders"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Riders</FormLabel>
-                <FormControl>
-                  <RiderSelector
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Add riders featured in this video
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="riders"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Riders</FormLabel>
+                  <FormControl>
+                    <RiderSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add riders featured in this video
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={control}
-            name="reason"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Reason</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder="Explain why these changes should be made..."
-                    rows={2}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Help reviewers understand your suggestion
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reason</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Explain why these changes should be made..."
+                      rows={2}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Help reviewers understand your suggestion
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() =>
-                router.navigate({ to: "/vault/$videoId", params: { videoId } })
-              }
-            >
-              Cancel
-            </Button>
-            <FormSubmitButton busy={createSuggestion.isPending}>
-              Submit
-            </FormSubmitButton>
-          </div>
-        </Form>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  router.navigate({ to: "/vault/$videoId", params: { videoId } })
+                }
+              >
+                Cancel
+              </Button>
+              <FormSubmitButton busy={createSuggestion.isPending}>
+                Submit
+              </FormSubmitButton>
+            </div>
+          </Form>
+        </div>
       </div>
-    </div>
     </>
   );
 }

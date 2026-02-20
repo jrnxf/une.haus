@@ -20,12 +20,12 @@ export const Route = createFileRoute("/chat/")({
 function RouteComponent() {
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>chat</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl p-4">
+      <div className="mx-auto w-full max-w-5xl p-4">
         <ChatMessagesView />
       </div>
     </>

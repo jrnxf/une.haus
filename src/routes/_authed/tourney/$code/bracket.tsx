@@ -265,89 +265,91 @@ function RouteComponent() {
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
           <PageHeader.Crumb>{tournament.name || "bracket"}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          {!activeTimer && !showCelebration && (
-            <>
-              {champion && (
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            {!activeTimer && !showCelebration && (
+              <>
+                {champion && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      bracketAction.mutate({
+                        data: { code, action: { type: "showCelebration" } },
+                      })
+                    }
+                    className="gap-2"
+                  >
+                    <TrophyIcon className="size-4 text-yellow-500" />
+                    {champion}
+                  </Button>
+                )}
+                <span className="text-muted-foreground font-mono text-xs">
+                  {code}
+                </span>
+                <Button
+                  variant="secondary"
+                  size="icon-xs"
+                  onClick={reset}
+                  aria-label="Reset bracket"
+                >
+                  <RotateCcwIcon className="size-3.5" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon-xs"
+                  onClick={toggleFullscreen}
+                  aria-label={
+                    isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+                  }
+                >
+                  {isFullscreen ? (
+                    <MinimizeIcon className="size-3.5" />
+                  ) : (
+                    <MaximizeIcon className="size-3.5" />
+                  )}
+                </Button>
+              </>
+            )}
+            {showCelebration && champion && (
+              <>
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={() =>
                     bracketAction.mutate({
-                      data: { code, action: { type: "showCelebration" } },
+                      data: { code, action: { type: "dismissCelebration" } },
                     })
                   }
-                  className="gap-2"
                 >
-                  <TrophyIcon className="size-4 text-yellow-500" />
-                  {champion}
+                  Bracket
                 </Button>
-              )}
-              <span className="text-muted-foreground font-mono text-xs">
-                {code}
-              </span>
-              <Button
-                variant="secondary"
-                size="icon-xs"
-                onClick={reset}
-                aria-label="Reset bracket"
-              >
-                <RotateCcwIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="secondary"
-                size="icon-xs"
-                onClick={toggleFullscreen}
-                aria-label={
-                  isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
-                }
-              >
-                {isFullscreen ? (
-                  <MinimizeIcon className="size-3.5" />
-                ) : (
-                  <MaximizeIcon className="size-3.5" />
-                )}
-              </Button>
-            </>
-          )}
-          {showCelebration && champion && (
-            <>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  bracketAction.mutate({
-                    data: { code, action: { type: "dismissCelebration" } },
-                  })
-                }
-              >
-                Bracket
-              </Button>
-              <Button
-                variant="secondary"
-                size="icon-xs"
-                onClick={reset}
-                aria-label="Reset bracket"
-              >
-                <RotateCcwIcon className="size-3.5" />
-              </Button>
-              <Button
-                variant="secondary"
-                size="icon-xs"
-                onClick={toggleFullscreen}
-                aria-label={
-                  isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
-                }
-              >
-                {isFullscreen ? (
-                  <MinimizeIcon className="size-3.5" />
-                ) : (
-                  <MaximizeIcon className="size-3.5" />
-                )}
-              </Button>
-            </>
-          )}
-        </PageHeader.Actions>
+                <Button
+                  variant="secondary"
+                  size="icon-xs"
+                  onClick={reset}
+                  aria-label="Reset bracket"
+                >
+                  <RotateCcwIcon className="size-3.5" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon-xs"
+                  onClick={toggleFullscreen}
+                  aria-label={
+                    isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
+                  }
+                >
+                  {isFullscreen ? (
+                    <MinimizeIcon className="size-3.5" />
+                  ) : (
+                    <MaximizeIcon className="size-3.5" />
+                  )}
+                </Button>
+              </>
+            )}
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
       <div ref={containerRef} className="bg-background flex h-full flex-col">
         {activeTimer ? (

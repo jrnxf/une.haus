@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayersIcon, PlusIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 import { StackUpForm } from "~/components/forms/games/sius";
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button";
@@ -132,7 +133,7 @@ function RouteComponent() {
       {/* Stack lineage */}
       <div className="space-y-3">
         <h2 className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
-          The Line ({stacks.length} {stacks.length === 1 ? "trick" : "tricks"})
+          The Line ({stacks.length} {pluralize("trick", stacks.length)})
         </h2>
         <StackLineage stacks={stacks} />
       </div>

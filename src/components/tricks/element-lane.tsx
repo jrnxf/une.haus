@@ -1,3 +1,5 @@
+import pluralize from "pluralize";
+
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import type { Trick } from "~/lib/tricks";
 import { cn } from "~/lib/utils";
@@ -42,7 +44,7 @@ export function ElementLane({
       <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 flex items-center gap-2 py-2 backdrop-blur">
         <h2 className="text-lg font-semibold">{formatElement(element)}</h2>
         <span className="text-muted-foreground text-sm">
-          ({tricks.length} tricks)
+          ({tricks.length} {pluralize("trick", tricks.length)})
         </span>
       </div>
 

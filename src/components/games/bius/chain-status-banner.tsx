@@ -1,4 +1,5 @@
 import { AlertTriangleIcon, CheckCircleIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 type ChainStatusBannerProps = {
   status: "active" | "completed" | "flagged";
@@ -28,7 +29,7 @@ export function ChainStatusBanner({
       <div className="text-muted-foreground flex items-center gap-2 text-sm">
         <CheckCircleIcon className="size-4" />
         <span>
-          Completed with {chainLength} {chainLength === 1 ? "set" : "sets"}
+          Completed with {chainLength} {pluralize("set", chainLength)}
         </span>
       </div>
     );

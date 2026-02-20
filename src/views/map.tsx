@@ -23,7 +23,7 @@ export function MapView({
   }
 
   return (
-    <div className="min-h-0 w-full flex-1">
+    <div className="h-full w-full">
       <UserGlobe
         users={users}
         initialCenter={initialCenter}

@@ -119,7 +119,7 @@ export function LocationSelector({
                 setNoResults(false); // prove me wrong
                 debouncedSearch(nextQuery);
               }}
-              placeholder="search for a city"
+              placeholder="search cities..."
             />
             {noResults && (
               <p className="border-t py-6 text-center text-sm">

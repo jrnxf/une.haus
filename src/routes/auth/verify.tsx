@@ -5,6 +5,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
+import { Loader2Icon } from "lucide-react";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -13,12 +14,12 @@ import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { PageHeader } from "~/components/page-header";
 import { Button } from "~/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "~/components/ui/field";
 import { Form } from "~/components/ui/form";
@@ -40,13 +41,13 @@ const searchParamsSchema = z
     redirect: "/auth/me",
   });
 
-export const Route = createFileRoute("/auth/code/verify")({
+export const Route = createFileRoute("/auth/verify")({
   component: RouteComponent,
   validateSearch: searchParamsSchema,
 });
 
 function RouteComponent() {
-  const search = useSearch({ from: "/auth/code/verify" });
+  const search = useSearch({ from: "/auth/verify" });
 
   const inputOTPRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -72,26 +73,32 @@ function RouteComponent() {
       }
     },
     onError: () => {
-      enterCodeForm.setError("code", { message: "Invalid code" });
+      enterCodeForm.setError("code", { message: "invalid code" });
       enterCodeForm.setValue("code", "");
       inputOTPRef.current?.focus();
     },
   });
 
   return (
-    <div className="grid h-full place-items-center p-6">
-      <Form
-        rhf={enterCodeForm}
-        className="bg-card mx-auto w-full max-w-xl rounded-xl border p-6"
-        id="main-content"
-        onSubmit={(event) => {
-          event.preventDefault();
-          enterCodeForm.handleSubmit(async (data) => {
-            await enterCodeMutation.mutateAsync({ data });
-          })(event);
-        }}
-      >
-        <FieldGroup>
+    <>
+      <PageHeader maxWidth="max-w-5xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb to="/auth">auth</PageHeader.Crumb>
+          <PageHeader.Crumb>verify</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto w-full max-w-xl p-4 md:p-6">
+        <Form
+          rhf={enterCodeForm}
+          className="bg-card space-y-4 rounded-xl border p-6"
+          id="main-content"
+          onSubmit={(event) => {
+            event.preventDefault();
+            enterCodeForm.handleSubmit(async (data) => {
+              await enterCodeMutation.mutateAsync({ data });
+            })(event);
+          }}
+        >
           <Controller
             name="code"
             control={enterCodeForm.control}
@@ -99,7 +106,7 @@ function RouteComponent() {
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel>enter verification code</FieldLabel>
                 <FieldDescription>
-                  we sent a 4-digit code to your email.
+                  we sent a 4-digit code to your email
                 </FieldDescription>
                 <InputOTP
                   maxLength={4}
@@ -121,15 +128,27 @@ function RouteComponent() {
             )}
           />
 
-          <FieldGroup>
-            <Button type="submit">Verify</Button>
-            <FieldDescription className="text-center">
-              didn&apos;t receive the code?{" "}
-              <Link to="/auth/code/send">Resend</Link>
+          <div className="flex flex-row-reverse items-center justify-between">
+            <Button
+              disabled={enterCodeMutation.isPending}
+              iconLeft={
+                enterCodeMutation.isPending && (
+                  <Loader2Icon className="size-4 animate-spin" />
+                )
+              }
+              type="submit"
+            >
+              <span>
+                {enterCodeMutation.isPending ? "Verifying" : "Verify"}
+              </span>
+            </Button>
+            <FieldDescription>
+              didn&apos;t receive a code?{" "}
+              <Link to="/auth">resend</Link>
             </FieldDescription>
-          </FieldGroup>
-        </FieldGroup>
-      </Form>
-    </div>
+          </div>
+        </Form>
+      </div>
+    </>
   );
 }

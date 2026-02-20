@@ -246,40 +246,44 @@ Every route renders a `<PageHeader>` compound component that displays the sticky
   </PageHeader.Breadcrumbs>
 </PageHeader>
 
+// With breadcrumbs and right-aligned actions
+<PageHeader>
+  <PageHeader.Breadcrumbs>
+    <PageHeader.Crumb>tricks</PageHeader.Crumb>
+  </PageHeader.Breadcrumbs>
+  <PageHeader.Right>
+    <PageHeader.Actions>
+      <Button asChild><Link to="/tricks/create">Create</Link></Button>
+    </PageHeader.Actions>
+  </PageHeader.Right>
+</PageHeader>
+
 // With breadcrumbs, tabs, and actions
 <PageHeader>
   <PageHeader.Breadcrumbs>
     <PageHeader.Crumb>tricks</PageHeader.Crumb>
   </PageHeader.Breadcrumbs>
-  <PageHeader.Tabs>
-    <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
-    <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
-  </PageHeader.Tabs>
-  <PageHeader.Actions>
-    <Button asChild><Link to="/tricks/create">Create</Link></Button>
-  </PageHeader.Actions>
-</PageHeader>
-
-// With inline content (rendered after breadcrumbs with divider)
-<PageHeader>
-  <PageHeader.Breadcrumbs>
-    <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-    <PageHeader.Crumb>rack it up</PageHeader.Crumb>
-  </PageHeader.Breadcrumbs>
-  <Countdown />
-  <PageHeader.Actions>{adminMenu}</PageHeader.Actions>
+  <PageHeader.Right>
+    <PageHeader.Tabs>
+      <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+      <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+    </PageHeader.Tabs>
+    <PageHeader.Actions>
+      <Button asChild><Link to="/tricks/create">Create</Link></Button>
+    </PageHeader.Actions>
+  </PageHeader.Right>
 </PageHeader>
 ```
 
 ### Compound Component API
 
-- `<PageHeader.Breadcrumbs>` — wrapper for crumbs
+- `<PageHeader.Breadcrumbs>` — wrapper for crumbs (includes divider after sidebar trigger)
 - `<PageHeader.Crumb to="/path">label</PageHeader.Crumb>` — link crumb (has `to`) or current page (no `to`)
 - `<PageHeader.Crumb icon={Icon}>label</PageHeader.Crumb>` — optional icon
+- `<PageHeader.Right>` — right-aligned container (`ml-auto`), wraps tabs and/or actions
 - `<PageHeader.Tabs>` — wrapper for tab links
 - `<PageHeader.Tab to="/path" icon={Icon}>label</PageHeader.Tab>` — tab link, active state derived from `useLocation()`
-- `<PageHeader.Actions>` — right-aligned action buttons
-- Other children render inline after breadcrumbs with a divider
+- `<PageHeader.Actions>` — fragment wrapper for action buttons
 
 ### Breadcrumb Depth
 

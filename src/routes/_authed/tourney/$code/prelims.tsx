@@ -130,94 +130,64 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
           <PageHeader.Crumb>prelims</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-lg space-y-4 p-4">
+      <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
         <div className="divide-y rounded-lg border">
-        {state.riders.map((rider, index) => {
-          const status = getRiderStatus(index);
-          const resolved = resolveRider(rider);
-          const name = resolved.name ?? "Unknown";
+          {state.riders.map((rider, index) => {
+            const status = getRiderStatus(index);
+            const resolved = resolveRider(rider);
+            const name = resolved.name ?? "Unknown";
 
-          return (
-            <div key={index} className="flex items-center gap-3 px-3 py-2">
-              <div
-                className={cn(
-                  "size-2 shrink-0 rounded-full",
-                  status === "done" && "bg-green-500",
-                  status === "dq" && "bg-destructive",
-                  status === "pending" && "bg-muted-foreground/30",
-                )}
-              />
-
-              <span
-                className={cn(
-                  "min-w-0 flex-1 truncate text-sm font-medium",
-                  status === "dq" && "line-through opacity-50",
-                )}
-              >
-                {name}
-              </span>
-
-              {status === "pending" && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    prelimAction.mutate({
-                      data: {
-                        code,
-                        action: { type: "setCurrent", riderIndex: index },
-                      },
-                    })
-                  }
-                >
-                  Start
-                </Button>
-              )}
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon-xs">
-                    <EllipsisVerticalIcon className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {status === "pending" && (
-                    <DropdownMenuItem
-                      onClick={() =>
-                        prelimAction.mutate({
-                          data: {
-                            code,
-                            action: {
-                              type: "disqualifyRider",
-                              riderIndex: index,
-                            },
-                          },
-                        })
-                      }
-                    >
-                      Disqualify
-                    </DropdownMenuItem>
+            return (
+              <div key={index} className="flex items-center gap-3 px-3 py-2">
+                <div
+                  className={cn(
+                    "size-2 shrink-0 rounded-full",
+                    status === "done" && "bg-green-500",
+                    status === "dq" && "bg-destructive",
+                    status === "pending" && "bg-muted-foreground/30",
                   )}
-                  {status === "done" && (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          prelimAction.mutate({
-                            data: {
-                              code,
-                              action: { type: "setCurrent", riderIndex: index },
-                            },
-                          })
-                        }
-                      >
-                        Restart
-                      </DropdownMenuItem>
+                />
+
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 truncate text-sm font-medium",
+                    status === "dq" && "line-through opacity-50",
+                  )}
+                >
+                  {name}
+                </span>
+
+                {status === "pending" && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      prelimAction.mutate({
+                        data: {
+                          code,
+                          action: { type: "setCurrent", riderIndex: index },
+                        },
+                      })
+                    }
+                  >
+                    Start
+                  </Button>
+                )}
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon-xs">
+                      <EllipsisVerticalIcon className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {status === "pending" && (
                       <DropdownMenuItem
                         onClick={() =>
                           prelimAction.mutate({
@@ -233,6 +203,51 @@ function RouteComponent() {
                       >
                         Disqualify
                       </DropdownMenuItem>
+                    )}
+                    {status === "done" && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            prelimAction.mutate({
+                              data: {
+                                code,
+                                action: { type: "setCurrent", riderIndex: index },
+                              },
+                            })
+                          }
+                        >
+                          Restart
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            prelimAction.mutate({
+                              data: {
+                                code,
+                                action: {
+                                  type: "disqualifyRider",
+                                  riderIndex: index,
+                                },
+                              },
+                            })
+                          }
+                        >
+                          Disqualify
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            prelimAction.mutate({
+                              data: {
+                                code,
+                                action: { type: "resetRider", riderIndex: index },
+                              },
+                            })
+                          }
+                        >
+                          Reset
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    {status === "dq" && (
                       <DropdownMenuItem
                         onClick={() =>
                           prelimAction.mutate({
@@ -245,51 +260,36 @@ function RouteComponent() {
                       >
                         Reset
                       </DropdownMenuItem>
-                    </>
-                  )}
-                  {status === "dq" && (
-                    <DropdownMenuItem
-                      onClick={() =>
-                        prelimAction.mutate({
-                          data: {
-                            code,
-                            action: { type: "resetRider", riderIndex: index },
-                          },
-                        })
-                      }
-                    >
-                      Reset
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        })}
-      </div>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            );
+          })}
+        </div>
 
-      {allFinished &&
-        (qualifiedCount <= 2 ? (
-          <div className="rounded-lg border border-dashed p-4 text-center">
-            <p className="text-muted-foreground text-sm">
-              {qualifiedCount === 0
-                ? "All riders were disqualified"
-                : `Not enough riders qualified (${qualifiedCount} of ${state.riders.length})`}
-            </p>
-          </div>
-        ) : (
-          <Button
-            onClick={() =>
-              advancePhase.mutate({
-                data: { code, phase: "ranking" },
-              })
-            }
-            className="w-full"
-            disabled={advancePhase.isPending}
-          >
-            Ranking
-          </Button>
-        ))}
+        {allFinished &&
+          (qualifiedCount <= 2 ? (
+            <div className="rounded-lg border border-dashed p-4 text-center">
+              <p className="text-muted-foreground text-sm">
+                {qualifiedCount === 0
+                  ? "All riders were disqualified"
+                  : `Not enough riders qualified (${qualifiedCount} of ${state.riders.length})`}
+              </p>
+            </div>
+          ) : (
+            <Button
+              onClick={() =>
+                advancePhase.mutate({
+                  data: { code, phase: "ranking" },
+                })
+              }
+              className="w-full"
+              disabled={advancePhase.isPending}
+            >
+              Ranking
+            </Button>
+          ))}
       </div>
     </>
   );
@@ -357,27 +357,29 @@ function TimerView({
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
           <PageHeader.Crumb>{eventName || "prelims"}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() =>
-              prelimAction.mutate({
-                data: {
-                  code,
-                  action: { type: "setCurrent", riderIndex: -1 },
-                },
-              })
-            }
-          >
-            Queue
-          </Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() =>
+                prelimAction.mutate({
+                  data: {
+                    code,
+                    action: { type: "setCurrent", riderIndex: -1 },
+                  },
+                })
+              }
+            >
+              Queue
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
       <div

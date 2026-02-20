@@ -79,13 +79,13 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>create</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-6">
         <TrickForm
           onSubmit={handleSubmit}
           onAdminSubmit={isAdmin ? handleAdminSubmit : undefined}

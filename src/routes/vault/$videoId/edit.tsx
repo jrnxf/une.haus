@@ -118,52 +118,54 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
           <PageHeader.Crumb to={`/vault/${videoId}`}>{video.title || "video"}</PageHeader.Crumb>
           <PageHeader.Crumb>edit</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon-xs"
-                aria-label="Admin menu"
-              >
-                <ShieldIcon className="size-3.5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {video.video?.assetId && (
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon-xs"
+                  aria-label="Admin menu"
+                >
+                  <ShieldIcon className="size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {video.video?.assetId && (
+                  <DropdownMenuItem asChild>
+                    <a
+                      href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MonitorIcon className="size-4" />
+                      Mux
+                    </a>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <a
-                    href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
+                    href={video.legacyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <MonitorIcon className="size-4" />
-                    Mux
+                    <TvIcon className="size-4" />
+                    UTV
                   </a>
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem asChild>
-                <a
-                  href={video.legacyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <TvIcon className="size-4" />
-                  UTV
-                </a>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </PageHeader.Actions>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 md:p-6">
           <div className="space-y-2">
             <Label htmlFor="title">Name</Label>
             <Input

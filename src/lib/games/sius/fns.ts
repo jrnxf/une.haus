@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { zodValidator } from "@tanstack/zod-adapter";
+import pluralize from "pluralize";
 import { and, count, desc, eq } from "drizzle-orm";
 
 import { db } from "~/db";
@@ -304,8 +305,8 @@ export const voteToArchiveServerFn = createServerFn({ method: "POST" })
           data: {
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
-            entityTitle: `Stack It Up chain with ${latestStack?.position ?? 0} tricks`,
-            entityPreview: `${voteCount} votes to archive`,
+            entityTitle: `Stack It Up chain with ${latestStack?.position ?? 0} ${pluralize("trick", latestStack?.position ?? 0)}`,
+            entityPreview: `${voteCount} ${pluralize("vote", voteCount)} to archive`,
           },
         });
       }
@@ -380,7 +381,7 @@ export const archiveChainServerFn = createServerFn({ method: "POST" })
         data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
-          entityTitle: `Stack It Up chain with ${chain.stacks.length} tricks`,
+          entityTitle: `Stack It Up chain with ${chain.stacks.length} ${pluralize("trick", chain.stacks.length)}`,
           entityPreview: "Chain has been archived",
         },
       });

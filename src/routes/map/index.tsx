@@ -47,21 +47,25 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>map</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <MapView
-        users={data}
-        initialCenter={
-          search.lng !== undefined && search.lat !== undefined
-            ? [search.lng, search.lat]
-            : undefined
-        }
-        initialZoom={search.z}
-        onMapMove={handleMapMove}
-      />
+      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col p-4">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border">
+          <MapView
+            users={data}
+            initialCenter={
+              search.lng !== undefined && search.lat !== undefined
+                ? [search.lng, search.lat]
+                : undefined
+            }
+            initialZoom={search.z}
+            onMapMove={handleMapMove}
+          />
+        </div>
+      </div>
     </>
   );
 }

@@ -86,18 +86,20 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>elements</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button asChild>
-            <Link to="/admin/tricks/elements/create">Create</Link>
-          </Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button asChild>
+              <Link to="/admin/tricks/elements/create">Create</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
           Elements are the components that make up a trick (e.g., spins, flips,
           twists).

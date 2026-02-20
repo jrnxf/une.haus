@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PlusIcon, RotateCcwIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 import { BackUpSetForm } from "~/components/forms/games/bius";
 import { ChainStatusBanner } from "~/components/games/bius/chain-status-banner";
@@ -123,7 +124,7 @@ function RouteComponent() {
       {/* Chain lineage */}
       <div className="space-y-3">
         <h2 className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
-          Chain History ({sets.length} {sets.length === 1 ? "set" : "sets"})
+          Chain History ({sets.length} {pluralize("set", sets.length)})
         </h2>
         <SetLineage sets={sets} />
       </div>

@@ -376,114 +376,124 @@ function TricksListPage() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tricks</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button asChild>
-            <Link to="/tricks/create">Create</Link>
-          </Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button asChild>
+              <Link to="/tricks/create">Create</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
-      <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-4 p-4">
         <Filters
           filters={filters}
           fields={filterFields}
           onChange={handleFiltersChange}
           size="sm"
         />
-      </div>
 
-      {filteredTricks.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center p-4">
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <GhostIcon />
-              </EmptyMedia>
-              <EmptyTitle>no tricks found</EmptyTitle>
-            </EmptyHeader>
-            <p className="text-muted-foreground text-sm">
-              try adjusting your filters
-            </p>
-          </Empty>
-        </div>
-      ) : (
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto text-xs">
-          <Table containerClassName="overflow-visible">
-            <TableHeader className="bg-card sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    const meta = header.column.columnDef.meta as
-                      | { className?: string }
-                      | undefined;
+        {filteredTricks.length === 0 ? (
+          <div className="flex flex-1 items-center justify-center">
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <GhostIcon />
+                </EmptyMedia>
+                <EmptyTitle>no tricks found</EmptyTitle>
+              </EmptyHeader>
+              <p className="text-muted-foreground text-sm">
+                try adjusting your filters
+              </p>
+            </Empty>
+          </div>
+        ) : (
+          <div className="flex min-h-0 flex-col overflow-hidden rounded-lg border">
+            <div
+              ref={scrollRef}
+              className="min-h-0 flex-1 overflow-auto text-xs"
+            >
+              <Table containerClassName="overflow-visible">
+                <TableHeader className="bg-card sticky top-0 z-10">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        const meta = header.column.columnDef.meta as
+                          | { className?: string }
+                          | undefined;
+                        return (
+                          <TableHead
+                            key={header.id}
+                            className={cn(
+                              header.column.getCanSort() &&
+                              "cursor-pointer select-none",
+                              meta?.className,
+                            )}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            <span className="flex items-center gap-1">
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                              {{
+                                asc: <ArrowUpIcon className="size-3.5" />,
+                                desc: <ArrowDownIcon className="size-3.5" />,
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </span>
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {paddingTop > 0 && (
+                    <tr>
+                      <td style={{ height: paddingTop }} />
+                    </tr>
+                  )}
+                  {virtualRows.map((virtualRow) => {
+                    const row = rows[virtualRow.index]!;
                     return (
-                      <TableHead
-                        key={header.id}
-                        className={cn(
-                          header.column.getCanSort() &&
-                          "cursor-pointer select-none",
-                          meta?.className,
-                        )}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        <span className="flex items-center gap-1">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                          {{
-                            asc: <ArrowUpIcon className="size-3.5" />,
-                            desc: <ArrowDownIcon className="size-3.5" />,
-                          }[header.column.getIsSorted() as string] ?? null}
-                        </span>
-                      </TableHead>
+                      <TableRow key={row.id} className="cursor-pointer">
+                        {row.getVisibleCells().map((cell) => {
+                          const meta = cell.column.columnDef.meta as
+                            | { className?: string }
+                            | undefined;
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              className={cn(
+                                "relative py-1.5",
+                                meta?.className,
+                              )}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
                     );
                   })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {paddingTop > 0 && (
-                <tr>
-                  <td style={{ height: paddingTop }} />
-                </tr>
-              )}
-              {virtualRows.map((virtualRow) => {
-                const row = rows[virtualRow.index]!;
-                return (
-                  <TableRow key={row.id} className="cursor-pointer">
-                    {row.getVisibleCells().map((cell) => {
-                      const meta = cell.column.columnDef.meta as
-                        | { className?: string }
-                        | undefined;
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          className={cn("relative py-1.5", meta?.className)}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-              {paddingBottom > 0 && (
-                <tr>
-                  <td style={{ height: paddingBottom }} />
-                </tr>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+                  {paddingBottom > 0 && (
+                    <tr>
+                      <td style={{ height: paddingBottom }} />
+                    </tr>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { CheckCircleIcon, CircleIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 import { cn } from "~/lib/utils";
 
@@ -25,7 +26,7 @@ export function TrickLine({ tricks, className }: TrickLineProps) {
   return (
     <div className={cn("space-y-2", className)}>
       <p className="text-muted-foreground text-sm font-medium">
-        Your video must show all {tricks.length} tricks in order:
+        your video must show all {tricks.length} {pluralize("trick", tricks.length)} in order:
       </p>
       <ol className="space-y-2">
         {tricks.map((trick, index) => (
@@ -51,7 +52,7 @@ export function TrickLine({ tricks, className }: TrickLineProps) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-primary text-sm font-medium">
-              {tricks.length + 1}. Your new trick
+              {tricks.length + 1}. your new trick
             </p>
           </div>
         </li>

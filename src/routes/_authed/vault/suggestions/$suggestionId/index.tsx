@@ -4,8 +4,9 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { ArrowRight, HeartIcon, TrendingUpIcon } from "lucide-react";
+import pluralize from "pluralize";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { toast } from "sonner";
 import { z } from "zod";
@@ -84,7 +85,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">
         <SuggestionView suggestionId={suggestionId} isAdmin={isAdmin} />
       </div>
     </div>
@@ -267,11 +268,11 @@ function SuggestionView({
               className={cn(
                 "shrink-0 gap-1 border-0",
                 suggestion.status === "pending" &&
-                  "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
+                "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
                 suggestion.status === "approved" &&
-                  "bg-green-500/20 text-green-700 dark:text-green-300",
+                "bg-green-500/20 text-green-700 dark:text-green-300",
                 suggestion.status === "rejected" &&
-                  "bg-red-500/20 text-red-700 dark:text-red-300",
+                "bg-red-500/20 text-red-700 dark:text-red-300",
               )}
             >
               {suggestion.status === "pending" && "Pending"}
@@ -349,7 +350,7 @@ function SuggestionView({
               {suggestion.likes.length > 0 && (
                 <UsersDialog
                   users={suggestion.likes.map((l) => l.user)}
-                  title={`${suggestion.likes.length} Likes`}
+                  title={`${suggestion.likes.length} ${pluralize("Like", suggestion.likes.length)}`}
                   trigger={
                     <Button size="icon-sm" variant="outline">
                       <TrendingUpIcon className="size-4" />

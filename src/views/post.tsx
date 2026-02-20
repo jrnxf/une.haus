@@ -1,7 +1,8 @@
 import { useSuspenseQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 import { HeartIcon, PencilIcon, TrashIcon, TrendingUpIcon } from "lucide-react";
+import pluralize from "pluralize";
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { Badges } from "~/components/badges";
 import { confirm } from "~/components/confirm-dialog";
@@ -55,7 +56,7 @@ export function PostView({ postId }: { postId: number }) {
   const isOwner = post.userId === sessionUser?.id;
 
   return (
-    <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4">
+    <div className="mx-auto flex h-auto w-full max-w-5xl flex-col justify-start gap-6 p-4">
       <div className="flex items-center gap-2">
         <div className="shrink-0 space-y-1">
           <h1 className="text-2xl leading-none font-semibold tracking-tight">
@@ -83,7 +84,7 @@ export function PostView({ postId }: { postId: number }) {
           {post.likes.length > 0 && (
             <UsersDialog
               users={post.likes.map((like) => like.user)}
-              title={`${post.likes.length} ${post.likes.length === 1 ? "Like" : "Likes"}`}
+              title={`${post.likes.length} ${pluralize("Like", post.likes.length)}`}
               trigger={
                 <Button
                   size="icon-sm"

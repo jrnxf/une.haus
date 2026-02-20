@@ -1,12 +1,21 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PlusIcon, UsersIcon } from "lucide-react";
+import { GhostIcon, PlusIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 import { Badges } from "~/components/badges";
 import { DeleteSetButton } from "~/components/delete-set-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { VideoPlayer } from "~/components/video-player";
 import { games } from "~/lib/games";
 import { useSessionUser } from "~/lib/session/hooks";
@@ -38,7 +47,7 @@ function RouteComponent() {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Your Sets</h2>
+              <h2 className="text-lg font-semibold">your sets</h2>
               <p className="text-muted-foreground text-sm">
                 {userSetsCount} of 3 uploaded
               </p>
@@ -85,36 +94,36 @@ function RouteComponent() {
       {/* Roster Section */}
       <section className="space-y-4">
         <div className="flex items-center gap-2">
-          <UsersIcon className="text-muted-foreground size-5" />
           <div>
-            <h2 className="text-lg font-semibold">next round roster</h2>
-            <p className="text-muted-foreground text-sm">
-              {playerRoster.length}{" "}
-              {playerRoster.length === 1 ? "player" : "players"} joined
-            </p>
+            <h2 className="text-lg font-semibold">roster</h2>
+            {playerRoster.length > 0 && (
+              <p className="text-muted-foreground text-sm">
+                {playerRoster.length}{" "}
+                {pluralize("rider", playerRoster.length)} joined
+              </p>
+            )}
           </div>
         </div>
 
         {playerRoster.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
-              <div className="bg-muted flex size-12 items-center justify-center rounded-full">
-                <UsersIcon className="text-muted-foreground size-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-medium">No players yet</h3>
-                <p className="text-muted-foreground text-sm">
-                  Be the first to join the next round!
-                </p>
-              </div>
-              {!user ||
-                (!isUserInGame && (
-                  <Button asChild>
-                    <Link to="/games/rius/upcoming/join">Join Game</Link>
-                  </Button>
-                ))}
-            </CardContent>
-          </Card>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <GhostIcon />
+              </EmptyMedia>
+              <EmptyTitle>No players yet</EmptyTitle>
+              <EmptyDescription>
+                Be the first to join the next round!
+              </EmptyDescription>
+            </EmptyHeader>
+            {(!user || !isUserInGame) && (
+              <EmptyContent>
+                <Button asChild>
+                  <Link to="/games/rius/upcoming/join">Join</Link>
+                </Button>
+              </EmptyContent>
+            )}
+          </Empty>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
             {playerRoster.map((player) => (
@@ -142,7 +151,7 @@ function RouteComponent() {
                     </p>
                     {player.count > 1 && (
                       <span className="text-muted-foreground shrink-0 text-xs">
-                        {player.count} sets
+                        {player.count} {pluralize("set", player.count)}
                       </span>
                     )}
                   </div>

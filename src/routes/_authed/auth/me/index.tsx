@@ -29,15 +29,17 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>profile</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button asChild>
-            <Link to="/auth/me/edit">Edit</Link>
-          </Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button asChild>
+              <Link to="/auth/me/edit">Edit</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
       <UserView user={data} />
     </>

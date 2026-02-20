@@ -1,8 +1,15 @@
 import { Link, useLocation, type LinkProps } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
 import { Children, type ReactNode } from "react";
 
 import { Search } from "~/components/search";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
 
@@ -17,39 +24,6 @@ function PageHeaderRoot({
   children?: ReactNode;
   maxWidth?: string;
 }) {
-  let breadcrumbs: ReactNode | null = null;
-  let tabs: ReactNode | null = null;
-  let actions: ReactNode | null = null;
-  const otherChildren: ReactNode[] = [];
-
-  if (children) {
-    const childArray = Array.isArray(children) ? children : [children];
-    for (const child of childArray) {
-      if (!child || typeof child !== "object" || !("type" in child)) {
-        otherChildren.push(child);
-        continue;
-      }
-      switch (child.type) {
-        case Breadcrumbs: {
-          breadcrumbs = child;
-          break;
-        }
-        case Tabs: {
-          tabs = child;
-          break;
-        }
-        case Actions: {
-          actions = child;
-          break;
-        }
-        default: {
-          otherChildren.push(child);
-          break;
-        }
-      }
-    }
-  }
-
   return (
     <header className="bg-background sticky top-0 z-30 shrink-0 border-b">
       <div
@@ -58,36 +32,11 @@ function PageHeaderRoot({
           maxWidth,
         )}
       >
-        <div className="flex min-w-0 items-center gap-2">
-          <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
-          {breadcrumbs && (
-            <>
-              <div className="hidden md:block">
-                <HeaderDivider />
-              </div>
-              {breadcrumbs}
-            </>
-          )}
-          {otherChildren.length > 0 && (
-            <>
-              <HeaderDivider />
-              {otherChildren}
-            </>
-          )}
+        <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          {children}
         </div>
-
-        <div className="ml-auto flex items-center gap-2">
-          {tabs && (
-            <div className="flex items-center gap-2">
-              {tabs}
-              {actions && <HeaderDivider />}
-            </div>
-          )}
-          {actions && (
-            <div className="flex items-center gap-2">{actions}</div>
-          )}
-          <Search />
-        </div>
+        <Search />
       </div>
     </header>
   );
@@ -96,19 +45,27 @@ function PageHeaderRoot({
 function Breadcrumbs({ children }: { children: ReactNode }) {
   const items = Children.toArray(children);
   return (
-    <nav
-      aria-label="breadcrumb"
-      className="flex min-w-0 items-center gap-1.5 text-sm"
-    >
-      {items.map((child, i) => (
-        <span key={i} className="flex min-w-0 items-center gap-1.5">
-          {i > 0 && (
-            <ChevronRight className="text-muted-foreground size-3.5 shrink-0" />
-          )}
-          {child}
-        </span>
-      ))}
-    </nav>
+    <>
+      <div className="hidden md:block">
+        <HeaderDivider />
+      </div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          {items.map((child, i) => (
+            <span key={i} className="contents">
+              {i > 0 && <BreadcrumbSeparator />}
+              <BreadcrumbItem>{child}</BreadcrumbItem>
+            </span>
+          ))}
+        </BreadcrumbList>
+      </Breadcrumb>
+    </>
+  );
+}
+
+function Right({ children }: { children: ReactNode }) {
+  return (
+    <div className="ml-auto flex items-center gap-2">{children}</div>
   );
 }
 
@@ -123,24 +80,21 @@ function Crumb({
 }) {
   if (to) {
     return (
-      <Link
-        to={to as LinkProps["to"]}
-        className="text-muted-foreground hover:text-foreground truncate transition-colors"
-      >
+      <BreadcrumbLink render={<Link to={to as LinkProps["to"]} />}>
         {Icon && <Icon className="mr-1.5 inline size-3.5" />}
         {children}
-      </Link>
+      </BreadcrumbLink>
     );
   }
   return (
-    <span className="text-foreground flex min-w-0 items-center gap-1.5 font-medium">
+    <BreadcrumbPage className="flex min-w-0 items-center gap-1.5 font-medium">
       {Icon && (
         <span className="bg-muted text-muted-foreground flex size-5 shrink-0 items-center justify-center rounded">
           <Icon className="size-3" />
         </span>
       )}
       <span className="truncate">{children}</span>
-    </span>
+    </BreadcrumbPage>
   );
 }
 
@@ -186,6 +140,7 @@ function Actions({ children }: { children: ReactNode }) {
 export const PageHeader = Object.assign(PageHeaderRoot, {
   Breadcrumbs,
   Crumb,
+  Right,
   Tabs,
   Tab,
   Actions,

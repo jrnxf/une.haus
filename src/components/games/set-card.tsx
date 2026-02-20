@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { HeartIcon, MessageCircleIcon, UploadIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { messages } from "~/lib/messages";
@@ -37,7 +38,7 @@ export function SetCard({ set, showAuthor = false, className }: SetCardProps) {
     <Link
       to="/games/rius/sets/$setId"
       params={{ setId: set.id }}
-      className={cn("group block", className)}
+      className={cn("group block !no-underline", className)}
     >
       <div
         className={cn(
@@ -77,13 +78,13 @@ export function SetCard({ set, showAuthor = false, className }: SetCardProps) {
                 <StatBadge
                   icon={MessageCircleIcon}
                   count={messageCount}
-                  label="messages"
+                  label="message"
                 />
-                <StatBadge icon={HeartIcon} count={likeCount} label="likes" />
+                <StatBadge icon={HeartIcon} count={likeCount} label="like" />
                 <StatBadge
                   icon={UploadIcon}
                   count={submissionCount}
-                  label="submissions"
+                  label="submission"
                 />
               </div>
             </div>
@@ -108,7 +109,7 @@ type StatBadgeProps = {
 
 function StatBadge({ icon: Icon, count, label }: StatBadgeProps) {
   return (
-    <div className="flex items-center gap-1" title={`${count} ${label}`}>
+    <div className="flex items-center gap-1" title={`${count} ${pluralize(label, count)}`}>
       <Icon className="size-3.5" />
       <span>{count}</span>
     </div>

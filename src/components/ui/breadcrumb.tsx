@@ -1,7 +1,6 @@
 import { ChevronRight, MoreHorizontal } from "lucide-react";
 import * as React from "react";
 
-import { Slot } from "~/lib/slot";
 import { cn } from "~/lib/utils";
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
@@ -13,7 +12,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
     <ol
       data-slot="breadcrumb-list"
       className={cn(
-        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words",
         className,
       )}
       {...props}
@@ -32,24 +31,42 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 function BreadcrumbLink({
-  asChild,
   className,
+  render,
+  children,
   ...props
 }: React.ComponentProps<"a"> & {
-  asChild?: boolean;
+  render?: React.ReactElement;
 }) {
-  const Comp = asChild ? Slot : "a";
+  if (render) {
+    return React.cloneElement(render, {
+      ...props,
+      ...(render.props as Record<string, unknown>),
+      className: cn(
+        "hover:text-foreground transition-colors",
+        className,
+        (render.props as Record<string, string>).className,
+      ),
+      "data-slot": "breadcrumb-link",
+      children,
+    } as React.Attributes);
+  }
 
   return (
-    <Comp
+    <a
       data-slot="breadcrumb-link"
       className={cn("hover:text-foreground transition-colors", className)}
       {...props}
-    />
+    >
+      {children}
+    </a>
   );
 }
 
-function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
+function BreadcrumbPage({
+  className,
+  ...props
+}: React.ComponentProps<"span">) {
   return (
     <span
       data-slot="breadcrumb-page"

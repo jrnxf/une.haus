@@ -1,4 +1,5 @@
 import { SearchIcon, XIcon } from "lucide-react";
+import pluralize from "pluralize";
 import { useDeferredValue, useMemo, useState } from "react";
 
 import { Badge } from "~/components/ui/badge";
@@ -125,8 +126,9 @@ export function SkillTree({ data }: SkillTreeProps) {
 
         {/* Stats */}
         <p className="text-muted-foreground text-sm">
-          Showing {totalTricksShown} tricks across {visibleElements.length}{" "}
-          elements
+          Showing {totalTricksShown} {pluralize("trick", totalTricksShown)}{" "}
+          across {visibleElements.length}{" "}
+          {pluralize("element", visibleElements.length)}
         </p>
       </div>
 

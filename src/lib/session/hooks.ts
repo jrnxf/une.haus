@@ -51,7 +51,7 @@ export function useLogout() {
     mutationFn: session.clear.fn,
     onSuccess: async () => {
       await queryClient.resetQueries({ queryKey: ["session.get"] });
-      navigate({ to: "/auth/code/send" });
+      navigate({ to: "/auth" });
     },
   });
 

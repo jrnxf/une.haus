@@ -53,36 +53,38 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>notifications</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => markAllRead.mutate({ data: {} })}
-              disabled={markAllRead.isPending}
-            >
-              {markAllRead.isPending ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Check className="size-4" />
-              )}
-              Read
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => markAllRead.mutate({ data: {} })}
+                disabled={markAllRead.isPending}
+              >
+                {markAllRead.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Check className="size-4" />
+                )}
+                Read
+              </Button>
+            )}
+            <Button variant="secondary" size="sm" asChild>
+              <Link to="/notifications/settings">
+                <WrenchIcon className="size-4" />
+              </Link>
             </Button>
-          )}
-          <Button variant="secondary" size="sm" asChild>
-            <Link to="/notifications/settings">
-              <WrenchIcon className="size-4" />
-            </Link>
-          </Button>
-        </PageHeader.Actions>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto max-w-2xl p-4">
+        <div className="mx-auto max-w-5xl p-4">
           {/* Tabs */}
           <Tabs
             value={filter}
@@ -106,7 +108,7 @@ function RouteComponent() {
 
           {/* Notification list */}
           {groupedNotifications && groupedNotifications.length > 0 ? (
-            <div className="bg-card divide-y overflow-clip rounded-lg border">
+            <div className="grid grid-cols-1 gap-2">
               {groupedNotifications.map((notification) => (
                 <NotificationItem
                   key={`${notification.type}-${notification.entityType}-${notification.entityId}`}
@@ -123,6 +125,7 @@ function RouteComponent() {
                   }
                   data={notification.data}
                   latestAt={notification.latestAt}
+                  isRead={notification.isRead}
                   onMarkRead={() =>
                     markGroupRead.mutate({
                       data: {

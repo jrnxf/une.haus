@@ -278,7 +278,7 @@ function RouteComponent() {
 
   return (
     <div className="relative grow overflow-y-auto" ref={scrollRef}>
-      <div className="mx-auto max-w-6xl p-4 pb-24">
+      <div className="mx-auto max-w-5xl p-4 pb-24">
         <Input
           id="vault-search"
           value={query}

@@ -23,33 +23,33 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
           <PageHeader.Crumb>review</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
-      <h1 className="text-lg font-semibold">Community suggestions</h1>
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
+        <h1 className="text-lg font-semibold">Community suggestions</h1>
 
-      {suggestions.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">No pending suggestions</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {suggestions.map((suggestion) => (
-            <UtvSuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              showStatus={false}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+        {suggestions.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">No pending suggestions</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {suggestions.map((suggestion) => (
+              <UtvSuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                showStatus={false}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </>
   );
 }

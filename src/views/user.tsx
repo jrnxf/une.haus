@@ -7,6 +7,7 @@ import {
   SiYoutube,
 } from "@icons-pack/react-simple-icons";
 import { Link } from "@tanstack/react-router";
+import pluralize from "pluralize";
 
 import { ActivityFeed } from "~/components/activity-feed";
 import { Badges } from "~/components/badges";
@@ -117,7 +118,7 @@ function FollowStats(props: UsersWithFollowsData) {
     <div className="-ml-2 flex items-center gap-2">
       <UsersCombobox users={followers.users} peripheralKey="followers">
         <Button type="button" className="text-sm" variant="ghost" size="sm">
-          {followers.count} {followers.count === 1 ? "follower" : "followers"}
+          {followers.count} {pluralize("follower", followers.count)}
         </Button>
       </UsersCombobox>
       <UsersCombobox users={following.users} peripheralKey="following">

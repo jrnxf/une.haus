@@ -10,6 +10,7 @@ import {
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import pluralize from "pluralize";
 import { useState } from "react";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
@@ -74,7 +75,7 @@ function RouteComponent() {
   const { setId } = Route.useParams();
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
       <SetView setId={setId} />
     </div>
   );
@@ -174,7 +175,7 @@ function SetView({ setId }: { setId: number }) {
                   user: { id: number; name: string; avatarId: string | null };
                 }) => l.user,
               )}
-              title={`${set.likes.length} Likes`}
+              title={`${set.likes.length} ${pluralize("Like", set.likes.length)}`}
               trigger={
                 <Button
                   size="icon-sm"

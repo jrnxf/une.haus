@@ -6,6 +6,7 @@ import {
   ShieldIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import pluralize from "pluralize";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { z } from "zod";
@@ -102,14 +103,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
           <PageHeader.Crumb>{displayTitle}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
-        <div className="mx-auto flex h-auto w-full max-w-4xl flex-col justify-start gap-6 p-4 md:p-6">
+        <div className="mx-auto flex h-auto w-full max-w-5xl flex-col justify-start gap-6 p-4 md:p-6">
           <div className="flex items-center gap-2">
             <h1 className="flex-1 text-2xl leading-none font-semibold tracking-tight">
               {displayTitle}
@@ -132,7 +133,7 @@ function RouteComponent() {
               {video.likes.length > 0 && (
                 <UsersDialog
                   users={video.likes.map((like) => like.user)}
-                  title={`${video.likes.length} ${video.likes.length === 1 ? "Like" : "Likes"}`}
+                  title={`${video.likes.length} ${pluralize("Like", video.likes.length)}`}
                   trigger={
                     <Button size="icon-sm" variant="outline">
                       <TrendingUpIcon className="size-4" />

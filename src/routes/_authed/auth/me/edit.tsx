@@ -27,13 +27,13 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/auth/me">profile</PageHeader.Crumb>
           <PageHeader.Crumb>edit</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl flex-col gap-4 p-4">
+      <div className="mx-auto w-full max-w-5xl flex-col gap-4 p-4">
         <UserForm user={user} />
       </div>
     </>

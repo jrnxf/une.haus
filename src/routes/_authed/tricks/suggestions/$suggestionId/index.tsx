@@ -17,6 +17,7 @@ import {
   TrendingUp,
   XCircle,
 } from "lucide-react";
+import pluralize from "pluralize";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
 import { toast } from "sonner";
@@ -88,14 +89,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>suggestion</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto" id="main-content">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">
           <SuggestionView suggestionId={suggestionId} isAdmin={isAdmin} />
         </div>
       </div>
@@ -359,7 +360,7 @@ function SuggestionView({
               {suggestion.likes.length > 0 && (
                 <UsersDialog
                   users={suggestion.likes.map((l) => l.user)}
-                  title={`${suggestion.likes.length} Likes`}
+                  title={`${suggestion.likes.length} ${pluralize("Like", suggestion.likes.length)}`}
                   trigger={
                     <Button size="icon-sm" variant="outline">
                       <TrendingUp className="size-4" />

@@ -8,6 +8,7 @@ import {
   Trash2Icon,
   TrendingUpIcon,
 } from "lucide-react";
+import pluralize from "pluralize";
 import React from "react";
 
 import { toast } from "sonner";
@@ -186,7 +187,7 @@ export function MessageBubble({
           {message.likes.length > 0 && (
             <UsersDialog
               users={message.likes.map((like) => like.user)}
-              title={`${message.likes.length} ${message.likes.length === 1 ? "Like" : "Likes"}`}
+              title={`${message.likes.length} ${pluralize("Like", message.likes.length)}`}
               trigger={
                 <button
                   className={cn(

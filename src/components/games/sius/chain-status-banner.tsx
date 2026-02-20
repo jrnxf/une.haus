@@ -1,4 +1,5 @@
 import { ArchiveIcon } from "lucide-react";
+import pluralize from "pluralize";
 
 type ChainStatusBannerProps = {
   status: "active" | "archived";
@@ -16,7 +17,7 @@ export function ChainStatusBanner({
       <div className="text-muted-foreground flex items-center gap-2 text-sm">
         <ArchiveIcon className="size-4" />
         <span>
-          Archived with {chainLength} {chainLength === 1 ? "trick" : "tricks"}
+          Archived with {chainLength} {pluralize("trick", chainLength)}
         </span>
       </div>
     );

@@ -120,16 +120,18 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>modifiers</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button onClick={() => setIsCreateOpen(true)}>Create</Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button onClick={() => setIsCreateOpen(true)}>Create</Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
           Modifiers are global prefixes/suffixes that can apply to any trick
           (e.g., switch, fakie, late, regular).

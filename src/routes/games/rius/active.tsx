@@ -1,10 +1,20 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import pluralize from "pluralize";
 import { useMemo } from "react";
 
 import { z } from "zod";
 
+import { GhostIcon } from "lucide-react";
+
 import { SetsGroupedList } from "~/components/games/sets-grouped-list";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { games, groupSetsByUserWithRankings } from "~/lib/games";
 import { messages } from "~/lib/messages";
 
@@ -49,19 +59,23 @@ function RouteComponent() {
         <div>
           <h2 className="text-lg font-semibold">round #{data.id}</h2>
           <p className="text-muted-foreground text-sm">
-            {participantCount} {participantCount === 1 ? "player" : "players"} ·{" "}
-            {setCount} {setCount === 1 ? "set" : "sets"}
+            {participantCount} {pluralize("player", participantCount)} ·{" "}
+            {setCount} {pluralize("set", setCount)}
           </p>
         </div>
       </div>
 
       {/* Sets Grid/List */}
       {data.sets.length === 0 ? (
-        <div className="bg-card rounded-lg border p-8 text-center">
-          <p className="text-muted-foreground">
-            No active sets yet. Check back soon!
-          </p>
-        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GhostIcon />
+            </EmptyMedia>
+            <EmptyTitle>No active sets</EmptyTitle>
+            <EmptyDescription>Check back soon!</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <SetsGroupedList
           rankedRiders={rankedRiders}

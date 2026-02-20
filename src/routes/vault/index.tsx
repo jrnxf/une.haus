@@ -22,6 +22,7 @@ import { InView } from "react-intersection-observer";
 
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
+import pluralize from "pluralize";
 import { useDebounceCallback } from "usehooks-ts";
 
 import { PageHeader } from "~/components/page-header";
@@ -234,20 +235,22 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>vault</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button asChild variant="secondary">
-            <Link to="/vault/review">Review</Link>
-          </Button>
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button asChild variant="secondary">
+              <Link to="/vault/review">Review</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
       <div className="flex h-full flex-col">
         <div className="bg-background sticky top-0 z-10">
-          <div className="mx-auto flex max-w-4xl items-center gap-2 p-4">
+          <div className="mx-auto flex max-w-5xl items-center gap-2 p-4">
             <div className="min-w-0 flex-1">
               <Filters
                 filters={filters}
@@ -282,7 +285,7 @@ function RouteComponent() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="overflow-hidden"
         >
-          <div className="mx-auto max-w-4xl px-4 pb-4">
+          <div className="mx-auto max-w-5xl px-4 pb-4">
             <div className="bg-card space-y-4 rounded-lg border p-4">
               <div className="text-muted-foreground space-y-3 text-sm leading-relaxed lowercase">
                 <p>
@@ -315,7 +318,7 @@ function RouteComponent() {
         </motion.div>
 
         <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
-          <div className="mx-auto flex max-w-4xl flex-col px-4">
+          <div className="mx-auto flex max-w-5xl flex-col px-4">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {displayedVideos.map((video) => (
                 <Link
@@ -343,14 +346,14 @@ function RouteComponent() {
                     <div className="flex items-center gap-2 text-xs text-white/70">
                       <div
                         className="flex items-center gap-1"
-                        title={`${video.likesCount} likes`}
+                        title={`${video.likesCount} ${pluralize("like", video.likesCount)}`}
                       >
                         <HeartIcon className="size-3" />
                         <span>{video.likesCount}</span>
                       </div>
                       <div
                         className="flex items-center gap-1"
-                        title={`${video.messagesCount} messages`}
+                        title={`${video.messagesCount} ${pluralize("message", video.messagesCount)}`}
                       >
                         <MessageCircleIcon className="size-3" />
                         <span>{video.messagesCount}</span>
@@ -471,7 +474,7 @@ function ClapButton() {
         clap for olaf
       </motion.button>
       <span className="text-muted-foreground text-sm tabular-nums">
-        {displayCount.toLocaleString()} {displayCount === 1 ? "clap" : "claps"}
+        {displayCount.toLocaleString()} {pluralize("clap", displayCount)}
       </span>
     </div>
   );

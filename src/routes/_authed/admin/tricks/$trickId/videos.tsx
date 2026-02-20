@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, CheckCircle, Trash2, XCircle } from "lucide-react";
+import pluralize from "pluralize";
 
 import { toast } from "sonner";
 
@@ -141,15 +142,15 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-6">
         <p className="text-muted-foreground text-sm">
-          {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active videos
+          {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active {pluralize("video", activeVideos.length)}
         </p>
 
         {/* Active Videos */}
@@ -164,7 +165,7 @@ function RouteComponent() {
           {isAtLimit && (
             <Alert>
               <AlertDescription>
-                This trick has the maximum of {MAX_ACTIVE_VIDEOS} active videos.
+                This trick has the maximum of {MAX_ACTIVE_VIDEOS} active {pluralize("video", MAX_ACTIVE_VIDEOS)}.
                 Demote one to add more.
               </AlertDescription>
             </Alert>

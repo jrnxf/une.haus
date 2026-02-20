@@ -26,7 +26,7 @@ export function AuthButton() {
   if (!sessionUser) {
     return (
       <Button asChild variant="ghost">
-        <Link to="/auth/code/send">login</Link>
+        <Link to="/auth">login</Link>
       </Button>
     );
   }

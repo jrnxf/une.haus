@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import pluralize from "pluralize";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
 
@@ -11,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function zodErrorFmt(error: ZodError) {
   const errorCount = error.issues.length;
-  const errorMessage = `Validation ${errorCount === 1 ? "error" : "errors"}: ${error.issues.map((issue) => issue.message).join(",")}`;
+  const errorMessage = `Validation ${pluralize("error", errorCount)}: ${error.issues.map((issue) => issue.message).join(",")}`;
   return errorMessage;
 }
 

@@ -43,7 +43,7 @@ export function BaseMessageForm({
       <div className="grid place-items-center pt-3">
         <Button asChild>
           <Link
-            to="/auth/code/send"
+            to="/auth"
             search={{
               redirect: location.href,
             }}

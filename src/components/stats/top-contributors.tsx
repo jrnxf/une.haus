@@ -102,17 +102,16 @@ export function TopContributors({ data }: TopContributorsProps) {
                 user
               </TableHead>
               {STAT_COLS.map((col) => (
-                <TableHead key={col.key} className="h-7 text-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex w-full justify-center">
-                        <div className={cn("size-2 rounded-full", col.dot)} />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="text-xs">
-                      {col.label} ({col.pts}pts)
-                    </TooltipContent>
-                  </Tooltip>
+                <TableHead key={col.key} className="h-7 text-right">
+                  <span className="flex items-center justify-end gap-1.5">
+                    <span
+                      className={cn("size-2 shrink-0 rounded-full", col.dot)}
+                    />
+                    {col.label}
+                    <span className="text-muted-foreground">
+                      &times;{col.pts}
+                    </span>
+                  </span>
                 </TableHead>
               ))}
               <TableHead className="h-7 text-right">pts</TableHead>
@@ -153,7 +152,7 @@ export function TopContributors({ data }: TopContributorsProps) {
                   return (
                     <TableCell
                       key={col.key}
-                      className="relative py-1.5 text-center"
+                      className="relative py-1.5 text-right"
                     >
                       <span
                         className={cn(

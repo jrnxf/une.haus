@@ -35,17 +35,19 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/users">users</PageHeader.Crumb>
           <PageHeader.Crumb>{data.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         {isOwnProfile && (
-          <PageHeader.Actions>
-            <Button asChild>
-              <Link to="/auth/me/edit">Edit</Link>
-            </Button>
-          </PageHeader.Actions>
+          <PageHeader.Right>
+            <PageHeader.Actions>
+              <Button asChild>
+                <Link to="/auth/me/edit">Edit</Link>
+              </Button>
+            </PageHeader.Actions>
+          </PageHeader.Right>
         )}
       </PageHeader>
       <UserView user={data} />

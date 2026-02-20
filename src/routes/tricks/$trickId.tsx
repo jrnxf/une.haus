@@ -73,31 +73,33 @@ function TrickDetailPage() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button asChild size="sm">
-            <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
-              Edit
-            </Link>
-          </Button>
-          {isAdmin && (
-            <Button asChild variant="secondary" size="icon-xs">
-              <Link
-                to="/admin/tricks/$trickId/edit"
-                params={{ trickId: trick.id }}
-              >
-                <ShieldIcon className="size-3.5" />
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button asChild size="sm">
+              <Link to="/tricks/$trickId/suggest" params={{ trickId: trick.id }}>
+                Edit
               </Link>
             </Button>
-          )}
-        </PageHeader.Actions>
+            {isAdmin && (
+              <Button asChild variant="secondary" size="icon-xs">
+                <Link
+                  to="/admin/tricks/$trickId/edit"
+                  params={{ trickId: trick.id }}
+                >
+                  <ShieldIcon className="size-3.5" />
+                </Link>
+              </Button>
+            )}
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
+      <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
         <div className="space-y-6">
           {/* Hero: Name + Aliases */}
           <div>

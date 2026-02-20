@@ -6,6 +6,7 @@ import {
   UsersIcon,
   VideoIcon,
 } from "lucide-react";
+import pluralize from "pluralize";
 
 import { ActivityChart } from "~/components/stats/activity-chart";
 import { DisciplineChart } from "~/components/stats/discipline-chart";
@@ -23,14 +24,14 @@ export function StatsGrid({ data }: StatsGridProps) {
       {/* Rows 1-2: Hero stats - 3 columns on all screen sizes */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <StatCard
-          label="users"
+          label={pluralize("user", data.counts.users)}
           value={data.counts.users}
           icon={UsersIcon}
           description="all registered community members"
           size="responsive"
         />
         <StatCard
-          label="countries"
+          label={pluralize("country", data.counts.countries)}
           value={data.counts.countries}
           icon={EarthIcon}
           description="countries represented by the community"
@@ -38,28 +39,28 @@ export function StatsGrid({ data }: StatsGridProps) {
           to="/map"
         />
         <StatCard
-          label="posts"
+          label={pluralize("post", data.counts.posts)}
           value={data.counts.posts}
           icon={StickyNoteIcon}
           description="posts shared in the feed"
           size="responsive"
         />
         <StatCard
-          label="messages"
+          label={pluralize("message", data.counts.totalMessages)}
           value={data.counts.totalMessages}
           icon={MessageCircleIcon}
           description="messages and comments across chat, posts, sets, and submissions"
           size="responsive"
         />
         <StatCard
-          label="likes"
+          label={pluralize("like", data.counts.totalLikes)}
           value={data.counts.totalLikes}
           icon={HeartIcon}
           description="likes given across posts, sets, submissions, messages, and vault videos"
           size="responsive"
         />
         <StatCard
-          label="video uploads"
+          label={pluralize("video upload", data.counts.videoUploads)}
           value={data.counts.videoUploads}
           icon={VideoIcon}
           description="videos uploaded to the platform"

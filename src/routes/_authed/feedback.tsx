@@ -71,14 +71,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-4xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>feedback</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <Form
         rhf={rhf}
-        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        className="mx-auto flex min-h-0 w-full max-w-5xl grow flex-col gap-4 p-4 md:p-6"
         id="main-content"
         method="post"
         onSubmit={(event) => {
@@ -87,20 +87,17 @@ function RouteComponent() {
           })(event);
         }}
       >
-        <p className="text-muted-foreground">
-          Share your thoughts, report bugs, or suggest improvements.
-        </p>
 
         <FormField
           control={control}
           name="content"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your feedback</FormLabel>
+              <FormLabel>message</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
-                  placeholder="What's on your mind?"
+                  placeholder="share your thoughts, report bugs, or suggest improvements"
                   rows={6}
                 />
               </FormControl>

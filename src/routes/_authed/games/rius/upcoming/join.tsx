@@ -21,26 +21,26 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
           <PageHeader.Crumb to="/games/rius/upcoming">rack it up</PageHeader.Crumb>
           <PageHeader.Crumb>join</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-2xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold">upload set</h1>
-      {data.authUserSets && data.authUserSets.length === 3 ? (
-        <>
-          <p>you have already uploaded all the allowable sets!</p>
-          <Button asChild>
-            <Link to="/games/rius/upcoming">back</Link>
-          </Button>
-        </>
-      ) : (
-        <CreateRiuSetForm />
-      )}
-    </div>
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+        <h1 className="text-2xl font-bold">upload set</h1>
+        {data.authUserSets && data.authUserSets.length === 3 ? (
+          <>
+            <p>you have already uploaded all the allowable sets!</p>
+            <Button asChild>
+              <Link to="/games/rius/upcoming">back</Link>
+            </Button>
+          </>
+        ) : (
+          <CreateRiuSetForm />
+        )}
+      </div>
     </>
   );
 }

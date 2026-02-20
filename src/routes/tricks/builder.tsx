@@ -287,22 +287,24 @@ function TricksPage() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tricks</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Tabs>
-          <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
-          <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
-          <PageHeader.Tab to="/tricks/builder">builder</PageHeader.Tab>
-        </PageHeader.Tabs>
-        <PageHeader.Actions>
-          {isLoggedIn && (
-            <Button asChild size="sm">
-              <Link to="/tricks/create">Create</Link>
-            </Button>
-          )}
-        </PageHeader.Actions>
+        <PageHeader.Right>
+          <PageHeader.Tabs>
+            <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+            <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+            <PageHeader.Tab to="/tricks/builder">builder</PageHeader.Tab>
+          </PageHeader.Tabs>
+          <PageHeader.Actions>
+            {isLoggedIn && (
+              <Button asChild size="sm">
+                <Link to="/tricks/create">Create</Link>
+              </Button>
+            )}
+          </PageHeader.Actions>
+        </PageHeader.Right>
       </PageHeader>
 
       <div className="flex h-[calc(100vh-64px)] flex-col md:flex-row">
@@ -320,7 +322,7 @@ function TricksPage() {
         />
 
         <div className="flex min-h-0 flex-1 justify-center overflow-y-auto">
-          <div className="flex w-full max-w-lg flex-col gap-6 p-4 md:p-6">
+          <div className="flex w-full max-w-5xl flex-col gap-6 p-4 md:p-6">
             {/* Result display */}
             <div className="flex min-h-24 flex-col items-center justify-center">
               {isMultiPanel ? (

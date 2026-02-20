@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import pluralize from "pluralize";
 
 import {
   Accordion,
@@ -73,17 +74,17 @@ function RiderStats({ ranking }: { ranking: RiderScore }) {
 
   if (ranking.setsCount > 0) {
     parts.push(
-      `${ranking.setsCount} ${ranking.setsCount === 1 ? "set" : "sets"}`,
+      `${ranking.setsCount} ${pluralize("set", ranking.setsCount)}`,
     );
   }
   if (ranking.submissionsCount > 0) {
     parts.push(
-      `${ranking.submissionsCount} ${ranking.submissionsCount === 1 ? "submission" : "submissions"}`,
+      `${ranking.submissionsCount} ${pluralize("submission", ranking.submissionsCount)}`,
     );
   }
 
   const statsText = parts.join(" · ");
-  const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "pts"}`;
+  const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "pts"}`; // "pt" is an abbreviation, not a real word
 
   return (
     <p className="text-muted-foreground text-xs">

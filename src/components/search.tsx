@@ -518,11 +518,11 @@ export function Search() {
                 </>
               ) : (
                 <CommandItem
-                  value="/auth/code/send"
-                  onSelect={() => closeAndNavigate("/auth/code/send")}
+                  value="/auth"
+                  onSelect={() => closeAndNavigate("/auth")}
                   asChild
                 >
-                  <Link replace to="/auth/code/send">
+                  <Link replace to="/auth">
                     Login
                   </Link>
                 </CommandItem>

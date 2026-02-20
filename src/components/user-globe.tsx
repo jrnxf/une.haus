@@ -36,42 +36,83 @@ type SelectedPoint = {
 // Theme-aware colors for MapLibre (needs hex, not CSS variables)
 const themeColors = {
   light: {
-    clusters: ["#64748b", "#475569", "#334155"] as [string, string, string], // slate-500, 600, 700
-    point: "#334155", // slate-700
+    clusters: ["#d4d4d4", "#a3a3a3", "#737373"] as [string, string, string], // neutral-300, 400, 500
+    point: "#a3a3a3", // neutral-400
+    text: "#737373", // neutral-500
+    textHalo: "#ffffff", // white
   },
   dark: {
-    water: "#18181b", // oklch(17% 0 0) - sidebar
-    clusters: ["#94a3b8", "#64748b", "#475569"] as [string, string, string], // slate-400, 500, 600
-    point: "#cbd5e1", // slate-300
+    water: "#000000", // background: oklch(0 0 0)
+    land: "#0f0f0f", // sidebar: oklch(17% 0 0)
+    boundary: "#222222", // border: oklch(0.25 0 0)
+    clusters: ["#737373", "#525252", "#404040"] as [string, string, string], // neutral-500, 600, 700
+    point: "#a3a3a3", // neutral-400
+    text: "#a3a3a3", // neutral-400
+    textHalo: "#000000", // black
   },
 };
 
-// Transform style to customize water color in dark mode (no flash)
+// Transform style to customize colors (water in dark mode, text labels in both)
 function handleTransformStyle(
   style: MapLibreGL.StyleSpecification,
   theme: "light" | "dark",
 ): MapLibreGL.StyleSpecification {
-  if (theme !== "dark") return style;
+  const colors = theme === "dark" ? themeColors.dark : themeColors.light;
 
   return {
     ...style,
     layers: style.layers?.map((layer) => {
-      if (layer.id === "water" && layer.type === "fill") {
+      // Dark-mode-only overrides
+      if (theme === "dark") {
+        if (layer.id === "water" && layer.type === "fill") {
+          return {
+            ...layer,
+            paint: { ...layer.paint, "fill-color": themeColors.dark.water },
+          };
+        }
+        if (layer.id === "background" && layer.type === "background") {
+          return {
+            ...layer,
+            paint: {
+              ...layer.paint,
+              "background-color": themeColors.dark.land,
+            },
+          };
+        }
+        if (
+          (layer.id === "boundary_country_inner" ||
+            layer.id === "boundary_country_outline") &&
+          layer.type === "line"
+        ) {
+          return {
+            ...layer,
+            paint: {
+              ...layer.paint,
+              "line-color": themeColors.dark.boundary,
+            },
+          };
+        }
+      }
+
+      // Neutralize text labels in both themes
+      if (layer.type === "symbol") {
         return {
           ...layer,
           paint: {
             ...layer.paint,
-            "fill-color": themeColors.dark.water,
+            "text-color": colors.text,
+            "text-halo-color": colors.textHalo,
           },
         };
       }
+
       return layer;
     }),
   };
 }
 
 const DEFAULT_CENTER: [number, number] = [0, 20];
-const DEFAULT_ZOOM = 1.5;
+const DEFAULT_ZOOM = 1.2;
 
 export function UserGlobe({
   users,
@@ -149,6 +190,7 @@ export function UserGlobe({
         clusterRadius={50}
         clusterMaxZoom={10}
         clusterColors={colors.clusters}
+        clusterSizes={[14, 20, 28]}
         clusterThresholds={[10, 50]}
         pointColor={colors.point}
         onPointClick={handlePointClick}

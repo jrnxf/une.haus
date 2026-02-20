@@ -9,6 +9,7 @@ import {
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import pluralize from "pluralize";
 import { useState } from "react";
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
 
@@ -70,7 +71,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full min-h-0 overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 md:p-6">
         <SetView setId={setId} />
       </div>
     </div>
@@ -134,7 +135,7 @@ function SetView({ setId }: { setId: number }) {
           {set.likes.length > 0 && (
             <UsersDialog
               users={set.likes?.map((l) => l.user) ?? []}
-              title={`${set.likes?.length ?? 0} Likes`}
+              title={`${set.likes?.length ?? 0} ${pluralize("Like", set.likes?.length ?? 0)}`}
               trigger={
                 <Button
                   size="icon-sm"

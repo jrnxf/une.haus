@@ -7,7 +7,6 @@ import {
   UsersIcon,
   MedalIcon,
   MessagesSquareIcon,
-  Send,
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
@@ -17,7 +16,6 @@ import * as React from "react";
 import { BracketIcon } from "~/components/icons/bracket-icon";
 import { Logo } from "~/components/logo";
 import { NavMain } from "~/components/nav-main";
-import { NavSecondary } from "~/components/nav-secondary";
 import { NavUser } from "~/components/nav-user";
 import { SearchTrigger } from "~/components/search-trigger";
 import {
@@ -86,13 +84,6 @@ const data = {
       icon: ShoppingBagIcon,
     },
   ],
-  navSecondary: [
-    {
-      title: "feedback",
-      url: "/feedback",
-      icon: Send,
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -107,7 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link to="/" className="h-fit">
                 <div>
-                  <Logo className="h-8" />
+                  <Logo className="h-8 fill-transparent! stroke-black! stroke-2 dark:stroke-white!" />
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -117,7 +108,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

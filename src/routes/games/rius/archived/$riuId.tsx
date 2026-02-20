@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
+import pluralize from "pluralize";
 import { useMemo } from "react";
 
 import { VList } from "virtua";
@@ -84,10 +85,10 @@ function RouteComponent() {
       {/* Section Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Archived</h2>
+          <h2 className="text-lg font-semibold">archived</h2>
           <p className="text-muted-foreground text-sm">
-            {participantCount} {participantCount === 1 ? "player" : "players"} ·{" "}
-            {setCount} {setCount === 1 ? "set" : "sets"}
+            {participantCount} {pluralize("player", participantCount)} ·{" "}
+            {setCount} {pluralize("set", setCount)}
           </p>
         </div>
 

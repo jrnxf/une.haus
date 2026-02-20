@@ -94,161 +94,161 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
           <PageHeader.Crumb>create</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-lg p-4">
+      <div className="mx-auto w-full max-w-5xl p-4">
         <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <CardTitle>roster</CardTitle>
-              <CardDescription>
-                add riders and start the tournament
-              </CardDescription>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="space-y-1">
+                <CardTitle>roster</CardTitle>
+                <CardDescription>
+                  add riders and start the tournament
+                </CardDescription>
+              </div>
+              {isAdmin && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      aria-label="Admin menu"
+                    >
+                      <ShieldIcon className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {seedPresets.map((count) => {
+                      const slotsToFill = count - riders.length;
+                      return (
+                        <DropdownMenuItem
+                          key={count}
+                          onClick={() => loadDemo(count)}
+                          disabled={slotsToFill <= 0}
+                        >
+                          Seed random {count}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
-            {isAdmin && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label>Event Name</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={`euc winter '${String(new Date().getFullYear()).slice(2)}`}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>riders</Label>
+              <RiderSelector value={riders} onChange={setRiders} />
+              <p className="text-muted-foreground text-xs">
+                {riders.length} riders added
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Bracket Size</Label>
+              <div className="flex gap-2">
+                {bracketSizeOptions.map((size) => (
                   <Button
-                    variant="secondary"
-                    size="icon"
-                    aria-label="Admin menu"
+                    key={size}
+                    variant={bracketSize === size ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => setBracketSize(size)}
                   >
-                    <ShieldIcon className="size-4" />
+                    {size}
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {seedPresets.map((count) => {
-                    const slotsToFill = count - riders.length;
-                    return (
-                      <DropdownMenuItem
-                        key={count}
-                        onClick={() => loadDemo(count)}
-                        disabled={slotsToFill <= 0}
-                      >
-                        Seed random {count}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label>Event Name</Label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={`euc winter '${String(new Date().getFullYear()).slice(2)}`}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>riders</Label>
-            <RiderSelector value={riders} onChange={setRiders} />
-            <p className="text-muted-foreground text-xs">
-              {riders.length} riders added
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Bracket Size</Label>
-            <div className="flex gap-2">
-              {bracketSizeOptions.map((size) => (
-                <Button
-                  key={size}
-                  variant={bracketSize === size ? "default" : "secondary"}
-                  size="sm"
-                  onClick={() => setBracketSize(size)}
-                >
-                  {size}
-                </Button>
-              ))}
+                ))}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                top {bracketSize} riders from prelims advance to the bracket
+              </p>
             </div>
-            <p className="text-muted-foreground text-xs">
-              top {bracketSize} riders from prelims advance to the bracket
-            </p>
-          </div>
 
-          <div className="space-y-4">
-            <Label>Timer Durations</Label>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-muted-foreground text-xs">prelims</Label>
-                <div className="flex flex-wrap gap-2">
-                  {timePresets.map((preset) => (
-                    <Button
-                      key={preset.value}
-                      variant={
-                        prelimTime === preset.value ? "default" : "secondary"
-                      }
-                      size="sm"
-                      onClick={() => setPrelimTime(preset.value)}
-                    >
-                      {preset.label}
-                    </Button>
-                  ))}
+              <Label>Timer Durations</Label>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs">prelims</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {timePresets.map((preset) => (
+                      <Button
+                        key={preset.value}
+                        variant={
+                          prelimTime === preset.value ? "default" : "secondary"
+                        }
+                        size="sm"
+                        onClick={() => setPrelimTime(preset.value)}
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-muted-foreground text-xs">battles</Label>
-                <div className="flex flex-wrap gap-2">
-                  {timePresets.map((preset) => (
-                    <Button
-                      key={preset.value}
-                      variant={
-                        battleTime === preset.value ? "default" : "secondary"
-                      }
-                      size="sm"
-                      onClick={() => setBattleTime(preset.value)}
-                    >
-                      {preset.label}
-                    </Button>
-                  ))}
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs">battles</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {timePresets.map((preset) => (
+                      <Button
+                        key={preset.value}
+                        variant={
+                          battleTime === preset.value ? "default" : "secondary"
+                        }
+                        size="sm"
+                        onClick={() => setBattleTime(preset.value)}
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-muted-foreground text-xs">
-                  final battles
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {timePresets.map((preset) => (
-                    <Button
-                      key={preset.value}
-                      variant={
-                        finalsTime === preset.value ? "default" : "secondary"
-                      }
-                      size="sm"
-                      onClick={() => setFinalsTime(preset.value)}
-                    >
-                      {preset.label}
-                    </Button>
-                  ))}
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground text-xs">
+                    final battles
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {timePresets.map((preset) => (
+                      <Button
+                        key={preset.value}
+                        variant={
+                          finalsTime === preset.value ? "default" : "secondary"
+                        }
+                        size="sm"
+                        onClick={() => setFinalsTime(preset.value)}
+                      >
+                        {preset.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex justify-end">
-            <Button
-              onClick={handleCreate}
-              disabled={
-                riders.length < 2 || !name.trim() || createMutation.isPending
-              }
-            >
-              Create
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={handleCreate}
+                disabled={
+                  riders.length < 2 || !name.trim() || createMutation.isPending
+                }
+              >
+                Create
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </>
   );
 }

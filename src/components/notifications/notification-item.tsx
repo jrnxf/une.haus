@@ -6,7 +6,6 @@ import {
   MessageCircle,
   Sparkles,
   UserPlus,
-  X,
 } from "lucide-react";
 
 import { TimeAgo } from "~/components/time-ago";
@@ -39,7 +38,6 @@ type NotificationItemProps = {
   latestAt: Date;
   isRead?: boolean;
   onMarkRead?: () => void;
-  onDelete?: () => void;
 };
 
 function NotificationIcon({ type }: { type: NotificationType }) {
@@ -86,7 +84,6 @@ export function NotificationItem({
   latestAt,
   isRead = false,
   onMarkRead,
-  onDelete,
 }: NotificationItemProps) {
   const url = getNotificationUrl(entityType, entityId, data);
   const actorNames = actors.map((a) => a.name);
@@ -99,77 +96,56 @@ export function NotificationItem({
   return (
     <Link
       to={url}
-      onClick={onMarkRead}
+      onClick={!isRead ? onMarkRead : undefined}
       className={cn(
-        "group hover:bg-accent relative block px-3 py-2 transition-colors",
+        "ring-offset-background focus-visible:ring-ring group block rounded-md p-3 transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         !isRead && "bg-accent/50",
       )}
     >
-      {/* Unread indicator */}
-      {!isRead && (
-        <div className="bg-primary absolute top-2 left-1 size-1.5 rounded-full" />
-      )}
-
-      {/* First line: avatar + names + action buttons */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-start gap-3">
         {primaryActor && (
           <Avatar
             cloudflareId={primaryActor.avatarId}
             alt={primaryActor.name}
-            className="size-4 shrink-0"
+            className="size-6 shrink-0"
           >
-            <AvatarImage width={16} quality={75} />
-            <AvatarFallback name={primaryActor.name} className="text-[8px]" />
+            <AvatarImage width={24} quality={75} />
+            <AvatarFallback name={primaryActor.name} className="text-[10px]" />
           </Avatar>
         )}
-        <span className="min-w-0 flex-1 truncate text-xs font-medium">
-          {formattedNames}
-        </span>
 
-        {/* Action buttons */}
-        <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-          {!isRead && onMarkRead && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-5"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onMarkRead();
-              }}
-            >
-              <Check className="size-3" />
-              <span className="sr-only">Mark as read</span>
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-5"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onDelete();
-              }}
-            >
-              <X className="size-3" />
-              <span className="sr-only">Delete notification</span>
-            </Button>
-          )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium">
+              {formattedNames}
+            </span>
+            <span className="text-muted-foreground shrink-0 text-xs">
+              <TimeAgo date={new Date(latestAt)} />
+            </span>
+          </div>
+          <div className="mt-1 flex items-center gap-1.5">
+            <NotificationIcon type={type} />
+            <p className="text-muted-foreground min-w-0 flex-1 truncate text-sm">
+              {action}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Second line: icon + action + time */}
-      <div className="mt-0.5 flex items-center gap-1">
-        <NotificationIcon type={type} />
-        <p className="text-muted-foreground min-w-0 flex-1 truncate text-xs">
-          {action}
-        </p>
-        <span className="text-muted-foreground shrink-0 text-[10px]">
-          <TimeAgo date={new Date(latestAt)} />
-        </span>
+        {!isRead && onMarkRead && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMarkRead();
+            }}
+          >
+            <Check className="size-3.5" />
+            <span className="sr-only">Mark as read</span>
+          </Button>
+        )}
       </div>
     </Link>
   );

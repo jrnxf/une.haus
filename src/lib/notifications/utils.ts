@@ -1,3 +1,5 @@
+import pluralize from "pluralize";
+
 import type {
   NotificationData,
   NotificationEntityType,
@@ -115,13 +117,13 @@ function formatActors(names: string[], totalCount: number): string {
   if (names.length === 0) return "Someone";
   if (names.length === 1) {
     if (totalCount > 1) {
-      return `${names[0]} and ${totalCount - 1} ${totalCount - 1 === 1 ? "other" : "others"}`;
+      return `${names[0]} and ${totalCount - 1} ${pluralize("other", totalCount - 1)}`;
     }
     return names[0];
   }
   if (names.length === 2) {
     if (totalCount > 2) {
-      return `${names[0]}, ${names[1]} and ${totalCount - 2} ${totalCount - 2 === 1 ? "other" : "others"}`;
+      return `${names[0]}, ${names[1]} and ${totalCount - 2} ${pluralize("other", totalCount - 2)}`;
     }
     return `${names[0]} and ${names[1]}`;
   }
