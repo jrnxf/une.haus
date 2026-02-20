@@ -1,6 +1,6 @@
 {
   "include": ["**/*.ts", "**/*.tsx", "src/views/user-with-globe.bak"],
-  "exclude": ["bak/**", "**/*.bak.ts", "**/*.bak.tsx"],
+  "exclude": ["bak/**", "**/*.bak.ts", "**/*.bak.tsx", "**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
