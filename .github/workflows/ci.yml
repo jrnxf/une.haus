@@ -82,7 +82,7 @@ jobs:
         run: bunx playwright install chromium --with-deps
 
       - name: run e2e tests
-        run: bunx playwright test
+        run: bun run e2e
         env:
           CI: true
 
