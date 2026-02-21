@@ -1,12 +1,12 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="public/icons/wordmark-white.svg">
-    <source media="(prefers-color-scheme: light)" srcset="public/icons/wordmark-black.svg">
-    <img src="public/icons/wordmark-black.svg" width="260" alt="une.haus">
+    <source media="(prefers-color-scheme: dark)" srcset="public/icons/logo-full-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="public/icons/logo-full-black.svg">
+    <img src="public/icons/logo-full-black.svg" width="260" alt="une.haus">
   </picture>
 </p>
 
-<p align="center">a home for the unicycling community</p>
+<p align="center">all things une</p>
 
 <p align="center">
   <a href="https://une.haus">une.haus</a>
