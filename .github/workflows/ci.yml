@@ -40,6 +40,24 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: ${{ secrets.CLOUDFLARE_IMAGES_EDITOR_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      HAUS_AWS_ACCESS_KEY_ID: ${{ secrets.HAUS_AWS_ACCESS_KEY_ID }}
+      HAUS_AWS_BUCKET_NAME: ${{ secrets.HAUS_AWS_BUCKET_NAME }}
+      HAUS_AWS_REGION: ${{ secrets.HAUS_AWS_REGION }}
+      HAUS_AWS_SECRET_ACCESS_KEY: ${{ secrets.HAUS_AWS_SECRET_ACCESS_KEY }}
+      MUX_TOKEN_ID: ${{ secrets.MUX_TOKEN_ID }}
+      MUX_TOKEN_SECRET: ${{ secrets.MUX_TOKEN_SECRET }}
+      MUX_WEBHOOK_SECRET: ${{ secrets.MUX_WEBHOOK_SECRET }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -54,7 +72,23 @@ jobs:
     needs: [build]
     if: github.event_name == 'push' || github.event.pull_request.draft == false
     env:
+      CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: ${{ secrets.CLOUDFLARE_IMAGES_EDITOR_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      HAUS_AWS_ACCESS_KEY_ID: ${{ secrets.HAUS_AWS_ACCESS_KEY_ID }}
+      HAUS_AWS_BUCKET_NAME: ${{ secrets.HAUS_AWS_BUCKET_NAME }}
+      HAUS_AWS_REGION: ${{ secrets.HAUS_AWS_REGION }}
+      HAUS_AWS_SECRET_ACCESS_KEY: ${{ secrets.HAUS_AWS_SECRET_ACCESS_KEY }}
+      MUX_TOKEN_ID: ${{ secrets.MUX_TOKEN_ID }}
+      MUX_TOKEN_SECRET: ${{ secrets.MUX_TOKEN_SECRET }}
+      MUX_WEBHOOK_SECRET: ${{ secrets.MUX_WEBHOOK_SECRET }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
