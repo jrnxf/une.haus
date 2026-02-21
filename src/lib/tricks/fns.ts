@@ -16,12 +16,7 @@ import {
 import { invariant } from "~/lib/invariant";
 import { adminOnlyMiddleware } from "~/lib/middleware";
 
-import {
-  computeAllNeighbors,
-  computeDepthsAndDependents,
-} from "./compute";
-import type { Trick } from "./types";
-
+import { computeAllNeighbors, computeDepthsAndDependents } from "./compute";
 import {
   createElementSchema,
   createModifierSchema,
@@ -39,6 +34,7 @@ import {
   updateModifierSchema,
   updateTrickSchema,
 } from "./schemas";
+import type { Trick } from "./types";
 
 // ==================== MODIFIERS ====================
 
@@ -774,8 +770,5 @@ export const getAllTricksForGraphServerFn = createServerFn({
     },
     orderBy: [asc(tricks.name)],
   });
-  console.log(
-    `[getAllTricksForGraphServerFn] Found ${dbTricks.length} tricks in database`,
-  );
   return transformDbTricksToTricksData(dbTricks);
 });

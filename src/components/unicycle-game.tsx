@@ -20,20 +20,28 @@ const COMBO_BONUS = 1;
 const MILESTONE_INTERVAL = 500;
 const MILESTONE_DISPLAY_FRAMES = 60;
 const DEATH_ANIM_FRAMES = 40;
+const DEATH_FREEZE_FRAMES = 300; // 5 seconds at 60fps
 const DUST_COUNT = 7;
 const DUST_LIFE = 16;
 const SPEED_LINE_THRESHOLD = 5;
 const SEAT_SPIN_FRAMES = 45;
 const SEAT_SPIN_SPEED = (Math.PI * 2) / SEAT_SPIN_FRAMES;
+const TRAMPOLINE_W = 80;
+const TRAMPOLINE_H = 6;
+const TRAMPOLINE_JUMP_FORCE = -14;
+const BACKFLIP_FRAMES = 105;
 const LS_HIGH_SCORE_KEY = "unicycle-high-score";
-const LETTER_WORD = "UNEHAUS";
+const LETTER_WORD = "unehaus";
 const LETTER_SIZE = 16;
 const LETTER_BOB_SPEED = 0.05;
 const LETTER_BOB_AMPLITUDE = 6;
 const LETTER_SPAWN_INTERVAL = 180;
 const LETTER_COLLECT_RADIUS = 20;
-const LETTER_BONUS = 77_770;
+const LETTER_BONUS = 2_500;
 const LETTER_BONUS_DISPLAY_FRAMES = 120;
+const SCOOTER_KID_W = 24;
+const SCOOTER_KID_H = 36;
+const SCOOTER_KID_SPEED = 2.5;
 
 // --- Types ---
 type StairRun = { count: number; totalW: number; totalH: number };
@@ -50,13 +58,9 @@ type StairsetInfo = {
   segments: StairSegment[];
   stairTotalW: number;
   rampSpikes: RampSpike[];
-};
-
-type LedgeInfo = {
-  wallW: number;
-  platW: number;
-  segments: StairSegment[];
-  stairTotalW: number;
+  ascent: "ramp" | "stairs";
+  ascentSteps: number;
+  ascentStepHeights: number[]; // per-step heights (only when ascent === "stairs")
 };
 
 type TerrainPiece = {
@@ -66,8 +70,10 @@ type TerrainPiece = {
 } & (
   | ({ type: "stairset" } & StairsetInfo)
   | { type: "spikes" }
-  | ({ type: "ledge" } & LedgeInfo)
+  | { type: "gap" }
   | { type: "bump"; count: number }
+  | { type: "trampoline" }
+  | { type: "scooterKid" }
 );
 
 type Cloud = {
@@ -98,6 +104,13 @@ type CollectibleLetter = {
   bobPhase: number;
 };
 
+type LightningBolt = {
+  points: { x: number; y: number }[];
+  branch: { x: number; y: number }[] | null;
+  life: number;
+  maxLife: number;
+};
+
 type GameState = {
   status: "idle" | "running" | "dead";
   playerY: number;
@@ -121,6 +134,7 @@ type GameState = {
   grindFrozenAngle: number;
   jumpHeld: boolean;
   deathTimer: number;
+  deathFreezeTimer: number;
   deathSpeed: number;
   milestoneTimer: number;
   lastMilestone: number;
@@ -131,6 +145,11 @@ type GameState = {
   collectedLetters: boolean[];
   letterSpawnTimer: number;
   bonusTimer: number;
+  lightning: LightningBolt[];
+  fallingInGap: boolean;
+  hitScooterKid: boolean;
+  backflipAngle: number;
+  backflipActive: boolean;
 };
 
 // --- Helpers ---
@@ -169,12 +188,18 @@ function createStairRun(count: number): StairRun {
   return { count, totalW: count * STEP_W, totalH: count * STEP_H };
 }
 
-function lastHadSpikes(prev: TerrainPiece | undefined): boolean {
+function lastHadHazard(prev: TerrainPiece | undefined): boolean {
   if (!prev) return false;
   if (prev.type === "spikes") return true;
-  if (prev.type === "ledge") return true;
+  if (prev.type === "gap") return true;
+  if (prev.type === "scooterKid") return true;
   if (prev.type === "stairset" && prev.rampSpikes.length > 0) return true;
   return false;
+}
+
+function isFlatSection(prev: TerrainPiece | undefined): boolean {
+  if (!prev) return true;
+  return prev.type === "bump" || prev.type === "trampoline";
 }
 
 // --- Difficulty scaling ---
@@ -183,13 +208,17 @@ function getDifficulty(score: number) {
   const t = Math.min(displayScore / 3000, 1);
   return {
     stairsetMax: 0.65 - t * 0.15,
-    ledgeMax: 0.85 - t * 0.05,
     rampSpikeChance: 0.25 + t * 0.2,
     minStairs: 5 + Math.floor(t * 5),
     maxStairs: 40 + Math.floor(t * 20),
     gapMultiplier: 1 - t * 0.3,
   };
 }
+
+// Rider height (head to tire bottom) ≈ 56px
+const RIDER_H = 56;
+const MIN_STEP_PLAT_W = RIDER_H * 5; // 5x rider height per platform
+const MAX_STEP_H = RIDER_H * 1.5; // max step height = 1.5x rider height
 
 function createStairsetTerrain(
   x: number,
@@ -198,7 +227,56 @@ function createStairsetTerrain(
 ): TerrainPiece {
   const platW = randomBetween(60, 120);
 
-  // Decide stair count tier
+  // 50% ramp, 50% ascending stairs
+  const ascent: "ramp" | "stairs" = Math.random() < 0.5 ? "stairs" : "ramp";
+
+  if (ascent === "stairs") {
+    // Ascending stairs: jumpable steps with varying heights
+    const ascentSteps = randomInt(2, 3);
+    const stepW = randomBetween(MIN_STEP_PLAT_W, MIN_STEP_PLAT_W + 80);
+    const rampW = ascentSteps * stepW;
+    // Each step gets a random height between 30px and MAX_STEP_H
+    const ascentStepHeights: number[] = [];
+    let totalHeight = 0;
+    for (let i = 0; i < ascentSteps; i++) {
+      const h = Math.round(randomBetween(30, MAX_STEP_H));
+      ascentStepHeights.push(h);
+      totalHeight += h;
+    }
+    // Snap totalHeight to exact multiple of STEP_H so descending stairs match perfectly
+    const totalCount = Math.max(1, Math.round(totalHeight / STEP_H));
+    totalHeight = totalCount * STEP_H;
+    // Redistribute the snapped height back across ascending steps proportionally
+    const rawSum = ascentStepHeights.reduce((a, b) => a + b, 0);
+    let assigned = 0;
+    for (let i = 0; i < ascentSteps - 1; i++) {
+      ascentStepHeights[i] = Math.round(
+        (ascentStepHeights[i] / rawSum) * totalHeight,
+      );
+      assigned += ascentStepHeights[i];
+    }
+    ascentStepHeights[ascentSteps - 1] = totalHeight - assigned;
+
+    const run = createStairRun(totalCount);
+    const segments: StairSegment[] = [{ kind: "stairs", run }];
+
+    return {
+      x,
+      width: rampW + platW + run.totalW,
+      height: run.totalH,
+      type: "stairset",
+      rampW,
+      platW,
+      segments,
+      stairTotalW: run.totalW,
+      rampSpikes: [],
+      ascent: "stairs",
+      ascentSteps,
+      ascentStepHeights,
+    };
+  }
+
+  // --- Ramp ascent ---
   const tierRoll = Math.random();
   let totalCount: number;
   if (tierRoll < 0.3) totalCount = randomInt(diff.minStairs, 8);
@@ -211,23 +289,39 @@ function createStairsetTerrain(
   let stairTotalW = 0;
   let totalHeight = 0;
 
-  // Kinked set: split into two runs with a landing (30% chance, only if enough stairs)
-  const kinked = totalCount >= 4 && Math.random() < 0.3;
-  if (kinked) {
-    const split = randomInt(
-      Math.max(1, Math.floor(totalCount * 0.3)),
-      Math.floor(totalCount * 0.7),
-    );
-    const run1 = createStairRun(split);
-    const landingW = randomBetween(50, 100);
-    const run2 = createStairRun(totalCount - split);
-    segments.push(
-      { kind: "stairs", run: run1 },
-      { kind: "landing", width: landingW },
-      { kind: "stairs", run: run2 },
-    );
-    stairTotalW = run1.totalW + landingW + run2.totalW;
-    totalHeight = run1.totalH + run2.totalH;
+  // Determine number of flat landings (0-3), proportional to stairset height
+  const stairHeight = totalCount * STEP_H;
+  let maxLandings = 0;
+  if (stairHeight >= 320) maxLandings = 3;
+  else if (stairHeight >= 200) maxLandings = 2;
+  else if (stairHeight >= 80) maxLandings = 1;
+
+  const numLandings =
+    totalCount >= 4 && maxLandings > 0 ? randomInt(0, maxLandings) : 0;
+
+  if (numLandings > 0) {
+    const splits: number[] = [];
+    let remaining = totalCount;
+    for (let i = 0; i < numLandings; i++) {
+      const minSteps = Math.max(2, Math.floor(remaining * 0.15));
+      const maxSteps = Math.floor(remaining * (0.7 / (numLandings - i)));
+      const count = randomInt(minSteps, Math.max(minSteps, maxSteps));
+      splits.push(count);
+      remaining -= count;
+    }
+    splits.push(remaining);
+
+    for (let i = 0; i < splits.length; i++) {
+      const run = createStairRun(splits[i]);
+      segments.push({ kind: "stairs", run });
+      stairTotalW += run.totalW;
+      totalHeight += run.totalH;
+      if (i < splits.length - 1) {
+        const landingW = randomBetween(50, 100);
+        segments.push({ kind: "landing", width: landingW });
+        stairTotalW += landingW;
+      }
+    }
   } else {
     const run = createStairRun(totalCount);
     segments.push({ kind: "stairs", run });
@@ -235,14 +329,12 @@ function createStairsetTerrain(
     totalHeight = run.totalH;
   }
 
-  // Ramp width derived from height at consistent angle
   const rampW = totalHeight * RAMP_SLOPE;
 
-  // Occasionally place spikes on the ramp
   const rampSpikes: RampSpike[] = [];
   if (
     rampW > 60 &&
-    !lastHadSpikes(prev) &&
+    !lastHadHazard(prev) &&
     Math.random() < diff.rampSpikeChance
   ) {
     const spikeW = randomBetween(24, 48);
@@ -266,6 +358,9 @@ function createStairsetTerrain(
     segments,
     stairTotalW,
     rampSpikes,
+    ascent: "ramp",
+    ascentSteps: 0,
+    ascentStepHeights: [],
   };
 }
 
@@ -276,51 +371,45 @@ function createTerrain(
 ): TerrainPiece {
   const diff = getDifficulty(score);
 
-  // After spikes/ledge, always generate a safe terrain
-  if (lastHadSpikes(prev)) {
+  // After hazard, always generate a safe terrain
+  if (lastHadHazard(prev)) {
     // 40% bump, 60% stairset
     if (Math.random() < 0.4) {
-      const width = randomBetween(80, 160);
-      const amplitude = randomBetween(8, 20);
-      const count = randomInt(1, 3);
-      return { x, width, height: amplitude, type: "bump", count };
+      const width = randomBetween(400, 600);
+      const amplitude = randomBetween(35, 60);
+      return { x, width, height: amplitude, type: "bump", count: 1 };
     }
     return createStairsetTerrain(x, prev, diff);
   }
 
   const roll = Math.random();
 
-  // Bump: ~15%
-  if (roll < 0.15) {
-    const width = randomBetween(80, 160);
-    const amplitude = randomBetween(8, 20);
-    const count = randomInt(1, 3);
-    return { x, width, height: amplitude, type: "bump", count };
+  // Scooter kid: ~8% — only on flat sections (not after stairsets)
+  if (roll < 0.08 && isFlatSection(prev)) {
+    return { x, width: SCOOTER_KID_W, height: SCOOTER_KID_H, type: "scooterKid" };
+  }
+
+  // Trampoline: ~10%
+  if (roll < 0.18) {
+    return { x, width: TRAMPOLINE_W, height: 0, type: "trampoline" };
+  }
+
+  // Bump: ~12%
+  if (roll < 0.3) {
+    const width = randomBetween(400, 600);
+    const amplitude = randomBetween(35, 60);
+    return { x, width, height: amplitude, type: "bump", count: 1 };
   }
 
   // Stairset
-  if (roll < 0.15 + (diff.stairsetMax - 0.15) * 0.6) {
+  if (roll < 0.3 + (diff.stairsetMax - 0.15) * 0.6) {
     return createStairsetTerrain(x, prev, diff);
   }
 
-  // Ledge
-  if (roll < 0.75) {
-    const stairCount = randomInt(4, 6);
-    const run = createStairRun(stairCount);
-    const totalHeight = run.totalH;
-    const wallW = 12;
-    const platW = randomBetween(60, 100);
-    const segments: StairSegment[] = [{ kind: "stairs", run }];
-    return {
-      x,
-      width: wallW + platW + run.totalW,
-      height: totalHeight,
-      type: "ledge",
-      wallW,
-      platW,
-      segments,
-      stairTotalW: run.totalW,
-    };
+  // Gap (hole in the ground)
+  if (roll < 0.85) {
+    const gapWidth = randomBetween(60, 240);
+    return { x, width: gapWidth, height: 0, type: "gap" };
   }
 
   // Spikes: remainder
@@ -413,6 +502,17 @@ function getStairsetSurfaceY(
   const topY = baseGroundY - t.height;
 
   if (local <= t.rampW) {
+    if (t.ascent === "stairs") {
+      const stepW = t.rampW / t.ascentSteps;
+      const stepIndex = Math.min(
+        Math.floor(local / stepW),
+        t.ascentSteps - 1,
+      );
+      // Sum heights up to and including this step
+      let cumH = 0;
+      for (let i = 0; i <= stepIndex; i++) cumH += t.ascentStepHeights[i];
+      return baseGroundY - cumH;
+    }
     const progress = local / t.rampW;
     return baseGroundY - progress * t.height;
   } else if (local <= t.rampW + t.platW) {
@@ -430,41 +530,6 @@ function getStairsetRailY(
   t: TerrainPiece & { type: "stairset" },
 ): number | null {
   const stairStartX = t.x + t.rampW + t.platW;
-  const stairEndX = t.x + t.width;
-  if (worldX < stairStartX || worldX > stairEndX) return null;
-  const stairLocal = worldX - stairStartX;
-  const topY = baseGroundY - t.height;
-  const result = getSegmentYs(stairLocal, topY, baseGroundY, t.segments);
-  return result ? result.railY : null;
-}
-
-function getLedgeSurfaceY(
-  worldX: number,
-  baseGroundY: number,
-  t: TerrainPiece & { type: "ledge" },
-): number | null {
-  if (worldX < t.x || worldX > t.x + t.width) return null;
-  const local = worldX - t.x;
-  const topY = baseGroundY - t.height;
-
-  if (local <= t.wallW) {
-    // Wall zone — ground level (wall blocks, collision handles death)
-    return baseGroundY;
-  } else if (local <= t.wallW + t.platW) {
-    return topY;
-  } else {
-    const stairLocal = local - t.wallW - t.platW;
-    const result = getSegmentYs(stairLocal, topY, baseGroundY, t.segments);
-    return result ? result.surfaceY : baseGroundY;
-  }
-}
-
-function getLedgeRailY(
-  worldX: number,
-  baseGroundY: number,
-  t: TerrainPiece & { type: "ledge" },
-): number | null {
-  const stairStartX = t.x + t.wallW + t.platW;
   const stairEndX = t.x + t.width;
   if (worldX < stairStartX || worldX > stairEndX) return null;
   const stairLocal = worldX - stairStartX;
@@ -494,12 +559,6 @@ function getSurfaceY(
     switch (t.type) {
       case "stairset": {
         const y = getStairsetSurfaceY(worldX, baseGroundY, t);
-        if (y !== null) return y;
-
-        break;
-      }
-      case "ledge": {
-        const y = getLedgeSurfaceY(worldX, baseGroundY, t);
         if (y !== null) return y;
 
         break;
@@ -541,11 +600,19 @@ function drawUnicyclist(
   lean: number,
   deathTilt: number,
   seatSpin: number,
+  backflipAngle: number,
 ) {
   const wheelR = WHEEL_R;
   const wheelCenterY = y;
 
   ctx.save();
+  if (backflipAngle > 0) {
+    const pivotX = x;
+    const pivotY = y;
+    ctx.translate(pivotX, pivotY);
+    ctx.rotate(-backflipAngle);
+    ctx.translate(-pivotX, -pivotY);
+  }
   if (deathTilt > 0) {
     const pivotX = x;
     const pivotY = y + wheelR;
@@ -554,7 +621,45 @@ function drawUnicyclist(
     ctx.translate(-pivotX, -pivotY);
   }
 
-  // Tire
+  // --- Compute positions ---
+  const seatY = wheelCenterY - wheelR - 16;
+  const pedalLen = 6;
+  const hipX = x + lean;
+  const hipY = seatY;
+  const px1 = x + Math.cos(pedalAngle) * pedalLen;
+  const py1 = wheelCenterY + Math.sin(pedalAngle) * pedalLen;
+  const px2 = x + Math.cos(pedalAngle + Math.PI) * pedalLen;
+  const py2 = wheelCenterY + Math.sin(pedalAngle + Math.PI) * pedalLen;
+
+  // Leg helper: 2-bone IK with subtle blend toward straight line
+  const drawLeg = (footX: number, footY: number) => {
+    ctx.strokeStyle = fg;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(hipX, hipY);
+    if (seatSpin === 0) {
+      const thigh = 17, shin = 17, blend = 0.2;
+      const ldx = footX - hipX, ldy = footY - hipY;
+      const dist = Math.min(Math.hypot(ldx, ldy), thigh + shin - 0.1);
+      const cosA = (thigh * thigh + dist * dist - shin * shin) / (2 * thigh * dist);
+      const a = Math.acos(Math.max(-1, Math.min(1, cosA)));
+      const base = Math.atan2(ldy, ldx);
+      const fullKx = hipX + Math.cos(base - a) * thigh;
+      const fullKy = hipY + Math.sin(base - a) * thigh;
+      const midX = (hipX + footX) / 2, midY = (hipY + footY) / 2;
+      ctx.lineTo(midX + (fullKx - midX) * blend, midY + (fullKy - midY) * blend);
+      ctx.lineTo(footX, footY);
+    } else {
+      ctx.lineTo(hipX + 4, hipY + 8);
+      ctx.lineTo(hipX - 2, hipY + 10);
+    }
+    ctx.stroke();
+  };
+
+  // --- Back leg (behind wheel) ---
+  drawLeg(px2, py2);
+
+  // --- Tire ---
   ctx.strokeStyle = fg;
   ctx.lineWidth = flatTire ? 2 : 3.5;
   ctx.beginPath();
@@ -579,12 +684,7 @@ function drawUnicyclist(
     ctx.stroke();
   }
 
-  // Seat post, seat, and pedal — rotate around wheel center during unispin
-  const seatY = wheelCenterY - wheelR - 16;
-  const pedalLen = 6;
-  const px1 = x + Math.cos(pedalAngle) * pedalLen;
-  const py1 = wheelCenterY + Math.sin(pedalAngle) * pedalLen;
-
+  // Seat post, seat, and pedals — rotate around wheel center during unispin
   if (seatSpin !== 0) {
     ctx.save();
     ctx.translate(x, wheelCenterY);
@@ -605,11 +705,17 @@ function drawUnicyclist(
   ctx.quadraticCurveTo(x + lean + 1, seatY + 2, x + lean + 7, seatY - 1);
   ctx.stroke();
 
-  // Pedal
+  // Front pedal
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(px1 - 3, py1);
   ctx.lineTo(px1 + 3, py1);
+  ctx.stroke();
+
+  // Back pedal
+  ctx.beginPath();
+  ctx.moveTo(px2 - 3, py2);
+  ctx.lineTo(px2 + 3, py2);
   ctx.stroke();
   ctx.lineWidth = 2;
 
@@ -618,8 +724,6 @@ function drawUnicyclist(
   }
 
   // Body
-  const hipX = x + lean;
-  const hipY = seatY;
   const torsoLen = 14;
   const shoulderX = hipX + 3;
   const shoulderY = hipY - torsoLen;
@@ -654,7 +758,7 @@ function drawUnicyclist(
 
   ctx.lineWidth = 2;
 
-  // Single arm
+  // Arm
   if (grinding) {
     ctx.beginPath();
     ctx.moveTo(shoulderX, shoulderY);
@@ -667,16 +771,8 @@ function drawUnicyclist(
     ctx.stroke();
   }
 
-  // Single leg
-  ctx.beginPath();
-  ctx.moveTo(hipX, hipY);
-  if (seatSpin === 0) {
-    ctx.lineTo(px1, py1);
-  } else {
-    // During unispin, leg tucks (not connected to spinning pedal)
-    ctx.lineTo(hipX - 2, hipY + 10);
-  }
-  ctx.stroke();
+  // --- Front leg (in front of wheel) ---
+  drawLeg(px1, py1);
 
   ctx.restore();
 
@@ -714,18 +810,32 @@ function drawStairset(
   _muted: string,
 ) {
   const topY = groundY - t.height;
+  const fillBelow = groundY + 10; // extend below groundY to cover ground line
   ctx.fillStyle = bg;
 
-  // Ramp fill
-  ctx.beginPath();
-  ctx.moveTo(t.x, groundY);
-  ctx.lineTo(t.x + t.rampW, topY);
-  ctx.lineTo(t.x + t.rampW, groundY);
-  ctx.closePath();
-  ctx.fill();
+  if (t.ascent === "stairs") {
+    // Ascending stairs fill (varying heights)
+    const stepW = t.rampW / t.ascentSteps;
+    let cumH = 0;
+    for (let i = 0; i < t.ascentSteps; i++) {
+      cumH += t.ascentStepHeights[i];
+      const sx = t.x + i * stepW;
+      const sy = groundY - cumH;
+      ctx.fillRect(sx, sy, stepW + 1, fillBelow - sy);
+    }
+  } else {
+    // Ramp fill — extend below groundY to cover ground line
+    ctx.beginPath();
+    ctx.moveTo(t.x, fillBelow);
+    ctx.lineTo(t.x, groundY);
+    ctx.lineTo(t.x + t.rampW, topY);
+    ctx.lineTo(t.x + t.rampW, fillBelow);
+    ctx.closePath();
+    ctx.fill();
+  }
 
   // Platform fill
-  ctx.fillRect(t.x + t.rampW, topY, t.platW, t.height);
+  ctx.fillRect(t.x + t.rampW, topY, t.platW, fillBelow - topY);
 
   // Stair segments fill
   let offsetX = t.x + t.rampW + t.platW;
@@ -738,14 +848,14 @@ function drawStairset(
       for (let i = 0; i < run.count; i++) {
         const sx = offsetX + i * stepW;
         const sy = topY + dropSoFar + i * stepH;
-        ctx.fillRect(sx, sy, stepW + 1, groundY - sy);
+        ctx.fillRect(sx, sy, stepW + 1, fillBelow - sy);
       }
       offsetX += run.totalW;
       dropSoFar += run.totalH;
     } else {
       // Landing fill
       const landY = topY + dropSoFar;
-      ctx.fillRect(offsetX, landY, seg.width, groundY - landY);
+      ctx.fillRect(offsetX, landY, seg.width, fillBelow - landY);
       offsetX += seg.width;
     }
   }
@@ -754,11 +864,26 @@ function drawStairset(
   ctx.strokeStyle = fg;
   ctx.lineWidth = 2;
 
-  // Ramp
-  ctx.beginPath();
-  ctx.moveTo(t.x, groundY);
-  ctx.lineTo(t.x + t.rampW, topY);
-  ctx.stroke();
+  if (t.ascent === "stairs") {
+    // Ascending stairs outline (varying heights)
+    const stepW = t.rampW / t.ascentSteps;
+    let cumH = 0;
+    ctx.beginPath();
+    ctx.moveTo(t.x, groundY);
+    for (let i = 0; i < t.ascentSteps; i++) {
+      cumH += t.ascentStepHeights[i];
+      const sy = groundY - cumH;
+      ctx.lineTo(t.x + i * stepW, sy);
+      ctx.lineTo(t.x + (i + 1) * stepW, sy);
+    }
+    ctx.stroke();
+  } else {
+    // Ramp
+    ctx.beginPath();
+    ctx.moveTo(t.x, groundY);
+    ctx.lineTo(t.x + t.rampW, topY);
+    ctx.stroke();
+  }
 
   // Platform top
   ctx.beginPath();
@@ -793,34 +918,27 @@ function drawStairset(
   }
   ctx.stroke();
 
-  // Ramp spikes
+  // Ramp nails
   if (t.rampSpikes.length > 0) {
     ctx.strokeStyle = fg;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     const rampLen = Math.hypot(t.rampW, t.height);
     const dx = t.rampW / rampLen;
     const dy = -t.height / rampLen;
-    // Normal pointing away from ground (up from ramp surface)
+    // Normal pointing away from ramp surface
     const nx = dy;
     const ny = -dx;
-    const spikeTriW = 8;
+    const nailSpacing = 10;
     for (const spike of t.rampSpikes) {
-      const count = Math.floor(spike.width / spikeTriW);
+      const count = Math.floor(spike.width / nailSpacing);
       for (let i = 0; i < count; i++) {
-        const off = spike.offset + i * spikeTriW;
-        const p0 = off / t.rampW;
-        const p1 = (off + spikeTriW) / t.rampW;
-        const pMid = (off + spikeTriW / 2) / t.rampW;
-        const bx0 = t.x + off;
-        const by0 = groundY - p0 * t.height;
-        const bx1 = t.x + off + spikeTriW;
-        const by1 = groundY - p1 * t.height;
-        const mx = t.x + off + spikeTriW / 2;
-        const my = groundY - pMid * t.height;
+        const off = spike.offset + i * nailSpacing + nailSpacing / 2;
+        const p = off / t.rampW;
+        const baseX = t.x + off;
+        const baseY = groundY - p * t.height;
         ctx.beginPath();
-        ctx.moveTo(bx0, by0);
-        ctx.lineTo(mx + nx * SPIKE_H, my + ny * SPIKE_H);
-        ctx.lineTo(bx1, by1);
+        ctx.moveTo(baseX, baseY);
+        ctx.lineTo(baseX + nx * SPIKE_H, baseY + ny * SPIKE_H);
         ctx.stroke();
       }
     }
@@ -883,183 +1001,119 @@ function drawStairset(
   }
 }
 
-function drawLedge(
+function drawGap(
   ctx: CanvasRenderingContext2D,
-  t: TerrainPiece & { type: "ledge" },
+  t: TerrainPiece & { type: "gap" },
   groundY: number,
-  fg: string,
   bg: string,
-  muted: string,
 ) {
-  const topY = groundY - t.height;
-
-  // Wall fill
+  // Erase the ground line in the gap area
   ctx.fillStyle = bg;
-  ctx.fillRect(t.x, topY, t.wallW, t.height);
-
-  // Platform fill
-  ctx.fillRect(t.x + t.wallW, topY, t.platW, t.height);
-
-  // Stair segments fill
-  let offsetX = t.x + t.wallW + t.platW;
-  let dropSoFar = 0;
-  for (const seg of t.segments) {
-    if (seg.kind === "stairs") {
-      const { run } = seg;
-      const stepW = run.totalW / run.count;
-      const stepH = run.totalH / run.count;
-      for (let i = 0; i < run.count; i++) {
-        const sx = offsetX + i * stepW;
-        const sy = topY + dropSoFar + i * stepH;
-        ctx.fillRect(sx, sy, stepW + 1, groundY - sy);
-      }
-      offsetX += run.totalW;
-      dropSoFar += run.totalH;
-    } else {
-      const landY = topY + dropSoFar;
-      ctx.fillRect(offsetX, landY, seg.width, groundY - landY);
-      offsetX += seg.width;
-    }
-  }
-
-  // --- Outlines ---
-  ctx.strokeStyle = fg;
-  ctx.lineWidth = 2;
-
-  // Wall face (left side)
-  ctx.beginPath();
-  ctx.moveTo(t.x, groundY);
-  ctx.lineTo(t.x, topY);
-  ctx.stroke();
-
-  // Wall top + platform top
-  ctx.beginPath();
-  ctx.moveTo(t.x, topY);
-  ctx.lineTo(t.x + t.wallW + t.platW, topY);
-  ctx.stroke();
-
-  // Wall spikes (pointing left, toward approaching rider)
-  const spikeW = 8;
-  const spikeDepth = 6;
-  const spikeCount = Math.floor(t.height / spikeW);
-  const spikeStartY = topY + (t.height - spikeCount * spikeW) / 2;
-  for (let i = 0; i < spikeCount; i++) {
-    const sy = spikeStartY + i * spikeW;
-    ctx.beginPath();
-    ctx.moveTo(t.x, sy);
-    ctx.lineTo(t.x - spikeDepth, sy + spikeW / 2);
-    ctx.lineTo(t.x, sy + spikeW);
-    ctx.stroke();
-  }
-
-  // Stair outlines
-  offsetX = t.x + t.wallW + t.platW;
-  dropSoFar = 0;
-  ctx.beginPath();
-  ctx.moveTo(offsetX, topY);
-  for (const seg of t.segments) {
-    if (seg.kind === "stairs") {
-      const { run } = seg;
-      const stepW = run.totalW / run.count;
-      const stepH = run.totalH / run.count;
-      for (let i = 0; i < run.count; i++) {
-        const sy = topY + dropSoFar + i * stepH;
-        ctx.lineTo(offsetX + i * stepW, sy + stepH);
-        ctx.lineTo(offsetX + (i + 1) * stepW, sy + stepH);
-      }
-      offsetX += run.totalW;
-      dropSoFar += run.totalH;
-    } else {
-      const landY = topY + dropSoFar;
-      ctx.lineTo(offsetX, landY);
-      ctx.lineTo(offsetX + seg.width, landY);
-      offsetX += seg.width;
-    }
-  }
-  ctx.stroke();
-
-  // Wall cross-hatch
-  ctx.strokeStyle = muted;
-  ctx.lineWidth = 1;
-  for (let ly = topY + 10; ly < groundY; ly += 14) {
-    ctx.beginPath();
-    ctx.moveTo(t.x + 2, ly);
-    ctx.lineTo(t.x + t.wallW - 2, ly);
-    ctx.stroke();
-  }
-
-  // --- Handrail ---
-  ctx.strokeStyle = fg;
-  ctx.lineWidth = 2;
-  const railStartX = t.x + t.wallW + t.platW;
-  ctx.beginPath();
-  offsetX = 0;
-  dropSoFar = 0;
-  ctx.moveTo(railStartX, topY - RAIL_OFFSET);
-  for (const seg of t.segments) {
-    if (seg.kind === "stairs") {
-      offsetX += seg.run.totalW;
-      dropSoFar += seg.run.totalH;
-      ctx.lineTo(railStartX + offsetX, topY + dropSoFar - RAIL_OFFSET);
-    } else {
-      ctx.lineTo(railStartX + offsetX, topY + dropSoFar - RAIL_OFFSET);
-      offsetX += seg.width;
-      ctx.lineTo(railStartX + offsetX, topY + dropSoFar - RAIL_OFFSET);
-    }
-  }
-  ctx.stroke();
-
-  // Rail supports
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = fg;
-  offsetX = 0;
-  dropSoFar = 0;
-  for (const seg of t.segments) {
-    if (seg.kind === "stairs") {
-      const { run } = seg;
-      const stepH = run.totalH / run.count;
-      const postInterval = Math.max(1, Math.floor(run.count / 4));
-      for (let i = 0; i <= run.count; i += postInterval) {
-        const progress = Math.min(i / run.count, 1);
-        const px = railStartX + offsetX + progress * run.totalW;
-        const railY = topY + dropSoFar + progress * run.totalH - RAIL_OFFSET;
-        const stepIndex = Math.min(i, run.count - 1);
-        const stairSurfY = topY + dropSoFar + (stepIndex + 1) * stepH;
-        ctx.beginPath();
-        ctx.moveTo(px, railY);
-        ctx.lineTo(px, Math.min(stairSurfY, groundY));
-        ctx.stroke();
-      }
-      offsetX += run.totalW;
-      dropSoFar += run.totalH;
-    } else {
-      const midX = railStartX + offsetX + seg.width / 2;
-      const railY = topY + dropSoFar - RAIL_OFFSET;
-      ctx.beginPath();
-      ctx.moveTo(midX, railY);
-      ctx.lineTo(midX, topY + dropSoFar);
-      ctx.stroke();
-      offsetX += seg.width;
-    }
-  }
+  ctx.fillRect(t.x - 1, groundY - 1, t.width + 2, 14);
 }
 
-function drawSpikes(
+function spawnLightning(canvasWidth: number, groundY: number): LightningBolt {
+  const startX = randomBetween(40, canvasWidth - 40);
+  const startY = randomBetween(5, 25);
+  const endY = randomBetween(groundY * 0.25, groundY * 0.55);
+  const points: { x: number; y: number }[] = [{ x: startX, y: startY }];
+  const segments = randomInt(3, 5);
+  const segmentH = (endY - startY) / segments;
+
+  let currentX = startX;
+  let dir = Math.random() < 0.5 ? -1 : 1;
+  for (let i = 1; i <= segments; i++) {
+    currentX += dir * randomBetween(18, 50);
+    currentX = Math.max(20, Math.min(canvasWidth - 20, currentX));
+    points.push({ x: currentX, y: startY + segmentH * i });
+    dir *= -1;
+  }
+
+  let branch: { x: number; y: number }[] | null = null;
+  if (points.length > 2) {
+    const branchIdx = randomInt(1, Math.min(points.length - 2, 2));
+    const bp = points[branchIdx];
+    const branchDir =
+      branchIdx < points.length - 1
+        ? (points[branchIdx + 1].x > bp.x ? -1 : 1)
+        : (Math.random() < 0.5 ? -1 : 1);
+    branch = [
+      { x: bp.x, y: bp.y },
+      { x: bp.x + branchDir * randomBetween(10, 25), y: bp.y + randomBetween(10, 20) },
+      { x: bp.x + branchDir * randomBetween(20, 40), y: bp.y + randomBetween(22, 38) },
+    ];
+  }
+
+  const life = randomInt(4, 10);
+  return { points, branch, life, maxLife: life };
+}
+
+function drawLightning(
+  ctx: CanvasRenderingContext2D,
+  bolt: LightningBolt,
+  fg: string,
+) {
+  if (bolt.points.length < 2) return;
+  const opacity = bolt.life / bolt.maxLife;
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = fg;
+  ctx.strokeStyle = fg;
+
+  // Filled zigzag polygon — wide at top, tapers to a point
+  const topW = 5;
+  const botW = 1;
+  ctx.beginPath();
+  for (let i = 0; i < bolt.points.length; i++) {
+    const t = i / (bolt.points.length - 1);
+    const halfW = topW + (botW - topW) * t;
+    const p = bolt.points[i];
+    if (i === 0) ctx.moveTo(p.x - halfW, p.y);
+    else ctx.lineTo(p.x - halfW, p.y);
+  }
+  for (let i = bolt.points.length - 1; i >= 0; i--) {
+    const t = i / (bolt.points.length - 1);
+    const halfW = topW + (botW - topW) * t;
+    const p = bolt.points[i];
+    ctx.lineTo(p.x + halfW, p.y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.lineJoin = "miter";
+  ctx.stroke();
+
+  // Branch
+  if (bolt.branch) {
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "miter";
+    ctx.beginPath();
+    ctx.moveTo(bolt.branch[0].x, bolt.branch[0].y);
+    for (let i = 1; i < bolt.branch.length; i++) {
+      ctx.lineTo(bolt.branch[i].x, bolt.branch[i].y);
+    }
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawNails(
   ctx: CanvasRenderingContext2D,
   t: TerrainPiece & { type: "spikes" },
   groundY: number,
   fg: string,
 ) {
   ctx.strokeStyle = fg;
-  ctx.lineWidth = 2;
-  const spikeW = 8;
-  const count = Math.floor(t.width / spikeW);
+  ctx.lineWidth = 1.5;
+  const nailSpacing = 10;
+  const count = Math.floor(t.width / nailSpacing);
   for (let i = 0; i < count; i++) {
-    const sx = t.x + i * spikeW;
+    const cx = t.x + i * nailSpacing + nailSpacing / 2;
     ctx.beginPath();
-    ctx.moveTo(sx, groundY);
-    ctx.lineTo(sx + spikeW / 2, groundY - t.height);
-    ctx.lineTo(sx + spikeW, groundY);
+    ctx.moveTo(cx, groundY);
+    ctx.lineTo(cx, groundY - t.height);
     ctx.stroke();
   }
 }
@@ -1071,24 +1125,24 @@ function drawBump(
   fg: string,
   bg: string,
 ) {
-  const steps = 40;
+  const steps = 60;
   const stepW = t.width / steps;
 
-  // Fill under the sine² curve (smooth rounded bottoms)
+  // Fill under the curve — extend below groundY to cover the ground line
   ctx.fillStyle = bg;
   ctx.beginPath();
-  ctx.moveTo(t.x, groundY);
+  ctx.moveTo(t.x, groundY + 10);
   for (let i = 0; i <= steps; i++) {
     const localX = i * stepW;
     const s = Math.sin((Math.PI * localX * t.count) / t.width);
     const y = groundY - t.height * s * s;
     ctx.lineTo(t.x + localX, y);
   }
-  ctx.lineTo(t.x + t.width, groundY);
+  ctx.lineTo(t.x + t.width, groundY + 10);
   ctx.closePath();
   ctx.fill();
 
-  // Stroke the curve
+  // Stroke only the curve (the wave IS the ground)
   ctx.strokeStyle = fg;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1099,6 +1153,117 @@ function drawBump(
     if (i === 0) ctx.moveTo(t.x + localX, y);
     else ctx.lineTo(t.x + localX, y);
   }
+  ctx.stroke();
+}
+
+function drawTrampoline(
+  ctx: CanvasRenderingContext2D,
+  t: TerrainPiece & { type: "trampoline" },
+  groundY: number,
+  fg: string,
+) {
+  const legH = 10;
+  const legInset = 4;
+
+  ctx.strokeStyle = fg;
+  ctx.lineWidth = 2;
+
+  // Left leg
+  ctx.beginPath();
+  ctx.moveTo(t.x + legInset, groundY);
+  ctx.lineTo(t.x + legInset, groundY - legH);
+  ctx.stroke();
+
+  // Right leg
+  ctx.beginPath();
+  ctx.moveTo(t.x + t.width - legInset, groundY);
+  ctx.lineTo(t.x + t.width - legInset, groundY - legH);
+  ctx.stroke();
+
+  // Curved top surface
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(t.x + legInset, groundY - legH);
+  ctx.quadraticCurveTo(
+    t.x + t.width / 2,
+    groundY - legH - TRAMPOLINE_H,
+    t.x + t.width - legInset,
+    groundY - legH,
+  );
+  ctx.stroke();
+}
+
+function drawScooterKid(
+  ctx: CanvasRenderingContext2D,
+  t: TerrainPiece & { type: "scooterKid" },
+  surfaceY: number,
+  fg: string,
+) {
+  const cx = t.x + t.width / 2;
+  const footY = surfaceY;
+  const wheelR = 3;
+  const deckY = footY - wheelR - 2;
+
+  ctx.strokeStyle = fg;
+  ctx.lineWidth = 2;
+
+  // Wheels (front=left, back=right — kid rides toward player)
+  ctx.beginPath();
+  ctx.arc(cx - 8, footY - wheelR, wheelR, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx + 8, footY - wheelR, wheelR, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Deck
+  ctx.beginPath();
+  ctx.moveTo(cx - 10, deckY);
+  ctx.lineTo(cx + 10, deckY);
+  ctx.stroke();
+
+  // Handlebar post (front/left side)
+  ctx.beginPath();
+  ctx.moveTo(cx - 8, deckY);
+  ctx.lineTo(cx - 6, deckY - 16);
+  ctx.stroke();
+
+  // Handlebar
+  ctx.beginPath();
+  ctx.moveTo(cx - 10, deckY - 16);
+  ctx.lineTo(cx - 2, deckY - 16);
+  ctx.stroke();
+
+  // Kid body — standing on back of deck, facing left
+  const kidFootY = deckY;
+  const hipY = kidFootY - 8;
+  const shoulderY = hipY - 8;
+  const headY = shoulderY - 5;
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(cx + 2, kidFootY);
+  ctx.lineTo(cx, hipY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx - 2, kidFootY);
+  ctx.lineTo(cx, hipY);
+  ctx.stroke();
+
+  // Torso (leaning slightly forward)
+  ctx.beginPath();
+  ctx.moveTo(cx, hipY);
+  ctx.lineTo(cx - 2, shoulderY);
+  ctx.stroke();
+
+  // Arms reaching forward to handlebar
+  ctx.beginPath();
+  ctx.moveTo(cx - 2, shoulderY);
+  ctx.lineTo(cx - 6, deckY - 14);
+  ctx.stroke();
+
+  // Head (above handlebars)
+  ctx.beginPath();
+  ctx.arc(cx - 3, headY, 4, 0, Math.PI * 2);
   ctx.stroke();
 }
 
@@ -1117,29 +1282,16 @@ function drawGround(
   ctx: CanvasRenderingContext2D,
   groundY: number,
   width: number,
-  offset: number,
+  _offset: number,
   fg: string,
-  muted: string,
+  _muted: string,
 ) {
   ctx.strokeStyle = fg;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, groundY);
   ctx.lineTo(width, groundY);
   ctx.stroke();
-
-  ctx.strokeStyle = muted;
-  const spacing = 20;
-  for (let i = 0; i < width + spacing; i += spacing) {
-    const drawX = (i - (offset % spacing) + spacing) % (width + spacing);
-    if (drawX < width) {
-      const tickH = i % 40 === 0 ? 4 : 2;
-      ctx.beginPath();
-      ctx.moveTo(drawX, groundY + 2);
-      ctx.lineTo(drawX, groundY + 2 + tickH);
-      ctx.stroke();
-    }
-  }
 }
 
 function drawDustParticles(
@@ -1184,16 +1336,9 @@ function drawCollectibleLetter(
   isNext: boolean,
 ) {
   const bobY = l.y + Math.sin(l.bobPhase) * LETTER_BOB_AMPLITUDE;
-  const radius = LETTER_SIZE;
 
   ctx.save();
   if (!isNext) ctx.globalAlpha = 0.3;
-
-  ctx.strokeStyle = fg;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(l.x, bobY, radius, 0, Math.PI * 2);
-  ctx.stroke();
 
   ctx.fillStyle = fg;
   ctx.font = `bold ${LETTER_SIZE}px monospace`;
@@ -1234,7 +1379,7 @@ function drawLetterHUD(
     ctx.fillStyle = fg;
     ctx.font = `bold ${Math.floor(24 * scale)}px monospace`;
     ctx.textAlign = "center";
-    ctx.fillText("UNEHAUS! +7777", w / 2, 60 - (1 - opacity) * 15);
+    ctx.fillText("unehaus! +250", w / 2, 60 - (1 - opacity) * 15);
     ctx.restore();
   }
 }
@@ -1286,6 +1431,7 @@ export function UnicycleGame() {
     grindFrozenAngle: 0,
     jumpHeld: false,
     deathTimer: 0,
+    deathFreezeTimer: 0,
     deathSpeed: 0,
     milestoneTimer: 0,
     lastMilestone: 0,
@@ -1298,6 +1444,11 @@ export function UnicycleGame() {
     ) as boolean[],
     letterSpawnTimer: LETTER_SPAWN_INTERVAL,
     bonusTimer: 0,
+    lightning: [],
+    fallingInGap: false,
+    hitScooterKid: false,
+    backflipAngle: 0,
+    backflipActive: false,
   });
   const animRef = useRef<number>(0);
   const colorsRef = useRef({
@@ -1318,7 +1469,7 @@ export function UnicycleGame() {
     setIsDead(false);
     const gs = stateRef.current;
     gs.status = "running";
-    gs.playerY = getGroundY(canvas);
+    gs.playerY = getGroundY(canvas) - WHEEL_R;
     gs.velocityY = 0;
     gs.isAirborne = false;
     gs.isGrinding = false;
@@ -1337,6 +1488,7 @@ export function UnicycleGame() {
     gs.grindFrozenAngle = 0;
     gs.jumpHeld = false;
     gs.deathTimer = 0;
+    gs.deathFreezeTimer = 0;
     gs.deathSpeed = 0;
     gs.milestoneTimer = 0;
     gs.lastMilestone = 0;
@@ -1349,14 +1501,27 @@ export function UnicycleGame() {
     ) as boolean[];
     gs.letterSpawnTimer = LETTER_SPAWN_INTERVAL;
     gs.bonusTimer = 0;
+    gs.lightning = [];
+    gs.fallingInGap = false;
+    gs.hitScooterKid = false;
+    gs.backflipAngle = 0;
+    gs.backflipActive = false;
   }, [getGroundY]);
 
   const jump = useCallback(() => {
     const gs = stateRef.current;
     if (!canvasRef.current) return;
 
-    if (gs.status === "idle" || gs.status === "dead") {
+    if (gs.status === "idle") {
       resetGame();
+      return;
+    }
+
+    // Block input during death freeze countdown
+    if (gs.status === "dead") {
+      if (gs.deathFreezeTimer >= DEATH_FREEZE_FRAMES) {
+        resetGame();
+      }
       return;
     }
 
@@ -1464,8 +1629,6 @@ export function UnicycleGame() {
           let railY: number | null = null;
           if (t.type === "stairset")
             railY = getStairsetRailY(PLAYER_X, baseGroundY, t);
-          else if (t.type === "ledge")
-            railY = getLedgeRailY(PLAYER_X, baseGroundY, t);
           if (railY !== null) {
             gs.playerY = railY;
             onRail = true;
@@ -1475,7 +1638,7 @@ export function UnicycleGame() {
         if (!onRail) {
           gs.isGrinding = false;
           gs.isAirborne = false;
-          gs.playerY = surfaceY;
+          gs.playerY = surfaceY - WHEEL_R;
           gs.comboCount = 0;
           gs.hasDoubleJump = true;
         }
@@ -1489,8 +1652,6 @@ export function UnicycleGame() {
             let railY: number | null = null;
             if (t.type === "stairset")
               railY = getStairsetRailY(PLAYER_X, baseGroundY, t);
-            else if (t.type === "ledge")
-              railY = getLedgeRailY(PLAYER_X, baseGroundY, t);
             if (
               railY !== null &&
               Math.abs(gs.playerY - railY) < RAIL_TOLERANCE &&
@@ -1504,27 +1665,58 @@ export function UnicycleGame() {
               gs.hasDoubleJump = true;
               gs.seatSpinning = false;
               gs.seatSpin = 0;
+              gs.lightning.push(spawnLightning(w, baseGroundY));
               break;
             }
           }
         }
 
-        if (!gs.isGrinding && gs.playerY >= surfaceY) {
-          // Landing — spawn dust
-          if (gs.isAirborne) {
-            gs.dustParticles.push(...spawnDust(PLAYER_X, surfaceY));
+        if (!gs.isGrinding && gs.playerY + WHEEL_R >= surfaceY) {
+          // Check if landing on a trampoline
+          const onTrampoline = gs.terrain.some(
+            (t) =>
+              t.type === "trampoline" &&
+              PLAYER_X >= t.x &&
+              PLAYER_X <= t.x + t.width,
+          );
+
+          if (onTrampoline) {
+            // Trampoline bounce — super high + backflip
+            gs.playerY = surfaceY - WHEEL_R;
+            gs.velocityY = TRAMPOLINE_JUMP_FORCE;
+            gs.isAirborne = true;
+            gs.hasDoubleJump = true;
+            gs.backflipActive = true;
+            gs.backflipAngle = 0;
+            gs.seatSpinning = false;
+            gs.seatSpin = 0;
             gs.comboCount = 0;
+            // Extra dust burst
+            gs.dustParticles.push(
+              ...spawnDust(PLAYER_X, surfaceY - WHEEL_R),
+              ...spawnDust(PLAYER_X, surfaceY - WHEEL_R),
+            );
+          } else {
+            // Normal landing — spawn dust
+            if (gs.isAirborne) {
+              gs.dustParticles.push(
+                ...spawnDust(PLAYER_X, surfaceY - WHEEL_R),
+              );
+              gs.comboCount = 0;
+            }
+            gs.playerY = surfaceY - WHEEL_R;
+            gs.velocityY = 0;
+            gs.isAirborne = false;
+            gs.hasDoubleJump = true;
+            gs.seatSpinning = false;
+            gs.seatSpin = 0;
+            gs.backflipActive = false;
+            gs.backflipAngle = 0;
           }
-          gs.playerY = surfaceY;
-          gs.velocityY = 0;
-          gs.isAirborne = false;
-          gs.hasDoubleJump = true;
-          gs.seatSpinning = false;
-          gs.seatSpin = 0;
         }
       } else {
-        // On ground — follow surface
-        gs.playerY = surfaceY;
+        // On ground — follow surface (tire bottom touches surface)
+        gs.playerY = surfaceY - WHEEL_R;
       }
 
       // Update seat spin (unispin animation)
@@ -1533,6 +1725,15 @@ export function UnicycleGame() {
         if (Math.abs(gs.seatSpin) >= Math.PI * 2) {
           gs.seatSpin = 0;
           gs.seatSpinning = false;
+        }
+      }
+
+      // Update backflip animation
+      if (gs.backflipActive) {
+        gs.backflipAngle += (Math.PI * 2) / BACKFLIP_FRAMES;
+        if (gs.backflipAngle >= Math.PI * 2) {
+          gs.backflipActive = false;
+          gs.backflipAngle = 0;
         }
       }
 
@@ -1586,7 +1787,35 @@ export function UnicycleGame() {
               saveHighScore(gs.highScore);
               break;
             }
+          } else if (t.type === "stairset" && t.ascent === "stairs") {
+            // Wall collision only for 90-degree step faces
+            const stepW = t.rampW / t.ascentSteps;
+            let cumH = 0;
+            for (let i = 0; i < t.ascentSteps; i++) {
+              cumH += t.ascentStepHeights[i];
+              const stepWallX = t.x + i * stepW;
+              const stepWallTop = baseGroundY - cumH;
+              if (
+                playerRight > stepWallX - 2 &&
+                playerLeft < stepWallX + 4 &&
+                playerBottom > stepWallTop &&
+                !gs.isAirborne
+              ) {
+                gs.status = "dead";
+                gs.flatTire = true;
+                gs.deathTimer = 0;
+                gs.deathSpeed = gs.speed;
+                gs.highScore = Math.max(
+                  gs.highScore,
+                  Math.floor(gs.score / 10),
+                );
+                saveHighScore(gs.highScore);
+                break;
+              }
+            }
+            if (gs.status === "dead") break;
           } else if (t.type === "stairset" && t.rampSpikes.length > 0) {
+            // Ramp spikes collision (ramp-ascent stairsets)
             for (const spike of t.rampSpikes) {
               const spikeLeft = t.x + spike.offset;
               const spikeRight = t.x + spike.offset + spike.width;
@@ -1595,8 +1824,8 @@ export function UnicycleGame() {
                 if (progress >= 0 && progress <= 1) {
                   const rampSurfaceY = baseGroundY - progress * t.height;
                   if (
-                    gs.playerY >= rampSurfaceY - SPIKE_H &&
-                    gs.playerY <= rampSurfaceY
+                    playerBottom >= rampSurfaceY - SPIKE_H &&
+                    playerBottom <= rampSurfaceY + 2
                   ) {
                     gs.status = "dead";
                     gs.flatTire = true;
@@ -1613,32 +1842,57 @@ export function UnicycleGame() {
               }
             }
             if (gs.status === "dead") break;
-          } else if (t.type === "ledge") {
-            // Wall collision: if player overlaps wall and hasn't cleared the top
-            const wallRight = t.x + t.wallW;
-            if (playerRight > t.x && playerLeft < wallRight) {
-              const topY = baseGroundY - t.height;
-              if (gs.playerY > topY) {
-                gs.status = "dead";
-                gs.flatTire = true;
-                gs.deathTimer = 0;
-                gs.deathSpeed = gs.speed;
-                gs.highScore = Math.max(
-                  gs.highScore,
-                  Math.floor(gs.score / 10),
-                );
-                saveHighScore(gs.highScore);
-                break;
-              }
+          } else if (t.type === "gap") {
+            // Gap: if rider is on the ground and over the gap, they fall through
+            if (
+              playerRight > t.x + 4 &&
+              playerLeft < t.x + t.width - 4 &&
+              !gs.isAirborne &&
+              playerBottom >= baseGroundY - 2
+            ) {
+              gs.status = "dead";
+              gs.flatTire = false;
+              gs.fallingInGap = true;
+              gs.velocityY = 0;
+              gs.deathTimer = 0;
+              gs.deathSpeed = gs.speed;
+              gs.highScore = Math.max(
+                gs.highScore,
+                Math.floor(gs.score / 10),
+              );
+              saveHighScore(gs.highScore);
+              break;
+            }
+          } else if (t.type === "scooterKid") {
+            const kidGroundY = getSurfaceY(t.x + t.width / 2, baseGroundY, gs.terrain);
+            const kidTop = kidGroundY - SCOOTER_KID_H;
+            if (
+              playerRight > t.x + 2 &&
+              playerLeft < t.x + t.width - 2 &&
+              playerBottom > kidTop
+            ) {
+              gs.status = "dead";
+              gs.flatTire = true;
+              gs.hitScooterKid = true;
+              gs.deathTimer = 0;
+              gs.deathSpeed = gs.speed;
+              gs.highScore = Math.max(
+                gs.highScore,
+                Math.floor(gs.score / 10),
+              );
+              saveHighScore(gs.highScore);
+              break;
             }
           }
         }
       }
 
-      // Stop seat spin on death
+      // Stop seat spin and backflip on death
       if (gs.status === "dead") {
         gs.seatSpinning = false;
         gs.seatSpin = 0;
+        gs.backflipActive = false;
+        gs.backflipAngle = 0;
       }
 
       // Spawn terrain (ensure no overlap)
@@ -1658,8 +1912,22 @@ export function UnicycleGame() {
       // Move terrain
       for (const t of gs.terrain) {
         t.x -= gs.speed;
+        // Scooter kids ride toward the player
+        if (t.type === "scooterKid") t.x -= SCOOTER_KID_SPEED;
       }
-      gs.terrain = gs.terrain.filter((t) => t.x + t.width > -50);
+      // Remove scooter kids that have reached non-flat terrain
+      gs.terrain = gs.terrain.filter((t) => {
+        if (t.x + t.width <= -50) return false;
+        if (t.type !== "scooterKid") return true;
+        const kidCx = t.x + t.width / 2;
+        for (const other of gs.terrain) {
+          if (other === t) continue;
+          if (other.type === "stairset" || other.type === "bump") {
+            if (kidCx >= other.x && kidCx <= other.x + other.width) return false;
+          }
+        }
+        return true;
+      });
 
       // Move clouds
       for (const cloud of gs.clouds) {
@@ -1669,6 +1937,12 @@ export function UnicycleGame() {
       if (gs.clouds.length < 4 && Math.random() < 0.01) {
         gs.clouds.push(createCloud(w, true));
       }
+
+      // Lightning (only ticks down — spawned on grind landing)
+      for (const bolt of gs.lightning) {
+        bolt.life--;
+      }
+      gs.lightning = gs.lightning.filter((b) => b.life > 0);
 
       // --- Letter collectibles ---
       gs.letterSpawnTimer -= 1;
@@ -1696,11 +1970,16 @@ export function UnicycleGame() {
       gs.letters = gs.letters.filter((l) => l.x > -30);
 
       const nextLetterIdx = gs.collectedLetters.indexOf(false);
+      // Rider body spans from head top to wheel bottom
+      const riderTop = gs.playerY - WHEEL_R - 16 - 14 - 5 - 1; // head top
+      const riderBottom = gs.playerY + WHEEL_R; // wheel bottom
       for (let i = gs.letters.length - 1; i >= 0; i--) {
         const l = gs.letters[i];
         const bobY = l.y + Math.sin(l.bobPhase) * LETTER_BOB_AMPLITUDE;
+        // Check distance to closest point on rider's vertical extent
+        const clampedY = Math.max(riderTop, Math.min(riderBottom, bobY));
         const dx = PLAYER_X - l.x;
-        const dy = gs.playerY - bobY;
+        const dy = clampedY - bobY;
         const dist = Math.hypot(dx, dy);
         if (dist < LETTER_COLLECT_RADIUS && l.index === nextLetterIdx) {
           gs.collectedLetters[l.index] = true;
@@ -1719,48 +1998,24 @@ export function UnicycleGame() {
 
       if (gs.bonusTimer > 0) gs.bonusTimer--;
     } else if (gs.status === "dead" && gs.deathTimer < DEATH_ANIM_FRAMES) {
-      // Death animation: decelerate and tumble
+      // Death animation
       gs.deathTimer++;
-      const progress = gs.deathTimer / DEATH_ANIM_FRAMES;
-      const currentSpeed = gs.deathSpeed * (1 - progress);
-      gs.groundOffset += currentSpeed;
 
-      // Still move terrain during death
-      for (const t of gs.terrain) {
-        t.x -= currentSpeed;
+      if (gs.fallingInGap) {
+        // Falling through gap: apply gravity, no terrain scrolling
+        gs.velocityY += GRAVITY;
+        gs.playerY += gs.velocityY;
       }
-      gs.terrain = gs.terrain.filter((t) => t.x + t.width > -50);
-
-      // Move letters during death
-      for (const l of gs.letters) {
-        l.x -= currentSpeed;
-        l.bobPhase += LETTER_BOB_SPEED;
-        const surfaceAtLetter = getSurfaceY(l.x, baseGroundY, gs.terrain);
-        l.y = Math.min(l.y, surfaceAtLetter - 25);
-      }
-      gs.letters = gs.letters.filter((l) => l.x > -30);
-
-      // Move clouds
-      for (const cloud of gs.clouds) {
-        cloud.x -= currentSpeed * 0.3;
-      }
-
-      // Speed lines fade out
-      for (const line of gs.speedLines) {
-        line.x -= currentSpeed * 1.5;
-      }
-      gs.speedLines = gs.speedLines.filter((l) => l.x + l.length > 0);
+      // No terrain movement on death — rider stays where they crashed
 
       if (gs.milestoneTimer > 0) gs.milestoneTimer--;
       if (gs.bonusTimer > 0) gs.bonusTimer--;
-
-      if (gs.deathTimer >= DEATH_ANIM_FRAMES) {
+    } else if (gs.status === "dead") {
+      // Freeze phase — everything frozen, countdown ticking
+      gs.deathFreezeTimer++;
+      if (gs.deathFreezeTimer >= DEATH_FREEZE_FRAMES) {
         setIsDead(true);
       }
-    } else if (gs.status === "dead") {
-      // Fully dead — milestone can still tick down
-      if (gs.milestoneTimer > 0) gs.milestoneTimer--;
-      if (gs.bonusTimer > 0) gs.bonusTimer--;
     }
 
     // --- Draw ---
@@ -1769,6 +2024,10 @@ export function UnicycleGame() {
 
     for (const cloud of gs.clouds) {
       drawCloud(ctx, cloud, muted);
+    }
+
+    for (const bolt of gs.lightning) {
+      drawLightning(ctx, bolt, fg);
     }
 
     drawGround(ctx, baseGroundY, w, gs.groundOffset, fg, muted);
@@ -1780,8 +2039,8 @@ export function UnicycleGame() {
 
           break;
         }
-        case "ledge": {
-          drawLedge(ctx, t, baseGroundY, fg, bg, muted);
+        case "gap": {
+          drawGap(ctx, t, baseGroundY, bg);
 
           break;
         }
@@ -1790,8 +2049,19 @@ export function UnicycleGame() {
 
           break;
         }
+        case "trampoline": {
+          drawTrampoline(ctx, t, baseGroundY, fg);
+
+          break;
+        }
+        case "scooterKid": {
+          const kidSurfaceY = getSurfaceY(t.x + t.width / 2, baseGroundY, gs.terrain);
+          drawScooterKid(ctx, t, kidSurfaceY, fg);
+
+          break;
+        }
         default: {
-          drawSpikes(ctx, t, baseGroundY, fg);
+          drawNails(ctx, t, baseGroundY, fg);
         }
       }
     }
@@ -1806,10 +2076,11 @@ export function UnicycleGame() {
     drawDustParticles(ctx, gs.dustParticles, fg);
 
     // Player
-    const playerDrawY = gs.status === "idle" ? baseGroundY : gs.playerY;
+    const playerDrawY =
+      gs.status === "idle" ? baseGroundY - WHEEL_R : gs.playerY;
     const lean = gs.status === "idle" ? 3 : computeLean(gs);
     const deathTilt =
-      gs.status === "dead"
+      gs.status === "dead" && !gs.fallingInGap
         ? Math.min(gs.deathTimer / DEATH_ANIM_FRAMES, 1) * (Math.PI / 3)
         : 0;
     drawUnicyclist(
@@ -1824,6 +2095,7 @@ export function UnicycleGame() {
       lean,
       deathTilt,
       gs.seatSpin,
+      gs.backflipAngle,
     );
 
     // Score
@@ -1869,11 +2141,24 @@ export function UnicycleGame() {
 
     if (gs.status === "dead" && gs.deathTimer >= DEATH_ANIM_FRAMES) {
       ctx.fillStyle = fg;
-      ctx.font = "16px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("flat tire!", w / 2, h / 2 - 10);
-      ctx.font = "12px monospace";
-      ctx.fillText("press space or tap to retry", w / 2, h / 2 + 10);
+
+      // Death reason
+      const deathMsg = gs.fallingInGap ? "fell!" : gs.hitScooterKid ? "scootered!" : "flat tire!";
+      ctx.font = "16px monospace";
+      ctx.fillText(deathMsg, w / 2, h / 2 - 20);
+
+      // Countdown: 3 for first ~1.7s, 2 for next ~1.7s, 1 for last ~1.7s
+      const freezeThird = DEATH_FREEZE_FRAMES / 3;
+      if (gs.deathFreezeTimer < DEATH_FREEZE_FRAMES) {
+        const countdown = 3 - Math.floor(gs.deathFreezeTimer / freezeThird);
+        ctx.font = "12px monospace";
+        ctx.fillText(String(countdown), w / 2, h / 2 + 10);
+      } else {
+        // Countdown done — show retry prompt
+        ctx.font = "12px monospace";
+        ctx.fillText("press space or tap to retry", w / 2, h / 2 + 10);
+      }
     }
 
     animRef.current = requestAnimationFrame(gameLoop);
@@ -1890,7 +2175,7 @@ export function UnicycleGame() {
     canvas.height = rect.height * dpr;
     const gs = stateRef.current;
     if (gs.status === "idle") {
-      gs.playerY = getGroundY(canvas);
+      gs.playerY = getGroundY(canvas) - WHEEL_R;
     }
   }, [getGroundY]);
 
@@ -1903,7 +2188,7 @@ export function UnicycleGame() {
       stateRef.current.clouds = Array.from({ length: 3 }, () =>
         createCloud(logicalWidth),
       );
-      stateRef.current.playerY = getGroundY(canvas);
+      stateRef.current.playerY = getGroundY(canvas) - WHEEL_R;
     }
 
     animRef.current = requestAnimationFrame(gameLoop);

@@ -3,8 +3,9 @@ import viteReact from "@vitejs/plugin-react";
 
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
-import { defineConfig, type PluginOption } from "vite";
 // import { beasties } from "vite-plugin-beasties";
+import type { LoggingFunction, RollupLog } from "rollup";
+import { defineConfig, type PluginOption } from "vite";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 import { TASK_NAMES } from "./src/lib/tasks/constants";
@@ -31,6 +32,15 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
 };
 
 const config = defineConfig(async () => ({
+  build: {
+    rollupOptions: {
+      onwarn(warning: RollupLog, defaultHandler: LoggingFunction) {
+        // "use client"/"use server" directives trigger Rollup warnings — safe to ignore
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+        defaultHandler(warning);
+      },
+    },
+  },
   server: {
     allowedHosts: [
       // put ngrok url here
