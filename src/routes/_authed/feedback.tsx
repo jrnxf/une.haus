@@ -1,17 +1,17 @@
-import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Loader2Icon, TrashIcon } from "lucide-react";
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone-esm";
-import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
+import { createFileRoute, useRouter } from "@tanstack/react-router"
+import { Loader2Icon, TrashIcon } from "lucide-react"
+import { useCallback, useState } from "react"
+import { useDropzone } from "react-dropzone-esm"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { type z } from "zod"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { type z } from "zod";
-
-import { ImageInput } from "~/components/input/image-input";
-import { PageHeader } from "~/components/page-header";
-import { Button } from "~/components/ui/button";
+import { ImageInput } from "~/components/input/image-input"
+import { UploadDropZone } from "~/components/input/upload-drop-zone"
+import { PageHeader } from "~/components/page-header"
+import { Button } from "~/components/ui/button"
 import {
   Form,
   FormControl,
@@ -20,86 +20,82 @@ import {
   FormLabel,
   FormMessage,
   FormSubmitButton,
-} from "~/components/ui/form";
-import { Label } from "~/components/ui/label";
-import { Progress } from "~/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-import { Textarea } from "~/components/ui/textarea";
-import { VideoPlayer } from "~/components/video-player";
-import { feedback } from "~/lib/feedback";
-import { useVideoUpload } from "~/lib/media";
+} from "~/components/ui/form"
+import { Label } from "~/components/ui/label"
+import { Progress } from "~/components/ui/progress"
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
+import { Textarea } from "~/components/ui/textarea"
+import { VideoPlayer } from "~/components/video-player"
+import { feedback } from "~/lib/feedback"
+import { useVideoUpload } from "~/lib/media"
 
 const MEDIA_OPTIONS = {
-  none: "None",
-  image: "Image",
-  video: "Video",
-} as const;
+  none: "none",
+  image: "image",
+  video: "video",
+} as const
 
-type MediaOption = keyof typeof MEDIA_OPTIONS;
+type MediaOption = keyof typeof MEDIA_OPTIONS
 
 export const Route = createFileRoute("/_authed/feedback")({
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [mediaOption, setMediaOption] = useState<MediaOption>("none");
+  const [mediaOption, setMediaOption] = useState<MediaOption>("none")
 
   const { mutateAsync } = useMutation({
     mutationFn: feedback.submit.fn,
     onSuccess: () => {
-      toast.success("Thank you so much for your feedback!");
-      router.history.back();
+      toast.success("tysm for your feedback!")
+      router.history.back()
     },
     onError: () => {
-      toast.error("Failed to submit feedback");
+      toast.error("failed to submit feedback")
     },
-  });
+  })
 
   const rhf = useForm<z.input<typeof feedback.submit.schema>>({
     resolver: zodResolver(feedback.submit.schema),
     shouldUnregister: false,
-  });
+  })
 
   const {
     control,
     formState: { isSubmitting },
     handleSubmit,
-  } = rhf;
+  } = rhf
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>feedback</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <Form
         rhf={rhf}
-        className="mx-auto flex min-h-0 w-full max-w-4xl grow flex-col gap-4 p-4 md:p-6"
+        className="mx-auto flex min-h-0 w-full max-w-5xl grow flex-col gap-4 p-4"
         id="main-content"
         method="post"
         onSubmit={(event) => {
           handleSubmit(async (data) => {
-            await mutateAsync({ data });
-          })(event);
+            await mutateAsync({ data })
+          })(event)
         }}
       >
-        <p className="text-muted-foreground">
-          Share your thoughts, report bugs, or suggest improvements.
-        </p>
-
         <FormField
           control={control}
           name="content"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your feedback</FormLabel>
+              <FormLabel>message</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
-                  placeholder="What's on your mind?"
+                  placeholder="share your thoughts, report bugs, or suggest improvements"
                   rows={6}
                 />
               </FormControl>
@@ -114,12 +110,12 @@ function RouteComponent() {
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Attachment</FormLabel>
+                <FormLabel>attachment</FormLabel>
                 <RadioGroup
-                  className="flex gap-6 py-2"
+                  className="flex gap-4 py-2"
                   onValueChange={(value) => {
-                    field.onChange(undefined);
-                    setMediaOption(value as MediaOption);
+                    field.onChange(undefined)
+                    setMediaOption(value as MediaOption)
                   }}
                   value={mediaOption}
                 >
@@ -134,9 +130,9 @@ function RouteComponent() {
                     </Label>
                   ))}
                 </RadioGroup>
-                <FormControl>
-                  <>
-                    {mediaOption === "image" && (
+                {mediaOption !== "none" && (
+                  <FormControl>
+                    {mediaOption === "image" ? (
                       <ImageInput
                         previewClassNames="rounded-md size-86"
                         value={
@@ -147,12 +143,10 @@ function RouteComponent() {
                         onChange={(data) => {
                           field.onChange(
                             data ? { type: "image", value: data } : undefined,
-                          );
+                          )
                         }}
                       />
-                    )}
-
-                    {mediaOption === "video" && (
+                    ) : (
                       <FeedbackVideoInput
                         value={
                           field.value?.type === "video"
@@ -168,16 +162,16 @@ function RouteComponent() {
                                   playbackId: data.playbackId,
                                 }
                               : undefined,
-                          );
+                          )
                         }}
                       />
                     )}
-                  </>
-                </FormControl>
+                  </FormControl>
+                )}
 
                 <FormMessage />
               </FormItem>
-            );
+            )
           }}
         />
         <div className="flex justify-end">
@@ -185,48 +179,48 @@ function RouteComponent() {
         </div>
       </Form>
     </>
-  );
+  )
 }
 
 function FeedbackVideoInput({
   value,
   onChange,
 }: {
-  value?: { assetId: string; playbackId: string };
-  onChange: (data: { assetId: string; playbackId: string } | undefined) => void;
+  value?: { assetId: string; playbackId: string }
+  onChange: (data: { assetId: string; playbackId: string } | undefined) => void
 }) {
-  const [fileName, setFileName] = useState<string>();
+  const [fileName, setFileName] = useState<string>()
 
   const { uploadVideo, isUploading, uploadProgress, isProcessing, reset } =
     useVideoUpload({
       onSuccess: (data) => {
-        onChange(data);
+        onChange(data)
       },
-    });
+    })
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const [file] = acceptedFiles;
+      const [file] = acceptedFiles
 
       if (file) {
-        setFileName(file.name);
-        uploadVideo(file);
+        setFileName(file.name)
+        uploadVideo(file)
       }
     },
     [uploadVideo],
-  );
+  )
 
   const { getInputProps, getRootProps } = useDropzone({
     accept: { "video/*": [] },
     multiple: false,
     onDrop,
-  });
+  })
 
   const handleReset = () => {
-    reset();
-    setFileName(undefined);
-    onChange(undefined);
-  };
+    reset()
+    setFileName(undefined)
+    onChange(undefined)
+  }
 
   if (value?.playbackId) {
     return (
@@ -245,37 +239,32 @@ function FeedbackVideoInput({
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="flex h-16 items-center gap-2">
-      <Button
-        aria-label="file upload"
-        className="border-border relative h-full w-full overflow-hidden rounded-md border-2 border-dashed"
-        type="button"
-        variant="unstyled"
-        {...getRootProps()}
-      >
-        <input {...getInputProps()} disabled={isUploading || isProcessing} />
-        <span className="text-muted-foreground text-sm">
-          {fileName ?? "Select a video to upload"}
-        </span>
+    <UploadDropZone
+      getRootProps={getRootProps}
+      getInputProps={getInputProps}
+      disabled={isUploading || isProcessing}
+    >
+      <span className="text-muted-foreground text-sm">
+        {fileName ?? "upload video"}
+      </span>
 
-        {isUploading && (
-          <Progress
-            value={uploadProgress}
-            className="absolute bottom-0 h-1 rounded-none"
-          />
-        )}
+      {isUploading && (
+        <Progress
+          value={uploadProgress}
+          className="absolute inset-x-0 bottom-0 h-1 rounded-none"
+        />
+      )}
 
-        {isProcessing && (
-          <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-            <span>processing</span>
-            <Loader2Icon className="size-3 animate-spin" />
-          </div>
-        )}
-      </Button>
-    </div>
-  );
+      {isProcessing && (
+        <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
+          <span>processing</span>
+          <Loader2Icon className="size-3 animate-spin" />
+        </div>
+      )}
+    </UploadDropZone>
+  )
 }

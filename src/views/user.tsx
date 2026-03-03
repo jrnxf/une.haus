@@ -5,27 +5,29 @@ import {
   SiTiktok,
   SiX,
   SiYoutube,
-} from "@icons-pack/react-simple-icons";
-import { Link } from "@tanstack/react-router";
+} from "@icons-pack/react-simple-icons"
+import { Link } from "@tanstack/react-router"
+import pluralize from "pluralize"
 
-import { ActivityFeed } from "~/components/activity-feed";
-import { Badges } from "~/components/badges";
-import { SocialLink } from "~/components/social-link";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { FlagEmoji } from "~/components/ui/flag-emoji";
-import { UsersCombobox } from "~/components/users-combobox";
-import { useSessionUser } from "~/lib/session/hooks";
-import { type UsersWithFollowsData } from "~/lib/users";
-import { useFollowMutations } from "~/lib/users/hooks";
-import { isDefined } from "~/lib/utils";
+import { ActivityFeed } from "~/components/activity-feed"
+import { Badges } from "~/components/badges"
+import { RichText } from "~/components/rich-text"
+import { SocialLink } from "~/components/social-link"
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
+import { FlagEmoji } from "~/components/ui/flag-emoji"
+import { UsersCombobox } from "~/components/users-combobox"
+import { useSessionUser } from "~/lib/session/hooks"
+import { type UsersWithFollowsData } from "~/lib/users"
+import { useFollowMutations } from "~/lib/users/hooks"
+import { cn, isDefined } from "~/lib/utils"
 
 export function UserView({ user }: { user: UsersWithFollowsData }) {
-  const { disciplines, socials } = user;
-  const sessionUser = useSessionUser();
-  const isOwnProfile = sessionUser?.id === user.id;
+  const { disciplines, socials } = user
+  const sessionUser = useSessionUser()
+  const isOwnProfile = sessionUser?.id === user.id
 
-  const hasSocials = socials && Object.values(socials).some(isDefined);
+  const hasSocials = socials && Object.values(socials).some(isDefined)
 
   return (
     <div className="h-full overflow-y-auto" key={user.id}>
@@ -34,7 +36,14 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           {/* Profile header */}
           <div className="flex items-start gap-4">
             <Avatar
-              className="size-24 shrink-0"
+              className={cn(
+                "shrink-0",
+                user.location
+                  ? "size-24"
+                  : user.followers.count > 0 || user.following.count > 0
+                    ? "size-20"
+                    : "size-14",
+              )}
               cloudflareId={user.avatarId}
               alt={user.name}
             >
@@ -82,9 +91,9 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 
           {/* Bio */}
           {user.bio && (
-            <p className="leading-relaxed wrap-break-word whitespace-pre-wrap">
-              {user.bio}
-            </p>
+            <div className="leading-relaxed wrap-break-word whitespace-pre-wrap">
+              <RichText content={user.bio} />
+            </div>
           )}
 
           {/* Disciplines */}
@@ -107,17 +116,17 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function FollowStats(props: UsersWithFollowsData) {
-  const { followers, following } = props;
+  const { followers, following } = props
 
   return (
     <div className="-ml-2 flex items-center gap-2">
       <UsersCombobox users={followers.users} peripheralKey="followers">
         <Button type="button" className="text-sm" variant="ghost" size="sm">
-          {followers.count} {followers.count === 1 ? "follower" : "followers"}
+          {followers.count} {pluralize("follower", followers.count)}
         </Button>
       </UsersCombobox>
       <UsersCombobox users={following.users} peripheralKey="following">
@@ -126,39 +135,35 @@ function FollowStats(props: UsersWithFollowsData) {
         </Button>
       </UsersCombobox>
     </div>
-  );
+  )
 }
 
 function FollowButton({
   user,
   isOwnProfile,
 }: {
-  user: UsersWithFollowsData;
-  isOwnProfile: boolean;
+  user: UsersWithFollowsData
+  isOwnProfile: boolean
 }) {
-  const sessionUser = useSessionUser();
-  const { follow, unfollow } = useFollowMutations({ userId: user.id });
+  const sessionUser = useSessionUser()
+  const { follow, unfollow } = useFollowMutations({ userId: user.id })
 
   const authUserFollowsUser = user.followers.users.some(
     (u) => u.id === sessionUser?.id,
-  );
+  )
 
   if (isOwnProfile) {
-    return (
-      <Button className="shrink-0" variant="secondary" asChild>
-        <Link to="/auth/me/edit">Edit</Link>
-      </Button>
-    );
+    return null
   }
 
   if (!sessionUser) {
-    return null;
+    return null
   }
 
   return (
     <Button
       className="shrink-0"
-      variant={authUserFollowsUser ? "secondary" : "default"}
+      variant="secondary"
       onClick={() =>
         authUserFollowsUser
           ? unfollow({ data: { userId: user.id } })
@@ -167,5 +172,5 @@ function FollowButton({
     >
       {authUserFollowsUser ? "Unfollow" : "Follow"}
     </Button>
-  );
+  )
 }

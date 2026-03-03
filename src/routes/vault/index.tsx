@@ -1,335 +1,335 @@
+import { useDebouncedCallback } from "@tanstack/react-pacer"
 import {
-  useQuery,
-  useQueryClient,
   useSuspenseInfiniteQuery,
-} from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+  useSuspenseQuery,
+} from "@tanstack/react-query"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { HeartIcon, MessageCircleIcon } from "lucide-react"
+import pluralize from "pluralize"
 import {
-  ChevronDownIcon,
-  HeartIcon,
-  MessageCircleIcon,
-  XIcon,
-} from "lucide-react";
-import {
+  Suspense,
   useCallback,
   useDeferredValue,
-  useEffect,
   useMemo,
-  useRef,
   useState,
-} from "react";
-import { InView } from "react-intersection-observer";
+} from "react"
+import { InView } from "react-intersection-observer"
 
-import confetti from "canvas-confetti";
-import { motion } from "framer-motion";
-import { useDebounceCallback } from "usehooks-ts";
-
-import { PageHeader } from "~/components/page-header";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { getMuxPoster } from "~/components/video-player";
-import { utv } from "~/lib/utv/core";
+import {
+  Filters,
+  type ActiveFilter,
+  type FilterField,
+} from "~/components/filters/filters"
+import { PageHeader } from "~/components/page-header"
+import { Button } from "~/components/ui/button"
+import { getMuxPoster } from "~/components/video-player"
+import { USER_DISCIPLINES } from "~/db/schema"
+import { seo } from "~/lib/seo"
+import { utv } from "~/lib/utv/core"
 
 export const Route = createFileRoute("/vault/")({
   validateSearch: utv.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: async ({ context, deps }) => {
+  loader: async ({ context, deps, cause }) => {
+    // Skip on "stay" (filter changed on same page) — awaiting here blocks
+    // rendering and causes a blank page. useDeferredValue + Suspense in
+    // the component handle client-side transitions instead.
+    if (cause === "stay") return
     await Promise.all([
       context.queryClient.ensureInfiniteQueryData(
         utv.list.infiniteQueryOptions(deps),
       ),
-      context.queryClient.ensureQueryData(utv.claps.get.queryOptions()),
-    ]);
+      context.queryClient.ensureQueryData(utv.riders.queryOptions()),
+    ])
   },
+  head: () =>
+    seo({
+      title: "vault",
+      description: "unicycling video archive on une.haus",
+      path: "/vault",
+    }),
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const searchParams = Route.useSearch();
-  const router = useRouter();
+  const searchParams = Route.useSearch()
+  const navigate = Route.useNavigate()
 
-  // React state drives the query - NOT the URL
-  // This allows useDeferredValue to actually defer during suspense
-  const [query, setQuery] = useState(searchParams.q ?? "");
-  const deferredQuery = useDeferredValue(query);
+  const { data: riderNames } = useSuspenseQuery(utv.riders.queryOptions())
 
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // Local state for immediate input feedback
+  const [queryInput, setQueryInput] = useState(searchParams.q ?? "")
+  const [disciplines, setDisciplines] = useState<string[]>(
+    searchParams.disciplines ?? [],
+  )
+  const [riders, setRiders] = useState<string[]>(searchParams.riders ?? [])
 
-  const debouncedNavigate = useDebounceCallback((q: string) => {
-    // URL update is for bookmarking only - doesn't drive the query
-    router.navigate({
-      to: "/vault",
-      search: (prev) => ({ ...prev, q: q || undefined, cursor: undefined }),
-      replace: true,
-    });
-  }, 300);
+  // Debounced navigate — updates URL (and loaderDeps) after wait period
+  const debouncedNavigate = useDebouncedCallback(
+    (updates: { q?: string; disciplines?: string[]; riders?: string[] }) => {
+      navigate({
+        search: {
+          q: updates.q || undefined,
+          disciplines:
+            updates.disciplines && updates.disciplines.length > 0
+              ? updates.disciplines
+              : undefined,
+          riders:
+            updates.riders && updates.riders.length > 0
+              ? updates.riders
+              : undefined,
+        },
+        replace: true,
+      })
+    },
+    { wait: 200 },
+  )
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value);
-    debouncedNavigate(value);
-  };
+  // useDeferredValue on URL search params — prevents suspense flash
+  const deferredQ = useDeferredValue(searchParams.q)
+  const deferredDisciplines = useDeferredValue(searchParams.disciplines)
+  const deferredRiders = useDeferredValue(searchParams.riders)
 
+  // Track which filter fields are open
+  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
+    const initial = new Set<string>()
+    if (queryInput) initial.add("q")
+    if (disciplines.length > 0) initial.add("disciplines")
+    if (riders.length > 0) initial.add("riders")
+    return initial
+  })
+
+  const filterFields: FilterField[] = useMemo(
+    () => [
+      {
+        key: "q",
+        label: "title",
+        type: "text" as const,
+        placeholder: "search...",
+        operators: [{ value: "contains", label: "contains" }],
+        defaultOperator: "contains",
+      },
+      {
+        key: "disciplines",
+        label: "disciplines",
+        type: "multiselect" as const,
+        operators: [{ value: "is_any_of", label: "includes" }],
+        defaultOperator: "is_any_of",
+        options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
+      },
+      {
+        key: "riders",
+        label: "riders",
+        type: "multiselect" as const,
+        operators: [{ value: "is_any_of", label: "includes" }],
+        defaultOperator: "is_any_of",
+        options: riderNames.map((w) => ({ value: w, label: w })),
+      },
+    ],
+    [riderNames],
+  )
+
+  // Derive filters from LOCAL state
+  const filters = useMemo<ActiveFilter[]>(() => {
+    const result: ActiveFilter[] = []
+    if (activeFields.has("q")) {
+      result.push({
+        id: "q",
+        field: "q",
+        operator: "contains",
+        values: queryInput ? [queryInput] : [],
+      })
+    }
+    if (activeFields.has("disciplines") || disciplines.length > 0) {
+      result.push({
+        id: "disciplines",
+        field: "disciplines",
+        operator: "is_any_of",
+        values: disciplines,
+      })
+    }
+    if (activeFields.has("riders") || riders.length > 0) {
+      result.push({
+        id: "riders",
+        field: "riders",
+        operator: "is_any_of",
+        values: riders,
+      })
+    }
+    return result
+  }, [queryInput, disciplines, riders, activeFields])
+
+  const handleFiltersChange = useCallback(
+    (next: ActiveFilter[]) => {
+      const qFilter = next.find((f) => f.field === "q")
+      const disciplinesFilter = next.find((f) => f.field === "disciplines")
+      const ridersFilter = next.find((f) => f.field === "riders")
+
+      setActiveFields((prev) => {
+        const wantQ = Boolean(qFilter)
+        const wantDisciplines = Boolean(disciplinesFilter)
+        const wantRiders = Boolean(ridersFilter)
+        if (
+          prev.has("q") === wantQ &&
+          prev.has("disciplines") === wantDisciplines &&
+          prev.has("riders") === wantRiders
+        ) {
+          return prev
+        }
+        const s = new Set<string>()
+        if (wantQ) s.add("q")
+        if (wantDisciplines) s.add("disciplines")
+        if (wantRiders) s.add("riders")
+        return s
+      })
+
+      const newQ = qFilter?.values[0] || ""
+      const newDisciplines =
+        disciplinesFilter && disciplinesFilter.values.length > 0
+          ? disciplinesFilter.values
+          : []
+      const newRiders =
+        ridersFilter && ridersFilter.values.length > 0
+          ? ridersFilter.values
+          : []
+
+      // Update local state immediately for instant feedback
+      setQueryInput(newQ)
+      setDisciplines(newDisciplines)
+      setRiders(newRiders)
+
+      // Debounced URL update via router
+      debouncedNavigate({
+        q: newQ,
+        disciplines: newDisciplines,
+        riders: newRiders,
+      })
+    },
+    [debouncedNavigate],
+  )
+
+  const queryParams = useMemo(
+    () => ({
+      q: deferredQ || undefined,
+      disciplines:
+        deferredDisciplines && deferredDisciplines.length > 0
+          ? deferredDisciplines
+          : undefined,
+      riders:
+        deferredRiders && deferredRiders.length > 0
+          ? deferredRiders
+          : undefined,
+    }),
+    [deferredQ, deferredDisciplines, deferredRiders],
+  )
+
+  return (
+    <>
+      <PageHeader maxWidth="max-w-5xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>vault</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+        <PageHeader.Right>
+          <PageHeader.Actions>
+            <Button variant="secondary" size="sm" asChild>
+              <Link to="/vault/history">history</Link>
+            </Button>
+          </PageHeader.Actions>
+        </PageHeader.Right>
+      </PageHeader>
+
+      <div className="flex h-full flex-col">
+        <div className="bg-background sticky top-0 z-10">
+          <div className="mx-auto flex max-w-5xl items-center gap-2 p-4">
+            <div className="min-w-0 flex-1">
+              <Filters
+                fields={filterFields}
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                size="sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        <Suspense>
+          <VideoGrid queryParams={queryParams} />
+        </Suspense>
+      </div>
+    </>
+  )
+}
+
+function VideoGrid({
+  queryParams,
+}: {
+  queryParams: { q?: string; disciplines?: string[]; riders?: string[] }
+}) {
   const {
     data: videosPages,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(
-    utv.list.infiniteQueryOptions({ q: deferredQuery || undefined }),
-  );
+  } = useSuspenseInfiniteQuery(utv.list.infiniteQueryOptions(queryParams))
 
-  const displayedVideos = useMemo(
-    () => videosPages.pages.flat(),
-    [videosPages],
-  );
-  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
+  const displayedVideos = useMemo(() => videosPages.pages.flat(), [videosPages])
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null)
 
   return (
-    <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>vault</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
-
-      <div className="flex h-full flex-col">
-        <div className="bg-background sticky top-0 z-10">
-          <div className="mx-auto flex max-w-4xl items-center gap-2 p-4">
-            <div className="relative min-w-0 flex-1">
-              <Input
-                id="vault-search"
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search vault"
-                className="pr-8"
+    <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
+      <div className="@container mx-auto flex max-w-5xl flex-col px-4">
+        <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3">
+          {displayedVideos.map((video) => (
+            <Link
+              key={video.id}
+              to="/vault/$videoId"
+              params={{ videoId: video.id }}
+              className="group relative aspect-video overflow-clip rounded-md"
+            >
+              <img
+                src={getMuxPoster({
+                  playbackId: video.playbackId,
+                  time: video.thumbnailSeconds,
+                  width: 320,
+                })}
+                alt={video.title}
+                className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                style={{
+                  transform: `scale(${video.scale})`,
+                }}
               />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => handleQueryChange("")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setHistoryOpen(!historyOpen)}
-              className="text-muted-foreground shrink-0 gap-1.5 text-sm font-medium"
-            >
-              History
-              <motion.div
-                animate={{ rotate: historyOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <ChevronDownIcon className="size-4" />
-              </motion.div>
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
-          <div className="mx-auto flex max-w-4xl flex-col gap-4 p-4">
-            <motion.div
-              initial={false}
-              animate={{
-                height: historyOpen ? "auto" : 0,
-                opacity: historyOpen ? 1 : 0,
-              }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <div className="bg-card space-y-4 rounded-lg border p-4">
-                <div className="text-muted-foreground space-y-3 text-sm leading-relaxed">
-                  <p>
-                    In December 2005, Olaf Schlote launched{" "}
-                    <span className="text-foreground font-medium">
-                      unicycle.tv
-                    </span>{" "}
-                    — a pioneering video platform built specifically for the
-                    unicycling community. Before YouTube became mainstream and
-                    years before social media made video sharing effortless,
-                    unicycle.tv provided riders around the world a dedicated
-                    space to upload, share, and preserve their footage.
-                  </p>
-                  <p>
-                    The platform captured countless historic moments:
-                    competition runs, groundbreaking tricks, and the raw
-                    progression of street, trials, and freestyle riding. When
-                    videos disappeared from other platforms, unicycle.tv
-                    remained as an archive. This vault preserves that legacy.
-                  </p>
-                  <p className="text-foreground font-medium">
-                    We are deeply grateful to Olaf for his vision and the
-                    incredible contribution he made to documenting une history.
-                  </p>
+              <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 rounded-b-md bg-black/60 px-2 py-1.5 backdrop-blur-xs">
+                <h2 className="min-w-0 flex-1 truncate text-xs font-semibold text-white">
+                  {video.title}
+                </h2>
+                <div className="flex shrink-0 items-center gap-2 text-xs text-white/70">
+                  <div
+                    className="flex items-center gap-1"
+                    title={`${video.likesCount} ${pluralize("like", video.likesCount)}`}
+                  >
+                    <HeartIcon className="size-3" />
+                    <span>{video.likesCount}</span>
+                  </div>
+                  <div
+                    className="flex items-center gap-1"
+                    title={`${video.messagesCount} ${pluralize("message", video.messagesCount)}`}
+                  >
+                    <MessageCircleIcon className="size-3" />
+                    <span>{video.messagesCount}</span>
+                  </div>
                 </div>
-
-                <ClapButton />
               </div>
-            </motion.div>
-
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {displayedVideos.map((video) => (
-                <Link
-                  key={video.id}
-                  to="/vault/$videoId"
-                  params={{ videoId: video.id }}
-                  className="bg-card group flex flex-col overflow-clip rounded-md border"
-                >
-                  <div className="relative aspect-video overflow-clip">
-                    <img
-                      src={getMuxPoster({
-                        playbackId: video.playbackId,
-                        time: video.thumbnailSeconds,
-                        width: 320,
-                      })}
-                      alt={video.title}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      style={{
-                        transform: `scale(${video.scale})`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 p-2">
-                    <h2 className="truncate text-sm font-semibold">
-                      {video.title}
-                    </h2>
-                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                      <div
-                        className="flex items-center gap-1"
-                        title={`${video.likesCount} likes`}
-                      >
-                        <HeartIcon className="size-3" />
-                        <span>{video.likesCount}</span>
-                      </div>
-                      <div
-                        className="flex items-center gap-1"
-                        title={`${video.messagesCount} messages`}
-                      >
-                        <MessageCircleIcon className="size-3" />
-                        <span>{video.messagesCount}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            {hasNextPage && !isFetchingNextPage && (
-              <InView
-                root={scrollRoot}
-                rootMargin="1000px"
-                onChange={(inView) => inView && fetchNextPage()}
-              />
-            )}
-          </div>
+            </Link>
+          ))}
         </div>
+        {hasNextPage && !isFetchingNextPage && (
+          <InView
+            root={scrollRoot}
+            rootMargin="1000px"
+            onChange={(inView) => inView && fetchNextPage()}
+          />
+        )}
       </div>
-    </>
-  );
-}
-
-function ClapButton() {
-  const qc = useQueryClient();
-  const { data: serverCount } = useQuery(utv.claps.get.queryOptions());
-  const [localClicks, setLocalClicks] = useState(0);
-  const pendingClicksRef = useRef(0);
-  const isMutatingRef = useRef(false);
-  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const flushClicks = useCallback(async () => {
-    // Don't start a new request if one is already in flight
-    if (isMutatingRef.current || pendingClicksRef.current === 0) return;
-
-    isMutatingRef.current = true;
-    const amount = pendingClicksRef.current;
-    pendingClicksRef.current = 0;
-
-    try {
-      const newCount = await utv.claps.add.fn({ data: { amount } });
-      qc.setQueryData(utv.claps.get.queryOptions().queryKey, newCount);
-      // Only subtract the clicks that were in this batch
-      setLocalClicks((c) => c - amount);
-    } finally {
-      isMutatingRef.current = false;
-      // If more clicks accumulated during the request, flush again
-      if (pendingClicksRef.current > 0) {
-        flushClicks();
-      }
-    }
-  }, [qc]);
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-      // Fire off any pending clicks on unmount
-      if (pendingClicksRef.current > 0 && !isMutatingRef.current) {
-        utv.claps.add.fn({ data: { amount: pendingClicksRef.current } });
-      }
-    };
-  }, []);
-
-  const handleClick = () => {
-    setLocalClicks((c) => c + 1);
-    pendingClicksRef.current += 1;
-
-    // Fire clapping emoji confetti from the button
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const x = (rect.left + rect.width / 2) / window.innerWidth;
-      const y = (rect.top + rect.height / 2) / window.innerHeight;
-
-      confetti({
-        particleCount: 6,
-        spread: 40,
-        origin: { x, y },
-        shapes: ["circle"],
-        colors: [
-          "#ff6b6b", // bright red
-          "#ff8c42", // bright orange
-          "#ffd93d", // bright yellow
-          "#6bcb77", // bright green
-          "#4ecdc4", // bright teal
-          "#45b7d1", // bright cyan
-          "#7950f2", // bright indigo
-          "#c084fc", // bright purple
-          "#f472b6", // bright pink
-        ],
-        scalar: 0.8,
-        gravity: 1.5,
-        ticks: 40,
-      });
-    }
-
-    // Debounce: only flush 500ms after last click
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-    debounceTimeoutRef.current = setTimeout(flushClicks, 500);
-  };
-
-  const displayCount = (serverCount ?? 0) + localClicks;
-
-  return (
-    <div className="flex items-center gap-3">
-      <motion.button
-        ref={buttonRef}
-        onClick={handleClick}
-        whileTap={{ scale: 0.92 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors"
-      >
-        <span className="text-base">👏</span>
-        Clap for Olaf
-      </motion.button>
-      <span className="text-muted-foreground text-sm tabular-nums">
-        {displayCount.toLocaleString()} {displayCount === 1 ? "clap" : "claps"}
-      </span>
     </div>
-  );
+  )
 }

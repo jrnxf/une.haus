@@ -1,15 +1,15 @@
-import { Tailwind } from "@react-email/components";
+import { Tailwind } from "@react-email/components"
 
 type GameStartReminderTemplateProps = {
-  userName: string;
-  hoursUntilStart: number;
-  riderCount: number;
-  setCount: number;
-  viewRoundUrl: string;
-  addSetUrl: string;
-  unsubscribeReminderUrl: string;
-  unsubscribeAllUrl: string;
-};
+  userName: string
+  hoursUntilStart: number
+  riderCount: number
+  setCount: number
+  viewRoundUrl: string
+  addSetUrl: string
+  unsubscribeReminderUrl: string
+  unsubscribeAllUrl: string
+}
 
 export default function GameStartReminderTemplate({
   userName = "User",
@@ -21,34 +21,34 @@ export default function GameStartReminderTemplate({
   unsubscribeReminderUrl = "#",
   unsubscribeAllUrl = "#",
 }: GameStartReminderTemplateProps) {
-  const isLowParticipation = riderCount < 3;
+  const isLowParticipation = riderCount < 3
 
   const getParticipationMessage = () => {
     if (riderCount === 0) {
-      return "No one has submitted sets yet—be the first to get the game started.";
+      return "no one has submitted sets yet—be the first to get the game started."
     }
     if (riderCount === 1) {
-      return `Only 1 rider has submitted a set so far. Add yours to get the competition going.`;
+      return `only 1 rider has submitted a set so far. add yours to get the competition going.`
     }
     if (riderCount === 2) {
-      return `Only 2 riders have submitted sets so far. Jump in and add yours to round out the competition.`;
+      return `only 2 riders have submitted sets so far. jump in and add yours to round out the competition.`
     }
-    return `This week's round has ${setCount} ${setCount === 1 ? "set" : "sets"} from ${riderCount} ${riderCount === 1 ? "rider" : "riders"} ready to challenge you.`;
-  };
+    return `this week's round has ${setCount} ${setCount === 1 ? "set" : "sets"} from ${riderCount} ${riderCount === 1 ? "rider" : "riders"} ready to challenge you.`
+  }
 
-  const ctaUrl = isLowParticipation ? addSetUrl : viewRoundUrl;
-  const ctaText = isLowParticipation ? "Add Your Set" : "View Upcoming Round";
+  const ctaUrl = isLowParticipation ? addSetUrl : viewRoundUrl
+  const ctaText = isLowParticipation ? "add your set" : "view upcoming round"
 
   return (
     <Tailwind>
       <div className="mx-auto max-w-lg font-sans">
         <h1 className="mb-1 text-2xl font-bold">une.haus</h1>
-        <p className="mb-6 text-gray-600">New RIU round starts tomorrow</p>
+        <p className="mb-6 text-gray-600">new RIU round starts tomorrow</p>
 
-        <p className="mb-4">Hey {userName},</p>
+        <p className="mb-4">hey {userName},</p>
 
         <p className="mb-4">
-          The next RIU round kicks off in{" "}
+          the next RIU round kicks off in{" "}
           <strong>
             {hoursUntilStart} {hoursUntilStart === 1 ? "hour" : "hours"}
           </strong>
@@ -68,8 +68,8 @@ export default function GameStartReminderTemplate({
 
         {!isLowParticipation && (
           <p className="mb-6 text-sm text-gray-600">
-            Quick refresher: Each set you land earns you 3 points. Each set you
-            submit earns you 1 point. Good luck!
+            quick refresher: each set you land earns you 3 points. each set you
+            submit earns you 1 point. good luck!
           </p>
         )}
 
@@ -77,14 +77,14 @@ export default function GameStartReminderTemplate({
 
         <p className="text-xs text-gray-500">
           <a href={unsubscribeReminderUrl} className="text-gray-500 underline">
-            Unsubscribe from game reminders
+            unsubscribe from game reminders
           </a>
           {" · "}
           <a href={unsubscribeAllUrl} className="text-gray-500 underline">
-            Unsubscribe from all emails
+            unsubscribe from all emails
           </a>
         </p>
       </div>
     </Tailwind>
-  );
+  )
 }

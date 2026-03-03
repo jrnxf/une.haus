@@ -1,6 +1,6 @@
-import * as React from "react";
+import { cn } from "~/lib/utils"
 
-import { cn } from "~/lib/utils";
+import type * as React from "react"
 
 function Table({
   className,
@@ -18,17 +18,17 @@ function Table({
         {...props}
       />
     </div>
-  );
+  )
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-muted/50 [&_tr]:border-b", className)}
+      className={cn("bg-table-header [&_tr]:border-b", className)}
       {...props}
     />
-  );
+  )
 }
 
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
@@ -38,7 +38,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
       className={cn("[&_tr:last-child]:border-0", className)}
       {...props}
     />
-  );
+  )
 }
 
 function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
@@ -46,12 +46,12 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
     <tfoot
       data-slot="table-footer"
       className={cn(
-        "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
+        "bg-muted/70 border-t font-medium [&>tr]:last:border-b-0",
         className,
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
@@ -59,12 +59,12 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "hover:bg-muted/50 data-[state=selected]:bg-muted border-b",
+        "hover:bg-muted/70 data-[state=selected]:bg-muted border-b",
         className,
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
@@ -77,7 +77,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
@@ -90,7 +90,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TableCaption({
@@ -103,7 +103,7 @@ function TableCaption({
       className={cn("text-muted-foreground mt-4 text-sm", className)}
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -114,6 +114,5 @@ export {
   TableFooter,
   TableHead,
   TableHeader,
-  TableRow
-};
-
+  TableRow,
+}

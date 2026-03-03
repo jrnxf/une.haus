@@ -1,11 +1,10 @@
-import { ChevronRight, MoreHorizontal } from "lucide-react";
-import * as React from "react";
+import { ChevronRight, MoreHorizontal } from "lucide-react"
+import * as React from "react"
 
-import { Slot } from "~/lib/slot";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
-  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
+  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />
 }
 
 function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
@@ -13,12 +12,12 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
     <ol
       data-slot="breadcrumb-list"
       className={cn(
-        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words",
         className,
       )}
       {...props}
     />
-  );
+  )
 }
 
 function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
@@ -28,25 +27,40 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
       className={cn("inline-flex items-center gap-1.5", className)}
       {...props}
     />
-  );
+  )
 }
 
 function BreadcrumbLink({
-  asChild,
   className,
+  render,
+  children,
   ...props
 }: React.ComponentProps<"a"> & {
-  asChild?: boolean;
+  render?: React.ReactElement
 }) {
-  const Comp = asChild ? Slot : "a";
+  if (render) {
+    return React.cloneElement(render, {
+      ...props,
+      ...(render.props as Record<string, unknown>),
+      className: cn(
+        "hover:text-foreground transition-colors",
+        className,
+        (render.props as Record<string, string>).className,
+      ),
+      "data-slot": "breadcrumb-link",
+      children,
+    } as React.Attributes)
+  }
 
   return (
-    <Comp
+    <a
       data-slot="breadcrumb-link"
       className={cn("hover:text-foreground transition-colors", className)}
       {...props}
-    />
-  );
+    >
+      {children}
+    </a>
+  )
 }
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
@@ -59,7 +73,7 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
       className={cn("text-foreground font-normal", className)}
       {...props}
     />
-  );
+  )
 }
 
 function BreadcrumbSeparator({
@@ -77,7 +91,7 @@ function BreadcrumbSeparator({
     >
       {children ?? <ChevronRight />}
     </li>
-  );
+  )
 }
 
 function BreadcrumbEllipsis({
@@ -93,9 +107,9 @@ function BreadcrumbEllipsis({
       {...props}
     >
       <MoreHorizontal className="size-4" />
-      <span className="sr-only">More</span>
+      <span className="sr-only">more</span>
     </span>
-  );
+  )
 }
 
 export {
@@ -106,4 +120,4 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-};
+}

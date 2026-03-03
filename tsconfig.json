@@ -1,12 +1,19 @@
 {
   "include": ["**/*.ts", "**/*.tsx", "src/views/user-with-globe.bak"],
-  "exclude": ["bak/**", "**/*.bak.ts", "**/*.bak.tsx"],
+  "exclude": [
+    "bak/**",
+    "**/*.bak.ts",
+    "**/*.bak.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/scripts/**"
+  ],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
     "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "react", "react-dom"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",

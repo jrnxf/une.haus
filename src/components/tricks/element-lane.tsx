@@ -1,30 +1,31 @@
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import type { Trick } from "~/lib/tricks";
-import { cn } from "~/lib/utils";
+import pluralize from "pluralize"
 
-import { TrickCard } from "./trick-card";
+import { TrickCard } from "./trick-card"
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area"
+import { type Trick } from "~/lib/tricks"
+import { cn } from "~/lib/utils"
 
 type ElementLaneProps = {
-  element: string;
-  tricks: Trick[];
-  selectedTrickId?: string;
-  onSelectTrick: (trick: Trick) => void;
-};
+  element: string
+  tricks: Trick[]
+  selectedTrickId?: string
+  onSelectTrick: (trick: Trick) => void
+}
 
 // Format element for display
 function formatElement(element: string): string {
-  return element.charAt(0).toUpperCase() + element.slice(1);
+  return element.charAt(0).toUpperCase() + element.slice(1)
 }
 
 // Group tricks by depth for visual separation
 function groupByDepth(tricks: Trick[]): Map<number, Trick[]> {
-  const groups = new Map<number, Trick[]>();
+  const groups = new Map<number, Trick[]>()
   for (const trick of tricks) {
-    const existing = groups.get(trick.depth) ?? [];
-    existing.push(trick);
-    groups.set(trick.depth, existing);
+    const existing = groups.get(trick.depth) ?? []
+    existing.push(trick)
+    groups.set(trick.depth, existing)
   }
-  return groups;
+  return groups
 }
 
 export function ElementLane({
@@ -33,8 +34,8 @@ export function ElementLane({
   selectedTrickId,
   onSelectTrick,
 }: ElementLaneProps) {
-  const depthGroups = groupByDepth(tricks);
-  const maxDepth = Math.max(...tricks.map((t) => t.depth));
+  const depthGroups = groupByDepth(tricks)
+  const maxDepth = Math.max(...tricks.map((t) => t.depth))
 
   return (
     <div className="space-y-2">
@@ -42,7 +43,7 @@ export function ElementLane({
       <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 flex items-center gap-2 py-2 backdrop-blur">
         <h2 className="text-lg font-semibold">{formatElement(element)}</h2>
         <span className="text-muted-foreground text-sm">
-          ({tricks.length} tricks)
+          ({tricks.length} {pluralize("trick", tricks.length)})
         </span>
       </div>
 
@@ -51,8 +52,8 @@ export function ElementLane({
         <div className="flex gap-6 pb-4">
           {/* Group by depth for visual progression */}
           {Array.from({ length: maxDepth + 1 }, (_, depth) => {
-            const depthTricks = depthGroups.get(depth) ?? [];
-            if (depthTricks.length === 0) return null;
+            const depthTricks = depthGroups.get(depth) ?? []
+            if (depthTricks.length === 0) return null
 
             return (
               <div className="flex flex-col gap-2" key={depth}>
@@ -88,11 +89,11 @@ export function ElementLane({
                   ))}
                 </div>
               </div>
-            );
+            )
           })}
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>
-  );
+  )
 }

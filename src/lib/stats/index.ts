@@ -1,6 +1,6 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query"
 
-import { getContributorsServerFn, getStatsServerFn } from "~/lib/stats/fns";
+import { getContributorsServerFn, getStatsServerFn } from "~/lib/stats/fns"
 
 export const stats = {
   get: {
@@ -10,7 +10,7 @@ export const stats = {
         queryKey: ["stats.get"],
         queryFn: getStatsServerFn,
         staleTime: 60 * 1000, // 1 minute - stats can be slightly stale
-      });
+      })
     },
   },
   contributors: {
@@ -20,7 +20,7 @@ export const stats = {
         queryKey: ["stats.contributors"],
         queryFn: getContributorsServerFn,
         staleTime: 60 * 1000,
-      });
+      })
     },
   },
-};
+}

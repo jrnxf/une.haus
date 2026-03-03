@@ -1,18 +1,19 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { ZodError } from "zod";
+import { type ClassValue, clsx } from "clsx"
+import pluralize from "pluralize"
+import { twMerge } from "tailwind-merge"
+import { ZodError } from "zod"
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 /**
  * Format a ZodError into a string
  */
 export function zodErrorFmt(error: ZodError) {
-  const errorCount = error.issues.length;
-  const errorMessage = `Validation ${errorCount === 1 ? "error" : "errors"}: ${error.issues.map((issue) => issue.message).join(",")}`;
-  return errorMessage;
+  const errorCount = error.issues.length
+  const errorMessage = `Validation ${pluralize("error", errorCount)}: ${error.issues.map((issue) => issue.message).join(",")}`
+  return errorMessage
 }
 
 export function errorFmt(error: unknown) {
@@ -20,22 +21,22 @@ export function errorFmt(error: unknown) {
     ? zodErrorFmt(error)
     : error instanceof Error
       ? error.message
-      : String(error);
+      : String(error)
 }
 
 export const preferCdn = (url?: string | null): string => {
-  if (!url) return "";
+  if (!url) return ""
   return url.replace(
     new URL(url).origin,
     "https://d21ywshxutk0x0.cloudfront.net",
-  );
-};
+  )
+}
 
 export function getUserInitials(name: string) {
   return name
     .split(" ")
     .slice(0, 2)
-    .map((sub) => sub.charAt(0));
+    .map((sub) => sub.charAt(0))
 }
 
 /**
@@ -45,23 +46,23 @@ export function getUserInitials(name: string) {
  *    write.
  */
 export function preprocessText(text: string) {
-  return text.trim().replaceAll(/\n{3,}/g, "\n\n");
+  return text.trim().replaceAll(/\n{3,}/g, "\n\n")
 }
 
 export function isDefined<T>(x: T): x is NonNullable<T> {
-  return x !== null && x !== undefined;
+  return x !== null && x !== undefined
 }
 
 export function getCloudflareImageUrl(
   id: string,
   options: { width: number; quality: number },
 ) {
-  return `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${id}/width=${options.width},quality=${options.quality}`;
+  return `https://une.haus/cdn-cgi/imagedelivery/-HCgnZBcmFH51trvA-5j4Q/${id}/width=${options.width},quality=${options.quality}`
 }
 
 export function generateSlug(value: string) {
   return value
     .toLowerCase()
     .replaceAll(/[^a-z0-9]+/g, "-")
-    .replaceAll(/^-|-$/g, "");
+    .replaceAll(/^-|-$/g, "")
 }

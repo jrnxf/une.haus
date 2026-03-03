@@ -1,4 +1,4 @@
-import PreGameTrickReminderTemplate from "../pre-game-trick-reminder";
+import PreGameTrickReminderTemplate from "../pre-game-trick-reminder"
 
 export default function MultipleSets() {
   return (
@@ -16,5 +16,5 @@ export default function MultipleSets() {
       unsubscribeReminderUrl="https://une.haus/unsubscribe?type=trick-reminder"
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
     />
-  );
+  )
 }

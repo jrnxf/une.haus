@@ -1,116 +1,122 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
+import { toast } from "sonner"
 
-import { toast } from "sonner";
+import { games } from "~/lib/games"
 
-import { games } from "~/lib/games";
+const activeRoundsKey = games.sius.rounds.active.queryOptions().queryKey
 
-const activeChainKey = games.sius.chain.active.queryOptions().queryKey;
-
-export function useStartChain() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
+export function useStartRound() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.chain.start.fn,
+    mutationFn: games.sius.rounds.start.fn,
     onSuccess: (data) => {
-      toast.success("Chain started!");
-      qc.invalidateQueries({ queryKey: activeChainKey });
+      toast.success("successfully started a new siu")
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
       navigate({
-        to: "/games/sius/stacks/$stackId",
-        params: { stackId: data.stack.id },
-      });
+        to: "/games/sius/sets/$setId",
+        params: { setId: data.set.id },
+      })
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to start chain");
+      toast.error(error.message || "failed to start round")
     },
-  });
+  })
 }
 
-export function useStackUp() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
+export function useAddSet() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.stacks.stackUp.fn,
+    mutationFn: games.sius.sets.add.fn,
     onSuccess: (data) => {
-      toast.success("Stack submitted!");
-      qc.invalidateQueries({ queryKey: activeChainKey });
+      toast.success("successfully stacked")
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
       navigate({
-        to: "/games/sius/stacks/$stackId",
-        params: { stackId: data.id },
-      });
+        to: "/games/sius/sets/$setId",
+        params: { setId: data.id },
+      })
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to submit stack");
+      toast.error(error.message || "failed to stack")
     },
-  });
+  })
 }
 
 export function useVoteToArchive() {
-  const qc = useQueryClient();
+  const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.chain.voteToArchive.fn,
+    mutationFn: games.sius.rounds.voteToArchive.fn,
     onSuccess: (data) => {
       if (data.thresholdReached) {
-        toast.success("Vote threshold reached! Admin has been notified.");
+        toast.success("vote threshold reached! admin has been notified.")
       } else {
-        toast.success(`Voted to archive (${data.voteCount}/5)`);
+        toast.success(`voted to archive (${data.voteCount}/5)`)
       }
-      qc.invalidateQueries({ queryKey: activeChainKey });
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to vote");
+      toast.error(error.message || "failed to vote")
     },
-  });
+  })
 }
 
 export function useRemoveArchiveVote() {
-  const qc = useQueryClient();
+  const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.chain.removeArchiveVote.fn,
+    mutationFn: games.sius.rounds.removeArchiveVote.fn,
     onSuccess: (data) => {
-      toast.success(`Vote removed (${data.voteCount}/5)`);
-      qc.invalidateQueries({ queryKey: activeChainKey });
+      toast.success(`vote removed (${data.voteCount}/5)`)
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to remove vote");
+      toast.error(error.message || "failed to remove vote")
     },
-  });
+  })
 }
 
-export function useArchiveChain() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
+export function useArchiveRound() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.admin.archiveChain.fn,
+    mutationFn: games.sius.admin.archiveRound.fn,
     onSuccess: () => {
-      toast.success("Chain archived");
-      qc.removeQueries({ queryKey: activeChainKey });
-      navigate({ to: "/games/sius" });
+      toast.success("round archived")
+      qc.removeQueries({ queryKey: activeRoundsKey })
+      qc.removeQueries({
+        queryKey: games.sius.rounds.archived.list.queryOptions().queryKey,
+      })
+      navigate({ to: "/games/sius" })
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to archive chain");
+      toast.error(error.message || "failed to archive round")
     },
-  });
+  })
 }
 
-export function useDeleteStack() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
+export function useDeleteSet() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.stacks.delete.fn,
-    onSuccess: () => {
-      toast.success("Stack deleted");
-      qc.removeQueries({ queryKey: activeChainKey });
-      navigate({ to: "/games/sius" });
+    mutationFn: games.sius.sets.delete.fn,
+    onSuccess: (data) => {
+      toast.success("set deleted")
+      qc.removeQueries({ queryKey: activeRoundsKey })
+      if (data.type === "soft") {
+        // Soft delete: invalidate to refresh the round view
+        qc.invalidateQueries({ queryKey: activeRoundsKey })
+      }
+      navigate({ to: "/games/sius" })
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to delete stack");
+      toast.error(error.message || "failed to delete set")
     },
-  });
+  })
 }

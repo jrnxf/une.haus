@@ -1,20 +1,20 @@
-import type { ErrorComponentProps } from "@tanstack/react-router";
 import {
   ErrorComponent,
+  type ErrorComponentProps,
   Link,
   rootRouteId,
   useMatch,
   useRouter,
-} from "@tanstack/react-router";
+} from "@tanstack/react-router"
 
 export function CatchBoundary({ error }: ErrorComponentProps) {
-  const router = useRouter();
+  const router = useRouter()
   const isRoot = useMatch({
     select: (state) => state.id === rootRouteId,
     strict: false,
-  });
+  })
 
-  console.error(error);
+  console.error(error)
 
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-6 p-4">
@@ -23,7 +23,7 @@ export function CatchBoundary({ error }: ErrorComponentProps) {
         <button
           className="rounded bg-gray-600 px-2 py-1 font-extrabold text-white uppercase dark:bg-gray-700"
           onClick={() => {
-            router.invalidate();
+            router.invalidate()
           }}
         >
           Try Again
@@ -39,8 +39,8 @@ export function CatchBoundary({ error }: ErrorComponentProps) {
           <Link
             className="rounded bg-gray-600 px-2 py-1 font-extrabold text-white uppercase dark:bg-gray-700"
             onClick={(e) => {
-              e.preventDefault();
-              globalThis.history.back();
+              e.preventDefault()
+              globalThis.history.back()
             }}
             to="/"
           >
@@ -49,5 +49,5 @@ export function CatchBoundary({ error }: ErrorComponentProps) {
         )}
       </div>
     </div>
-  );
+  )
 }

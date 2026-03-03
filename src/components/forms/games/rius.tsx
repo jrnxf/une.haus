@@ -1,11 +1,12 @@
-import { Link } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Link } from "@tanstack/react-router"
+import { useForm } from "react-hook-form"
+import { type z } from "zod"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type z } from "zod";
-
-import { VideoInput } from "~/components/input/video-input";
-import { Button } from "~/components/ui/button";
+import { MentionTextarea } from "~/components/input/mention-textarea"
+import { VideoInput } from "~/components/input/video-input"
+import { Button } from "~/components/ui/button"
+import { ButtonGroup } from "~/components/ui/button-group"
 import {
   Form,
   FormControl,
@@ -14,20 +15,19 @@ import {
   FormLabel,
   FormMessage,
   FormSubmitButton,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import { games } from "~/lib/games";
-import { useCreateSet, useCreateSubmission } from "~/lib/games/rius/hooks";
+} from "~/components/ui/form"
+import { Input } from "~/components/ui/input"
+import { games } from "~/lib/games"
+import { useCreateSet, useCreateSubmission } from "~/lib/games/rius/hooks"
 
 export function CreateRiuSetForm() {
   const rhf = useForm<z.infer<typeof games.rius.sets.create.schema>>({
     resolver: zodResolver(games.rius.sets.create.schema),
-  });
+  })
 
-  const { control, handleSubmit } = rhf;
+  const { control, handleSubmit } = rhf
 
-  const createSet = useCreateSet();
+  const createSet = useCreateSet()
 
   return (
     <Form
@@ -35,10 +35,10 @@ export function CreateRiuSetForm() {
       className="space-y-4"
       method="post"
       onSubmit={(event) => {
-        event.preventDefault();
+        event.preventDefault()
         handleSubmit((data) => {
-          createSet.mutate({ data });
-        })(event);
+          createSet.mutate({ data })
+        })(event)
       }}
     >
       <FormField
@@ -62,7 +62,10 @@ export function CreateRiuSetForm() {
           <FormItem>
             <FormLabel>instructions</FormLabel>
             <FormControl>
-              <Textarea {...field} />
+              <MentionTextarea
+                value={field.value ?? ""}
+                onChange={field.onChange}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -73,6 +76,7 @@ export function CreateRiuSetForm() {
         name="muxAssetId"
         render={({ field }) => (
           <FormItem>
+            <FormLabel>video</FormLabel>
             <FormControl>
               <VideoInput {...field} />
             </FormControl>
@@ -81,14 +85,16 @@ export function CreateRiuSetForm() {
         )}
       />
 
-      <div className="flex justify-between gap-2">
-        <Button asChild type="button" variant="outline">
-          <Link to="/games/rius/upcoming">cancel</Link>
-        </Button>
+      <ButtonGroup className="ml-auto">
+        <ButtonGroup>
+          <Button asChild type="button" variant="outline">
+            <Link to="/games/rius/upcoming">cancel</Link>
+          </Button>
+        </ButtonGroup>
         <FormSubmitButton busy={createSet.isPending} />
-      </div>
+      </ButtonGroup>
     </Form>
-  );
+  )
 }
 
 export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
@@ -97,11 +103,11 @@ export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
     defaultValues: {
       riuSetId,
     },
-  });
+  })
 
-  const { control, handleSubmit } = rhf;
+  const { control, handleSubmit } = rhf
 
-  const createSubmission = useCreateSubmission();
+  const createSubmission = useCreateSubmission()
 
   return (
     <Form
@@ -109,7 +115,7 @@ export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
       className="space-y-4"
       method="post"
       onSubmit={handleSubmit((data) => {
-        createSubmission.mutate({ data });
+        createSubmission.mutate({ data })
       })}
     >
       <FormField
@@ -128,10 +134,10 @@ export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
                 {...field}
                 showPreview={false}
                 onChange={(assetId) => {
-                  field.onChange(assetId);
+                  field.onChange(assetId)
                   handleSubmit((data) => {
-                    createSubmission.mutate({ data });
-                  })();
+                    createSubmission.mutate({ data })
+                  })()
                 }}
               />
             </FormControl>
@@ -139,5 +145,5 @@ export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
         )}
       />
     </Form>
-  );
+  )
 }

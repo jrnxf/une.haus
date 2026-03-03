@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 function Progress({
   className,
@@ -14,7 +14,7 @@ function Progress({
     <ProgressPrimitive.Root
       value={value}
       data-slot="progress"
-      className={cn("flex flex-wrap gap-3", className)}
+      className={cn(children && "flex flex-wrap gap-3", className)}
       {...props}
     >
       {children}
@@ -22,7 +22,7 @@ function Progress({
         <ProgressIndicator />
       </ProgressTrack>
     </ProgressPrimitive.Root>
-  );
+  )
 }
 
 function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
@@ -35,7 +35,7 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
       data-slot="progress-track"
       {...props}
     />
-  );
+  )
 }
 
 function ProgressIndicator({
@@ -48,7 +48,7 @@ function ProgressIndicator({
       className={cn("bg-primary h-full transition-all", className)}
       {...props}
     />
-  );
+  )
 }
 
 function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
@@ -58,7 +58,7 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
       data-slot="progress-label"
       {...props}
     />
-  );
+  )
 }
 
 function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
@@ -71,7 +71,7 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
       data-slot="progress-value"
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -80,4 +80,4 @@ export {
   ProgressIndicator,
   ProgressLabel,
   ProgressValue,
-};
+}

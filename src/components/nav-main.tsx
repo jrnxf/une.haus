@@ -1,11 +1,11 @@
-import { Link } from "@tanstack/react-router";
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router"
+import { ChevronRight, type LucideIcon } from "lucide-react"
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
+} from "~/components/ui/collapsible"
 import {
   SidebarGroup,
   SidebarMenu,
@@ -16,24 +16,24 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "~/components/ui/sidebar";
+} from "~/components/ui/sidebar"
 
 export function NavMain({
   items,
 }: {
   items: {
-    title: string;
-    url: string;
-    icon: LucideIcon;
-    activeIcon?: LucideIcon;
-    isActive?: boolean;
+    title: string
+    url: string
+    icon: LucideIcon
+    activeIcon?: LucideIcon
+    isActive?: boolean
     items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
+      title: string
+      url: string
+    }[]
+  }[]
 }) {
-  const { isMobile } = useSidebar();
+  const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup>
@@ -49,22 +49,22 @@ export function NavMain({
                 >
                   {({ isActive }) => {
                     const Icon =
-                      isActive && item.activeIcon ? item.activeIcon : item.icon;
+                      isActive && item.activeIcon ? item.activeIcon : item.icon
                     return (
                       <>
                         <Icon />
                         <span className="pb-px">{item.title}</span>
                       </>
-                    );
+                    )
                   }}
                 </Link>
               </SidebarMenuButton>
-              {item.items?.length ? (
+              {(item.items?.length ?? 0) > 0 ? (
                 <>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuAction className="data-[state=open]:rotate-90">
                       <ChevronRight />
-                      <span className="sr-only">Toggle</span>
+                      <span className="sr-only">toggle</span>
                     </SidebarMenuAction>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
@@ -87,5 +87,5 @@ export function NavMain({
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  );
+  )
 }

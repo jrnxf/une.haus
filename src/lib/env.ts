@@ -1,10 +1,10 @@
-import { createEnv } from "@t3-oss/env-core";
-import { z } from "zod";
+import { createEnv } from "@t3-oss/env-core"
+import { z } from "zod"
 
 const booleanEnvVar = z
   .enum(["true", "false"])
   .default("false")
-  .transform((value) => value === "true");
+  .transform((value) => value === "true")
 
 export const env = createEnv({
   client: {
@@ -63,7 +63,7 @@ export const env = createEnv({
     SESSION_SECRET: z.string(),
     SKRRRT_DATABASE_URL: z.string().optional(),
   },
-});
+})
 
-export const isDevelopment = env.VITE_ENVIRONMENT === "development";
-export const isProduction = env.VITE_ENVIRONMENT === "production";
+export const isDevelopment = env.VITE_ENVIRONMENT === "development"
+export const isProduction = env.VITE_ENVIRONMENT === "production"

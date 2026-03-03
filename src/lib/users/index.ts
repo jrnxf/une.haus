@@ -1,21 +1,21 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
-import { PAGE_SIZE } from "~/lib/constants";
-import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
+import { PAGE_SIZE } from "~/lib/constants"
+import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
 import {
   allUsersServerFn,
   followUserServerFn,
   getShopWaitlistCountServerFn,
   getUserActivityServerFn,
   getUserFollowsServerFn,
+  type getUserServerFn,
   getUserWithFollowsServerFn,
   listUsersServerFn,
   setShopNotifyServerFn,
   unfollowUserServerFn,
   updateUserServerFn,
   usersWithLocationsServerFn,
-  type getUserServerFn,
-} from "~/lib/users/fns";
+} from "~/lib/users/fns"
 import {
   followUserSchema,
   getUserActivitySchema,
@@ -25,7 +25,7 @@ import {
   setShopNotifySchema,
   unfollowUserSchema,
   updateUserSchema,
-} from "~/lib/users/schemas";
+} from "~/lib/users/schemas"
 
 export const users = {
   all: {
@@ -34,7 +34,7 @@ export const users = {
       return queryOptions({
         queryKey: ["users.all"],
         queryFn: allUsersServerFn,
-      });
+      })
     },
   },
   withLocations: {
@@ -43,7 +43,7 @@ export const users = {
       return queryOptions({
         queryKey: ["users.withLocations"],
         queryFn: usersWithLocationsServerFn,
-      });
+      })
     },
   },
   list: {
@@ -58,18 +58,18 @@ export const users = {
               ...data,
               cursor,
             },
-          });
+          })
         },
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
           if (lastPage.length < PAGE_SIZE) {
             // the last page returned less than the requested limit, so we
             // know there is no more results for this filter set
-            return;
+            return
           }
-          return lastPage.at(-1)?.id;
+          return lastPage.at(-1)?.id
         },
-      });
+      })
     },
   },
   get: {
@@ -79,7 +79,7 @@ export const users = {
       return queryOptions({
         queryKey: ["users.get", data],
         queryFn: () => getUserWithFollowsServerFn({ data }),
-      });
+      })
     },
   },
   update: {
@@ -93,7 +93,7 @@ export const users = {
       return queryOptions({
         queryKey: ["users.follows", data],
         queryFn: () => getUserFollowsServerFn({ data }),
-      });
+      })
     },
   },
   follow: {
@@ -121,11 +121,11 @@ export const users = {
               ...data,
               cursor,
             },
-          });
+          })
         },
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
-      });
+      })
     },
   },
   setShopNotify: {
@@ -138,19 +138,19 @@ export const users = {
       return queryOptions({
         queryKey: ["users.shopWaitlistCount"],
         queryFn: getShopWaitlistCountServerFn,
-      });
+      })
     },
   },
-};
+}
 
-export type UsersGetData = ServerFnReturn<typeof getUserServerFn>;
+export type UsersGetData = ServerFnReturn<typeof getUserServerFn>
 export type UsersWithFollowsData = ServerFnReturn<
   typeof getUserWithFollowsServerFn
->;
-export type UsersFollowsData = ServerFnReturn<typeof getUserFollowsServerFn>;
-export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>;
+>
+export type UsersFollowsData = ServerFnReturn<typeof getUserFollowsServerFn>
+export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>
 export type UsersWithLocationsData = ServerFnReturn<
   typeof usersWithLocationsServerFn
->;
+>
 
-export { type ActivityItem } from "~/lib/users/fns";
+export type { ActivityItem } from "~/lib/users/fns"

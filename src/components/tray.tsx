@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-
-import { useMediaQuery } from "usehooks-ts";
+import React, { useState } from "react"
+import { useMediaQuery } from "usehooks-ts"
 
 import {
   Dialog,
@@ -8,39 +7,39 @@ import {
   DialogContent,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
+} from "~/components/ui/dialog"
 import {
   Drawer,
   DrawerClose,
   DrawerContent,
   DrawerTitle,
   DrawerTrigger,
-} from "~/components/ui/drawer";
-import { cn } from "~/lib/utils";
+} from "~/components/ui/drawer"
+import { cn } from "~/lib/utils"
 
-const MEDIA_QUERY_DESKTOP = "(max-width: 768px)";
+const MEDIA_QUERY_DESKTOP = "(max-width: 768px)"
 
 const TrayContext = React.createContext<{
-  isMobile: boolean;
-  open: boolean;
+  isMobile: boolean
+  open: boolean
 }>({
   isMobile: false,
   open: false,
-});
+})
 
-const useTrayContext = () => React.useContext(TrayContext);
+const useTrayContext = () => React.useContext(TrayContext)
 
 export function Tray(properties: {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  children?: React.ReactNode;
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  children?: React.ReactNode
 }) {
-  const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP);
+  const isMobile = useMediaQuery(MEDIA_QUERY_DESKTOP)
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
-  const resolvedOpen = properties.open ?? open;
-  const resolvedOnOpenChange = properties.onOpenChange ?? setOpen;
+  const resolvedOpen = properties.open ?? open
+  const resolvedOnOpenChange = properties.onOpenChange ?? setOpen
 
   return (
     <TrayContext.Provider value={{ isMobile, open: resolvedOpen }}>
@@ -54,16 +53,16 @@ export function Tray(properties: {
         </Dialog>
       )}
     </TrayContext.Provider>
-  );
+  )
 }
 
 export function TrayClose(properties: React.ComponentProps<"button">) {
-  const { isMobile } = useTrayContext();
+  const { isMobile } = useTrayContext()
 
   if (isMobile) {
-    return <DrawerClose {...properties} />;
+    return <DrawerClose {...properties} />
   }
-  return <DialogClose {...properties} />;
+  return <DialogClose {...properties} />
 }
 
 export function TrayContent({
@@ -73,12 +72,12 @@ export function TrayContent({
   children,
   ...properties
 }: {
-  dialogClassName?: string;
-  drawerClassName?: string;
-  children?: React.ReactNode;
-  className?: string;
+  dialogClassName?: string
+  drawerClassName?: string
+  children?: React.ReactNode
+  className?: string
 }) {
-  const { isMobile } = useTrayContext();
+  const { isMobile } = useTrayContext()
 
   return (
     <>
@@ -92,7 +91,7 @@ export function TrayContent({
         </DrawerContent>
       ) : (
         <DialogContent
-          className={cn(className, dialogClassName)}
+          className={cn(className, "p-4", dialogClassName)}
           overlay={false}
           {...properties}
         >
@@ -100,36 +99,36 @@ export function TrayContent({
         </DialogContent>
       )}
     </>
-  );
+  )
 }
 
 export function TrayTitle(
   properties: React.ComponentProps<"h2"> & { className?: string },
 ) {
-  const { isMobile } = useTrayContext();
+  const { isMobile } = useTrayContext()
 
   if (isMobile) {
-    return <DrawerTitle {...properties} />;
+    return <DrawerTitle {...properties} />
   }
-  return <DialogTitle {...properties} />;
+  return <DialogTitle {...properties} />
 }
 
 export function TrayTrigger(
   properties: React.ComponentProps<"button"> & {
-    asChild?: boolean;
-    children?: React.ReactNode;
+    asChild?: boolean
+    children?: React.ReactNode
   },
 ) {
-  const { isMobile } = useTrayContext();
+  const { isMobile } = useTrayContext()
 
   if (isMobile) {
-    return <DrawerTrigger {...properties} />;
+    return <DrawerTrigger {...properties} />
   }
-  return <DialogTrigger {...properties} />;
+  return <DialogTrigger {...properties} />
 }
 
 function TrayOverlay() {
-  const { open } = useTrayContext();
+  const { open } = useTrayContext()
   return (
     <div
       className={cn(
@@ -137,5 +136,5 @@ function TrayOverlay() {
         open ? "opacity-100" : "pointer-events-none opacity-0",
       )}
     />
-  );
+  )
 }

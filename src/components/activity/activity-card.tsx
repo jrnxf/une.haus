@@ -1,25 +1,26 @@
-import { Link } from "@tanstack/react-router";
-import { LayersIcon, PaperclipIcon, PlayCircleIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router"
+import { ArrowDownToLineIcon, LayersIcon, PaperclipIcon } from "lucide-react"
 
-import { TimeAgo } from "~/components/time-ago";
-import { Badge } from "~/components/ui/badge";
-import type { ActivityItem } from "~/lib/users";
-import { cn } from "~/lib/utils";
+import { RichText } from "~/components/rich-text"
+import { Badge } from "~/components/ui/badge"
+import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { type ActivityItem } from "~/lib/users"
+import { cn } from "~/lib/utils"
 
 type ActivityCardProps = {
-  item: ActivityItem;
-};
+  item: ActivityItem
+}
 
 export function ActivityCard({ item }: ActivityCardProps) {
   // Render posts exactly like /posts view
   if (item.type === "post") {
-    return <PostCard item={item} />;
+    return <PostCard item={item} />
   }
 
-  const display = getCardDisplay(item);
+  const display = getCardDisplay(item)
 
   return (
-    <Link to={display.url} className="group block">
+    <div className="group relative">
       <div
         className={cn(
           "bg-card rounded-lg border p-4 transition-all",
@@ -36,109 +37,115 @@ export function ActivityCard({ item }: ActivityCardProps) {
               {display.typeLabel}
             </Badge>
           </div>
-          <span className="text-muted-foreground shrink-0 text-xs">
-            <TimeAgo date={new Date(item.createdAt)} />
+          <span className="text-muted-foreground relative z-10 shrink-0 text-xs">
+            <RelativeTimeCard date={new Date(item.createdAt)} variant="muted" />
           </span>
         </div>
 
         <div className="mt-3">
-          <h3 className="group-hover:text-primary text-sm font-medium">
+          <Link
+            to={display.url}
+            className="group-hover:text-primary text-sm font-medium after:absolute after:inset-0 after:rounded-lg"
+          >
             {display.title}
-          </h3>
+          </Link>
           {display.description && (
-            <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
-              {display.description}
-            </p>
+            <div className="text-muted-foreground relative z-10 mt-1 line-clamp-2 text-sm">
+              <RichText content={display.description} disableLinks />
+            </div>
           )}
         </div>
       </div>
-    </Link>
-  );
+    </div>
+  )
 }
 
 function PostCard({ item }: { item: ActivityItem }) {
-  const hasMedia = Boolean(item.imageId);
+  const hasMedia = Boolean(item.imageId)
 
   return (
-    <Link
-      className="ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
-      params={{ postId: item.id }}
-      to="/posts/$postId"
-    >
+    <div className="relative">
       <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
         <div className="flex w-full flex-col gap-2">
-          <p className="truncate font-semibold">
+          <Link
+            params={{ postId: item.id }}
+            to="/posts/$postId"
+            className="truncate font-semibold after:absolute after:inset-0 after:rounded-md"
+          >
             {hasMedia && (
               <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
             )}
             {item.title ?? "Untitled"}
-          </p>
+          </Link>
           {item.content && (
-            <div className="line-clamp-3 text-sm">
-              <p>{item.content}</p>
+            <div className="relative z-10 line-clamp-3 text-sm">
+              <RichText content={item.content} disableLinks />
             </div>
           )}
           <div className="flex w-full justify-between gap-4">
-            <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs sm:text-sm">
-              <TimeAgo date={new Date(item.createdAt)} />
+            <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-sm">
+              <RelativeTimeCard
+                date={new Date(item.createdAt)}
+                variant="muted"
+              />
             </p>
           </div>
         </div>
       </div>
-    </Link>
-  );
+    </div>
+  )
 }
 
 type CardDisplay = {
-  icon: React.ReactNode;
-  typeLabel: string;
-  title: string;
-  description?: string;
-  url: string;
-};
+  icon: React.ReactNode
+  typeLabel: string
+  title: string
+  description?: string
+  url: string
+}
 
 function getCardDisplay(item: ActivityItem): CardDisplay {
   switch (item.type) {
     case "riuSet": {
       return {
         icon: <LayersIcon className="size-3" />,
-        typeLabel: "RIU Set",
-        title: item.name ?? "Untitled Set",
+        typeLabel: "RIU set",
+        title: item.name ?? "untitled set",
         description: item.content?.slice(0, 150),
         url: `/games/rius/sets/${item.id}`,
-      };
+      }
     }
     case "riuSubmission": {
       return {
-        icon: <PlayCircleIcon className="size-3" />,
-        typeLabel: "RIU Submission",
-        title: `Submitted to: ${item.parentTitle ?? "a set"}`,
+        icon: <ArrowDownToLineIcon className="size-3" />,
+        typeLabel: "RIU submission",
+        title: `submitted to: ${item.parentTitle ?? "a set"}`,
         url: `/games/rius/submissions/${item.id}`,
-      };
+      }
     }
     case "biuSet": {
       return {
         icon: <LayersIcon className="size-3" />,
         typeLabel: "BIU",
-        title: "Added to chain",
-        url: `/games/bius/${item.chainId}`,
-      };
+        title: "added to round",
+        url: `/games/bius/${item.biuId}`,
+      }
     }
-    case "siuStack": {
+    case "siuSet": {
       return {
         icon: <LayersIcon className="size-3" />,
         typeLabel: "SIU",
-        title: item.name ?? "Added to stack",
-        url: `/games/sius/${item.chainId}`,
-      };
+        title: item.name ?? "added to round",
+        url: `/games/sius/${item.siuId}`,
+      }
     }
     default: {
       return {
         icon: <LayersIcon className="size-3" />,
-        typeLabel: "Activity",
-        title: "Activity",
+        typeLabel: "activity",
+        title: "activity",
         url: "/",
-      };
+      }
     }
   }
 }

@@ -1,15 +1,15 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   rootRouteId,
   useNavigate,
   useRouteContext,
-} from "@tanstack/react-router";
-import { createServerOnlyFn } from "@tanstack/react-start";
-import { useSession } from "@tanstack/react-start/server";
+} from "@tanstack/react-router"
+import { createServerOnlyFn } from "@tanstack/react-start"
+import { useSession } from "@tanstack/react-start/server"
 
-import { env } from "~/lib/env";
-import { HAUS_SESSION_KEY, session } from "~/lib/session/index";
-import { type HausSession } from "~/lib/session/schema";
+import { env } from "~/lib/env"
+import { HAUS_SESSION_KEY, session } from "~/lib/session/index"
+import { type HausSession } from "~/lib/session/schema"
 
 export const useServerSession = createServerOnlyFn(() => {
   return useSession<HausSession>({
@@ -21,39 +21,39 @@ export const useServerSession = createServerOnlyFn(() => {
       sameSite: "lax",
     },
     maxAge: 60 * 60 * 24 * 30, // 30 days
-  });
-});
+  })
+})
 
 export function useSessionUser() {
-  const { session } = useRouteContext({ from: rootRouteId });
-  return session.user;
+  const { session } = useRouteContext({ from: rootRouteId })
+  return session.user
 }
 
 export function useIsAdmin() {
-  const user = useSessionUser();
-  return user && user.id === 1;
+  const user = useSessionUser()
+  return user && user.id === 1
 }
 
 export function useSessionFlash() {
-  const { session } = useRouteContext({ from: rootRouteId });
-  return session.flash;
+  const { session } = useRouteContext({ from: rootRouteId })
+  return session.flash
 }
 
 export function useRootRouteContext() {
-  return useRouteContext({ from: rootRouteId });
+  return useRouteContext({ from: rootRouteId })
 }
 
 export function useLogout() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const { mutate } = useMutation({
     mutationFn: session.clear.fn,
-    onSuccess: async () => {
-      await queryClient.resetQueries({ queryKey: ["session.get"] });
-      navigate({ to: "/auth/code/send" });
+    onSuccess: () => {
+      queryClient.clear()
+      navigate({ to: "/auth" })
     },
-  });
+  })
 
-  return mutate;
+  return mutate
 }

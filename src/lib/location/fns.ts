@@ -1,17 +1,16 @@
-import { createServerFn } from "@tanstack/react-start";
-
 import {
   AddressType,
   PlaceAutocompleteType,
-} from "@googlemaps/google-maps-services-js";
-import { zodValidator } from "@tanstack/zod-adapter";
+} from "@googlemaps/google-maps-services-js"
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
 
-import { google } from "~/lib/clients/google";
-import { env } from "~/lib/env";
+import { google } from "~/lib/clients/google"
+import { env } from "~/lib/env"
 import {
   placeGoogleMapsSchema,
   searchCitiesGoogleMapsSchema,
-} from "~/lib/location/schemas";
+} from "~/lib/location/schemas"
 
 export const searchCitiesGoogleMapsServerFn = createServerFn({
   method: "POST",
@@ -26,13 +25,13 @@ export const searchCitiesGoogleMapsServerFn = createServerFn({
         types: PlaceAutocompleteType.cities,
       },
       timeout: 5000,
-    });
+    })
 
     return data.predictions.map(({ description, place_id }) => ({
       description,
       placeId: place_id,
-    }));
-  });
+    }))
+  })
 
 export const placeGoogleMapsServerFn = createServerFn({
   method: "POST",
@@ -46,20 +45,20 @@ export const placeGoogleMapsServerFn = createServerFn({
         place_id: input.placeId,
       },
       timeout: 3000,
-    });
+    })
 
-    const { address_components, geometry } = data.result;
+    const { address_components, geometry } = data.result
 
     if (!geometry || !address_components) {
-      throw new Error("Unable to determine geometry, or address_components");
+      throw new Error("Unable to determine geometry, or address_components")
     }
 
     const country = address_components.find((address) =>
       address.types.includes(AddressType.country),
-    );
+    )
 
     if (!country) {
-      throw new Error("Unable to determine country");
+      throw new Error("Unable to determine country")
     }
 
     return {
@@ -68,5 +67,5 @@ export const placeGoogleMapsServerFn = createServerFn({
       label: input.placeName,
       lat: geometry.location.lat,
       lng: geometry.location.lng,
-    };
-  });
+    }
+  })

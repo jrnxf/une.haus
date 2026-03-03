@@ -1,15 +1,16 @@
-import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import { X } from "lucide-react";
-import * as React from "react";
+import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
+import { X } from "lucide-react"
 
-import { buttonVariants } from "~/components/ui/base-button";
-import { cn } from "~/lib/utils";
+import { buttonVariants } from "~/components/ui/base-button"
+import { cn } from "~/lib/utils"
+
+import type * as React from "react"
 
 // Base UI Alert Dialog Root
 function AlertDialog({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
+  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
 }
 
 // Base UI Alert Dialog Trigger
@@ -18,7 +19,7 @@ function AlertDialogTrigger(
 ) {
   return (
     <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />
-  );
+  )
 }
 
 // Base UI Alert Dialog Backdrop
@@ -35,7 +36,7 @@ function AlertDialogBackdrop({
       )}
       {...props}
     />
-  );
+  )
 }
 
 // Base UI Alert Dialog Portal
@@ -44,7 +45,7 @@ function AlertDialogPortal(
 ) {
   return (
     <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props} />
-  );
+  )
 }
 
 // Base UI Alert Dialog Popup
@@ -61,7 +62,7 @@ function AlertDialogPopup({
       )}
       {...props}
     />
-  );
+  )
 }
 
 // Base UI Alert Dialog Content
@@ -72,8 +73,8 @@ function AlertDialogContent({
   showBackdrop = true,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Popup> & {
-  showDismissButton?: boolean;
-  showBackdrop?: boolean;
+  showDismissButton?: boolean
+  showBackdrop?: boolean
 }) {
   return (
     <AlertDialogPortal>
@@ -90,12 +91,12 @@ function AlertDialogContent({
             )}
           >
             <X />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">close</span>
           </AlertDialogPrimitive.Close>
         )}
       </AlertDialogPopup>
     </AlertDialogPortal>
-  );
+  )
 }
 
 // Alert Dialog Header (helper component)
@@ -111,7 +112,7 @@ const AlertDialogHeader = ({
     )}
     {...props}
   />
-);
+)
 
 // Alert Dialog Footer (helper component)
 const AlertDialogFooter = ({
@@ -126,7 +127,7 @@ const AlertDialogFooter = ({
     )}
     {...props}
   />
-);
+)
 
 // Base UI Alert Dialog Title
 function AlertDialogTitle({
@@ -142,7 +143,7 @@ function AlertDialogTitle({
       )}
       {...props}
     />
-  );
+  )
 }
 
 // Base UI Alert Dialog Description
@@ -156,7 +157,7 @@ function AlertDialogDescription({
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
-  );
+  )
 }
 
 // Base UI Alert Dialog Action (generic) with asChild support
@@ -170,7 +171,7 @@ function AlertDialogAction({
       className={cn(!props.render && buttonVariants(), className)}
       {...props}
     />
-  );
+  )
 }
 
 // Base UI Alert Dialog Close (generic close button)
@@ -187,29 +188,29 @@ function AlertDialogClose({
       )}
       {...props}
     />
-  );
+  )
 }
 
 // Reusable Confirmation Dialog Component
 export type ConfirmDialogConfig = {
-  title: string;
-  description?: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "default" | "destructive";
-  onConfirm: () => void;
-};
+  title: string
+  description?: string
+  confirmText?: string
+  cancelText?: string
+  variant?: "default" | "destructive"
+  onConfirm: () => void
+}
 
 type ConfirmDialogProps = ConfirmDialogConfig & {
-  handle: React.ComponentProps<typeof AlertDialogPrimitive.Root>["handle"];
-};
+  handle: React.ComponentProps<typeof AlertDialogPrimitive.Root>["handle"]
+}
 
 function ConfirmDialog({
   handle,
   title,
   description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = "confirm",
+  cancelText = "cancel",
   variant = "default",
   onConfirm,
 }: ConfirmDialogProps) {
@@ -243,7 +244,7 @@ function ConfirmDialog({
         </AlertDialogPopup>
       </AlertDialogPortal>
     </AlertDialogPrimitive.Root>
-  );
+  )
 }
 
 // Exports with proper naming to match Base UI pattern
@@ -260,6 +261,6 @@ export {
   AlertDialogTitle,
   AlertDialogTrigger,
   ConfirmDialog,
-};
+}
 
-export type { ConfirmDialogProps };
+export type { ConfirmDialogProps }

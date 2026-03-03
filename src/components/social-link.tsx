@@ -1,17 +1,17 @@
-import { type IconType } from "@icons-pack/react-simple-icons";
+import { type IconType } from "@icons-pack/react-simple-icons"
 
 export function SocialLink({
   href,
   icon,
 }: {
-  href: null | string;
-  icon: IconType;
+  href: null | string
+  icon: IconType
 }) {
   if (!href) {
-    return null;
+    return null
   }
 
-  const Icon = icon;
+  const Icon = icon
 
   return (
     <a
@@ -21,5 +21,5 @@ export function SocialLink({
     >
       <Icon className="fill-muted-foreground size-4" />
     </a>
-  );
+  )
 }

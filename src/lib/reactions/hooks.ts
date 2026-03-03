@@ -1,38 +1,37 @@
 import {
+  type QueryKey,
   useMutation,
   useQueryClient,
-  type QueryKey,
-} from "@tanstack/react-query";
-import { reactions } from "~/lib/reactions";
+} from "@tanstack/react-query"
+import { toast } from "sonner"
+
+import { invariant } from "~/lib/invariant"
+import { reactions } from "~/lib/reactions"
 import {
-  recordTypeToLabel,
   type RecordWithLikesType,
-} from "~/lib/reactions/schemas";
-
-import { toast } from "sonner";
-
-import { invariant } from "~/lib/invariant";
-import { useSessionUser } from "~/lib/session/hooks";
+  recordTypeToLabel,
+} from "~/lib/reactions/schemas"
+import { useSessionUser } from "~/lib/session/hooks"
 
 type RecordReactionArgs = {
   record: {
-    id: number;
-    type: RecordWithLikesType;
-  };
-  optimisticUpdateQueryKey: QueryKey;
-  refetchQueryKey?: QueryKey;
-};
+    id: number
+    type: RecordWithLikesType
+  }
+  optimisticUpdateQueryKey: QueryKey
+  refetchQueryKey?: QueryKey
+}
 
 export function useLikeUnlikeRecord({
   authUserLiked,
   ...args
 }: RecordReactionArgs & {
-  authUserLiked: boolean;
+  authUserLiked: boolean
 }) {
-  const likeMutation = useLikeRecord(args);
-  const unlikeMutation = useUnlikeRecord(args);
+  const likeMutation = useLikeRecord(args)
+  const unlikeMutation = useUnlikeRecord(args)
 
-  return authUserLiked ? unlikeMutation : likeMutation;
+  return authUserLiked ? unlikeMutation : likeMutation
 }
 
 export function useLikeRecord({
@@ -40,21 +39,21 @@ export function useLikeRecord({
   optimisticUpdateQueryKey,
   refetchQueryKey,
 }: RecordReactionArgs) {
-  const qc = useQueryClient();
-  const sessionUser = useSessionUser();
+  const qc = useQueryClient()
+  const sessionUser = useSessionUser()
 
   const mutation = useMutation({
     mutationFn: reactions.like.fn,
     onMutate: async () => {
-      invariant(sessionUser, "Not authenticated");
-      qc.cancelQueries({ queryKey: optimisticUpdateQueryKey });
+      invariant(sessionUser, "Not authenticated")
+      qc.cancelQueries({ queryKey: optimisticUpdateQueryKey })
 
-      const prev = qc.getQueryData(optimisticUpdateQueryKey);
+      const prev = qc.getQueryData(optimisticUpdateQueryKey)
 
       // TODO COLBY
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: dynamic query data
       qc.setQueryData(optimisticUpdateQueryKey, (prev: any) => {
-        if (!prev) return prev;
+        if (!prev) return prev
 
         // chat message schemas are a little different so they need to be handled differently
         if (
@@ -63,17 +62,14 @@ export function useLikeRecord({
           record.type === "riuSetMessage" ||
           record.type === "riuSubmissionMessage" ||
           record.type === "utvVideoMessage" ||
-          record.type === "utvVideoSuggestionMessage" ||
           record.type === "biuSetMessage" ||
-          record.type === "siuStackMessage" ||
-          record.type === "trickSubmissionMessage" ||
-          record.type === "trickSuggestionMessage"
+          record.type === "siuSetMessage"
         ) {
           return {
             ...prev,
 
             // TODO COLBY
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // biome-ignore lint/suspicious/noExplicitAny: dynamic query data
             messages: prev.messages.map((message: any) => {
               if (message.id === record.id) {
                 return {
@@ -89,11 +85,11 @@ export function useLikeRecord({
                       },
                     },
                   ],
-                };
+                }
               }
-              return message;
+              return message
             }),
-          };
+          }
         }
 
         return {
@@ -109,27 +105,27 @@ export function useLikeRecord({
               },
             },
           ],
-        };
-      });
+        }
+      })
 
-      return { prev };
+      return { prev }
     },
     onError: (error, _variables, context) => {
-      toast.error(`Failed to like ${recordTypeToLabel[record.type]}`);
-      console.error(error);
+      toast.error(`failed to like ${recordTypeToLabel[record.type]}`)
+      console.error(error)
       if (context) {
-        qc.setQueryData(optimisticUpdateQueryKey, context.prev);
+        qc.setQueryData(optimisticUpdateQueryKey, context.prev)
       }
     },
     onSuccess: () => {
       if (refetchQueryKey) {
-        qc.refetchQueries({ queryKey: refetchQueryKey });
+        qc.refetchQueries({ queryKey: refetchQueryKey })
       }
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: optimisticUpdateQueryKey });
+      qc.invalidateQueries({ queryKey: optimisticUpdateQueryKey })
     },
-  });
+  })
 
   return {
     ...mutation,
@@ -139,9 +135,9 @@ export function useLikeRecord({
           recordId: record.id,
           type: record.type,
         },
-      });
+      })
     },
-  };
+  }
 }
 
 export function useUnlikeRecord({
@@ -149,21 +145,21 @@ export function useUnlikeRecord({
   optimisticUpdateQueryKey,
   refetchQueryKey,
 }: RecordReactionArgs) {
-  const qc = useQueryClient();
-  const sessionUser = useSessionUser();
+  const qc = useQueryClient()
+  const sessionUser = useSessionUser()
 
   const mutation = useMutation({
     mutationFn: reactions.unlike.fn,
     onMutate: async () => {
-      invariant(sessionUser, "Not authenticated");
+      invariant(sessionUser, "Not authenticated")
 
-      qc.cancelQueries({ queryKey: optimisticUpdateQueryKey });
+      qc.cancelQueries({ queryKey: optimisticUpdateQueryKey })
 
-      const prev = qc.getQueryData(optimisticUpdateQueryKey);
+      const prev = qc.getQueryData(optimisticUpdateQueryKey)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: dynamic query data
       qc.setQueryData(optimisticUpdateQueryKey, (prev: any) => {
-        if (!prev) return prev;
+        if (!prev) return prev
 
         // chat message schemas are a little different so they need to be handled differently
         if (
@@ -172,63 +168,60 @@ export function useUnlikeRecord({
           record.type === "riuSetMessage" ||
           record.type === "riuSubmissionMessage" ||
           record.type === "utvVideoMessage" ||
-          record.type === "utvVideoSuggestionMessage" ||
           record.type === "biuSetMessage" ||
-          record.type === "siuStackMessage" ||
-          record.type === "trickSubmissionMessage" ||
-          record.type === "trickSuggestionMessage"
+          record.type === "siuSetMessage"
         ) {
           return {
             ...prev,
             // TODO COLBY
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // biome-ignore lint/suspicious/noExplicitAny: dynamic query data
             messages: prev.messages.map((message: any) => {
               if (message.id === record.id) {
                 return {
                   ...message,
                   likes: message.likes.filter(
                     // TODO COLBY
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // biome-ignore lint/suspicious/noExplicitAny: dynamic query data
                     (like: any) => like.user.id !== sessionUser.id,
                   ),
-                };
+                }
               }
-              return message;
+              return message
             }),
-          };
+          }
         }
 
         const likes = prev.likes.filter(
           // TODO COLBY
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // biome-ignore lint/suspicious/noExplicitAny: dynamic query data
           (like: any) => like.userId !== sessionUser.id,
-        );
+        )
         return {
           ...prev,
           likes,
-        };
-      });
+        }
+      })
 
       return {
         prev,
-      };
+      }
     },
     onError: (error, _variables, context) => {
-      toast.error(`Failed to unlike ${recordTypeToLabel[record.type]}`);
-      console.error(error);
+      toast.error(`failed to unlike ${recordTypeToLabel[record.type]}`)
+      console.error(error)
       if (context) {
-        qc.setQueryData(optimisticUpdateQueryKey, context.prev);
+        qc.setQueryData(optimisticUpdateQueryKey, context.prev)
       }
     },
     onSuccess: () => {
       if (refetchQueryKey) {
-        qc.refetchQueries({ queryKey: refetchQueryKey });
+        qc.refetchQueries({ queryKey: refetchQueryKey })
       }
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: optimisticUpdateQueryKey });
+      qc.invalidateQueries({ queryKey: optimisticUpdateQueryKey })
     },
-  });
+  })
 
   return {
     ...mutation,
@@ -238,7 +231,7 @@ export function useUnlikeRecord({
           recordId: record.id,
           type: record.type,
         },
-      });
+      })
     },
-  };
+  }
 }

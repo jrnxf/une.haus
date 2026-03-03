@@ -1,32 +1,39 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useCallback } from "react"
+import { z } from "zod"
 
-import { z } from "zod";
-
-import { users } from "~/lib/users";
-import { MapView } from "~/views/map";
+import { PageHeader } from "~/components/page-header"
+import { seo } from "~/lib/seo"
+import { users } from "~/lib/users"
+import { MapView } from "~/views/map"
 
 const mapSearchSchema = z.object({
   lat: z.number().optional(),
   lng: z.number().optional(),
   z: z.number().optional(),
-});
+})
 
 export const Route = createFileRoute("/map/")({
   validateSearch: mapSearchSchema,
   loader: async ({ context }) => {
     return await context.queryClient.ensureQueryData(
       users.withLocations.queryOptions(),
-    );
+    )
   },
+  head: () =>
+    seo({
+      title: "map",
+      description: "find unicyclists around the world",
+      path: "/map",
+    }),
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const { data } = useSuspenseQuery(users.withLocations.queryOptions());
-  const search = Route.useSearch();
-  const navigate = useNavigate();
+  const { data } = useSuspenseQuery(users.withLocations.queryOptions())
+  const search = Route.useSearch()
+  const navigate = useNavigate()
 
   const handleMapMove = useCallback(
     (center: [number, number], zoom: number) => {
@@ -38,21 +45,32 @@ function RouteComponent() {
           z: Math.round(zoom * 10) / 10,
         },
         replace: true,
-      });
+      })
     },
     [navigate],
-  );
+  )
 
   return (
-    <MapView
-      users={data}
-      initialCenter={
-        search.lng !== undefined && search.lat !== undefined
-          ? [search.lng, search.lat]
-          : undefined
-      }
-      initialZoom={search.z}
-      onMapMove={handleMapMove}
-    />
-  );
+    <>
+      <PageHeader>
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>map</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+      <div className="mx-auto flex min-h-0 w-full flex-1 flex-col p-4">
+        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border">
+          <MapView
+            users={data}
+            initialCenter={
+              search.lng !== undefined && search.lat !== undefined
+                ? [search.lng, search.lat]
+                : undefined
+            }
+            initialZoom={search.z}
+            onMapMove={handleMapMove}
+          />
+        </div>
+      </div>
+    </>
+  )
 }

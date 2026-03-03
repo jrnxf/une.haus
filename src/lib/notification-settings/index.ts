@@ -1,10 +1,10 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query"
 
 import {
   getNotificationSettingsServerFn,
   updateNotificationSettingsServerFn,
-} from "~/lib/notification-settings/fns";
-import { updateNotificationSettingsSchema } from "~/lib/notification-settings/schemas";
+} from "~/lib/notification-settings/fns"
+import { updateNotificationSettingsSchema } from "~/lib/notification-settings/schemas"
 
 export const notificationSettings = {
   get: {
@@ -19,4 +19,4 @@ export const notificationSettings = {
     fn: updateNotificationSettingsServerFn,
     schema: updateNotificationSettingsSchema,
   },
-};
+}

@@ -24,10 +24,9 @@ To switch data sources, change the import in `src/lib/tricks/data.ts`:
   name: string;                  // Display name (e.g., "Hickdoublebackflip")
   alternateNames: string[];      // Common aliases
   categories: string[];          // ["spin"], ["flip"], ["spin", "flip"], ["spin", "flip", "wrap"]
-  definition: string;            // Human-readable description
+  description: string;           // Human-readable description
   prerequisite: string | null;   // Primary progression path (ID of prerequisite trick)
   optionalPrerequisite: string | null; // Secondary skill needed
-  isPrefix: boolean;             // Whether this can prefix other tricks
   notes: string | null;
   relatedTricks: string[];       // IDs of related tricks (ONE degree of separation)
 }

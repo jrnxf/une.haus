@@ -1,42 +1,42 @@
-import { useQuery } from "@tanstack/react-query";
-import { Plus, X } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query"
+import { X } from "lucide-react"
+import { useMemo, useRef, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
 import {
   Command,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from "~/components/ui/command";
-import { type ResolvedRiderEntry } from "~/lib/events/bracket";
-import { users as usersApi } from "~/lib/users";
-import { cn } from "~/lib/utils";
-import { useFzf } from "~/lib/ux/hooks/use-fzf";
+} from "~/components/ui/command"
+import { type ResolvedRiderEntry } from "~/lib/tourney/bracket"
+import { users as usersApi } from "~/lib/users"
+import { cn } from "~/lib/utils"
+import { useFzf } from "~/lib/ux/hooks/use-fzf"
 
-export type RiderEntry = ResolvedRiderEntry;
+export type RiderEntry = ResolvedRiderEntry
 
 type User = {
-  id: number;
-  name: string;
-  avatarId: string | null;
-};
+  id: number
+  name: string
+  avatarId: string | null
+}
 
 export function SingleRiderSelector({
   value,
   onChange,
-  placeholder = "Search users or add a custom name...",
+  placeholder = "rider name",
 }: {
-  value: RiderEntry | null;
-  onChange: (rider: RiderEntry | null) => void;
-  placeholder?: string;
+  value: RiderEntry | null
+  onChange: (rider: RiderEntry | null) => void
+  placeholder?: string
 }) {
-  const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const { data: users = [] } = useQuery(usersApi.all.queryOptions());
+  const { data: users = [] } = useQuery(usersApi.all.queryOptions())
 
   const searchReadyUsers = useMemo(
     () =>
@@ -45,49 +45,46 @@ export function SingleRiderSelector({
         searchKey: user.name.toLowerCase(),
       })),
     [users],
-  );
+  )
 
-  const fzf = useFzf([
-    searchReadyUsers,
-    { selector: (user) => user.searchKey },
-  ]);
-  const filteredUsers = query ? fzf.find(query.toLowerCase()) : [];
+  const fzf = useFzf([searchReadyUsers, { selector: (user) => user.searchKey }])
+  const filteredUsers = query ? fzf.find(query.toLowerCase()) : []
 
   // Get user data for selected rider
   const selectedUser = useMemo(() => {
-    if (!value?.userId) return null;
-    return users.find((u) => u.id === value.userId) ?? null;
-  }, [value, users]);
+    if (!value?.userId) return null
+    return users.find((u) => u.id === value.userId) ?? null
+  }, [value, users])
 
   const handleSelectUser = (user: User) => {
-    onChange({ userId: user.id, name: user.name });
-    setQuery("");
-  };
+    onChange({ userId: user.id, name: user.name })
+    setQuery("")
+  }
 
   const handleAddCustom = () => {
-    const trimmed = query.trim();
-    if (!trimmed) return;
+    const trimmed = query.trim()
+    if (!trimmed) return
     // Check if it matches an existing user exactly - select them instead
     const exactMatch = users.find(
       (u) => u.name.toLowerCase() === trimmed.toLowerCase(),
-    );
+    )
     if (exactMatch) {
-      onChange({ userId: exactMatch.id, name: exactMatch.name });
+      onChange({ userId: exactMatch.id, name: exactMatch.name })
     } else {
-      onChange({ userId: null, name: trimmed });
+      onChange({ userId: null, name: trimmed })
     }
-    setQuery("");
-  };
+    setQuery("")
+  }
 
   const handleClear = () => {
-    onChange(null);
-    inputRef.current?.focus();
-  };
+    onChange(null)
+    inputRef.current?.focus()
+  }
 
-  const trimmedQuery = query.trim();
-  const showAddCustom = trimmedQuery.length > 0;
-  const hasDropdownItems = query && (filteredUsers.length > 0 || showAddCustom);
-  const displayName = selectedUser?.name ?? value?.name ?? null;
+  const trimmedQuery = query.trim()
+  const showAddCustom = trimmedQuery.length > 0
+  const hasDropdownItems = query && (filteredUsers.length > 0 || showAddCustom)
+  const displayName = selectedUser?.name ?? value?.name ?? null
 
   return (
     <div className="space-y-2">
@@ -115,8 +112,8 @@ export function SingleRiderSelector({
                   trimmedQuery &&
                   filteredUsers.length === 0
                 ) {
-                  e.preventDefault();
-                  handleAddCustom();
+                  e.preventDefault()
+                  handleAddCustom()
                 }
               }}
             />
@@ -149,9 +146,8 @@ export function SingleRiderSelector({
                       onSelect={handleAddCustom}
                       className="text-muted-foreground"
                     >
-                      <Plus className="size-4" />
                       <span>
-                        Add "
+                        "
                         <span className="text-foreground font-medium">
                           {trimmedQuery}
                         </span>
@@ -167,7 +163,7 @@ export function SingleRiderSelector({
       )}
 
       {displayName && (
-        <div className="bg-muted/50 flex h-9 items-center gap-2 rounded-md border px-2">
+        <div className="bg-muted/70 flex h-9 items-center gap-2 rounded-md border px-2">
           {selectedUser ? (
             <Avatar
               className="size-5"
@@ -198,5 +194,5 @@ export function SingleRiderSelector({
         </div>
       )}
     </div>
-  );
+  )
 }

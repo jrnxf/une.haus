@@ -1,15 +1,16 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Link, useNavigate } from "@tanstack/react-router"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { type z } from "zod"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { type z } from "zod";
-
-import { BadgeInput } from "~/components/input/badge-input";
-import { ImageInput } from "~/components/input/image-input";
-import { LocationSelector } from "~/components/input/location-selector";
-import { Button } from "~/components/ui/button";
+import { BadgeInput } from "~/components/input/badge-input"
+import { ImageInput } from "~/components/input/image-input"
+import { LocationSelector } from "~/components/input/location-selector"
+import { MentionTextarea } from "~/components/input/mention-textarea"
+import { Button } from "~/components/ui/button"
+import { ButtonGroup } from "~/components/ui/button-group"
 import {
   Form,
   FormControl,
@@ -18,20 +19,19 @@ import {
   FormLabel,
   FormMessage,
   FormSubmitButton,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import { USER_DISCIPLINES } from "~/db/schema";
-import { session } from "~/lib/session";
-import { users } from "~/lib/users";
+} from "~/components/ui/form"
+import { Input } from "~/components/ui/input"
+import { USER_DISCIPLINES } from "~/db/schema"
+import { session } from "~/lib/session"
+import { users } from "~/lib/users"
 
 export function UserForm({
   user,
 }: {
-  user?: z.infer<typeof users.update.schema> & { id?: number };
+  user?: z.infer<typeof users.update.schema> & { id?: number }
 }) {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
+  const navigate = useNavigate()
+  const qc = useQueryClient()
 
   const updateUser = useMutation({
     mutationFn: users.update.fn,
@@ -39,37 +39,40 @@ export function UserForm({
       if (user?.id) {
         qc.removeQueries({
           queryKey: users.get.queryOptions({ userId: user.id }).queryKey,
-        });
+        })
       }
+      qc.removeQueries({
+        queryKey: [users.list.infiniteQueryOptions({}).queryKey[0]],
+      })
       // Reset session so sidebar user info updates
-      await qc.resetQueries({ queryKey: session.get.queryOptions().queryKey });
-      toast.success("Profile updated");
+      await qc.resetQueries({ queryKey: session.get.queryOptions().queryKey })
+      toast.success("profile updated")
 
-      navigate({ to: "/auth/me" });
+      navigate({ to: "/auth/me" })
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(error.message)
     },
-  });
+  })
 
   const rhf = useForm<z.infer<typeof users.update.schema>>({
     defaultValues: user,
     resolver: zodResolver(users.update.schema),
-  });
+  })
 
-  const { control, handleSubmit } = rhf;
+  const { control, handleSubmit } = rhf
 
   return (
     <Form
       rhf={rhf}
-      className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-8"
+      className="mx-auto flex w-full flex-col gap-4"
       id="main-content"
       method="post"
       onSubmit={(event) => {
-        event.preventDefault();
+        event.preventDefault()
         handleSubmit((data) => {
-          updateUser.mutate({ data });
-        })(event);
+          updateUser.mutate({ data })
+        })(event)
       }}
     >
       <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
@@ -78,7 +81,7 @@ export function UserForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>name</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -92,7 +95,7 @@ export function UserForm({
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>location</FormLabel>
               <FormControl>
                 <LocationSelector
                   onUpdate={field.onChange}
@@ -110,9 +113,12 @@ export function UserForm({
         name="bio"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Bio</FormLabel>
+            <FormLabel>bio</FormLabel>
             <FormControl>
-              <Textarea {...field} />
+              <MentionTextarea
+                value={field.value ?? ""}
+                onChange={field.onChange}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -124,7 +130,7 @@ export function UserForm({
         name="disciplines"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Disciplines</FormLabel>
+            <FormLabel>disciplines</FormLabel>
             <FormControl>
               <BadgeInput
                 defaultSelections={field.value}
@@ -143,7 +149,7 @@ export function UserForm({
           name="socials.facebook"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Facebook</FormLabel>
+              <FormLabel>facebook</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -157,7 +163,7 @@ export function UserForm({
           name="socials.tiktok"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>TikTok</FormLabel>
+              <FormLabel>tiktok</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -171,7 +177,7 @@ export function UserForm({
           name="socials.twitter"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Twitter</FormLabel>
+              <FormLabel>twitter</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -185,7 +191,7 @@ export function UserForm({
           name="socials.youtube"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>YouTube</FormLabel>
+              <FormLabel>youtube</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -199,7 +205,7 @@ export function UserForm({
           name="socials.instagram"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Instagram</FormLabel>
+              <FormLabel>instagram</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -213,7 +219,7 @@ export function UserForm({
           name="socials.spotify"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Spotify</FormLabel>
+              <FormLabel>spotify</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -229,27 +235,29 @@ export function UserForm({
         render={({ field }) => {
           return (
             <FormItem>
-              <FormLabel>Avatar</FormLabel>
+              <FormLabel>avatar</FormLabel>
               <ImageInput
                 previewClassNames="rounded-md size-86"
                 value={field.value}
                 onChange={(data) => {
                   field.onChange(
                     data ? { type: "image", value: data } : undefined,
-                  );
+                  )
                 }}
               />
             </FormItem>
-          );
+          )
         }}
       />
 
-      <div className="flex justify-end gap-2">
-        <Button asChild variant="secondary">
-          <Link to="/auth/me">Cancel</Link>
-        </Button>
+      <ButtonGroup className="ml-auto">
+        <ButtonGroup>
+          <Button asChild variant="secondary">
+            <Link to="/auth/me">cancel</Link>
+          </Button>
+        </ButtonGroup>
         <FormSubmitButton busy={updateUser.isPending} />
-      </div>
+      </ButtonGroup>
     </Form>
-  );
+  )
 }

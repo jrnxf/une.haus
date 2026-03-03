@@ -1,6 +1,6 @@
-import { defineTask } from "nitro/task";
+import { defineTask } from "nitro/task"
 
-import { TASK_NAMES } from "~/lib/tasks/constants";
+import { TASK_NAMES } from "~/lib/tasks/constants"
 
 export default defineTask({
   meta: {
@@ -8,8 +8,8 @@ export default defineTask({
     description: "Heartbeat task that logs the current time every minute",
   },
   run() {
-    const now = new Date().toISOString();
-    console.log(`[heartbeat] ${now}`);
-    return { result: { timestamp: now } };
+    const now = new Date().toISOString()
+    console.log(`[heartbeat] ${now}`)
+    return { result: { timestamp: now } }
   },
-});
+})

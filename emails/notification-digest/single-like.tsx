@@ -1,4 +1,4 @@
-import NotificationDigestTemplate from "../notification-digest";
+import NotificationDigestTemplate from "../notification-digest"
 
 export default function SingleLike() {
   return (
@@ -15,5 +15,5 @@ export default function SingleLike() {
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
       viewNotificationsUrl="https://une.haus/notifications"
     />
-  );
+  )
 }

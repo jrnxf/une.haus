@@ -1,22 +1,24 @@
-import { useEffect } from "react";
+import { useEffect } from "react"
+import { Toaster as Sonner, toast } from "sonner"
 
-import { Toaster as Sonner, toast } from "sonner";
+import { useIsMobile } from "~/hooks/use-mobile"
+import { useSessionFlash } from "~/lib/session/hooks"
+import { useTheme } from "~/lib/theme/context"
 
-import { useSessionFlash } from "~/lib/session/hooks";
-import { useTheme } from "~/lib/theme/context";
-
-type ToasterProperties = React.ComponentProps<typeof Sonner>;
+type ToasterProperties = React.ComponentProps<typeof Sonner>
 
 export function Toaster(properties: ToasterProperties) {
-  const { theme } = useTheme();
+  const { theme } = useTheme()
+  const isMobile = useIsMobile()
 
-  useFlashToaster();
+  useFlashToaster()
 
   return (
     <Sonner
       className="toaster group"
-      position="top-center"
+      position={isMobile ? "bottom-center" : "bottom-right"}
       theme={theme as ToasterProperties["theme"]}
+      closeButton
       toastOptions={{
         classNames: {
           actionButton:
@@ -26,22 +28,30 @@ export function Toaster(properties: ToasterProperties) {
           description: "group-[.toast]:text-muted-foreground",
           toast:
             "group font-mono whitespace-pre-wrap toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+          success:
+            "group-[.toaster]:!bg-success-bg group-[.toaster]:!text-success group-[.toaster]:!border-success-border",
+          error:
+            "group-[.toaster]:!bg-destructive-bg group-[.toaster]:!text-destructive group-[.toaster]:!border-destructive-border",
+          info: "group-[.toaster]:!bg-info-bg group-[.toaster]:!text-info group-[.toaster]:!border-info-border",
+          warning:
+            "group-[.toaster]:!bg-warning-bg group-[.toaster]:!text-warning group-[.toaster]:!border-warning-border",
+          closeButton: "group-[.toast]:!border-0",
         },
       }}
       {...properties}
     />
-  );
+  )
 }
 
 function useFlashToaster() {
-  const sessionFlash = useSessionFlash();
+  const sessionFlash = useSessionFlash()
 
   useEffect(() => {
     if (sessionFlash) {
       requestAnimationFrame(() => {
         // ensures the toast has a proper transition in
-        toast(sessionFlash);
-      });
+        toast(sessionFlash)
+      })
     }
-  }, [sessionFlash]);
+  }, [sessionFlash])
 }

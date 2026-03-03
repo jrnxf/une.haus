@@ -1,21 +1,27 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, countDistinct, desc, eq, ilike, lt, or, sql } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, countDistinct, desc, eq, ilike, lt, or, sql } from "drizzle-orm";
-
-import { db } from "~/db";
-import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema";
-import { PAGE_SIZE } from "~/lib/constants";
-import { invariant } from "~/lib/invariant";
-import { authMiddleware } from "~/lib/middleware";
-import { notifyFollowers } from "~/lib/notifications/helpers";
+import { db } from "~/db"
+import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema"
+import { PAGE_SIZE } from "~/lib/constants"
+import { invariant } from "~/lib/invariant"
+import {
+  extractMentionedUserIds,
+  stripMentionTokensPlain,
+} from "~/lib/mentions/parse"
+import { authMiddleware } from "~/lib/middleware"
+import {
+  createNotification,
+  notifyFollowers,
+} from "~/lib/notifications/helpers"
 import {
   createPostSchema,
   deletePostSchema,
   getPostSchema,
   listPostsSchema,
   updatePostSchema,
-} from "~/lib/posts/schemas";
+} from "~/lib/posts/schemas"
 
 export const listPostsServerFn = createServerFn({
   method: "GET",
@@ -66,10 +72,10 @@ export const listPostsServerFn = createServerFn({
         ),
       )
       .orderBy(desc(posts.id))
-      .limit(PAGE_SIZE);
+      .limit(PAGE_SIZE)
 
-    return data;
-  });
+    return data
+  })
 
 export const getPostServerFn = createServerFn({
   method: "GET",
@@ -121,12 +127,12 @@ export const getPostServerFn = createServerFn({
         },
         video: true,
       },
-    });
+    })
 
-    invariant(post, "Post not found");
+    invariant(post, "Post not found")
 
-    return post;
-  });
+    return post
+  })
 
 export const createPostServerFn = createServerFn({
   method: "POST",
@@ -134,9 +140,9 @@ export const createPostServerFn = createServerFn({
   .inputValidator(zodValidator(createPostSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const { media, ...rest } = input;
+    const { media, ...rest } = input
 
     const x = {
       ...rest,
@@ -144,11 +150,11 @@ export const createPostServerFn = createServerFn({
       muxAssetId: media && media.type === "video" ? media.value : null,
       youtubeVideoId: media && media.type === "youtube" ? media.value : null,
       userId,
-    };
+    }
 
-    const [post] = await db.insert(posts).values(x).returning();
+    const [post] = await db.insert(posts).values(x).returning()
 
-    invariant(post, "Failed to create post");
+    invariant(post, "Failed to create post")
 
     // Notify followers about the new post
     notifyFollowers({
@@ -159,10 +165,29 @@ export const createPostServerFn = createServerFn({
       entityType: "post",
       entityId: post.id,
       entityTitle: post.title,
-    }).catch(console.error);
+    }).catch(console.error)
 
-    return post;
-  });
+    // Notify @mentioned users in the post content
+    const mentionedUserIds = extractMentionedUserIds(input.content)
+    const preview = stripMentionTokensPlain(input.content).slice(0, 100)
+    for (const mentionedUserId of mentionedUserIds) {
+      if (mentionedUserId === userId) continue
+      createNotification({
+        userId: mentionedUserId,
+        actorId: userId,
+        type: "mention",
+        entityType: "post",
+        entityId: post.id,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityPreview: preview,
+        },
+      }).catch(console.error)
+    }
+
+    return post
+  })
 
 export const updatePostServerFn = createServerFn({
   method: "POST",
@@ -170,24 +195,24 @@ export const updatePostServerFn = createServerFn({
   .inputValidator(zodValidator(updatePostSchema))
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
-    const userId = context.user.id;
-    const { postId, ...updateData } = data;
+    const userId = context.user.id
+    const { postId, ...updateData } = data
 
     const existing = await db.query.posts.findFirst({
       where: eq(posts.id, postId),
-    });
+    })
 
-    invariant(existing, "Post not found");
-    invariant(existing.userId === userId, "Access denied");
+    invariant(existing, "Post not found")
+    invariant(existing.userId === userId, "Access denied")
 
     const [post] = await db
       .update(posts)
       .set({ ...updateData, userId })
       .where(eq(posts.id, postId))
-      .returning();
+      .returning()
 
-    return post;
-  });
+    return post
+  })
 
 export const deletePostServerFn = createServerFn({
   method: "POST",
@@ -195,18 +220,18 @@ export const deletePostServerFn = createServerFn({
   .inputValidator(zodValidator(deletePostSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: postId, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
     const post = await db.query.posts.findFirst({
       where: eq(posts.id, postId),
-    });
+    })
 
-    invariant(post, "Post not found");
-    invariant(post.userId === userId, "Access denied");
+    invariant(post, "Post not found")
+    invariant(post.userId === userId, "Access denied")
 
     const [deletedPost] = await db
       .delete(posts)
       .where(eq(posts.id, postId))
-      .returning();
+      .returning()
 
-    return deletedPost;
-  });
+    return deletedPost
+  })

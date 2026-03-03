@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from "zod"
 
-import { USER_DISCIPLINES } from "~/db/schema";
+import { USER_DISCIPLINES } from "~/db/schema"
 
 /** Parses comma-separated string or array into array */
 const commaArrayOf = <T extends string>(enumValues: readonly [T, ...T[]]) =>
@@ -8,13 +8,12 @@ const commaArrayOf = <T extends string>(enumValues: readonly [T, ...T[]]) =>
     .union([z.string(), z.array(z.string())])
     .optional()
     .transform((val) => {
-      if (!val) return undefined;
-      const arr =
-        typeof val === "string" ? val.split(",").filter(Boolean) : val;
+      if (!val) return undefined
+      const arr = typeof val === "string" ? val.split(",").filter(Boolean) : val
       // Validate against enum
-      const parsed = z.array(z.enum(enumValues)).safeParse(arr);
-      return parsed.success ? parsed.data : undefined;
-    });
+      const parsed = z.array(z.enum(enumValues)).safeParse(arr)
+      return parsed.success ? parsed.data : undefined
+    })
 
 export const listUsersSchema = z.object({
   cursor: z.number().nullish(),
@@ -22,25 +21,24 @@ export const listUsersSchema = z.object({
   name: z.string().optional(),
 
   // it thinks this is a promise .catch lol
-  // eslint-disable-next-line unicorn/prefer-top-level-await
   id: z.number().optional().catch(undefined),
-});
+})
 
 export const getUserSchema = z.object({
   userId: z.coerce.number(),
-});
+})
 
 export const getUserFollowsSchema = z.object({
   userId: z.coerce.number(),
-});
+})
 
 export const followUserSchema = z.object({
   userId: z.coerce.number(),
-});
+})
 
 export const unfollowUserSchema = z.object({
   userId: z.coerce.number(),
-});
+})
 
 export const updateUserSchema = z.object({
   avatarId: z.string().nullable(),
@@ -69,9 +67,9 @@ export const updateUserSchema = z.object({
     })
     .optional()
     .nullable(),
-});
+})
 
-export type UpdateUserArgs = z.infer<typeof updateUserSchema>;
+export type UpdateUserArgs = z.infer<typeof updateUserSchema>
 
 export const ACTIVITY_TYPES = [
   "post",
@@ -83,10 +81,10 @@ export const ACTIVITY_TYPES = [
   "trickSuggestion",
   "trickVideo",
   "utvVideoSuggestion",
-  "siuStack",
-] as const;
+  "siuSet",
+] as const
 
-export type ActivityTypeFilter = (typeof ACTIVITY_TYPES)[number];
+export type ActivityTypeFilter = (typeof ACTIVITY_TYPES)[number]
 
 export const getUserActivitySchema = z.object({
   userId: z.coerce.number(),
@@ -96,8 +94,8 @@ export const getUserActivitySchema = z.object({
   all: z.boolean().optional(),
   /** Filter to a specific activity type */
   type: z.enum(ACTIVITY_TYPES).optional(),
-});
+})
 
 export const setShopNotifySchema = z.object({
   notify: z.boolean(),
-});
+})

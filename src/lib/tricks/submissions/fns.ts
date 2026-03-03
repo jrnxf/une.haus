@@ -1,22 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, desc, eq, lt } from "drizzle-orm";
-
-import { db } from "~/db";
-import {
-  trickElementAssignments,
-  trickElements,
-  trickRelationships,
-  tricks,
-  trickSubmissionRelationships,
-  trickSubmissions,
-  trickSuggestions,
-  type TrickSuggestionDiff,
-} from "~/db/schema";
-import { invariant } from "~/lib/invariant";
-import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware";
-import { createNotification } from "~/lib/notifications/helpers";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, desc, eq, lt } from "drizzle-orm"
 
 import {
   createSubmissionSchema,
@@ -27,7 +11,21 @@ import {
   listSuggestionsSchema,
   reviewSubmissionSchema,
   reviewSuggestionSchema,
-} from "./schemas";
+} from "./schemas"
+import { db } from "~/db"
+import {
+  type TrickSuggestionDiff,
+  trickElementAssignments,
+  trickElements,
+  trickRelationships,
+  trickSubmissionRelationships,
+  trickSubmissions,
+  trickSuggestions,
+  tricks,
+} from "~/db/schema"
+import { invariant } from "~/lib/invariant"
+import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware"
+import { createNotification } from "~/lib/notifications/helpers"
 
 // ==================== SUBMISSIONS ====================
 
@@ -36,7 +34,7 @@ export const listSubmissionsServerFn = createServerFn({
 })
   .inputValidator(zodValidator(listSubmissionsSchema))
   .handler(async ({ data: input }) => {
-    const limit = input?.limit ?? 20;
+    const limit = input?.limit ?? 20
 
     const submissions = await db.query.trickSubmissions.findMany({
       where: and(
@@ -67,36 +65,13 @@ export const listSubmissionsServerFn = createServerFn({
             },
           },
         },
-        likes: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-          },
-        },
-        messages: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-          },
-          orderBy: [desc(trickSubmissions.createdAt)],
-        },
       },
       orderBy: [desc(trickSubmissions.createdAt)],
       limit,
-    });
+    })
 
-    return submissions;
-  });
+    return submissions
+  })
 
 export const getSubmissionServerFn = createServerFn({
   method: "GET",
@@ -136,45 +111,11 @@ export const getSubmissionServerFn = createServerFn({
             },
           },
         },
-        likes: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-          },
-        },
-        messages: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-            likes: {
-              with: {
-                user: {
-                  columns: {
-                    id: true,
-                    name: true,
-                    avatarId: true,
-                  },
-                },
-              },
-            },
-          },
-          orderBy: [asc(trickSubmissions.createdAt)],
-        },
       },
-    });
+    })
 
-    return submission ?? null;
-  });
+    return submission ?? null
+  })
 
 export const createSubmissionServerFn = createServerFn({
   method: "POST",
@@ -182,7 +123,7 @@ export const createSubmissionServerFn = createServerFn({
   .inputValidator(zodValidator(createSubmissionSchema))
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
-    const { relationships, ...submissionData } = data;
+    const { relationships, ...submissionData } = data
 
     // Insert submission
     const [submission] = await db
@@ -191,9 +132,9 @@ export const createSubmissionServerFn = createServerFn({
         ...submissionData,
         submittedByUserId: context.user.id,
       })
-      .returning();
+      .returning()
 
-    invariant(submission, "Failed to create submission");
+    invariant(submission, "Failed to create submission")
 
     // Insert relationships
     if (relationships.length > 0) {
@@ -203,11 +144,11 @@ export const createSubmissionServerFn = createServerFn({
           targetTrickId: rel.targetTrickId,
           type: rel.type,
         })),
-      );
+      )
     }
 
-    return submission;
-  });
+    return submission
+  })
 
 export const reviewSubmissionServerFn = createServerFn({
   method: "POST",
@@ -215,7 +156,7 @@ export const reviewSubmissionServerFn = createServerFn({
   .inputValidator(zodValidator(reviewSubmissionSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data, context }) => {
-    const { id, status, reviewNotes } = data;
+    const { id, status, reviewNotes } = data
 
     // Get the submission
     const submission = await db.query.trickSubmissions.findFirst({
@@ -224,10 +165,10 @@ export const reviewSubmissionServerFn = createServerFn({
         elementAssignments: true,
         relationships: true,
       },
-    });
+    })
 
-    invariant(submission, "Submission not found");
-    invariant(submission.status === "pending", "Submission already reviewed");
+    invariant(submission, "Submission not found")
+    invariant(submission.status === "pending", "Submission already reviewed")
 
     // If approved, create the trick
     if (status === "approved") {
@@ -238,15 +179,14 @@ export const reviewSubmissionServerFn = createServerFn({
           slug: submission.slug,
           name: submission.name,
           alternateNames: submission.alternateNames,
-          definition: submission.definition,
-          isPrefix: submission.isPrefix,
+          description: submission.description,
           inventedBy: submission.inventedBy,
           yearLanded: submission.yearLanded,
           notes: submission.notes,
         })
-        .returning();
+        .returning()
 
-      invariant(trick, "Failed to create trick from submission");
+      invariant(trick, "Failed to create trick from submission")
 
       // Copy element assignments
       if (submission.elementAssignments.length > 0) {
@@ -255,7 +195,7 @@ export const reviewSubmissionServerFn = createServerFn({
             trickId: trick.id,
             elementId: a.elementId,
           })),
-        );
+        )
       }
 
       // Copy relationships
@@ -266,7 +206,7 @@ export const reviewSubmissionServerFn = createServerFn({
             targetTrickId: r.targetTrickId,
             type: r.type,
           })),
-        );
+        )
       }
     }
 
@@ -280,7 +220,7 @@ export const reviewSubmissionServerFn = createServerFn({
         reviewNotes,
       })
       .where(eq(trickSubmissions.id, id))
-      .returning();
+      .returning()
 
     // Notify the user who submitted
     await createNotification({
@@ -293,12 +233,13 @@ export const reviewSubmissionServerFn = createServerFn({
         actorName: context.user.name,
         actorAvatarId: context.user.avatarId,
         entityTitle: status,
+        entityPreview: reviewNotes,
         trickSlug: status === "approved" ? submission.slug : undefined,
       },
-    });
+    })
 
-    return updatedSubmission;
-  });
+    return updatedSubmission
+  })
 
 // ==================== SUGGESTIONS ====================
 
@@ -307,7 +248,7 @@ export const listSuggestionsServerFn = createServerFn({
 })
   .inputValidator(zodValidator(listSuggestionsSchema))
   .handler(async ({ data: input }) => {
-    const limit = input?.limit ?? 20;
+    const limit = input?.limit ?? 20
 
     const suggestions = await db.query.trickSuggestions.findMany({
       where: and(
@@ -323,6 +264,24 @@ export const listSuggestionsServerFn = createServerFn({
             id: true,
             slug: true,
             name: true,
+            alternateNames: true,
+            description: true,
+            inventedBy: true,
+            yearLanded: true,
+            notes: true,
+          },
+          with: {
+            elementAssignments: {
+              with: {
+                element: { columns: { slug: true } },
+              },
+            },
+            outgoingRelationships: {
+              columns: { type: true },
+              with: {
+                targetTrick: { columns: { slug: true } },
+              },
+            },
           },
         },
         submittedBy: {
@@ -332,36 +291,13 @@ export const listSuggestionsServerFn = createServerFn({
             avatarId: true,
           },
         },
-        likes: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-          },
-        },
-        messages: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-          },
-          orderBy: [desc(trickSuggestions.createdAt)],
-        },
       },
       orderBy: [desc(trickSuggestions.createdAt)],
       limit,
-    });
+    })
 
-    return suggestions;
-  });
+    return suggestions
+  })
 
 export const getSuggestionServerFn = createServerFn({
   method: "GET",
@@ -394,45 +330,11 @@ export const getSuggestionServerFn = createServerFn({
             avatarId: true,
           },
         },
-        likes: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-          },
-        },
-        messages: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                name: true,
-                avatarId: true,
-              },
-            },
-            likes: {
-              with: {
-                user: {
-                  columns: {
-                    id: true,
-                    name: true,
-                    avatarId: true,
-                  },
-                },
-              },
-            },
-          },
-          orderBy: [asc(trickSuggestions.createdAt)],
-        },
       },
-    });
+    })
 
-    return suggestion ?? null;
-  });
+    return suggestion ?? null
+  })
 
 export const createSuggestionServerFn = createServerFn({
   method: "POST",
@@ -443,9 +345,9 @@ export const createSuggestionServerFn = createServerFn({
     // Verify trick exists
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.id, data.trickId),
-    });
+    })
 
-    invariant(trick, "Trick not found");
+    invariant(trick, "Trick not found")
 
     const [suggestion] = await db
       .insert(trickSuggestions)
@@ -455,11 +357,11 @@ export const createSuggestionServerFn = createServerFn({
         reason: data.reason,
         submittedByUserId: context.user.id,
       })
-      .returning();
+      .returning()
 
-    invariant(suggestion, "Failed to create suggestion");
-    return suggestion;
-  });
+    invariant(suggestion, "Failed to create suggestion")
+    return suggestion
+  })
 
 export const reviewSuggestionServerFn = createServerFn({
   method: "POST",
@@ -467,56 +369,56 @@ export const reviewSuggestionServerFn = createServerFn({
   .inputValidator(zodValidator(reviewSuggestionSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data, context }) => {
-    const { id, status, reviewNotes } = data;
+    const { id, status, reviewNotes } = data
 
     // Get the suggestion
     const suggestion = await db.query.trickSuggestions.findFirst({
       where: eq(trickSuggestions.id, id),
-    });
+    })
 
-    invariant(suggestion, "Suggestion not found");
-    invariant(suggestion.status === "pending", "Suggestion already reviewed");
+    invariant(suggestion, "Suggestion not found")
+    invariant(suggestion.status === "pending", "Suggestion already reviewed")
 
     // If approved, apply the diff
     if (status === "approved") {
-      const diff = suggestion.diff;
+      const diff = suggestion.diff
       const updateData: Record<string, unknown> = {
         updatedAt: new Date(),
-      };
+      }
 
       // Apply simple field changes
-      if (diff.name) updateData.name = diff.name.new;
-      if (diff.alternateNames)
-        updateData.alternateNames = diff.alternateNames.new;
-      if (diff.definition) updateData.definition = diff.definition.new;
-      if (diff.isPrefix !== undefined) updateData.isPrefix = diff.isPrefix.new;
-      if (diff.inventedBy) updateData.inventedBy = diff.inventedBy.new;
-      if (diff.yearLanded) updateData.yearLanded = diff.yearLanded.new;
-      if (diff.notes) updateData.notes = diff.notes.new;
+      if (diff.name !== undefined) updateData.name = diff.name
+      if (diff.alternateNames !== undefined)
+        updateData.alternateNames = diff.alternateNames
+      if (diff.description !== undefined)
+        updateData.description = diff.description
+      if (diff.inventedBy !== undefined) updateData.inventedBy = diff.inventedBy
+      if (diff.yearLanded !== undefined) updateData.yearLanded = diff.yearLanded
+      if (diff.notes !== undefined) updateData.notes = diff.notes
 
       // Update trick
       await db
         .update(tricks)
         .set(updateData)
-        .where(eq(tricks.id, suggestion.trickId));
+        .where(eq(tricks.id, suggestion.trickId))
 
       // Handle element changes
-      if (diff.elements) {
+      if (diff.elements !== undefined) {
         // Delete all and re-insert
         await db
           .delete(trickElementAssignments)
-          .where(eq(trickElementAssignments.trickId, suggestion.trickId));
+          .where(eq(trickElementAssignments.trickId, suggestion.trickId))
 
-        if (diff.elements.new.length > 0) {
+        if (diff.elements.length > 0) {
           const elementResults = await db
             .select({ id: trickElements.id, slug: trickElements.slug })
-            .from(trickElements);
+            .from(trickElements)
 
-          const elementMap = new Map(elementResults.map((e) => [e.slug, e.id]));
+          const elementMap = new Map(elementResults.map((e) => [e.slug, e.id]))
 
-          const validElementIds = diff.elements.new
+          const validElementIds = diff.elements
             .map((slug) => elementMap.get(slug))
-            .filter((id): id is number => id !== undefined);
+            .filter((id): id is number => id !== undefined)
 
           if (validElementIds.length > 0) {
             await db.insert(trickElementAssignments).values(
@@ -524,7 +426,7 @@ export const reviewSuggestionServerFn = createServerFn({
                 trickId: suggestion.trickId,
                 elementId,
               })),
-            );
+            )
           }
         }
       }
@@ -536,7 +438,7 @@ export const reviewSuggestionServerFn = createServerFn({
           for (const rel of diff.relationships.removed) {
             const targetTrick = await db.query.tricks.findFirst({
               where: eq(tricks.slug, rel.targetSlug),
-            });
+            })
 
             if (targetTrick) {
               await db
@@ -546,7 +448,7 @@ export const reviewSuggestionServerFn = createServerFn({
                     eq(trickRelationships.sourceTrickId, suggestion.trickId),
                     eq(trickRelationships.targetTrickId, targetTrick.id),
                   ),
-                );
+                )
             }
           }
         }
@@ -556,7 +458,7 @@ export const reviewSuggestionServerFn = createServerFn({
           for (const rel of diff.relationships.added) {
             const targetTrick = await db.query.tricks.findFirst({
               where: eq(tricks.slug, rel.targetSlug),
-            });
+            })
 
             if (targetTrick) {
               await db.insert(trickRelationships).values({
@@ -566,7 +468,7 @@ export const reviewSuggestionServerFn = createServerFn({
                   | "prerequisite"
                   | "optional_prerequisite"
                   | "related",
-              });
+              })
             }
           }
         }
@@ -583,13 +485,13 @@ export const reviewSuggestionServerFn = createServerFn({
         reviewNotes,
       })
       .where(eq(trickSuggestions.id, id))
-      .returning();
+      .returning()
 
     // Get the trick for navigation
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.id, suggestion.trickId),
       columns: { slug: true },
-    });
+    })
 
     // Notify the user who suggested
     await createNotification({
@@ -602,9 +504,10 @@ export const reviewSuggestionServerFn = createServerFn({
         actorName: context.user.name,
         actorAvatarId: context.user.avatarId,
         entityTitle: status,
+        entityPreview: reviewNotes,
         trickSlug: trick?.slug,
       },
-    });
+    })
 
-    return updatedSuggestion;
-  });
+    return updatedSuggestion
+  })

@@ -2,7 +2,7 @@ import {
   createCloudflareImagesDirectUploadServerFn,
   createPresignedMuxUrlServerFn,
   pollMuxVideoUploadStatusServerFn,
-} from "~/lib/media/fns";
+} from "~/lib/media/fns"
 
 export const media = {
   createCloudflareImagesDirectUpload: {
@@ -16,6 +16,6 @@ export const media = {
   pollMuxVideoUploadStatus: {
     fn: pollMuxVideoUploadStatusServerFn,
   },
-};
+}
 
-export * from "~/lib/media/hooks";
+export * from "~/lib/media/hooks"

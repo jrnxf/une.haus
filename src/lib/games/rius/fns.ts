@@ -1,17 +1,16 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, desc, eq, sql } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, desc, eq, sql } from "drizzle-orm";
-
-import { db } from "~/db";
+import { db } from "~/db"
 import {
   muxVideos,
-  rius,
   riuSets,
   riuSubmissions,
-  users,
+  rius,
   type UserDiscipline,
-} from "~/db/schema";
+  users,
+} from "~/db/schema"
 import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
@@ -21,14 +20,14 @@ import {
   getRiuSetSchema,
   getRiuSubmissionSchema,
   updateRiuSetSchema,
-} from "~/lib/games/rius/schemas";
-import { invariant } from "~/lib/invariant";
+} from "~/lib/games/rius/schemas"
+import { invariant } from "~/lib/invariant"
 import {
   adminOnlyMiddleware,
   authMiddleware,
   authOptionalMiddleware,
-} from "~/lib/middleware";
-import { notifyFollowers } from "~/lib/notifications/helpers";
+} from "~/lib/middleware"
+import { notifyFollowers } from "~/lib/notifications/helpers"
 
 export const getRiuSetServerFn = createServerFn({
   method: "GET",
@@ -99,10 +98,10 @@ export const getRiuSetServerFn = createServerFn({
           },
         },
       },
-    });
+    })
 
-    return set;
-  });
+    return set
+  })
 
 export const createRiuSetServerFn = createServerFn({
   method: "POST",
@@ -110,13 +109,13 @@ export const createRiuSetServerFn = createServerFn({
   .inputValidator(zodValidator(createRiuSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     const upcomingRiu = await db.query.rius.findFirst({
       where: eq(rius.status, "upcoming"),
-    });
+    })
 
-    invariant(upcomingRiu, "No upcoming RIU found");
+    invariant(upcomingRiu, "No upcoming RIU found")
 
     const [riuSet] = await db
       .insert(riuSets)
@@ -126,7 +125,7 @@ export const createRiuSetServerFn = createServerFn({
         riuId: upcomingRiu.id,
         userId,
       })
-      .returning();
+      .returning()
 
     // Notify followers about the new RIU set
     notifyFollowers({
@@ -137,10 +136,10 @@ export const createRiuSetServerFn = createServerFn({
       entityType: "riuSet",
       entityId: riuSet.id,
       entityTitle: riuSet.name,
-    }).catch(console.error);
+    }).catch(console.error)
 
-    return riuSet;
-  });
+    return riuSet
+  })
 
 export const updateRiuSetServerFn = createServerFn({
   method: "POST",
@@ -157,10 +156,10 @@ export const updateRiuSetServerFn = createServerFn({
           eq(riuSets.userId, context.user.id),
         ),
       )
-      .returning();
+      .returning()
 
-    return riuSet;
-  });
+    return riuSet
+  })
 
 export const deleteRiuSetServerFn = createServerFn({
   method: "POST",
@@ -168,23 +167,23 @@ export const deleteRiuSetServerFn = createServerFn({
   .inputValidator(zodValidator(deleteRiuSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     const set = await db.query.riuSets.findFirst({
       where: eq(riuSets.id, input.riuSetId),
-    });
+    })
 
-    invariant(set, "Set not found");
+    invariant(set, "Set not found")
 
-    invariant(set.userId === userId, "Access denied");
+    invariant(set.userId === userId, "Access denied")
 
     const [deletedSet] = await db
       .delete(riuSets)
       .where(eq(riuSets.id, input.riuSetId))
-      .returning();
+      .returning()
 
-    return deletedSet;
-  });
+    return deletedSet
+  })
 
 export const getRiuSubmissionServerFn = createServerFn({
   method: "GET",
@@ -251,10 +250,10 @@ export const getRiuSubmissionServerFn = createServerFn({
           },
         },
       },
-    });
+    })
 
-    return submission;
-  });
+    return submission
+  })
 
 export const deleteRiuSubmissionServerFn = createServerFn({
   method: "POST",
@@ -262,23 +261,23 @@ export const deleteRiuSubmissionServerFn = createServerFn({
   .inputValidator(zodValidator(deleteRiuSubmissionSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     const submission = await db.query.riuSubmissions.findFirst({
       where: eq(riuSubmissions.id, input.submissionId),
-    });
+    })
 
-    invariant(submission, "Submission not found");
+    invariant(submission, "Submission not found")
 
-    invariant(submission.userId === userId, "Access denied");
+    invariant(submission.userId === userId, "Access denied")
 
     const [deletedSubmission] = await db
       .delete(riuSubmissions)
       .where(eq(riuSubmissions.id, input.submissionId))
-      .returning();
+      .returning()
 
-    return deletedSubmission;
-  });
+    return deletedSubmission
+  })
 
 export const createRiuSubmissionServerFn = createServerFn({
   method: "POST",
@@ -286,7 +285,7 @@ export const createRiuSubmissionServerFn = createServerFn({
   .inputValidator(zodValidator(createRiuSubmissionSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     const [riuSet] = await db
       .select({
@@ -298,18 +297,18 @@ export const createRiuSubmissionServerFn = createServerFn({
       })
       .from(riuSets)
       .innerJoin(rius, eq(riuSets.riuId, rius.id))
-      .where(eq(riuSets.id, input.riuSetId));
+      .where(eq(riuSets.id, input.riuSetId))
 
     if (!riuSet) {
-      throw new Error("No RIU set found");
+      throw new Error("No RIU set found")
     }
 
     if (riuSet.riu.status !== "active") {
-      throw new Error("RIU set is not from an active RIU");
+      throw new Error("RIU set is not from an active RIU")
     }
 
     if (riuSet.userId === userId) {
-      throw new Error("You cannot submit to your own set");
+      throw new Error("You cannot submit to your own set")
     }
 
     const [riuSubmission] = await db
@@ -319,10 +318,10 @@ export const createRiuSubmissionServerFn = createServerFn({
         riuSetId: riuSet.id,
         userId,
       })
-      .returning();
+      .returning()
 
-    return riuSubmission;
-  });
+    return riuSubmission
+  })
 
 export const listActiveRiusServerFn = createServerFn({
   method: "GET",
@@ -405,12 +404,12 @@ export const listActiveRiusServerFn = createServerFn({
           },
         },
       },
-    });
+    })
 
-    invariant(activeRius, "No active RIU found");
+    invariant(activeRius, "No active RIU found")
 
-    return activeRius;
-  });
+    return activeRius
+  })
 
 export const getArchivedRiusServerFn = createServerFn({
   method: "GET",
@@ -511,10 +510,10 @@ export const getArchivedRiusServerFn = createServerFn({
           },
         },
       },
-    });
+    })
 
-    return riu;
-  });
+    return riu
+  })
 
 export const listArchivedRiusServerFn = createServerFn({
   method: "GET",
@@ -530,7 +529,7 @@ export const listArchivedRiusServerFn = createServerFn({
     .leftJoin(riuSets, eq(rius.id, riuSets.riuId))
     .where(eq(rius.status, "archived"))
     .groupBy(rius.id, rius.createdAt)
-    .orderBy(desc(rius.createdAt));
+    .orderBy(desc(rius.createdAt))
 
   // Only return RIUs that have at least one set, casting setsCount as a number
   const riusWithSets = archivedRius
@@ -538,10 +537,10 @@ export const listArchivedRiusServerFn = createServerFn({
       ...riu,
       setsCount: Number(riu.setsCount),
     }))
-    .filter((riu) => riu.setsCount > 0);
+    .filter((riu) => riu.setsCount > 0)
 
-  return riusWithSets;
-});
+  return riusWithSets
+})
 
 export const listUpcomingRiuRosterServerFn = createServerFn({
   method: "GET",
@@ -569,43 +568,43 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
       .innerJoin(rius, eq(rius.id, riuSets.riuId))
       .innerJoin(users, eq(riuSets.userId, users.id))
       .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
-      .where(eq(rius.status, "upcoming"));
+      .where(eq(rius.status, "upcoming"))
 
     const map = new Map<
       number,
       {
-        avatarId: null | string;
-        count: number;
-        id: number;
-        name: string;
-        bio: string | null;
-        disciplines: UserDiscipline[] | null;
+        avatarId: null | string
+        count: number
+        id: number
+        name: string
+        bio: string | null
+        disciplines: UserDiscipline[] | null
       }
-    >();
+    >()
 
     for (const set of sets) {
       if (set.user) {
-        const existing = map.get(set.user.id);
+        const existing = map.get(set.user.id)
         if (existing) {
-          existing.count++;
+          existing.count++
         } else {
           map.set(set.user.id, {
             ...set.user,
             count: 1,
-          });
+          })
         }
       }
     }
 
     const isAuthUsersSet = (set: (typeof sets)[number]) => {
-      return context.user && set.user.id === context.user.id;
-    };
+      return context.user && set.user.id === context.user.id
+    }
 
     return {
       authUserSets: context.user ? sets.filter(isAuthUsersSet) : undefined,
       roster: Object.fromEntries(map),
-    };
-  });
+    }
+  })
 
 export const adminOnlyRotateRiusServerFn = createServerFn({
   method: "POST",
@@ -615,20 +614,20 @@ export const adminOnlyRotateRiusServerFn = createServerFn({
     await db
       .update(rius)
       .set({ status: "archived" })
-      .where(eq(rius.status, "active"));
+      .where(eq(rius.status, "active"))
 
-    console.log("moved active rius to archived");
+    console.log("moved active rius to archived")
 
     await db
       .update(rius)
       .set({ status: "active" })
-      .where(eq(rius.status, "upcoming"));
+      .where(eq(rius.status, "upcoming"))
 
-    console.log("moved upcoming riu to active");
+    console.log("moved upcoming riu to active")
 
     await db.insert(rius).values({
       status: "upcoming",
-    });
+    })
 
-    console.log("created new upcoming riu");
-  });
+    console.log("created new upcoming riu")
+  })

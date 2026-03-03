@@ -1,7 +1,7 @@
 export function ScrollBottomProvider({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <>
@@ -11,12 +11,12 @@ export function ScrollBottomProvider({
         dangerouslySetInnerHTML={{ __html: `(${script.toString()})()` }}
       />
     </>
-  );
+  )
 }
 
 function script() {
-  const elements = document.querySelectorAll(".ssr-load-scrolled-to-bottom");
+  const elements = document.querySelectorAll(".ssr-load-scrolled-to-bottom")
   for (const element of elements) {
-    element.scrollTo({ behavior: "instant", top: element.scrollHeight });
+    element.scrollTo({ behavior: "instant", top: element.scrollHeight })
   }
 }

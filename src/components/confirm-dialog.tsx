@@ -1,37 +1,37 @@
-import { AlertDialog } from "@base-ui/react/alert-dialog";
-import * as React from "react";
+import { AlertDialog } from "@base-ui/react/alert-dialog"
+import * as React from "react"
 
 import {
   ConfirmDialog as BaseConfirmDialog,
   type ConfirmDialogConfig,
-} from "~/components/ui/base-alert-dialog";
+} from "~/components/ui/base-alert-dialog"
 
-const internalHandle = AlertDialog.createHandle();
+const internalHandle = AlertDialog.createHandle()
 
-let setConfigFn: ((config: ConfirmDialogConfig) => void) | null = null;
+let setConfigFn: ((config: ConfirmDialogConfig) => void) | null = null
 
 export const confirm = {
   open: (config: ConfirmDialogConfig) => {
-    setConfigFn?.(config);
-    internalHandle.open(null);
+    setConfigFn?.(config)
+    internalHandle.open(null)
   },
   close: () => {
-    internalHandle.close();
+    internalHandle.close()
   },
-};
+}
 
 export function ConfirmDialog() {
   const [config, setConfig] = React.useState<ConfirmDialogConfig>({
-    title: "Confirm",
+    title: "confirm",
     onConfirm: () => {},
-  });
+  })
 
   React.useEffect(() => {
-    setConfigFn = setConfig;
+    setConfigFn = setConfig
     return () => {
-      setConfigFn = null;
-    };
-  }, []);
+      setConfigFn = null
+    }
+  }, [])
 
-  return <BaseConfirmDialog handle={internalHandle} {...config} />;
+  return <BaseConfirmDialog handle={internalHandle} {...config} />
 }

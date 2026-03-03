@@ -1,53 +1,149 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { Bell, ChevronsUpDown, LogOut, UserIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import {
+  Bell,
+  ChevronsUpDown,
+  EyeOff,
+  LogIn,
+  LogOut,
+  MonitorIcon,
+  MoonIcon,
+  PowerIcon,
+  ScrollText,
+  Send,
+  SunIcon,
+  UserIcon,
+} from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
+import { CountChip } from "~/components/ui/count-chip"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from "~/components/ui/dropdown-menu"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "~/components/ui/sidebar";
-import { notifications } from "~/lib/notifications";
-import { useLogout, useSessionUser } from "~/lib/session/hooks";
-import { cn } from "~/lib/utils";
+} from "~/components/ui/sidebar"
+import { notifications } from "~/lib/notifications"
+import { useLogout, useSessionUser } from "~/lib/session/hooks"
+import { useTheme } from "~/lib/theme/context"
+import { cn } from "~/lib/utils"
+
+export function ThemeSubmenu() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>
+        {theme === "dark" ? (
+          <MoonIcon className="size-3.5" />
+        ) : theme === "light" ? (
+          <SunIcon className="size-3.5" />
+        ) : (
+          <MonitorIcon className="size-3.5" />
+        )}
+        theme
+      </DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <MonitorIcon className="size-3.5" />
+          system
+          {theme === "system" && <span className="ml-auto text-xs">✓</span>}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <SunIcon className="size-3.5" />
+          light
+          {theme === "light" && <span className="ml-auto text-xs">✓</span>}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <MoonIcon className="size-3.5" />
+          dark
+          {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
+        </DropdownMenuItem>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  )
+}
 
 export function NavUser() {
-  const { isMobile } = useSidebar();
-  const sessionUser = useSessionUser();
-  const logout = useLogout();
+  const { isMobile } = useSidebar()
+  const sessionUser = useSessionUser()
+  const logout = useLogout()
 
   const { data: unreadCount = 0 } = useQuery({
     ...notifications.unreadCount.queryOptions(),
     enabled: !!sessionUser,
-  });
+  })
 
   if (!sessionUser) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" asChild>
-            <Link to="/auth/code/send">Log in</Link>
-          </SidebarMenuButton>
+          {/* Keyed to force unmount on logout — without this, React reuses the
+              authed DropdownMenu instance (same tree shape), preserving its
+              open state and causing the menu to jump to (0,0). */}
+          <DropdownMenu key="unauthed" modal={!isMobile}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <PowerIcon className="size-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={cn(
+                "min-w-48 rounded-lg",
+                isMobile && "z-(--z-overlay)",
+              )}
+              side={isMobile ? "bottom" : "right"}
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to="/privacy">
+                    <EyeOff className="size-3.5" />
+                    privacy
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/terms">
+                    <ScrollText className="size-3.5" />
+                    terms
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <ThemeSubmenu />
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/auth">
+                  <LogIn className="size-3.5" />
+                  log in
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
-    );
+    )
   }
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu modal={!isMobile}>
+        {/* See "unauthed" key above */}
+        <DropdownMenu key="authed" modal={!isMobile}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -72,9 +168,9 @@ export function NavUser() {
               </div>
               <ChevronsUpDown aria-hidden="true" className="ml-auto size-4" />
               {unreadCount > 0 && (
-                <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-medium">
+                <CountChip className="absolute -top-1 -right-1">
                   {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
+                </CountChip>
               )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -88,58 +184,54 @@ export function NavUser() {
             sideOffset={4}
           >
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar
-                    className="h-8 w-8 rounded-lg"
-                    cloudflareId={sessionUser.avatarId}
-                    alt={sessionUser.name}
-                  >
-                    <AvatarImage width={64} quality={85} />
-                    <AvatarFallback
-                      name={sessionUser.name}
-                      className="rounded-lg"
-                    />
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {sessionUser.name}
-                    </span>
-                    <span className="truncate text-xs">
-                      {sessionUser.email}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
+              <DropdownMenuItem asChild>
+                <Link to="/feedback">
+                  <Send className="size-3.5" />
+                  feedback
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/privacy">
+                  <EyeOff className="size-3.5" />
+                  privacy
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/terms">
+                  <ScrollText className="size-3.5" />
+                  terms
+                </Link>
+              </DropdownMenuItem>
+              <ThemeSubmenu />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
-                  <UserIcon className="size-4" />
-                  Profile
+                  <UserIcon className="size-3.5" />
+                  profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/notifications">
-                  <Bell className="size-4" />
-                  Notifications
+                  <Bell className="size-3.5" />
+                  notifications
                   {unreadCount > 0 && (
-                    <span className="bg-primary text-primary-foreground ml-auto rounded-full px-1.5 py-0.5 text-xs">
+                    <CountChip className="ml-auto">
                       {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
+                    </CountChip>
                   )}
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => logout({})}>
-              <LogOut className="size-4" />
-              Log out
+            <DropdownMenuItem onClick={() => logout({})}>
+              <LogOut className="size-3.5" />
+              log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

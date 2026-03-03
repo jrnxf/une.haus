@@ -1,8 +1,8 @@
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { Check, ChevronsUpDown } from "lucide-react"
+import { useState } from "react"
 
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge"
+import { Button } from "~/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -10,9 +10,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "~/components/ui/command";
-import { ResponsiveCombobox } from "~/components/ui/responsive-combobox";
-import { cn } from "~/lib/utils";
+} from "~/components/ui/command"
+import { ResponsiveCombobox } from "~/components/ui/responsive-combobox"
+import { cn } from "~/lib/utils"
 
 export function MultiSelect<T extends string>({
   buttonLabel,
@@ -20,12 +20,12 @@ export function MultiSelect<T extends string>({
   options,
   selections,
 }: {
-  buttonLabel: string;
-  onOptionCheckedChange: (option: T, checked: boolean) => void;
-  options: readonly T[];
-  selections: T[];
+  buttonLabel: string
+  onOptionCheckedChange: (option: T, checked: boolean) => void
+  options: readonly T[]
+  selections: T[]
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <ResponsiveCombobox
@@ -36,7 +36,7 @@ export function MultiSelect<T extends string>({
         <Button
           className="w-full justify-between"
           role="combobox"
-          size="lg"
+          size="default"
           variant="outline"
         >
           {buttonLabel}
@@ -54,15 +54,15 @@ export function MultiSelect<T extends string>({
       <Command>
         <CommandInput placeholder="Filter..." />
         <CommandList>
-          <CommandEmpty>No results</CommandEmpty>
+          <CommandEmpty>no results</CommandEmpty>
           <CommandGroup>
             {options.map((option) => {
-              const isChecked = selections.includes(option);
+              const isChecked = selections.includes(option)
               return (
                 <CommandItem
                   key={option}
                   onSelect={() => {
-                    onOptionCheckedChange(option, !isChecked);
+                    onOptionCheckedChange(option, !isChecked)
                   }}
                   value={option}
                 >
@@ -74,7 +74,7 @@ export function MultiSelect<T extends string>({
                     )}
                   />
                 </CommandItem>
-              );
+              )
             })}
           </CommandGroup>
         </CommandList>
@@ -82,7 +82,7 @@ export function MultiSelect<T extends string>({
     </ResponsiveCombobox>
     // <DropdownMenu>
     //   <DropdownMenuTrigger asChild>
-    //     <Button size="lg" variant="outline">
+    //     <Button size="default" variant="outline">
     //       {buttonLabel}
 
     //       {selections.length > 0 && (
@@ -107,5 +107,5 @@ export function MultiSelect<T extends string>({
     //     ))}
     //   </DropdownMenuContent>
     // </DropdownMenu>
-  );
+  )
 }

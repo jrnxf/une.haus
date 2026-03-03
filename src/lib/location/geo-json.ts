@@ -1,47 +1,47 @@
-import { type UsersWithLocationsData } from "~/lib/users";
+import { type UsersWithLocationsData } from "~/lib/users"
 
-type UserWithLocation = UsersWithLocationsData[number];
+type UserWithLocation = UsersWithLocationsData[number]
 
 type UserProperties = {
-  id: number;
-  name: string;
-  avatarId: string | null;
-  label: string;
-  countryCode: string | null;
-};
+  id: number
+  name: string
+  avatarId: string | null
+  label: string
+  countryCode: string | null
+}
 
 type LocationFeatureProperties = {
-  users: UserProperties[];
-  count: number;
-  label: string;
-};
+  users: UserProperties[]
+  count: number
+  label: string
+}
 
 export type LocationGeoJSON = GeoJSON.FeatureCollection<
   GeoJSON.Point,
   LocationFeatureProperties
->;
+>
 
 /**
  * Convert user location data to GeoJSON format for clustering.
  * Groups users with identical coordinates into single points.
  */
 export function usersToGeoJSON(users: UserWithLocation[]): LocationGeoJSON {
-  const grouped = new Map<string, UserWithLocation[]>();
+  const grouped = new Map<string, UserWithLocation[]>()
 
   for (const user of users) {
-    const key = `${user.location.lng},${user.location.lat}`;
-    const existing = grouped.get(key);
+    const key = `${user.location.lng},${user.location.lat}`
+    const existing = grouped.get(key)
     if (existing) {
-      existing.push(user);
+      existing.push(user)
     } else {
-      grouped.set(key, [user]);
+      grouped.set(key, [user])
     }
   }
 
   return {
     type: "FeatureCollection",
     features: [...grouped.entries()].map(([coords, groupedUsers]) => {
-      const [lng, lat] = coords.split(",").map(Number);
+      const [lng, lat] = coords.split(",").map(Number)
       return {
         type: "Feature" as const,
         geometry: {
@@ -57,9 +57,9 @@ export function usersToGeoJSON(users: UserWithLocation[]): LocationGeoJSON {
             countryCode: u.location.countryCode,
           })),
           count: groupedUsers.length,
-          label: groupedUsers[0]!.location.label,
+          label: groupedUsers[0]?.location.label,
         },
-      };
+      }
     }),
-  };
+  }
 }

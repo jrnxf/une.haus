@@ -1,4 +1,4 @@
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 export function Json({
   className,
@@ -7,10 +7,10 @@ export function Json({
   stringify = true,
   ...properties
 }: React.HTMLAttributes<HTMLFieldSetElement> & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
-  legend?: number | string;
-  stringify?: boolean;
+  // biome-ignore lint/suspicious/noExplicitAny: JSON value type
+  data: any
+  legend?: number | string
+  stringify?: boolean
 }) {
   return (
     <fieldset
@@ -27,5 +27,5 @@ export function Json({
         {stringify ? JSON.stringify(data, null, 2) : data}
       </pre>
     </fieldset>
-  );
+  )
 }

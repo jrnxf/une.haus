@@ -1,101 +1,129 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLikeUnlikeRecord } from "~/lib/reactions/hooks";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 import {
   CopyIcon,
+  FlagIcon,
   HeartCrackIcon,
   HeartIcon,
   PencilIcon,
   Trash2Icon,
   TrendingUpIcon,
-} from "lucide-react";
-import React from "react";
+} from "lucide-react"
+import pluralize from "pluralize"
+import React from "react"
+import { toast } from "sonner"
 
-import { toast } from "sonner";
-
-import { confirm } from "~/components/confirm-dialog";
-import { UsersDialog } from "~/components/likes-dialog";
+import { confirm } from "~/components/confirm-dialog"
+import { MentionTextarea } from "~/components/input/mention-textarea"
+import { UsersDialog } from "~/components/likes-dialog"
+import { RichText } from "~/components/rich-text"
+import { Tray, TrayContent } from "~/components/tray"
 import {
   Menu,
   MenuContent,
   MenuItem,
   MenuSeparator,
   MenuTrigger,
-} from "~/components/ui/base-menu";
-import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
-import { Textarea } from "~/components/ui/textarea";
-import { messages } from "~/lib/messages";
-import { type MessageParent } from "~/lib/messages/schemas";
-import { useSessionUser } from "~/lib/session/hooks";
-import { type ServerFnReturn } from "~/lib/types";
-import { cn, preprocessText } from "~/lib/utils";
+} from "~/components/ui/base-menu"
+import { Button } from "~/components/ui/button"
+import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
+import { Label } from "~/components/ui/label"
+import { Textarea } from "~/components/ui/textarea"
+import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
+import { useFlagContent } from "~/lib/flags/hooks"
+import {
+  extractMentionedUserIds,
+  stripMentionTokens,
+} from "~/lib/mentions/parse"
+import { messages } from "~/lib/messages"
+import { type MessageParent } from "~/lib/messages/schemas"
+import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
+import { useSessionUser } from "~/lib/session/hooks"
+import { type ServerFnReturn } from "~/lib/types"
+import { useUserMap } from "~/lib/users/use-user-map"
+import { cn } from "~/lib/utils"
 
-type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number];
+type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number]
 
 export function MessageBubble({
   parent,
   message,
 }: {
-  parent: MessageParent;
-  message: Message;
+  parent: MessageParent
+  message: Message
 }) {
-  const messageType = `${parent.type}Message` as const;
-  const sessionUser = useSessionUser();
-  const [actionsOpen, setActionsOpen] = React.useState(false);
-  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false);
-  const [reactionsDialogOpen, setReactionsDialogOpen] = React.useState(false);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const messageType = `${parent.type}Message` as const
+  const navigate = useNavigate()
+  const sessionUser = useSessionUser()
+  const [actionsOpen, setActionsOpen] = React.useState(false)
+  const [editDrawerOpen, setEditDrawerOpen] = React.useState(false)
+  const [likesDropdownOpen, setLikesDropdownOpen] = React.useState(false)
+  const [flagTrayOpen, setFlagTrayOpen] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement>(null)
 
-  const isOwnMessage = sessionUser && message.user.id === sessionUser.id;
+  const { userMap } = useUserMap()
+  const isOwnMessage = sessionUser && message.user.id === sessionUser.id
+
+  // Resolve mentioned users for menu items
+  const mentionedUsers = React.useMemo(() => {
+    const ids = extractMentionedUserIds(message.content)
+    return ids
+      .map((id) => userMap.get(id))
+      .filter((u): u is NonNullable<typeof u> => u != null)
+  }, [message.content, userMap])
 
   const authUserLiked = Boolean(
     sessionUser &&
     message.likes.some((like) => like.user.id === sessionUser.id),
-  );
+  )
 
   const { mutate: likeUnlike } = useLikeUnlikeRecord({
     authUserLiked,
     record: { id: message.id, type: messageType },
     optimisticUpdateQueryKey: messages.list.queryOptions(parent).queryKey,
     refetchQueryKey: messages.list.queryOptions(parent).queryKey,
-  });
+  })
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const { mutate: deleteMessage } = useMutation({
     mutationFn: messages.delete.fn,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: messages.list.queryOptions(parent).queryKey,
-      });
-      toast.success("Message deleted");
-      setActionsOpen(false);
+      })
+      toast.success("message deleted")
+      setActionsOpen(false)
     },
     onError: () => {
-      toast.error("Failed to delete message");
+      toast.error("failed to delete message")
     },
-  });
+  })
 
   const handleLikeUnlike = () => {
-    likeUnlike();
-    setActionsOpen(false);
-  };
+    likeUnlike()
+    setActionsOpen(false)
+  }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(message.content);
-    toast.success("Message copied", { duration: 1000 });
-    setActionsOpen(false);
-  };
+    const plainText = stripMentionTokens(
+      message.content,
+      (id) => userMap.get(id)?.name,
+    )
+    navigator.clipboard.writeText(plainText)
+    toast.success("message copied", { duration: 1000 })
+    setActionsOpen(false)
+  }
 
   const handleEdit = () => {
     // setActionsOpen(false);
-    setEditDrawerOpen(true);
-  };
+    setEditDrawerOpen(true)
+  }
 
   const handleDelete = () => {
     confirm.open({
-      title: "Delete message?",
-      description: "This action cannot be undone.",
-      confirmText: "Delete",
+      title: "delete message?",
+      description: "this action cannot be undone.",
+      confirmText: "delete",
       variant: "destructive",
       onConfirm: () => {
         deleteMessage({
@@ -103,10 +131,10 @@ export function MessageBubble({
             id: message.id,
             type: parent.type,
           },
-        });
+        })
       },
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -118,6 +146,7 @@ export function MessageBubble({
         )}
       >
         <div
+          data-testid="message-container"
           className={cn(
             "group relative flex w-max max-w-[80%] items-center gap-2",
             isOwnMessage ? "flex-row-reverse" : "flex-row",
@@ -125,12 +154,15 @@ export function MessageBubble({
         >
           <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
             <MenuTrigger
+              aria-label={`Message: ${message.content}`}
               className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
               style={{ wordBreak: "break-word" }}
             >
-              <p className="leading-relaxed">
-                {preprocessText(message.content)}
-              </p>
+              <RichText
+                content={message.content}
+                className="leading-relaxed"
+                disableLinks
+              />
             </MenuTrigger>
             <MenuContent
               showBackdrop={true}
@@ -145,35 +177,76 @@ export function MessageBubble({
                 align: "shift",
               }}
             >
-              <ReactionMenuItem
-                handleLikeUnlike={handleLikeUnlike}
-                authUserLiked={authUserLiked}
-              />
+              {mentionedUsers.length > 0 && (
+                <>
+                  {mentionedUsers.map((user) => (
+                    <MenuItem
+                      key={user.id}
+                      onClick={() => {
+                        setActionsOpen(false)
+                        navigate({
+                          to: "/users/$userId",
+                          params: { userId: user.id },
+                        })
+                      }}
+                    >
+                      {user.name}
+                    </MenuItem>
+                  ))}
+                  <MenuSeparator />
+                </>
+              )}
+              {sessionUser && (
+                <ReactionMenuItem
+                  handleLikeUnlike={handleLikeUnlike}
+                  authUserLiked={authUserLiked}
+                />
+              )}
               <MenuItem onClick={handleCopy}>
                 <CopyIcon className="size-4" />
-                Copy
+                copy
               </MenuItem>
               {message.likes.length > 0 && (
                 <MenuItem
                   onClick={() => {
-                    setActionsOpen(false);
-                    setReactionsDialogOpen(true);
+                    setActionsOpen(false)
+                    setLikesDropdownOpen(true)
                   }}
                 >
                   <TrendingUpIcon className="size-4" />
-                  Reactions
+                  reactions
                 </MenuItem>
               )}
+              {sessionUser &&
+                !isOwnMessage &&
+                (() => {
+                  const flagType = `${parent.type}Message`
+                  if (
+                    !(FLAG_ENTITY_TYPES as readonly string[]).includes(flagType)
+                  )
+                    return null
+                  return (
+                    <MenuItem
+                      onClick={() => {
+                        setActionsOpen(false)
+                        setFlagTrayOpen(true)
+                      }}
+                    >
+                      <FlagIcon className="size-4" />
+                      flag
+                    </MenuItem>
+                  )
+                })()}
               {isOwnMessage && (
                 <>
                   <MenuSeparator />
                   <MenuItem onClick={handleEdit}>
                     <PencilIcon className="size-4" />
-                    Edit
+                    edit
                   </MenuItem>
                   <MenuItem variant="destructive" onClick={handleDelete}>
                     <Trash2Icon className="size-4" />
-                    Delete
+                    delete
                   </MenuItem>
                 </>
               )}
@@ -184,9 +257,12 @@ export function MessageBubble({
           {message.likes.length > 0 && (
             <UsersDialog
               users={message.likes.map((like) => like.user)}
-              title={`${message.likes.length} ${message.likes.length === 1 ? "Like" : "Likes"}`}
+              title={`${message.likes.length} ${pluralize("Like", message.likes.length)}`}
+              open={likesDropdownOpen}
+              onOpenChange={setLikesDropdownOpen}
               trigger={
                 <button
+                  aria-label={`${message.likes.length} likes`}
                   className={cn(
                     "absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
                     isOwnMessage
@@ -204,14 +280,6 @@ export function MessageBubble({
         </div>
       </div>
 
-      {/* Reactions Dialog (controlled) */}
-      <UsersDialog
-        users={message.likes.map((like) => like.user)}
-        title="reactions"
-        open={reactionsDialogOpen}
-        onOpenChange={setReactionsDialogOpen}
-      />
-
       {/* Edit Drawer */}
       {isOwnMessage && (
         <EditMessageDrawer
@@ -221,8 +289,17 @@ export function MessageBubble({
           onOpenChange={setEditDrawerOpen}
         />
       )}
+
+      {sessionUser && !isOwnMessage && (
+        <MessageFlagTray
+          parent={parent}
+          messageId={message.id}
+          open={flagTrayOpen}
+          onOpenChange={setFlagTrayOpen}
+        />
+      )}
     </>
-  );
+  )
 }
 
 function EditMessageDrawer({
@@ -231,46 +308,55 @@ function EditMessageDrawer({
   open,
   onOpenChange,
 }: {
-  message: Message;
-  parent: MessageParent;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  message: Message
+  parent: MessageParent
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
-  const queryClient = useQueryClient();
-  const [content, setContent] = React.useState(message.content);
+  const queryClient = useQueryClient()
+  const [content, setContent] = React.useState(message.content)
+  const wasOpenRef = React.useRef(open)
+
+  // Re-seed edit content each time the drawer opens.
+  if (open && !wasOpenRef.current && content !== message.content) {
+    setContent(message.content)
+  }
+  if (wasOpenRef.current !== open) {
+    wasOpenRef.current = open
+  }
 
   const { mutate: updateMessage, isPending: isUpdating } = useMutation({
     mutationFn: messages.update.fn,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: messages.list.queryOptions(parent).queryKey,
-      });
-      toast.success("Message updated");
-      onOpenChange(false);
+      })
+      toast.success("message updated")
+      onOpenChange(false)
     },
     onError: () => {
-      toast.error("Failed to update message");
+      toast.error("failed to update message")
     },
-  });
+  })
 
   const { mutate: deleteMessage, isPending: isDeleting } = useMutation({
     mutationFn: messages.delete.fn,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: messages.list.queryOptions(parent).queryKey,
-      });
-      toast.success("Message deleted");
-      onOpenChange(false);
+      })
+      toast.success("message deleted")
+      onOpenChange(false)
     },
     onError: () => {
-      toast.error("Failed to delete message");
+      toast.error("failed to delete message")
     },
-  });
+  })
 
   const handleUpdate = () => {
     if (!content.trim()) {
-      toast.error("Message cannot be empty");
-      return;
+      toast.error("message cannot be empty")
+      return
     }
     updateMessage({
       data: {
@@ -278,14 +364,14 @@ function EditMessageDrawer({
         type: parent.type,
         content,
       },
-    });
-  };
+    })
+  }
 
   const handleDelete = () => {
     confirm.open({
-      title: "Delete message?",
-      description: "This action cannot be undone.",
-      confirmText: "Delete",
+      title: "delete message?",
+      description: "this action cannot be undone.",
+      confirmText: "delete",
       variant: "destructive",
       onConfirm: () => {
         deleteMessage({
@@ -293,28 +379,23 @@ function EditMessageDrawer({
             id: message.id,
             type: parent.type,
           },
-        });
+        })
       },
-    });
-  };
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false} className="gap-4 p-4">
-        <DialogTitle className="sr-only">Edit message</DialogTitle>
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={4}
-          className="resize-none"
-        />
+        <DialogTitle className="sr-only">edit message</DialogTitle>
+        <MentionTextarea value={content} onChange={setContent} rows={4} />
         <div className="flex items-center gap-2">
           <Button
             size="icon"
             variant="secondary"
             onClick={handleDelete}
             disabled={isDeleting || isUpdating}
-            aria-label="Delete"
+            aria-label="delete"
           >
             <Trash2Icon className="size-4" />
           </Button>
@@ -327,12 +408,82 @@ function EditMessageDrawer({
             cancel
           </Button>
           <Button onClick={handleUpdate} disabled={isUpdating || isDeleting}>
-            Save
+            save
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
+}
+
+function MessageFlagTray({
+  parent,
+  messageId,
+  open,
+  onOpenChange,
+}: {
+  parent: MessageParent
+  messageId: number
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const [reason, setReason] = React.useState("")
+  const flagContent = useFlagContent()
+
+  const flagType = `${parent.type}Message` as FlagEntityType
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!reason.trim()) return
+    flagContent.mutate(
+      {
+        data: {
+          entityType: flagType,
+          entityId: messageId,
+          reason,
+          parentEntityId: parent.id,
+        },
+      },
+      {
+        onSuccess: () => {
+          setReason("")
+          onOpenChange(false)
+        },
+      },
+    )
+  }
+
+  return (
+    <Tray open={open} onOpenChange={onOpenChange}>
+      <TrayContent>
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div className="space-y-2">
+            <Label>reason</Label>
+            <Textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="explain why this message should be reviewed"
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!reason.trim() || flagContent.isPending}
+            >
+              {flagContent.isPending ? "submitting..." : "submit"}
+            </Button>
+          </div>
+        </form>
+      </TrayContent>
+    </Tray>
+  )
 }
 
 // function EditMessageTray({
@@ -434,10 +585,10 @@ function ReactionMenuItem({
   handleLikeUnlike,
   authUserLiked,
 }: {
-  handleLikeUnlike: () => void;
-  authUserLiked: boolean;
+  handleLikeUnlike: () => void
+  authUserLiked: boolean
 }) {
-  const [isLiked] = React.useState<boolean>(authUserLiked);
+  const [isLiked] = React.useState<boolean>(authUserLiked)
   return (
     <MenuItem onClick={handleLikeUnlike}>
       {isLiked ? (
@@ -445,7 +596,7 @@ function ReactionMenuItem({
       ) : (
         <HeartIcon className="size-4" />
       )}
-      <span>{isLiked ? "Unlike" : "Like"}</span>
+      <span>{isLiked ? "unlike" : "like"}</span>
     </MenuItem>
-  );
+  )
 }

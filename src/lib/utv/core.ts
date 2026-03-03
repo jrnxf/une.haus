@@ -1,29 +1,31 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
-import { PAGE_SIZE } from "~/lib/constants";
-import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
+import { PAGE_SIZE } from "~/lib/constants"
+import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
 import {
   addUtvClapsServerFn,
+  adminUpdateUtvVideoServerFn,
   allUtvVideosServerFn,
   createUtvSuggestionServerFn,
   getUtvClapsServerFn,
   getUtvSuggestionServerFn,
   getUtvVideoServerFn,
+  listUtvRidersServerFn,
   listUtvSuggestionsServerFn,
   listUtvVideosServerFn,
   reviewUtvSuggestionServerFn,
   updateUtvScaleServerFn,
   updateUtvThumbnailSecondsServerFn,
   updateUtvTitleServerFn,
-} from "~/lib/utv/fns";
+} from "~/lib/utv/fns"
 import {
   createUtvSuggestionSchema,
   getUtvSuggestionSchema,
+  type ListUtvSuggestionsInput,
   listUtvSuggestionsSchema,
   listUtvVideosSchema,
   reviewUtvSuggestionSchema,
-  type ListUtvSuggestionsInput,
-} from "~/lib/utv/schemas";
+} from "~/lib/utv/schemas"
 
 export const utv = {
   all: {
@@ -32,7 +34,7 @@ export const utv = {
       return queryOptions({
         queryKey: ["utv.all"],
         queryFn: allUtvVideosServerFn,
-      });
+      })
     },
   },
   list: {
@@ -49,16 +51,16 @@ export const utv = {
               ...data,
               cursor,
             },
-          });
+          })
         },
         initialPageParam: 0 as number | undefined,
         getNextPageParam: (lastPage) => {
           if (lastPage.length < PAGE_SIZE) {
-            return;
+            return
           }
-          return lastPage.at(-1)?.id;
+          return lastPage.at(-1)?.id
         },
-      });
+      })
     },
   },
   get: {
@@ -67,8 +69,17 @@ export const utv = {
       return queryOptions({
         queryKey: ["utv.video", id],
         queryFn: () => getUtvVideoServerFn({ data: { id } }),
-      });
+      })
     },
+  },
+  riders: {
+    fn: listUtvRidersServerFn,
+    queryOptions: () =>
+      queryOptions({
+        queryKey: ["utv.riders"],
+        queryFn: listUtvRidersServerFn,
+        staleTime: 1000 * 60 * 5,
+      }),
   },
   claps: {
     get: {
@@ -77,7 +88,7 @@ export const utv = {
         return queryOptions({
           queryKey: ["utv.claps"],
           queryFn: getUtvClapsServerFn,
-        });
+        })
       },
     },
     add: {
@@ -92,6 +103,9 @@ export const utv = {
   },
   updateTitle: {
     fn: updateUtvTitleServerFn,
+  },
+  adminUpdate: {
+    fn: adminUpdateUtvVideoServerFn,
   },
 
   // Suggestions (edits to existing videos)
@@ -124,12 +138,12 @@ export const utv = {
       schema: reviewUtvSuggestionSchema,
     },
   },
-};
+}
 
-export type UtvVideosData = ServerFnReturn<typeof allUtvVideosServerFn>;
-export type UtvVideosListData = ServerFnReturn<typeof listUtvVideosServerFn>;
-export type UtvVideoData = ServerFnReturn<typeof getUtvVideoServerFn>;
-export type UtvSuggestionData = ServerFnReturn<typeof getUtvSuggestionServerFn>;
+export type UtvVideosData = ServerFnReturn<typeof allUtvVideosServerFn>
+export type UtvVideosListData = ServerFnReturn<typeof listUtvVideosServerFn>
+export type UtvVideoData = ServerFnReturn<typeof getUtvVideoServerFn>
+export type UtvSuggestionData = ServerFnReturn<typeof getUtvSuggestionServerFn>
 export type UtvSuggestionsData = ServerFnReturn<
   typeof listUtvSuggestionsServerFn
->;
+>

@@ -1,4 +1,4 @@
-import GameStartReminderTemplate from "../game-start-reminder";
+import GameStartReminderTemplate from "../game-start-reminder"
 
 export default function OneHourLeft() {
   return (
@@ -12,5 +12,5 @@ export default function OneHourLeft() {
       unsubscribeReminderUrl="https://une.haus/unsubscribe?type=game-reminder"
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
     />
-  );
+  )
 }

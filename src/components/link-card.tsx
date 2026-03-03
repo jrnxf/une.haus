@@ -1,85 +1,73 @@
-import { Link } from "@tanstack/react-router";
-// import { ArrowRightIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router"
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { cn } from "~/lib/utils";
+import { ArrowLabel } from "~/components/arrow-label"
+import { Button } from "~/components/ui/button"
+import { cn } from "~/lib/utils"
 
 function LinkCardRoot({
   href,
   children,
   className,
 }: {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
+  href: string
+  children: React.ReactNode
+  className?: string
 }) {
   return (
     <Link
       to={href}
-      className="group focus-visible:ring-ring block h-full rounded-xl transition-transform hover:scale-[1.01] focus-visible:scale-[1.01] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="group focus-visible:border-ring focus-visible:ring-ring/50 block h-full rounded-xl outline-none focus-visible:ring-3"
     >
-      <Card
+      <div
         className={cn(
-          "relative flex h-full flex-col overflow-hidden",
-          "cursor-pointer",
+          "bg-card text-card-foreground relative flex h-full cursor-pointer flex-col gap-2 rounded-xl border p-4",
           className,
         )}
       >
         {children}
-      </Card>
+      </div>
     </Link>
-  );
+  )
 }
 
 function LinkCardHeader({
-  // icon: Icon,
+  icon: Icon,
   title,
-  // iconClassName,
 }: {
-  icon?: React.ComponentType<{ className?: string }>;
-  title: string;
-  iconClassName?: string;
+  icon?: React.ComponentType<{ className?: string }>
+  title: string
+  iconClassName?: string
 }) {
   return (
-    <CardHeader className="pb-0">
-      <div className="flex items-center gap-2">
-        {/* <div
-          className={cn(
-            "bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md",
-            iconClassName,
-          )}
-        >
-          <Icon className="size-3.5" />
-        </div> */}
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </div>
-    </CardHeader>
-  );
+    <div className="flex items-center gap-2">
+      {Icon && <Icon className="text-muted-foreground size-4" />}
+      <p className="font-semibold">{title}</p>
+    </div>
+  )
 }
 
 function LinkCardDescription({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-muted-foreground text-sm leading-relaxed">{children}</p>
-  );
+    <p className="text-muted-foreground min-w-0 flex-1 text-sm leading-relaxed">
+      {children}
+    </p>
+  )
 }
 
 function LinkCardContent({ children }: { children: React.ReactNode }) {
-  return (
-    <CardContent className="flex grow flex-col space-y-4">
-      {children}
-    </CardContent>
-  );
+  return <div className="flex items-end gap-2">{children}</div>
 }
 
 function LinkCardCta({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-end">
-      <span className="text-muted-foreground group-hover:text-foreground group-focus-visible:text-foreground flex items-center gap-1 text-sm transition-colors">
-        {label}
-        {/* <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5" /> */}
-      </span>
-    </div>
-  );
+    <Button
+      variant="ghost"
+      size="sm"
+      className="group-hover:bg-muted group-hover:text-foreground group-focus-visible:bg-muted group-focus-visible:text-foreground dark:group-focus-visible:bg-muted/70 dark:group-hover:bg-muted/70 pointer-events-none shrink-0"
+    >
+      <ArrowLabel>{label}</ArrowLabel>
+    </Button>
+  )
 }
 
 export const LinkCard = {
@@ -88,4 +76,4 @@ export const LinkCard = {
   Content: LinkCardContent,
   Description: LinkCardDescription,
   Cta: LinkCardCta,
-};
+}

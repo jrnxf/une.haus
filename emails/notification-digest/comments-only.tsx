@@ -1,4 +1,4 @@
-import NotificationDigestTemplate from "../notification-digest";
+import NotificationDigestTemplate from "../notification-digest"
 
 export default function CommentsOnly() {
   return (
@@ -20,5 +20,5 @@ export default function CommentsOnly() {
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
       viewNotificationsUrl="https://une.haus/notifications"
     />
-  );
+  )
 }

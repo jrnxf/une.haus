@@ -1,6 +1,15 @@
 import {
+  type Body,
+  type IBodyDefinition,
+  type Engine as MatterEngineType,
+  type Render as MatterRenderType,
+  type Runner as MatterRunnerType,
+  type MouseConstraint,
+} from "matter-js"
+import {
   createContext,
   forwardRef,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -8,78 +17,68 @@ import {
   useImperativeHandle,
   useRef,
   useState,
-  type ReactNode,
-} from "react";
+} from "react"
 
-import type * as MatterJSNamespace from "matter-js";
-import type {
-  Body,
-  IBodyDefinition,
-  Engine as MatterEngineType,
-  Render as MatterRenderType,
-  Runner as MatterRunnerType,
-  MouseConstraint,
-} from "matter-js";
+import { calculatePosition, parsePathToVertices } from "./utils"
+import { cn } from "~/lib/utils"
 
-import { cn } from "~/lib/utils";
-
-import { calculatePosition, parsePathToVertices } from "./utils";
+import type * as MatterJSNamespace from "matter-js"
 
 // Lazy load Matter.js types
-type MatterModule = typeof MatterJSNamespace;
-type MatterBody = Body;
-type MatterEngine = MatterEngineType;
-type MatterRender = MatterRenderType;
-type MatterRunner = MatterRunnerType;
-type MatterMouseConstraint = MouseConstraint;
-type MatterIBodyDefinition = IBodyDefinition;
+type MatterModule = typeof MatterJSNamespace
+type MatterBody = Body
+type MatterEngine = MatterEngineType
+type MatterRender = MatterRenderType
+type MatterRunner = MatterRunnerType
+type MatterMouseConstraint = MouseConstraint
+type MatterIBodyDefinition = IBodyDefinition
 
 type GravityProps = {
-  children: ReactNode;
-  debug?: boolean;
-  gravity?: { x: number; y: number };
-  resetOnResize?: boolean;
-  grabCursor?: boolean;
-  addTopWall?: boolean;
-  autoStart?: boolean;
-  className?: string;
-};
+  children: ReactNode
+  debug?: boolean
+  gravity?: { x: number; y: number }
+  resetOnResize?: boolean
+  grabCursor?: boolean
+  addTopWall?: boolean
+  autoStart?: boolean
+  className?: string
+}
 
 type PhysicsBody = {
-  element: HTMLElement;
-  body: MatterBody;
-  props: MatterBodyProps;
-};
+  element: HTMLElement
+  body: MatterBody
+  props: MatterBodyProps
+}
 
 type MatterBodyProps = {
-  children: ReactNode;
-  matterBodyOptions?: MatterIBodyDefinition;
-  isDraggable?: boolean;
-  bodyType?: "rectangle" | "circle" | "svg";
-  sampleLength?: number;
-  x?: number | string;
-  y?: number | string;
-  angle?: number;
-  className?: string;
-};
+  children: ReactNode
+  matterBodyOptions?: MatterIBodyDefinition
+  isDraggable?: boolean
+  bodyType?: "rectangle" | "circle" | "svg"
+  sampleLength?: number
+  x?: number | string
+  y?: number | string
+  angle?: number
+  className?: string
+}
 
 export type GravityRef = {
-  start: () => void;
-  stop: () => void;
-  reset: () => void;
-  isReady: () => boolean;
-};
+  start: () => void
+  stop: () => void
+  reset: () => void
+  isReady: () => boolean
+}
 
 type GravityContextValue = {
   registerElement: (
     id: string,
     element: HTMLElement,
     props: MatterBodyProps,
-  ) => void;
-  unregisterElement: (id: string) => void;
-};
+  ) => void
+  unregisterElement: (id: string) => void
+}
 
-const GravityContext = createContext<GravityContextValue | null>(null);
+const GravityContext = createContext<GravityContextValue | null>(null)
 
 export function MatterBody({
   children,
@@ -97,12 +96,12 @@ export function MatterBody({
   y = 0,
   angle = 0,
 }: MatterBodyProps) {
-  const elementRef = useRef<HTMLDivElement>(null);
-  const id = useId();
-  const context = useContext(GravityContext);
+  const elementRef = useRef<HTMLDivElement>(null)
+  const id = useId()
+  const context = useContext(GravityContext)
 
   useEffect(() => {
-    if (!elementRef.current || !context) return;
+    if (!elementRef.current || !context) return
     context.registerElement(id, elementRef.current, {
       children,
       matterBodyOptions,
@@ -112,11 +111,11 @@ export function MatterBody({
       x,
       y,
       angle,
-    });
+    })
 
     return () => {
-      context.unregisterElement(id);
-    };
+      context.unregisterElement(id)
+    }
   }, [
     id,
     context,
@@ -128,7 +127,7 @@ export function MatterBody({
     x,
     y,
     angle,
-  ]);
+  ])
 
   return (
     <div
@@ -141,7 +140,7 @@ export function MatterBody({
     >
       {children}
     </div>
-  );
+  )
 }
 
 export const Gravity = forwardRef<GravityRef, GravityProps>(
@@ -158,67 +157,67 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
     },
     ref,
   ) => {
-    const canvas = useRef<HTMLDivElement>(null);
-    const matterRef = useRef<MatterModule | null>(null);
-    const engine = useRef<MatterEngine | null>(null);
-    const render = useRef<MatterRender | null>(null);
-    const runner = useRef<MatterRunner | null>(null);
-    const bodiesMap = useRef(new Map<string, PhysicsBody>());
-    const frameId = useRef<number | undefined>(undefined);
-    const mouseConstraint = useRef<MatterMouseConstraint | null>(null);
-    const mouseDown = useRef(false);
-    const [isReady, setIsReady] = useState(false);
-    const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-    const isRunning = useRef(false);
+    const canvas = useRef<HTMLDivElement>(null)
+    const matterRef = useRef<MatterModule | null>(null)
+    const engine = useRef<MatterEngine | null>(null)
+    const render = useRef<MatterRender | null>(null)
+    const runner = useRef<MatterRunner | null>(null)
+    const bodiesMap = useRef(new Map<string, PhysicsBody>())
+    const frameId = useRef<number | undefined>(undefined)
+    const mouseConstraint = useRef<MatterMouseConstraint | null>(null)
+    const mouseDown = useRef(false)
+    const [isReady, setIsReady] = useState(false)
+    const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 })
+    const isRunning = useRef(false)
     const pendingRegistrations = useRef<
       { id: string; element: HTMLElement; props: MatterBodyProps }[]
-    >([]);
+    >([])
 
     // Lazy load Matter.js
     useEffect(() => {
-      let mounted = true;
+      let mounted = true
 
       const loadMatter = async () => {
         const [Matter, decomp] = await Promise.all([
           import("matter-js"),
           import("poly-decomp"),
-        ]);
+        ])
 
-        if (!mounted) return;
+        if (!mounted) return
 
-        matterRef.current = Matter;
-        Matter.Common.setDecomp(decomp);
-        engine.current = Matter.Engine.create();
-        setIsReady(true);
-      };
+        matterRef.current = Matter
+        Matter.Common.setDecomp(decomp)
+        engine.current = Matter.Engine.create()
+        setIsReady(true)
+      }
 
-      loadMatter();
+      loadMatter()
 
       return () => {
-        mounted = false;
-      };
-    }, []);
+        mounted = false
+      }
+    }, [])
 
     const registerElement = useCallback(
       (id: string, element: HTMLElement, props: MatterBodyProps) => {
         if (!canvas.current || !matterRef.current || !engine.current) {
-          pendingRegistrations.current.push({ id, element, props });
-          return;
+          pendingRegistrations.current.push({ id, element, props })
+          return
         }
 
-        const Matter = matterRef.current;
-        const width = element.offsetWidth;
-        const height = element.offsetHeight;
-        const canvasRect = canvas.current.getBoundingClientRect();
+        const Matter = matterRef.current
+        const width = element.offsetWidth
+        const height = element.offsetHeight
+        const canvasRect = canvas.current.getBoundingClientRect()
 
-        const angle = (props.angle || 0) * (Math.PI / 180);
-        const x = calculatePosition(props.x, canvasRect.width, width);
-        const y = calculatePosition(props.y, canvasRect.height, height);
+        const angle = (props.angle || 0) * (Math.PI / 180)
+        const x = calculatePosition(props.x, canvasRect.width, width)
+        const y = calculatePosition(props.y, canvasRect.height, height)
 
-        let body: MatterBody | undefined;
+        let body: MatterBody | undefined
 
         if (props.bodyType === "circle") {
-          const radius = Math.max(width, height) / 2;
+          const radius = Math.max(width, height) / 2
           body = Matter.Bodies.circle(x, y, radius, {
             ...props.matterBodyOptions,
             angle,
@@ -227,16 +226,16 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
               strokeStyle: debug ? "#333333" : "#00000000",
               lineWidth: debug ? 3 : 0,
             },
-          });
+          })
         } else if (props.bodyType === "svg") {
-          const paths = element.querySelectorAll("path");
-          const vertexSets: { x: number; y: number }[][] = [];
+          const paths = element.querySelectorAll("path")
+          const vertexSets: { x: number; y: number }[][] = []
 
           for (const path of paths) {
-            const d = path.getAttribute("d");
+            const d = path.getAttribute("d")
             if (d) {
-              const vertices = parsePathToVertices(d, props.sampleLength);
-              vertexSets.push(vertices);
+              const vertices = parsePathToVertices(d, props.sampleLength)
+              vertexSets.push(vertices)
             }
           }
 
@@ -254,7 +253,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
                   lineWidth: debug ? 3 : 0,
                 },
               },
-            );
+            )
           }
         } else {
           const bodyOptions = {
@@ -265,68 +264,68 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
               strokeStyle: debug ? "#333333" : "#00000000",
               lineWidth: debug ? 3 : 0,
             },
-          };
+          }
           body = Matter.Bodies.rectangle(
             x,
             y,
             width,
             height,
             bodyOptions as Parameters<typeof Matter.Bodies.rectangle>[4],
-          );
+          )
         }
 
         if (body) {
-          Matter.World.add(engine.current!.world, [body]);
-          bodiesMap.current.set(id, { element, body, props });
+          Matter.World.add(engine.current?.world, [body])
+          bodiesMap.current.set(id, { element, body, props })
         }
       },
       [debug],
-    );
+    )
 
     const unregisterElement = useCallback((id: string) => {
-      if (!matterRef.current || !engine.current) return;
-      const entry = bodiesMap.current.get(id);
+      if (!matterRef.current || !engine.current) return
+      const entry = bodiesMap.current.get(id)
       if (entry) {
-        matterRef.current.World.remove(engine.current.world, entry.body);
-        bodiesMap.current.delete(id);
+        matterRef.current.World.remove(engine.current.world, entry.body)
+        bodiesMap.current.delete(id)
       }
-    }, []);
+    }, [])
 
     const updateElements = useCallback(() => {
       for (const { element, body } of bodiesMap.current.values()) {
-        const { x, y } = body.position;
-        const rotation = body.angle * (180 / Math.PI);
-        element.style.transform = `translate(${x - element.offsetWidth / 2}px, ${y - element.offsetHeight / 2}px) rotate(${rotation}deg)`;
+        const { x, y } = body.position
+        const rotation = body.angle * (180 / Math.PI)
+        element.style.transform = `translate(${x - element.offsetWidth / 2}px, ${y - element.offsetHeight / 2}px) rotate(${rotation}deg)`
       }
-      frameId.current = requestAnimationFrame(updateElements);
-    }, []);
+      frameId.current = requestAnimationFrame(updateElements)
+    }, [])
 
     const startEngine = useCallback(() => {
-      if (!matterRef.current || !runner.current || !engine.current) return;
-      const Matter = matterRef.current;
+      if (!matterRef.current || !runner.current || !engine.current) return
+      const Matter = matterRef.current
 
-      runner.current.enabled = true;
-      Matter.Runner.run(runner.current, engine.current);
+      runner.current.enabled = true
+      Matter.Runner.run(runner.current, engine.current)
 
       if (render.current) {
-        Matter.Render.run(render.current);
+        Matter.Render.run(render.current)
       }
 
-      frameId.current = requestAnimationFrame(updateElements);
-      isRunning.current = true;
-    }, [updateElements]);
+      frameId.current = requestAnimationFrame(updateElements)
+      isRunning.current = true
+    }, [updateElements])
 
     const initializeRenderer = useCallback(() => {
-      if (!canvas.current || !matterRef.current || !engine.current) return;
+      if (!canvas.current || !matterRef.current || !engine.current) return
 
-      const Matter = matterRef.current;
-      const height = canvas.current.offsetHeight;
-      const width = canvas.current.offsetWidth;
+      const Matter = matterRef.current
+      const height = canvas.current.offsetHeight
+      const width = canvas.current.offsetWidth
 
-      setCanvasSize({ width, height });
+      setCanvasSize({ width, height })
 
-      engine.current.gravity.x = gravity.x;
-      engine.current.gravity.y = gravity.y;
+      engine.current.gravity.x = gravity.x
+      engine.current.gravity.y = gravity.y
 
       render.current = Matter.Render.create({
         element: canvas.current,
@@ -337,16 +336,16 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
           wireframes: false,
           background: "#00000000",
         },
-      });
+      })
 
-      const mouse = Matter.Mouse.create(render.current.canvas);
+      const mouse = Matter.Mouse.create(render.current.canvas)
       mouseConstraint.current = Matter.MouseConstraint.create(engine.current, {
         mouse,
         constraint: {
           stiffness: 0.2,
           render: { visible: debug },
         },
-      });
+      })
 
       const walls = [
         // Floor
@@ -367,7 +366,7 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
           friction: 1,
           render: { visible: debug },
         }),
-      ];
+      ]
 
       if (addTopWall) {
         walls.push(
@@ -376,56 +375,56 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
             friction: 1,
             render: { visible: debug },
           }),
-        );
+        )
       }
 
       const touchingMouse = () =>
         Matter.Query.point(
-          engine.current!.world.bodies,
+          engine.current?.world.bodies ?? [],
           mouseConstraint.current?.mouse.position || { x: 0, y: 0 },
-        ).length > 0;
+        ).length > 0
 
       if (grabCursor && canvas.current) {
-        const canvasEl = canvas.current;
+        const canvasEl = canvas.current
 
         Matter.Events.on(engine.current, "beforeUpdate", () => {
           if (!mouseDown.current && !touchingMouse()) {
-            canvasEl.style.cursor = "default";
+            canvasEl.style.cursor = "default"
           } else if (touchingMouse()) {
-            canvasEl.style.cursor = mouseDown.current ? "grabbing" : "grab";
+            canvasEl.style.cursor = mouseDown.current ? "grabbing" : "grab"
           }
-        });
+        })
 
         canvasEl.addEventListener("mousedown", () => {
-          mouseDown.current = true;
-          canvasEl.style.cursor = touchingMouse() ? "grabbing" : "default";
-        });
+          mouseDown.current = true
+          canvasEl.style.cursor = touchingMouse() ? "grabbing" : "default"
+        })
 
         canvasEl.addEventListener("mouseup", () => {
-          mouseDown.current = false;
-          canvasEl.style.cursor = touchingMouse() ? "grab" : "default";
-        });
+          mouseDown.current = false
+          canvasEl.style.cursor = touchingMouse() ? "grab" : "default"
+        })
       }
 
       Matter.World.add(engine.current.world, [
         mouseConstraint.current,
         ...walls,
-      ]);
-      render.current.mouse = mouse;
-      runner.current = Matter.Runner.create();
-      Matter.Render.run(render.current);
-      updateElements();
-      runner.current.enabled = false;
+      ])
+      render.current.mouse = mouse
+      runner.current = Matter.Runner.create()
+      Matter.Render.run(render.current)
+      updateElements()
+      runner.current.enabled = false
 
       // Process pending registrations
       for (const reg of pendingRegistrations.current) {
-        registerElement(reg.id, reg.element, reg.props);
+        registerElement(reg.id, reg.element, reg.props)
       }
-      pendingRegistrations.current = [];
+      pendingRegistrations.current = []
 
       if (autoStart) {
-        runner.current.enabled = true;
-        startEngine();
+        runner.current.enabled = true
+        startEngine()
       }
     }, [
       debug,
@@ -437,78 +436,78 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
       updateElements,
       registerElement,
       startEngine,
-    ]);
+    ])
 
     const clearRenderer = useCallback(() => {
-      if (!matterRef.current) return;
-      const Matter = matterRef.current;
+      if (!matterRef.current) return
+      const Matter = matterRef.current
 
       if (frameId.current) {
-        cancelAnimationFrame(frameId.current);
+        cancelAnimationFrame(frameId.current)
       }
 
       if (mouseConstraint.current && engine.current) {
-        Matter.World.remove(engine.current.world, mouseConstraint.current);
+        Matter.World.remove(engine.current.world, mouseConstraint.current)
       }
 
       if (render.current) {
-        Matter.Mouse.clearSourceEvents(render.current.mouse);
-        Matter.Render.stop(render.current);
-        render.current.canvas.remove();
+        Matter.Mouse.clearSourceEvents(render.current.mouse)
+        Matter.Render.stop(render.current)
+        render.current.canvas.remove()
       }
 
       if (runner.current) {
-        Matter.Runner.stop(runner.current);
+        Matter.Runner.stop(runner.current)
       }
 
       if (engine.current) {
-        Matter.World.clear(engine.current.world, false);
-        Matter.Engine.clear(engine.current);
+        Matter.World.clear(engine.current.world, false)
+        Matter.Engine.clear(engine.current)
       }
 
-      bodiesMap.current.clear();
-    }, []);
+      bodiesMap.current.clear()
+    }, [])
 
     const stopEngine = useCallback(() => {
-      if (!isRunning.current || !matterRef.current) return;
-      const Matter = matterRef.current;
+      if (!isRunning.current || !matterRef.current) return
+      const Matter = matterRef.current
 
       if (runner.current) {
-        Matter.Runner.stop(runner.current);
+        Matter.Runner.stop(runner.current)
       }
       if (render.current) {
-        Matter.Render.stop(render.current);
+        Matter.Render.stop(render.current)
       }
       if (frameId.current) {
-        cancelAnimationFrame(frameId.current);
+        cancelAnimationFrame(frameId.current)
       }
-      isRunning.current = false;
-    }, []);
+      isRunning.current = false
+    }, [])
 
     const reset = useCallback(() => {
-      stopEngine();
+      stopEngine()
       for (const { element, body, props } of bodiesMap.current.values()) {
-        if (!matterRef.current) continue;
-        const Matter = matterRef.current;
+        if (!matterRef.current) continue
+        const Matter = matterRef.current
 
-        Matter.Body.setAngle(body, (props.angle || 0) * (Math.PI / 180));
-        Matter.Body.setVelocity(body, { x: 0, y: 0 });
-        Matter.Body.setAngularVelocity(body, 0);
+        Matter.Body.setAngle(body, (props.angle || 0) * (Math.PI / 180))
+        Matter.Body.setVelocity(body, { x: 0, y: 0 })
+        Matter.Body.setAngularVelocity(body, 0)
 
         const x = calculatePosition(
           props.x,
           canvasSize.width,
           element.offsetWidth,
-        );
+        )
         const y = calculatePosition(
           props.y,
           canvasSize.height,
           element.offsetHeight,
-        );
-        Matter.Body.setPosition(body, { x, y });
+        )
+        Matter.Body.setPosition(body, { x, y })
       }
-      updateElements();
-    }, [canvasSize.width, canvasSize.height, stopEngine, updateElements]);
+      updateElements()
+    }, [canvasSize.width, canvasSize.height, stopEngine, updateElements])
 
     useImperativeHandle(
       ref,
@@ -519,39 +518,39 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
         isReady: () => isReady,
       }),
       [startEngine, stopEngine, reset, isReady],
-    );
+    )
 
     // Initialize when Matter.js is loaded
     useEffect(() => {
       if (isReady) {
-        initializeRenderer();
-        return clearRenderer;
+        initializeRenderer()
+        return clearRenderer
       }
-    }, [isReady, initializeRenderer, clearRenderer]);
+    }, [isReady, initializeRenderer, clearRenderer])
 
     // Handle resize
     useEffect(() => {
-      if (!resetOnResize || !isReady) return;
+      if (!resetOnResize || !isReady) return
 
       const handleResize = () => {
-        if (!canvas.current) return;
-        clearRenderer();
-        engine.current = matterRef.current?.Engine.create() ?? null;
-        initializeRenderer();
-      };
+        if (!canvas.current) return
+        clearRenderer()
+        engine.current = matterRef.current?.Engine.create() ?? null
+        initializeRenderer()
+      }
 
-      let timeoutId: ReturnType<typeof setTimeout>;
+      let timeoutId: ReturnType<typeof setTimeout>
       const debouncedResize = () => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(handleResize, 500);
-      };
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(handleResize, 500)
+      }
 
-      window.addEventListener("resize", debouncedResize);
+      window.addEventListener("resize", debouncedResize)
       return () => {
-        window.removeEventListener("resize", debouncedResize);
-        clearTimeout(timeoutId);
-      };
-    }, [resetOnResize, isReady, clearRenderer, initializeRenderer]);
+        window.removeEventListener("resize", debouncedResize)
+        clearTimeout(timeoutId)
+      }
+    }, [resetOnResize, isReady, clearRenderer, initializeRenderer])
 
     return (
       <GravityContext.Provider value={{ registerElement, unregisterElement }}>
@@ -562,8 +561,8 @@ export const Gravity = forwardRef<GravityRef, GravityProps>(
           {children}
         </div>
       </GravityContext.Provider>
-    );
+    )
   },
-);
+)
 
-Gravity.displayName = "Gravity";
+Gravity.displayName = "Gravity"

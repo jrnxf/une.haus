@@ -1,19 +1,18 @@
-import { and, eq, isNull, sql } from "drizzle-orm";
-import { defineTask } from "nitro/task";
-import { Resend } from "resend";
+import { and, eq, isNull, sql } from "drizzle-orm"
+import { defineTask } from "nitro/task"
+import { Resend } from "resend"
 
-import { db } from "~/db";
-import { notifications, userNotificationSettings, users } from "~/db/schema";
-import { env } from "~/lib/env";
-import { TASK_NAMES } from "~/lib/tasks/constants";
+import NotificationDigestTemplate from "../../../emails/notification-digest"
+import { db } from "~/db"
+import { notifications, userNotificationSettings, users } from "~/db/schema"
+import { env } from "~/lib/env"
+import { TASK_NAMES } from "~/lib/tasks/constants"
 
-import NotificationDigestTemplate from "../../../emails/notification-digest";
-
-const resendClient = new Resend(env.RESEND_API_KEY);
+const resendClient = new Resend(env.RESEND_API_KEY)
 
 const BASE_URL = env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VITE_APP_URL;
+  : env.VITE_APP_URL
 
 export default defineTask({
   meta: {
@@ -21,11 +20,11 @@ export default defineTask({
     description: "Send notification digest emails to opted-in users",
   },
   async run() {
-    console.log("[notifications:send-digests] Starting digest send...");
+    console.log("[notifications:send-digests] Starting digest send...")
 
-    const now = new Date();
-    const currentHour = now.getUTCHours();
-    const currentDay = now.getUTCDay();
+    const now = new Date()
+    const currentHour = now.getUTCHours()
+    const currentDay = now.getUTCDay()
 
     // Find users who should receive a digest now
     const eligibleUsers = await db
@@ -53,14 +52,14 @@ export default defineTask({
                       )
           `,
         ),
-      );
+      )
 
     console.log(
       `[notifications:send-digests] Found ${eligibleUsers.length} eligible users`,
-    );
+    )
 
-    let sentCount = 0;
-    let errorCount = 0;
+    let sentCount = 0
+    let errorCount = 0
 
     for (const user of eligibleUsers) {
       try {
@@ -81,33 +80,33 @@ export default defineTask({
               isNull(notifications.emailedAt),
             ),
           )
-          .orderBy(notifications.createdAt);
+          .orderBy(notifications.createdAt)
 
         if (userNotifications.length === 0) {
           console.log(
             `[notifications:send-digests] No notifications for user ${user.userId}, skipping`,
-          );
-          continue;
+          )
+          continue
         }
 
         // Group notifications by type
         const likesNotifications = userNotifications.filter(
           (n) => n.type === "like",
-        );
+        )
         const commentsNotifications = userNotifications.filter(
           (n) => n.type === "comment",
-        );
+        )
         const followsNotifications = userNotifications.filter(
           (n) => n.type === "follow",
-        );
+        )
 
         type NotificationGroup = {
-          type: "likes" | "comments" | "followers";
-          count: number;
-          items: { title: string; preview?: string }[];
-        };
+          type: "likes" | "comments" | "followers"
+          count: number
+          items: { title: string; preview?: string }[]
+        }
 
-        const groups: NotificationGroup[] = [];
+        const groups: NotificationGroup[] = []
 
         if (likesNotifications.length > 0) {
           groups.push({
@@ -118,7 +117,7 @@ export default defineTask({
                 ? `Your ${n.entityType} "${n.entityTitle}" got a like`
                 : `Your ${n.entityType} got a like`,
             })),
-          });
+          })
         }
 
         if (commentsNotifications.length > 0) {
@@ -131,7 +130,7 @@ export default defineTask({
                 : `Someone commented on your ${n.entityType}`,
               preview: n.entityPreview ?? undefined,
             })),
-          });
+          })
         }
 
         if (followsNotifications.length > 0) {
@@ -143,18 +142,18 @@ export default defineTask({
                 ? `${n.actorName} started following you`
                 : "Someone started following you",
             })),
-          });
+          })
         }
 
         if (groups.length === 0) {
-          continue;
+          continue
         }
 
         // Send email
         const { error } = await resendClient.emails.send({
           from: "une.haus <colby@jrnxf.co>",
           to: [user.email],
-          subject: "Your week on une.haus",
+          subject: "your week on une.haus",
           react: NotificationDigestTemplate({
             userName: user.name,
             groups,
@@ -162,40 +161,40 @@ export default defineTask({
             unsubscribeAllUrl: `${BASE_URL}/api/unsubscribe?type=all&userId=${user.userId}`,
             viewNotificationsUrl: `${BASE_URL}/notifications`,
           }),
-        });
+        })
 
         if (error) {
           console.error(
             `[notifications:send-digests] Failed to send to user ${user.userId}:`,
             error,
-          );
-          errorCount++;
-          continue;
+          )
+          errorCount++
+          continue
         }
 
         // Mark notifications as emailed
-        const notificationIds = userNotifications.map((n) => n.id);
+        const notificationIds = userNotifications.map((n) => n.id)
         await db
           .update(notifications)
           .set({ emailedAt: new Date() })
-          .where(sql`${notifications.id} = ANY(${notificationIds})`);
+          .where(sql`${notifications.id} = ANY(${notificationIds})`)
 
-        sentCount++;
+        sentCount++
         console.log(
           `[notifications:send-digests] Sent digest to user ${user.userId} with ${userNotifications.length} notifications`,
-        );
+        )
       } catch (error) {
         console.error(
           `[notifications:send-digests] Error processing user ${user.userId}:`,
           error,
-        );
-        errorCount++;
+        )
+        errorCount++
       }
     }
 
     console.log(
       `[notifications:send-digests] Complete. Sent: ${sentCount}, Errors: ${errorCount}`,
-    );
+    )
 
     return {
       result: {
@@ -203,6 +202,6 @@ export default defineTask({
         sent: sentCount,
         errors: errorCount,
       },
-    };
+    }
   },
-});
+})

@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
-type TabsVariant = "default" | "underline";
+type TabsVariant = "default" | "underline"
 
 function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
   return (
@@ -16,7 +16,7 @@ function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
       data-slot="tabs"
       {...props}
     />
-  );
+  )
 }
 
 function TabsList({
@@ -25,7 +25,7 @@ function TabsList({
   children,
   ...props
 }: TabsPrimitive.List.Props & {
-  variant?: TabsVariant;
+  variant?: TabsVariant
 }) {
   return (
     <TabsPrimitive.List
@@ -42,6 +42,7 @@ function TabsList({
     >
       {children}
       <TabsPrimitive.Indicator
+        renderBeforeHydration
         className={cn(
           "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
           variant === "underline"
@@ -51,7 +52,7 @@ function TabsList({
         data-slot="tab-indicator"
       />
     </TabsPrimitive.List>
-  );
+  )
 }
 
 function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props) {
@@ -64,7 +65,7 @@ function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props) {
       data-slot="tabs-tab"
       {...props}
     />
-  );
+  )
 }
 
 function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props) {
@@ -74,7 +75,7 @@ function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props) {
       data-slot="tabs-content"
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -84,4 +85,4 @@ export {
   TabsPanel,
   TabsTab,
   TabsTab as TabsTrigger,
-};
+}

@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { GhostIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
 
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui/button"
 import {
   Empty,
   EmptyContent,
@@ -9,7 +9,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "~/components/ui/empty";
+} from "~/components/ui/empty"
 
 export function NotFound({ children }: { children?: React.ReactNode }) {
   return (
@@ -18,9 +18,9 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
         <EmptyMedia variant="icon">
           <GhostIcon />
         </EmptyMedia>
-        <EmptyTitle>Not Found</EmptyTitle>
+        <EmptyTitle>not found</EmptyTitle>
         <EmptyDescription>
-          {children || "The page you're looking for doesn't exist."}
+          {children || "the page you're looking for doesn't exist"}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
@@ -29,5 +29,5 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
         </Button>
       </EmptyContent>
     </Empty>
-  );
+  )
 }

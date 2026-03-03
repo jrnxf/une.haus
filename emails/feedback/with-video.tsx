@@ -1,4 +1,4 @@
-import FeedbackTemplate from "../feedback";
+import FeedbackTemplate from "../feedback"
 
 export default function WithVideo() {
   return (
@@ -12,5 +12,5 @@ export default function WithVideo() {
         playbackId: "sample-playback-id",
       }}
     />
-  );
+  )
 }

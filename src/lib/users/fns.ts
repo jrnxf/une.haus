@@ -1,32 +1,31 @@
-import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, asc, desc, eq, gt, ilike, isNull, lt, sql } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, desc, eq, gt, ilike, lt, sql } from "drizzle-orm";
-
-import { db } from "~/db";
+import { db } from "~/db"
 import {
   biuSets,
   postMessages,
   posts,
   riuSets,
   riuSubmissions,
-  siuStacks,
-  tricks,
+  siuSets,
   trickSubmissions,
   trickSuggestions,
   trickVideos,
+  tricks,
   userFollows,
   userLocations,
-  users,
   userSocials,
-  utvVideos,
+  users,
   utvVideoSuggestions,
-} from "~/db/schema";
-import { PAGE_SIZE } from "~/lib/constants";
-import { assertFound } from "~/lib/invariant";
-import { authMiddleware } from "~/lib/middleware";
-import { createNotification } from "~/lib/notifications/helpers";
-import { useServerSession } from "~/lib/session/hooks";
+  utvVideos,
+} from "~/db/schema"
+import { PAGE_SIZE } from "~/lib/constants"
+import { assertFound } from "~/lib/invariant"
+import { authMiddleware, authOptionalMiddleware } from "~/lib/middleware"
+import { createNotification } from "~/lib/notifications/helpers"
+import { useServerSession } from "~/lib/session/hooks"
 import {
   followUserSchema,
   getUserActivitySchema,
@@ -36,7 +35,9 @@ import {
   setShopNotifySchema,
   unfollowUserSchema,
   updateUserSchema,
-} from "~/lib/users/schemas";
+} from "~/lib/users/schemas"
+
+const getTime = (d: Date) => d.getTime()
 
 export const allUsersServerFn = createServerFn({
   method: "GET",
@@ -48,8 +49,8 @@ export const allUsersServerFn = createServerFn({
       name: users.name,
     })
     .from(users)
-    .orderBy(asc(users.id));
-});
+    .orderBy(asc(users.id))
+})
 
 export const usersWithLocationsServerFn = createServerFn({
   method: "GET",
@@ -68,8 +69,8 @@ export const usersWithLocationsServerFn = createServerFn({
     })
     .from(users)
     .innerJoin(userLocations, eq(userLocations.userId, users.id))
-    .orderBy(asc(users.id));
-});
+    .orderBy(asc(users.id))
+})
 
 export const listUsersServerFn = createServerFn({
   method: "GET",
@@ -113,16 +114,16 @@ export const listUsersServerFn = createServerFn({
         ),
       )
       .orderBy(asc(users.id))
-      .limit(PAGE_SIZE);
-  });
+      .limit(PAGE_SIZE)
+  })
 
 export const getUserServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(getUserSchema))
   .handler(async ({ data }) => {
-    return await getUser(data.userId);
-  });
+    return await getUser(data.userId)
+  })
 
 export const getUserWithFollowsServerFn = createServerFn({
   method: "GET",
@@ -132,13 +133,13 @@ export const getUserWithFollowsServerFn = createServerFn({
     const [user, follows] = await Promise.all([
       getUser(data.userId),
       getUserFollows(data.userId),
-    ]);
+    ])
 
     return {
       ...user,
       ...follows,
-    };
-  });
+    }
+  })
 
 export const updateUserServerFn = createServerFn({
   method: "POST",
@@ -146,15 +147,15 @@ export const updateUserServerFn = createServerFn({
   .inputValidator(zodValidator(updateUserSchema))
   .middleware([authMiddleware])
   .handler(async ({ data, context }) => {
-    const { location, socials, ...updateData } = data;
+    const { location, socials, ...updateData } = data
 
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const session = await useServerSession();
+    const session = await useServerSession()
     const promises: Promise<unknown>[] = [
       db.update(users).set(updateData).where(eq(users.id, userId)),
       session.update({ user: { ...context.user, ...updateData } }),
-    ];
+    ]
 
     if (location === null) {
       promises.push(
@@ -162,7 +163,7 @@ export const updateUserServerFn = createServerFn({
           .delete(userLocations)
           .where(eq(userLocations.userId, userId))
           .returning(),
-      );
+      )
     } else if (location !== undefined) {
       promises.push(
         db
@@ -172,32 +173,32 @@ export const updateUserServerFn = createServerFn({
             target: userLocations.userId,
             set: location,
           }),
-      );
+      )
     }
 
     if (socials === null) {
       promises.push(
         db.delete(userSocials).where(eq(userSocials.userId, userId)),
-      );
+      )
     } else if (socials !== undefined) {
       promises.push(
         db
           .insert(userSocials)
           .values({ ...socials, userId })
           .onConflictDoUpdate({ target: userSocials.userId, set: socials }),
-      );
+      )
     }
 
-    await Promise.all(promises);
-  });
+    await Promise.all(promises)
+  })
 
 export const getUserFollowsServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(getUserFollowsSchema))
   .handler(async ({ data: input }) => {
-    return await getUserFollows(input.userId);
-  });
+    return await getUserFollows(input.userId)
+  })
 
 export const followUserServerFn = createServerFn({
   method: "POST",
@@ -208,7 +209,7 @@ export const followUserServerFn = createServerFn({
     await db.insert(userFollows).values({
       followedByUserId: context.user.id,
       followedUserId: input.userId,
-    });
+    })
 
     // Notify the followed user
     createNotification({
@@ -221,8 +222,8 @@ export const followUserServerFn = createServerFn({
         actorName: context.user.name,
         actorAvatarId: context.user.avatarId,
       },
-    }).catch(console.error);
-  });
+    }).catch(console.error)
+  })
 
 export const unfollowUserServerFn = createServerFn({
   method: "POST",
@@ -237,8 +238,8 @@ export const unfollowUserServerFn = createServerFn({
           eq(userFollows.followedByUserId, context.user.id),
           eq(userFollows.followedUserId, input.userId),
         ),
-      );
-  });
+      )
+  })
 
 const getUser = createServerOnlyFn(async (userId: number) => {
   const [user] = await db
@@ -269,12 +270,12 @@ const getUser = createServerOnlyFn(async (userId: number) => {
     .where(eq(users.id, userId))
     .leftJoin(userLocations, eq(userLocations.userId, users.id))
     .leftJoin(userSocials, eq(userSocials.userId, users.id))
-    .limit(1);
+    .limit(1)
 
-  assertFound(user);
+  assertFound(user)
 
-  return user;
-});
+  return user
+})
 
 const getUserFollows = createServerOnlyFn(async (userId: number) => {
   const [followedUsersResult, followedByUsersResult] = await Promise.allSettled(
@@ -312,14 +313,14 @@ const getUserFollows = createServerOnlyFn(async (userId: number) => {
         .where(eq(userFollows.followedUserId, userId))
         .orderBy(asc(users.id)),
     ],
-  );
+  )
 
   const followedUsers =
-    followedUsersResult.status === "fulfilled" ? followedUsersResult.value : [];
+    followedUsersResult.status === "fulfilled" ? followedUsersResult.value : []
   const followedByUsers =
     followedByUsersResult.status === "fulfilled"
       ? followedByUsersResult.value
-      : [];
+      : []
 
   return {
     followers: {
@@ -330,8 +331,8 @@ const getUserFollows = createServerOnlyFn(async (userId: number) => {
       count: followedUsers.length,
       users: followedUsers,
     },
-  };
-});
+  }
+})
 
 export type ActivityType =
   | "post"
@@ -344,52 +345,53 @@ export type ActivityType =
   | "trickVideo"
   | "utvVideo"
   | "utvVideoSuggestion"
-  | "siuStack";
+  | "siuSet"
 
 export type ActivityItem = {
-  type: ActivityType;
-  id: number;
-  createdAt: Date;
+  type: ActivityType
+  id: number
+  createdAt: Date
   // Post fields
-  title?: string | null;
-  content?: string | null;
-  imageId?: string | null;
+  title?: string | null
+  content?: string | null
+  imageId?: string | null
   // Comment fields
-  parentType?: "post" | "riuSet" | "riuSubmission" | "biuSet";
-  parentId?: number | null;
-  parentTitle?: string | null;
+  parentType?: "post" | "riuSet" | "riuSubmission" | "biuSet"
+  parentId?: number | null
+  parentTitle?: string | null
   // Game fields
-  name?: string | null;
-  riuId?: number | null;
-  riuSetId?: number | null;
-  chainId?: number | null;
-  muxAssetId?: string | null;
+  name?: string | null
+  riuId?: number | null
+  riuSetId?: number | null
+  biuId?: number | null
+  siuId?: number | null
+  muxAssetId?: string | null
   // Trick fields
-  trickId?: number | null;
-  trickSlug?: string | null;
-  trickName?: string | null;
+  trickId?: number | null
+  trickSlug?: string | null
+  trickName?: string | null
   // UTV Video fields
-  videoId?: number | null;
-  videoTitle?: string | null;
-};
+  videoId?: number | null
+  videoTitle?: string | null
+}
 
 export const getUserActivityServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(getUserActivitySchema))
   .handler(async ({ data }) => {
-    const { userId, cursor, limit = 50, type: typeFilter } = data;
+    const { userId, cursor, limit = 50, type: typeFilter } = data
 
     // Parse cursor timestamp for pagination
     // Cursor format: "timestamp|type|id" (using | since ISO timestamps contain colons)
-    let cursorDate: Date | null = null;
+    let cursorDate: Date | null = null
     if (cursor) {
-      const [timestamp] = cursor.split("|");
-      cursorDate = new Date(timestamp);
+      const [timestamp] = cursor.split("|")
+      cursorDate = new Date(timestamp)
     }
 
     // Helper to check if we should fetch a specific type
-    const shouldFetch = (type: string) => !typeFilter || typeFilter === type;
+    const shouldFetch = (type: string) => !typeFilter || typeFilter === type
 
     // Fetch activity from each source in parallel using drizzle query builder
     // When a type filter is set, only fetch that specific source
@@ -403,7 +405,7 @@ export const getUserActivityServerFn = createServerFn({
       trickSuggestionsData,
       trickVideosData,
       utvVideoSuggestionsData,
-      siuStacksData,
+      siuSetsData,
     ] = await Promise.all([
       // Posts
       shouldFetch("post")
@@ -500,16 +502,16 @@ export const getUserActivityServerFn = createServerFn({
             .select({
               id: biuSets.id,
               createdAt: biuSets.createdAt,
-              chainId: biuSets.chainId,
+              biuId: biuSets.biuId,
+              name: biuSets.name,
             })
             .from(biuSets)
             .where(
-              cursorDate
-                ? and(
-                    eq(biuSets.userId, userId),
-                    lt(biuSets.createdAt, cursorDate),
-                  )
-                : eq(biuSets.userId, userId),
+              and(
+                eq(biuSets.userId, userId),
+                isNull(biuSets.deletedAt),
+                cursorDate ? lt(biuSets.createdAt, cursorDate) : undefined,
+              ),
             )
             .orderBy(desc(biuSets.createdAt))
             .limit(limit + 1)
@@ -610,31 +612,27 @@ export const getUserActivityServerFn = createServerFn({
             .limit(limit + 1)
         : Promise.resolve([]),
 
-      // SIU Stacks
-      shouldFetch("siuStack")
+      // SIU Sets
+      shouldFetch("siuSet")
         ? db
             .select({
-              id: siuStacks.id,
-              createdAt: siuStacks.createdAt,
-              chainId: siuStacks.chainId,
-              name: siuStacks.name,
+              id: siuSets.id,
+              createdAt: siuSets.createdAt,
+              siuId: siuSets.siuId,
+              name: siuSets.name,
             })
-            .from(siuStacks)
+            .from(siuSets)
             .where(
-              cursorDate
-                ? and(
-                    eq(siuStacks.userId, userId),
-                    lt(siuStacks.createdAt, cursorDate),
-                  )
-                : eq(siuStacks.userId, userId),
+              and(
+                eq(siuSets.userId, userId),
+                isNull(siuSets.deletedAt),
+                cursorDate ? lt(siuSets.createdAt, cursorDate) : undefined,
+              ),
             )
-            .orderBy(desc(siuStacks.createdAt))
+            .orderBy(desc(siuSets.createdAt))
             .limit(limit + 1)
         : Promise.resolve([]),
-    ]);
-
-    // Helper to get timestamp from Date
-    const getTime = (d: Date) => d.getTime();
+    ])
 
     // Combine all items with timestamp for sorting
     const allItems: (ActivityItem & { _ts: number })[] = [
@@ -677,7 +675,8 @@ export const getUserActivityServerFn = createServerFn({
         type: "biuSet" as const,
         id: row.id,
         createdAt: row.createdAt,
-        chainId: row.chainId,
+        biuId: row.biuId,
+        name: row.name,
         _ts: getTime(row.createdAt),
       })),
       ...trickSubmissionsData.map((row) => ({
@@ -713,36 +712,36 @@ export const getUserActivityServerFn = createServerFn({
         videoTitle: row.videoTitle,
         _ts: getTime(row.createdAt),
       })),
-      ...siuStacksData.map((row) => ({
-        type: "siuStack" as const,
+      ...siuSetsData.map((row) => ({
+        type: "siuSet" as const,
         id: row.id,
         createdAt: row.createdAt,
-        chainId: row.chainId,
+        siuId: row.siuId,
         name: row.name,
         _ts: getTime(row.createdAt),
       })),
-    ];
+    ]
 
     // Sort by timestamp descending (newest first)
-    allItems.sort((a, b) => b._ts - a._ts);
+    allItems.sort((a, b) => b._ts - a._ts)
 
     // Remove the _ts field before returning
-    const sortedItems = allItems.map(({ _ts, ...item }) => item);
+    const sortedItems = allItems.map(({ _ts, ...item }) => item)
 
-    const hasMore = sortedItems.length > limit;
-    const items = sortedItems.slice(0, limit);
+    const hasMore = sortedItems.length > limit
+    const items = sortedItems.slice(0, limit)
 
     // Create cursor for next page (using | separator since ISO timestamps contain colons)
-    let nextCursor: string | undefined;
+    let nextCursor: string | undefined
     if (hasMore && items.length > 0) {
-      const lastItem = items.at(-1);
+      const lastItem = items.at(-1)
       if (lastItem) {
-        nextCursor = `${new Date(lastItem.createdAt).toISOString()}|${lastItem.type}|${lastItem.id}`;
+        nextCursor = `${new Date(lastItem.createdAt).toISOString()}|${lastItem.type}|${lastItem.id}`
       }
     }
 
-    return { items, nextCursor };
-  });
+    return { items, nextCursor }
+  })
 
 export const setShopNotifyServerFn = createServerFn({
   method: "POST",
@@ -753,15 +752,27 @@ export const setShopNotifyServerFn = createServerFn({
     await db
       .update(users)
       .set({ notifyWhenShop: data.notify })
-      .where(eq(users.id, context.user.id));
-  });
+      .where(eq(users.id, context.user.id))
+  })
 
 export const getShopWaitlistCountServerFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  const [result] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(users)
-    .where(eq(users.notifyWhenShop, true));
-  return result.count;
-});
+})
+  .middleware([authOptionalMiddleware])
+  .handler(async ({ context }) => {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(users)
+      .where(eq(users.notifyWhenShop, true))
+
+    let isOnWaitlist = false
+    if (context.user) {
+      const [row] = await db
+        .select({ notifyWhenShop: users.notifyWhenShop })
+        .from(users)
+        .where(eq(users.id, context.user.id))
+      isOnWaitlist = row?.notifyWhenShop ?? false
+    }
+
+    return { count: result.count, isOnWaitlist }
+  })

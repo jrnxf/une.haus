@@ -1,4 +1,4 @@
-import NotificationDigestTemplate from "../notification-digest";
+import NotificationDigestTemplate from "../notification-digest"
 
 export default function ManyItemsOverflow() {
   return (
@@ -36,5 +36,5 @@ export default function ManyItemsOverflow() {
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
       viewNotificationsUrl="https://une.haus/notifications"
     />
-  );
+  )
 }

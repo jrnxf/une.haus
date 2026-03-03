@@ -1,95 +1,78 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router"
+import pluralize from "pluralize"
+import { Fragment, type ReactNode } from "react"
 
+import { SetCard } from "./set-card"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "~/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
-import { type RankedRider } from "~/lib/games";
-import { type RiderScore } from "~/lib/games/rius/ranking";
-
-import { SetCard } from "./set-card";
+} from "~/components/ui/accordion"
+import { type RankedRider } from "~/lib/games"
+import { type RiderScore } from "~/lib/games/rius/ranking"
+import { cn } from "~/lib/utils"
 
 type SetData = {
-  id: number;
-  name: string;
-  instructions: string | null;
+  id: number
+  name: string
+  instructions: string | null
+  createdAt: Date
   user: {
-    id: number;
-    name: string;
-    avatarId: string | null;
-  };
-  likes?: unknown[];
-  submissions?: unknown[];
-};
-
-type SetsGroupedListProps = {
-  rankedRiders: RankedRider<SetData>[];
-  openUserId?: number;
-  basePath: string;
-  pathParams?: Record<string, string>;
-  searchParams?: Record<string, unknown>;
-};
-
-function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return (
-      <Badge
-        variant="default"
-        className="bg-yellow-600 px-1.5 py-0 text-[10px] text-yellow-100 dark:bg-yellow-700"
-      >
-        1st
-      </Badge>
-    );
+    id: number
+    name: string
+    avatarId: string | null
   }
-  if (rank === 2) {
-    return (
-      <Badge
-        variant="default"
-        className="bg-gray-500 px-1.5 py-0 text-[10px] text-gray-100 dark:bg-gray-600"
-      >
-        2nd
-      </Badge>
-    );
-  }
-  if (rank === 3) {
-    return (
-      <Badge
-        variant="default"
-        className="bg-amber-700 px-1.5 py-0 text-[10px] text-amber-100 dark:bg-amber-800"
-      >
-        3rd
-      </Badge>
-    );
-  }
-  return null;
+  likes?: unknown[]
+  submissions?: unknown[]
 }
 
+type SetsGroupedListProps = {
+  rankedRiders: RankedRider<SetData>[]
+  openUserId?: number
+  basePath: string
+  pathParams?: Record<string, string>
+  searchParams?: Record<string, unknown>
+}
+
+const Slash = () => <span className="opacity-25">/</span>
+
 function RiderStats({ ranking }: { ranking: RiderScore }) {
-  const parts: string[] = [];
+  const parts: ReactNode[] = []
 
   if (ranking.setsCount > 0) {
-    parts.push(
-      `${ranking.setsCount} ${ranking.setsCount === 1 ? "set" : "sets"}`,
-    );
+    parts.push(`${ranking.setsCount} ${pluralize("set", ranking.setsCount)}`)
   }
   if (ranking.submissionsCount > 0) {
     parts.push(
-      `${ranking.submissionsCount} ${ranking.submissionsCount === 1 ? "submission" : "submissions"}`,
-    );
+      `${ranking.submissionsCount} ${pluralize("submission", ranking.submissionsCount)}`,
+    )
   }
 
-  const statsText = parts.join(" · ");
-  const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "pts"}`;
+  const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "pts"}`
 
   return (
     <p className="text-muted-foreground text-xs">
-      {statsText} · {pointsText}
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && (
+            <>
+              {" "}
+              <Slash />{" "}
+            </>
+          )}
+          {part}
+        </Fragment>
+      ))}
+      {parts.length > 0 && (
+        <>
+          {" "}
+          <Slash />{" "}
+        </>
+      )}
+      {pointsText}
     </p>
-  );
+  )
 }
 
 export function SetsGroupedList({
@@ -99,22 +82,22 @@ export function SetsGroupedList({
   pathParams = {},
   searchParams = {},
 }: SetsGroupedListProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   if (rankedRiders.length === 0) {
     return (
       <div className="bg-card rounded-lg border p-8 text-center">
-        <p className="text-muted-foreground">No sets available</p>
+        <p className="text-muted-foreground">no sets available</p>
       </div>
-    );
+    )
   }
 
   return (
     <Accordion
-      className="space-y-2"
+      className="relative pl-10"
       value={openUserId ? [openUserId.toString()] : []}
       onValueChange={(value) => {
-        const first = value[0];
+        const first = value[0]
         navigate({
           to: basePath,
           params: pathParams,
@@ -123,48 +106,71 @@ export function SetsGroupedList({
             open: first ? Number.parseInt(String(first), 10) : undefined,
           },
           replace: true,
-        });
+        })
       }}
     >
-      {rankedRiders.map(({ user, sets, ranking }) => (
-        <AccordionItem
-          key={user.id}
-          value={user.id.toString()}
-          className="bg-card overflow-hidden rounded-lg border last:border-b"
-        >
-          <AccordionTrigger className="[&[data-state=open]]:border-border border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none">
-            <div className="flex items-center gap-3">
-              <Avatar
-                className="size-8 rounded-full"
-                cloudflareId={user.avatarId}
-                alt={user.name}
-              >
-                <AvatarImage width={32} quality={85} />
-                <AvatarFallback className="text-xs" name={user.name} />
-              </Avatar>
-              <div className="text-left">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-medium">{user.name}</h3>
-                  <RankBadge rank={ranking.rank} />
-                </div>
-                <RiderStats ranking={ranking} />
-              </div>
-            </div>
-          </AccordionTrigger>
+      <div className="space-y-4">
+        {rankedRiders.map(({ user, sets, ranking }, index) => (
+          <div key={user.id} className="relative flex items-start">
+            {/* Spine line */}
+            {rankedRiders.length > 1 && (
+              <div
+                className={cn(
+                  "bg-border absolute -left-[1.625rem] w-px",
+                  index === 0 && "top-1/2 -bottom-2",
+                  index === rankedRiders.length - 1 && "-top-2 bottom-1/2",
+                  index > 0 &&
+                    index < rankedRiders.length - 1 &&
+                    "-top-2 -bottom-2",
+                )}
+              />
+            )}
 
-          <AccordionContent className="p-3 pt-0">
-            <div className="flex flex-col gap-2 pt-3">
-              {sets.length > 0 ? (
-                sets.map((set) => <SetCard key={set.id} set={set} />)
-              ) : (
-                <p className="text-muted-foreground py-2 text-center text-sm">
-                  No sets uploaded (submissions only)
-                </p>
+            {/* Ranked node */}
+            <div
+              className={cn(
+                "absolute top-[17px] -left-10 flex size-7 items-center justify-center rounded-full border text-xs font-medium",
+                ranking.rank === 1 &&
+                  "border-yellow-600 bg-yellow-600 text-yellow-100 dark:border-yellow-700 dark:bg-yellow-700",
+                ranking.rank === 2 &&
+                  "border-gray-500 bg-gray-500 text-gray-100 dark:border-gray-600 dark:bg-gray-600",
+                ranking.rank === 3 &&
+                  "border-amber-700 bg-amber-700 text-amber-100 dark:border-amber-800 dark:bg-amber-800",
+                ranking.rank > 3 &&
+                  "bg-background border-border text-muted-foreground",
               )}
+            >
+              {ranking.rank}
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
+
+            <AccordionItem
+              value={user.id.toString()}
+              className="bg-card w-full overflow-hidden rounded-lg border last:border-b"
+            >
+              <AccordionTrigger className="[&[data-state=open]]:border-border items-center border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none">
+                <div className="text-left">
+                  <h3 className="text-sm font-medium">{user.name}</h3>
+                  <RiderStats ranking={ranking} />
+                </div>
+              </AccordionTrigger>
+
+              <AccordionContent className="p-3 pt-0">
+                {sets.length > 0 ? (
+                  <div className="flex flex-col gap-2 pt-3">
+                    {sets.map((set) => (
+                      <SetCard key={set.id} set={set} className="w-full" />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground py-2 pt-3 text-center text-xs">
+                    submissions only
+                  </p>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </div>
+        ))}
+      </div>
     </Accordion>
-  );
+  )
 }

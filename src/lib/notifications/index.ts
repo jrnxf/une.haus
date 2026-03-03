@@ -1,4 +1,4 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
 import {
   deleteNotificationServerFn,
@@ -8,15 +8,15 @@ import {
   markAllReadServerFn,
   markGroupReadServerFn,
   markReadServerFn,
-} from "~/lib/notifications/fns";
+} from "~/lib/notifications/fns"
 import {
   deleteNotificationSchema,
   listNotificationsSchema,
   markAllReadSchema,
   markGroupReadSchema,
   markReadSchema,
-} from "~/lib/notifications/schemas";
-import type { ServerFnData } from "~/lib/types";
+} from "~/lib/notifications/schemas"
+import { type ServerFnData } from "~/lib/types"
 
 export const notifications = {
   list: {
@@ -74,4 +74,4 @@ export const notifications = {
     fn: deleteNotificationServerFn,
     schema: deleteNotificationSchema,
   },
-};
+}

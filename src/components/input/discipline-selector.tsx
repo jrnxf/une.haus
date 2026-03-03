@@ -1,36 +1,36 @@
-import { Badge } from "~/components/ui/badge";
-import { USER_DISCIPLINES, type UserDiscipline } from "~/db/schema";
-import { cn } from "~/lib/utils";
+import { Badge } from "~/components/ui/badge"
+import { USER_DISCIPLINES, type UserDiscipline } from "~/db/schema"
+import { cn } from "~/lib/utils"
 
 const DISCIPLINE_LABELS: Record<UserDiscipline, string> = {
-  street: "Street",
-  flatland: "Flatland",
-  trials: "Trials",
-  freestyle: "Freestyle",
-  mountain: "Mountain",
-  distance: "Distance",
-  other: "Other",
-};
+  street: "street",
+  flatland: "flatland",
+  trials: "trials",
+  freestyle: "freestyle",
+  mountain: "mountain",
+  distance: "distance",
+  other: "other",
+}
 
 export function DisciplineSelector({
   value,
   onChange,
 }: {
-  value: UserDiscipline[];
-  onChange: (disciplines: UserDiscipline[]) => void;
+  value: UserDiscipline[]
+  onChange: (disciplines: UserDiscipline[]) => void
 }) {
   const toggleDiscipline = (discipline: UserDiscipline) => {
     if (value.includes(discipline)) {
-      onChange(value.filter((d) => d !== discipline));
+      onChange(value.filter((d) => d !== discipline))
     } else {
-      onChange([...value, discipline]);
+      onChange([...value, discipline])
     }
-  };
+  }
 
   return (
     <div className="flex flex-wrap gap-2">
       {USER_DISCIPLINES.map((discipline) => {
-        const isSelected = value.includes(discipline);
+        const isSelected = value.includes(discipline)
         return (
           <button
             key={discipline}
@@ -47,8 +47,8 @@ export function DisciplineSelector({
               {DISCIPLINE_LABELS[discipline]}
             </Badge>
           </button>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

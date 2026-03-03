@@ -1,4 +1,4 @@
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 export function LogoOptionD({
   className,
@@ -81,5 +81,5 @@ export function LogoOptionD({
         className="dark:fill-white"
       />
     </svg>
-  );
+  )
 }

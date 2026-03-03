@@ -188,7 +188,7 @@ CREATE TABLE user_notification_settings (
 
 ```typescript
 // Notification types (what happened)
-type NotificationType = "like" | "comment" | "follow" | "new_content";
+type NotificationType = "like" | "comment" | "follow" | "new_content"
 
 // Entity types (what it happened to)
 type NotificationEntityType =
@@ -197,7 +197,7 @@ type NotificationEntityType =
   | "riuSubmission"
   | "biuSet"
   | "utvVideo"
-  | "user";
+  | "user"
 ```
 
 ### Entity Relationship Diagram
@@ -499,7 +499,7 @@ listGroupedNotificationsServerFn({
 #### Unread Count
 
 ```typescript
-getUnreadCountServerFn();
+getUnreadCountServerFn()
 // Returns: number
 ```
 
@@ -507,7 +507,7 @@ getUnreadCountServerFn();
 
 ```typescript
 // Single notification
-markReadServerFn({ data: { notificationId: number } });
+markReadServerFn({ data: { notificationId: number } })
 
 // All notifications in a group
 markGroupReadServerFn({
@@ -516,16 +516,16 @@ markGroupReadServerFn({
     entityType: NotificationEntityType,
     entityId: number,
   },
-});
+})
 
 // All notifications
-markAllReadServerFn({ data: {} });
+markAllReadServerFn({ data: {} })
 ```
 
 #### Delete
 
 ```typescript
-deleteNotificationServerFn({ data: { notificationId: number } });
+deleteNotificationServerFn({ data: { notificationId: number } })
 ```
 
 ### Helper Functions
@@ -533,50 +533,50 @@ deleteNotificationServerFn({ data: { notificationId: number } });
 ```typescript
 // Create a single notification (respects preferences)
 async function createNotification(input: {
-  userId: number; // Recipient
-  actorId?: number; // Who triggered it
-  type: NotificationType;
-  entityType: NotificationEntityType;
-  entityId: number;
+  userId: number // Recipient
+  actorId?: number // Who triggered it
+  type: NotificationType
+  entityType: NotificationEntityType
+  entityId: number
   data?: {
-    actorName?: string;
-    actorAvatarId?: string | null;
-    entityTitle?: string;
-    entityPreview?: string;
-  };
-}): Promise<void>;
+    actorName?: string
+    actorAvatarId?: string | null
+    entityTitle?: string
+    entityPreview?: string
+  }
+}): Promise<void>
 
 // Notify all followers of a user
 async function notifyFollowers(args: {
-  actorId: number;
-  actorName: string;
-  actorAvatarId?: string | null;
-  type: "new_content";
-  entityType: NotificationEntityType;
-  entityId: number;
-  entityTitle?: string;
-}): Promise<void>;
+  actorId: number
+  actorName: string
+  actorAvatarId?: string | null
+  type: "new_content"
+  entityType: NotificationEntityType
+  entityId: number
+  entityTitle?: string
+}): Promise<void>
 
 // Get content owner for notification targeting
 async function getContentOwner(
   entityType: NotificationEntityType,
   entityId: number,
-): Promise<number | null>;
+): Promise<number | null>
 ```
 
 ### Query Options (React Query)
 
 ```typescript
-import { notifications } from "~/lib/notifications";
+import { notifications } from "~/lib/notifications"
 
 // Unread count (polls every 30s)
-notifications.unreadCount.queryOptions();
+notifications.unreadCount.queryOptions()
 
 // Grouped notifications
-notifications.grouped.queryOptions({ limit: 10, unreadOnly: false });
+notifications.grouped.queryOptions({ limit: 10, unreadOnly: false })
 
 // Individual list with infinite scroll
-notifications.list.infiniteQueryOptions({ unreadOnly: false });
+notifications.list.infiniteQueryOptions({ unreadOnly: false })
 ```
 
 ---
@@ -588,9 +588,8 @@ notifications.list.infiniteQueryOptions({ unreadOnly: false });
 Bell icon with unread badge and popover dropdown.
 
 ```tsx
-import { NotificationBell } from "~/components/notifications/notification-bell";
-
-<NotificationBell className="..." />;
+import { NotificationBell } from "~/components/notifications/notification-bell"
+;<NotificationBell className="..." />
 ```
 
 **Features:**

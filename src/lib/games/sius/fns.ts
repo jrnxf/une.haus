@@ -1,43 +1,51 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, count, desc, eq, isNull } from "drizzle-orm"
+import pluralize from "pluralize"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, count, desc, eq } from "drizzle-orm";
-
-import { db } from "~/db";
-import { siuChains, siuStackArchiveVotes, siuStacks, users } from "~/db/schema";
-import { invariant } from "~/lib/invariant";
+import {
+  addSetSchema,
+  archiveRoundSchema,
+  deleteSetSchema,
+  getArchivedRoundSchema,
+  getSetSchema,
+  removeArchiveVoteSchema,
+  startRoundSchema,
+  voteToArchiveSchema,
+} from "./schemas"
+import { db } from "~/db"
+import {
+  siuArchiveVotes,
+  siuSetLikes,
+  siuSetMessages,
+  siuSets,
+  sius,
+  users,
+} from "~/db/schema"
+import { invariant } from "~/lib/invariant"
 import {
   adminOnlyMiddleware,
   authMiddleware,
   authOptionalMiddleware,
-} from "~/lib/middleware";
+} from "~/lib/middleware"
 import {
   createNotification,
   notifyFollowers,
-} from "~/lib/notifications/helpers";
+} from "~/lib/notifications/helpers"
 
-import {
-  archiveChainSchema,
-  deleteStackSchema,
-  getStackSchema,
-  listArchivedChainsSchema,
-  removeArchiveVoteSchema,
-  stackUpSchema,
-  startChainSchema,
-  voteToArchiveSchema,
-} from "./schemas";
+const ARCHIVE_VOTE_THRESHOLD = 5
+const MAX_ACTIVE_ROUNDS = 3
 
-const ARCHIVE_VOTE_THRESHOLD = 5;
-
-// Get active chain with all stacks (ordered by position desc for UI)
-export const getActiveChainServerFn = createServerFn({ method: "GET" })
+// Get active rounds with all sets (ordered by position desc for UI)
+export const getActiveRoundsServerFn = createServerFn({ method: "GET" })
   .middleware([authOptionalMiddleware])
   .handler(async () => {
-    const activeChain = await db.query.siuChains.findFirst({
-      where: eq(siuChains.status, "active"),
+    const activeRounds = await db.query.sius.findMany({
+      where: eq(sius.status, "active"),
+      orderBy: desc(sius.createdAt),
       with: {
-        stacks: {
-          orderBy: desc(siuStacks.position),
+        sets: {
+          orderBy: desc(siuSets.position),
           with: {
             user: {
               columns: { id: true, name: true, avatarId: true },
@@ -55,7 +63,7 @@ export const getActiveChainServerFn = createServerFn({ method: "GET" })
             messages: {
               columns: { id: true },
             },
-            parentStack: {
+            parentSet: {
               columns: { id: true, name: true },
               with: {
                 user: {
@@ -73,19 +81,19 @@ export const getActiveChainServerFn = createServerFn({ method: "GET" })
           },
         },
       },
-    });
+    })
 
-    return activeChain ?? null;
-  });
+    return activeRounds
+  })
 
-// Get single stack with full details
-export const getStackServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(getStackSchema))
+// Get single set with full details
+export const getSetServerFn = createServerFn({ method: "GET" })
+  .inputValidator(zodValidator(getSetSchema))
   .handler(async ({ data: input }) => {
-    const stack = await db.query.siuStacks.findFirst({
-      where: eq(siuStacks.id, input.stackId),
+    const set = await db.query.siuSets.findFirst({
+      where: eq(siuSets.id, input.setId),
       with: {
-        chain: {
+        siu: {
           columns: { id: true, status: true },
           with: {
             archiveVotes: {
@@ -103,7 +111,7 @@ export const getStackServerFn = createServerFn({ method: "GET" })
         video: {
           columns: { playbackId: true },
         },
-        parentStack: {
+        parentSet: {
           columns: { id: true, name: true },
           with: {
             user: {
@@ -137,140 +145,152 @@ export const getStackServerFn = createServerFn({ method: "GET" })
           },
         },
       },
-    });
+    })
 
-    return stack;
-  });
+    if (!set) return set
 
-// Start a new chain (admin only)
-export const startChainServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(startChainSchema))
+    // Check if this is the latest set in its round (no non-deleted children)
+    const childSet = await db.query.siuSets.findFirst({
+      where: and(eq(siuSets.parentSetId, set.id), isNull(siuSets.deletedAt)),
+      columns: { id: true },
+    })
+
+    return { ...set, isLatest: !childSet }
+  })
+
+// Start a new round (admin only)
+export const startRoundServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(startRoundSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    // Check if there's already an active chain
-    const existingActiveChain = await db.query.siuChains.findFirst({
-      where: eq(siuChains.status, "active"),
-    });
+    // Check if max active rounds reached
+    const activeRounds = await db.query.sius.findMany({
+      where: eq(sius.status, "active"),
+      columns: { id: true },
+    })
 
-    invariant(!existingActiveChain, "An active chain already exists");
+    invariant(
+      activeRounds.length < MAX_ACTIVE_ROUNDS,
+      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+    )
 
-    // Create new chain
-    const [chain] = await db
-      .insert(siuChains)
+    // Create new round
+    const [round] = await db
+      .insert(sius)
       .values({ status: "active" })
-      .returning();
+      .returning()
 
-    // Create first stack
-    const [stack] = await db
-      .insert(siuStacks)
+    // Create first set
+    const [set] = await db
+      .insert(siuSets)
       .values({
-        chainId: chain.id,
+        siuId: round.id,
         userId,
         muxAssetId: input.muxAssetId,
         name: input.name,
         position: 1,
-        parentStackId: null,
+        parentSetId: null,
       })
-      .returning();
+      .returning()
 
-    return { chain, stack };
-  });
+    return { round, set }
+  })
 
-// Stack up (continue the chain with full line + new trick)
-export const stackUpServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(stackUpSchema))
+// Add set (continue the round with full line + new trick)
+export const addSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(addSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    // Get the parent stack
-    const parentStack = await db.query.siuStacks.findFirst({
-      where: eq(siuStacks.id, input.parentStackId),
+    // Get the parent set
+    const parentSet = await db.query.siuSets.findFirst({
+      where: eq(siuSets.id, input.parentSetId),
       with: {
-        chain: true,
+        siu: true,
       },
-    });
+    })
 
-    invariant(parentStack, "Parent stack not found");
-    invariant(parentStack.chain.status === "active", "Chain is not active");
-    invariant(
-      parentStack.userId !== userId,
-      "You cannot stack up your own trick",
-    );
+    invariant(parentSet, "Parent set not found")
+    invariant(parentSet.siu.status === "active", "Round is not active")
+    invariant(parentSet.userId !== userId, "You cannot stack up your own trick")
 
-    // Ensure this is the latest stack in the chain (no one else has stacked it)
-    const existingStack = await db.query.siuStacks.findFirst({
-      where: eq(siuStacks.parentStackId, input.parentStackId),
-    });
+    // Ensure this is the latest set in the round (no non-deleted child)
+    const existingSet = await db.query.siuSets.findFirst({
+      where: and(
+        eq(siuSets.parentSetId, input.parentSetId),
+        isNull(siuSets.deletedAt),
+      ),
+    })
 
-    invariant(!existingStack, "This stack has already been continued");
+    invariant(!existingSet, "This set has already been continued")
 
-    // Create the new stack
-    const [stack] = await db
-      .insert(siuStacks)
+    // Create the new set
+    const [set] = await db
+      .insert(siuSets)
       .values({
-        chainId: parentStack.chainId,
+        siuId: parentSet.siuId,
         userId,
         muxAssetId: input.muxAssetId,
         name: input.name,
-        position: parentStack.position + 1,
-        parentStackId: parentStack.id,
+        position: parentSet.position + 1,
+        parentSetId: parentSet.id,
       })
-      .returning();
+      .returning()
 
-    // Notify followers about the new SIU stack
+    // Notify followers about the new SIU set
     notifyFollowers({
       actorId: userId,
       actorName: context.user.name,
       actorAvatarId: context.user.avatarId,
       type: "new_content",
-      entityType: "siuStack",
-      entityId: stack.id,
-      entityTitle: stack.name,
-    }).catch(console.error);
+      entityType: "siuSet",
+      entityId: set.id,
+      entityTitle: set.name,
+    }).catch(console.error)
 
-    return stack;
-  });
+    return set
+  })
 
-// Vote to archive chain
+// Vote to archive round
 export const voteToArchiveServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(voteToArchiveSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const chain = await db.query.siuChains.findFirst({
-      where: eq(siuChains.id, input.chainId),
-    });
+    const round = await db.query.sius.findFirst({
+      where: eq(sius.id, input.roundId),
+    })
 
-    invariant(chain, "Chain not found");
-    invariant(chain.status === "active", "Chain is not active");
+    invariant(round, "Round not found")
+    invariant(round.status === "active", "Round is not active")
 
     // Check if already voted
-    const existingVote = await db.query.siuStackArchiveVotes.findFirst({
+    const existingVote = await db.query.siuArchiveVotes.findFirst({
       where: and(
-        eq(siuStackArchiveVotes.chainId, input.chainId),
-        eq(siuStackArchiveVotes.userId, userId),
+        eq(siuArchiveVotes.siuId, input.roundId),
+        eq(siuArchiveVotes.userId, userId),
       ),
-    });
+    })
 
-    invariant(!existingVote, "You have already voted to archive this chain");
+    invariant(!existingVote, "You have already voted to archive this round")
 
     // Add vote
-    await db.insert(siuStackArchiveVotes).values({
-      chainId: input.chainId,
+    await db.insert(siuArchiveVotes).values({
+      siuId: input.roundId,
       userId,
-    });
+    })
 
     // Check vote count
     const [result] = await db
       .select({ count: count() })
-      .from(siuStackArchiveVotes)
-      .where(eq(siuStackArchiveVotes.chainId, input.chainId));
+      .from(siuArchiveVotes)
+      .where(eq(siuArchiveVotes.siuId, input.roundId))
 
-    const voteCount = result?.count ?? 0;
+    const voteCount = result?.count ?? 0
 
     // If threshold reached, notify admins
     if (voteCount >= ARCHIVE_VOTE_THRESHOLD) {
@@ -278,20 +298,20 @@ export const voteToArchiveServerFn = createServerFn({ method: "POST" })
       const admins = await db.query.users.findMany({
         where: eq(users.type, "admin"),
         columns: { id: true },
-      });
+      })
 
-      // Get chain details for notification
-      const chainWithStacks = await db.query.siuChains.findFirst({
-        where: eq(siuChains.id, input.chainId),
+      // Get round details for notification
+      const roundWithSets = await db.query.sius.findFirst({
+        where: eq(sius.id, input.roundId),
         with: {
-          stacks: {
-            orderBy: desc(siuStacks.position),
+          sets: {
+            orderBy: desc(siuSets.position),
             limit: 1,
           },
         },
-      });
+      })
 
-      const latestStack = chainWithStacks?.stacks[0];
+      const latestSet = roundWithSets?.sets[0]
 
       // Notify each admin
       for (const admin of admins) {
@@ -299,55 +319,55 @@ export const voteToArchiveServerFn = createServerFn({ method: "POST" })
           userId: admin.id,
           actorId: userId,
           type: "archive_request",
-          entityType: "siuChain",
-          entityId: input.chainId,
+          entityType: "siu",
+          entityId: input.roundId,
           data: {
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
-            entityTitle: `Stack It Up chain with ${latestStack?.position ?? 0} tricks`,
-            entityPreview: `${voteCount} votes to archive`,
+            entityTitle: `Stack It Up round with ${latestSet?.position ?? 0} ${pluralize("trick", latestSet?.position ?? 0)}`,
+            entityPreview: `${voteCount} ${pluralize("vote", voteCount)} to archive`,
           },
-        });
+        })
       }
     }
 
-    return { voteCount, thresholdReached: voteCount >= ARCHIVE_VOTE_THRESHOLD };
-  });
+    return { voteCount, thresholdReached: voteCount >= ARCHIVE_VOTE_THRESHOLD }
+  })
 
 // Remove archive vote
 export const removeArchiveVoteServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(removeArchiveVoteSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     await db
-      .delete(siuStackArchiveVotes)
+      .delete(siuArchiveVotes)
       .where(
         and(
-          eq(siuStackArchiveVotes.chainId, input.chainId),
-          eq(siuStackArchiveVotes.userId, userId),
+          eq(siuArchiveVotes.siuId, input.roundId),
+          eq(siuArchiveVotes.userId, userId),
         ),
-      );
+      )
 
     // Get updated vote count
     const [result] = await db
       .select({ count: count() })
-      .from(siuStackArchiveVotes)
-      .where(eq(siuStackArchiveVotes.chainId, input.chainId));
+      .from(siuArchiveVotes)
+      .where(eq(siuArchiveVotes.siuId, input.roundId))
 
-    return { voteCount: result?.count ?? 0 };
-  });
+    return { voteCount: result?.count ?? 0 }
+  })
 
-// Archive chain (admin only)
-export const archiveChainServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(archiveChainSchema))
+// Archive round (admin only)
+export const archiveRoundServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(archiveRoundSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data: input, context }) => {
-    const chain = await db.query.siuChains.findFirst({
-      where: eq(siuChains.id, input.chainId),
+    const round = await db.query.sius.findFirst({
+      where: eq(sius.id, input.roundId),
       with: {
-        stacks: {
+        sets: {
           with: {
             user: {
               columns: { id: true, name: true },
@@ -355,91 +375,150 @@ export const archiveChainServerFn = createServerFn({ method: "POST" })
           },
         },
       },
-    });
+    })
 
-    invariant(chain, "Chain not found");
-    invariant(chain.status === "active", "Chain is already archived");
+    invariant(round, "Round not found")
+    invariant(round.status === "active", "Round is already archived")
 
-    // Update chain status
+    // Update round status
     await db
-      .update(siuChains)
+      .update(sius)
       .set({ status: "archived", endedAt: new Date() })
-      .where(eq(siuChains.id, input.chainId));
+      .where(eq(sius.id, input.roundId))
 
     // Get unique participants
-    const participantIds = [...new Set(chain.stacks.map((s) => s.userId))];
+    const participantIds = [...new Set(round.sets.map((s) => s.userId))]
 
-    // Notify all participants that chain was archived
+    // Notify all participants that round was archived
     for (const participantId of participantIds) {
       await createNotification({
         userId: participantId,
         actorId: context.user.id,
         type: "chain_archived",
-        entityType: "siuChain",
-        entityId: input.chainId,
+        entityType: "siu",
+        entityId: input.roundId,
         data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
-          entityTitle: `Stack It Up chain with ${chain.stacks.length} tricks`,
-          entityPreview: "Chain has been archived",
+          entityTitle: `Stack It Up round with ${round.sets.length} ${pluralize("trick", round.sets.length)}`,
+          entityPreview: "Round has been archived",
         },
-      });
+      })
     }
 
-    return { success: true };
-  });
+    return { success: true }
+  })
 
-// Delete stack (owner only, only if it's the latest)
-export const deleteStackServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(deleteStackSchema))
+// Delete set (owner only)
+export const deleteSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(deleteSetSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const stack = await db.query.siuStacks.findFirst({
-      where: eq(siuStacks.id, input.stackId),
-    });
+    const set = await db.query.siuSets.findFirst({
+      where: eq(siuSets.id, input.setId),
+    })
 
-    invariant(stack, "Stack not found");
-    invariant(stack.userId === userId, "Access denied");
+    invariant(set, "Set not found")
+    invariant(set.userId === userId, "Access denied")
+    invariant(!set.deletedAt, "Set is already deleted")
 
-    // Check if this is the latest stack (no children)
-    const childStack = await db.query.siuStacks.findFirst({
-      where: eq(siuStacks.parentStackId, stack.id),
-    });
+    // Check if this set has non-deleted children
+    const childSet = await db.query.siuSets.findFirst({
+      where: and(eq(siuSets.parentSetId, set.id), isNull(siuSets.deletedAt)),
+    })
 
-    invariant(!childStack, "Cannot delete a stack that has been continued");
-
-    // Delete the stack
-    const [deleted] = await db
-      .delete(siuStacks)
-      .where(eq(siuStacks.id, input.stackId))
-      .returning();
-
-    // If this was the only stack, archive the chain
-    if (stack.position === 1) {
+    if (childSet) {
+      // Soft delete: keep row for round integrity, remove engagement data
       await db
-        .update(siuChains)
-        .set({ status: "archived", endedAt: new Date() })
-        .where(eq(siuChains.id, stack.chainId));
+        .update(siuSets)
+        .set({ deletedAt: new Date() })
+        .where(eq(siuSets.id, input.setId))
+
+      // Hard-delete engagement data (message likes cascade from messages)
+      await db
+        .delete(siuSetMessages)
+        .where(eq(siuSetMessages.siuSetId, input.setId))
+      await db.delete(siuSetLikes).where(eq(siuSetLikes.siuSetId, input.setId))
+
+      return { type: "soft" as const }
     }
 
-    return deleted;
-  });
+    // Hard delete: no children, remove the row entirely
+    await db.delete(siuSets).where(eq(siuSets.id, input.setId))
 
-// List archived chains
-export const listArchivedChainsServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(listArchivedChainsSchema))
+    // If this was the only set, archive the round
+    if (set.position === 1) {
+      await db
+        .update(sius)
+        .set({ status: "archived", endedAt: new Date() })
+        .where(eq(sius.id, set.siuId))
+    }
+
+    return { type: "hard" as const }
+  })
+
+// List archived rounds
+export const listArchivedRoundsServerFn = createServerFn({
+  method: "GET",
+}).handler(async () => {
+  const rounds = await db.query.sius.findMany({
+    where: eq(sius.status, "archived"),
+    columns: { id: true, createdAt: true, endedAt: true },
+    orderBy: desc(sius.endedAt),
+    with: {
+      sets: {
+        columns: { id: true, deletedAt: true },
+      },
+    },
+  })
+
+  return rounds.map((round) => ({
+    id: round.id,
+    createdAt: round.createdAt,
+    endedAt: round.endedAt,
+    setsCount: round.sets.filter((s) => !s.deletedAt).length,
+  }))
+})
+
+// Get specific archived round with all sets
+export const getArchivedRoundServerFn = createServerFn({ method: "GET" })
+  .inputValidator(zodValidator(getArchivedRoundSchema))
   .handler(async ({ data: input }) => {
-    const chains = await db.query.siuChains.findMany({
-      where: eq(siuChains.status, "archived"),
-      orderBy: desc(siuChains.endedAt),
-      limit: input.limit,
-      offset: input.offset,
+    const round = await db.query.sius.findFirst({
+      where: and(eq(sius.id, input.roundId), eq(sius.status, "archived")),
       with: {
-        stacks: {
-          orderBy: desc(siuStacks.position),
-          limit: 1,
+        sets: {
+          orderBy: desc(siuSets.position),
+          with: {
+            user: {
+              columns: { id: true, name: true, avatarId: true },
+            },
+            video: {
+              columns: { playbackId: true },
+            },
+            likes: {
+              with: {
+                user: {
+                  columns: { id: true, name: true, avatarId: true },
+                },
+              },
+            },
+            messages: {
+              columns: { id: true },
+            },
+            parentSet: {
+              columns: { id: true, name: true },
+              with: {
+                user: {
+                  columns: { id: true, name: true },
+                },
+              },
+            },
+          },
+        },
+        archiveVotes: {
           with: {
             user: {
               columns: { id: true, name: true, avatarId: true },
@@ -447,33 +526,33 @@ export const listArchivedChainsServerFn = createServerFn({ method: "GET" })
           },
         },
       },
-    });
+    })
 
-    return chains;
-  });
+    return round ?? null
+  })
 
 // Get all tricks in the line (for displaying what needs to be landed)
 export const getLineServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(getStackSchema))
+  .inputValidator(zodValidator(getSetSchema))
   .handler(async ({ data: input }) => {
-    const stack = await db.query.siuStacks.findFirst({
-      where: eq(siuStacks.id, input.stackId),
-      columns: { chainId: true },
-    });
+    const set = await db.query.siuSets.findFirst({
+      where: eq(siuSets.id, input.setId),
+      columns: { siuId: true },
+    })
 
-    if (!stack) return [];
+    if (!set) return []
 
-    // Get all stacks in the chain ordered by position (ascending for line display)
-    const stacks = await db.query.siuStacks.findMany({
-      where: eq(siuStacks.chainId, stack.chainId),
-      orderBy: siuStacks.position,
+    // Get all non-deleted sets in the round ordered by position (ascending for line display)
+    const sets = await db.query.siuSets.findMany({
+      where: and(eq(siuSets.siuId, set.siuId), isNull(siuSets.deletedAt)),
+      orderBy: siuSets.position,
       columns: { id: true, name: true, position: true },
       with: {
         user: {
           columns: { id: true, name: true },
         },
       },
-    });
+    })
 
-    return stacks;
-  });
+    return sets
+  })

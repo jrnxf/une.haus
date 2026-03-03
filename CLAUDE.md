@@ -143,113 +143,184 @@ loader: ({ context }) => {
 
 ### Filtered Lists with Suspense
 
-For pages with search/filter inputs that use `useSuspenseInfiniteQuery`, use this pattern to prevent UI disappearance during data fetching:
+For pages with search/filter inputs that use `useSuspenseInfiniteQuery`, filter state uses **local React state** for instant feedback + **debounced `navigate({ replace: true })`** via TanStack Pacer to update the URL idiomatically through TanStack Router.
+
+**Full docs:** `docs/filtering.md`
 
 **Canonical examples:**
 
-- `src/routes/posts/index.tsx`
-- `src/routes/users/index.tsx`
-- `src/routes/vault/index.tsx`
+- `src/routes/users/index.tsx` — `<Filters>` component with text + multiselect
+- `src/routes/posts/index.tsx` — `<Filters>` component with text + multiselect
+- `src/routes/vault/index.tsx` — `<Filters>` component with text + multiselect
+- `src/routes/tricks/index.tsx` — client-side filtering variant (no `loaderDeps`)
+
+**The pattern has four layers:**
+
+1. **`useState`** — local state for immediate input feedback (initialized from `Route.useSearch()`)
+2. **`useDebouncedCallback`** (from `@tanstack/react-pacer`) — debounces `Route.useNavigate()` calls so the URL and `loaderDeps` only update after a wait period
+3. **`useDeferredValue`** — wraps URL search params to prevent suspense flash
+4. **`<Suspense>` boundary** — wraps the child component that uses `useSuspenseInfiniteQuery`, keeping filters visible during cold-cache loads
+
+**Loader uses `cause` to avoid blocking on filter changes:**
 
 ```tsx
-import { useDeferredValue, useRef, useState } from "react";
+import { useDebouncedCallback } from "@tanstack/react-pacer"
 
-import { useDebounceValue } from "usehooks-ts";
+export const Route = createFileRoute("/items/")({
+  validateSearch: items.list.schema,
+  loaderDeps: ({ search }) => search,
+  loader: async ({ context, deps, cause }) => {
+    // "stay" = filter changed on same page — skip to avoid blocking rendering.
+    // useDeferredValue + Suspense boundary handle client-side transitions.
+    if (cause === "stay") return
+    // "enter" / "preload" = navigation or hover intent — await for SSR
+    await context.queryClient.ensureInfiniteQueryData(
+      items.list.infiniteQueryOptions(deps),
+    )
+  },
+  component: RouteComponent,
+})
 
 function RouteComponent() {
-  // 1. inputValue: immediate feedback for the input field
-  const [inputValue, setInputValue] = useState(searchParams.q ?? "");
+  const searchParams = Route.useSearch()
+  const navigate = Route.useNavigate()
 
-  // 2. debouncedInput: reduces query frequency (200ms delay)
-  const [debouncedInput] = useDebounceValue(inputValue, 200);
+  // Local state for immediate feedback — NOT nuqs
+  const [query, setQuery] = useState(searchParams.q ?? "")
+  const [tags, setTags] = useState<string[]>(searchParams.tags ?? [])
 
-  // 3. deferredQuery: prevents UI disappearance during suspense
-  const deferredQuery = useDeferredValue(debouncedInput);
+  // Debounced navigate — updates URL (and loaderDeps) after wait period
+  const debouncedNavigate = useDebouncedCallback(
+    (updates: { q?: string; tags?: string[] }) => {
+      navigate({
+        search: {
+          q: updates.q || undefined,
+          tags:
+            updates.tags && updates.tags.length > 0
+              ? updates.tags
+              : undefined,
+        },
+        replace: true,
+      })
+    },
+    { wait: 200 },
+  )
 
-  // For non-text filters (tags, categories), also defer them
-  const [tags, setTags] = useState(searchParams.tags ?? []);
-  const deferredTags = useDeferredValue(tags);
+  // useDeferredValue on URL search params — prevents suspense flash
+  const deferredQ = useDeferredValue(searchParams.q)
+  const deferredTags = useDeferredValue(searchParams.tags)
 
-  // Update URL when debounced input changes (for bookmarking)
-  const lastUrlQuery = useRef(searchParams.q ?? "");
-  if (debouncedInput !== lastUrlQuery.current) {
-    lastUrlQuery.current = debouncedInput;
-    router.navigate({
-      to: "/current-route",
-      search: (prev) => ({ ...prev, q: debouncedInput || undefined }),
-      replace: true,
-    });
-  }
-
-  // Query uses DEFERRED values - never raw state
-  const { data } = useSuspenseInfiniteQuery(
-    domain.list.infiniteQueryOptions({
-      q: deferredQuery || undefined,
-      tags: deferredTags.length > 0 ? deferredTags : undefined,
+  const queryParams = useMemo(
+    () => ({
+      q: deferredQ || undefined,
+      tags:
+        deferredTags && deferredTags.length > 0 ? deferredTags : undefined,
     }),
-  );
+    [deferredQ, deferredTags],
+  )
+
+  return (
+    <>
+      <Filters ... />
+      <Suspense>
+        <ItemsList queryParams={queryParams} />
+      </Suspense>
+    </>
+  )
+}
+
+// Child component — Suspense boundary keeps filters visible during load
+function ItemsList({ queryParams }: { queryParams: { q?: string; tags?: string[] } }) {
+  const { data } = useSuspenseInfiniteQuery(
+    domain.list.infiniteQueryOptions(queryParams),
+  )
+  // render list...
 }
 ```
 
-**Why this pattern?**
+**Why local state, not nuqs?**
 
-1. **`useDebounceValue`** - Prevents query spam. Without it, every keystroke fires a query.
+- nuqs with `shallow: false` triggers a TanStack Router navigation on every setter call — re-running `loaderDeps`, the async loader, and entering a pending state that disrupts the component tree (especially deep component trees like the `<Filters>` chip bar)
+- nuqs with `shallow: true` avoids router navigation but still ties input value to URL serialization/deserialization on every keystroke, adding unnecessary overhead
+- Plain `useState` gives instant feedback with zero overhead. The URL only needs to update after debounce, which `useDebouncedCallback` + `navigate({ replace: true })` handles idiomatically through TanStack Router
 
-2. **`useDeferredValue`** - Tells React "keep showing old UI while new data loads". Without it, `useSuspenseInfiniteQuery` suspends on query key change, and TanStack Router's internal Suspense boundary shows an empty fallback (page disappears).
-
-3. **Both are needed** - Debouncing alone still causes UI disappearance when the debounced value finally changes. Deferring alone still fires queries on every keystroke.
-
-**Important:** The loader must await `ensureInfiniteQueryData` for SSR to work:
-
-```tsx
-loader: async ({ context, deps }) => {
-  await context.queryClient.ensureInfiniteQueryData(
-    domain.list.infiniteQueryOptions(deps),
-  );
-},
-```
+**Do NOT use nuqs `useQueryState` for text inputs on filtered list pages.** It causes page reloads / UI disruption because every keystroke either triggers a router navigation (`shallow: false`) or unnecessary URL serialization (`shallow: true`).
 
 ## Page Header System
 
-Every route declares its header content via a `<PageHeader>` compound component that renders nothing visible — it writes to a React Context consumed by `SiteHeader`. This gives every page consistent breadcrumbs, tabs, actions, and widgets in the global header bar.
+Every route renders a `<PageHeader>` compound component that displays the sticky header bar with sidebar trigger, breadcrumbs, tabs, actions, and search. All header content is declared as JSX children — no external stores, context, or `staticData`.
 
-**Key files:**
-
-- `src/lib/page-header/context.tsx` — Store + Provider + hooks
-- `src/components/page-header.tsx` — Declarative compound component
-- `src/components/site-header.tsx` — Consumes context, renders header
+**Key file:** `src/components/page-header.tsx`
 
 ### Usage
 
 ```tsx
+// Minimal — just sidebar trigger + search
+<PageHeader />
+
+// With breadcrumbs
 <PageHeader>
   <PageHeader.Breadcrumbs>
-    <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-    <PageHeader.Crumb>current page</PageHeader.Crumb>
+    <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
+    <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
   </PageHeader.Breadcrumbs>
-  <PageHeader.Tabs items={[{ to: "/games/rius/active", label: "active" }]} />
-  <PageHeader.Actions>{actionButtons}</PageHeader.Actions>
-  <PageHeader.Widget>{desktopWidget}</PageHeader.Widget>
-  <PageHeader.MobileRow>{mobileContent}</PageHeader.MobileRow>
+</PageHeader>
+
+// With breadcrumbs and right-aligned actions
+<PageHeader>
+  <PageHeader.Breadcrumbs>
+    <PageHeader.Crumb>tricks</PageHeader.Crumb>
+  </PageHeader.Breadcrumbs>
+  <PageHeader.Right>
+    <PageHeader.Actions>
+      <Button asChild><Link to="/tricks/create">Create</Link></Button>
+    </PageHeader.Actions>
+  </PageHeader.Right>
+</PageHeader>
+
+// With breadcrumbs, tabs, and actions
+<PageHeader>
+  <PageHeader.Breadcrumbs>
+    <PageHeader.Crumb>tricks</PageHeader.Crumb>
+  </PageHeader.Breadcrumbs>
+  <PageHeader.Right>
+    <PageHeader.Tabs>
+      <PageHeader.Tab to="/tricks">list</PageHeader.Tab>
+      <PageHeader.Tab to="/tricks/graph">graph</PageHeader.Tab>
+    </PageHeader.Tabs>
+    <PageHeader.Actions>
+      <Button asChild><Link to="/tricks/create">Create</Link></Button>
+    </PageHeader.Actions>
+  </PageHeader.Right>
 </PageHeader>
 ```
 
+### Compound Component API
+
+- `<PageHeader.Breadcrumbs>` — wrapper for crumbs (includes divider after sidebar trigger)
+- `<PageHeader.Crumb to="/path">label</PageHeader.Crumb>` — link crumb (has `to`) or current page (no `to`)
+- `<PageHeader.Crumb icon={Icon}>label</PageHeader.Crumb>` — optional icon
+- `<PageHeader.Right>` — right-aligned container (`ml-auto`), wraps tabs and/or actions
+- `<PageHeader.Tabs>` — wrapper for tab links
+- `<PageHeader.Tab to="/path" icon={Icon}>label</PageHeader.Tab>` — tab link, active state derived from `useLocation()`
+- `<PageHeader.Actions>` — fragment wrapper for action buttons
+
 ### Breadcrumb Depth
 
-| Route Type                              | Breadcrumbs        | Example                         |
-| --------------------------------------- | ------------------ | ------------------------------- |
-| Standalone (home, chat, shop)           | None               | Minimal header                  |
-| Hub pages (`/games`, `/stats`)          | 1 crumb (non-link) | `games`                         |
-| Sub-sections (`/games/rius/active`)     | 2 crumbs           | `games > rack it up`            |
-| Detail pages (`/vault/$videoId`)        | 2 crumbs           | `vault > video title`           |
-| Deep detail (`/games/rius/sets/$setId`) | 3 crumbs           | `games > rack it up > set name` |
+| Route Type                       | Breadcrumbs        | Example                      |
+| -------------------------------- | ------------------ | ---------------------------- |
+| Standalone (home, shop, privacy) | None               | Minimal header               |
+| Hub pages (`/games`, `/vault`)   | 1 crumb (non-link) | `games`                      |
+| Sub-sections (`/tricks/create`)  | 2 crumbs           | `tricks > create`            |
+| Detail pages (`/vault/$videoId`) | 2 crumbs           | `vault > video title`        |
+| Deep detail (`/vault/$id/edit`)  | 3 crumbs           | `vault > video title > edit` |
 
 ### Rules
 
-- Every route with navigation context should have a `<PageHeader>` — no standalone back buttons or h1 titles
+- Every route must render `<PageHeader>` (provides sidebar trigger + search)
 - The last `<PageHeader.Crumb>` (without `to` prop) represents the current page
-- Child routes override parent layouts — the last `useLayoutEffect` wins
-- `<PageHeader>` resets on unmount, so standalone pages show a clean header
+- Layout routes render `<PageHeader>` with breadcrumbs; child routes inside layouts do NOT render their own `<PageHeader>` (avoids duplicate headers)
+- Dynamic breadcrumb labels use query data directly: `<PageHeader.Crumb>{trick.name}</PageHeader.Crumb>`
 
 ## Peripherals (URL-driven open/close)
 
@@ -533,6 +604,16 @@ Use `gap-4` in flex containers instead of manual margins (`mt-3`, `mb-1`):
 | Padding            | `p-4`, `p-6`                                                    | `p-3`, `p-5`, `p-7`                            |
 | Horizontal padding | `px-2`, `px-4`, `px-6`                                          | `px-3`, `px-5`                                 |
 | Vertical padding   | `py-1`, `py-2`, `py-4`, `py-6`                                  | `py-3`, `py-5`                                 |
+
+## E2E Testing
+
+- **Never use CSS class selectors** (`.bg-card`, `.text-white`, etc.) in Playwright locators
+- Always use a11y selectors: `getByRole`, `getByLabel`, `getByPlaceholder`, `getByText`
+- Use `data-testid` as a last resort when no semantic selector exists
+- If a component lacks a11y attributes needed for testing, add them to the component first
+- Import `{ test, expect }` from `"../fixtures"` (auto-waits for hydration)
+- Use `page.waitForLoadState("networkidle")` after navigation for interactive pages
+- **Tests must clean up after themselves.** Any data created during a test (posts, messages, likes) must be deleted in `afterAll`. Use direct SQL via `postgres` (same pattern as `e2e/auth.setup.ts`) to delete test data. Prefix test content with `e2e-` so cleanup queries can target it with `LIKE 'e2e-%'`. Foreign key cascades handle dependent rows (e.g., deleting a message cascades its likes).
 
 ## Documentation
 

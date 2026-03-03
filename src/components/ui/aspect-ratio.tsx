@@ -1,4 +1,4 @@
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 function AspectRatio({
   ratio = 1,
@@ -12,7 +12,7 @@ function AspectRatio({
       style={{ aspectRatio: String(ratio) }}
       {...props}
     />
-  );
+  )
 }
 
-export { AspectRatio };
+export { AspectRatio }

@@ -1,5 +1,5 @@
-import { likeRecordServerFn, unlikeRecordServerFn } from "~/lib/reactions/fns";
-import { likeRecordSchema, unlikeRecordSchema } from "~/lib/reactions/schemas";
+import { likeRecordServerFn, unlikeRecordServerFn } from "~/lib/reactions/fns"
+import { likeRecordSchema, unlikeRecordSchema } from "~/lib/reactions/schemas"
 
 export const reactions = {
   like: {
@@ -10,4 +10,4 @@ export const reactions = {
     fn: unlikeRecordServerFn,
     schema: unlikeRecordSchema,
   },
-};
+}

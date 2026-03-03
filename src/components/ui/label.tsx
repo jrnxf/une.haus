@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import * as React from "react";
+import { cn } from "~/lib/utils"
 
-import { cn } from "~/lib/utils";
+import type * as React from "react"
 
 function Label({ className, ...props }: React.ComponentProps<"label">) {
   return (
-    // eslint-disable-next-line jsx-a11y/label-has-associated-control -- generic component, htmlFor passed via props
+    // biome-ignore lint/a11y/noLabelWithoutControl: generic component, htmlFor passed via props
     <label
       data-slot="label"
       className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        "flex items-center gap-2 text-sm leading-none font-medium lowercase select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
         className,
       )}
       {...props}
     />
-  );
+  )
 }
 
-export { Label };
+export { Label }

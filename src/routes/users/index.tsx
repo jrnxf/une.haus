@@ -1,225 +1,307 @@
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { FilterIcon, GhostIcon, XIcon } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
-import { preload } from "react-dom";
-import { InView } from "react-intersection-observer";
+import { useDebouncedCallback } from "@tanstack/react-pacer"
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
+import {
+  Suspense,
+  useCallback,
+  useDeferredValue,
+  useMemo,
+  useState,
+} from "react"
+import { preload } from "react-dom"
+import { InView } from "react-intersection-observer"
 
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
-import { useDebounceValue } from "usehooks-ts";
-
-import { Badges } from "~/components/badges";
-import { FilterPanel } from "~/components/filter-drawer";
-import { BadgeInput } from "~/components/input/badge-input";
-import { PageHeader } from "~/components/page-header";
-import { Button } from "~/components/ui/button";
+import { Badges } from "~/components/badges"
+import {
+  Filters,
+  type ActiveFilter,
+  type FilterField,
+} from "~/components/filters/filters"
+import { PageHeader } from "~/components/page-header"
+import { RichText } from "~/components/rich-text"
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "~/components/ui/empty";
-import { Input } from "~/components/ui/input";
-import { USER_DISCIPLINES } from "~/db/schema";
-import { users } from "~/lib/users";
-import { cn, getCloudflareImageUrl } from "~/lib/utils";
+} from "~/components/ui/empty"
+import { USER_DISCIPLINES } from "~/db/schema"
+import { seo } from "~/lib/seo"
+import { users } from "~/lib/users"
+import { getCloudflareImageUrl } from "~/lib/utils"
 
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
   loaderDeps: ({ search }) => search,
-  loader: async ({ context, deps }) => {
+  loader: async ({ context, deps, cause }) => {
+    // Skip on "stay" (filter changed on same page) — awaiting here blocks
+    // rendering and causes a blank page. useDeferredValue + Suspense in
+    // the component handle client-side transitions instead.
+    if (cause === "stay") return
     await context.queryClient.ensureInfiniteQueryData(
       users.list.infiniteQueryOptions(deps),
-    );
+    )
   },
+  head: () =>
+    seo({
+      title: "users",
+      description: "unicyclists on une.haus",
+      path: "/users",
+    }),
   component: RouteComponent,
-});
-
-/** Nuqs parser for comma-delimited disciplines */
-const parseAsDisciplines = parseAsArrayOf(parseAsString, ",");
+})
 
 function RouteComponent() {
-  // Use nuqs for URL state (stringifySearch keeps commas readable)
-  const [query, setQuery] = useQueryState("name", {
-    defaultValue: "",
-    shallow: false,
-    history: "replace",
-  });
-  const [disciplines, setDisciplines] = useQueryState("disciplines", {
-    ...parseAsDisciplines,
-    defaultValue: [] as string[],
-    shallow: false,
-    history: "replace",
-  });
+  const searchParams = Route.useSearch()
+  const navigate = Route.useNavigate()
 
-  // Debounce query for API calls
-  const [debouncedQuery] = useDebounceValue(query, 300);
-  const deferredQuery = useDeferredValue(debouncedQuery);
-  const deferredDisciplines = useDeferredValue(disciplines);
+  // Local state for immediate input feedback
+  const [nameInput, setNameInput] = useState(searchParams.name ?? "")
+  const [disciplines, setDisciplines] = useState<string[]>(
+    searchParams.disciplines ?? [],
+  )
 
-  const [filtersOpen, setFiltersOpen] = useState(
-    Boolean(query || disciplines.length > 0),
-  );
+  // Debounced navigate — updates URL (and loaderDeps) after wait period
+  const debouncedNavigate = useDebouncedCallback(
+    (updates: { name?: string; disciplines?: string[] }) => {
+      navigate({
+        search: {
+          name: updates.name || undefined,
+          disciplines:
+            updates.disciplines && updates.disciplines.length > 0
+              ? updates.disciplines
+              : undefined,
+        },
+        replace: true,
+      })
+    },
+    { wait: 200 },
+  )
 
-  const hasActiveFilters = Boolean(query || disciplines.length > 0);
+  // useDeferredValue on URL search params — prevents suspense flash
+  const deferredName = useDeferredValue(searchParams.name)
+  const deferredDisciplines = useDeferredValue(searchParams.disciplines)
 
-  const handleQueryChange = (value: string) => {
-    setQuery(value || null);
-  };
+  // Track which filter fields are open (text filters can be open with empty value)
+  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
+    const initial = new Set<string>()
+    if (nameInput) initial.add("name")
+    if (disciplines.length > 0) initial.add("disciplines")
+    return initial
+  })
 
-  const handleDisciplinesChange = (
-    newDisciplines: (typeof USER_DISCIPLINES)[number][],
-  ) => {
-    setDisciplines(newDisciplines.length > 0 ? newDisciplines : null);
-  };
+  const filterFields: FilterField[] = useMemo(
+    () => [
+      {
+        key: "name",
+        label: "name",
+        type: "text" as const,
+        placeholder: "search...",
+        operators: [{ value: "contains", label: "contains" }],
+        defaultOperator: "contains",
+      },
+      {
+        key: "disciplines",
+        label: "disciplines",
+        type: "multiselect" as const,
+        operators: [{ value: "includes_all", label: "includes" }],
+        defaultOperator: "includes_all",
+        options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
+      },
+    ],
+    [],
+  )
 
+  // Derive filters from LOCAL state (immediate feedback, not URL)
+  const filters = useMemo<ActiveFilter[]>(() => {
+    const result: ActiveFilter[] = []
+    if (activeFields.has("name")) {
+      result.push({
+        id: "name",
+        field: "name",
+        operator: "contains",
+        values: nameInput ? [nameInput] : [],
+      })
+    }
+    if (activeFields.has("disciplines") || disciplines.length > 0) {
+      result.push({
+        id: "disciplines",
+        field: "disciplines",
+        operator: "includes_all",
+        values: disciplines,
+      })
+    }
+    return result
+  }, [nameInput, disciplines, activeFields])
+
+  const handleFiltersChange = useCallback(
+    (next: ActiveFilter[]) => {
+      const nameFilter = next.find((f) => f.field === "name")
+      const discFilter = next.find((f) => f.field === "disciplines")
+
+      setActiveFields((prev) => {
+        const wantName = Boolean(nameFilter)
+        const wantDisc = Boolean(discFilter)
+        if (
+          prev.has("name") === wantName &&
+          prev.has("disciplines") === wantDisc
+        ) {
+          return prev
+        }
+        const s = new Set<string>()
+        if (wantName) s.add("name")
+        if (wantDisc) s.add("disciplines")
+        return s
+      })
+
+      const newName = nameFilter?.values[0] || ""
+      const newDisciplines =
+        discFilter && discFilter.values.length > 0 ? discFilter.values : []
+
+      // Update local state immediately for instant feedback
+      setNameInput(newName)
+      setDisciplines(newDisciplines)
+
+      // Debounced URL update via router
+      debouncedNavigate({ name: newName, disciplines: newDisciplines })
+    },
+    [debouncedNavigate],
+  )
+
+  const queryParams = useMemo(
+    () => ({
+      name: deferredName || undefined,
+      disciplines:
+        deferredDisciplines && deferredDisciplines.length > 0
+          ? deferredDisciplines
+          : undefined,
+    }),
+    [deferredName, deferredDisciplines],
+  )
+
+  return (
+    <>
+      <PageHeader maxWidth="max-w-3xl">
+        <PageHeader.Breadcrumbs>
+          <PageHeader.Crumb>users</PageHeader.Crumb>
+        </PageHeader.Breadcrumbs>
+      </PageHeader>
+
+      <div className="overflow-y-auto">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 p-4">
+          <Filters
+            fields={filterFields}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            size="sm"
+          />
+
+          <Suspense>
+            <UsersList
+              queryParams={queryParams}
+              deferredDisciplines={deferredDisciplines}
+            />
+          </Suspense>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function UsersList({
+  queryParams,
+  deferredDisciplines,
+}: {
+  queryParams: { name?: string; disciplines?: string[] }
+  deferredDisciplines: string[] | undefined
+}) {
   const {
     data: usersPages,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useSuspenseInfiniteQuery(
-    users.list.infiniteQueryOptions({
-      name: deferredQuery || undefined,
-      disciplines:
-        deferredDisciplines.length > 0 ? deferredDisciplines : undefined,
-    }),
-  );
+  } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(queryParams))
 
-  const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages]);
-  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
+  const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages])
 
   return (
     <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>users</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-        <PageHeader.Actions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFiltersOpen(!filtersOpen)}
+      {displayedUsers.length === 0 && (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GhostIcon />
+            </EmptyMedia>
+            <EmptyTitle>no users</EmptyTitle>
+            <EmptyDescription>try adjusting your filters</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
+
+      {displayedUsers.map((user, idx) => {
+        return (
+          <div
+            key={user.id}
             className="relative"
-          >
-            <FilterIcon className="size-4" />
-            Filters
-            {hasActiveFilters && !filtersOpen && (
-              <span className="bg-primary absolute -top-1 -right-1 size-2 rounded-full" />
-            )}
-          </Button>
-        </PageHeader.Actions>
-      </PageHeader>
-
-      <div className="overflow-y-auto" ref={setScrollRoot}>
-        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 p-4">
-          <FilterPanel open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <div className="relative">
-              <Input
-                value={query}
-                onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search users..."
-                className="pr-8"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => handleQueryChange("")}
-                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              )}
-            </div>
-            <BadgeInput
-              defaultSelections={
-                disciplines as (typeof USER_DISCIPLINES)[number][]
+            data-testid="user-card"
+            data-user-name={user.name}
+            onMouseEnter={() => {
+              if (user.avatarId) {
+                preload(
+                  getCloudflareImageUrl(user.avatarId, {
+                    width: 448,
+                    quality: 60,
+                  }),
+                  { as: "image", fetchPriority: "high" },
+                )
               }
-              onChange={handleDisciplinesChange}
-              options={USER_DISCIPLINES}
-            />
-          </FilterPanel>
-
-          {displayedUsers.length === 0 && (
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <GhostIcon />
-                </EmptyMedia>
-                <EmptyTitle>No users</EmptyTitle>
-                <EmptyDescription>
-                  There are no users to display at the moment.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          )}
-
-          {displayedUsers.map((user, idx) => {
-            return (
-              <Link
-                key={user.id}
-                to="/users/$userId"
-                params={{ userId: user.id }}
-                onMouseEnter={() => {
-                  if (user.avatarId) {
-                    preload(
-                      getCloudflareImageUrl(user.avatarId, {
-                        width: 448,
-                        quality: 60,
-                      }),
-                      { as: "image", fetchPriority: "high" },
-                    );
-                  }
-                }}
-                className={cn(
-                  "ring-offset-background focus-visible:ring-ring rounded-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-                )}
-                data-user-name={user.name}
-              >
-                <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
-                  <div className="flex w-full flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      {/* <Avatar className="size-6 rounded-full">
-                    <AvatarImage alt={user.name} src={user.avatarId} />
-                    <AvatarFallback className="text-xs" name={user.name} />
-                  </Avatar> */}
-                      {user.avatarId && (
-                        <img
-                          src={getCloudflareImageUrl(user.avatarId, {
-                            width: 72,
-                            quality: 70,
-                          })}
-                          alt={user.name}
-                          fetchPriority="high"
-                          loading={idx < 6 ? "eager" : "lazy"}
-                          className="size-6 rounded-full"
-                        />
-                      )}
-                      <p className="truncate text-base font-semibold">
-                        {user.name}
-                      </p>
-                    </div>
-                    {user.bio && (
-                      <div className="line-clamp-3 text-sm">
-                        <p>{user.bio}</p>
-                      </div>
-                    )}
-                    <Badges content={user.disciplines} />
-                  </div>
+            }}
+          >
+            <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
+              <div className="flex w-full flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  {user.avatarId && (
+                    <img
+                      src={getCloudflareImageUrl(user.avatarId, {
+                        width: 72,
+                        quality: 70,
+                      })}
+                      alt={user.name}
+                      fetchPriority="high"
+                      loading={idx < 6 ? "eager" : "lazy"}
+                      className="size-6 rounded-full"
+                    />
+                  )}
+                  <Link
+                    to="/users/$userId"
+                    params={{ userId: user.id }}
+                    className="truncate text-base font-semibold after:absolute after:inset-0 after:rounded-md"
+                  >
+                    {user.name}
+                  </Link>
                 </div>
-              </Link>
-            );
-          })}
-          {hasNextPage && !isFetchingNextPage && (
-            <InView
-              root={scrollRoot}
-              rootMargin="1000px"
-              onChange={(inView) => inView && fetchNextPage()}
-            />
-          )}
-        </div>
-      </div>
+                {user.bio && (
+                  <div className="relative z-10 line-clamp-3 text-sm">
+                    <RichText content={user.bio} />
+                  </div>
+                )}
+                <Badges
+                  content={user.disciplines}
+                  active={deferredDisciplines ?? []}
+                />
+              </div>
+            </div>
+          </div>
+        )
+      })}
+      {hasNextPage && !isFetchingNextPage && (
+        <InView
+          rootMargin="1000px"
+          onChange={(inView) => inView && fetchNextPage()}
+        />
+      )}
     </>
-  );
+  )
 }

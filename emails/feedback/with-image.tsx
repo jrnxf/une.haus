@@ -1,4 +1,4 @@
-import FeedbackTemplate from "../feedback";
+import FeedbackTemplate from "../feedback"
 
 export default function WithImage() {
   return (
@@ -11,5 +11,5 @@ export default function WithImage() {
         value: "sample-image-id",
       }}
     />
-  );
+  )
 }

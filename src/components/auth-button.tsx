@@ -1,7 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,21 +14,21 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { useLogout, useSessionUser } from "~/lib/session/hooks";
-import { useTheme } from "~/lib/theme/context";
+} from "~/components/ui/dropdown-menu"
+import { useLogout, useSessionUser } from "~/lib/session/hooks"
+import { useTheme } from "~/lib/theme/context"
 
 export function AuthButton() {
-  const sessionUser = useSessionUser();
-  const { setTheme } = useTheme();
-  const logout = useLogout();
+  const sessionUser = useSessionUser()
+  const { setTheme } = useTheme()
+  const logout = useLogout()
 
   if (!sessionUser) {
     return (
       <Button asChild variant="ghost">
-        <Link to="/auth/code/send">login</Link>
+        <Link to="/auth">login</Link>
       </Button>
-    );
+    )
   }
 
   return (
@@ -89,7 +89,7 @@ export function AuthButton() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/">Home</Link>
+          <Link to="/">home</Link>
         </DropdownMenuItem>
 
         <DropdownMenuSub>
@@ -97,22 +97,22 @@ export function AuthButton() {
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem
-                onSelect={() => {
-                  setTheme("light");
+                onClick={() => {
+                  setTheme("light")
                 }}
               >
                 light
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => {
-                  setTheme("dark");
+                onClick={() => {
+                  setTheme("dark")
                 }}
               >
                 dark
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => {
-                  setTheme("system");
+                onClick={() => {
+                  setTheme("system")
                 }}
               >
                 system
@@ -122,13 +122,13 @@ export function AuthButton() {
         </DropdownMenuSub>
 
         <DropdownMenuItem
-          onSelect={() => {
-            logout({});
+          onClick={() => {
+            logout({})
           }}
         >
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

@@ -1,45 +1,36 @@
-import { createServerFn } from "@tanstack/react-start";
-import {
-  likeRecordSchema,
-  recordTypeWithLikes,
-  unlikeRecordSchema,
-  type RecordWithLikesType,
-} from "~/lib/reactions/schemas";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, eq } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, eq } from "drizzle-orm";
-
-import { db } from "~/db";
+import { db } from "~/db"
 import {
   biuSetLikes,
   biuSetMessageLikes,
   chatMessageLikes,
+  type NotificationEntityType,
   postLikes,
   postMessageLikes,
   riuSetLikes,
   riuSetMessageLikes,
   riuSubmissionLikes,
   riuSubmissionMessageLikes,
-  siuStackLikes,
-  siuStackMessageLikes,
-  trickSubmissionLikes,
-  trickSubmissionMessageLikes,
-  trickSuggestionLikes,
-  trickSuggestionMessageLikes,
-  trickVideoLikes,
-  trickVideoMessageLikes,
+  siuSetLikes,
+  siuSetMessageLikes,
   utvVideoLikes,
   utvVideoMessageLikes,
-  utvVideoSuggestionLikes,
-  utvVideoSuggestionMessageLikes,
-  type NotificationEntityType,
-} from "~/db/schema";
-import { invariant } from "~/lib/invariant";
-import { authMiddleware } from "~/lib/middleware";
+} from "~/db/schema"
+import { invariant } from "~/lib/invariant"
+import { authMiddleware } from "~/lib/middleware"
 import {
   createNotification,
   getContentOwner,
-} from "~/lib/notifications/helpers";
+} from "~/lib/notifications/helpers"
+import {
+  likeRecordSchema,
+  type RecordWithLikesType,
+  recordTypeWithLikes,
+  unlikeRecordSchema,
+} from "~/lib/reactions/schemas"
 
 // Map reaction types to notification entity types (only primary content, not messages)
 const LIKEABLE_ENTITY_TYPES: Partial<
@@ -49,13 +40,9 @@ const LIKEABLE_ENTITY_TYPES: Partial<
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",
   biuSet: "biuSet",
-  siuStack: "siuStack",
+  siuSet: "siuSet",
   utvVideo: "utvVideo",
-  utvVideoSuggestion: "utvVideoSuggestion",
-  trickSubmission: "trickSubmission",
-  trickSuggestion: "trickSuggestion",
-  trickVideo: "trickVideo",
-};
+}
 
 // react as in the action, not the library lol
 export const likeRecordServerFn = createServerFn({
@@ -64,13 +51,13 @@ export const likeRecordServerFn = createServerFn({
   .inputValidator(zodValidator(likeRecordSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const { recordId, type } = input;
+    const { recordId, type } = input
 
-    const table = getTableByType(type);
+    const table = getTableByType(type)
 
-    const columnName = `${type}Id` as const;
+    const columnName = `${type}Id` as const
 
     const result = await db
       .insert(table)
@@ -78,12 +65,12 @@ export const likeRecordServerFn = createServerFn({
         [columnName]: recordId,
         userId,
       })
-      .returning();
+      .returning()
 
     // Create notification for primary content types (not message likes)
-    const entityType = LIKEABLE_ENTITY_TYPES[type];
+    const entityType = LIKEABLE_ENTITY_TYPES[type]
     if (entityType) {
-      const ownerId = await getContentOwner(entityType, recordId);
+      const ownerId = await getContentOwner(entityType, recordId)
       if (ownerId && ownerId !== userId) {
         createNotification({
           userId: ownerId,
@@ -95,12 +82,12 @@ export const likeRecordServerFn = createServerFn({
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
           },
-        }).catch(console.error);
+        }).catch(console.error)
       }
     }
 
-    return result;
-  });
+    return result
+  })
 
 export const unlikeRecordServerFn = createServerFn({
   method: "POST",
@@ -108,93 +95,69 @@ export const unlikeRecordServerFn = createServerFn({
   .inputValidator(zodValidator(unlikeRecordSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const { recordId, type } = input;
+    const { recordId, type } = input
 
-    const table = getTableByType(type);
+    const table = getTableByType(type)
 
-    const columnName = `${type}Id` as const;
+    const columnName = `${type}Id` as const
 
-    invariant(table, "Invalid table");
+    invariant(table, "Invalid table")
 
     return await db
       .delete(table)
       // @ts-expect-error TODO COLBY
       .where(and(eq(table[columnName], recordId), eq(table.userId, userId)))
-      .returning();
-  });
+      .returning()
+  })
 
 export const getTableByType = (type: RecordWithLikesType) => {
   switch (type) {
     case "post": {
-      return postLikes;
+      return postLikes
     }
     case "chatMessage": {
-      return chatMessageLikes;
+      return chatMessageLikes
     }
     case "postMessage": {
-      return postMessageLikes;
+      return postMessageLikes
     }
     case "riuSet": {
-      return riuSetLikes;
+      return riuSetLikes
     }
     case "riuSetMessage": {
-      return riuSetMessageLikes;
+      return riuSetMessageLikes
     }
     case "riuSubmission": {
-      return riuSubmissionLikes;
+      return riuSubmissionLikes
     }
     case "riuSubmissionMessage": {
-      return riuSubmissionMessageLikes;
+      return riuSubmissionMessageLikes
     }
     case "utvVideo": {
-      return utvVideoLikes;
+      return utvVideoLikes
     }
     case "utvVideoMessage": {
-      return utvVideoMessageLikes;
-    }
-    case "utvVideoSuggestion": {
-      return utvVideoSuggestionLikes;
-    }
-    case "utvVideoSuggestionMessage": {
-      return utvVideoSuggestionMessageLikes;
+      return utvVideoMessageLikes
     }
     case "biuSet": {
-      return biuSetLikes;
+      return biuSetLikes
     }
     case "biuSetMessage": {
-      return biuSetMessageLikes;
+      return biuSetMessageLikes
     }
-    case "siuStack": {
-      return siuStackLikes;
+    case "siuSet": {
+      return siuSetLikes
     }
-    case "siuStackMessage": {
-      return siuStackMessageLikes;
-    }
-    case "trickSubmission": {
-      return trickSubmissionLikes;
-    }
-    case "trickSubmissionMessage": {
-      return trickSubmissionMessageLikes;
-    }
-    case "trickSuggestion": {
-      return trickSuggestionLikes;
-    }
-    case "trickSuggestionMessage": {
-      return trickSuggestionMessageLikes;
-    }
-    case "trickVideo": {
-      return trickVideoLikes;
-    }
-    case "trickVideoMessage": {
-      return trickVideoMessageLikes;
+    case "siuSetMessage": {
+      return siuSetMessageLikes
     }
     default: {
       invariant(
         false,
         `Expected type to be one of ${recordTypeWithLikes.join(", ")}. Received ${type}`,
-      );
+      )
     }
   }
-};
+}

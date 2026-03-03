@@ -1,27 +1,8 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm";
-
-import { db } from "~/db";
-import {
-  trickCompositions,
-  trickElementAssignments,
-  trickElements,
-  trickModifiers,
-  trickRelationships,
-  tricks,
-  trickVideos,
-} from "~/db/schema";
-import { invariant } from "~/lib/invariant";
-import { adminOnlyMiddleware } from "~/lib/middleware";
-
-import {
-  computeAllNeighbors,
-  computeDepthsAndDependents,
-} from "./compute";
-import type { Trick } from "./types";
-
+import { computeAllNeighbors, computeDepthsAndDependents } from "./compute"
 import {
   createElementSchema,
   createModifierSchema,
@@ -38,7 +19,20 @@ import {
   updateElementSchema,
   updateModifierSchema,
   updateTrickSchema,
-} from "./schemas";
+} from "./schemas"
+import { type Trick } from "./types"
+import { db } from "~/db"
+import {
+  trickCompositions,
+  trickElementAssignments,
+  trickElements,
+  trickModifiers,
+  trickRelationships,
+  tricks,
+  trickVideos,
+} from "~/db/schema"
+import { invariant } from "~/lib/invariant"
+import { adminOnlyMiddleware } from "~/lib/middleware"
 
 // ==================== MODIFIERS ====================
 
@@ -50,10 +44,10 @@ export const listModifiersServerFn = createServerFn({
     const modifiers = await db
       .select()
       .from(trickModifiers)
-      .orderBy(asc(trickModifiers.sortOrder), asc(trickModifiers.name));
+      .orderBy(asc(trickModifiers.name))
 
-    return modifiers;
-  });
+    return modifiers
+  })
 
 export const createModifierServerFn = createServerFn({
   method: "POST",
@@ -61,11 +55,11 @@ export const createModifierServerFn = createServerFn({
   .inputValidator(zodValidator(createModifierSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const [modifier] = await db.insert(trickModifiers).values(data).returning();
+    const [modifier] = await db.insert(trickModifiers).values(data).returning()
 
-    invariant(modifier, "Failed to create modifier");
-    return modifier;
-  });
+    invariant(modifier, "Failed to create modifier")
+    return modifier
+  })
 
 export const updateModifierServerFn = createServerFn({
   method: "POST",
@@ -73,17 +67,17 @@ export const updateModifierServerFn = createServerFn({
   .inputValidator(zodValidator(updateModifierSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const { id, ...updateData } = data;
+    const { id, ...updateData } = data
 
     const [modifier] = await db
       .update(trickModifiers)
       .set(updateData)
       .where(eq(trickModifiers.id, id))
-      .returning();
+      .returning()
 
-    invariant(modifier, "Modifier not found");
-    return modifier;
-  });
+    invariant(modifier, "Modifier not found")
+    return modifier
+  })
 
 export const deleteModifierServerFn = createServerFn({
   method: "POST",
@@ -94,11 +88,11 @@ export const deleteModifierServerFn = createServerFn({
     const [modifier] = await db
       .delete(trickModifiers)
       .where(eq(trickModifiers.id, id))
-      .returning();
+      .returning()
 
-    invariant(modifier, "Modifier not found");
-    return modifier;
-  });
+    invariant(modifier, "Modifier not found")
+    return modifier
+  })
 
 // ==================== ELEMENTS ====================
 
@@ -110,10 +104,10 @@ export const listElementsServerFn = createServerFn({
     const elements = await db
       .select()
       .from(trickElements)
-      .orderBy(asc(trickElements.sortOrder), asc(trickElements.name));
+      .orderBy(asc(trickElements.name))
 
-    return elements;
-  });
+    return elements
+  })
 
 export const createElementServerFn = createServerFn({
   method: "POST",
@@ -121,11 +115,11 @@ export const createElementServerFn = createServerFn({
   .inputValidator(zodValidator(createElementSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const [element] = await db.insert(trickElements).values(data).returning();
+    const [element] = await db.insert(trickElements).values(data).returning()
 
-    invariant(element, "Failed to create element");
-    return element;
-  });
+    invariant(element, "Failed to create element")
+    return element
+  })
 
 export const updateElementServerFn = createServerFn({
   method: "POST",
@@ -133,17 +127,17 @@ export const updateElementServerFn = createServerFn({
   .inputValidator(zodValidator(updateElementSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const { id, ...updateData } = data;
+    const { id, ...updateData } = data
 
     const [element] = await db
       .update(trickElements)
       .set(updateData)
       .where(eq(trickElements.id, id))
-      .returning();
+      .returning()
 
-    invariant(element, "Element not found");
-    return element;
-  });
+    invariant(element, "Element not found")
+    return element
+  })
 
 export const deleteElementServerFn = createServerFn({
   method: "POST",
@@ -154,11 +148,11 @@ export const deleteElementServerFn = createServerFn({
     const [element] = await db
       .delete(trickElements)
       .where(eq(trickElements.id, id))
-      .returning();
+      .returning()
 
-    invariant(element, "Element not found");
-    return element;
-  });
+    invariant(element, "Element not found")
+    return element
+  })
 
 // ==================== TRICKS ====================
 
@@ -167,7 +161,7 @@ export const listTricksServerFn = createServerFn({
 })
   .inputValidator(zodValidator(listTricksSchema))
   .handler(async ({ data: input }) => {
-    const limit = input?.limit ?? 50;
+    const limit = input?.limit ?? 50
 
     const tricksData = await db.query.tricks.findMany({
       where: and(
@@ -199,17 +193,17 @@ export const listTricksServerFn = createServerFn({
       },
       orderBy: [asc(tricks.name)],
       limit,
-    });
+    })
 
     // Filter by element if specified
     if (input?.elementId) {
       return tricksData.filter((trick) =>
         trick.elementAssignments.some((a) => a.element.id === input.elementId),
-      );
+      )
     }
 
-    return tricksData;
-  });
+    return tricksData
+  })
 
 export const getTrickServerFn = createServerFn({
   method: "GET",
@@ -293,10 +287,10 @@ export const getTrickServerFn = createServerFn({
           orderBy: [desc(tricks.createdAt)],
         },
       },
-    });
+    })
 
-    return trick ?? null;
-  });
+    return trick ?? null
+  })
 
 export const getTrickByIdServerFn = createServerFn({
   method: "GET",
@@ -339,10 +333,10 @@ export const getTrickByIdServerFn = createServerFn({
           orderBy: [asc(trickCompositions.position)],
         },
       },
-    });
+    })
 
-    return trick ?? null;
-  });
+    return trick ?? null
+  })
 
 export const searchTricksServerFn = createServerFn({
   method: "GET",
@@ -371,10 +365,9 @@ export const searchTricksServerFn = createServerFn({
         ),
       )
       .orderBy(asc(tricks.name))
-      .limit(data.limit);
 
-    return tricksData;
-  });
+    return tricksData
+  })
 
 export const createTrickServerFn = createServerFn({
   method: "POST",
@@ -388,11 +381,11 @@ export const createTrickServerFn = createServerFn({
       elementIds,
       compositions,
       ...trickData
-    } = data;
+    } = data
 
     // Insert trick
-    const [trick] = await db.insert(tricks).values(trickData).returning();
-    invariant(trick, "Failed to create trick");
+    const [trick] = await db.insert(tricks).values(trickData).returning()
+    invariant(trick, "Failed to create trick")
 
     // Insert relationships
     if (relationships.length > 0) {
@@ -402,7 +395,7 @@ export const createTrickServerFn = createServerFn({
           targetTrickId: rel.targetTrickId,
           type: rel.type,
         })),
-      );
+      )
     }
 
     // Insert element assignments
@@ -412,7 +405,7 @@ export const createTrickServerFn = createServerFn({
           trickId: trick.id,
           elementId,
         })),
-      );
+      )
     }
 
     // Insert videos (auto-approved as active for admin creation)
@@ -427,7 +420,7 @@ export const createTrickServerFn = createServerFn({
           reviewedByUserId: context.user.id,
           reviewedAt: new Date(),
         })),
-      );
+      )
     }
 
     // Insert compositions (for compound tricks)
@@ -439,13 +432,13 @@ export const createTrickServerFn = createServerFn({
           position: comp.position,
           catchType: comp.catchType,
         })),
-      );
+      )
     }
 
-    await recomputeAllTrickComputedFields();
+    await recomputeAllTrickComputedFields()
 
-    return trick;
-  });
+    return trick
+  })
 
 export const updateTrickServerFn = createServerFn({
   method: "POST",
@@ -460,21 +453,21 @@ export const updateTrickServerFn = createServerFn({
       elementIds,
       compositions,
       ...trickData
-    } = data;
+    } = data
 
     // Update trick
     const [trick] = await db
       .update(tricks)
       .set({ ...trickData, updatedAt: new Date() })
       .where(eq(tricks.id, id))
-      .returning();
+      .returning()
 
-    invariant(trick, "Trick not found");
+    invariant(trick, "Trick not found")
 
     // Update relationships - delete all outgoing and re-insert
     await db
       .delete(trickRelationships)
-      .where(eq(trickRelationships.sourceTrickId, id));
+      .where(eq(trickRelationships.sourceTrickId, id))
 
     if (relationships.length > 0) {
       await db.insert(trickRelationships).values(
@@ -483,13 +476,13 @@ export const updateTrickServerFn = createServerFn({
           targetTrickId: rel.targetTrickId,
           type: rel.type,
         })),
-      );
+      )
     }
 
     // Update element assignments - delete all and re-insert
     await db
       .delete(trickElementAssignments)
-      .where(eq(trickElementAssignments.trickId, id));
+      .where(eq(trickElementAssignments.trickId, id))
 
     if (elementIds.length > 0) {
       await db.insert(trickElementAssignments).values(
@@ -497,15 +490,13 @@ export const updateTrickServerFn = createServerFn({
           trickId: id,
           elementId,
         })),
-      );
+      )
     }
 
     // Update videos - delete all active and re-insert
     await db
       .delete(trickVideos)
-      .where(
-        and(eq(trickVideos.trickId, id), eq(trickVideos.status, "active")),
-      );
+      .where(and(eq(trickVideos.trickId, id), eq(trickVideos.status, "active")))
 
     if (muxAssetIds.length > 0) {
       await db.insert(trickVideos).values(
@@ -518,13 +509,13 @@ export const updateTrickServerFn = createServerFn({
           reviewedByUserId: context.user.id,
           reviewedAt: new Date(),
         })),
-      );
+      )
     }
 
     // Update compositions - delete all and re-insert
     await db
       .delete(trickCompositions)
-      .where(eq(trickCompositions.compoundTrickId, id));
+      .where(eq(trickCompositions.compoundTrickId, id))
 
     if (compositions.length > 0) {
       await db.insert(trickCompositions).values(
@@ -534,13 +525,13 @@ export const updateTrickServerFn = createServerFn({
           position: comp.position,
           catchType: comp.catchType,
         })),
-      );
+      )
     }
 
-    await recomputeAllTrickComputedFields();
+    await recomputeAllTrickComputedFields()
 
-    return trick;
-  });
+    return trick
+  })
 
 export const deleteTrickServerFn = createServerFn({
   method: "POST",
@@ -548,17 +539,14 @@ export const deleteTrickServerFn = createServerFn({
   .inputValidator(zodValidator(deleteTrickSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data: id }) => {
-    const [trick] = await db
-      .delete(tricks)
-      .where(eq(tricks.id, id))
-      .returning();
+    const [trick] = await db.delete(tricks).where(eq(tricks.id, id)).returning()
 
-    invariant(trick, "Trick not found");
+    invariant(trick, "Trick not found")
 
-    await recomputeAllTrickComputedFields();
+    await recomputeAllTrickComputedFields()
 
-    return trick;
-  });
+    return trick
+  })
 
 // ==================== RECOMPUTE ====================
 
@@ -581,28 +569,28 @@ async function recomputeAllTrickComputedFields() {
         orderBy: (compositions, { asc }) => [asc(compositions.position)],
       },
     },
-  });
+  })
 
   const trickObjects: Trick[] = dbTricks.map((t) => {
     const prerequisiteRel = t.outgoingRelationships.find(
       (r) => r.type === "prerequisite",
-    );
+    )
     const optionalPrerequisiteRel = t.outgoingRelationships.find(
       (r) => r.type === "optional_prerequisite",
-    );
+    )
 
     return {
       id: t.slug,
+      dbId: t.id,
       name: t.name,
       alternateNames: t.alternateNames ?? [],
       elements: [],
-      definition: t.definition ?? "",
+      description: t.description ?? "",
       prerequisite: prerequisiteRel?.targetTrick.slug ?? null,
       optionalPrerequisite: optionalPrerequisiteRel?.targetTrick.slug ?? null,
-      isPrefix: t.isPrefix,
       isCompound: t.isCompound,
       compositions: (t.compositions ?? [])
-        .sort((a, b) => a.position - b.position)
+        .toSorted((a, b) => a.position - b.position)
         .map((c) => ({
           componentId: c.componentTrick.slug,
           componentName: c.componentTrick.name,
@@ -626,19 +614,19 @@ async function recomputeAllTrickComputedFields() {
       neighbors: [],
       depth: 0,
       dependents: [],
-    };
-  });
+    }
+  })
 
-  computeDepthsAndDependents(trickObjects);
-  computeAllNeighbors(trickObjects);
+  computeDepthsAndDependents(trickObjects)
+  computeAllNeighbors(trickObjects)
 
   // Build a slug -> DB id map for updates
-  const slugToDbId = new Map(dbTricks.map((t) => [t.slug, t.id]));
+  const slugToDbId = new Map(dbTricks.map((t) => [t.slug, t.id]))
 
   await Promise.all(
     trickObjects.map((t) => {
-      const dbId = slugToDbId.get(t.id);
-      if (!dbId) return;
+      const dbId = slugToDbId.get(t.id)
+      if (!dbId) return undefined
       return db
         .update(tricks)
         .set({
@@ -646,91 +634,17 @@ async function recomputeAllTrickComputedFields() {
           dependentSlugs: t.dependents,
           neighborLinks: t.neighbors,
         })
-        .where(eq(tricks.id, dbId));
+        .where(eq(tricks.id, dbId))
     }),
-  );
+  )
 }
-
-// ==================== BUILDER ====================
-
-export const getAllTricksForBuilderServerFn = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  // Simple tricks (non-compound) with modifier columns for lookup
-  const simpleTricks = await db
-    .select({
-      id: tricks.id,
-      slug: tricks.slug,
-      name: tricks.name,
-      alternateNames: tricks.alternateNames,
-      definition: tricks.definition,
-      isCompound: tricks.isCompound,
-      flips: tricks.flips,
-      spin: tricks.spin,
-      wrap: tricks.wrap,
-      twist: tricks.twist,
-      fakie: tricks.fakie,
-      tire: tricks.tire,
-      switchStance: tricks.switchStance,
-      late: tricks.late,
-    })
-    .from(tricks)
-    .where(eq(tricks.isCompound, false))
-    .orderBy(asc(tricks.name));
-
-  // Compound tricks with compositions eagerly loaded
-  const compoundTricks = await db.query.tricks.findMany({
-    where: eq(tricks.isCompound, true),
-    columns: {
-      id: true,
-      slug: true,
-      name: true,
-      alternateNames: true,
-      definition: true,
-      isCompound: true,
-      flips: true,
-      spin: true,
-      wrap: true,
-      twist: true,
-      fakie: true,
-      tire: true,
-      switchStance: true,
-      late: true,
-    },
-    with: {
-      compositions: {
-        with: {
-          componentTrick: {
-            columns: {
-              id: true,
-              slug: true,
-              name: true,
-              flips: true,
-              spin: true,
-              wrap: true,
-              twist: true,
-              fakie: true,
-              tire: true,
-              switchStance: true,
-              late: true,
-            },
-          },
-        },
-        orderBy: [asc(trickCompositions.position)],
-      },
-    },
-    orderBy: [asc(tricks.name)],
-  });
-
-  return { simpleTricks, compoundTricks };
-});
 
 // ==================== BULK OPERATIONS ====================
 
 export const getAllTricksForGraphServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
-  const { transformDbTricksToTricksData } = await import("./compute");
+  const { transformDbTricksToTricksData } = await import("./compute")
   const dbTricks = await db.query.tricks.findMany({
     with: {
       videos: {
@@ -773,9 +687,6 @@ export const getAllTricksForGraphServerFn = createServerFn({
       },
     },
     orderBy: [asc(tricks.name)],
-  });
-  console.log(
-    `[getAllTricksForGraphServerFn] Found ${dbTricks.length} tricks in database`,
-  );
-  return transformDbTricksToTricksData(dbTricks);
-});
+  })
+  return transformDbTricksToTricksData(dbTricks)
+})

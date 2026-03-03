@@ -1,58 +1,61 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { type QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools"
+import { type QueryClient } from "@tanstack/react-query"
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
   useRouter,
-} from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { useEffect, useState, type ReactNode } from "react";
+} from "@tanstack/react-router"
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
+import { NuqsAdapter } from "nuqs/adapters/tanstack-router"
+import { type ReactNode, useEffect, useState } from "react"
+import { z } from "zod"
 
-import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
-import { z } from "zod";
-
-import { BugIcon } from "lucide-react";
-import { AppSidebar } from "~/components/app-sidebar";
-import { ConfirmDialog } from "~/components/confirm-dialog";
-import { GlobalShortcuts } from "~/components/global-shortcuts";
+import { AppSidebar } from "~/components/app-sidebar"
+import { ConfirmDialog } from "~/components/confirm-dialog"
+import { GlobalShortcuts } from "~/components/global-shortcuts"
 import {
   MobileNavIndent,
   MobileNavIndentBackground,
   MobileNavPopup,
   MobileNavProvider,
-} from "~/components/mobile-nav";
-import { SiteHeader } from "~/components/site-header";
-import { Button } from "~/components/ui/button";
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { Toaster } from "~/components/ui/sonner";
-import { PageHeaderProvider } from "~/lib/page-header/context";
-import { useRootRouteContext } from "~/lib/session/hooks";
-import { session } from "~/lib/session/index";
-import { type HausSession } from "~/lib/session/schema";
-import { ThemeProvider } from "~/lib/theme/context";
-import appCss from "~/styles.css?url";
+} from "~/components/mobile-nav"
+import { MobileFooter } from "~/components/site-header"
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
+import { Toaster } from "~/components/ui/sonner"
+import { presence } from "~/lib/presence"
+import { useRootRouteContext } from "~/lib/session/hooks"
+import { session } from "~/lib/session/index"
+import { type HausSession } from "~/lib/session/schema"
+import { ThemeProvider } from "~/lib/theme/context"
+import { users } from "~/lib/users"
+import appCss from "~/styles.css?url"
 
 export interface RouterAppContext {
-  session: HausSession;
-  queryClient: QueryClient;
+  session: HausSession
+  queryClient: QueryClient
 }
 
 const rootSearchSchema = z.object({
   si: z.coerce.number().optional(),
   // p (peripherals) is managed by nuqs - array with - delimiter (e.g., ?p=sidebar-search)
   p: z.string().optional(),
-});
+})
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   validateSearch: rootSearchSchema,
   beforeLoad: async ({ context }) => {
     const sessionData = await context.queryClient.ensureQueryData(
       session.get.queryOptions(),
-    );
-    return { session: sessionData };
+    )
+
+    await context.queryClient.ensureQueryData(users.all.queryOptions())
+
+    await context.queryClient.ensureQueryData(presence.online.queryOptions())
+
+    return { session: sessionData }
   },
   component: RootComponent,
   head: () => ({
@@ -91,6 +94,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         charSet: "utf8",
       },
       {
+        property: "og:site_name",
+        content: "une.haus",
+      },
+      {
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
@@ -108,16 +115,14 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
     ],
   }),
-});
+})
 
 function RootComponent() {
   useEffect(() => {
     if (import.meta.env.DEV) {
-      void import("react-grab");
-      void import("@react-grab/claude-code/client");
-      void import("@react-grab/cursor/client");
+      void import("react-grab")
     }
-  }, []);
+  }, [])
 
   return (
     <NuqsAdapter>
@@ -125,28 +130,32 @@ function RootComponent() {
         <Outlet />
       </RootDocument>
     </NuqsAdapter>
-  );
+  )
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const router = useRouter();
-  const { session: sessionData } = useRootRouteContext();
+  const router = useRouter()
+  const { session: sessionData } = useRootRouteContext()
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
     null,
-  );
+  )
 
   return (
     <html
       lang="en"
       // necessary for theming - only applies one level (html tag)
       suppressHydrationWarning
+      // Hydration signal for e2e tests — Playwright's actionability checks pass on
+      // SSR-rendered elements before React attaches handlers, so tests wait for this
+      // attribute to know the app is interactive.
+      // https://playwright.dev/docs/actionability
+      ref={(el) => el?.setAttribute("data-hydrated", "")}
     >
       <head>
         <HeadContent />
       </head>
       <body className="overscroll-none font-mono antialiased">
         <ThemeProvider>
-          <GlobalShortcuts />
           <Toaster />
           <ConfirmDialog />
           <MobileNavProvider>
@@ -162,18 +171,17 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                     } as React.CSSProperties
                   }
                 >
+                  <GlobalShortcuts />
                   <AppSidebar variant="inset" />
-                  <PageHeaderProvider>
-                    <SidebarInset>
-                      <SiteHeader />
-                      <div
-                        className="flex flex-1 flex-col overflow-y-auto overscroll-none"
-                        id="main-content"
-                      >
-                        {children}
-                      </div>
-                    </SidebarInset>
-                  </PageHeaderProvider>
+                  <SidebarInset>
+                    <div
+                      className="flex flex-1 flex-col overflow-y-auto overscroll-none"
+                      id="main-content"
+                    >
+                      {children}
+                    </div>
+                    <MobileFooter />
+                  </SidebarInset>
                 </SidebarProvider>
               </MobileNavIndent>
               <MobileNavPopup portalContainer={portalContainer} />
@@ -184,15 +192,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           config={{
             position: "bottom-left",
             hideUntilHover: true,
-            customTrigger: (
-              <Button
-                variant="outline"
-                size="icon-sm"
-                className="rounded-full"
-              >
-                <BugIcon className="size-4" />
-              </Button>
-            ),
           }}
           plugins={[
             {
@@ -208,5 +207,5 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }

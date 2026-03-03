@@ -1,35 +1,35 @@
-import { SearchIcon, XIcon } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { SearchIcon, XIcon } from "lucide-react"
+import pluralize from "pluralize"
+import { useDeferredValue, useMemo, useState } from "react"
 
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import type { Trick, TricksData } from "~/lib/tricks";
-
-import { ElementLane } from "./element-lane";
-import { TrickDetail } from "./trick-detail";
+import { ElementLane } from "./element-lane"
+import { TrickDetail } from "./trick-detail"
+import { Badge } from "~/components/ui/badge"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import { type Trick, type TricksData } from "~/lib/tricks"
 
 type SkillTreeProps = {
-  data: TricksData;
-};
+  data: TricksData
+}
 
 export function SkillTree({ data }: SkillTreeProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const deferredSearchTerm = useDeferredValue(searchTerm);
-  const [selectedTrickId, setSelectedTrickId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("")
+  const deferredSearchTerm = useDeferredValue(searchTerm)
+  const [selectedTrickId, setSelectedTrickId] = useState<string | null>(null)
   const [hiddenElements, setHiddenElements] = useState<Set<string>>(
     new Set(["prefix"]), // Hide prefixes by default
-  );
+  )
 
   // Filter tricks by search term
   const filteredByElement = useMemo(() => {
-    const result: Record<string, Trick[]> = {};
-    const searchLower = deferredSearchTerm.toLowerCase();
+    const result: Record<string, Trick[]> = {}
+    const searchLower = deferredSearchTerm.toLowerCase()
 
     for (const element of data.elements) {
-      if (hiddenElements.has(element)) continue;
+      if (hiddenElements.has(element)) continue
 
-      const elementTricks = data.byElement[element] ?? [];
+      const elementTricks = data.byElement[element] ?? []
       const filtered = searchLower
         ? elementTricks.filter(
             (trick) =>
@@ -37,44 +37,44 @@ export function SkillTree({ data }: SkillTreeProps) {
               trick.alternateNames.some((name) =>
                 name.toLowerCase().includes(searchLower),
               ) ||
-              trick.definition.toLowerCase().includes(searchLower),
+              trick.description.toLowerCase().includes(searchLower),
           )
-        : elementTricks;
+        : elementTricks
 
       if (filtered.length > 0) {
-        result[element] = filtered;
+        result[element] = filtered
       }
     }
 
-    return result;
-  }, [data, deferredSearchTerm, hiddenElements]);
+    return result
+  }, [data, deferredSearchTerm, hiddenElements])
 
-  const visibleElements = Object.keys(filteredByElement);
+  const visibleElements = Object.keys(filteredByElement)
   const totalTricksShown = Object.values(filteredByElement).reduce(
     (sum, tricks) => sum + tricks.length,
     0,
-  );
+  )
 
-  const selectedTrick = selectedTrickId ? data.byId[selectedTrickId] : null;
+  const selectedTrick = selectedTrickId ? data.byId[selectedTrickId] : null
 
   function toggleElement(element: string) {
     setHiddenElements((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(element)) {
-        next.delete(element);
+        next.delete(element)
       } else {
-        next.add(element);
+        next.add(element)
       }
-      return next;
-    });
+      return next
+    })
   }
 
   function handleSelectTrick(trick: Trick) {
-    setSelectedTrickId(trick.id);
+    setSelectedTrickId(trick.id)
   }
 
   function handleNavigateToTrick(trickId: string) {
-    setSelectedTrickId(trickId);
+    setSelectedTrickId(trickId)
   }
 
   return (
@@ -106,8 +106,8 @@ export function SkillTree({ data }: SkillTreeProps) {
         {/* Element filters */}
         <div className="flex flex-wrap gap-2">
           {data.elements.map((element) => {
-            const isHidden = hiddenElements.has(element);
-            const count = data.byElement[element]?.length ?? 0;
+            const isHidden = hiddenElements.has(element)
+            const count = data.byElement[element]?.length ?? 0
 
             return (
               <Badge
@@ -119,14 +119,15 @@ export function SkillTree({ data }: SkillTreeProps) {
                 {element}
                 <span className="text-muted-foreground ml-1">({count})</span>
               </Badge>
-            );
+            )
           })}
         </div>
 
         {/* Stats */}
         <p className="text-muted-foreground text-sm">
-          Showing {totalTricksShown} tricks across {visibleElements.length}{" "}
-          elements
+          Showing {totalTricksShown} {pluralize("trick", totalTricksShown)}{" "}
+          across {visibleElements.length}{" "}
+          {pluralize("element", visibleElements.length)}
         </p>
       </div>
 
@@ -152,8 +153,8 @@ export function SkillTree({ data }: SkillTreeProps) {
           <Button
             className="mt-4"
             onClick={() => {
-              setSearchTerm("");
-              setHiddenElements(new Set(["prefix"]));
+              setSearchTerm("")
+              setHiddenElements(new Set(["prefix"]))
             }}
             variant="outline"
           >
@@ -173,5 +174,5 @@ export function SkillTree({ data }: SkillTreeProps) {
         />
       )}
     </div>
-  );
+  )
 }

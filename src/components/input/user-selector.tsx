@@ -1,11 +1,10 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { createContext, Suspense, useContext, useMemo, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { createContext, Suspense, useContext, useMemo, useState } from "react"
+import { VList } from "virtua"
 
-import { VList } from "virtua";
-
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -13,29 +12,29 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "~/components/ui/command";
-import { ResponsiveCombobox } from "~/components/ui/responsive-combobox";
-import { invariant } from "~/lib/invariant";
-import { users as usersApi } from "~/lib/users";
-import { cn } from "~/lib/utils";
-import { useFzf } from "~/lib/ux/hooks/use-fzf";
+} from "~/components/ui/command"
+import { ResponsiveCombobox } from "~/components/ui/responsive-combobox"
+import { invariant } from "~/lib/invariant"
+import { users as usersApi } from "~/lib/users"
+import { cn } from "~/lib/utils"
+import { useFzf } from "~/lib/ux/hooks/use-fzf"
 
 const api = {
   users: usersApi,
-};
+}
 
 type User = {
-  avatarId: null | string;
-  id: number;
-  name: string;
-};
+  avatarId: null | string
+  id: number
+  name: string
+}
 
 export function UserSelector({
   initialSelectedUserId,
   onSelect,
 }: {
-  initialSelectedUserId: number | undefined;
-  onSelect: (user: User | undefined) => void;
+  initialSelectedUserId: number | undefined
+  onSelect: (user: User | undefined) => void
 }) {
   return (
     <Suspense
@@ -44,7 +43,7 @@ export function UserSelector({
           <Button
             className="w-full justify-between hover:bg-inherit"
             role="combobox"
-            size="lg"
+            size="default"
             variant="outline"
           >
             <p className="grow truncate text-left select-none">Search</p>
@@ -58,14 +57,14 @@ export function UserSelector({
         initialSelectedUserId={initialSelectedUserId}
       />
     </Suspense>
-  );
+  )
 }
 
-const VIRTUALIZE_THRESHOLD = 7;
+const VIRTUALIZE_THRESHOLD = 7
 
 function UsersCommand(props: {
-  onSelect: (user: User | undefined) => void;
-  initialSelectedUserId: number | undefined;
+  onSelect: (user: User | undefined) => void
+  initialSelectedUserId: number | undefined
 }) {
   const {
     query,
@@ -73,9 +72,9 @@ function UsersCommand(props: {
     users: data,
     selectedUser,
     setSelectedUser,
-  } = useUserSelector();
+  } = useUserSelector()
 
-  invariant(data[0], "No users found");
+  invariant(data[0], "No users found")
 
   const searchReadyUsers = useMemo(
     () =>
@@ -84,27 +83,24 @@ function UsersCommand(props: {
         searchKey: user.name.toLowerCase(),
       })),
     [data],
-  );
+  )
 
-  const lowercasedQuery = query.toLowerCase();
+  const lowercasedQuery = query.toLowerCase()
 
-  const fzf = useFzf([
-    searchReadyUsers,
-    { selector: (user) => user.searchKey },
-  ]);
+  const fzf = useFzf([searchReadyUsers, { selector: (user) => user.searchKey }])
 
-  const filteredUsers = fzf.find(lowercasedQuery);
+  const filteredUsers = fzf.find(lowercasedQuery)
 
   const onSelectUser = (user: User) => {
     const nextValue =
-      selectedUser && user.id === selectedUser.id ? undefined : user;
-    setSelectedUser(nextValue);
-    props.onSelect(nextValue);
-  };
+      selectedUser && user.id === selectedUser.id ? undefined : user
+    setSelectedUser(nextValue)
+    props.onSelect(nextValue)
+  }
 
   const usersNode = filteredUsers.map(({ item: user }) => (
     <UserItem key={user.id} onSelect={onSelectUser} user={user} />
-  ));
+  ))
 
   return (
     <Command className="w-full" shouldFilter={false}>
@@ -114,7 +110,7 @@ function UsersCommand(props: {
         value={query}
       />
       <CommandList>
-        <CommandEmpty>No results</CommandEmpty>
+        <CommandEmpty>no results</CommandEmpty>
         {filteredUsers.length > 0 && (
           <CommandGroup>
             {filteredUsers.length > VIRTUALIZE_THRESHOLD ? (
@@ -128,17 +124,17 @@ function UsersCommand(props: {
         )}
       </CommandList>
     </Command>
-  );
+  )
 }
 
 function UserItem({
   onSelect,
   user,
 }: {
-  onSelect: (user: User) => void;
-  user: User;
+  onSelect: (user: User) => void
+  user: User
 }) {
-  const { selectedUser } = useUserSelector();
+  const { selectedUser } = useUserSelector()
 
   return (
     <CommandItem
@@ -155,49 +151,49 @@ function UserItem({
         )}
       />
     </CommandItem>
-  );
+  )
 }
 
 const UserSelectorContext = createContext<{
-  query: string;
-  setQuery: (query: string) => void;
-  selectedUser: User | undefined;
-  setSelectedUser: (user: User | undefined) => void;
-  users: User[];
+  query: string
+  setQuery: (query: string) => void
+  selectedUser: User | undefined
+  setSelectedUser: (user: User | undefined) => void
+  users: User[]
 }>({
   query: "",
   setQuery: () => {},
   selectedUser: undefined,
   setSelectedUser: () => {},
   users: [],
-});
+})
 
 export function useUserSelector() {
-  const context = useContext(UserSelectorContext);
+  const context = useContext(UserSelectorContext)
   invariant(
     context,
     "useUserSelector must be used within a UserSelectorProvider",
-  );
-  return context;
+  )
+  return context
 }
 
 export function UserSelectorProvider({
   initialSelectedUserId,
   children,
 }: {
-  initialSelectedUserId: number | undefined;
-  children: React.ReactNode;
+  initialSelectedUserId: number | undefined
+  children: React.ReactNode
 }) {
-  const { data: users } = useSuspenseQuery(api.users.all.queryOptions());
+  const { data: users } = useSuspenseQuery(api.users.all.queryOptions())
 
   const initialUser = initialSelectedUserId
     ? users.find((user) => user.id === initialSelectedUserId)
-    : undefined;
+    : undefined
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("")
   const [selectedUser, setSelectedUser] = useState<User | undefined>(
     initialUser,
-  );
+  )
 
   return (
     <UserSelectorContext.Provider
@@ -211,7 +207,7 @@ export function UserSelectorProvider({
     >
       {children}
     </UserSelectorContext.Provider>
-  );
+  )
 }
 
 const withUserSelector = <
@@ -224,32 +220,32 @@ const withUserSelector = <
       <UserSelectorProvider initialSelectedUserId={initialSelectedUserId}>
         <Component {...(props as T)} />
       </UserSelectorProvider>
-    );
-  };
-};
+    )
+  }
+}
 
 const UsersCommandDialog = withUserSelector<{
-  onSelect: (user: User | undefined) => void;
-  initialSelectedUserId: number | undefined;
+  onSelect: (user: User | undefined) => void
+  initialSelectedUserId: number | undefined
 }>((props) => {
-  const { selectedUser, setQuery } = useUserSelector();
+  const { selectedUser, setQuery } = useUserSelector()
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <ResponsiveCombobox
       open={open}
       onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
-        if (!nextOpen) setQuery("");
+        setOpen(nextOpen)
+        if (!nextOpen) setQuery("")
       }}
-      title="Select user"
+      title="select user"
       trigger={
         <Button
           aria-expanded={open}
           className="w-full justify-between hover:bg-inherit"
           role="combobox"
-          size="lg"
+          size="default"
           variant="outline"
         >
           {selectedUser ? (
@@ -279,10 +275,10 @@ const UsersCommandDialog = withUserSelector<{
       <UsersCommand
         {...props}
         onSelect={(args) => {
-          props.onSelect(args);
-          setOpen(false);
+          props.onSelect(args)
+          setOpen(false)
         }}
       />
     </ResponsiveCombobox>
-  );
-});
+  )
+})

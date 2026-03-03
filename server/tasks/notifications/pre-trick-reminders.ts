@@ -1,38 +1,37 @@
-import { and, eq } from "drizzle-orm";
-import { defineTask } from "nitro/task";
-import { Resend } from "resend";
+import { and, eq } from "drizzle-orm"
+import { defineTask } from "nitro/task"
+import { Resend } from "resend"
 
-import { db } from "~/db";
+import PreGameTrickReminderTemplate from "../../../emails/pre-game-trick-reminder"
+import { db } from "~/db"
 import {
   emailRemindersSent,
-  rius,
   riuSets,
+  rius,
   userNotificationSettings,
   users,
-} from "~/db/schema";
-import { env } from "~/lib/env";
-import { TASK_NAMES } from "~/lib/tasks/constants";
+} from "~/db/schema"
+import { env } from "~/lib/env"
+import { TASK_NAMES } from "~/lib/tasks/constants"
 
-import PreGameTrickReminderTemplate from "../../../emails/pre-game-trick-reminder";
-
-const resendClient = new Resend(env.RESEND_API_KEY);
+const resendClient = new Resend(env.RESEND_API_KEY)
 
 const BASE_URL = env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VITE_APP_URL;
+  : env.VITE_APP_URL
 
 // Calculate days until next Monday 00:00 UTC
 function getDaysUntilNextRotation(): number {
-  const now = new Date();
-  const nextMonday = new Date(now);
+  const now = new Date()
+  const nextMonday = new Date(now)
 
   // Find next Monday
-  const daysUntilMonday = (8 - now.getUTCDay()) % 7 || 7;
-  nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday);
-  nextMonday.setUTCHours(0, 0, 0, 0);
+  const daysUntilMonday = (8 - now.getUTCDay()) % 7 || 7
+  nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday)
+  nextMonday.setUTCHours(0, 0, 0, 0)
 
-  const msUntil = nextMonday.getTime() - now.getTime();
-  return Math.ceil(msUntil / (1000 * 60 * 60 * 24));
+  const msUntil = nextMonday.getTime() - now.getTime()
+  return Math.ceil(msUntil / (1000 * 60 * 60 * 24))
 }
 
 export default defineTask({
@@ -42,15 +41,15 @@ export default defineTask({
       "Send pre-game trick reminder emails to users with sets in upcoming round",
   },
   async run() {
-    console.log("[notifications:pre-trick-reminders] Starting...");
+    console.log("[notifications:pre-trick-reminders] Starting...")
 
     // Get the upcoming RIU
     const upcomingRiu = await db.query.rius.findFirst({
       where: eq(rius.status, "upcoming"),
-    });
+    })
 
     if (!upcomingRiu) {
-      console.log("[notifications:pre-trick-reminders] No upcoming RIU found");
+      console.log("[notifications:pre-trick-reminders] No upcoming RIU found")
       return {
         result: {
           success: true,
@@ -59,10 +58,10 @@ export default defineTask({
           errors: 0,
           daysUntilStart: 0,
         },
-      };
+      }
     }
 
-    const daysUntilStart = getDaysUntilNextRotation();
+    const daysUntilStart = getDaysUntilNextRotation()
 
     // Find users who have sets in the upcoming round AND want reminders
     const usersWithSets = await db
@@ -86,49 +85,49 @@ export default defineTask({
           eq(userNotificationSettings.preTrickReminderEnabled, true),
           eq(userNotificationSettings.emailUnsubscribedAll, false),
         ),
-      );
+      )
 
     // Group sets by user
     const userSetsMap = new Map<
       number,
       {
-        email: string;
-        name: string;
-        daysBefore: number | null;
-        sets: { name: string; instructions: string | null }[];
+        email: string
+        name: string
+        daysBefore: number | null
+        sets: { name: string; instructions: string | null }[]
       }
-    >();
+    >()
 
     for (const row of usersWithSets) {
-      const existing = userSetsMap.get(row.userId);
+      const existing = userSetsMap.get(row.userId)
       if (existing) {
         existing.sets.push({
           name: row.setName,
           instructions: row.setInstructions,
-        });
+        })
       } else {
         userSetsMap.set(row.userId, {
           email: row.email,
           name: row.name,
           daysBefore: row.daysBefore,
           sets: [{ name: row.setName, instructions: row.setInstructions }],
-        });
+        })
       }
     }
 
     // Filter to users whose reminder day matches
     const usersToNotify = [...userSetsMap.entries()].filter(([, user]) => {
-      const targetDays = user.daysBefore ?? 1;
-      return daysUntilStart === targetDays;
-    });
+      const targetDays = user.daysBefore ?? 1
+      return daysUntilStart === targetDays
+    })
 
     console.log(
       `[notifications:pre-trick-reminders] ${daysUntilStart} days until rotation, ${usersToNotify.length} users to notify`,
-    );
+    )
 
-    let sentCount = 0;
-    let skippedCount = 0;
-    let errorCount = 0;
+    let sentCount = 0
+    let skippedCount = 0
+    let errorCount = 0
 
     for (const [userId, userData] of usersToNotify) {
       try {
@@ -139,18 +138,18 @@ export default defineTask({
             eq(emailRemindersSent.reminderType, "pre_trick"),
             eq(emailRemindersSent.riuId, upcomingRiu.id),
           ),
-        });
+        })
 
         if (existingReminder) {
-          skippedCount++;
-          continue;
+          skippedCount++
+          continue
         }
 
-        const setCount = userData.sets.length;
+        const setCount = userData.sets.length
         const subject =
           setCount === 1
-            ? "Your set goes live tomorrow"
-            : `Your ${setCount} sets go live tomorrow`;
+            ? "your set goes live tomorrow"
+            : `your ${setCount} sets go live tomorrow`
 
         // Send email
         const { error } = await resendClient.emails.send({
@@ -167,15 +166,15 @@ export default defineTask({
             unsubscribeReminderUrl: `${BASE_URL}/api/unsubscribe?type=pre_trick&userId=${userId}`,
             unsubscribeAllUrl: `${BASE_URL}/api/unsubscribe?type=all&userId=${userId}`,
           }),
-        });
+        })
 
         if (error) {
           console.error(
             `[notifications:pre-trick-reminders] Failed to send to user ${userId}:`,
             error,
-          );
-          errorCount++;
-          continue;
+          )
+          errorCount++
+          continue
         }
 
         // Record that we sent this reminder
@@ -183,24 +182,24 @@ export default defineTask({
           userId,
           reminderType: "pre_trick",
           riuId: upcomingRiu.id,
-        });
+        })
 
-        sentCount++;
+        sentCount++
         console.log(
           `[notifications:pre-trick-reminders] Sent to user ${userId} with ${setCount} sets`,
-        );
+        )
       } catch (error) {
         console.error(
           `[notifications:pre-trick-reminders] Error processing user ${userId}:`,
           error,
-        );
-        errorCount++;
+        )
+        errorCount++
       }
     }
 
     console.log(
       `[notifications:pre-trick-reminders] Complete. Sent: ${sentCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`,
-    );
+    )
 
     return {
       result: {
@@ -210,6 +209,6 @@ export default defineTask({
         errors: errorCount,
         daysUntilStart,
       },
-    };
+    }
   },
-});
+})

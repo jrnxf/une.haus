@@ -1,41 +1,57 @@
-import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer";
-import { Link, useMatches } from "@tanstack/react-router";
+import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer"
+import { useQuery } from "@tanstack/react-query"
+import { Link, useMatches } from "@tanstack/react-router"
 import {
-  ClipboardPenIcon,
+  ActivityIcon,
+  BellIcon,
   EarthIcon,
-  GaugeIcon,
+  EyeOff,
   LockIcon,
   LockOpenIcon,
-  MapPinIcon,
-  MedalIcon,
-  MessagesSquareIcon,
-  MonitorIcon,
-  MoonIcon,
-  PanelBottomOpenIcon,
-  Send,
-  ShoppingBagIcon,
-  SunIcon,
-  TimerIcon,
-  TrafficConeIcon,
+  LogIn,
+  LogOutIcon,
   type LucideIcon,
-} from "lucide-react";
-import { type ReactNode } from "react";
+  MenuIcon,
+  MessagesSquareIcon,
+  PowerIcon,
+  ScrollText,
+  Send,
+  ShieldIcon,
+  ShoppingBagIcon,
+  StickyNoteIcon,
+  TrafficConeIcon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react"
+import { type ReactNode } from "react"
 
+import { BracketIcon } from "~/components/icons/bracket-icon"
+import { PodiumIcon } from "~/components/icons/podium-icon"
+import { MobileNavContext, useMobileNav } from "~/components/mobile-nav-context"
+import { ThemeSubmenu } from "~/components/nav-user"
+import { OnlineIndicator } from "~/components/online-indicator"
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
+import { CountChip } from "~/components/ui/count-chip"
 import {
-  MobileNavContext,
-  useMobileNav,
-} from "~/components/mobile-nav-context";
-import { Button } from "~/components/ui/button";
-import { usePeripherals } from "~/hooks/use-peripherals";
-import { useTheme, type Theme } from "~/lib/theme/context";
-import { cn } from "~/lib/utils";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { usePeripherals } from "~/hooks/use-peripherals"
+import { notifications } from "~/lib/notifications"
+import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
+import { cn } from "~/lib/utils"
 
 const navItems = [
-  { title: "games", url: "/games", icon: MedalIcon },
-  { title: "users", url: "/users", icon: EarthIcon },
-  { title: "posts", url: "/posts", icon: ClipboardPenIcon },
+  { title: "games", url: "/games", icon: PodiumIcon },
+  { title: "users", url: "/users", icon: UsersIcon },
+  { title: "posts", url: "/posts", icon: StickyNoteIcon },
   { title: "chat", url: "/chat", icon: MessagesSquareIcon },
-  { title: "map", url: "/map", icon: MapPinIcon },
+  { title: "map", url: "/map", icon: EarthIcon },
   { title: "tricks", url: "/tricks", icon: TrafficConeIcon },
   {
     title: "vault",
@@ -43,18 +59,10 @@ const navItems = [
     icon: LockIcon,
     activeIcon: LockOpenIcon,
   },
-  { title: "events", url: "/events", icon: TimerIcon },
-  { title: "stats", url: "/stats", icon: GaugeIcon },
+  { title: "tourney", url: "/tourney", icon: BracketIcon },
+  { title: "metrics", url: "/metrics", icon: ActivityIcon },
   { title: "shop", url: "/shop", icon: ShoppingBagIcon },
-  { title: "feedback", url: "/feedback", icon: Send },
-] as const;
-
-const themeOrder: Theme[] = ["system", "dark", "light"];
-const themeIcon: Record<Theme, LucideIcon> = {
-  system: MonitorIcon,
-  dark: MoonIcon,
-  light: SunIcon,
-};
+] as const
 
 function NavItem({
   title,
@@ -63,32 +71,32 @@ function NavItem({
   activeIcon: ActiveIcon,
   isActive,
 }: {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-  activeIcon?: LucideIcon;
-  isActive: boolean;
+  title: string
+  url: string
+  icon: LucideIcon
+  activeIcon?: LucideIcon
+  isActive: boolean
 }) {
-  const ResolvedIcon = isActive && ActiveIcon ? ActiveIcon : Icon;
+  const ResolvedIcon = isActive && ActiveIcon ? ActiveIcon : Icon
   return (
     <Link
       to={url}
       replace
       className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors",
+        "flex items-center gap-2 rounded-md px-2 py-2 text-sm",
         isActive
           ? "bg-accent text-accent-foreground font-medium"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+          : "text-foreground hover:bg-accent/50",
       )}
     >
-      <ResolvedIcon className="size-5" />
+      <ResolvedIcon className="size-4" />
       <span>{title}</span>
     </Link>
-  );
+  )
 }
 
 export function MobileNavProvider({ children }: { children: ReactNode }) {
-  const [open, setOpen] = usePeripherals("nav");
+  const [open, setOpen] = usePeripherals("nav")
 
   return (
     <MobileNavContext.Provider value={() => setOpen(true)}>
@@ -103,27 +111,27 @@ export function MobileNavProvider({ children }: { children: ReactNode }) {
         </DrawerPrimitive.Root>
       </DrawerPrimitive.Provider>
     </MobileNavContext.Provider>
-  );
+  )
 }
 
 export function MobileNavIndentBackground({
   className,
 }: {
-  className?: string;
+  className?: string
 }) {
   return (
     <DrawerPrimitive.IndentBackground
       className={cn("bg-muted/30 fixed inset-0", className)}
     />
-  );
+  )
 }
 
 export function MobileNavIndent({
   children,
   className,
 }: {
-  children: ReactNode;
-  className?: string;
+  children: ReactNode
+  className?: string
 }) {
   return (
     <DrawerPrimitive.Indent
@@ -134,51 +142,180 @@ export function MobileNavIndent({
     >
       {children}
     </DrawerPrimitive.Indent>
-  );
+  )
 }
 
 export function MobileNavTrigger({ className }: { className?: string }) {
-  const openNav = useMobileNav();
+  const openNav = useMobileNav()
   return (
     <Button
       variant="secondary"
       size="icon"
       onClick={openNav}
-      className={cn("lg:hidden", className)}
+      className={cn("md:hidden", className)}
     >
-      <PanelBottomOpenIcon />
+      <MenuIcon />
     </Button>
-  );
+  )
 }
 
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const ThemeIcon = themeIcon[theme];
+function MobileNavFooter() {
+  const sessionUser = useSessionUser()
+  const logout = useLogout()
 
-  const cycleTheme = () => {
-    const next =
-      themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
-    setTheme(next);
-  };
+  const { data: unreadCount = 0 } = useQuery({
+    ...notifications.unreadCount.queryOptions(),
+    enabled: !!sessionUser,
+  })
 
   return (
-    <button
-      onClick={cycleTheme}
-      className="text-muted-foreground hover:bg-accent/50 hover:text-foreground flex items-center gap-3 rounded-md px-3 py-3 text-base transition-colors"
-    >
-      <ThemeIcon className="size-5" />
-      <span>color mode ({theme})</span>
-    </button>
-  );
+    <div className="mt-2 flex items-center border-t pt-3">
+      <OnlineIndicator />
+      <div className="ml-auto">
+        {sessionUser ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="hover:bg-accent/50 relative flex items-center gap-2 rounded-md p-1 pr-2">
+                <Avatar
+                  className="size-7 rounded-lg"
+                  cloudflareId={sessionUser.avatarId}
+                  alt={sessionUser.name}
+                >
+                  <AvatarImage width={64} quality={85} />
+                  <AvatarFallback
+                    name={sessionUser.name}
+                    className="rounded-lg text-xs"
+                  />
+                </Avatar>
+                <span className="truncate text-sm font-medium">
+                  {sessionUser.name}
+                </span>
+                {unreadCount > 0 && (
+                  <CountChip className="absolute -top-0.5 -right-0.5">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </CountChip>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="z-(--z-overlay) min-w-48 rounded-lg"
+              side="top"
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to="/feedback">
+                    <Send className="size-4" />
+                    feedback
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/privacy">
+                    <EyeOff className="size-4" />
+                    privacy
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/terms">
+                    <ScrollText className="size-4" />
+                    terms
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <ThemeSubmenu />
+                <DropdownMenuItem asChild>
+                  <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
+                    <UserIcon className="size-4" />
+                    profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/notifications">
+                    <BellIcon className="size-4" />
+                    notifications
+                    {unreadCount > 0 && (
+                      <CountChip className="ml-auto">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </CountChip>
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => logout({})}>
+                  <LogOutIcon className="size-4" />
+                  log out
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <PowerIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="z-(--z-overlay) min-w-48 rounded-lg"
+              side="top"
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to="/feedback">
+                    <Send className="size-4" />
+                    feedback
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/privacy">
+                    <EyeOff className="size-4" />
+                    privacy
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/terms">
+                    <ScrollText className="size-4" />
+                    terms
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <ThemeSubmenu />
+                <DropdownMenuItem asChild>
+                  <Link to="/auth">
+                    <LogIn className="size-4" />
+                    log in
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export function MobileNavPopup({
   portalContainer,
 }: {
-  portalContainer: HTMLElement | null;
+  portalContainer: HTMLElement | null
 }) {
-  const matches = useMatches();
-  const currentPath = matches.at(-1)?.pathname ?? "/";
+  const matches = useMatches()
+  const currentPath = matches.at(-1)?.pathname ?? "/"
+  const isAdmin = useIsAdmin()
+
+  const items = isAdmin
+    ? [
+        ...navItems,
+        { title: "admin", url: "/admin", icon: ShieldIcon } as const,
+      ]
+    : [...navItems]
 
   return (
     <DrawerPrimitive.Portal container={portalContainer}>
@@ -190,24 +327,26 @@ export function MobileNavPopup({
             className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"
           />
           <DrawerPrimitive.Content>
-            <nav className="flex flex-col gap-1 overflow-y-auto px-4 pb-8">
-              {navItems.map((item) => (
-                <NavItem
-                  key={item.title}
-                  title={item.title}
-                  url={item.url}
-                  icon={item.icon}
-                  activeIcon={
-                    "activeIcon" in item ? item.activeIcon : undefined
-                  }
-                  isActive={currentPath.startsWith(item.url)}
-                />
-              ))}
-              <ThemeToggle />
+            <nav className="overflow-y-auto px-4 pb-6">
+              <div className="grid grid-cols-2 gap-1">
+                {items.map((item) => (
+                  <NavItem
+                    key={item.title}
+                    title={item.title}
+                    url={item.url}
+                    icon={item.icon}
+                    activeIcon={
+                      "activeIcon" in item ? item.activeIcon : undefined
+                    }
+                    isActive={currentPath.startsWith(item.url)}
+                  />
+                ))}
+              </div>
+              <MobileNavFooter />
             </nav>
           </DrawerPrimitive.Content>
         </DrawerPrimitive.Popup>
       </DrawerPrimitive.Viewport>
     </DrawerPrimitive.Portal>
-  );
+  )
 }

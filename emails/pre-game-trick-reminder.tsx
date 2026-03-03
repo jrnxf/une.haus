@@ -1,17 +1,17 @@
-import { Tailwind } from "@react-email/components";
+import { Tailwind } from "@react-email/components"
 
 type UserSet = {
-  name: string;
-  instructions?: string;
-};
+  name: string
+  instructions?: string
+}
 
 type PreGameTrickReminderTemplateProps = {
-  userName: string;
-  sets: UserSet[];
-  reviewSetsUrl: string;
-  unsubscribeReminderUrl: string;
-  unsubscribeAllUrl: string;
-};
+  userName: string
+  sets: UserSet[]
+  reviewSetsUrl: string
+  unsubscribeReminderUrl: string
+  unsubscribeAllUrl: string
+}
 
 export default function PreGameTrickReminderTemplate({
   userName = "User",
@@ -21,14 +21,14 @@ export default function PreGameTrickReminderTemplate({
   unsubscribeAllUrl = "#",
 }: PreGameTrickReminderTemplateProps) {
   if (sets.length === 0) {
-    return null;
+    return null
   }
 
-  const setCount = sets.length;
+  const setCount = sets.length
   const subjectLine =
     setCount === 1
-      ? "Your set goes live tomorrow"
-      : `Your ${setCount} sets go live tomorrow`;
+      ? "your set goes live tomorrow"
+      : `your ${setCount} sets go live tomorrow`
 
   return (
     <Tailwind>
@@ -36,10 +36,10 @@ export default function PreGameTrickReminderTemplate({
         <h1 className="mb-1 text-2xl font-bold">une.haus</h1>
         <p className="mb-6 text-gray-600">{subjectLine}</p>
 
-        <p className="mb-4">Hey {userName},</p>
+        <p className="mb-4">hey {userName},</p>
 
         <p className="mb-6">
-          The round starts tomorrow and you have{" "}
+          the round starts tomorrow and you have{" "}
           <strong>
             {setCount} {setCount === 1 ? "set" : "sets"}
           </strong>{" "}
@@ -59,7 +59,7 @@ export default function PreGameTrickReminderTemplate({
         ))}
 
         <p className="mb-6 text-gray-600">
-          Make sure your {setCount === 1 ? "video is" : "videos are"} uploaded
+          make sure your {setCount === 1 ? "video is" : "videos are"} uploaded
           and your instructions are clear.
         </p>
 
@@ -68,7 +68,7 @@ export default function PreGameTrickReminderTemplate({
             href={reviewSetsUrl}
             className="inline-block rounded bg-black px-4 py-2 text-white no-underline"
           >
-            Review Your {setCount === 1 ? "Set" : "Sets"}
+            review your {setCount === 1 ? "set" : "sets"}
           </a>
         </div>
 
@@ -76,14 +76,14 @@ export default function PreGameTrickReminderTemplate({
 
         <p className="text-xs text-gray-500">
           <a href={unsubscribeReminderUrl} className="text-gray-500 underline">
-            Unsubscribe from trick reminders
+            unsubscribe from trick reminders
           </a>
           {" · "}
           <a href={unsubscribeAllUrl} className="text-gray-500 underline">
-            Unsubscribe from all emails
+            unsubscribe from all emails
           </a>
         </p>
       </div>
     </Tailwind>
-  );
+  )
 }

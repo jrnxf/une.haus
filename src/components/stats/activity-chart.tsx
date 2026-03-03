@@ -1,50 +1,46 @@
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import {
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
-} from "~/components/ui/chart";
+} from "~/components/ui/chart"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "~/components/ui/tooltip";
+} from "~/components/ui/tooltip"
 
 type ActivityChartProps = {
-  data: { month: string; activityCount: number }[];
-};
+  data: { month: string; activityCount: number }[]
+}
 
 const chartConfig = {
   activityCount: {
-    label: "Activity",
+    label: "activity",
     color: "var(--chart-1)",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 export function ActivityChart({ data }: ActivityChartProps) {
-  // Format month labels for display (e.g., "2024-01" -> "Jan 24")
-  const formattedData = data.map((item) => {
-    const [year, month] = item.month.split("-");
-    const date = new Date(Number(year), Number(month) - 1);
+  const formattedData = data.slice(-12).map((item) => {
+    const [year, month] = item.month.split("-")
+    const date = new Date(Number(year), Number(month) - 1)
     return {
       ...item,
-      label: date.toLocaleDateString("en-US", {
-        month: "short",
-        year: "2-digit",
-      }),
-    };
-  });
+      label: date.toLocaleDateString("en-US", { month: "short" }).toLowerCase(),
+    }
+  })
 
   return (
     <Card className="flex h-full flex-col py-4">
-      <CardHeader className="pb-2">
+      <CardHeader>
         <Tooltip>
           <TooltipTrigger asChild>
             <CardTitle className="cursor-help text-sm font-medium">
-              activity over time
+              activity
             </CardTitle>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[200px] text-xs">
@@ -52,11 +48,8 @@ export function ActivityChart({ data }: ActivityChartProps) {
           </TooltipContent>
         </Tooltip>
       </CardHeader>
-      <CardContent className="flex-1">
-        <ChartContainer
-          config={chartConfig}
-          className="h-full min-h-[200px] w-full"
-        >
+      <CardContent className="min-h-0 flex-1">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <AreaChart
             data={formattedData}
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
@@ -82,14 +75,13 @@ export function ActivityChart({ data }: ActivityChartProps) {
               axisLine={false}
               tickMargin={8}
               fontSize={10}
-              interval="preserveStartEnd"
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               fontSize={10}
-              width={30}
+              width={40}
             />
             <ChartTooltip
               cursor={false}
@@ -106,5 +98,5 @@ export function ActivityChart({ data }: ActivityChartProps) {
         </ChartContainer>
       </CardContent>
     </Card>
-  );
+  )
 }

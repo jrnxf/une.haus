@@ -1,31 +1,31 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { invariant } from "~/lib/invariant";
-import { messages } from "~/lib/messages";
-import { type MessageParent } from "~/lib/messages/schemas";
-import { useSessionUser } from "~/lib/session/hooks";
+import { invariant } from "~/lib/invariant"
+import { messages } from "~/lib/messages"
+import { type MessageParent } from "~/lib/messages/schemas"
+import { useSessionUser } from "~/lib/session/hooks"
 
 export function useCreateMessage(record: MessageParent) {
-  const sessionUser = useSessionUser();
+  const sessionUser = useSessionUser()
 
-  const qc = useQueryClient();
+  const qc = useQueryClient()
 
-  const listOptions = messages.list.queryOptions(record);
+  const listOptions = messages.list.queryOptions(record)
 
   const mutation = useMutation({
     mutationFn: messages.create.fn,
 
     onMutate: async (newMessage) => {
-      invariant(sessionUser, "sessionUser is required");
+      invariant(sessionUser, "sessionUser is required")
 
       qc.cancelQueries({
         queryKey: listOptions.queryKey,
-      });
+      })
 
-      const prev = qc.getQueryData(listOptions.queryKey);
+      const prev = qc.getQueryData(listOptions.queryKey)
 
       qc.setQueryData(listOptions.queryKey, (prev) => {
-        if (!prev) return prev;
+        if (!prev) return prev
 
         return {
           ...prev,
@@ -40,23 +40,23 @@ export function useCreateMessage(record: MessageParent) {
               userId: sessionUser.id,
             },
           ],
-        };
-      });
+        }
+      })
 
-      return { prev };
+      return { prev }
     },
     onError: (error, _variables, context) => {
-      console.error(error);
+      console.error(error)
       if (context) {
-        qc.setQueryData(listOptions.queryKey, context.prev);
+        qc.setQueryData(listOptions.queryKey, context.prev)
       }
     },
     onSettled: () => {
       qc.invalidateQueries({
         queryKey: listOptions.queryKey,
-      });
+      })
     },
-  });
+  })
 
   return {
     ...mutation,
@@ -66,9 +66,9 @@ export function useCreateMessage(record: MessageParent) {
           ...record,
           content,
         },
-      });
+      })
     },
-  };
+  }
 }
 
 // export function useUpdateMessage(

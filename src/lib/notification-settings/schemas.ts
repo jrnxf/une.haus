@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 export const updateNotificationSettingsSchema = z.object({
   // In-app notification toggles
@@ -6,6 +6,7 @@ export const updateNotificationSettingsSchema = z.object({
   commentsEnabled: z.boolean().optional(),
   followsEnabled: z.boolean().optional(),
   newContentEnabled: z.boolean().optional(),
+  mentionsEnabled: z.boolean().optional(),
   // Email digest preferences
   emailDigestEnabled: z.boolean().optional(),
   emailDigestFrequency: z.enum(["daily", "weekly"]).optional(),
@@ -19,8 +20,8 @@ export const updateNotificationSettingsSchema = z.object({
   preTrickReminderDaysBefore: z.number().min(1).max(7).optional(),
   // Global email unsubscribe
   emailUnsubscribedAll: z.boolean().optional(),
-});
+})
 
 export type UpdateNotificationSettingsInput = z.infer<
   typeof updateNotificationSettingsSchema
->;
+>

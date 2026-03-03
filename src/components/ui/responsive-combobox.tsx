@@ -1,27 +1,27 @@
-import * as React from "react";
-
 import {
   Drawer,
   DrawerContent,
   DrawerTitle,
   DrawerTrigger,
-} from "~/components/ui/drawer";
+} from "~/components/ui/drawer"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover";
-import { useIsMobile } from "~/hooks/use-mobile";
-import { cn } from "~/lib/utils";
+} from "~/components/ui/popover"
+import { useIsMobile } from "~/hooks/use-mobile"
+import { cn } from "~/lib/utils"
+
+import type * as React from "react"
 
 type ResponsiveComboboxProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  trigger: React.ReactNode;
-  children: React.ReactNode;
-  title?: string;
-  contentClassName?: string;
-};
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  trigger: React.ReactNode
+  children: React.ReactNode
+  title?: string
+  contentClassName?: string
+}
 
 export function ResponsiveCombobox({
   open,
@@ -31,7 +31,7 @@ export function ResponsiveCombobox({
   title = "Select",
   contentClassName,
 }: ResponsiveComboboxProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile()
 
   if (isMobile) {
     return (
@@ -40,16 +40,13 @@ export function ResponsiveCombobox({
         <DrawerContent className="max-h-[60vh]">
           <DrawerTitle className="sr-only">{title}</DrawerTitle>
           <div
-            className={cn(
-              "flex flex-col overflow-hidden px-4 pb-4",
-              contentClassName,
-            )}
+            className={cn("flex flex-col overflow-hidden", contentClassName)}
           >
             {children}
           </div>
         </DrawerContent>
       </Drawer>
-    );
+    )
   }
 
   return (
@@ -65,5 +62,5 @@ export function ResponsiveCombobox({
         {children}
       </PopoverContent>
     </Popover>
-  );
+  )
 }

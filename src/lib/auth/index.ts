@@ -2,12 +2,12 @@ import {
   enterCodeServerFn,
   registerServerFn,
   sendAuthCodeServerFn,
-} from "~/lib/auth/fns";
+} from "~/lib/auth/fns"
 import {
   enterCodeSchema,
   registerSchema,
   sendCodeSchema,
-} from "~/lib/auth/schemas";
+} from "~/lib/auth/schemas"
 
 export const auth = {
   register: {
@@ -22,4 +22,4 @@ export const auth = {
     fn: enterCodeServerFn,
     schema: enterCodeSchema,
   },
-};
+}

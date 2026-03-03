@@ -1,33 +1,33 @@
-import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { Link } from "@tanstack/react-router"
+import { useState } from "react"
 
-import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button"
+import { cn } from "~/lib/utils"
 
 const routes = [
   { label: "Users", to: "/users" },
   { label: "Posts", to: "/posts" },
   { label: "Games", to: "/games/rius/active" },
   { label: "Chat", to: "/chat" },
-];
+]
 
-const DURATION = 120;
+const DURATION = 120
 
 export function MagicNav() {
-  const [activeTarget, setActiveTarget] = useState<DOMRect>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [timer, setTimer] = useState<any>(); // TODO look into why vercel build throws Type error: Cannot find name 'Timer'.
-  const [isIn, setIsIn] = useState(false);
+  const [activeTarget, setActiveTarget] = useState<DOMRect>()
+  // biome-ignore lint/suspicious/noExplicitAny: dynamic ref type
+  const [timer, setTimer] = useState<any>() // TODO look into why vercel build throws Type error: Cannot find name 'Timer'.
+  const [isIn, setIsIn] = useState(false)
 
   const onChildNodeEnter: React.MouseEventHandler<HTMLButtonElement> = (
     event,
   ) => {
     if (timer) {
-      clearTimeout(timer);
+      clearTimeout(timer)
     }
-    setIsIn(true);
-    setActiveTarget(event.currentTarget.getBoundingClientRect());
-  };
+    setIsIn(true)
+    setActiveTarget(event.currentTarget.getBoundingClientRect())
+  }
 
   return (
     <div>
@@ -59,16 +59,16 @@ export function MagicNav() {
       <div
         className="flex w-full cursor-pointer gap-1"
         onMouseLeave={() => {
-          setIsIn(false);
+          setIsIn(false)
           // set false immediately to start the fade out animation
           const timer = setTimeout(() => {
             // now that the animation has finished we can set the active
             // target to undefined since we no longer need its DomRect
-            setActiveTarget(undefined);
-            setTimer(undefined);
-          }, DURATION);
+            setActiveTarget(undefined)
+            setTimer(undefined)
+          }, DURATION)
 
-          setTimer(timer);
+          setTimer(timer)
         }}
       >
         <Button
@@ -83,7 +83,7 @@ export function MagicNav() {
             className="z-10"
             key={to}
             onMouseEnter={onChildNodeEnter}
-            size="sm-default"
+            size="default"
             variant="unstyled"
           >
             <Link to={to}>{label}</Link>
@@ -91,5 +91,5 @@ export function MagicNav() {
         ))}
       </div>
     </div>
-  );
+  )
 }

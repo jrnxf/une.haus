@@ -1,52 +1,62 @@
-import { queryOptions } from "@tanstack/react-query";
-
-import type { ServerFnData } from "~/lib/types";
+import { queryOptions } from "@tanstack/react-query"
 
 import {
-  archiveChainServerFn,
-  deleteStackServerFn,
-  getActiveChainServerFn,
+  addSetServerFn,
+  archiveRoundServerFn,
+  deleteSetServerFn,
+  getActiveRoundsServerFn,
+  getArchivedRoundServerFn,
   getLineServerFn,
-  getStackServerFn,
-  listArchivedChainsServerFn,
+  getSetServerFn,
+  listArchivedRoundsServerFn,
   removeArchiveVoteServerFn,
-  stackUpServerFn,
-  startChainServerFn,
+  startRoundServerFn,
   voteToArchiveServerFn,
-} from "./fns";
+} from "./fns"
 import {
-  archiveChainSchema,
-  deleteStackSchema,
-  getStackSchema,
-  listArchivedChainsSchema,
+  addSetSchema,
+  archiveRoundSchema,
+  deleteSetSchema,
+  getArchivedRoundSchema,
+  getSetSchema,
   removeArchiveVoteSchema,
-  stackUpSchema,
-  startChainSchema,
+  startRoundSchema,
   voteToArchiveSchema,
-} from "./schemas";
+} from "./schemas"
+import { type ServerFnData } from "~/lib/types"
 
 export const sius = {
-  chain: {
+  rounds: {
     active: {
-      fn: getActiveChainServerFn,
+      fn: getActiveRoundsServerFn,
       queryOptions: () =>
         queryOptions({
-          queryKey: ["games.sius.chain.active"] as const,
-          queryFn: getActiveChainServerFn,
+          queryKey: ["games.sius.rounds.active"] as const,
+          queryFn: getActiveRoundsServerFn,
         }),
     },
     start: {
-      fn: startChainServerFn,
-      schema: startChainSchema,
+      fn: startRoundServerFn,
+      schema: startRoundSchema,
     },
     archived: {
-      fn: listArchivedChainsServerFn,
-      schema: listArchivedChainsSchema,
-      queryOptions: (data: ServerFnData<typeof listArchivedChainsServerFn>) =>
-        queryOptions({
-          queryKey: ["games.sius.chain.archived", data] as const,
-          queryFn: () => listArchivedChainsServerFn({ data }),
-        }),
+      list: {
+        fn: listArchivedRoundsServerFn,
+        queryOptions: () =>
+          queryOptions({
+            queryKey: ["games.sius.rounds.archived.list"] as const,
+            queryFn: listArchivedRoundsServerFn,
+          }),
+      },
+      get: {
+        fn: getArchivedRoundServerFn,
+        schema: getArchivedRoundSchema,
+        queryOptions: (data: ServerFnData<typeof getArchivedRoundServerFn>) =>
+          queryOptions({
+            queryKey: ["games.sius.rounds.archived.get", data] as const,
+            queryFn: () => getArchivedRoundServerFn({ data }),
+          }),
+      },
     },
     voteToArchive: {
       fn: voteToArchiveServerFn,
@@ -57,38 +67,38 @@ export const sius = {
       schema: removeArchiveVoteSchema,
     },
   },
-  stacks: {
+  sets: {
     get: {
-      fn: getStackServerFn,
-      schema: getStackSchema,
-      queryOptions: (data: ServerFnData<typeof getStackServerFn>) =>
+      fn: getSetServerFn,
+      schema: getSetSchema,
+      queryOptions: (data: ServerFnData<typeof getSetServerFn>) =>
         queryOptions({
-          queryKey: ["games.sius.stacks.get", data] as const,
-          queryFn: () => getStackServerFn({ data }),
+          queryKey: ["games.sius.sets.get", data] as const,
+          queryFn: () => getSetServerFn({ data }),
         }),
     },
-    stackUp: {
-      fn: stackUpServerFn,
-      schema: stackUpSchema,
+    add: {
+      fn: addSetServerFn,
+      schema: addSetSchema,
     },
     delete: {
-      fn: deleteStackServerFn,
-      schema: deleteStackSchema,
+      fn: deleteSetServerFn,
+      schema: deleteSetSchema,
     },
     line: {
       fn: getLineServerFn,
-      schema: getStackSchema,
+      schema: getSetSchema,
       queryOptions: (data: ServerFnData<typeof getLineServerFn>) =>
         queryOptions({
-          queryKey: ["games.sius.stacks.line", data] as const,
+          queryKey: ["games.sius.sets.line", data] as const,
           queryFn: () => getLineServerFn({ data }),
         }),
     },
   },
   admin: {
-    archiveChain: {
-      fn: archiveChainServerFn,
-      schema: archiveChainSchema,
+    archiveRound: {
+      fn: archiveRoundServerFn,
+      schema: archiveRoundSchema,
     },
   },
-};
+}

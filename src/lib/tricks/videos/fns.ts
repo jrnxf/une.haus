@@ -1,13 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
-
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, desc, eq, lt } from "drizzle-orm";
-
-import { db } from "~/db";
-import { tricks, trickVideos } from "~/db/schema";
-import { invariant } from "~/lib/invariant";
-import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware";
-import { createNotification } from "~/lib/notifications/helpers";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, asc, desc, eq, lt } from "drizzle-orm"
 
 import {
   deleteVideoSchema,
@@ -17,9 +10,14 @@ import {
   reorderVideosSchema,
   reviewVideoSchema,
   submitVideoSchema,
-} from "./schemas";
+} from "./schemas"
+import { db } from "~/db"
+import { tricks, trickVideos } from "~/db/schema"
+import { invariant } from "~/lib/invariant"
+import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware"
+import { createNotification } from "~/lib/notifications/helpers"
 
-const MAX_ACTIVE_VIDEOS = 5;
+const MAX_ACTIVE_VIDEOS = 5
 
 // ==================== USER OPERATIONS ====================
 
@@ -48,10 +46,10 @@ export const listVideosServerFn = createServerFn({
         },
       },
       orderBy: [asc(trickVideos.sortOrder), asc(trickVideos.createdAt)],
-    });
+    })
 
-    return videos;
-  });
+    return videos
+  })
 
 export const submitVideoServerFn = createServerFn({
   method: "POST",
@@ -62,9 +60,9 @@ export const submitVideoServerFn = createServerFn({
     // Verify trick exists
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.id, data.trickId),
-    });
+    })
 
-    invariant(trick, "Trick not found");
+    invariant(trick, "Trick not found")
 
     const [video] = await db
       .insert(trickVideos)
@@ -75,11 +73,11 @@ export const submitVideoServerFn = createServerFn({
         submittedByUserId: context.user.id,
         status: "pending",
       })
-      .returning();
+      .returning()
 
-    invariant(video, "Failed to submit video");
-    return video;
-  });
+    invariant(video, "Failed to submit video")
+    return video
+  })
 
 // ==================== ADMIN OPERATIONS ====================
 
@@ -89,7 +87,7 @@ export const listPendingVideosServerFn = createServerFn({
   .inputValidator(zodValidator(listPendingVideosSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data: input }) => {
-    const limit = input?.limit ?? 20;
+    const limit = input?.limit ?? 20
 
     const videos = await db.query.trickVideos.findMany({
       where: and(
@@ -119,10 +117,10 @@ export const listPendingVideosServerFn = createServerFn({
       },
       orderBy: [desc(trickVideos.createdAt)],
       limit,
-    });
+    })
 
-    return videos;
-  });
+    return videos
+  })
 
 export const reviewVideoServerFn = createServerFn({
   method: "POST",
@@ -130,15 +128,15 @@ export const reviewVideoServerFn = createServerFn({
   .inputValidator(zodValidator(reviewVideoSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data, context }) => {
-    const { id, status } = data;
+    const { id, status, reviewNotes } = data
 
     // Get the video
     const video = await db.query.trickVideos.findFirst({
       where: eq(trickVideos.id, id),
-    });
+    })
 
-    invariant(video, "Video not found");
-    invariant(video.status === "pending", "Video already reviewed");
+    invariant(video, "Video not found")
+    invariant(video.status === "pending", "Video already reviewed")
 
     // If approving (setting to active), check the 5-video limit
     if (status === "active") {
@@ -147,16 +145,16 @@ export const reviewVideoServerFn = createServerFn({
           eq(trickVideos.trickId, video.trickId),
           eq(trickVideos.status, "active"),
         ),
-      });
+      })
 
       if (activeCount.length >= MAX_ACTIVE_VIDEOS) {
         throw new Error(
           `Cannot have more than ${MAX_ACTIVE_VIDEOS} active videos. Demote one first.`,
-        );
+        )
       }
 
       // Get the next sort order
-      const maxSortOrder = Math.max(...activeCount.map((v) => v.sortOrder), -1);
+      const maxSortOrder = Math.max(...activeCount.map((v) => v.sortOrder), -1)
 
       const [updatedVideo] = await db
         .update(trickVideos)
@@ -167,13 +165,13 @@ export const reviewVideoServerFn = createServerFn({
           reviewedAt: new Date(),
         })
         .where(eq(trickVideos.id, id))
-        .returning();
+        .returning()
 
       // Get the trick for navigation
       const trick = await db.query.tricks.findFirst({
         where: eq(tricks.id, video.trickId),
         columns: { slug: true },
-      });
+      })
 
       // Notify the user who submitted the video
       if (video.submittedByUserId) {
@@ -187,12 +185,13 @@ export const reviewVideoServerFn = createServerFn({
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
             entityTitle: "approved",
+            entityPreview: reviewNotes,
             trickSlug: trick?.slug,
           },
-        });
+        })
       }
 
-      return updatedVideo;
+      return updatedVideo
     }
 
     // Rejecting
@@ -204,13 +203,13 @@ export const reviewVideoServerFn = createServerFn({
         reviewedAt: new Date(),
       })
       .where(eq(trickVideos.id, id))
-      .returning();
+      .returning()
 
     // Get the trick for navigation
     const trick = await db.query.tricks.findFirst({
       where: eq(tricks.id, video.trickId),
       columns: { slug: true },
-    });
+    })
 
     // Notify the user who submitted the video
     if (video.submittedByUserId) {
@@ -224,13 +223,14 @@ export const reviewVideoServerFn = createServerFn({
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
           entityTitle: "rejected",
+          entityPreview: reviewNotes,
           trickSlug: trick?.slug,
         },
-      });
+      })
     }
 
-    return updatedVideo;
-  });
+    return updatedVideo
+  })
 
 export const reorderVideosServerFn = createServerFn({
   method: "POST",
@@ -238,7 +238,7 @@ export const reorderVideosServerFn = createServerFn({
   .inputValidator(zodValidator(reorderVideosSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const { trickId, videoIds } = data;
+    const { trickId, videoIds } = data
 
     // Verify all videos belong to this trick and are active
     const videos = await db.query.trickVideos.findMany({
@@ -246,11 +246,11 @@ export const reorderVideosServerFn = createServerFn({
         eq(trickVideos.trickId, trickId),
         eq(trickVideos.status, "active"),
       ),
-    });
+    })
 
-    const activeIds = new Set(videos.map((v) => v.id));
+    const activeIds = new Set(videos.map((v) => v.id))
     for (const id of videoIds) {
-      invariant(activeIds.has(id), `Video ${id} is not active for this trick`);
+      invariant(activeIds.has(id), `Video ${id} is not active for this trick`)
     }
 
     // Update sort orders
@@ -261,10 +261,10 @@ export const reorderVideosServerFn = createServerFn({
           .set({ sortOrder: index })
           .where(eq(trickVideos.id, id)),
       ),
-    );
+    )
 
-    return { success: true };
-  });
+    return { success: true }
+  })
 
 export const demoteVideoServerFn = createServerFn({
   method: "POST",
@@ -272,14 +272,14 @@ export const demoteVideoServerFn = createServerFn({
   .inputValidator(zodValidator(demoteVideoSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const { id } = data;
+    const { id } = data
 
     const video = await db.query.trickVideos.findFirst({
       where: eq(trickVideos.id, id),
-    });
+    })
 
-    invariant(video, "Video not found");
-    invariant(video.status === "active", "Video is not active");
+    invariant(video, "Video not found")
+    invariant(video.status === "active", "Video is not active")
 
     const [updatedVideo] = await db
       .update(trickVideos)
@@ -288,10 +288,10 @@ export const demoteVideoServerFn = createServerFn({
         sortOrder: 0,
       })
       .where(eq(trickVideos.id, id))
-      .returning();
+      .returning()
 
-    return updatedVideo;
-  });
+    return updatedVideo
+  })
 
 export const deleteVideoServerFn = createServerFn({
   method: "POST",
@@ -299,13 +299,13 @@ export const deleteVideoServerFn = createServerFn({
   .inputValidator(zodValidator(deleteVideoSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async ({ data }) => {
-    const { id } = data;
+    const { id } = data
 
     const [deletedVideo] = await db
       .delete(trickVideos)
       .where(eq(trickVideos.id, id))
-      .returning();
+      .returning()
 
-    invariant(deletedVideo, "Video not found");
-    return deletedVideo;
-  });
+    invariant(deletedVideo, "Video not found")
+    return deletedVideo
+  })

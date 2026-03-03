@@ -1,13 +1,14 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { Link } from "@tanstack/react-router"
+import { useForm } from "react-hook-form"
+import { type z } from "zod"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type z } from "zod";
-
-import { TrickLine } from "~/components/games/sius/trick-line";
-import { VideoInput } from "~/components/input/video-input";
-import { Button } from "~/components/ui/button";
+import { TrickLine } from "~/components/games/sius/trick-line"
+import { VideoInput } from "~/components/input/video-input"
+import { Alert } from "~/components/ui/alert"
+import { Button } from "~/components/ui/button"
+import { ButtonGroup } from "~/components/ui/button-group"
 import {
   Form,
   FormControl,
@@ -17,19 +18,19 @@ import {
   FormLabel,
   FormMessage,
   FormSubmitButton,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { games } from "~/lib/games";
-import { useStackUp, useStartChain } from "~/lib/games/sius/hooks";
+} from "~/components/ui/form"
+import { Input } from "~/components/ui/input"
+import { games } from "~/lib/games"
+import { useAddSet, useStartRound } from "~/lib/games/sius/hooks"
 
-export function StartChainForm() {
-  const rhf = useForm<z.infer<typeof games.sius.chain.start.schema>>({
-    resolver: zodResolver(games.sius.chain.start.schema),
-  });
+export function StartRoundForm() {
+  const rhf = useForm<z.infer<typeof games.sius.rounds.start.schema>>({
+    resolver: zodResolver(games.sius.rounds.start.schema),
+  })
 
-  const { control, handleSubmit } = rhf;
+  const { control, handleSubmit } = rhf
 
-  const startChain = useStartChain();
+  const startRound = useStartRound()
 
   return (
     <Form
@@ -37,10 +38,10 @@ export function StartChainForm() {
       className="space-y-4"
       method="post"
       onSubmit={(event) => {
-        event.preventDefault();
+        event.preventDefault()
         handleSubmit((data) => {
-          startChain.mutate({ data });
-        })(event);
+          startRound.mutate({ data })
+        })(event)
       }}
     >
       <FormField
@@ -48,8 +49,8 @@ export function StartChainForm() {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Trick Name</FormLabel>
-            <FormDescription>Name the first trick in the line</FormDescription>
+            <FormLabel>trick name</FormLabel>
+            <FormDescription>name the first trick in the line</FormDescription>
             <FormControl>
               <Input {...field} placeholder="Kickflip" />
             </FormControl>
@@ -63,9 +64,9 @@ export function StartChainForm() {
         name="muxAssetId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Video</FormLabel>
+            <FormLabel>video</FormLabel>
             <FormDescription>
-              Record yourself performing this trick
+              record yourself performing this trick
             </FormDescription>
             <FormControl>
               <VideoInput {...field} />
@@ -75,34 +76,36 @@ export function StartChainForm() {
         )}
       />
 
-      <div className="flex justify-between gap-2">
-        <Button asChild type="button" variant="outline">
-          <Link to="/games/sius">cancel</Link>
-        </Button>
-        <FormSubmitButton busy={startChain.isPending}>
-          Start Chain
+      <ButtonGroup className="ml-auto">
+        <ButtonGroup>
+          <Button asChild type="button" variant="outline">
+            <Link to="/games/sius">cancel</Link>
+          </Button>
+        </ButtonGroup>
+        <FormSubmitButton busy={startRound.isPending}>
+          start round
         </FormSubmitButton>
-      </div>
+      </ButtonGroup>
     </Form>
-  );
+  )
 }
 
-export function StackUpForm({ parentStackId }: { parentStackId: number }) {
-  const rhf = useForm<z.infer<typeof games.sius.stacks.stackUp.schema>>({
-    resolver: zodResolver(games.sius.stacks.stackUp.schema),
+export function AddSetForm({ parentSetId }: { parentSetId: number }) {
+  const rhf = useForm<z.infer<typeof games.sius.sets.add.schema>>({
+    resolver: zodResolver(games.sius.sets.add.schema),
     defaultValues: {
-      parentStackId,
+      parentSetId,
     },
-  });
+  })
 
-  const { control, handleSubmit } = rhf;
+  const { control, handleSubmit } = rhf
 
-  const stackUp = useStackUp();
+  const addSet = useAddSet()
 
   // Get the line of tricks that need to be landed
   const { data: line } = useSuspenseQuery(
-    games.sius.stacks.line.queryOptions({ stackId: parentStackId }),
-  );
+    games.sius.sets.line.queryOptions({ setId: parentSetId }),
+  )
 
   return (
     <Form
@@ -110,22 +113,22 @@ export function StackUpForm({ parentStackId }: { parentStackId: number }) {
       className="space-y-4"
       method="post"
       onSubmit={(event) => {
-        event.preventDefault();
+        event.preventDefault()
         handleSubmit((data) => {
-          stackUp.mutate({ data });
-        })(event);
+          addSet.mutate({ data })
+        })(event)
       }}
     >
       <FormField
         control={control}
-        name="parentStackId"
+        name="parentSetId"
         render={({ field }) => <input type="hidden" {...field} />}
       />
 
       {line && line.length > 0 && (
-        <div className="bg-muted/50 rounded-lg p-4">
+        <Alert className="block">
           <TrickLine tricks={line} />
-        </div>
+        </Alert>
       )}
 
       <FormField
@@ -133,12 +136,12 @@ export function StackUpForm({ parentStackId }: { parentStackId: number }) {
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Your New Trick</FormLabel>
+            <FormLabel>new set</FormLabel>
             <FormDescription>
-              Name the NEW trick you&apos;re adding to the line
+              the name of the new trick you&apos;re adding to the line
             </FormDescription>
             <FormControl>
-              <Input {...field} placeholder="360 Flip" />
+              <Input {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -150,10 +153,10 @@ export function StackUpForm({ parentStackId }: { parentStackId: number }) {
         name="muxAssetId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Video</FormLabel>
+            <FormLabel>video</FormLabel>
             <FormDescription>
-              Record yourself landing ALL previous tricks in order, then your
-              new trick
+              record yourself landing all previous tricks in the line in order,
+              then landing your new trick at the end
             </FormDescription>
             <FormControl>
               <VideoInput {...field} />
@@ -163,14 +166,14 @@ export function StackUpForm({ parentStackId }: { parentStackId: number }) {
         )}
       />
 
-      <div className="flex justify-between gap-2">
-        <Button asChild type="button" variant="outline">
-          <Link to="/games/sius">cancel</Link>
-        </Button>
-        <FormSubmitButton busy={stackUp.isPending}>
-          Stack It Up
-        </FormSubmitButton>
-      </div>
+      <ButtonGroup className="ml-auto">
+        <ButtonGroup>
+          <Button asChild type="button" variant="outline">
+            <Link to="/games/sius">cancel</Link>
+          </Button>
+        </ButtonGroup>
+        <FormSubmitButton busy={addSet.isPending}>upload</FormSubmitButton>
+      </ButtonGroup>
     </Form>
-  );
+  )
 }

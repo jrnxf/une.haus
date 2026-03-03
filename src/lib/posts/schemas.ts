@@ -1,7 +1,7 @@
-import getYoutubeVideoId from "get-youtube-id";
-import { z } from "zod";
+import getYoutubeVideoId from "get-youtube-id"
+import { z } from "zod"
 
-import { POST_TAGS } from "~/db/schema";
+import { POST_TAGS } from "~/db/schema"
 
 /** Parses comma-separated string or array into array */
 const commaArrayOf = <T extends string>(enumValues: readonly [T, ...T[]]) =>
@@ -9,17 +9,16 @@ const commaArrayOf = <T extends string>(enumValues: readonly [T, ...T[]]) =>
     .union([z.string(), z.array(z.string())])
     .optional()
     .transform((val) => {
-      if (!val) return undefined;
-      const arr =
-        typeof val === "string" ? val.split(",").filter(Boolean) : val;
+      if (!val) return undefined
+      const arr = typeof val === "string" ? val.split(",").filter(Boolean) : val
       // Validate against enum
-      const parsed = z.array(z.enum(enumValues)).safeParse(arr);
-      return parsed.success ? parsed.data : undefined;
-    });
+      const parsed = z.array(z.enum(enumValues)).safeParse(arr)
+      return parsed.success ? parsed.data : undefined
+    })
 
 export const getPostSchema = z.object({
   postId: z.coerce.number(),
-});
+})
 
 export const createPostSchema = z.object({
   title: z
@@ -52,43 +51,43 @@ export const createPostSchema = z.object({
     .nullable()
     .transform((data, ctx) => {
       if (!data) {
-        return data;
+        return data
       }
 
       if (data.type === "youtube") {
-        const youtubeId = getYoutubeVideoId(data.value ?? "");
+        const youtubeId = getYoutubeVideoId(data.value ?? "")
 
         if (!youtubeId) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: "Invalid YouTube URL",
-          });
-          return z.NEVER;
+          })
+          return z.NEVER
         }
 
         return {
           ...data,
           value: youtubeId,
-        };
+        }
       }
-      return data;
+      return data
     }),
-});
+})
 
-export type CreatePostArgs = z.infer<typeof createPostSchema>;
+export type CreatePostArgs = z.infer<typeof createPostSchema>
 
 export const updatePostSchema = createPostSchema.extend({
   postId: z.number(),
-});
+})
 
-export type UpdatePostArgs = z.infer<typeof updatePostSchema>;
+export type UpdatePostArgs = z.infer<typeof updatePostSchema>
 
-export const deletePostSchema = z.number(); // postId
+export const deletePostSchema = z.number() // postId
 
-export type DeletePostArgs = z.infer<typeof deletePostSchema>;
+export type DeletePostArgs = z.infer<typeof deletePostSchema>
 
 export const listPostsSchema = z.object({
   cursor: z.number().nullish(),
   q: z.string().optional(),
   tags: commaArrayOf(POST_TAGS),
-});
+})

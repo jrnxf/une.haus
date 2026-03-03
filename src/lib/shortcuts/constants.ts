@@ -9,9 +9,9 @@
  * These shortcuts are disabled inside input, textarea, select, and contentEditable elements.
  */
 export const SHORTCUTS = {
-  toggleTheme: {
-    keys: "g>t",
-    display: ["G", "T"],
-    description: "Toggle theme",
+  toggleSidebar: {
+    keys: "mod+b",
+    display: ["mod", "B"],
+    description: "Toggle sidebar",
   },
-} as const;
+} as const

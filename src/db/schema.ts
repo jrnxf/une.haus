@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { sql } from "drizzle-orm"
 import {
   boolean,
   index,
@@ -13,39 +13,31 @@ import {
   timestamp,
   unique,
   uniqueIndex,
-} from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm/relations";
+} from "drizzle-orm/pg-core"
+import { relations } from "drizzle-orm/relations"
 
-import type { NeighborLink } from "~/lib/tricks/types";
+import { type TournamentState } from "~/lib/tourney/types"
+import { type NeighborLink } from "~/lib/tricks/types"
 
 export const TRICK_SUBMISSION_STATUSES = [
   "pending",
   "approved",
   "rejected",
-] as const;
+] as const
 
 export const trickSubmissionStatusEnum = pgEnum(
   "trick_submission_status",
   TRICK_SUBMISSION_STATUSES,
-);
-export const RIU_STATUSES = ["archived", "active", "upcoming"] as const;
+)
+export const RIU_STATUSES = ["archived", "active", "upcoming"] as const
 // enums
-export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES);
+export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
 
-export const BIU_CHAIN_STATUSES = ["active", "completed", "flagged"] as const;
-export const biuChainStatusEnum = pgEnum(
-  "biu_chain_status",
-  BIU_CHAIN_STATUSES,
-);
+export const SIU_STATUSES = ["active", "archived"] as const
+export const siuStatusEnum = pgEnum("siu_status", SIU_STATUSES)
 
-export const SIU_CHAIN_STATUSES = ["active", "archived"] as const;
-export const siuChainStatusEnum = pgEnum(
-  "siu_chain_status",
-  SIU_CHAIN_STATUSES,
-);
-
-export const USER_TYPES = ["user", "admin", "test"] as const;
-export const userTypeEnum = pgEnum("user_type", USER_TYPES);
+export const USER_TYPES = ["user", "admin", "test"] as const
+export const userTypeEnum = pgEnum("user_type", USER_TYPES)
 
 export const USER_DISCIPLINES = [
   "street",
@@ -55,9 +47,9 @@ export const USER_DISCIPLINES = [
   "mountain",
   "distance",
   "other",
-] as const;
+] as const
 
-export type UserDiscipline = (typeof USER_DISCIPLINES)[number];
+export type UserDiscipline = (typeof USER_DISCIPLINES)[number]
 
 export const POST_TAGS = [
   "flatland",
@@ -73,11 +65,11 @@ export const POST_TAGS = [
   "nbds",
   "til",
   "bails",
-] as const;
+] as const
 
-type PostTag = (typeof POST_TAGS)[number];
+type PostTag = (typeof POST_TAGS)[number]
 
-export const postTagEnum = pgEnum("post_tag", POST_TAGS);
+export const postTagEnum = pgEnum("post_tag", POST_TAGS)
 
 // Notification enums
 export const NOTIFICATION_TYPES = [
@@ -88,36 +80,40 @@ export const NOTIFICATION_TYPES = [
   "archive_request",
   "chain_archived",
   "review",
-] as const;
+  "flag",
+  "mention",
+] as const
 
-export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 
 export const notificationTypeEnum = pgEnum(
   "notification_type",
   NOTIFICATION_TYPES,
-);
+)
 
 export const NOTIFICATION_ENTITY_TYPES = [
+  "chat",
   "post",
   "riuSet",
   "riuSubmission",
   "biuSet",
-  "siuStack",
-  "siuChain",
+  "siuSet",
+  "siu",
   "utvVideo",
   "utvVideoSuggestion",
   "user",
   "trickSubmission",
   "trickSuggestion",
   "trickVideo",
-] as const;
+  "glossaryProposal",
+] as const
 
-export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number];
+export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number]
 
 export const notificationEntityTypeEnum = pgEnum(
   "notification_entity_type",
   NOTIFICATION_ENTITY_TYPES,
-);
+)
 
 export const users = pgTable("users", {
   avatarId: text("avatar_id"),
@@ -126,10 +122,11 @@ export const users = pgTable("users", {
   disciplines: json("disciplines").$type<UserDiscipline[]>(),
   email: text("email").unique().notNull(),
   id: serial("id").primaryKey(),
+  lastSeenAt: timestamp("last_seen_at"),
   name: text("name").notNull(),
   notifyWhenShop: boolean("notify_when_shop").notNull().default(false),
   type: userTypeEnum("type").default("user"),
-});
+})
 
 export const userLocations = pgTable("user_locations", {
   countryCode: text("country_code").notNull(),
@@ -141,7 +138,7 @@ export const userLocations = pgTable("user_locations", {
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const userSocials = pgTable("user_socials", {
   facebook: text("facebook"),
@@ -155,14 +152,14 @@ export const userSocials = pgTable("user_socials", {
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
   youtube: text("youtube"),
-});
+})
 
 export const authCodes = pgTable("auth_codes", {
   id: text("id").primaryKey(),
   email: text("email"),
   code: text("code").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-});
+})
 
 export const posts = pgTable("posts", {
   content: text("content").notNull(),
@@ -181,7 +178,7 @@ export const posts = pgTable("posts", {
   }),
 
   youtubeVideoId: text("youtube_video_id"),
-});
+})
 
 export const chatMessages = pgTable("chat_messages", {
   content: text("content").notNull(),
@@ -191,7 +188,7 @@ export const chatMessages = pgTable("chat_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const chatMessageLikes = pgTable(
   "chat_message_likes",
@@ -204,7 +201,7 @@ export const chatMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.chatMessageId, t.userId] })],
-);
+)
 
 export const postMessages = pgTable("post_messages", {
   content: text("content").notNull(),
@@ -217,7 +214,7 @@ export const postMessages = pgTable("post_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const postLikes = pgTable(
   "post_likes",
@@ -230,7 +227,7 @@ export const postLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.postId, t.userId] })],
-);
+)
 
 export const postMessageLikes = pgTable(
   "post_message_likes",
@@ -243,7 +240,7 @@ export const postMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.postMessageId, t.userId] })],
-);
+)
 
 export const riuSetMessages = pgTable("riu_set_messages", {
   content: text("content").notNull(),
@@ -256,7 +253,7 @@ export const riuSetMessages = pgTable("riu_set_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const riuSetLikes = pgTable(
   "riu_set_likes",
@@ -269,7 +266,7 @@ export const riuSetLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.riuSetId, t.userId] })],
-);
+)
 
 export const riuSetMessageLikes = pgTable(
   "riu_set_message_likes",
@@ -282,7 +279,7 @@ export const riuSetMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.riuSetMessageId, t.userId] })],
-);
+)
 
 export const riuSubmissionMessages = pgTable("riu_submission_messages", {
   content: text("content").notNull(),
@@ -295,7 +292,7 @@ export const riuSubmissionMessages = pgTable("riu_submission_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const riuSubmissionMessageLikes = pgTable(
   "riu_submission_message_likes",
@@ -308,7 +305,7 @@ export const riuSubmissionMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.riuSubmissionMessageId, t.userId] })],
-);
+)
 
 export const riuSubmissionLikes = pgTable(
   "riu_submission_likes",
@@ -321,7 +318,7 @@ export const riuSubmissionLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.riuSubmissionId, t.userId] })],
-);
+)
 
 export const utvVideos = pgTable("utv_videos", {
   id: serial("id").primaryKey(),
@@ -335,7 +332,7 @@ export const utvVideos = pgTable("utv_videos", {
   muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
     onDelete: "set null",
   }),
-});
+})
 
 export const utvVideoRiders = pgTable("utv_video_riders", {
   id: serial("id").primaryKey(),
@@ -347,7 +344,7 @@ export const utvVideoRiders = pgTable("utv_video_riders", {
   }),
   name: text("name"),
   order: integer("order").notNull().default(0),
-});
+})
 
 export const utvVideoLikes = pgTable(
   "utv_video_likes",
@@ -360,7 +357,7 @@ export const utvVideoLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.utvVideoId, t.userId] })],
-);
+)
 
 export const utvVideoMessages = pgTable("utv_video_messages", {
   id: serial("id").primaryKey(),
@@ -372,7 +369,7 @@ export const utvVideoMessages = pgTable("utv_video_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const utvVideoMessageLikes = pgTable(
   "utv_video_message_likes",
@@ -385,17 +382,14 @@ export const utvVideoMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.utvVideoMessageId, t.userId] })],
-);
+)
 
 // UTV Video Suggestions (edits to existing videos)
 export type UtvVideoSuggestionDiff = {
-  title?: { old: string; new: string };
-  disciplines?: { old: UserDiscipline[] | null; new: UserDiscipline[] | null };
-  riders?: {
-    old: { userId: number | null; name: string | null }[];
-    new: { userId: number | null; name: string | null }[];
-  };
-};
+  title?: string
+  disciplines?: UserDiscipline[] | null
+  riders?: { userId: number | null; name: string | null }[]
+}
 
 export const utvVideoSuggestions = pgTable("utv_video_suggestions", {
   id: serial("id").primaryKey(),
@@ -414,73 +408,26 @@ export const utvVideoSuggestions = pgTable("utv_video_suggestions", {
   reviewedAt: timestamp("reviewed_at"),
   reviewNotes: text("review_notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-export const utvVideoSuggestionLikes = pgTable(
-  "utv_video_suggestion_likes",
-  {
-    utvVideoSuggestionId: integer("utv_video_suggestion_id")
-      .notNull()
-      .references(() => utvVideoSuggestions.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.utvVideoSuggestionId, t.userId] })],
-);
-
-export const utvVideoSuggestionMessages = pgTable(
-  "utv_video_suggestion_messages",
-  {
-    id: serial("id").primaryKey(),
-    content: text("content").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    suggestionId: integer("suggestion_id")
-      .notNull()
-      .references(() => utvVideoSuggestions.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-);
-
-export const utvVideoSuggestionMessageLikes = pgTable(
-  "utv_video_sug_msg_likes",
-  {
-    utvVideoSuggestionMessageId: integer("utv_video_suggestion_message_id")
-      .notNull()
-      .references(() => utvVideoSuggestionMessages.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.utvVideoSuggestionMessageId, t.userId] })],
-);
+})
 
 export const utvClaps = pgTable("utv_claps", {
   id: serial("id").primaryKey(),
   count: integer("count").notNull().default(0),
-});
+})
 
 export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
+  uploadId: text("upload_id").unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-
-// Temporary mapping for in-flight uploads (uploadId -> assetId)
-export const muxUploadMappings = pgTable("mux_upload_mappings", {
-  uploadId: text("upload_id").primaryKey(),
-  assetId: text("asset_id").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+})
 
 export const rius = pgTable("rius", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   id: serial("id").primaryKey(),
   startedAt: timestamp("started_at"),
   status: riuStatusEnum("status").default("upcoming"),
-});
+})
 
 export const riuSets = pgTable("riu_sets", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -500,7 +447,7 @@ export const riuSets = pgTable("riu_sets", {
       onDelete: "set null",
     })
     .notNull(),
-});
+})
 
 export const riuSubmissions = pgTable("riu_submissions", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -518,23 +465,21 @@ export const riuSubmissions = pgTable("riu_submissions", {
       onDelete: "set null",
     })
     .notNull(),
-});
+})
 
 // BIU (Back It Up) Game Tables
-export const biuChains = pgTable("biu_chains", {
+export const bius = pgTable("bius", {
   id: serial("id").primaryKey(),
-  status: biuChainStatusEnum("status").default("active"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  endedAt: timestamp("ended_at"),
-});
+})
 
 export const biuSets = pgTable("biu_sets", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 
-  chainId: integer("chain_id")
+  biuId: integer("biu_id")
     .notNull()
-    .references(() => biuChains.id, { onDelete: "cascade" }),
+    .references(() => bius.id, { onDelete: "cascade" }),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -546,14 +491,8 @@ export const biuSets = pgTable("biu_sets", {
   name: text("name").notNull(),
   position: integer("position").notNull(),
   parentSetId: integer("parent_set_id"),
-
-  flaggedAt: timestamp("flagged_at"),
-  flaggedByUserId: integer("flagged_by_user_id").references(() => users.id, {
-    onDelete: "set null",
-  }),
-  flagReason: text("flag_reason"),
-  flagResolvedAt: timestamp("flag_resolved_at"),
-});
+  deletedAt: timestamp("deleted_at"),
+})
 
 export const biuSetLikes = pgTable(
   "biu_set_likes",
@@ -566,7 +505,7 @@ export const biuSetLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.biuSetId, t.userId] })],
-);
+)
 
 export const biuSetMessages = pgTable("biu_set_messages", {
   id: serial("id").primaryKey(),
@@ -578,7 +517,7 @@ export const biuSetMessages = pgTable("biu_set_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const biuSetMessageLikes = pgTable(
   "biu_set_message_likes",
@@ -591,23 +530,23 @@ export const biuSetMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.biuSetMessageId, t.userId] })],
-);
+)
 
 // SIU (Stack It Up) Game Tables
-export const siuChains = pgTable("siu_chains", {
+export const sius = pgTable("sius", {
   id: serial("id").primaryKey(),
-  status: siuChainStatusEnum("status").default("active"),
+  status: siuStatusEnum("status").default("active"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   endedAt: timestamp("ended_at"),
-});
+})
 
-export const siuStacks = pgTable("siu_stacks", {
+export const siuSets = pgTable("siu_sets", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 
-  chainId: integer("chain_id")
+  siuId: integer("siu_id")
     .notNull()
-    .references(() => siuChains.id, { onDelete: "cascade" }),
+    .references(() => sius.id, { onDelete: "cascade" }),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -618,60 +557,61 @@ export const siuStacks = pgTable("siu_stacks", {
 
   name: text("name").notNull(),
   position: integer("position").notNull(),
-  parentStackId: integer("parent_stack_id"),
-});
+  parentSetId: integer("parent_set_id"),
+  deletedAt: timestamp("deleted_at"),
+})
 
-export const siuStackArchiveVotes = pgTable(
-  "siu_stack_archive_votes",
+export const siuArchiveVotes = pgTable(
+  "siu_archive_votes",
   {
-    chainId: integer("chain_id")
+    siuId: integer("siu_id")
       .notNull()
-      .references(() => siuChains.id, { onDelete: "cascade" }),
+      .references(() => sius.id, { onDelete: "cascade" }),
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.chainId, t.userId] })],
-);
+  (t) => [primaryKey({ columns: [t.siuId, t.userId] })],
+)
 
-export const siuStackLikes = pgTable(
-  "siu_stack_likes",
+export const siuSetLikes = pgTable(
+  "siu_set_likes",
   {
-    siuStackId: integer("siu_stack_id")
+    siuSetId: integer("siu_set_id")
       .notNull()
-      .references(() => siuStacks.id, { onDelete: "cascade" }),
+      .references(() => siuSets.id, { onDelete: "cascade" }),
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => [primaryKey({ columns: [t.siuStackId, t.userId] })],
-);
+  (t) => [primaryKey({ columns: [t.siuSetId, t.userId] })],
+)
 
-export const siuStackMessages = pgTable("siu_stack_messages", {
+export const siuSetMessages = pgTable("siu_set_messages", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  siuStackId: integer("siu_stack_id")
+  siuSetId: integer("siu_set_id")
     .notNull()
-    .references(() => siuStacks.id, { onDelete: "cascade" }),
+    .references(() => siuSets.id, { onDelete: "cascade" }),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
-export const siuStackMessageLikes = pgTable(
-  "siu_stack_message_likes",
+export const siuSetMessageLikes = pgTable(
+  "siu_set_message_likes",
   {
-    siuStackMessageId: integer("siu_stack_message_id")
+    siuSetMessageId: integer("siu_set_message_id")
       .notNull()
-      .references(() => siuStackMessages.id, { onDelete: "cascade" }),
+      .references(() => siuSetMessages.id, { onDelete: "cascade" }),
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
-  (t) => [primaryKey({ columns: [t.siuStackMessageId, t.userId] })],
-);
+  (t) => [primaryKey({ columns: [t.siuSetMessageId, t.userId] })],
+)
 
 export const userFollows = pgTable(
   "user_follows",
@@ -684,16 +624,16 @@ export const userFollows = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.followedUserId, t.followedByUserId] })],
-);
+)
 
 // Notifications
 export type NotificationData = {
-  actorName?: string;
-  actorAvatarId?: string | null;
-  entityTitle?: string;
-  entityPreview?: string;
-  trickSlug?: string;
-};
+  actorName?: string
+  actorAvatarId?: string | null
+  entityTitle?: string
+  entityPreview?: string
+  trickSlug?: string
+}
 
 export const notifications = pgTable(
   "notifications",
@@ -719,17 +659,17 @@ export const notifications = pgTable(
     index("notifications_grouping_idx").on(t.userId, t.entityType, t.entityId),
     index("notifications_created_at_idx").on(t.createdAt),
   ],
-);
+)
 
-export const EMAIL_DIGEST_FREQUENCIES = ["daily", "weekly"] as const;
-export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number];
+export const EMAIL_DIGEST_FREQUENCIES = ["daily", "weekly"] as const
+export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
 
 export const EMAIL_REMINDER_TYPES = [
   "digest",
   "game_start",
   "pre_trick",
-] as const;
-export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number];
+] as const
+export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
 
 export const userNotificationSettings = pgTable("user_notification_settings", {
   userId: integer("user_id")
@@ -740,6 +680,7 @@ export const userNotificationSettings = pgTable("user_notification_settings", {
   commentsEnabled: boolean("comments_enabled").notNull().default(true),
   followsEnabled: boolean("follows_enabled").notNull().default(true),
   newContentEnabled: boolean("new_content_enabled").notNull().default(true),
+  mentionsEnabled: boolean("mentions_enabled").notNull().default(true),
   // Email digest preferences (opt-in, default off)
   emailDigestEnabled: boolean("email_digest_enabled").notNull().default(false),
   emailDigestFrequency: text("email_digest_frequency")
@@ -766,7 +707,7 @@ export const userNotificationSettings = pgTable("user_notification_settings", {
     .notNull()
     .default(false),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+})
 
 // Track sent email reminders to avoid duplicates
 export const emailRemindersSent = pgTable(
@@ -787,7 +728,44 @@ export const emailRemindersSent = pgTable(
       t.riuId,
     ),
   ],
-);
+)
+
+// Flags
+export const FLAG_ENTITY_TYPES = [
+  "post",
+  "biuSet",
+  "siuSet",
+  "riuSet",
+  "riuSubmission",
+  "postMessage",
+  "biuSetMessage",
+  "siuSetMessage",
+  "riuSetMessage",
+  "riuSubmissionMessage",
+  "utvVideoMessage",
+  "chatMessage",
+] as const
+
+export type FlagEntityType = (typeof FLAG_ENTITY_TYPES)[number]
+
+export const flagEntityTypeEnum = pgEnum("flag_entity_type", FLAG_ENTITY_TYPES)
+
+export const flags = pgTable("flags", {
+  id: serial("id").primaryKey(),
+  entityType: flagEntityTypeEnum("entity_type").notNull(),
+  entityId: integer("entity_id").notNull(),
+  reason: text("reason").notNull(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedByUserId: integer("resolved_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  resolution: text("resolution"), // "dismissed" or "removed"
+  parentEntityId: integer("parent_entity_id"), // only for message flags
+})
 
 /**
  * Relations
@@ -807,19 +785,19 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   riuSubmissionMessages: many(riuSubmissionMessages),
   socials: one(userSocials),
   authCodes: many(authCodes),
-}));
+}))
 
 export const authCodesRelations = relations(authCodes, ({ one }) => ({
   user: one(users, { fields: [authCodes.email], references: [users.email] }),
-}));
+}))
 
 export const locationsRelations = relations(userLocations, ({ one }) => ({
   user: one(users, { fields: [userLocations.userId], references: [users.id] }),
-}));
+}))
 
 export const userSocialsRelations = relations(userSocials, ({ one }) => ({
   user: one(users, { fields: [userSocials.userId], references: [users.id] }),
-}));
+}))
 
 // POSTS
 export const postsRelations = relations(posts, ({ many, one }) => ({
@@ -830,7 +808,7 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
     fields: [posts.muxAssetId],
     references: [muxVideos.assetId],
   }),
-}));
+}))
 
 export const utvVideosRelations = relations(utvVideos, ({ one, many }) => ({
   video: one(muxVideos, {
@@ -841,7 +819,7 @@ export const utvVideosRelations = relations(utvVideos, ({ one, many }) => ({
   messages: many(utvVideoMessages),
   riders: many(utvVideoRiders),
   suggestions: many(utvVideoSuggestions),
-}));
+}))
 
 export const utvVideoRidersRelations = relations(utvVideoRiders, ({ one }) => ({
   utvVideo: one(utvVideos, {
@@ -852,7 +830,7 @@ export const utvVideoRidersRelations = relations(utvVideoRiders, ({ one }) => ({
     fields: [utvVideoRiders.userId],
     references: [users.id],
   }),
-}));
+}))
 
 export const utvVideoLikesRelations = relations(utvVideoLikes, ({ one }) => ({
   utvVideo: one(utvVideos, {
@@ -863,7 +841,7 @@ export const utvVideoLikesRelations = relations(utvVideoLikes, ({ one }) => ({
     fields: [utvVideoLikes.userId],
     references: [users.id],
   }),
-}));
+}))
 
 export const utvVideoMessagesRelations = relations(
   utvVideoMessages,
@@ -878,7 +856,7 @@ export const utvVideoMessagesRelations = relations(
     }),
     likes: many(utvVideoMessageLikes),
   }),
-);
+)
 
 export const utvVideoMessageLikesRelations = relations(
   utvVideoMessageLikes,
@@ -892,11 +870,11 @@ export const utvVideoMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 export const utvVideoSuggestionsRelations = relations(
   utvVideoSuggestions,
-  ({ one, many }) => ({
+  ({ one }) => ({
     utvVideo: one(utvVideos, {
       fields: [utvVideoSuggestions.utvVideoId],
       references: [utvVideos.id],
@@ -911,58 +889,13 @@ export const utvVideoSuggestionsRelations = relations(
       references: [users.id],
       relationName: "reviewedByUser",
     }),
-    likes: many(utvVideoSuggestionLikes),
-    messages: many(utvVideoSuggestionMessages),
   }),
-);
-
-export const utvVideoSuggestionLikesRelations = relations(
-  utvVideoSuggestionLikes,
-  ({ one }) => ({
-    suggestion: one(utvVideoSuggestions, {
-      fields: [utvVideoSuggestionLikes.utvVideoSuggestionId],
-      references: [utvVideoSuggestions.id],
-    }),
-    user: one(users, {
-      fields: [utvVideoSuggestionLikes.userId],
-      references: [users.id],
-    }),
-  }),
-);
-
-export const utvVideoSuggestionMessagesRelations = relations(
-  utvVideoSuggestionMessages,
-  ({ one, many }) => ({
-    suggestion: one(utvVideoSuggestions, {
-      fields: [utvVideoSuggestionMessages.suggestionId],
-      references: [utvVideoSuggestions.id],
-    }),
-    user: one(users, {
-      fields: [utvVideoSuggestionMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(utvVideoSuggestionMessageLikes),
-  }),
-);
-
-export const utvVideoSuggestionMessageLikesRelations = relations(
-  utvVideoSuggestionMessageLikes,
-  ({ one }) => ({
-    message: one(utvVideoSuggestionMessages, {
-      fields: [utvVideoSuggestionMessageLikes.utvVideoSuggestionMessageId],
-      references: [utvVideoSuggestionMessages.id],
-    }),
-    user: one(users, {
-      fields: [utvVideoSuggestionMessageLikes.userId],
-      references: [users.id],
-    }),
-  }),
-);
+)
 
 export const riusRelations = relations(rius, ({ many }) => ({
   // likes: many(postLikes),
   sets: many(riuSets),
-}));
+}))
 
 export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
   likes: many(riuSetLikes),
@@ -974,7 +907,7 @@ export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
     fields: [riuSets.muxAssetId],
     references: [muxVideos.assetId],
   }),
-}));
+}))
 
 export const riuSubmissionsRelations = relations(
   riuSubmissions,
@@ -994,12 +927,12 @@ export const riuSubmissionsRelations = relations(
       references: [muxVideos.assetId],
     }),
   }),
-);
+)
 
 export const postLikesRelations = relations(postLikes, ({ one }) => ({
   post: one(posts, { fields: [postLikes.postId], references: [posts.id] }),
   user: one(users, { fields: [postLikes.userId], references: [users.id] }),
-}));
+}))
 
 export const postMessagesRelations = relations(
   postMessages,
@@ -1008,7 +941,7 @@ export const postMessagesRelations = relations(
     post: one(posts, { fields: [postMessages.postId], references: [posts.id] }),
     user: one(users, { fields: [postMessages.userId], references: [users.id] }),
   }),
-);
+)
 
 export const postMessageLikesRelations = relations(
   postMessageLikes,
@@ -1022,7 +955,7 @@ export const postMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 // CHAT
 export const chatMessagesRelations = relations(
@@ -1031,7 +964,7 @@ export const chatMessagesRelations = relations(
     likes: many(chatMessageLikes),
     user: one(users, { fields: [chatMessages.userId], references: [users.id] }),
   }),
-);
+)
 
 export const chatMessageLikesRelations = relations(
   chatMessageLikes,
@@ -1045,7 +978,7 @@ export const chatMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 // RIU SET MESSAGES
 export const riuSetMessagesRelations = relations(
@@ -1061,7 +994,7 @@ export const riuSetMessagesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 export const riuSetLikesRelations = relations(riuSetLikes, ({ one }) => ({
   riuSet: one(riuSets, {
@@ -1072,7 +1005,7 @@ export const riuSetLikesRelations = relations(riuSetLikes, ({ one }) => ({
     fields: [riuSetLikes.userId],
     references: [users.id],
   }),
-}));
+}))
 
 export const riuSetMessageLikesRelations = relations(
   riuSetMessageLikes,
@@ -1086,7 +1019,7 @@ export const riuSetMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 // RIU SUBMISSION MESSAGES
 export const riuSubmissionMessagesRelations = relations(
@@ -1102,7 +1035,7 @@ export const riuSubmissionMessagesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 export const riuSubmissionMessageLikesRelations = relations(
   riuSubmissionMessageLikes,
@@ -1116,7 +1049,7 @@ export const riuSubmissionMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 export const riuSubmissionLikesRelations = relations(
   riuSubmissionLikes,
@@ -1130,17 +1063,17 @@ export const riuSubmissionLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 // BIU Relations
-export const biuChainsRelations = relations(biuChains, ({ many }) => ({
+export const biusRelations = relations(bius, ({ many }) => ({
   sets: many(biuSets),
-}));
+}))
 
 export const biuSetsRelations = relations(biuSets, ({ one, many }) => ({
-  chain: one(biuChains, {
-    fields: [biuSets.chainId],
-    references: [biuChains.id],
+  biu: one(bius, {
+    fields: [biuSets.biuId],
+    references: [bius.id],
   }),
   user: one(users, {
     fields: [biuSets.userId],
@@ -1158,11 +1091,7 @@ export const biuSetsRelations = relations(biuSets, ({ one, many }) => ({
   childSets: many(biuSets, { relationName: "parentChild" }),
   likes: many(biuSetLikes),
   messages: many(biuSetMessages),
-  flaggedByUser: one(users, {
-    fields: [biuSets.flaggedByUserId],
-    references: [users.id],
-  }),
-}));
+}))
 
 export const biuSetLikesRelations = relations(biuSetLikes, ({ one }) => ({
   biuSet: one(biuSets, {
@@ -1173,7 +1102,7 @@ export const biuSetLikesRelations = relations(biuSetLikes, ({ one }) => ({
     fields: [biuSetLikes.userId],
     references: [users.id],
   }),
-}));
+}))
 
 export const biuSetMessagesRelations = relations(
   biuSetMessages,
@@ -1188,7 +1117,7 @@ export const biuSetMessagesRelations = relations(
     }),
     likes: many(biuSetMessageLikes),
   }),
-);
+)
 
 export const biuSetMessageLikesRelations = relations(
   biuSetMessageLikes,
@@ -1202,90 +1131,90 @@ export const biuSetMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 // SIU Relations
-export const siuChainsRelations = relations(siuChains, ({ many }) => ({
-  stacks: many(siuStacks),
-  archiveVotes: many(siuStackArchiveVotes),
-}));
+export const siusRelations = relations(sius, ({ many }) => ({
+  sets: many(siuSets),
+  archiveVotes: many(siuArchiveVotes),
+}))
 
-export const siuStacksRelations = relations(siuStacks, ({ one, many }) => ({
-  chain: one(siuChains, {
-    fields: [siuStacks.chainId],
-    references: [siuChains.id],
+export const siuSetsRelations = relations(siuSets, ({ one, many }) => ({
+  siu: one(sius, {
+    fields: [siuSets.siuId],
+    references: [sius.id],
   }),
   user: one(users, {
-    fields: [siuStacks.userId],
+    fields: [siuSets.userId],
     references: [users.id],
   }),
   video: one(muxVideos, {
-    fields: [siuStacks.muxAssetId],
+    fields: [siuSets.muxAssetId],
     references: [muxVideos.assetId],
   }),
-  parentStack: one(siuStacks, {
-    fields: [siuStacks.parentStackId],
-    references: [siuStacks.id],
+  parentSet: one(siuSets, {
+    fields: [siuSets.parentSetId],
+    references: [siuSets.id],
     relationName: "parentChild",
   }),
-  childStacks: many(siuStacks, { relationName: "parentChild" }),
-  likes: many(siuStackLikes),
-  messages: many(siuStackMessages),
-}));
+  childSets: many(siuSets, { relationName: "parentChild" }),
+  likes: many(siuSetLikes),
+  messages: many(siuSetMessages),
+}))
 
-export const siuStackArchiveVotesRelations = relations(
-  siuStackArchiveVotes,
+export const siuArchiveVotesRelations = relations(
+  siuArchiveVotes,
   ({ one }) => ({
-    chain: one(siuChains, {
-      fields: [siuStackArchiveVotes.chainId],
-      references: [siuChains.id],
+    siu: one(sius, {
+      fields: [siuArchiveVotes.siuId],
+      references: [sius.id],
     }),
     user: one(users, {
-      fields: [siuStackArchiveVotes.userId],
+      fields: [siuArchiveVotes.userId],
       references: [users.id],
     }),
   }),
-);
+)
 
-export const siuStackLikesRelations = relations(siuStackLikes, ({ one }) => ({
-  siuStack: one(siuStacks, {
-    fields: [siuStackLikes.siuStackId],
-    references: [siuStacks.id],
+export const siuSetLikesRelations = relations(siuSetLikes, ({ one }) => ({
+  siuSet: one(siuSets, {
+    fields: [siuSetLikes.siuSetId],
+    references: [siuSets.id],
   }),
   user: one(users, {
-    fields: [siuStackLikes.userId],
+    fields: [siuSetLikes.userId],
     references: [users.id],
   }),
-}));
+}))
 
-export const siuStackMessagesRelations = relations(
-  siuStackMessages,
+export const siuSetMessagesRelations = relations(
+  siuSetMessages,
   ({ one, many }) => ({
-    siuStack: one(siuStacks, {
-      fields: [siuStackMessages.siuStackId],
-      references: [siuStacks.id],
+    siuSet: one(siuSets, {
+      fields: [siuSetMessages.siuSetId],
+      references: [siuSets.id],
     }),
     user: one(users, {
-      fields: [siuStackMessages.userId],
+      fields: [siuSetMessages.userId],
       references: [users.id],
     }),
-    likes: many(siuStackMessageLikes),
+    likes: many(siuSetMessageLikes),
   }),
-);
+)
 
-export const siuStackMessageLikesRelations = relations(
-  siuStackMessageLikes,
+export const siuSetMessageLikesRelations = relations(
+  siuSetMessageLikes,
   ({ one }) => ({
-    message: one(siuStackMessages, {
-      fields: [siuStackMessageLikes.siuStackMessageId],
-      references: [siuStackMessages.id],
+    message: one(siuSetMessages, {
+      fields: [siuSetMessageLikes.siuSetMessageId],
+      references: [siuSetMessages.id],
     }),
     user: one(users, {
-      fields: [siuStackMessageLikes.userId],
+      fields: [siuSetMessageLikes.userId],
       references: [users.id],
     }),
   }),
-);
+)
 
 // Notification Relations
 export const notificationsRelations = relations(notifications, ({ one }) => ({
@@ -1298,7 +1227,20 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     references: [users.id],
     relationName: "notificationActor",
   }),
-}));
+}))
+
+export const flagsRelations = relations(flags, ({ one }) => ({
+  user: one(users, {
+    fields: [flags.userId],
+    references: [users.id],
+    relationName: "flagUser",
+  }),
+  resolvedByUser: one(users, {
+    fields: [flags.resolvedByUserId],
+    references: [users.id],
+    relationName: "flagResolvedByUser",
+  }),
+}))
 
 export const userNotificationSettingsRelations = relations(
   userNotificationSettings,
@@ -1308,7 +1250,7 @@ export const userNotificationSettingsRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
 export const emailRemindersSentRelations = relations(
   emailRemindersSent,
@@ -1322,39 +1264,39 @@ export const emailRemindersSentRelations = relations(
       references: [rius.id],
     }),
   }),
-);
+)
 
-export type InsertChatMessage = typeof chatMessages.$inferInsert;
-export type InsertLocation = typeof userLocations.$inferInsert;
+export type InsertChatMessage = typeof chatMessages.$inferInsert
+export type InsertLocation = typeof userLocations.$inferInsert
 
-export type InsertPost = typeof posts.$inferInsert;
-export type InsertUser = typeof users.$inferInsert;
+export type InsertPost = typeof posts.$inferInsert
+export type InsertUser = typeof users.$inferInsert
 
-export type SelectChatMessage = typeof chatMessages.$inferSelect;
-export type SelectLocation = typeof userLocations.$inferSelect;
+export type SelectChatMessage = typeof chatMessages.$inferSelect
+export type SelectLocation = typeof userLocations.$inferSelect
 
-export type SelectPost = typeof posts.$inferSelect;
-export type SelectUser = typeof users.$inferSelect;
+export type SelectPost = typeof posts.$inferSelect
+export type SelectUser = typeof users.$inferSelect
 
 // Trick Enums
-export const CATCH_TYPES = ["one-foot", "two-foot"] as const;
-export const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES);
+export const CATCH_TYPES = ["one-foot", "two-foot"] as const
+export const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES)
 
 export const TRICK_RELATIONSHIP_TYPES = [
   "prerequisite",
   "optional_prerequisite",
   "related",
-] as const;
+] as const
 export const trickRelationshipTypeEnum = pgEnum(
   "trick_relationship_type",
   TRICK_RELATIONSHIP_TYPES,
-);
+)
 
-export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const;
+export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const
 export const trickVideoStatusEnum = pgEnum(
   "trick_video_status",
   TRICK_VIDEO_STATUSES,
-);
+)
 
 // Trick Modifiers (global, apply to any trick)
 export const trickModifiers = pgTable("trick_modifiers", {
@@ -1362,9 +1304,8 @@ export const trickModifiers = pgTable("trick_modifiers", {
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
-  sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+})
 
 // Trick Elements (components that make up a trick: spin, flip, twist, etc.)
 export const trickElements = pgTable("trick_elements", {
@@ -1372,9 +1313,8 @@ export const trickElements = pgTable("trick_elements", {
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
-  sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+})
 
 // Core Tricks Table
 export const tricks = pgTable(
@@ -1384,9 +1324,14 @@ export const tricks = pgTable(
     slug: text("slug").notNull().unique(),
     name: text("name").notNull(),
     alternateNames: json("alternate_names").$type<string[]>().default([]),
-    definition: text("definition"),
-    isPrefix: boolean("is_prefix").notNull().default(false),
+    description: text("description"),
     inventedBy: text("invented_by"),
+    inventedByUserId: integer("invented_by_user_id").references(
+      () => users.id,
+      {
+        onDelete: "set null",
+      },
+    ),
     yearLanded: integer("year_landed"),
     notes: text("notes"),
     flips: integer("flips").notNull().default(0),
@@ -1427,7 +1372,7 @@ export const tricks = pgTable(
       )
       .where(sql`NOT ${t.isCompound}`),
   ],
-);
+)
 
 // Trick Compositions (compound trick -> component trick mappings)
 export const trickCompositions = pgTable(
@@ -1447,7 +1392,7 @@ export const trickCompositions = pgTable(
     index("trick_compositions_compound_idx").on(t.compoundTrickId),
     unique("trick_compositions_unique").on(t.compoundTrickId, t.position),
   ],
-);
+)
 
 // Trick Videos (multiple per trick)
 export const trickVideos = pgTable(
@@ -1479,46 +1424,7 @@ export const trickVideos = pgTable(
     index("trick_videos_trick_id_idx").on(t.trickId),
     index("trick_videos_status_idx").on(t.status),
   ],
-);
-
-// Trick Video Engagement Tables
-export const trickVideoLikes = pgTable(
-  "trick_video_likes",
-  {
-    trickVideoId: integer("trick_video_id")
-      .notNull()
-      .references(() => trickVideos.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.trickVideoId, t.userId] })],
-);
-
-export const trickVideoMessages = pgTable("trick_video_messages", {
-  id: serial("id").primaryKey(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  trickVideoId: integer("trick_video_id")
-    .notNull()
-    .references(() => trickVideos.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-});
-
-export const trickVideoMessageLikes = pgTable(
-  "trick_video_message_likes",
-  {
-    trickVideoMessageId: integer("trick_video_message_id")
-      .notNull()
-      .references(() => trickVideoMessages.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.trickVideoMessageId, t.userId] })],
-);
+)
 
 // Trick Element Assignments (many-to-many)
 export const trickElementAssignments = pgTable(
@@ -1532,7 +1438,7 @@ export const trickElementAssignments = pgTable(
       .references(() => trickElements.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.trickId, t.elementId] })],
-);
+)
 
 // Trick Relationships (directed graph)
 export const trickRelationships = pgTable(
@@ -1551,7 +1457,7 @@ export const trickRelationships = pgTable(
     index("trick_relationships_source_idx").on(t.sourceTrickId),
     index("trick_relationships_target_idx").on(t.targetTrickId),
   ],
-);
+)
 
 // Trick Submissions (user-submitted for review)
 export const trickSubmissions = pgTable("trick_submissions", {
@@ -1559,9 +1465,11 @@ export const trickSubmissions = pgTable("trick_submissions", {
   slug: text("slug").notNull(),
   name: text("name").notNull(),
   alternateNames: json("alternate_names").$type<string[]>().default([]),
-  definition: text("definition"),
-  isPrefix: boolean("is_prefix").notNull().default(false),
+  description: text("description"),
   inventedBy: text("invented_by"),
+  inventedByUserId: integer("invented_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
   yearLanded: integer("year_landed"),
   videoUrl: text("video_url"),
   videoTimestamp: text("video_timestamp"),
@@ -1576,7 +1484,7 @@ export const trickSubmissions = pgTable("trick_submissions", {
   reviewedAt: timestamp("reviewed_at"),
   reviewNotes: text("review_notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+})
 
 // Trick Submission Element Assignments
 export const trickSubmissionElementAssignments = pgTable(
@@ -1590,7 +1498,7 @@ export const trickSubmissionElementAssignments = pgTable(
       .references(() => trickElements.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.submissionId, t.elementId] })],
-);
+)
 
 // Trick Submission Relationships
 export const trickSubmissionRelationships = pgTable(
@@ -1605,25 +1513,24 @@ export const trickSubmissionRelationships = pgTable(
       .references(() => tricks.id, { onDelete: "cascade" }),
     type: trickRelationshipTypeEnum("type").notNull(),
   },
-);
+)
 
 // Trick Suggestions (edits to existing tricks)
 export type TrickSuggestionDiff = {
-  name?: { old: string; new: string };
-  alternateNames?: { old: string[]; new: string[] };
-  definition?: { old: string | null; new: string | null };
-  isPrefix?: { old: boolean; new: boolean };
-  inventedBy?: { old: string | null; new: string | null };
-  yearLanded?: { old: number | null; new: number | null };
-  videoUrl?: { old: string | null; new: string | null };
-  videoTimestamp?: { old: string | null; new: string | null };
-  notes?: { old: string | null; new: string | null };
-  elements?: { old: string[]; new: string[] };
+  name?: string
+  alternateNames?: string[]
+  description?: string | null
+  inventedBy?: string | null
+  yearLanded?: number | null
+  videoUrl?: string | null
+  videoTimestamp?: string | null
+  notes?: string | null
+  elements?: string[]
   relationships?: {
-    added: { targetSlug: string; type: string }[];
-    removed: { targetSlug: string; type: string }[];
-  };
-};
+    added: { targetSlug: string; type: string }[]
+    removed: { targetSlug: string; type: string }[]
+  }
+}
 
 export const trickSuggestions = pgTable("trick_suggestions", {
   id: serial("id").primaryKey(),
@@ -1642,7 +1549,47 @@ export const trickSuggestions = pgTable("trick_suggestions", {
   reviewedAt: timestamp("reviewed_at"),
   reviewNotes: text("review_notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+})
+
+// Glossary Proposals (community-submitted element/modifier create or edit proposals)
+export const GLOSSARY_PROPOSAL_ACTIONS = ["create", "edit"] as const
+export const GLOSSARY_PROPOSAL_TYPES = ["element", "modifier"] as const
+
+export const glossaryProposalActionEnum = pgEnum(
+  "glossary_proposal_action",
+  GLOSSARY_PROPOSAL_ACTIONS,
+)
+export const glossaryProposalTypeEnum = pgEnum(
+  "glossary_proposal_type",
+  GLOSSARY_PROPOSAL_TYPES,
+)
+
+export type GlossaryProposalDiff = {
+  name?: string
+  description?: string | null
+}
+
+export const glossaryProposals = pgTable("glossary_proposals", {
+  id: serial("id").primaryKey(),
+  action: glossaryProposalActionEnum("action").notNull(),
+  type: glossaryProposalTypeEnum("type").notNull(),
+  slug: text("slug").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  targetId: integer("target_id"),
+  diff: json("diff").$type<GlossaryProposalDiff>(),
+  reason: text("reason"),
+  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  submittedByUserId: integer("submitted_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
 
 // Trick Engagement Tables
 export const trickLikes = pgTable(
@@ -1656,7 +1603,7 @@ export const trickLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.trickId, t.userId] })],
-);
+)
 
 export const trickMessages = pgTable("trick_messages", {
   id: serial("id").primaryKey(),
@@ -1668,7 +1615,7 @@ export const trickMessages = pgTable("trick_messages", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-});
+})
 
 export const trickMessageLikes = pgTable(
   "trick_message_likes",
@@ -1681,92 +1628,14 @@ export const trickMessageLikes = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.trickMessageId, t.userId] })],
-);
-
-// Trick Submission Engagement Tables
-export const trickSubmissionLikes = pgTable(
-  "trick_submission_likes",
-  {
-    trickSubmissionId: integer("trick_submission_id")
-      .notNull()
-      .references(() => trickSubmissions.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.trickSubmissionId, t.userId] })],
-);
-
-export const trickSubmissionMessages = pgTable("trick_submission_messages", {
-  id: serial("id").primaryKey(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  submissionId: integer("submission_id")
-    .notNull()
-    .references(() => trickSubmissions.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-});
-
-export const trickSubmissionMessageLikes = pgTable(
-  "trick_submission_message_likes",
-  {
-    trickSubmissionMessageId: integer("trick_submission_message_id")
-      .notNull()
-      .references(() => trickSubmissionMessages.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.trickSubmissionMessageId, t.userId] })],
-);
-
-// Trick Suggestion Engagement Tables
-export const trickSuggestionLikes = pgTable(
-  "trick_suggestion_likes",
-  {
-    trickSuggestionId: integer("trick_suggestion_id")
-      .notNull()
-      .references(() => trickSuggestions.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.trickSuggestionId, t.userId] })],
-);
-
-export const trickSuggestionMessages = pgTable("trick_suggestion_messages", {
-  id: serial("id").primaryKey(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  suggestionId: integer("suggestion_id")
-    .notNull()
-    .references(() => trickSuggestions.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-});
-
-export const trickSuggestionMessageLikes = pgTable(
-  "trick_suggestion_message_likes",
-  {
-    trickSuggestionMessageId: integer("trick_suggestion_message_id")
-      .notNull()
-      .references(() => trickSuggestionMessages.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.trickSuggestionMessageId, t.userId] })],
-);
+)
 
 // Trick Relations
-export const trickModifiersRelations = relations(trickModifiers, () => ({}));
+export const trickModifiersRelations = relations(trickModifiers, () => ({}))
 
 export const trickElementsRelations = relations(trickElements, ({ many }) => ({
   assignments: many(trickElementAssignments),
-}));
+}))
 
 export const tricksRelations = relations(tricks, ({ many }) => ({
   videos: many(trickVideos),
@@ -1784,7 +1653,7 @@ export const tricksRelations = relations(tricks, ({ many }) => ({
   likes: many(trickLikes),
   messages: many(trickMessages),
   suggestions: many(trickSuggestions),
-}));
+}))
 
 export const trickCompositionsRelations = relations(
   trickCompositions,
@@ -1800,9 +1669,9 @@ export const trickCompositionsRelations = relations(
       relationName: "componentOf",
     }),
   }),
-);
+)
 
-export const trickVideosRelations = relations(trickVideos, ({ one, many }) => ({
+export const trickVideosRelations = relations(trickVideos, ({ one }) => ({
   trick: one(tricks, {
     fields: [trickVideos.trickId],
     references: [tricks.id],
@@ -1819,52 +1688,7 @@ export const trickVideosRelations = relations(trickVideos, ({ one, many }) => ({
     fields: [trickVideos.reviewedByUserId],
     references: [users.id],
   }),
-  likes: many(trickVideoLikes),
-  messages: many(trickVideoMessages),
-}));
-
-export const trickVideoLikesRelations = relations(
-  trickVideoLikes,
-  ({ one }) => ({
-    trickVideo: one(trickVideos, {
-      fields: [trickVideoLikes.trickVideoId],
-      references: [trickVideos.id],
-    }),
-    user: one(users, {
-      fields: [trickVideoLikes.userId],
-      references: [users.id],
-    }),
-  }),
-);
-
-export const trickVideoMessagesRelations = relations(
-  trickVideoMessages,
-  ({ one, many }) => ({
-    trickVideo: one(trickVideos, {
-      fields: [trickVideoMessages.trickVideoId],
-      references: [trickVideos.id],
-    }),
-    user: one(users, {
-      fields: [trickVideoMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(trickVideoMessageLikes),
-  }),
-);
-
-export const trickVideoMessageLikesRelations = relations(
-  trickVideoMessageLikes,
-  ({ one }) => ({
-    message: one(trickVideoMessages, {
-      fields: [trickVideoMessageLikes.trickVideoMessageId],
-      references: [trickVideoMessages.id],
-    }),
-    user: one(users, {
-      fields: [trickVideoMessageLikes.userId],
-      references: [users.id],
-    }),
-  }),
-);
+}))
 
 export const trickElementAssignmentsRelations = relations(
   trickElementAssignments,
@@ -1878,7 +1702,7 @@ export const trickElementAssignmentsRelations = relations(
       references: [trickElements.id],
     }),
   }),
-);
+)
 
 export const trickRelationshipsRelations = relations(
   trickRelationships,
@@ -1894,7 +1718,7 @@ export const trickRelationshipsRelations = relations(
       relationName: "targetRelationships",
     }),
   }),
-);
+)
 
 export const trickSubmissionsRelations = relations(
   trickSubmissions,
@@ -1909,10 +1733,8 @@ export const trickSubmissionsRelations = relations(
     }),
     elementAssignments: many(trickSubmissionElementAssignments),
     relationships: many(trickSubmissionRelationships),
-    likes: many(trickSubmissionLikes),
-    messages: many(trickSubmissionMessages),
   }),
-);
+)
 
 export const trickSubmissionElementAssignmentsRelations = relations(
   trickSubmissionElementAssignments,
@@ -1926,7 +1748,7 @@ export const trickSubmissionElementAssignmentsRelations = relations(
       references: [trickElements.id],
     }),
   }),
-);
+)
 
 export const trickSubmissionRelationshipsRelations = relations(
   trickSubmissionRelationships,
@@ -1940,11 +1762,11 @@ export const trickSubmissionRelationshipsRelations = relations(
       references: [tricks.id],
     }),
   }),
-);
+)
 
 export const trickSuggestionsRelations = relations(
   trickSuggestions,
-  ({ one, many }) => ({
+  ({ one }) => ({
     trick: one(tricks, {
       fields: [trickSuggestions.trickId],
       references: [tricks.id],
@@ -1957,10 +1779,8 @@ export const trickSuggestionsRelations = relations(
       fields: [trickSuggestions.reviewedByUserId],
       references: [users.id],
     }),
-    likes: many(trickSuggestionLikes),
-    messages: many(trickSuggestionMessages),
   }),
-);
+)
 
 export const trickLikesRelations = relations(trickLikes, ({ one }) => ({
   trick: one(tricks, {
@@ -1971,7 +1791,7 @@ export const trickLikesRelations = relations(trickLikes, ({ one }) => ({
     fields: [trickLikes.userId],
     references: [users.id],
   }),
-}));
+}))
 
 export const trickMessagesRelations = relations(
   trickMessages,
@@ -1986,7 +1806,7 @@ export const trickMessagesRelations = relations(
     }),
     likes: many(trickMessageLikes),
   }),
-);
+)
 
 export const trickMessageLikesRelations = relations(
   trickMessageLikes,
@@ -2000,93 +1820,56 @@ export const trickMessageLikesRelations = relations(
       references: [users.id],
     }),
   }),
-);
+)
 
-export const trickSubmissionLikesRelations = relations(
-  trickSubmissionLikes,
+// Glossary Proposal Relations
+export const glossaryProposalsRelations = relations(
+  glossaryProposals,
   ({ one }) => ({
-    submission: one(trickSubmissions, {
-      fields: [trickSubmissionLikes.trickSubmissionId],
-      references: [trickSubmissions.id],
-    }),
-    user: one(users, {
-      fields: [trickSubmissionLikes.userId],
+    submittedBy: one(users, {
+      fields: [glossaryProposals.submittedByUserId],
       references: [users.id],
+      relationName: "submittedByUser",
+    }),
+    reviewedBy: one(users, {
+      fields: [glossaryProposals.reviewedByUserId],
+      references: [users.id],
+      relationName: "reviewedByUser",
     }),
   }),
-);
+)
 
-export const trickSubmissionMessagesRelations = relations(
-  trickSubmissionMessages,
-  ({ one, many }) => ({
-    submission: one(trickSubmissions, {
-      fields: [trickSubmissionMessages.submissionId],
-      references: [trickSubmissions.id],
-    }),
-    user: one(users, {
-      fields: [trickSubmissionMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(trickSubmissionMessageLikes),
-  }),
-);
+// Tournaments
 
-export const trickSubmissionMessageLikesRelations = relations(
-  trickSubmissionMessageLikes,
-  ({ one }) => ({
-    message: one(trickSubmissionMessages, {
-      fields: [trickSubmissionMessageLikes.trickSubmissionMessageId],
-      references: [trickSubmissionMessages.id],
-    }),
-    user: one(users, {
-      fields: [trickSubmissionMessageLikes.userId],
-      references: [users.id],
-    }),
-  }),
-);
+export const TOURNEY_PHASES = [
+  "setup",
+  "prelims",
+  "ranking",
+  "bracket",
+  "complete",
+] as const
 
-export const trickSuggestionLikesRelations = relations(
-  trickSuggestionLikes,
-  ({ one }) => ({
-    suggestion: one(trickSuggestions, {
-      fields: [trickSuggestionLikes.trickSuggestionId],
-      references: [trickSuggestions.id],
-    }),
-    user: one(users, {
-      fields: [trickSuggestionLikes.userId],
-      references: [users.id],
-    }),
-  }),
-);
+export const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES)
 
-export const trickSuggestionMessagesRelations = relations(
-  trickSuggestionMessages,
-  ({ one, many }) => ({
-    suggestion: one(trickSuggestions, {
-      fields: [trickSuggestionMessages.suggestionId],
-      references: [trickSuggestions.id],
-    }),
-    user: one(users, {
-      fields: [trickSuggestionMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(trickSuggestionMessageLikes),
-  }),
-);
+export const tournaments = pgTable("tournaments", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  name: text("name").notNull(),
+  phase: tourneyPhaseEnum("phase").notNull().default("setup"),
+  createdByUserId: integer("created_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  state: json("state").$type<TournamentState>().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
 
-export const trickSuggestionMessageLikesRelations = relations(
-  trickSuggestionMessageLikes,
-  ({ one }) => ({
-    message: one(trickSuggestionMessages, {
-      fields: [trickSuggestionMessageLikes.trickSuggestionMessageId],
-      references: [trickSuggestionMessages.id],
-    }),
-    user: one(users, {
-      fields: [trickSuggestionMessageLikes.userId],
-      references: [users.id],
-    }),
+export const tournamentsRelations = relations(tournaments, ({ one }) => ({
+  createdBy: one(users, {
+    fields: [tournaments.createdByUserId],
+    references: [users.id],
   }),
-);
+}))
 
 // make sure to reset sequences when seeding. eg
 // SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), true);

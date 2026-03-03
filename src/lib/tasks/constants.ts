@@ -4,4 +4,4 @@ export const TASK_NAMES = {
   NOTIFICATIONS_SEND_DIGESTS: "notifications:send-digests",
   NOTIFICATIONS_GAME_START_REMINDERS: "notifications:game-start-reminders",
   NOTIFICATIONS_PRE_TRICK_REMINDERS: "notifications:pre-trick-reminders",
-} as const;
+} as const

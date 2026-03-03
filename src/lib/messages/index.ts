@@ -1,18 +1,18 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query"
 
 import {
   createMessageServerFn,
   deleteMessageServerFn,
   listMessagesServerFn,
   updateMessageServerFn,
-} from "~/lib/messages/fns";
+} from "~/lib/messages/fns"
 import {
   createMessageSchema,
   deleteMessageSchema,
   listMessagesSchema,
   updateMessageSchema,
-} from "~/lib/messages/schemas";
-import { type ServerFnData } from "~/lib/types";
+} from "~/lib/messages/schemas"
+import { type ServerFnData } from "~/lib/types"
 
 export const messages = {
   list: {
@@ -36,4 +36,4 @@ export const messages = {
     fn: deleteMessageServerFn,
     schema: deleteMessageSchema,
   },
-};
+}

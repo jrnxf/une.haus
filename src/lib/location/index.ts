@@ -1,11 +1,11 @@
 import {
   placeGoogleMapsServerFn,
   searchCitiesGoogleMapsServerFn,
-} from "~/lib/location/fns";
+} from "~/lib/location/fns"
 import {
   placeGoogleMapsSchema,
   searchCitiesGoogleMapsSchema,
-} from "~/lib/location/schemas";
+} from "~/lib/location/schemas"
 
 export const location = {
   searchCities: {
@@ -16,4 +16,4 @@ export const location = {
     fn: placeGoogleMapsServerFn,
     schema: placeGoogleMapsSchema,
   },
-};
+}

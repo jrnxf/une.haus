@@ -1,12 +1,12 @@
-import { UserGlobe } from "~/components/user-globe";
-import { type UsersWithLocationsData } from "~/lib/users";
+import { UserGlobe } from "~/components/user-globe"
+import { type UsersWithLocationsData } from "~/lib/users"
 
 type MapViewProps = {
-  users: UsersWithLocationsData;
-  initialCenter?: [number, number];
-  initialZoom?: number;
-  onMapMove?: (center: [number, number], zoom: number) => void;
-};
+  users: UsersWithLocationsData
+  initialCenter?: [number, number]
+  initialZoom?: number
+  onMapMove?: (center: [number, number], zoom: number) => void
+}
 
 export function MapView({
   users,
@@ -19,11 +19,11 @@ export function MapView({
       <div className="flex h-full items-center justify-center">
         <p className="text-muted-foreground">no users with locations found.</p>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="min-h-0 w-full flex-1">
+    <div className="h-full w-full">
       <UserGlobe
         users={users}
         initialCenter={initialCenter}
@@ -31,5 +31,5 @@ export function MapView({
         onMapMove={onMapMove}
       />
     </div>
-  );
+  )
 }

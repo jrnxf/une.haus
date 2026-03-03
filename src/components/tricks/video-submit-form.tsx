@@ -1,41 +1,40 @@
-import { Info } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Info } from "lucide-react"
+import { Controller, useForm } from "react-hook-form"
+import { z } from "zod"
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
-import { VideoInput } from "~/components/input/video-input";
-import { Alert, AlertDescription } from "~/components/ui/alert";
-import { Button } from "~/components/ui/button";
+import { VideoInput } from "~/components/input/video-input"
+import { Alert, AlertDescription } from "~/components/ui/alert"
+import { Button } from "~/components/ui/button"
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "~/components/ui/field";
+} from "~/components/ui/field"
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "~/components/ui/form";
-import { Textarea } from "~/components/ui/textarea";
+} from "~/components/ui/form"
+import { Textarea } from "~/components/ui/textarea"
 
 const videoSubmitSchema = z.object({
   muxAssetId: z.string().min(1, "Please upload a video"),
   notes: z.string().max(200, "Notes must be 200 characters or less").optional(),
-});
+})
 
-type VideoSubmitFormValues = z.infer<typeof videoSubmitSchema>;
+type VideoSubmitFormValues = z.infer<typeof videoSubmitSchema>
 
 export type VideoSubmitFormProps = {
-  trickName: string;
-  onSubmit: (data: { muxAssetId: string; notes?: string }) => void;
-  onCancel?: () => void;
-  isPending?: boolean;
-};
+  trickName: string
+  onSubmit: (data: { muxAssetId: string; notes?: string }) => void
+  onCancel?: () => void
+  isPending?: boolean
+}
 
 export function VideoSubmitForm({
   trickName,
@@ -49,16 +48,16 @@ export function VideoSubmitForm({
       notes: "",
     },
     resolver: zodResolver(videoSubmitSchema),
-  });
+  })
 
-  const { control, handleSubmit, formState } = rhf;
+  const { control, handleSubmit, formState } = rhf
 
   const handleFormSubmit = (data: VideoSubmitFormValues) => {
     onSubmit({
       muxAssetId: data.muxAssetId,
       notes: data.notes || undefined,
-    });
-  };
+    })
+  }
 
   return (
     <Form rhf={rhf} onSubmit={handleSubmit(handleFormSubmit)}>
@@ -67,10 +66,10 @@ export function VideoSubmitForm({
         <Alert>
           <Info className="size-4" />
           <AlertDescription>
-            Submitting a video for{" "}
-            <span className="font-medium">{trickName}</span>. Ideal videos are
+            submitting a video for{" "}
+            <span className="font-medium">{trickName}</span>. ideal videos are
             short clips showing the trick from different angles, slow motion
-            views, or POV perspectives. All from the same rider in one edit is
+            views, or POV perspectives. all from the same rider in one edit is
             best!
           </AlertDescription>
         </Alert>
@@ -81,7 +80,7 @@ export function VideoSubmitForm({
           name="muxAssetId"
           render={({ field }) => (
             <FormItem>
-              <FieldLabel>Video *</FieldLabel>
+              <FieldLabel>video *</FieldLabel>
               <FormControl>
                 <VideoInput
                   onChange={(assetId) => field.onChange(assetId ?? "")}
@@ -98,17 +97,17 @@ export function VideoSubmitForm({
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Notes</FieldLabel>
+              <FieldLabel htmlFor={field.name}>notes</FieldLabel>
               <Textarea
                 {...field}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
                 value={field.value ?? ""}
-                placeholder="e.g., POV angle, slow motion, rear view..."
+                placeholder="pov angle, slow motion, rear view..."
                 rows={2}
               />
               <FieldDescription>
-                Describe what makes this video unique (max 200 characters)
+                describe what makes this video unique (max 200 characters)
               </FieldDescription>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -119,16 +118,16 @@ export function VideoSubmitForm({
         <Field orientation="horizontal">
           <Button type="submit" disabled={isPending || formState.isSubmitting}>
             {isPending || formState.isSubmitting
-              ? "Submitting..."
-              : "Submit Video"}
+              ? "submitting..."
+              : "submit video"}
           </Button>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+              cancel
             </Button>
           )}
         </Field>
       </FieldGroup>
     </Form>
-  );
+  )
 }

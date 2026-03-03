@@ -1,18 +1,17 @@
-import { ClientOnly } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { ClientOnly } from "@tanstack/react-router"
+import { AnimatePresence, motion } from "framer-motion"
+import { useEffect, useState } from "react"
 
-import { AnimatePresence, motion } from "framer-motion";
-
-import { invariant } from "~/lib/invariant";
+import { invariant } from "~/lib/invariant"
 
 export function MatrixText({
   text,
   dropHeight,
   className,
 }: {
-  text: string;
-  dropHeight: number;
-  className?: string;
+  text: string
+  dropHeight: number
+  className?: string
 }) {
   return (
     <div className="flex justify-center">
@@ -36,39 +35,39 @@ export function MatrixText({
         </AnimatePresence>
       </ClientOnly>
     </div>
-  );
+  )
 }
 
 const CHARS =
-  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()" as const;
+  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()" as const
 
 function Char({ finalChar, idx }: { finalChar: string; idx: number }) {
-  const [currentChar, setCurrentChar] = useState(getRandomChar());
-  const [iter, setIter] = useState(0);
+  const [currentChar, setCurrentChar] = useState(getRandomChar())
+  const [iter, setIter] = useState(0)
 
   // How many iterations to run through before stopping. I mostly just played
   // around with what looked good and a number that played well with the
   // interval duration of 30ms below to end the animation when I was hoping
-  const stop = iter === idx * 4 + 30;
+  const stop = iter === idx * 4 + 30
 
   useEffect(() => {
-    if (stop) return;
+    if (stop) return
 
     const timeout = setTimeout(() => {
-      setCurrentChar(getRandomChar());
-      setIter(iter + 1);
-    }, 10);
+      setCurrentChar(getRandomChar())
+      setIter(iter + 1)
+    }, 10)
 
-    return () => clearTimeout(timeout);
-  }, [idx, iter, stop]);
+    return () => clearTimeout(timeout)
+  }, [iter, stop])
 
-  return stop ? finalChar : currentChar;
+  return stop ? finalChar : currentChar
 }
 
 const getRandomChar = () => {
-  const value = CHARS[Math.floor(Math.random() * CHARS.length)];
+  const value = CHARS[Math.floor(Math.random() * CHARS.length)]
 
-  invariant(value, `Failed to retrieve random value from ${CHARS}`);
+  invariant(value, `Failed to retrieve random value from ${CHARS}`)
 
-  return value;
-};
+  return value
+}

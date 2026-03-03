@@ -1,35 +1,34 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { eq } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { eq } from "drizzle-orm";
-
-import { db } from "~/db";
-import { userNotificationSettings } from "~/db/schema";
-import { authMiddleware } from "~/lib/middleware";
-import { updateNotificationSettingsSchema } from "~/lib/notification-settings/schemas";
+import { db } from "~/db"
+import { userNotificationSettings } from "~/db/schema"
+import { authMiddleware } from "~/lib/middleware"
+import { updateNotificationSettingsSchema } from "~/lib/notification-settings/schemas"
 
 export const getNotificationSettingsServerFn = createServerFn({
   method: "GET",
 })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     let settings = await db.query.userNotificationSettings.findFirst({
       where: eq(userNotificationSettings.userId, userId),
-    });
+    })
 
     // If no settings exist, create defaults
     if (!settings) {
       const [created] = await db
         .insert(userNotificationSettings)
         .values({ userId })
-        .returning();
-      settings = created;
+        .returning()
+      settings = created
     }
 
-    return settings;
-  });
+    return settings
+  })
 
 export const updateNotificationSettingsServerFn = createServerFn({
   method: "POST",
@@ -37,7 +36,7 @@ export const updateNotificationSettingsServerFn = createServerFn({
   .inputValidator(zodValidator(updateNotificationSettingsSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     // Upsert settings
     const [settings] = await db
@@ -54,7 +53,7 @@ export const updateNotificationSettingsServerFn = createServerFn({
           updatedAt: new Date(),
         },
       })
-      .returning();
+      .returning()
 
-    return settings;
-  });
+    return settings
+  })

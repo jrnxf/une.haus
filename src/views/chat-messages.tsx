@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query"
 
-import { messages } from "~/lib/messages";
-import { useCreateMessage } from "~/lib/messages/hooks";
-import { MessagesView } from "~/views/messages";
+import { messages } from "~/lib/messages"
+import { useCreateMessage } from "~/lib/messages/hooks"
+import { MessagesView } from "~/views/messages"
 
 export function ChatMessagesView() {
   const { data: chatMessages } = useSuspenseQuery(
@@ -10,12 +10,12 @@ export function ChatMessagesView() {
       type: "chat",
       id: -1,
     }),
-  );
+  )
 
   const { mutate: createChatMessage } = useCreateMessage({
     type: "chat",
     id: -1,
-  });
+  })
 
   return (
     <MessagesView
@@ -24,5 +24,5 @@ export function ChatMessagesView() {
       handleCreateMessage={createChatMessage}
       scrollTargetId="main-content"
     />
-  );
+  )
 }

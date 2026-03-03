@@ -1,9 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 
 export function MessageAuthor({
   message,
 }: {
-  message: { user: { id: number; name: string } };
+  message: { user: { id: number; name: string } }
 }) {
   return (
     <Link
@@ -15,5 +15,5 @@ export function MessageAuthor({
     >
       {message.user.name}
     </Link>
-  );
+  )
 }

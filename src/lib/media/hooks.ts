@@ -1,113 +1,112 @@
-import { useMutation } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import * as Upchunk from "@mux/upchunk"
+import { useMutation } from "@tanstack/react-query"
+import { useCallback, useState } from "react"
+import { toast } from "sonner"
 
-import * as Upchunk from "@mux/upchunk";
-import { toast } from "sonner";
-
-import { media } from "~/lib/media";
+import { media } from "~/lib/media"
 
 export type VideoUploadOptions = {
-  onSuccess?: (data: { assetId: string; playbackId: string }) => void;
-  onError?: (error: unknown) => void;
-  onProgress?: (progress: number) => void;
-};
+  onSuccess?: (data: { assetId: string; playbackId: string }) => void
+  onError?: (error: unknown) => void
+  onProgress?: (progress: number) => void
+}
 
-const CHUNK_SIZE = 5120;
-const MAX_FILE_SIZE_MB = 50;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const CHUNK_SIZE = 5120
+const MAX_FILE_SIZE_MB = 50
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 const ALLOWED_VIDEO_TYPES = new Set([
   "video/mp4",
   "video/quicktime",
   "video/webm",
   "video/x-msvideo",
   "video/x-matroska",
-]);
+])
 
 export function useVideoUpload(options: VideoUploadOptions = {}) {
-  const { onSuccess, onError, onProgress } = options;
+  const { onSuccess, onError, onProgress } = options
 
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const { mutateAsync: pollMuxVideoUploadStatus } = useMutation({
     mutationFn: media.pollMuxVideoUploadStatus.fn,
-  });
+  })
 
   const createPresignedMuxUrl = useMutation({
     mutationFn: media.createPresignedMuxUrl.fn,
-  });
+  })
 
   const uploadVideo = useCallback(
     async (file: File) => {
       if (!ALLOWED_VIDEO_TYPES.has(file.type)) {
-        toast.error("Invalid file type. Please upload a video file.");
-        onError?.(new Error("Invalid file type"));
-        return;
+        toast.error("invalid file type. please upload a video file.")
+        onError?.(new Error("Invalid file type"))
+        return
       }
 
       if (file.size > MAX_FILE_SIZE_BYTES) {
-        toast.error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`);
-        onError?.(new Error("File too large"));
-        return;
+        toast.error(`file too large. maximum size is ${MAX_FILE_SIZE_MB}MB.`)
+        onError?.(new Error("File too large"))
+        return
       }
 
-      setIsUploading(true);
-      setUploadProgress(0);
-      setIsProcessing(false);
+      setIsUploading(true)
+      setUploadProgress(0)
+      setIsProcessing(false)
 
       try {
-        const presignedMuxUrl = await createPresignedMuxUrl.mutateAsync({});
-        const { id: uploadId, url: presignedUrl } = presignedMuxUrl;
+        const presignedMuxUrl = await createPresignedMuxUrl.mutateAsync({})
+        const { id: uploadId, url: presignedUrl } = presignedMuxUrl
 
         const upload = Upchunk.createUpload({
           chunkSize: CHUNK_SIZE,
           endpoint: presignedUrl,
           file,
-        });
+        })
 
         upload.on("error", (error) => {
-          console.error("mux upload error", error.detail);
+          console.error("mux upload error", error.detail)
           const errorMessage =
-            "Upload failed. Please try again and contact colby@jrnxf.co if the problem persists.";
-          toast.error(errorMessage);
-          onError?.(error);
-          setIsUploading(false);
-          setUploadProgress(0);
-          setIsProcessing(false);
-        });
+            "upload failed. please try again and contact colby@jrnxf.co if the problem persists."
+          toast.error(errorMessage)
+          onError?.(error)
+          setIsUploading(false)
+          setUploadProgress(0)
+          setIsProcessing(false)
+        })
 
         upload.on("progress", (progress) => {
-          const progressValue = Math.trunc(progress.detail);
-          setUploadProgress(progressValue);
-          onProgress?.(progressValue);
-        });
+          const progressValue = Math.trunc(progress.detail)
+          setUploadProgress(progressValue)
+          onProgress?.(progressValue)
+        })
 
         upload.on("success", async () => {
-          setIsProcessing(true);
+          setIsProcessing(true)
 
           try {
             const data = await pollMuxVideoUploadStatus({
               data: { uploadId },
-            });
-            onSuccess?.(data);
+            })
+            onSuccess?.(data)
           } catch (error) {
-            console.error("Processing error:", error);
-            toast.error("Video processing failed");
-            onError?.(error);
+            console.error("Processing error:", error)
+            toast.error("video processing failed")
+            onError?.(error)
           } finally {
-            setIsUploading(false);
-            setUploadProgress(0);
-            setIsProcessing(false);
+            setIsUploading(false)
+            setUploadProgress(0)
+            setIsProcessing(false)
           }
-        });
+        })
       } catch (error) {
-        console.error("Upload setup error:", error);
-        toast.error("Upload setup failed");
-        onError?.(error);
-        setIsUploading(false);
-        setUploadProgress(0);
-        setIsProcessing(false);
+        console.error("Upload setup error:", error)
+        toast.error("upload setup failed")
+        onError?.(error)
+        setIsUploading(false)
+        setUploadProgress(0)
+        setIsProcessing(false)
       }
     },
     [
@@ -117,13 +116,13 @@ export function useVideoUpload(options: VideoUploadOptions = {}) {
       onError,
       onProgress,
     ],
-  );
+  )
 
   const reset = useCallback(() => {
-    setIsUploading(false);
-    setUploadProgress(0);
-    setIsProcessing(false);
-  }, []);
+    setIsUploading(false)
+    setUploadProgress(0)
+    setIsProcessing(false)
+  }, [])
 
   return {
     uploadVideo,
@@ -131,5 +130,5 @@ export function useVideoUpload(options: VideoUploadOptions = {}) {
     uploadProgress,
     isProcessing,
     reset,
-  };
+  }
 }

@@ -1,39 +1,39 @@
-import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { Plus, X } from "lucide-react"
+import { useState } from "react"
 
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Badge } from "~/components/ui/badge"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
 
 export function StringListInput({
   value,
   onChange,
   placeholder = "Add item...",
 }: {
-  value: string[];
-  onChange: (values: string[]) => void;
-  placeholder?: string;
+  value: string[]
+  onChange: (values: string[]) => void
+  placeholder?: string
 }) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState("")
 
   const handleAdd = () => {
-    const trimmed = inputValue.trim();
+    const trimmed = inputValue.trim()
     if (trimmed && !value.includes(trimmed)) {
-      onChange([...value, trimmed]);
-      setInputValue("");
+      onChange([...value, trimmed])
+      setInputValue("")
     }
-  };
+  }
 
   const handleRemove = (item: string) => {
-    onChange(value.filter((v) => v !== item));
-  };
+    onChange(value.filter((v) => v !== item))
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault();
-      handleAdd();
+      e.preventDefault()
+      handleAdd()
     }
-  };
+  }
 
   return (
     <div className="space-y-2">
@@ -52,6 +52,7 @@ export function StringListInput({
           onClick={handleAdd}
           disabled={!inputValue.trim()}
           className="absolute top-1/2 right-1 -translate-y-1/2"
+          aria-label="add"
         >
           <Plus className="size-4" />
         </Button>
@@ -65,6 +66,7 @@ export function StringListInput({
                 type="button"
                 onClick={() => handleRemove(item)}
                 className="hover:bg-muted rounded-sm p-0.5"
+                aria-label={`Remove ${item}`}
               >
                 <X className="size-3" />
               </button>
@@ -73,5 +75,5 @@ export function StringListInput({
         </div>
       )}
     </div>
-  );
+  )
 }

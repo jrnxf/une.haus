@@ -1,42 +1,43 @@
-import { useBlocker } from "@tanstack/react-router";
-import { BugIcon, Loader2Icon } from "lucide-react";
-import * as React from "react";
+import { useBlocker } from "@tanstack/react-router"
+import { BugIcon, Loader2Icon } from "lucide-react"
+import * as React from "react"
 import {
   Controller,
-  FormProvider,
-  useFormContext,
   type ControllerProps,
   type FieldPath,
   type FieldValues,
+  FormProvider,
   type UseFormReturn,
-} from "react-hook-form";
+  useFormContext,
+} from "react-hook-form"
 
-import { Button, type ButtonProps } from "~/components/ui/button";
+import { Button, type ButtonProps } from "~/components/ui/button"
+import { ButtonGroup } from "~/components/ui/button-group"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import { Label } from "~/components/ui/label";
-import { Json } from "~/lib/dx/json";
-import { isProduction } from "~/lib/env";
-import { invariant } from "~/lib/invariant";
-import { useIsAdmin } from "~/lib/session/hooks";
-import { Slot } from "~/lib/slot";
-import { cn } from "~/lib/utils";
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerTrigger,
+} from "~/components/ui/drawer"
+import { Label } from "~/components/ui/label"
+import { LazyCodeMirror } from "~/components/ui/lazy-codemirror"
+import { isProduction } from "~/lib/env"
+import { invariant } from "~/lib/invariant"
+import { useIsAdmin } from "~/lib/session/hooks"
+import { Slot } from "~/lib/slot"
+import { useTheme } from "~/lib/theme/context"
+import { cn } from "~/lib/utils"
 
-type VideoUploadStatus = "idle" | number | "processing";
-type ImageUploadStatus = "idle" | "pending";
+type VideoUploadStatus = "idle" | number | "processing"
+type ImageUploadStatus = "idle" | "pending"
 
 type FormMediaProviderProps = {
-  imageUploadStatus: ImageUploadStatus;
-  videoUploadStatus: VideoUploadStatus;
-  setImageUploadStatus: (status: ImageUploadStatus) => void;
-  setVideoUploadStatus: (status: VideoUploadStatus) => void;
-  isMediaUploading: boolean;
-};
+  imageUploadStatus: ImageUploadStatus
+  videoUploadStatus: VideoUploadStatus
+  setImageUploadStatus: (status: ImageUploadStatus) => void
+  setVideoUploadStatus: (status: VideoUploadStatus) => void
+  isMediaUploading: boolean
+}
 
 const FormMediaContext = React.createContext<FormMediaProviderProps>({
   imageUploadStatus: "idle",
@@ -44,27 +45,27 @@ const FormMediaContext = React.createContext<FormMediaProviderProps>({
   setVideoUploadStatus: () => ({}),
   isMediaUploading: false,
   videoUploadStatus: "idle",
-});
+})
 
 const useFormMedia = () => {
-  const context = React.useContext(FormMediaContext);
-  invariant(context, "useFormMedia must be used within a FormMediaProvider");
-  return context;
-};
+  const context = React.useContext(FormMediaContext)
+  invariant(context, "useFormMedia must be used within a FormMediaProvider")
+  return context
+}
 
 function FormMediaProvider({ children }: { children: React.ReactNode }) {
   const [videoUploadStatus, setVideoUploadStatus] =
-    React.useState<VideoUploadStatus>("idle");
+    React.useState<VideoUploadStatus>("idle")
   const [imageUploadStatus, setImageUploadStatus] =
-    React.useState<ImageUploadStatus>("idle");
+    React.useState<ImageUploadStatus>("idle")
 
   const shouldBlock =
-    videoUploadStatus !== "idle" || imageUploadStatus !== "idle";
+    videoUploadStatus !== "idle" || imageUploadStatus !== "idle"
 
   useBlocker({
     enableBeforeUnload: shouldBlock,
     shouldBlockFn: () => shouldBlock,
-  });
+  })
 
   return (
     <FormMediaContext.Provider
@@ -79,21 +80,21 @@ function FormMediaProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </FormMediaContext.Provider>
-  );
+  )
 }
 
 function FormNavigationBlock() {
-  const { formState } = useFormContext();
-  const { videoUploadStatus, imageUploadStatus } = useFormMedia();
+  const { formState } = useFormContext()
+  const { videoUploadStatus, imageUploadStatus } = useFormMedia()
 
-  const isVideoUploading = videoUploadStatus !== "idle";
-  const isImageUploading = imageUploadStatus !== "idle";
+  const isVideoUploading = videoUploadStatus !== "idle"
+  const isImageUploading = imageUploadStatus !== "idle"
 
   const shouldBlock =
     isProduction &&
     (isVideoUploading ||
       isImageUploading ||
-      (formState.isDirty && !formState.isSubmitSuccessful));
+      (formState.isDirty && !formState.isSubmitSuccessful))
 
   useBlocker({
     enableBeforeUnload: shouldBlock,
@@ -101,21 +102,21 @@ function FormNavigationBlock() {
       if (shouldBlock) {
         const shouldLeave = confirm(
           "Are you sure you want to leave? You have unsaved changes.",
-        );
+        )
 
-        return !shouldLeave;
+        return !shouldLeave
       }
 
-      return false;
+      return false
     },
-  });
+  })
 
-  return null;
+  return null
 }
 
 type FormProps<TFieldValues extends FieldValues> = {
-  rhf: UseFormReturn<TFieldValues>;
-} & React.FormHTMLAttributes<HTMLFormElement>;
+  rhf: UseFormReturn<TFieldValues>
+} & React.FormHTMLAttributes<HTMLFormElement>
 
 function Form<TFieldValues extends FieldValues>({
   children,
@@ -129,19 +130,19 @@ function Form<TFieldValues extends FieldValues>({
         <form {...props}>{children}</form>
       </FormMediaProvider>
     </FormProvider>
-  );
+  )
 }
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
-  name: TName;
-};
+  name: TName
+}
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue,
-);
+)
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -153,48 +154,49 @@ const FormField = <
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
     </FormFieldContext.Provider>
-  );
-};
+  )
+}
 
 const useFormField = () => {
-  const fieldContext = React.useContext(FormFieldContext);
-  const itemContext = React.useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
+  const fieldContext = React.useContext(FormFieldContext)
+  const itemContext = React.useContext(FormItemContext)
+  const { getFieldState, formState } = useFormContext()
 
-  const fieldState = getFieldState(fieldContext.name, formState);
+  const fieldState = getFieldState(fieldContext.name, formState)
 
   if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>");
+    throw new Error("useFormField should be used within <FormField>")
   }
 
-  const { id } = itemContext;
+  const { id } = itemContext
 
   return {
     id,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
+    formLabelId: `${id}-form-item-label`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
-  };
-};
+  }
+}
 
 type FormItemContextValue = {
-  id: string;
-};
+  id: string
+}
 
 const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue,
-);
+)
 
 function FormItem({
   className,
   ref,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
-  ref?: React.Ref<HTMLDivElement>;
+  ref?: React.Ref<HTMLDivElement>
 }) {
-  const id = React.useId();
+  const id = React.useId()
 
   return (
     <FormItemContext.Provider value={{ id }}>
@@ -204,56 +206,63 @@ function FormItem({
         {...props}
       />
     </FormItemContext.Provider>
-  );
+  )
 }
-FormItem.displayName = "FormItem";
+FormItem.displayName = "FormItem"
 
 function FormLabel({
   className,
   ref,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Label> & {
-  ref?: React.Ref<React.ElementRef<typeof Label>>;
+  ref?: React.Ref<React.ElementRef<typeof Label>>
 }) {
-  const { formItemId } = useFormField();
+  const { formItemId, formLabelId } = useFormField()
 
   return (
-    <Label ref={ref} className={className} htmlFor={formItemId} {...props} />
-  );
+    <Label
+      ref={ref}
+      id={formLabelId}
+      className={cn("lowercase", className)}
+      htmlFor={formItemId}
+      {...props}
+    />
+  )
 }
-FormLabel.displayName = "FormLabel";
+FormLabel.displayName = "FormLabel"
 
 function FormControl({
   ref,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Slot> & {
-  ref?: React.Ref<React.ElementRef<typeof Slot>>;
+  ref?: React.Ref<React.ElementRef<typeof Slot>>
 }) {
-  const { error, formItemId, formDescriptionId, formMessageId } =
-    useFormField();
+  const { error, formItemId, formLabelId, formDescriptionId, formMessageId } =
+    useFormField()
 
   return (
     <Slot
       ref={ref}
       id={formItemId}
+      aria-labelledby={formLabelId}
       aria-describedby={
         error ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`
       }
       aria-invalid={!!error}
       {...props}
     />
-  );
+  )
 }
-FormControl.displayName = "FormControl";
+FormControl.displayName = "FormControl"
 
 function FormDescription({
   className,
   ref,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement> & {
-  ref?: React.Ref<HTMLParagraphElement>;
+  ref?: React.Ref<HTMLParagraphElement>
 }) {
-  const { formDescriptionId } = useFormField();
+  const { formDescriptionId } = useFormField()
 
   return (
     <p
@@ -262,9 +271,9 @@ function FormDescription({
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
-  );
+  )
 }
-FormDescription.displayName = "FormDescription";
+FormDescription.displayName = "FormDescription"
 
 function FormMessage({
   className,
@@ -272,13 +281,13 @@ function FormMessage({
   ref,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement> & {
-  ref?: React.Ref<HTMLParagraphElement>;
+  ref?: React.Ref<HTMLParagraphElement>
 }) {
-  const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? "") : children;
+  const { error, formMessageId } = useFormField()
+  const body = error ? String(error?.message ?? "") : children
 
   if (!body) {
-    return null;
+    return null
   }
 
   return (
@@ -290,9 +299,9 @@ function FormMessage({
     >
       {body}
     </p>
-  );
+  )
 }
-FormMessage.displayName = "FormMessage";
+FormMessage.displayName = "FormMessage"
 
 function FormSubmitButton({
   busy,
@@ -301,13 +310,13 @@ function FormSubmitButton({
   className,
   ...props
 }: ButtonProps & {
-  busy?: boolean;
-  busyText?: string;
-  idleText?: string;
+  busy?: boolean
+  busyText?: string
+  idleText?: string
 }) {
-  const isAdmin = useIsAdmin();
-  const { isMediaUploading } = useFormMedia();
-  const disabled = busy || isMediaUploading;
+  const isAdmin = useIsAdmin()
+  const { isMediaUploading } = useFormMedia()
+  const disabled = busy || isMediaUploading
 
   const button = (
     <Button
@@ -319,54 +328,59 @@ function FormSubmitButton({
     >
       <span>{busy ? busyText : idleText}</span>
     </Button>
-  );
+  )
 
   if (isAdmin) {
     return (
-      <div className="flex items-center gap-2">
-        <FormDebug />
-        {button}
-      </div>
-    );
+      <ButtonGroup className="items-center">
+        <ButtonGroup>
+          <FormDebug />
+        </ButtonGroup>
+        <ButtonGroup>{button}</ButtonGroup>
+      </ButtonGroup>
+    )
   }
 
-  return button;
+  return button
 }
 
 function FormDebug() {
-  const isAdmin = useIsAdmin();
+  const isAdmin = useIsAdmin()
+  const { resolvedTheme } = useTheme()
   const {
     watch,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext()
 
-  const values = watch();
+  const values = watch()
 
   if (!isAdmin) {
-    return null;
+    return null
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="icon-sm" className="">
+    <Drawer direction="bottom">
+      <DrawerTrigger asChild>
+        <Button type="button" variant="secondary" size="icon">
           <BugIcon className="size-4" />
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader className="sr-only">
-          <DialogTitle>debug</DialogTitle>
-        </DialogHeader>
-        <Json
-          className="w-full border-none"
-          data={{
-            values,
-            errors,
-          }}
-        />
-      </DialogContent>
-    </Dialog>
-  );
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerTitle className="sr-only">debug</DrawerTitle>
+        <div className="m-4 min-h-0 grow overflow-auto rounded-lg border">
+          <div className="pointer-events-none">
+            <LazyCodeMirror
+              value={JSON.stringify({ values, errors }, null, 2)}
+              readOnly
+              editable={false}
+              theme={resolvedTheme ?? "dark"}
+              basicSetup={{ lineNumbers: false, foldGutter: false }}
+            />
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
 }
 
 export {
@@ -381,4 +395,4 @@ export {
   FormSubmitButton,
   useFormField,
   useFormMedia,
-};
+}

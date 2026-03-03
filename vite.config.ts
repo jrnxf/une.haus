@@ -1,36 +1,45 @@
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react";
-
-import tailwindcss from "@tailwindcss/vite";
-import { nitro } from "nitro/vite";
-import { defineConfig, type PluginOption } from "vite";
+import tailwindcss from "@tailwindcss/vite"
+import { tanstackStart } from "@tanstack/react-start/plugin/vite"
+import viteReact from "@vitejs/plugin-react"
+import { nitro } from "nitro/vite"
 // import { beasties } from "vite-plugin-beasties";
-import viteTsConfigPaths from "vite-tsconfig-paths";
+import { type LoggingFunction, type RollupLog } from "rollup"
+import { defineConfig, type PluginOption } from "vite"
+import viteTsConfigPaths from "vite-tsconfig-paths"
 
-import { TASK_NAMES } from "./src/lib/tasks/constants";
+import { TASK_NAMES } from "./src/lib/tasks/constants"
 
 const devtoolsPlugin = async (): Promise<PluginOption> => {
   if (process.env.NODE_ENV === "production") {
-    return null;
+    return null
   }
-  const { devtools } = await import("@tanstack/devtools-vite");
+  const { devtools } = await import("@tanstack/devtools-vite")
   return devtools({
     editor: {
       name: "Cursor",
       open: async (path, lineNumber, columnNumber) => {
-        const { spawn } = await import("node:child_process");
+        const { spawn } = await import("node:child_process")
         // Escape $ to prevent shell expansion in cursor's eval
-        const escapedPath = path.replaceAll("$", String.raw`\$`);
+        const escapedPath = path.replaceAll("$", String.raw`\$`)
         spawn("cursor", [
           "-g",
           `${escapedPath}${lineNumber ? `:${lineNumber}` : ""}${columnNumber ? `:${columnNumber}` : ""}`,
-        ]);
+        ])
       },
     },
-  });
-};
+  })
+}
 
 const config = defineConfig(async () => ({
+  build: {
+    rollupOptions: {
+      onwarn(warning: RollupLog, defaultHandler: LoggingFunction) {
+        // "use client"/"use server" directives trigger Rollup warnings — safe to ignore
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return
+        defaultHandler(warning)
+      },
+    },
+  },
   server: {
     allowedHosts: [
       // put ngrok url here
@@ -67,7 +76,7 @@ const config = defineConfig(async () => ({
         // Once daily at midnight UTC — checks days-until-rotation
         "0 0 * * *": [TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS],
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- types here are not yet updated for nitro
+      // biome-ignore lint/suspicious/noExplicitAny: types here are not yet updated for nitro
     } as any),
     tailwindcss(),
     // beasties({
@@ -86,6 +95,6 @@ const config = defineConfig(async () => ({
     // react's vite plugin must come after start's vite plugin
     viteReact(),
   ],
-}));
+}))
 
-export default config;
+export default config

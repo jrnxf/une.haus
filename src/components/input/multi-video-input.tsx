@@ -1,76 +1,78 @@
-import { Loader2Icon, Plus, TrashIcon } from "lucide-react";
-import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone-esm";
+import { Loader2Icon, TrashIcon } from "lucide-react"
+import pluralize from "pluralize"
+import { useCallback, useState } from "react"
+import { useDropzone } from "react-dropzone-esm"
 
-import { Button } from "~/components/ui/button";
-import { Progress } from "~/components/ui/progress";
-import { VideoPlayer } from "~/components/video-player";
-import { useVideoUpload } from "~/lib/media";
-import { cn } from "~/lib/utils";
+import { UploadDropZone } from "~/components/input/upload-drop-zone"
+import { Button } from "~/components/ui/button"
+import { Progress } from "~/components/ui/progress"
+import { VideoPlayer } from "~/components/video-player"
+import { useVideoUpload } from "~/lib/media"
 
 type VideoItem = {
-  assetId: string;
-  playbackId: string;
-};
+  assetId: string
+  playbackId: string
+}
 
 type MultiVideoInputProps = {
-  value: string[];
-  onChange: (assetIds: string[]) => void;
-  maxVideos?: number;
-};
+  value: string[]
+  onChange: (assetIds: string[]) => void
+  maxVideos?: number
+}
 
 export function MultiVideoInput({
   value,
   onChange,
   maxVideos = 5,
 }: MultiVideoInputProps) {
-  const [uploadedVideos, setUploadedVideos] = useState<VideoItem[]>([]);
-  const [currentFileName, setCurrentFileName] = useState<string>();
-  const [isUploadActive, setIsUploadActive] = useState(false);
+  const [uploadedVideos, setUploadedVideos] = useState<VideoItem[]>([])
+  const [currentFileName, setCurrentFileName] = useState<string>()
+  const [isUploadActive, setIsUploadActive] = useState(false)
 
   const { uploadVideo, isUploading, uploadProgress, isProcessing } =
     useVideoUpload({
       onSuccess: (data) => {
-        const newVideo = { assetId: data.assetId, playbackId: data.playbackId };
-        setUploadedVideos((prev) => [...prev, newVideo]);
-        onChange([...value, data.assetId]);
-        setCurrentFileName(undefined);
-        setIsUploadActive(false);
+        const newVideo = { assetId: data.assetId, playbackId: data.playbackId }
+        setUploadedVideos((prev) => [...prev, newVideo])
+        onChange([...value, data.assetId])
+        setCurrentFileName(undefined)
+        setIsUploadActive(false)
       },
       onError: () => {
-        setCurrentFileName(undefined);
-        setIsUploadActive(false);
+        setCurrentFileName(undefined)
+        setIsUploadActive(false)
       },
-    });
+    })
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const [file] = acceptedFiles;
+      const [file] = acceptedFiles
 
       if (file && value.length < maxVideos) {
-        setCurrentFileName(file.name);
-        setIsUploadActive(true);
-        uploadVideo(file);
+        setCurrentFileName(file.name)
+        setIsUploadActive(true)
+        uploadVideo(file)
       }
     },
     [uploadVideo, value.length, maxVideos],
-  );
+  )
 
-  const { getInputProps, getRootProps, isDragActive } = useDropzone({
+  const { getInputProps, getRootProps } = useDropzone({
     accept: { "video/*": [] },
     multiple: false,
     onDrop,
     disabled: value.length >= maxVideos || isUploading || isProcessing,
-  });
+  })
 
   const removeVideo = (index: number) => {
-    const newAssetIds = value.filter((_, i) => i !== index);
-    const newVideos = uploadedVideos.filter((_, i) => i !== index);
-    setUploadedVideos(newVideos);
-    onChange(newAssetIds);
-  };
+    const newAssetIds = value.filter((_, i) => i !== index)
+    const newVideos = uploadedVideos.filter((_, i) => i !== index)
+    setUploadedVideos(newVideos)
+    onChange(newAssetIds)
+  }
 
-  const canAddMore = value.length < maxVideos && !isUploading && !isProcessing;
+  const isUploadInProgress = isUploading || isProcessing
+  const canAddMore = value.length < maxVideos && !isUploadInProgress
 
   return (
     <div className="space-y-3">
@@ -101,29 +103,20 @@ export function MultiVideoInput({
       )}
 
       {/* Upload zone */}
-      {canAddMore && (
-        <Button
-          aria-label="file upload"
-          className={cn(
-            "border-border relative h-16 w-full overflow-hidden rounded-md border-2 border-dashed",
-            isDragActive && "border-primary",
-          )}
-          type="button"
-          variant="unstyled"
-          {...getRootProps()}
+      {(canAddMore || isUploadInProgress) && (
+        <UploadDropZone
+          getRootProps={getRootProps}
+          getInputProps={getInputProps}
+          disabled={isUploadInProgress || !canAddMore}
         >
-          <input {...getInputProps()} />
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            <Plus className="size-4" />
-            <span>
-              {currentFileName ?? `Add video (${value.length}/${maxVideos})`}
-            </span>
-          </div>
+          <span className="text-muted-foreground text-sm">
+            {currentFileName ?? `add video (${value.length}/${maxVideos})`}
+          </span>
 
           {isUploadActive && isUploading && (
             <Progress
               value={uploadProgress}
-              className="absolute bottom-0 h-1 rounded-none"
+              className="absolute inset-x-0 bottom-0 h-1 rounded-none"
             />
           )}
 
@@ -133,15 +126,15 @@ export function MultiVideoInput({
               <Loader2Icon className="size-3 animate-spin" />
             </div>
           )}
-        </Button>
+        </UploadDropZone>
       )}
 
       {/* Max reached indicator */}
       {!canAddMore && value.length >= maxVideos && (
         <p className="text-muted-foreground text-center text-sm">
-          Maximum {maxVideos} videos reached
+          Maximum {maxVideos} {pluralize("video", maxVideos)} reached
         </p>
       )}
     </div>
-  );
+  )
 }

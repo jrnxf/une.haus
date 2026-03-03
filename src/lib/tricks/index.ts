@@ -1,6 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
-
-import type { ServerFnData, ServerFnReturn } from "~/lib/types";
+import { queryOptions } from "@tanstack/react-query"
 
 import {
   createElementServerFn,
@@ -9,7 +7,6 @@ import {
   deleteElementServerFn,
   deleteModifierServerFn,
   deleteTrickServerFn,
-  getAllTricksForBuilderServerFn,
   getAllTricksForGraphServerFn,
   getTrickByIdServerFn,
   getTrickServerFn,
@@ -20,7 +17,20 @@ import {
   updateElementServerFn,
   updateModifierServerFn,
   updateTrickServerFn,
-} from "./fns";
+} from "./fns"
+import {
+  createGlossaryProposalServerFn,
+  getGlossaryProposalServerFn,
+  listGlossaryProposalsServerFn,
+  reviewGlossaryProposalServerFn,
+} from "./glossary/fns"
+import {
+  createGlossaryProposalSchema,
+  getGlossaryProposalSchema,
+  type ListGlossaryProposalsInput,
+  listGlossaryProposalsSchema,
+  reviewGlossaryProposalSchema,
+} from "./glossary/schemas"
 import {
   createElementSchema,
   createModifierSchema,
@@ -30,6 +40,7 @@ import {
   deleteTrickSchema,
   getTrickByIdSchema,
   getTrickSchema,
+  type ListTricksInput,
   listElementsSchema,
   listModifiersSchema,
   listTricksSchema,
@@ -37,8 +48,7 @@ import {
   updateElementSchema,
   updateModifierSchema,
   updateTrickSchema,
-  type ListTricksInput,
-} from "./schemas";
+} from "./schemas"
 import {
   createSubmissionServerFn,
   createSuggestionServerFn,
@@ -48,19 +58,19 @@ import {
   listSuggestionsServerFn,
   reviewSubmissionServerFn,
   reviewSuggestionServerFn,
-} from "./submissions/fns";
+} from "./submissions/fns"
 import {
   createSubmissionSchema,
   createSuggestionSchema,
   getSubmissionSchema,
   getSuggestionSchema,
+  type ListSubmissionsInput,
+  type ListSuggestionsInput,
   listSubmissionsSchema,
   listSuggestionsSchema,
   reviewSubmissionSchema,
   reviewSuggestionSchema,
-  type ListSubmissionsInput,
-  type ListSuggestionsInput,
-} from "./submissions/schemas";
+} from "./submissions/schemas"
 import {
   deleteVideoServerFn,
   demoteVideoServerFn,
@@ -69,20 +79,27 @@ import {
   reorderVideosServerFn,
   reviewVideoServerFn,
   submitVideoServerFn,
-} from "./videos/fns";
+} from "./videos/fns"
 import {
   deleteVideoSchema,
   demoteVideoSchema,
+  type ListPendingVideosInput,
+  type ListVideosInput,
   listPendingVideosSchema,
   listVideosSchema,
   reorderVideosSchema,
   reviewVideoSchema,
   submitVideoSchema,
-  type ListPendingVideosInput,
-  type ListVideosInput,
-} from "./videos/schemas";
+} from "./videos/schemas"
+import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
 
-export type { NeighborLink, Trick, TrickComposition, TrickModifiers, TricksData } from "./types";
+export type {
+  NeighborLink,
+  Trick,
+  TrickComposition,
+  TrickModifiers,
+  TricksData,
+} from "./types"
 
 export const tricks = {
   // Modifiers
@@ -193,17 +210,6 @@ export const tricks = {
   delete: {
     fn: deleteTrickServerFn,
     schema: deleteTrickSchema,
-  },
-
-  // Builder data (all tricks with modifier columns)
-  builder: {
-    fn: getAllTricksForBuilderServerFn,
-    queryOptions: () =>
-      queryOptions({
-        queryKey: ["tricks.builder"],
-        queryFn: () => getAllTricksForBuilderServerFn(),
-        staleTime: 1000 * 60 * 5, // 5 minutes
-      }),
   },
 
   // Graph data (all tricks for visualization)
@@ -322,24 +328,58 @@ export const tricks = {
       schema: deleteVideoSchema,
     },
   },
-};
+
+  // Glossary proposals (elements/modifiers community contributions)
+  glossary: {
+    proposals: {
+      list: {
+        fn: listGlossaryProposalsServerFn,
+        schema: listGlossaryProposalsSchema,
+        queryOptions: (data?: ListGlossaryProposalsInput) =>
+          queryOptions({
+            queryKey: ["tricks.glossary.proposals.list", data],
+            queryFn: () => listGlossaryProposalsServerFn({ data }),
+            staleTime: 1000 * 30, // 30 seconds
+          }),
+      },
+      get: {
+        fn: getGlossaryProposalServerFn,
+        schema: getGlossaryProposalSchema,
+        queryOptions: (
+          data: ServerFnData<typeof getGlossaryProposalServerFn>,
+        ) =>
+          queryOptions({
+            queryKey: ["tricks.glossary.proposals.get", data],
+            queryFn: () => getGlossaryProposalServerFn({ data }),
+          }),
+      },
+      create: {
+        fn: createGlossaryProposalServerFn,
+        schema: createGlossaryProposalSchema,
+      },
+      review: {
+        fn: reviewGlossaryProposalServerFn,
+        schema: reviewGlossaryProposalSchema,
+      },
+    },
+  },
+}
 
 // Type exports
-export type TrickData = ServerFnReturn<typeof getTrickServerFn>;
-export type TrickByIdData = ServerFnReturn<typeof getTrickByIdServerFn>;
-export type TricksListData = ServerFnReturn<typeof listTricksServerFn>;
-export type TrickSearchData = ServerFnReturn<typeof searchTricksServerFn>;
-export type TrickBuilderData = ServerFnReturn<
-  typeof getAllTricksForBuilderServerFn
->;
-export type TrickGraphData = ServerFnReturn<
-  typeof getAllTricksForGraphServerFn
->;
-export type ModifierData = ServerFnReturn<typeof listModifiersServerFn>;
-export type ElementData = ServerFnReturn<typeof listElementsServerFn>;
-export type SubmissionData = ServerFnReturn<typeof getSubmissionServerFn>;
-export type SuggestionData = ServerFnReturn<typeof getSuggestionServerFn>;
-export type PendingVideosData = ServerFnReturn<
-  typeof listPendingVideosServerFn
->;
-export type TrickVideosData = ServerFnReturn<typeof listVideosServerFn>;
+export type TrickData = ServerFnReturn<typeof getTrickServerFn>
+export type TrickByIdData = ServerFnReturn<typeof getTrickByIdServerFn>
+export type TricksListData = ServerFnReturn<typeof listTricksServerFn>
+export type TrickSearchData = ServerFnReturn<typeof searchTricksServerFn>
+export type TrickGraphData = ServerFnReturn<typeof getAllTricksForGraphServerFn>
+export type ModifierData = ServerFnReturn<typeof listModifiersServerFn>
+export type ElementData = ServerFnReturn<typeof listElementsServerFn>
+export type SubmissionData = ServerFnReturn<typeof getSubmissionServerFn>
+export type SuggestionData = ServerFnReturn<typeof getSuggestionServerFn>
+export type PendingVideosData = ServerFnReturn<typeof listPendingVideosServerFn>
+export type TrickVideosData = ServerFnReturn<typeof listVideosServerFn>
+export type GlossaryProposalData = ServerFnReturn<
+  typeof getGlossaryProposalServerFn
+>
+export type GlossaryProposalsListData = ServerFnReturn<
+  typeof listGlossaryProposalsServerFn
+>

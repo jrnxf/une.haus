@@ -1,6 +1,6 @@
-import { LogOut, Mail, Settings, User } from "lucide-react";
+import { LogOut, Mail, Settings, User } from "lucide-react"
 
-import { Button } from "~/components/ui/base-button";
+import { Button } from "~/components/ui/base-button"
 import {
   Menu,
   MenuContent,
@@ -10,31 +10,34 @@ import {
   MenuSeparator,
   MenuShortcut,
   MenuTrigger,
-} from "~/components/ui/base-menu";
+} from "~/components/ui/base-menu"
+import { useModifierKey } from "~/hooks/use-modifier-key"
 
 export default function MenuDemo() {
+  const mod = useModifierKey()
+
   return (
     <Menu>
-      <MenuTrigger render={<Button variant="outline">Show Menu</Button>} />
+      <MenuTrigger render={<Button variant="outline">show menu</Button>} />
       <MenuContent sideOffset={4} className="w-64">
         {/* Account Section */}
         <MenuGroup>
-          <MenuGroupLabel>My Account</MenuGroupLabel>
+          <MenuGroupLabel>my account</MenuGroupLabel>
           <MenuSeparator />
           <MenuItem>
             <User />
-            <span>Profile</span>
-            <MenuShortcut>⇧⌘P</MenuShortcut>
+            <span>profile</span>
+            <MenuShortcut>⇧{mod}P</MenuShortcut>
           </MenuItem>
           <MenuItem>
             <Mail />
-            <span>Inbox</span>
-            <MenuShortcut>⌘I</MenuShortcut>
+            <span>inbox</span>
+            <MenuShortcut>{mod}I</MenuShortcut>
           </MenuItem>
           <MenuItem>
             <Settings />
-            <span>Settings</span>
-            <MenuShortcut>⌘S</MenuShortcut>
+            <span>settings</span>
+            <MenuShortcut>{mod}S</MenuShortcut>
           </MenuItem>
         </MenuGroup>
 
@@ -43,11 +46,11 @@ export default function MenuDemo() {
         <MenuGroup>
           <MenuItem>
             <LogOut />
-            <span>Log Out</span>
-            <MenuShortcut>⇧⌘Q</MenuShortcut>
+            <span>log out</span>
+            <MenuShortcut>⇧{mod}Q</MenuShortcut>
           </MenuItem>
         </MenuGroup>
       </MenuContent>
     </Menu>
-  );
+  )
 }

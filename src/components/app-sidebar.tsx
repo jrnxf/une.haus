@@ -1,25 +1,24 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router"
 import {
-  ClipboardPenIcon,
+  ActivityIcon,
   EarthIcon,
-  GaugeIcon,
   LockIcon,
   LockOpenIcon,
-  MapPinIcon,
-  MedalIcon,
   MessagesSquareIcon,
-  Send,
+  ShieldIcon,
   ShoppingBagIcon,
-  TimerIcon,
+  StickyNoteIcon,
   TrafficConeIcon,
-} from "lucide-react";
-import * as React from "react";
+  UsersIcon,
+} from "lucide-react"
 
-import { Logo } from "~/components/logo";
-import { NavMain } from "~/components/nav-main";
-import { NavSecondary } from "~/components/nav-secondary";
-import { NavUser } from "~/components/nav-user";
-import { SearchTrigger } from "~/components/search-trigger";
+import { BracketIcon } from "~/components/icons/bracket-icon"
+import { PodiumIcon } from "~/components/icons/podium-icon"
+import { Logo } from "~/components/logo"
+import { NavMain } from "~/components/nav-main"
+import { NavUser } from "~/components/nav-user"
+import { OnlineIndicator } from "~/components/online-indicator"
+import { SearchTrigger } from "~/components/search-trigger"
 import {
   Sidebar,
   SidebarContent,
@@ -29,100 +28,102 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "~/components/ui/sidebar";
+} from "~/components/ui/sidebar"
+import { useIsAdmin } from "~/lib/session/hooks"
+
+import type * as React from "react"
 
 const data = {
   navMain: [
     {
-      title: "Games",
+      title: "games",
       url: "/games",
-      icon: MedalIcon,
+      icon: PodiumIcon,
       isActive: true,
     },
     {
-      title: "Users",
+      title: "users",
       url: "/users",
-      icon: EarthIcon,
+      icon: UsersIcon,
     },
     {
-      title: "Posts",
+      title: "posts",
       url: "/posts",
-      icon: ClipboardPenIcon,
+      icon: StickyNoteIcon,
     },
     {
-      title: "Chat",
+      title: "chat",
       url: "/chat",
       icon: MessagesSquareIcon,
     },
     {
-      title: "Map",
+      title: "map",
       url: "/map",
-      icon: MapPinIcon,
+      icon: EarthIcon,
     },
     {
-      title: "Tricks",
+      title: "tricks",
       url: "/tricks",
       icon: TrafficConeIcon,
     },
     {
-      title: "Vault",
+      title: "vault",
       url: "/vault",
       icon: LockIcon,
       activeIcon: LockOpenIcon,
     },
     {
-      title: "Events",
-      url: "/events",
-      icon: TimerIcon,
+      title: "tourney",
+      url: "/tourney",
+      icon: BracketIcon,
     },
     {
-      title: "Stats",
-      url: "/stats",
-      icon: GaugeIcon,
+      title: "metrics",
+      url: "/metrics",
+      icon: ActivityIcon,
     },
     {
-      title: "Shop",
+      title: "shop",
       url: "/shop",
       icon: ShoppingBagIcon,
     },
   ],
-  navSecondary: [
-    {
-      title: "Feedback",
-      url: "/feedback",
-      icon: Send,
-    },
-  ],
-};
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const isAdmin = useIsAdmin()
+
+  const items = isAdmin
+    ? [...data.navMain, { title: "admin", url: "/admin", icon: ShieldIcon }]
+    : data.navMain
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="flex items-end justify-between">
             <SidebarMenuButton
               className="w-fit data-[slot=sidebar-menu-button]:p-1.5!"
               asChild
             >
               <Link to="/" className="h-fit">
                 <div>
-                  <Logo className="h-8" />
+                  <Logo className="h-8 fill-transparent! stroke-black! stroke-2 dark:stroke-white!" />
                 </div>
               </Link>
             </SidebarMenuButton>
+            <OnlineIndicator />
           </SidebarMenuItem>
         </SidebarMenu>
         <SearchTrigger />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={items} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

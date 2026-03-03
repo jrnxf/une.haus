@@ -1,21 +1,21 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
-import { PAGE_SIZE } from "~/lib/constants";
+import { PAGE_SIZE } from "~/lib/constants"
 import {
   createPostServerFn,
   deletePostServerFn,
   getPostServerFn,
   listPostsServerFn,
   updatePostServerFn,
-} from "~/lib/posts/fns";
+} from "~/lib/posts/fns"
 import {
   createPostSchema,
   deletePostSchema,
   getPostSchema,
   listPostsSchema,
   updatePostSchema,
-} from "~/lib/posts/schemas";
-import { type ServerFnData, type ServerFnReturn } from "~/lib/types";
+} from "~/lib/posts/schemas"
+import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
 
 export const posts = {
   list: {
@@ -30,18 +30,18 @@ export const posts = {
               ...data,
               cursor,
             },
-          });
+          })
         },
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
           if (lastPage.length < PAGE_SIZE) {
             // the last page returned less than the requested limit, so we
             // know there is no more results for this filter set
-            return;
+            return
           }
-          return lastPage.at(-1)?.id;
+          return lastPage.at(-1)?.id
         },
-      });
+      })
     },
   },
   get: {
@@ -51,7 +51,7 @@ export const posts = {
       return queryOptions({
         queryKey: ["posts.get", data],
         queryFn: () => getPostServerFn({ data }),
-      });
+      })
     },
   },
   create: {
@@ -66,7 +66,7 @@ export const posts = {
     fn: deletePostServerFn,
     schema: deletePostSchema,
   },
-};
+}
 
-export type PostsGetData = ServerFnReturn<typeof getPostServerFn>;
-export type PostsUpdateData = ServerFnReturn<typeof updatePostServerFn>;
+export type PostsGetData = ServerFnReturn<typeof getPostServerFn>
+export type PostsUpdateData = ServerFnReturn<typeof updatePostServerFn>

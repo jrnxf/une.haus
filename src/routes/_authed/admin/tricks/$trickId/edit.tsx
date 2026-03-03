@@ -2,17 +2,17 @@ import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-
-import { toast } from "sonner";
+} from "@tanstack/react-query"
+import { createFileRoute, useRouter } from "@tanstack/react-router"
+import { toast } from "sonner"
 
 import {
   TrickForm,
   type TrickFormDefaultValues,
-} from "~/components/forms/trick";
-import { PageHeader } from "~/components/page-header";
-import { tricks } from "~/lib/tricks";
+} from "~/components/forms/trick"
+import { PageHeader } from "~/components/page-header"
+import { tricks } from "~/lib/tricks"
+import { users } from "~/lib/users"
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
   loader: async ({ context, params }) => {
@@ -21,45 +21,46 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
         tricks.get.queryOptions({ slug: params.trickId }),
       ),
       context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
-    ]);
+      context.queryClient.ensureQueryData(users.all.queryOptions()),
+    ])
   },
   component: RouteComponent,
-});
+})
 
 function RouteComponent() {
-  const router = useRouter();
-  const qc = useQueryClient();
-  const { trickId: slug } = Route.useParams();
+  const router = useRouter()
+  const qc = useQueryClient()
+  const { trickId: slug } = Route.useParams()
 
-  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }));
+  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }))
 
   const updateTrick = useMutation({
     mutationFn: tricks.update.fn,
     onSuccess: () => {
-      toast.success("Trick updated");
-      qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey });
+      toast.success("trick updated")
+      qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey })
       qc.removeQueries({
         queryKey: tricks.get.queryOptions({ slug }).queryKey,
-      });
+      })
       if (trick) {
         qc.removeQueries({
           queryKey: tricks.videos.list.queryOptions({ trickId: trick.id })
             .queryKey,
-        });
+        })
       }
-      router.navigate({ to: "/tricks" });
+      router.navigate({ to: "/tricks" })
     },
     onError: (error) => {
-      toast.error(error.message);
+      toast.error(error.message)
     },
-  });
+  })
 
   if (!trick) {
     return (
       <div className="p-6">
-        <p>Trick not found</p>
+        <p>trick not found</p>
       </div>
-    );
+    )
   }
 
   // Transform trick data to form values
@@ -67,8 +68,9 @@ function RouteComponent() {
     slug: trick.slug,
     name: trick.name,
     alternateNames: trick.alternateNames ?? [],
-    definition: trick.definition,
+    description: trick.description,
     inventedBy: trick.inventedBy,
+    inventedByUserId: trick.inventedByUserId,
     yearLanded: trick.yearLanded,
     muxAssetIds: [],
     notes: trick.notes,
@@ -93,36 +95,28 @@ function RouteComponent() {
       slug: a.element.slug,
       name: a.element.name,
     })),
-    isCompound: trick.isCompound,
-    compositions: (trick.compositions ?? []).map((c) => ({
-      componentTrickId: c.componentTrick.id,
-      componentTrickSlug: c.componentTrick.slug,
-      componentTrickName: c.componentTrick.name,
-      position: c.position,
-      catchType: c.catchType,
-    })),
-  };
+  }
 
   return (
     <>
-      <PageHeader maxWidth="2xl">
+      <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>edit: {trick.name}</PageHeader.Crumb>
+          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-2xl space-y-6 p-4 md:p-6">
+      <div className="mx-auto w-full max-w-5xl space-y-6 p-4">
         <TrickForm
           defaultValues={defaultValues}
           onSubmit={(data) =>
             updateTrick.mutate({ data: { ...data, id: trick.id } })
           }
           onCancel={() => router.navigate({ to: "/tricks" })}
-          submitLabel="Save Changes"
+          submitLabel="save"
           isPending={updateTrick.isPending}
           excludeTrickId={trick.id}
         />
       </div>
     </>
-  );
+  )
 }

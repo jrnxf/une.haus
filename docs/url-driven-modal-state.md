@@ -66,14 +66,14 @@ const setOpen = React.useCallback(
       navigate({
         to: ".",
         search: (prev) => ({ ...prev, myParam: 1 }),
-      });
+      })
     } else {
       // CLOSING: Go back in history (removes the entry)
-      router.history.back();
+      router.history.back()
     }
   },
   [navigate, router],
-);
+)
 ```
 
 **This handles:**
@@ -102,8 +102,8 @@ Or if you need to explicitly remove the search param:
 <Link
   to={item.url}
   search={(prev) => {
-    const { myParam: _, ...rest } = prev;
-    return rest;
+    const { myParam: _, ...rest } = prev
+    return rest
   }}
   replace
 />
@@ -131,8 +131,8 @@ Uses `?sidebar=1` in the URL. The `SidebarProvider` reads this and controls a Sh
 Uses `?search=1` in the URL:
 
 ```tsx
-const { search } = useSearch({ from: rootRouteId });
-const open = search === 1;
+const { search } = useSearch({ from: rootRouteId })
+const open = search === 1
 
 const setOpen = React.useCallback(
   (nextOpen: boolean) => {
@@ -140,13 +140,13 @@ const setOpen = React.useCallback(
       navigate({
         to: ".",
         search: (prev) => ({ ...prev, search: nextOpen ? 1 : undefined }),
-      });
+      })
     } else {
-      router.history.back();
+      router.history.back()
     }
   },
   [navigate, router],
-);
+)
 ```
 
 Navigation links inside the command menu use `replace`:
@@ -322,7 +322,7 @@ const rootSearchSchema = z.object({
     .any()
     .optional()
     .transform((v) => (v === 1 ? 1 : undefined)),
-});
+})
 ```
 
 **Why `z.any()`?**
@@ -340,8 +340,8 @@ Clean URLs. Invalid values become undefined, treated as "closed".
 1. **Add the search param to your schema** in `__root.tsx`
 2. **Read from URL** in your component:
    ```tsx
-   const { myParam } = useSearch({ from: rootRouteId });
-   const open = myParam === 1;
+   const { myParam } = useSearch({ from: rootRouteId })
+   const open = myParam === 1
    ```
 3. **Implement `setOpen`** with navigate/back pattern
 4. **Use `replace` on navigation links** inside the modal

@@ -1,34 +1,34 @@
-import { Link } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router"
+import { type ReactNode, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import {
   Drawer,
   DrawerContent,
   DrawerTitle,
   DrawerTrigger,
-} from "~/components/ui/drawer";
+} from "~/components/ui/drawer"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { useIsTablet } from "~/hooks/use-mobile";
+} from "~/components/ui/dropdown-menu"
+import { useIsTablet } from "~/hooks/use-mobile"
 
 type User = {
-  id: number;
-  name: string;
-  avatarId: string | null;
-};
+  id: number
+  name: string
+  avatarId: string | null
+}
 
 type UsersPopoverProps = {
-  users: User[];
-  title: string;
-  trigger: ReactNode;
-  disabled?: boolean;
-};
+  users: User[]
+  title: string
+  trigger: ReactNode
+  disabled?: boolean
+}
 
 export function UsersPopover({
   users,
@@ -36,11 +36,11 @@ export function UsersPopover({
   trigger,
   disabled = false,
 }: UsersPopoverProps) {
-  const [open, setOpen] = useState(false);
-  const isTablet = useIsTablet();
+  const [open, setOpen] = useState(false)
+  const isTablet = useIsTablet()
 
   if (disabled || users.length === 0) {
-    return <>{trigger}</>;
+    return <>{trigger}</>
   }
 
   const userList = (
@@ -65,7 +65,7 @@ export function UsersPopover({
         </Link>
       ))}
     </div>
-  );
+  )
 
   if (isTablet) {
     return (
@@ -76,7 +76,7 @@ export function UsersPopover({
           {userList}
         </DrawerContent>
       </Drawer>
-    );
+    )
   }
 
   return (
@@ -89,5 +89,5 @@ export function UsersPopover({
         {userList}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

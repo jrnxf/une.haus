@@ -1,99 +1,85 @@
 import {
-  GlobeIcon,
+  EarthIcon,
   HeartIcon,
-  LayersIcon,
-  MapPinIcon,
   MessageCircleIcon,
-  PlayCircleIcon,
-  SendIcon,
+  StickyNoteIcon,
   UsersIcon,
-} from "lucide-react";
+  VideoIcon,
+} from "lucide-react"
+import pluralize from "pluralize"
 
-import { ActivityChart } from "~/components/stats/activity-chart";
-import { DisciplineChart } from "~/components/stats/discipline-chart";
-import { StatCard } from "~/components/stats/stat-card";
-import { TopContributors } from "~/components/stats/top-contributors";
-import { type getStatsServerFn } from "~/lib/stats/fns";
+import { ActivityChart } from "~/components/stats/activity-chart"
+import { DisciplineChart } from "~/components/stats/discipline-chart"
+import { StatCard } from "~/components/stats/stat-card"
+import { TopContributors } from "~/components/stats/top-contributors"
+import { type getStatsServerFn } from "~/lib/stats/fns"
 
 type StatsGridProps = {
-  data: Awaited<ReturnType<typeof getStatsServerFn>>;
-};
+  data: Awaited<ReturnType<typeof getStatsServerFn>>
+}
 
 export function StatsGrid({ data }: StatsGridProps) {
   return (
-    <div className="grid gap-3 lg:grid-cols-4">
-      {/* Rows 1-2: Hero stats - 4 columns on all screen sizes */}
-      <div className="grid grid-cols-4 gap-1 md:gap-2 lg:col-span-4 lg:gap-3">
+    <div className="grid gap-4">
+      {/* Rows 1-2: Hero stats - 3 columns on all screen sizes */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <StatCard
-          label="total users"
+          label={pluralize("user", data.counts.users)}
           value={data.counts.users}
           icon={UsersIcon}
           description="all registered community members"
           size="responsive"
         />
         <StatCard
-          label="total messages"
+          label={pluralize("country", data.counts.countries)}
+          value={data.counts.countries}
+          icon={EarthIcon}
+          description="countries represented by the community"
+          size="responsive"
+          to="/map"
+        />
+        <StatCard
+          label={pluralize("post", data.counts.posts)}
+          value={data.counts.posts}
+          icon={StickyNoteIcon}
+          description="posts shared in the feed"
+          size="responsive"
+        />
+        <StatCard
+          label={pluralize("message", data.counts.totalMessages)}
           value={data.counts.totalMessages}
           icon={MessageCircleIcon}
           description="messages and comments across chat, posts, sets, and submissions"
           size="responsive"
         />
         <StatCard
-          label="total posts"
-          value={data.counts.posts}
-          icon={SendIcon}
-          description="posts shared in the feed"
-          size="responsive"
-        />
-        <StatCard
-          label="likes given"
+          label={pluralize("like", data.counts.totalLikes)}
           value={data.counts.totalLikes}
           icon={HeartIcon}
           description="likes given across posts, sets, submissions, messages, and vault videos"
           size="responsive"
         />
         <StatCard
-          label="sets"
-          value={data.counts.riuSets}
-          icon={LayersIcon}
-          description="challenge sets created in rack it up games"
+          label={pluralize("video upload", data.counts.videoUploads)}
+          value={data.counts.videoUploads}
+          icon={VideoIcon}
+          description="videos uploaded to the platform"
           size="responsive"
-        />
-        <StatCard
-          label="submissions"
-          value={data.counts.riuSubmissions}
-          icon={PlayCircleIcon}
-          description="video responses to game sets"
-          size="responsive"
-        />
-        <StatCard
-          label="users on map"
-          value={data.counts.usersOnMap}
-          icon={MapPinIcon}
-          description="community members who have added their location"
-          size="responsive"
-          to="/map"
-        />
-        <StatCard
-          label="countries"
-          value={data.counts.countries}
-          icon={GlobeIcon}
-          description="countries represented by the community"
-          size="responsive"
-          to="/map"
         />
       </div>
 
       {/* Row 3: Activity chart + discipline chart (equal heights) */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:col-span-4">
-        <ActivityChart data={data.activityByMonth} />
-        <DisciplineChart data={data.disciplineDistribution} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="h-[290px]">
+          <ActivityChart data={data.activityByMonth} />
+        </div>
+        <div className="h-[290px]">
+          <DisciplineChart data={data.disciplineDistribution} />
+        </div>
       </div>
 
       {/* Row 4: Top contributors (full row) */}
-      <div className="lg:col-span-4">
-        <TopContributors data={data.topContributors} />
-      </div>
+      <TopContributors data={data.topContributors} />
     </div>
-  );
+  )
 }

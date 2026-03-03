@@ -3,7 +3,7 @@
  *
  * Scoring:
  * - Each set uploaded = 1 point
- * - Each submission uploaded = 3 points
+ * - Each submission uploaded = 1 point
  *
  * Tiebreakers:
  * - If tied users only uploaded sets (no submissions), whoever uploaded their last set first wins
@@ -11,41 +11,41 @@
  */
 
 export type RiuSet = {
-  id: number;
-  createdAt: Date;
+  id: number
+  createdAt: Date
   user: {
-    id: number;
-    name: string;
-    avatarId: string | null;
-  };
-};
+    id: number
+    name: string
+    avatarId: string | null
+  }
+}
 
 export type RiuSubmission = {
-  id: number;
-  createdAt: Date;
+  id: number
+  createdAt: Date
   user: {
-    id: number;
-    name: string;
-    avatarId: string | null;
-  };
-};
+    id: number
+    name: string
+    avatarId: string | null
+  }
+}
 
 export type RiderScore = {
   user: {
-    id: number;
-    name: string;
-    avatarId: string | null;
-  };
-  setsCount: number;
-  submissionsCount: number;
-  points: number;
-  lastSetAt: Date | null;
-  lastSubmissionAt: Date | null;
-  rank: number;
-};
+    id: number
+    name: string
+    avatarId: string | null
+  }
+  setsCount: number
+  submissionsCount: number
+  points: number
+  lastSetAt: Date | null
+  lastSubmissionAt: Date | null
+  rank: number
+}
 
-export const POINTS_PER_SET = 1;
-export const POINTS_PER_SUBMISSION = 3;
+export const POINTS_PER_SET = 1
+export const POINTS_PER_SUBMISSION = 1
 
 /**
  * Calculate the total points for a rider based on their sets and submissions
@@ -54,7 +54,7 @@ export function calculatePoints(
   setsCount: number,
   submissionsCount: number,
 ): number {
-  return setsCount * POINTS_PER_SET + submissionsCount * POINTS_PER_SUBMISSION;
+  return setsCount * POINTS_PER_SET + submissionsCount * POINTS_PER_SUBMISSION
 }
 
 /**
@@ -71,33 +71,33 @@ export function calculatePoints(
 export function compareRiders(a: RiderScore, b: RiderScore): number {
   // First compare by points (higher is better)
   if (a.points !== b.points) {
-    return b.points - a.points;
+    return b.points - a.points
   }
 
   // Tied points - apply tiebreakers
-  const aHasSubmissions = a.submissionsCount > 0;
-  const bHasSubmissions = b.submissionsCount > 0;
+  const aHasSubmissions = a.submissionsCount > 0
+  const bHasSubmissions = b.submissionsCount > 0
 
   // If neither has submissions, compare by last set time (earlier wins)
   if (!aHasSubmissions && !bHasSubmissions) {
     if (a.lastSetAt && b.lastSetAt) {
-      return a.lastSetAt.getTime() - b.lastSetAt.getTime();
+      return a.lastSetAt.getTime() - b.lastSetAt.getTime()
     }
     // If one has no sets, they lose
-    if (a.lastSetAt && !b.lastSetAt) return -1;
-    if (!a.lastSetAt && b.lastSetAt) return 1;
-    return 0;
+    if (a.lastSetAt && !b.lastSetAt) return -1
+    if (!a.lastSetAt && b.lastSetAt) return 1
+    return 0
   }
 
   // At least one has submissions - compare by last submission time (earlier wins)
   if (a.lastSubmissionAt && b.lastSubmissionAt) {
-    return a.lastSubmissionAt.getTime() - b.lastSubmissionAt.getTime();
+    return a.lastSubmissionAt.getTime() - b.lastSubmissionAt.getTime()
   }
   // If one has no submission timestamp but has submissions, that's unexpected
   // Fall back to whoever has a submission wins
-  if (a.lastSubmissionAt && !b.lastSubmissionAt) return -1;
-  if (!a.lastSubmissionAt && b.lastSubmissionAt) return 1;
-  return 0;
+  if (a.lastSubmissionAt && !b.lastSubmissionAt) return -1
+  if (!a.lastSubmissionAt && b.lastSubmissionAt) return 1
+  return 0
 }
 
 /**
@@ -106,74 +106,74 @@ export function compareRiders(a: RiderScore, b: RiderScore): number {
  */
 export function calculateRiderRankings(
   sets: (RiuSet & {
-    submissions?: RiuSubmission[];
+    submissions?: RiuSubmission[]
   })[],
 ): RiderScore[] {
   // Aggregate data by user
   const userMap = new Map<
     number,
     {
-      user: RiuSet["user"];
-      sets: RiuSet[];
-      submissions: RiuSubmission[];
+      user: RiuSet["user"]
+      sets: RiuSet[]
+      submissions: RiuSubmission[]
     }
-  >();
+  >()
 
   for (const set of sets) {
-    const userId = set.user.id;
-    let userData = userMap.get(userId);
+    const userId = set.user.id
+    let userData = userMap.get(userId)
 
     if (!userData) {
       userData = {
         user: set.user,
         sets: [],
         submissions: [],
-      };
-      userMap.set(userId, userData);
+      }
+      userMap.set(userId, userData)
     }
 
-    userData.sets.push(set);
+    userData.sets.push(set)
 
     // Also collect submissions from other users
     if (set.submissions) {
       for (const submission of set.submissions) {
-        const submissionUserId = submission.user.id;
-        let submitterData = userMap.get(submissionUserId);
+        const submissionUserId = submission.user.id
+        let submitterData = userMap.get(submissionUserId)
 
         if (!submitterData) {
           submitterData = {
             user: submission.user,
             sets: [],
             submissions: [],
-          };
-          userMap.set(submissionUserId, submitterData);
+          }
+          userMap.set(submissionUserId, submitterData)
         }
 
-        submitterData.submissions.push(submission);
+        submitterData.submissions.push(submission)
       }
     }
   }
 
   // Calculate scores for each user
-  const scores: RiderScore[] = [];
+  const scores: RiderScore[] = []
 
   for (const [, userData] of userMap) {
-    const setsCount = userData.sets.length;
-    const submissionsCount = userData.submissions.length;
-    const points = calculatePoints(setsCount, submissionsCount);
+    const setsCount = userData.sets.length
+    const submissionsCount = userData.submissions.length
+    const points = calculatePoints(setsCount, submissionsCount)
 
     // Find the latest set and submission times
-    let lastSetAt: Date | null = null;
+    let lastSetAt: Date | null = null
     for (const set of userData.sets) {
       if (!lastSetAt || set.createdAt > lastSetAt) {
-        lastSetAt = set.createdAt;
+        lastSetAt = set.createdAt
       }
     }
 
-    let lastSubmissionAt: Date | null = null;
+    let lastSubmissionAt: Date | null = null
     for (const sub of userData.submissions) {
       if (!lastSubmissionAt || sub.createdAt > lastSubmissionAt) {
-        lastSubmissionAt = sub.createdAt;
+        lastSubmissionAt = sub.createdAt
       }
     }
 
@@ -185,16 +185,16 @@ export function calculateRiderRankings(
       lastSetAt,
       lastSubmissionAt,
       rank: 0, // Will be set after sorting
-    });
+    })
   }
 
   // Sort by the comparison function
-  scores.sort(compareRiders);
+  scores.sort(compareRiders)
 
   // Assign ranks (1-indexed)
   for (const [i, score] of scores.entries()) {
-    score.rank = i + 1;
+    score.rank = i + 1
   }
 
-  return scores;
+  return scores
 }

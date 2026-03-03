@@ -151,4 +151,4 @@ export const APPLE_SPLASH_SCREENS = [
     "screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)",
     "/icons/apple-splash-landscape-1136x640.png",
   ],
-];
+]

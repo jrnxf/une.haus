@@ -1,8 +1,7 @@
-import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
+import MuxPlayer, { type MuxPlayerRefAttributes } from "@mux/mux-player-react"
+import queryString from "query-string"
 
-import queryString from "query-string";
-
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 export function getMuxPoster({
   playbackId,
@@ -10,13 +9,13 @@ export function getMuxPoster({
   height,
   time = 0,
 }: {
-  playbackId: null | string | undefined;
-  time?: number;
-  height?: number;
-  width?: number;
+  playbackId: null | string | undefined
+  time?: number
+  height?: number
+  width?: number
 }) {
   if (!playbackId) {
-    return undefined;
+    return undefined
   }
 
   return queryString.stringifyUrl({
@@ -26,7 +25,7 @@ export function getMuxPoster({
       height,
       width,
     },
-  });
+  })
 }
 
 export function VideoPlayer({
@@ -35,13 +34,13 @@ export function VideoPlayer({
   ref,
   ...props
 }: {
-  playbackId: string;
-  ref?: React.Ref<MuxPlayerRefAttributes>;
+  playbackId: string
+  ref?: React.Ref<MuxPlayerRefAttributes>
 } & Omit<React.ComponentProps<"div">, "ref">) {
   return (
     <div
       className={cn(
-        "aspect-video shrink-0 overflow-hidden rounded-lg",
+        "aspect-video shrink-0 overflow-hidden rounded-sm",
         className,
       )}
       {...props}
@@ -58,7 +57,7 @@ export function VideoPlayer({
         streamType="on-demand"
       />
     </div>
-  );
+  )
 }
 
-export { type MuxPlayerRefAttributes } from "@mux/mux-player-react";
+export type { MuxPlayerRefAttributes } from "@mux/mux-player-react"

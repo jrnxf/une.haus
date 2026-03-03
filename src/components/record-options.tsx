@@ -1,15 +1,15 @@
-import { ChevronDownIcon } from "lucide-react";
-import { useRef } from "react";
+import { ChevronDownIcon } from "lucide-react"
+import { useRef } from "react"
 
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { useSessionUser } from "~/lib/session/hooks";
+} from "~/components/ui/dropdown-menu"
+import { useSessionUser } from "~/lib/session/hooks"
 
 export function RecordOptions({
   onDeleteRecord,
@@ -18,37 +18,37 @@ export function RecordOptions({
   onShowReactions,
   record,
 }: {
-  onDeleteRecord: () => void;
-  onEditRecord: () => void;
-  onLikeUnlike: (action: "like" | "unlike") => void;
-  onShowReactions: () => void;
+  onDeleteRecord: () => void
+  onEditRecord: () => void
+  onLikeUnlike: (action: "like" | "unlike") => void
+  onShowReactions: () => void
   record: {
     likes: {
       user: {
-        avatarId: null | string;
-        id: number;
-        name: string;
-      };
-    }[];
+        avatarId: null | string
+        id: number
+        name: string
+      }
+    }[]
     user: {
-      id: number;
-    };
-  };
+      id: number
+    }
+  }
 }) {
-  const sessionUser = useSessionUser();
-  const menuTriggerReference = useRef<HTMLButtonElement>(null);
+  const sessionUser = useSessionUser()
+  const menuTriggerReference = useRef<HTMLButtonElement>(null)
 
   if (!sessionUser && record.likes.length === 0) {
-    return null;
+    return null
   }
 
   const isOwnedByAuthUser = Boolean(
     sessionUser && sessionUser.id === record.user.id,
-  );
+  )
 
   const isLikedByAuthUser = Boolean(
     sessionUser && record.likes.some((like) => like.user.id === sessionUser.id),
-  );
+  )
 
   return (
     <DropdownMenu>
@@ -56,7 +56,7 @@ export function RecordOptions({
         <Button
           className="transition-none"
           ref={menuTriggerReference}
-          size="fit"
+          size="icon-sm"
           variant="ghost"
         >
           <ChevronDownIcon className="size-5 opacity-50" />
@@ -67,32 +67,32 @@ export function RecordOptions({
           {sessionUser && (
             <DropdownMenuItem
               onClick={() => {
-                onLikeUnlike(isLikedByAuthUser ? "unlike" : "like");
+                onLikeUnlike(isLikedByAuthUser ? "unlike" : "like")
               }}
             >
-              {isLikedByAuthUser ? "Unlike" : "Like"}
+              {isLikedByAuthUser ? "unlike" : "like"}
             </DropdownMenuItem>
           )}
 
           {record.likes.length > 0 && (
-            <DropdownMenuItem onSelect={onShowReactions}>
-              Reactions
+            <DropdownMenuItem onClick={onShowReactions}>
+              reactions
             </DropdownMenuItem>
           )}
 
           {isOwnedByAuthUser && (
             <>
-              <DropdownMenuItem onClick={onEditRecord}>Edit</DropdownMenuItem>
+              <DropdownMenuItem onClick={onEditRecord}>edit</DropdownMenuItem>
               <DropdownMenuItem
                 className="focus:bg-destructive focus:text-destructive-foreground"
                 onClick={onDeleteRecord}
               >
-                Delete
+                delete
               </DropdownMenuItem>
             </>
           )}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

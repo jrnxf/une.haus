@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from "react"
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 /**
  * Lightweight Slot component that replaces @radix-ui/react-slot.
@@ -8,10 +8,10 @@ import { cn } from "~/lib/utils";
  */
 const Slot = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ children, ...props }, forwardedRef) => {
-    const child = React.Children.only(children);
-    if (!React.isValidElement(child)) return null;
+    const child = React.Children.only(children)
+    if (!React.isValidElement(child)) return null
 
-    const childProps = child.props as Record<string, unknown>;
+    const childProps = child.props as Record<string, unknown>
 
     return React.cloneElement(child, {
       ...props,
@@ -29,15 +29,15 @@ const Slot = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
       ...(props.onClick && childProps.onClick
         ? {
             onClick: (e: React.MouseEvent) => {
-              (childProps.onClick as (e: React.MouseEvent) => void)?.(e);
-              (props.onClick as (e: React.MouseEvent) => void)?.(e);
+              ;(childProps.onClick as (e: React.MouseEvent) => void)?.(e)
+              ;(props.onClick as (e: React.MouseEvent) => void)?.(e)
             },
           }
         : {}),
-    } as React.Attributes);
+    } as React.Attributes)
   },
-);
+)
 
-Slot.displayName = "Slot";
+Slot.displayName = "Slot"
 
-export { Slot };
+export { Slot }

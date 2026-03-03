@@ -1,31 +1,29 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { eq } from "drizzle-orm"
+import { nanoid } from "nanoid"
+import { Resend } from "resend"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
-import { Resend } from "resend";
-
-import { db } from "~/db";
-import { authCodes, users } from "~/db/schema";
+import AuthCodeTemplate from "../../../emails/auth-code"
+import { db } from "~/db"
+import { authCodes, users } from "~/db/schema"
 import {
   enterCodeSchema,
   registerSchema,
   sendCodeSchema,
-} from "~/lib/auth/schemas";
-import { env } from "~/lib/env";
-import { invariant } from "~/lib/invariant";
-import { useServerSession } from "~/lib/session/hooks";
+} from "~/lib/auth/schemas"
+import { env } from "~/lib/env"
+import { invariant } from "~/lib/invariant"
+import { useServerSession } from "~/lib/session/hooks"
 
-import AuthCodeTemplate from "../../../emails/auth-code";
-
-const resendClient = new Resend(env.RESEND_API_KEY);
+const resendClient = new Resend(env.RESEND_API_KEY)
 
 export const sendAuthCodeServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(sendCodeSchema))
   .handler(async ({ data: input }) => {
-    const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5);
+    const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5)
 
     const [authCode] = await db
       .insert(authCodes)
@@ -35,32 +33,32 @@ export const sendAuthCodeServerFn = createServerFn({
         code: String(Math.floor(Math.random() * 10_000)).padStart(4, "0"),
         expiresAt: inFiveMinutes,
       })
-      .returning();
+      .returning()
 
     const { data, error } = await resendClient.emails.send({
       from: "Colby Thomas <colby@jrnxf.co>",
       to: [input.email],
-      subject: "Welcome to une.haus!",
+      subject: "welcome to une.haus!",
       react: AuthCodeTemplate({ code: authCode.code }),
-    });
+    })
 
     if (error) {
-      console.error("❌ Email failed to send", error);
+      console.error("❌ Email failed to send", error)
       // TODO: Log error to Sentry
-      throw new Error(error.message);
+      throw new Error(error.message)
     }
 
     if (data) {
       // log successful send to sentry
     }
-  });
+  })
 
 export const enterCodeServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(enterCodeSchema)
   .handler(async ({ data: input }) => {
-    const { code } = input;
+    const { code } = input
 
     const [authCode] = await db
       .select({
@@ -78,38 +76,39 @@ export const enterCodeServerFn = createServerFn({
       .from(authCodes)
       .where(eq(authCodes.code, code))
       .leftJoin(users, eq(users.email, authCodes.email))
-      .limit(1);
+      .limit(1)
 
     if (!authCode) {
-      throw new Error("Invalid code");
+      throw new Error("Invalid code")
     }
 
     const deleteCode = async () => {
-      await db.delete(authCodes).where(eq(authCodes.id, authCode.id));
-    };
+      await db.delete(authCodes).where(eq(authCodes.id, authCode.id))
+    }
 
     if (!authCode.user) {
-      await deleteCode();
+      await deleteCode()
       return {
         status: "user_not_found",
-      };
+      }
     }
 
     if (authCode.expiresAt < new Date()) {
-      await deleteCode();
-      invariant(false, "Code has expired");
+      await deleteCode()
+      invariant(false, "Code has expired")
     }
 
-    const [session] = await Promise.all([useServerSession(), deleteCode()]);
+    // biome-ignore lint/correctness/useHookAtTopLevel: server function, not a React component
+    const [session] = await Promise.all([useServerSession(), deleteCode()])
 
     await session.update({
       user: authCode.user,
-    });
+    })
 
     return {
       status: "success",
-    };
-  });
+    }
+  })
 
 export const registerServerFn = createServerFn({
   method: "POST",
@@ -122,16 +121,16 @@ export const registerServerFn = createServerFn({
       email,
       name,
       bio,
-    } = input;
+    } = input
 
     const user = await db
       .select()
       .from(users)
       .where(eq(users.email, email))
-      .limit(1);
+      .limit(1)
 
     if (user) {
-      throw new Error("User already exists");
+      throw new Error("User already exists")
     }
 
     const [newUser] = await db
@@ -141,15 +140,15 @@ export const registerServerFn = createServerFn({
         name,
         bio,
       })
-      .returning();
+      .returning()
 
     if (!newUser) {
-      throw new Error("Failed to create user");
+      throw new Error("Failed to create user")
     }
 
-    const session = await useServerSession();
+    const session = await useServerSession()
 
     await session.update({
       user: newUser,
-    });
-  });
+    })
+  })

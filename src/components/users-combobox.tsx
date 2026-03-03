@@ -1,29 +1,29 @@
-import { Link } from "@tanstack/react-router";
-import React, { type ReactNode } from "react";
+import { Link } from "@tanstack/react-router"
+import React, { type ReactNode } from "react"
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { usePeripherals } from "~/hooks/use-peripherals";
-import { type UsersWithFollowsData } from "~/lib/users";
+} from "~/components/ui/dropdown-menu"
+import { usePeripherals } from "~/hooks/use-peripherals"
+import { type UsersWithFollowsData } from "~/lib/users"
 
 export function UsersCombobox({
   users,
   children,
   peripheralKey,
 }: {
-  users: UsersWithFollowsData["followers"]["users"];
-  children: ReactNode;
-  peripheralKey: "followers" | "following";
+  users: UsersWithFollowsData["followers"]["users"]
+  children: ReactNode
+  peripheralKey: "followers" | "following"
 }) {
-  const [open, setOpen] = usePeripherals(peripheralKey);
+  const [open, setOpen] = usePeripherals(peripheralKey)
 
-  const isNavigatingRef = React.useRef(false);
+  const isNavigatingRef = React.useRef(false)
 
-  if (users.length === 0) return null;
+  if (users.length === 0) return null
 
   return (
     <DropdownMenu
@@ -32,9 +32,9 @@ export function UsersCombobox({
         if (isNavigatingRef.current) {
           // setOpen(false);
           // navigation will cause it to close
-          isNavigatingRef.current = false;
+          isNavigatingRef.current = false
         } else {
-          setOpen(nextOpen);
+          setOpen(nextOpen)
         }
       }}
     >
@@ -48,8 +48,8 @@ export function UsersCombobox({
           <DropdownMenuItem
             key={user.id}
             asChild
-            onSelect={() => {
-              isNavigatingRef.current = true;
+            onClick={() => {
+              isNavigatingRef.current = true
             }}
           >
             <Link
@@ -72,5 +72,5 @@ export function UsersCombobox({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

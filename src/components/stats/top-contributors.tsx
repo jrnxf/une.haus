@@ -1,208 +1,181 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRightIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { ArrowLabel } from "~/components/arrow-label"
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Button } from "~/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "~/components/ui/tooltip";
+} from "~/components/ui/tooltip"
+import { cn } from "~/lib/utils"
+
+const STAT_COLS = [
+  {
+    key: "contentCount",
+    label: "content",
+    pts: 5,
+    dot: "bg-rose-500",
+    text: "text-rose-500",
+  },
+  {
+    key: "messagesCount",
+    label: "messages",
+    pts: 2,
+    dot: "bg-chart-4",
+    text: "text-chart-4",
+  },
+  {
+    key: "likesCount",
+    label: "likes",
+    pts: 1,
+    dot: "bg-chart-2",
+    text: "text-chart-2",
+  },
+] as const
+
+type Contributor = {
+  id: number
+  name: string
+  avatarId: string | null
+  contentCount: number
+  messagesCount: number
+  likesCount: number
+  totalPoints: number
+}
 
 type TopContributorsProps = {
-  data: {
-    id: number;
-    name: string;
-    avatarId: string | null;
-    riuSetsCount: number;
-    riuSubmissionsCount: number;
-    biuSetsCount: number;
-    siuStacksCount: number;
-    postsCount: number;
-    messagesCount: number;
-    likesCount: number;
-    totalPoints: number;
-  }[];
-};
+  data: Contributor[]
+}
 
 export function TopContributors({ data }: TopContributorsProps) {
   if (data.length === 0) {
     return (
       <Card className="py-4">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">
-            top contributors
-          </CardTitle>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">top users</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">no contributors yet</p>
+          <p className="text-muted-foreground text-sm">no users yet</p>
         </CardContent>
       </Card>
-    );
+    )
   }
 
-  const maxPoints = Math.max(...data.map((d) => d.totalPoints));
-
   return (
-    <Card className="py-4">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <Card className="gap-0 divide-y overflow-hidden py-0">
+      <CardHeader className="flex flex-row items-center justify-between py-4">
         <Tooltip>
           <TooltipTrigger asChild>
             <CardTitle className="cursor-help text-sm font-medium">
-              top contributors
+              top users
             </CardTitle>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-[220px] text-xs">
-            ranked by points: sets/submissions/posts (5pts), messages (2pts),
-            likes (1pt)
+            ranked by points: content (5pts), messages (2pts), likes (1pt)
           </TooltipContent>
         </Tooltip>
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/metrics/users" className="group">
+            <ArrowLabel>view all</ArrowLabel>
+          </Link>
+        </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {data.map((contributor, index) => {
-          const riuSetsPoints = contributor.riuSetsCount * 5;
-          const riuSubmissionsPoints = contributor.riuSubmissionsCount * 5;
-          const biuSetsPoints = contributor.biuSetsCount * 5;
-          const siuStacksPoints = contributor.siuStacksCount * 5;
-          const postsPoints = contributor.postsCount * 5;
-          const messagesPoints = contributor.messagesCount * 2;
-          const likesPoints = contributor.likesCount;
-
-          return (
-            <div key={contributor.id} className="flex items-center gap-2">
-              <span className="text-muted-foreground w-4 shrink-0 text-xs font-medium">
-                {index + 1}
-              </span>
-              <Link
-                to="/users/$userId"
-                params={{ userId: contributor.id }}
-                className="shrink-0"
-              >
-                <Avatar
-                  className="size-6"
-                  cloudflareId={contributor.avatarId}
-                  alt={contributor.name}
-                >
-                  <AvatarImage width={48} quality={80} />
-                  <AvatarFallback
-                    name={contributor.name}
-                    className="text-[10px]"
-                  />
-                </Avatar>
-              </Link>
-              <Link
-                to="/users/$userId"
-                params={{ userId: contributor.id }}
-                className="w-20 shrink-0 truncate text-sm font-medium hover:underline"
-              >
-                {contributor.name}
-              </Link>
-              <div className="flex flex-1 items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="bg-muted h-2 flex-1 cursor-help overflow-hidden rounded-full">
-                      <div className="flex h-full">
-                        <div
-                          className="h-full bg-rose-500 transition-all"
-                          style={{
-                            width: `${(riuSetsPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                        <div
-                          className="h-full bg-orange-500 transition-all"
-                          style={{
-                            width: `${(riuSubmissionsPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                        <div
-                          className="h-full bg-amber-500 transition-all"
-                          style={{
-                            width: `${(biuSetsPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                        <div
-                          className="h-full bg-lime-500 transition-all"
-                          style={{
-                            width: `${(siuStacksPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                        <div
-                          className="h-full bg-[var(--chart-3)] transition-all"
-                          style={{
-                            width: `${(postsPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                        <div
-                          className="h-full bg-[var(--chart-4)] transition-all"
-                          style={{
-                            width: `${(messagesPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                        <div
-                          className="h-full bg-[var(--chart-2)] transition-all"
-                          style={{
-                            width: `${(likesPoints / maxPoints) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-rose-500" />
-                        <span>{contributor.riuSetsCount} riu sets</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-orange-500" />
-                        <span>{contributor.riuSubmissionsCount} riu subs</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-amber-500" />
-                        <span>{contributor.biuSetsCount} biu sets</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-lime-500" />
-                        <span>{contributor.siuStacksCount} siu stacks</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-[var(--chart-3)]" />
-                        <span>{contributor.postsCount} posts</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-[var(--chart-4)]" />
-                        <span>{contributor.messagesCount} messages</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-2 rounded-full bg-[var(--chart-2)]" />
-                        <span>{contributor.likesCount} likes</span>
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-                <span className="text-muted-foreground w-8 shrink-0 text-right text-xs tabular-nums">
-                  {contributor.totalPoints}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+      <CardContent className="overflow-auto p-0 text-xs">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="h-7 w-[40px] max-w-[40px] min-w-[40px]">
+                #
+              </TableHead>
+              <TableHead className="h-7 w-[140px] max-w-[140px] min-w-[140px]">
+                user
+              </TableHead>
+              {STAT_COLS.map((col) => (
+                <TableHead key={col.key} className="h-7 text-right">
+                  <span className="flex items-center justify-end gap-1.5">
+                    <span
+                      className={cn("size-2 shrink-0 rounded-full", col.dot)}
+                    />
+                    {col.label}
+                    <span className="text-muted-foreground">
+                      &times;{col.pts}
+                    </span>
+                  </span>
+                </TableHead>
+              ))}
+              <TableHead className="h-7 text-right">pts</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.map((contributor, index) => (
+              <TableRow key={contributor.id} className="cursor-pointer">
+                <TableCell className="relative py-1.5">
+                  <span className="text-muted-foreground tabular-nums">
+                    {index + 1}
+                  </span>
+                </TableCell>
+                <TableCell className="relative py-1.5">
+                  <Link
+                    to="/users/$userId"
+                    params={{ userId: contributor.id }}
+                    className="flex items-center gap-2 after:absolute after:inset-0 after:content-['']"
+                  >
+                    <Avatar
+                      className="size-5"
+                      cloudflareId={contributor.avatarId}
+                      alt={contributor.name}
+                    >
+                      <AvatarImage width={40} quality={80} />
+                      <AvatarFallback
+                        name={contributor.name}
+                        className="text-[9px]"
+                      />
+                    </Avatar>
+                    <span className="truncate font-medium">
+                      {contributor.name}
+                    </span>
+                  </Link>
+                </TableCell>
+                {STAT_COLS.map((col) => {
+                  const val = contributor[col.key]
+                  return (
+                    <TableCell
+                      key={col.key}
+                      className="relative py-1.5 text-right"
+                    >
+                      <span
+                        className={cn(
+                          "tabular-nums",
+                          val > 0
+                            ? cn("font-medium", col.text)
+                            : "text-muted-foreground/30",
+                        )}
+                      >
+                        {val}
+                      </span>
+                    </TableCell>
+                  )
+                })}
+                <TableCell className="relative py-1.5 text-right">
+                  <span className="tabular-nums">
+                    {contributor.totalPoints}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
-      <CardFooter className="border-t px-2 pt-2">
-        <Link
-          to="/stats/contributors"
-          className="text-muted-foreground hover:text-foreground group flex w-full items-center justify-center gap-1.5 text-sm transition-colors"
-        >
-          view all contributors
-          <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </CardFooter>
     </Card>
-  );
+  )
 }

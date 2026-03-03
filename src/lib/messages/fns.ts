@@ -1,37 +1,36 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, asc, desc, eq } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, asc, desc, eq } from "drizzle-orm";
-
-import { db } from "~/db";
+import { db } from "~/db"
 import {
   biuSetMessages,
   chatMessages,
+  type NotificationEntityType,
   postMessages,
   riuSetMessages,
   riuSubmissionMessages,
-  siuStackMessages,
-  trickSubmissionMessages,
-  trickSuggestionMessages,
-  trickVideoMessages,
+  siuSetMessages,
   utvVideoMessages,
-  utvVideoSuggestionMessages,
-  type NotificationEntityType,
-} from "~/db/schema";
-import { invariant } from "~/lib/invariant";
+} from "~/db/schema"
+import { invariant } from "~/lib/invariant"
+import {
+  extractMentionedUserIds,
+  stripMentionTokensPlain,
+} from "~/lib/mentions/parse"
 import {
   createMessageSchema,
   deleteMessageSchema,
   listMessagesSchema,
+  type MessageParentType,
   recordWithMessagesTypes,
   updateMessageSchema,
-  type MessageParentType,
-} from "~/lib/messages/schemas";
-import { authMiddleware } from "~/lib/middleware";
+} from "~/lib/messages/schemas"
+import { authMiddleware } from "~/lib/middleware"
 import {
   createNotification,
   getContentOwner,
-} from "~/lib/notifications/helpers";
+} from "~/lib/notifications/helpers"
 
 export const listMessagesServerFn = createServerFn({
   method: "GET",
@@ -39,9 +38,7 @@ export const listMessagesServerFn = createServerFn({
   .inputValidator(zodValidator(listMessagesSchema))
   .handler(async ({ data: input }) => {
     if (input.type === "chat") {
-      const twentyEightDaysAgo = new Date(
-        Date.now() - 28 * 24 * 60 * 60 * 1000,
-      );
+      const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000)
 
       const chatMessagesWith = {
         likes: {
@@ -66,16 +63,16 @@ export const listMessagesServerFn = createServerFn({
             name: true,
           },
         },
-      } as const;
+      } as const
 
       // Get all messages from the last 28 days
       const recentMessages = await db.query.chatMessages.findMany({
         orderBy: asc(chatMessages.createdAt),
         where(fields, operators) {
-          return operators.gte(fields.createdAt, twentyEightDaysAgo);
+          return operators.gte(fields.createdAt, twentyEightDaysAgo)
         },
         with: chatMessagesWith,
-      });
+      })
 
       // If fewer than 100 messages, fetch older ones to reach 100
       if (recentMessages.length < 100) {
@@ -83,21 +80,21 @@ export const listMessagesServerFn = createServerFn({
           orderBy: desc(chatMessages.createdAt),
           limit: 100 - recentMessages.length,
           where(fields, operators) {
-            return operators.lt(fields.createdAt, twentyEightDaysAgo);
+            return operators.lt(fields.createdAt, twentyEightDaysAgo)
           },
           with: chatMessagesWith,
-        });
+        })
 
         return {
           type: "chatMessages" as const,
-          messages: [...olderMessages.reverse(), ...recentMessages],
-        };
+          messages: [...olderMessages.toReversed(), ...recentMessages],
+        }
       }
 
       return {
         type: "chatMessages" as const,
         messages: recentMessages,
-      };
+      }
     }
 
     if (input.type === "post") {
@@ -131,13 +128,13 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-      });
+      })
 
       return {
         type: "postMessages" as const,
         parentId: input.id,
         messages,
-      };
+      }
     }
 
     if (input.type === "riuSet") {
@@ -171,13 +168,13 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-      });
+      })
 
       return {
         type: "riuSetMessages" as const,
         parentId: input.id,
         messages,
-      };
+      }
     }
 
     if (input.type === "riuSubmission") {
@@ -211,13 +208,13 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-      });
+      })
 
       return {
         type: "riuSubmissionMessages" as const,
         parentId: input.id,
         messages,
-      };
+      }
     }
 
     if (input.type === "utvVideo") {
@@ -251,13 +248,13 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-      });
+      })
 
       return {
         type: "utvVideoMessages" as const,
         parentId: input.id,
         messages,
-      };
+      }
     }
 
     if (input.type === "biuSet") {
@@ -291,26 +288,26 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-      });
+      })
 
       return {
         type: "biuSetMessages" as const,
         parentId: input.id,
         messages,
-      };
+      }
     }
 
-    if (input.type === "siuStack") {
-      const messages = await db.query.siuStackMessages.findMany({
-        orderBy: asc(siuStackMessages.createdAt),
-        where: eq(siuStackMessages.siuStackId, input.id),
+    if (input.type === "siuSet") {
+      const messages = await db.query.siuSetMessages.findMany({
+        orderBy: asc(siuSetMessages.createdAt),
+        where: eq(siuSetMessages.siuSetId, input.id),
         columns: {
-          siuStackId: false,
+          siuSetId: false,
         },
         with: {
           likes: {
             columns: {
-              siuStackMessageId: false,
+              siuSetMessageId: false,
               userId: false,
             },
             with: {
@@ -331,177 +328,17 @@ export const listMessagesServerFn = createServerFn({
             },
           },
         },
-      });
+      })
 
       return {
-        type: "siuStackMessages" as const,
+        type: "siuSetMessages" as const,
         parentId: input.id,
         messages,
-      };
+      }
     }
 
-    if (input.type === "trickSubmission") {
-      const messages = await db.query.trickSubmissionMessages.findMany({
-        orderBy: asc(trickSubmissionMessages.createdAt),
-        where: eq(trickSubmissionMessages.submissionId, input.id),
-        columns: {
-          submissionId: false,
-        },
-        with: {
-          likes: {
-            columns: {
-              trickSubmissionMessageId: false,
-              userId: false,
-            },
-            with: {
-              user: {
-                columns: {
-                  avatarId: true,
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-          user: {
-            columns: {
-              avatarId: true,
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return {
-        type: "trickSubmissionMessages" as const,
-        parentId: input.id,
-        messages,
-      };
-    }
-
-    if (input.type === "trickSuggestion") {
-      const messages = await db.query.trickSuggestionMessages.findMany({
-        orderBy: asc(trickSuggestionMessages.createdAt),
-        where: eq(trickSuggestionMessages.suggestionId, input.id),
-        columns: {
-          suggestionId: false,
-        },
-        with: {
-          likes: {
-            columns: {
-              trickSuggestionMessageId: false,
-              userId: false,
-            },
-            with: {
-              user: {
-                columns: {
-                  avatarId: true,
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-          user: {
-            columns: {
-              avatarId: true,
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return {
-        type: "trickSuggestionMessages" as const,
-        parentId: input.id,
-        messages,
-      };
-    }
-
-    if (input.type === "utvVideoSuggestion") {
-      const messages = await db.query.utvVideoSuggestionMessages.findMany({
-        orderBy: asc(utvVideoSuggestionMessages.createdAt),
-        where: eq(utvVideoSuggestionMessages.suggestionId, input.id),
-        columns: {
-          suggestionId: false,
-        },
-        with: {
-          likes: {
-            columns: {
-              utvVideoSuggestionMessageId: false,
-              userId: false,
-            },
-            with: {
-              user: {
-                columns: {
-                  avatarId: true,
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-          user: {
-            columns: {
-              avatarId: true,
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return {
-        type: "utvVideoSuggestionMessages" as const,
-        parentId: input.id,
-        messages,
-      };
-    }
-
-    if (input.type === "trickVideo") {
-      const messages = await db.query.trickVideoMessages.findMany({
-        orderBy: asc(trickVideoMessages.createdAt),
-        where: eq(trickVideoMessages.trickVideoId, input.id),
-        columns: {
-          trickVideoId: false,
-        },
-        with: {
-          likes: {
-            columns: {
-              trickVideoMessageId: false,
-              userId: false,
-            },
-            with: {
-              user: {
-                columns: {
-                  avatarId: true,
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
-          user: {
-            columns: {
-              avatarId: true,
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      return {
-        type: "trickVideoMessages" as const,
-        parentId: input.id,
-        messages,
-      };
-    }
-
-    invariant(false, "Invalid type");
-  });
+    invariant(false, "Invalid type")
+  })
 
 // Map message parent types to notification entity types
 const MESSAGE_ENTITY_TYPES: Partial<
@@ -511,13 +348,9 @@ const MESSAGE_ENTITY_TYPES: Partial<
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",
   biuSet: "biuSet",
-  siuStack: "siuStack",
+  siuSet: "siuSet",
   utvVideo: "utvVideo",
-  utvVideoSuggestion: "utvVideoSuggestion",
-  trickSubmission: "trickSubmission",
-  trickSuggestion: "trickSuggestion",
-  trickVideo: "trickVideo",
-};
+}
 
 export const createMessageServerFn = createServerFn({
   method: "POST",
@@ -525,9 +358,9 @@ export const createMessageServerFn = createServerFn({
   .inputValidator(zodValidator(createMessageSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const { content, id, type } = input;
+    const { content, id, type } = input
 
     if (type === "post") {
       await db
@@ -537,7 +370,7 @@ export const createMessageServerFn = createServerFn({
           postId: id,
           userId,
         })
-        .returning();
+        .returning()
     }
 
     if (type === "chat") {
@@ -547,7 +380,7 @@ export const createMessageServerFn = createServerFn({
           content,
           userId,
         })
-        .returning();
+        .returning()
     }
 
     if (type === "riuSet") {
@@ -558,7 +391,7 @@ export const createMessageServerFn = createServerFn({
           riuSetId: id,
           userId,
         })
-        .returning();
+        .returning()
     }
 
     if (type === "riuSubmission") {
@@ -569,7 +402,7 @@ export const createMessageServerFn = createServerFn({
           riuSubmissionId: id,
           userId,
         })
-        .returning();
+        .returning()
     }
 
     if (type === "utvVideo") {
@@ -580,7 +413,7 @@ export const createMessageServerFn = createServerFn({
           utvVideoId: id,
           userId,
         })
-        .returning();
+        .returning()
     }
 
     if (type === "biuSet") {
@@ -591,68 +424,27 @@ export const createMessageServerFn = createServerFn({
           biuSetId: id,
           userId,
         })
-        .returning();
+        .returning()
     }
 
-    if (type === "siuStack") {
+    if (type === "siuSet") {
       await db
-        .insert(siuStackMessages)
+        .insert(siuSetMessages)
         .values({
           content,
-          siuStackId: id,
+          siuSetId: id,
           userId,
         })
-        .returning();
+        .returning()
     }
 
-    if (type === "trickSubmission") {
-      await db
-        .insert(trickSubmissionMessages)
-        .values({
-          content,
-          submissionId: id,
-          userId,
-        })
-        .returning();
-    }
+    const preview = stripMentionTokensPlain(content).slice(0, 100)
 
-    if (type === "trickSuggestion") {
-      await db
-        .insert(trickSuggestionMessages)
-        .values({
-          content,
-          suggestionId: id,
-          userId,
-        })
-        .returning();
-    }
-
-    if (type === "utvVideoSuggestion") {
-      await db
-        .insert(utvVideoSuggestionMessages)
-        .values({
-          content,
-          suggestionId: id,
-          userId,
-        })
-        .returning();
-    }
-
-    if (type === "trickVideo") {
-      await db
-        .insert(trickVideoMessages)
-        .values({
-          content,
-          trickVideoId: id,
-          userId,
-        })
-        .returning();
-    }
-
-    // Create notification for the content owner (skip chat as it has no owner)
-    const entityType = MESSAGE_ENTITY_TYPES[type];
+    // Create comment notification for the content owner (non-chat only)
+    const entityType = MESSAGE_ENTITY_TYPES[type]
+    let ownerId: number | null | undefined
     if (entityType) {
-      const ownerId = await getContentOwner(entityType, id);
+      ownerId = await getContentOwner(entityType, id)
       if (ownerId && ownerId !== userId) {
         createNotification({
           userId: ownerId,
@@ -663,12 +455,34 @@ export const createMessageServerFn = createServerFn({
           data: {
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
-            entityPreview: content.slice(0, 100),
+            entityPreview: preview,
           },
-        }).catch(console.error);
+        }).catch(console.error)
       }
     }
-  });
+
+    // Notify @mentioned users (works for all message types including chat)
+    const mentionedUserIds = extractMentionedUserIds(content)
+    const mentionEntityType = entityType ?? "chat"
+    const mentionEntityId = id ?? 0
+    for (const mentionedUserId of mentionedUserIds) {
+      if (mentionedUserId === userId) continue
+      if (mentionedUserId === ownerId) continue
+
+      createNotification({
+        userId: mentionedUserId,
+        actorId: userId,
+        type: "mention",
+        entityType: mentionEntityType,
+        entityId: mentionEntityId,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityPreview: preview,
+        },
+      }).catch(console.error)
+    }
+  })
 
 export const updateMessageServerFn = createServerFn({
   method: "POST",
@@ -676,17 +490,54 @@ export const updateMessageServerFn = createServerFn({
   .inputValidator(zodValidator(updateMessageSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const { content, id, type } = input;
+    const { content, id, type } = input
 
-    const table = getTableByType(type);
+    const table = getTableByType(type)
+
+    // Fetch old content for mention dedup
+    const existing = await db
+      .select({ content: table.content })
+      .from(table)
+      .where(and(eq(table.id, id), eq(table.userId, userId)))
+      .then((rows) => rows[0])
 
     await db
       .update(table)
       .set({ content, userId })
-      .where(and(eq(table.id, id), eq(table.userId, userId)));
-  });
+      .where(and(eq(table.id, id), eq(table.userId, userId)))
+
+    // Notify only newly added @mentions (not in old content)
+    if (existing) {
+      const oldMentions = new Set(extractMentionedUserIds(existing.content))
+      const newMentions = extractMentionedUserIds(content).filter(
+        (uid) => !oldMentions.has(uid),
+      )
+
+      const entityType = MESSAGE_ENTITY_TYPES[type]
+      const mentionEntityType = entityType ?? "chat"
+      const mentionEntityId = input.id ?? 0
+      const preview = stripMentionTokensPlain(content).slice(0, 100)
+
+      for (const mentionedUserId of newMentions) {
+        if (mentionedUserId === userId) continue
+
+        createNotification({
+          userId: mentionedUserId,
+          actorId: userId,
+          type: "mention",
+          entityType: mentionEntityType,
+          entityId: mentionEntityId,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+            entityPreview: preview,
+          },
+        }).catch(console.error)
+      }
+    }
+  })
 
 export const deleteMessageServerFn = createServerFn({
   method: "POST",
@@ -694,55 +545,43 @@ export const deleteMessageServerFn = createServerFn({
   .inputValidator(zodValidator(deleteMessageSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
-    const table = getTableByType(input.type);
+    const table = getTableByType(input.type)
 
     await db
       .delete(table)
-      .where(and(eq(table.id, input.id), eq(table.userId, userId)));
-  });
+      .where(and(eq(table.id, input.id), eq(table.userId, userId)))
+  })
 
 export const getTableByType = (type: MessageParentType) => {
   switch (type) {
     case "post": {
-      return postMessages;
+      return postMessages
     }
     case "chat": {
-      return chatMessages;
+      return chatMessages
     }
     case "riuSet": {
-      return riuSetMessages;
+      return riuSetMessages
     }
     case "riuSubmission": {
-      return riuSubmissionMessages;
+      return riuSubmissionMessages
     }
     case "utvVideo": {
-      return utvVideoMessages;
+      return utvVideoMessages
     }
     case "biuSet": {
-      return biuSetMessages;
+      return biuSetMessages
     }
-    case "siuStack": {
-      return siuStackMessages;
-    }
-    case "trickSubmission": {
-      return trickSubmissionMessages;
-    }
-    case "trickSuggestion": {
-      return trickSuggestionMessages;
-    }
-    case "utvVideoSuggestion": {
-      return utvVideoSuggestionMessages;
-    }
-    case "trickVideo": {
-      return trickVideoMessages;
+    case "siuSet": {
+      return siuSetMessages
     }
     default: {
       invariant(
         false,
         `Expected type to be one of ${recordWithMessagesTypes.join(", ")}. Received ${type}`,
-      );
+      )
     }
   }
-};
+}

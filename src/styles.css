@@ -1,5 +1,6 @@
 @import "tailwindcss" source("../");
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 
@@ -67,6 +68,22 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-bg: var(--destructive-bg);
+  --color-destructive-bg-hover: var(--destructive-bg-hover);
+  --color-destructive-border: var(--destructive-border);
+  --color-destructive-ring: var(--destructive-ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-bg: var(--info-bg);
+  --color-info-border: var(--info-border);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -83,6 +100,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-table-header: var(--table-header);
 }
 
 :root {
@@ -95,29 +113,46 @@
   --popover-foreground: oklch(0 0 0);
   --primary: oklch(17% 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 285);
+  --secondary: oklch(0.967 0 0);
   --secondary-foreground: oklch(17% 0 0);
-  --muted: oklch(0.967 0.001 285);
+  --muted: oklch(0.967 0 0);
   --muted-foreground: oklch(0.552 0.016 285);
-  --accent: oklch(0.967 0.001 285);
+  --accent: oklch(0.967 0 0);
   --accent-foreground: oklch(17% 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.55 0.2 27);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 285);
-  --input: oklch(0.92 0.004 285);
+  --destructive-bg: oklch(0.96 0.03 27);
+  --destructive-bg-hover: oklch(0.92 0.049 27);
+  --destructive-border: oklch(0.83 0.08 27);
+  --destructive-ring: oklch(0.92 0.049 27);
+  --success: oklch(0.52 0.17 142);
+  --success-foreground: oklch(0.3 0.08 142);
+  --success-bg: oklch(0.96 0.03 142);
+  --success-border: oklch(0.83 0.08 142);
+  --info: oklch(0.55 0.18 250);
+  --info-foreground: oklch(0.3 0.06 250);
+  --info-bg: oklch(0.96 0.03 250);
+  --info-border: oklch(0.83 0.08 250);
+  --warning: oklch(0.65 0.17 65);
+  --warning-foreground: oklch(0.3 0.06 65);
+  --warning-bg: oklch(0.96 0.03 65);
+  --warning-border: oklch(0.83 0.08 65);
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.92 0 0);
   --ring: oklch(0.705 0.015 285);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  --table-header: oklch(0.98 0 0);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0 0 0);
   --sidebar-primary: oklch(17% 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 285);
+  --sidebar-accent: oklch(0.967 0 0);
   --sidebar-accent-foreground: oklch(17% 0 0);
-  --sidebar-border: oklch(0.92 0.004 285);
+  --sidebar-border: oklch(0.92 0 0);
   --sidebar-ring: oklch(0.705 0.015 285);
 }
 
@@ -128,17 +163,33 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(17% 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 285);
+  --primary: oklch(0.92 0 0);
   --primary-foreground: oklch(17% 0 0);
-  --secondary: oklch(0.274 0 0);
+  --secondary: oklch(0.24 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0 0);
+  --muted: oklch(0.24 0 0);
   --muted-foreground: oklch(0.705 0.015 285);
-  --accent: oklch(0.274 0 0);
+  --accent: oklch(0.24 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(0.7 0.17 27);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
+  --destructive-bg: oklch(0.25 0.05 27);
+  --destructive-bg-hover: oklch(0.3 0.065 27);
+  --destructive-border: oklch(0.4 0.08 27);
+  --destructive-ring: oklch(0.3 0.065 27);
+  --success: oklch(0.7 0.17 142);
+  --success-foreground: oklch(0.985 0 0);
+  --success-bg: oklch(0.25 0.05 142);
+  --success-border: oklch(0.4 0.08 142);
+  --info: oklch(0.7 0.17 250);
+  --info-foreground: oklch(0.985 0 0);
+  --info-bg: oklch(0.25 0.05 250);
+  --info-border: oklch(0.4 0.08 250);
+  --warning: oklch(0.7 0.17 65);
+  --warning-foreground: oklch(0.985 0 0);
+  --warning-bg: oklch(0.25 0.05 65);
+  --warning-border: oklch(0.4 0.08 65);
+  --border: oklch(0.25 0 0);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285);
   --chart-1: oklch(0.488 0.243 264.376);
@@ -146,11 +197,12 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  --table-header: oklch(17% 0 0);
   --sidebar: oklch(17% 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent: oklch(0.24 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285);
@@ -205,17 +257,97 @@ mux-player::part(poster img) {
   This will hide the focus indicator if the element receives focus via the mouse,
   but it will still show up on keyboard focus.
 */
-.js-focus-visible :focus:not(.focus-visible):not([autofocus]) {
-  /* :not(input):not(textarea) because i don't want it to break when I'm using
+/* .js-focus-visible :focus:not(.focus-visible):not([autofocus]) { */
+/* :not(input):not(textarea) because i don't want it to break when I'm using
   autoFocus attributes */
-  outline: none;
-  /* tailwind actually uses box-shadow */
-  box-shadow: none;
-}
+/* outline: none; */
+/* tailwind actually uses box-shadow */
+/* box-shadow: none; */
+/* } */
 
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+
+/* Gradient scroll fade for ScrollArea viewports */
+[data-slot="sidebar-content"] [data-slot="scroll-area-viewport"] {
+  --scroll-fade-color: var(--sidebar);
+}
+
+[data-slot="dropdown-menu-content"] [data-slot="scroll-area-viewport"] {
+  --scroll-fade-color: var(--popover);
+}
+
+[data-slot="command-list"] [data-slot="scroll-area-viewport"] {
+  &::before,
+  &::after {
+    display: none;
+  }
+}
+
+[data-slot="scroll-area-viewport"] {
+  &::before,
+  &::after {
+    content: "";
+    display: block;
+    left: 0;
+    width: 100%;
+    position: absolute;
+    pointer-events: none;
+    transition: height 0.1s ease-out;
+    z-index: 1;
+  }
+
+  &::before {
+    --scroll-area-overflow-y-start: inherit;
+    top: 0;
+    height: min(40px, var(--scroll-area-overflow-y-start));
+    background: linear-gradient(
+      to bottom,
+      var(--scroll-fade-color, var(--background)),
+      transparent
+    );
+  }
+
+  &::after {
+    --scroll-area-overflow-y-end: inherit;
+    bottom: 0;
+    height: min(40px, var(--scroll-area-overflow-y-end, 40px));
+    background: linear-gradient(
+      to top,
+      var(--scroll-fade-color, var(--background)),
+      transparent
+    );
+  }
+}
+
+/* Center the TanStack devtools trigger at the bottom */
+button[aria-label="Open TanStack Devtools"] {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+/* Toast close button: inline, vertically centered, right-aligned */
+[data-sonner-toast] [data-close-button] {
+  position: static !important;
+  transform: none !important;
+  order: 9999;
+  width: 20px !important;
+  height: 20px !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+  color: currentColor !important;
+  opacity: 0.4;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1;
+  background: transparent !important;
 }
 
 /* Lowercase styling for interactive UI elements (buttons, menus, sidebar, etc.) */

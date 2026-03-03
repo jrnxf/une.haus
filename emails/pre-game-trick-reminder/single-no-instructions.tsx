@@ -1,4 +1,4 @@
-import PreGameTrickReminderTemplate from "../pre-game-trick-reminder";
+import PreGameTrickReminderTemplate from "../pre-game-trick-reminder"
 
 export default function SingleNoInstructions() {
   return (
@@ -9,5 +9,5 @@ export default function SingleNoInstructions() {
       unsubscribeReminderUrl="https://une.haus/unsubscribe?type=trick-reminder"
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
     />
-  );
+  )
 }

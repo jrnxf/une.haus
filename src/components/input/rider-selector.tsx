@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { GripVerticalIcon, Plus, X } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query"
+import { GripVerticalIcon, X } from "lucide-react"
+import { useMemo, useRef, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -10,37 +10,34 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "~/components/ui/command";
+} from "~/components/ui/command"
 import {
   Sortable,
   SortableItem,
   SortableItemHandle,
-} from "~/components/ui/sortable";
-import {
-  generateOrderId,
-  type OrderedRiderEntry,
-} from "~/lib/events/bracket";
-import { users as usersApi } from "~/lib/users";
-import { cn } from "~/lib/utils";
-import { useFzf } from "~/lib/ux/hooks/use-fzf";
+} from "~/components/ui/sortable"
+import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket"
+import { users as usersApi } from "~/lib/users"
+import { cn } from "~/lib/utils"
+import { useFzf } from "~/lib/ux/hooks/use-fzf"
 
 type User = {
-  id: number;
-  name: string;
-  avatarId: string | null;
-};
+  id: number
+  name: string
+  avatarId: string | null
+}
 
 export function RiderSelector({
   value,
   onChange,
 }: {
-  value: OrderedRiderEntry[];
-  onChange: (riders: OrderedRiderEntry[]) => void;
+  value: OrderedRiderEntry[]
+  onChange: (riders: OrderedRiderEntry[]) => void
 }) {
-  const [query, setQuery] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const { data: users = [] } = useQuery(usersApi.all.queryOptions());
+  const { data: users = [] } = useQuery(usersApi.all.queryOptions())
 
   const searchReadyUsers = useMemo(
     () =>
@@ -49,47 +46,44 @@ export function RiderSelector({
         searchKey: user.name.toLowerCase(),
       })),
     [users],
-  );
+  )
 
   const selectedUserIds = useMemo(
     () => new Set(value.filter((r) => r.userId).map((r) => r.userId)),
     [value],
-  );
+  )
 
-  const fzf = useFzf([
-    searchReadyUsers,
-    { selector: (user) => user.searchKey },
-  ]);
-  const allMatchingUsers = query ? fzf.find(query.toLowerCase()) : [];
+  const fzf = useFzf([searchReadyUsers, { selector: (user) => user.searchKey }])
+  const allMatchingUsers = query ? fzf.find(query.toLowerCase()) : []
   const filteredUsers = allMatchingUsers.filter(
     ({ item }) => !selectedUserIds.has(item.id),
-  );
+  )
 
   // Get user data for selected riders
   const usersMap = useMemo(() => {
-    const map = new Map<number, User>();
+    const map = new Map<number, User>()
     for (const user of users) {
-      map.set(user.id, user);
+      map.set(user.id, user)
     }
-    return map;
-  }, [users]);
+    return map
+  }, [users])
 
   const handleSelectUser = (user: User) => {
     // Check if already added
     if (value.some((r) => r.userId === user.id)) {
-      return;
+      return
     }
     onChange([
       ...value,
       { orderId: generateOrderId(), userId: user.id, name: user.name },
-    ]);
-    setQuery("");
-    inputRef.current?.focus();
-  };
+    ])
+    setQuery("")
+    inputRef.current?.focus()
+  }
 
   const handleAddCustom = () => {
-    const trimmed = query.trim();
-    if (!trimmed) return;
+    const trimmed = query.trim()
+    if (!trimmed) return
     // Check if already added (as custom name)
     if (
       value.some(
@@ -97,12 +91,12 @@ export function RiderSelector({
           r.name?.toLowerCase() === trimmed.toLowerCase() && r.userId === null,
       )
     ) {
-      return;
+      return
     }
     // Check if it matches an existing user exactly - add them instead
     const exactMatch = users.find(
       (u) => u.name.toLowerCase() === trimmed.toLowerCase(),
-    );
+    )
     if (exactMatch && !value.some((r) => r.userId === exactMatch.id)) {
       onChange([
         ...value,
@@ -111,48 +105,48 @@ export function RiderSelector({
           userId: exactMatch.id,
           name: exactMatch.name,
         },
-      ]);
+      ])
     } else if (!exactMatch) {
       onChange([
         ...value,
         { orderId: generateOrderId(), userId: null, name: trimmed },
-      ]);
+      ])
     }
-    setQuery("");
-    inputRef.current?.focus();
-  };
+    setQuery("")
+    inputRef.current?.focus()
+  }
 
   const handleRemove = (orderId: string) => {
-    onChange(value.filter((r) => r.orderId !== orderId));
-  };
+    onChange(value.filter((r) => r.orderId !== orderId))
+  }
 
   // Check if query exactly matches a user or is already added
-  const trimmedQuery = query.trim();
+  const trimmedQuery = query.trim()
   const exactUserMatch = users.find(
     (u) => u.name.toLowerCase() === trimmedQuery.toLowerCase(),
-  );
+  )
   const isAlreadyAdded = exactUserMatch
     ? value.some((r) => r.userId === exactUserMatch.id)
     : value.some(
         (r) =>
           r.name?.toLowerCase() === trimmedQuery.toLowerCase() &&
           r.userId === null,
-      );
+      )
 
-  const showAddCustom = trimmedQuery && !isAlreadyAdded;
+  const showAddCustom = trimmedQuery && !isAlreadyAdded
 
   // Determine what name to show for "already in bracket" message
-  let alreadyAddedName: string | null = null;
+  let alreadyAddedName: string | null = null
   if (isAlreadyAdded) {
     // Exact match (user or custom name) is already added
-    alreadyAddedName = exactUserMatch?.name ?? trimmedQuery;
+    alreadyAddedName = exactUserMatch?.name ?? trimmedQuery
   } else if (allMatchingUsers.length > 0 && filteredUsers.length === 0) {
     // All fuzzy matches are already added
-    alreadyAddedName = allMatchingUsers[0]?.item.name ?? null;
+    alreadyAddedName = allMatchingUsers[0]?.item.name ?? null
   }
 
   const hasDropdownItems =
-    query && (filteredUsers.length > 0 || showAddCustom || alreadyAddedName);
+    query && (filteredUsers.length > 0 || showAddCustom || alreadyAddedName)
 
   return (
     <div className="space-y-2">
@@ -170,7 +164,7 @@ export function RiderSelector({
               hasDropdownItems && "border-transparent",
             )}
             ref={inputRef}
-            placeholder="search users or add a custom name..."
+            placeholder="search..."
             value={query}
             onValueChange={setQuery}
             onKeyDown={(e) => {
@@ -181,8 +175,8 @@ export function RiderSelector({
                 !isAlreadyAdded &&
                 filteredUsers.length === 0
               ) {
-                e.preventDefault();
-                handleAddCustom();
+                e.preventDefault()
+                handleAddCustom()
               }
             }}
           />
@@ -200,17 +194,6 @@ export function RiderSelector({
                       value={user.id.toString()}
                       onSelect={() => handleSelectUser(user)}
                     >
-                      <Avatar
-                        className="size-5"
-                        cloudflareId={user.avatarId}
-                        alt={user.name}
-                      >
-                        <AvatarImage width={20} quality={85} />
-                        <AvatarFallback
-                          className="text-[10px]"
-                          name={user.name}
-                        />
-                      </Avatar>
                       <span>{user.name}</span>
                     </CommandItem>
                   ))}
@@ -220,9 +203,8 @@ export function RiderSelector({
                       onSelect={handleAddCustom}
                       className="text-muted-foreground"
                     >
-                      <Plus className="size-4" />
                       <span>
-                        Add "
+                        "
                         <span className="text-foreground font-medium">
                           {trimmedQuery}
                         </span>
@@ -245,15 +227,15 @@ export function RiderSelector({
           className="space-y-1"
         >
           {value.map((rider, index) => {
-            const user = rider.userId ? usersMap.get(rider.userId) : null;
-            const displayName = user?.name ?? rider.name ?? "Unknown";
-            const seed = index + 1;
+            const user = rider.userId ? usersMap.get(rider.userId) : null
+            const displayName = user?.name ?? rider.name ?? "Unknown"
+            const seed = index + 1
 
             return (
               <SortableItem
                 key={rider.orderId}
                 value={rider.orderId}
-                className="bg-muted/50 flex items-center gap-2 rounded-md border px-2 py-1.5"
+                className="bg-muted/70 flex items-center gap-2 rounded-md border px-2 py-1.5"
               >
                 <SortableItemHandle className="text-muted-foreground hover:text-foreground">
                   <GripVerticalIcon className="size-4" />
@@ -261,35 +243,23 @@ export function RiderSelector({
                 <span className="text-muted-foreground w-4 text-center text-xs font-medium tabular-nums">
                   {seed}
                 </span>
-                {user ? (
-                  <Avatar
-                    className="size-5"
-                    cloudflareId={user.avatarId}
-                    alt={user.name}
-                  >
-                    <AvatarImage width={20} quality={85} />
-                    <AvatarFallback className="text-[10px]" name={user.name} />
-                  </Avatar>
-                ) : (
-                  <div className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded-full text-[10px] font-medium">
-                    {displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
                 <span className="min-w-0 flex-1 truncate text-sm">
                   {displayName}
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-xs"
                   onClick={() => handleRemove(rider.orderId)}
-                  className="text-muted-foreground hover:text-foreground rounded-sm p-0.5"
+                  aria-label={`Remove ${displayName}`}
                 >
                   <X className="size-3.5" />
-                </button>
+                </Button>
               </SortableItem>
-            );
+            )
           })}
         </Sortable>
       )}
     </div>
-  );
+  )
 }

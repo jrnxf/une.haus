@@ -1,18 +1,17 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start"
+import { zodValidator } from "@tanstack/zod-adapter"
+import { and, count, desc, eq, isNull, lt, sql } from "drizzle-orm"
 
-import { zodValidator } from "@tanstack/zod-adapter";
-import { and, count, desc, eq, isNull, lt, sql } from "drizzle-orm";
-
-import { db } from "~/db";
-import { notifications } from "~/db/schema";
-import { authMiddleware } from "~/lib/middleware";
+import { db } from "~/db"
+import { notifications } from "~/db/schema"
+import { authMiddleware } from "~/lib/middleware"
 import {
   deleteNotificationSchema,
   listNotificationsSchema,
   markAllReadSchema,
   markGroupReadSchema,
   markReadSchema,
-} from "~/lib/notifications/schemas";
+} from "~/lib/notifications/schemas"
 
 export const listNotificationsServerFn = createServerFn({
   method: "GET",
@@ -20,18 +19,18 @@ export const listNotificationsServerFn = createServerFn({
   .inputValidator(zodValidator(listNotificationsSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
-    const { cursor, limit, unreadOnly } = input;
+    const userId = context.user.id
+    const { cursor, limit, unreadOnly } = input
 
     // Build where conditions
-    const conditions = [eq(notifications.userId, userId)];
+    const conditions = [eq(notifications.userId, userId)]
 
     if (cursor) {
-      conditions.push(lt(notifications.id, cursor));
+      conditions.push(lt(notifications.id, cursor))
     }
 
     if (unreadOnly) {
-      conditions.push(isNull(notifications.readAt));
+      conditions.push(isNull(notifications.readAt))
     }
 
     const results = await db.query.notifications.findMany({
@@ -47,17 +46,17 @@ export const listNotificationsServerFn = createServerFn({
           },
         },
       },
-    });
+    })
 
-    const hasMore = results.length > limit;
-    const items = hasMore ? results.slice(0, -1) : results;
-    const nextCursor = hasMore ? items.at(-1)?.id : undefined;
+    const hasMore = results.length > limit
+    const items = hasMore ? results.slice(0, -1) : results
+    const nextCursor = hasMore ? items.at(-1)?.id : undefined
 
     return {
       items,
       nextCursor,
-    };
-  });
+    }
+  })
 
 export const listGroupedNotificationsServerFn = createServerFn({
   method: "GET",
@@ -65,14 +64,14 @@ export const listGroupedNotificationsServerFn = createServerFn({
   .inputValidator(zodValidator(listNotificationsSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
-    const { limit, unreadOnly } = input;
+    const userId = context.user.id
+    const { limit, unreadOnly } = input
 
     // Build where conditions for grouping query
-    const whereConditions = [eq(notifications.userId, userId)];
+    const whereConditions = [eq(notifications.userId, userId)]
 
     if (unreadOnly) {
-      whereConditions.push(isNull(notifications.readAt));
+      whereConditions.push(isNull(notifications.readAt))
     }
 
     // Group notifications by type, entityType, and entityId
@@ -107,19 +106,8 @@ export const listGroupedNotificationsServerFn = createServerFn({
                     ) top_actors
                   )
         `,
-        // Get the data from the most recent notification
-        data: sql<string>`
-          (
-                    SELECT data::text
-                    FROM ${notifications} n3
-                    WHERE n3.user_id = ${userId}
-                      AND n3.type = ${notifications.type}
-                      AND n3.entity_type = ${notifications.entityType}
-                      AND n3.entity_id = ${notifications.entityId}
-                    ORDER BY created_at DESC
-                    LIMIT 1
-                  )
-        `,
+        // Get the data from the most recent notification in this group
+        data: sql<string>`(array_agg(${notifications.data}::text ORDER BY ${notifications.createdAt} DESC))[1]`,
       })
       .from(notifications)
       .where(and(...whereConditions))
@@ -129,10 +117,10 @@ export const listGroupedNotificationsServerFn = createServerFn({
         notifications.entityId,
       )
       .orderBy(sql`MAX(${notifications.createdAt}) DESC`)
-      .limit(limit);
+      .limit(limit)
 
     // Fetch actor details for the grouped notifications
-    const allActorIds = [...new Set(grouped.flatMap((g) => g.actorIds || []))];
+    const allActorIds = [...new Set(grouped.flatMap((g) => g.actorIds || []))]
 
     const actorDetails =
       allActorIds.length > 0
@@ -144,9 +132,9 @@ export const listGroupedNotificationsServerFn = createServerFn({
               avatarId: true,
             },
           })
-        : [];
+        : []
 
-    const actorMap = new Map(actorDetails.map((a) => [a.id, a]));
+    const actorMap = new Map(actorDetails.map((a) => [a.id, a]))
 
     return grouped.map((g) => ({
       type: g.type,
@@ -158,25 +146,25 @@ export const listGroupedNotificationsServerFn = createServerFn({
       isRead: g.isRead,
       actors: (g.actorIds || []).map((id) => actorMap.get(id)).filter(Boolean),
       data: g.data ? JSON.parse(g.data) : null,
-    }));
-  });
+    }))
+  })
 
 export const getUnreadCountServerFn = createServerFn({
   method: "GET",
 })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     const [result] = await db
       .select({ count: count() })
       .from(notifications)
       .where(
         and(eq(notifications.userId, userId), isNull(notifications.readAt)),
-      );
+      )
 
-    return result?.count ?? 0;
-  });
+    return result?.count ?? 0
+  })
 
 export const markReadServerFn = createServerFn({
   method: "POST",
@@ -184,7 +172,7 @@ export const markReadServerFn = createServerFn({
   .inputValidator(zodValidator(markReadSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     await db
       .update(notifications)
@@ -194,8 +182,8 @@ export const markReadServerFn = createServerFn({
           eq(notifications.id, input.notificationId),
           eq(notifications.userId, userId),
         ),
-      );
-  });
+      )
+  })
 
 export const markGroupReadServerFn = createServerFn({
   method: "POST",
@@ -203,7 +191,7 @@ export const markGroupReadServerFn = createServerFn({
   .inputValidator(zodValidator(markGroupReadSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     // Mark all notifications in this group as read
     await db
@@ -215,8 +203,8 @@ export const markGroupReadServerFn = createServerFn({
           eq(notifications.entityType, input.entityType),
           eq(notifications.entityId, input.entityId),
         ),
-      );
-  });
+      )
+  })
 
 export const markAllReadServerFn = createServerFn({
   method: "POST",
@@ -224,15 +212,15 @@ export const markAllReadServerFn = createServerFn({
   .inputValidator(zodValidator(markAllReadSchema))
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     await db
       .update(notifications)
       .set({ readAt: new Date() })
       .where(
         and(eq(notifications.userId, userId), isNull(notifications.readAt)),
-      );
-  });
+      )
+  })
 
 export const deleteNotificationServerFn = createServerFn({
   method: "POST",
@@ -240,7 +228,7 @@ export const deleteNotificationServerFn = createServerFn({
   .inputValidator(zodValidator(deleteNotificationSchema))
   .middleware([authMiddleware])
   .handler(async ({ data: input, context }) => {
-    const userId = context.user.id;
+    const userId = context.user.id
 
     await db
       .delete(notifications)
@@ -249,5 +237,5 @@ export const deleteNotificationServerFn = createServerFn({
           eq(notifications.id, input.notificationId),
           eq(notifications.userId, userId),
         ),
-      );
-  });
+      )
+  })

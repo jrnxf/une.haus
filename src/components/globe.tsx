@@ -1,49 +1,45 @@
-import { useEffect, useRef } from "react";
+import createGlobe from "cobe"
+import { useEffect, useRef } from "react"
 
-import createGlobe from "cobe";
-
-import { useTheme } from "~/lib/theme/context";
-import { cn } from "~/lib/utils";
+import { useTheme } from "~/lib/theme/context"
+import { cn } from "~/lib/utils"
 
 type Coordinates = {
-  lat: number;
-  lng: number;
-};
+  lat: number
+  lng: number
+}
 
-const THETA_OFFSET = -0.4;
-const DOUBLE_PI = Math.PI * 2;
+const THETA_OFFSET = -0.4
+const DOUBLE_PI = Math.PI * 2
 
 const locationToPhiTheta = ({ lat, lng }: Coordinates): [number, number] => {
   return [
     Math.PI - ((lng * Math.PI) / 180 - Math.PI / 2), // phi
     (lat * Math.PI) / 180 + THETA_OFFSET, // theta
-  ];
-};
+  ]
+}
 
 export function Globe(props: { location: Coordinates | null | undefined }) {
-  const canvasReference = useRef<HTMLCanvasElement>(null);
+  const canvasReference = useRef<HTMLCanvasElement>(null)
 
-  const { resolvedTheme } = useTheme();
-  const globeRef = useRef<null | ReturnType<typeof createGlobe>>(null);
-  const noLocation = props.location === undefined;
-  const nextLocation = useRef<Coordinates>(
-    props.location ?? { lat: 0, lng: 0 },
-  );
-  const skipAnimation = useRef(false);
+  const { resolvedTheme } = useTheme()
+  const globeRef = useRef<null | ReturnType<typeof createGlobe>>(null)
+  const nextLocation = useRef<Coordinates>(props.location ?? { lat: 0, lng: 0 })
+  const skipAnimation = useRef(false)
 
   // Handle globe initialization and animation
   useEffect(() => {
-    const canvas = canvasReference.current;
-    if (!canvas) return;
+    const canvas = canvasReference.current
+    if (!canvas) return
 
     // const width = 200;
-    let width = canvas.offsetWidth;
+    let width = canvas.offsetWidth
     const setWidth = () => {
-      width = canvas.offsetWidth;
-    };
-    window.addEventListener("resize", setWidth);
+      width = canvas.offsetWidth
+    }
+    window.addEventListener("resize", setWidth)
 
-    let [currentPhi, currentTheta] = locationToPhiTheta(nextLocation.current);
+    let [currentPhi, currentTheta] = locationToPhiTheta(nextLocation.current)
 
     const globe = createGlobe(canvas, {
       baseColor: [1, 1, 1],
@@ -63,41 +59,41 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
             location: [nextLocation.current.lat, nextLocation.current.lng],
             size: 0.1,
           },
-        ];
+        ]
 
-        const [focusPhi, focusTheta] = locationToPhiTheta(nextLocation.current);
+        const [focusPhi, focusTheta] = locationToPhiTheta(nextLocation.current)
 
         // Skip animation on back navigation (popstate)
         if (skipAnimation.current) {
-          currentPhi = focusPhi;
-          currentTheta = focusTheta;
-          skipAnimation.current = false;
+          currentPhi = focusPhi
+          currentTheta = focusTheta
+          skipAnimation.current = false
         } else {
           // Calculate shortest rotation path
           const distributionPositive =
-            (focusPhi - currentPhi + DOUBLE_PI) % DOUBLE_PI;
+            (focusPhi - currentPhi + DOUBLE_PI) % DOUBLE_PI
           const distributionNegative =
-            (currentPhi - focusPhi + DOUBLE_PI) % DOUBLE_PI;
+            (currentPhi - focusPhi + DOUBLE_PI) % DOUBLE_PI
 
           // Smoothly rotate to target
           currentPhi +=
             (distributionPositive < distributionNegative
               ? distributionPositive
-              : -distributionNegative) * 0.08;
-          currentTheta = currentTheta * 0.92 + focusTheta * 0.08;
+              : -distributionNegative) * 0.08
+          currentTheta = currentTheta * 0.92 + focusTheta * 0.08
         }
 
-        state.phi = currentPhi;
-        state.theta = currentTheta;
-        state.width = width * 2;
-        state.height = width * 2;
+        state.phi = currentPhi
+        state.theta = currentTheta
+        state.width = width * 2
+        state.height = width * 2
       },
       phi: currentPhi,
       scale: 1,
       theta: currentTheta,
       width: width * 2,
-    });
-    globeRef.current = globe;
+    })
+    globeRef.current = globe
 
     // // Handle opacity transition
     // setTimeout(() => {
@@ -105,9 +101,9 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
     // });
 
     return () => {
-      window.removeEventListener("resize", setWidth);
-    };
-  }, [nextLocation, noLocation, resolvedTheme]);
+      window.removeEventListener("resize", setWidth)
+    }
+  }, [resolvedTheme])
 
   // When COBE unmounts on refresh you see a gross white flash - this makes sure
   // to animate out the canvas before that flash occurs
@@ -134,18 +130,18 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
       (nextLocation.current.lat !== props.location.lat ||
         nextLocation.current.lng !== props.location.lng)
     ) {
-      nextLocation.current = props.location;
+      nextLocation.current = props.location
     }
-  }, [props.location]);
+  }, [props.location])
 
   // Skip animation on back/forward navigation
   useEffect(() => {
     const handlePopState = () => {
-      skipAnimation.current = true;
-    };
-    globalThis.addEventListener("popstate", handlePopState);
-    return () => globalThis.removeEventListener("popstate", handlePopState);
-  }, []);
+      skipAnimation.current = true
+    }
+    globalThis.addEventListener("popstate", handlePopState)
+    return () => globalThis.removeEventListener("popstate", handlePopState)
+  }, [])
 
   return (
     <div className="relative aspect-square size-full">
@@ -158,5 +154,5 @@ export function Globe(props: { location: Coordinates | null | undefined }) {
         ref={canvasReference}
       />
     </div>
-  );
+  )
 }

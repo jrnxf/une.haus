@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 export const submitFeedbackSchema = z.object({
   content: z
@@ -19,6 +19,6 @@ export const submitFeedbackSchema = z.object({
     ])
     .optional()
     .nullable(),
-});
+})
 
-export type SubmitFeedbackArgs = z.infer<typeof submitFeedbackSchema>;
+export type SubmitFeedbackArgs = z.infer<typeof submitFeedbackSchema>

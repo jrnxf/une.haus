@@ -1,10 +1,10 @@
-import { Loader2Icon, SearchIcon } from "lucide-react";
-import * as React from "react";
-import { createContext, useContext } from "react";
+import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
+import { Command as CommandPrimitive } from "cmdk"
+import { Loader2Icon, SearchIcon } from "lucide-react"
+import * as React from "react"
+import { createContext, useContext } from "react"
 
-import { Command as CommandPrimitive } from "cmdk";
-
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -12,11 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
-import { Kbd, KbdGroup } from "~/components/ui/kbd";
-import { cn } from "~/lib/utils";
+} from "~/components/ui/dialog"
+import { Kbd, KbdGroup } from "~/components/ui/kbd"
+import { ScrollBar } from "~/components/ui/scroll-area"
+import { useModifierKey } from "~/hooks/use-modifier-key"
+import { cn } from "~/lib/utils"
 
-const CommandLoading = CommandPrimitive.Loading;
+const CommandLoading = CommandPrimitive.Loading
 
 function Command({
   className,
@@ -26,7 +28,7 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+        "text-popover-foreground dark:bg-input/30 flex h-full w-full flex-col overflow-hidden rounded-md bg-transparent",
         // flips the command input and list if the popover is on top - means the input is always close to the trigger
         "group-data-[side=top]/popover-content:flex-col-reverse",
         className,
@@ -34,40 +36,44 @@ function Command({
       {...props}
       loop
     />
-  );
+  )
 }
 
 function CommandDialog({
-  title = "Command Palette",
+  title = "command palette",
   description = "Search for a command to run...",
   children,
   className,
   showCloseButton = true,
   showTrigger = true,
+  overlay,
   footer,
   onValueChange,
   value,
   shouldFilter = true,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
-  children?: React.ReactNode;
-  title?: string;
-  description?: string;
-  className?: string;
-  showCloseButton?: boolean;
-  showTrigger?: boolean;
-  footer?: React.ReactNode;
-  onValueChange?: (value: string) => void;
-  value?: string;
-  shouldFilter?: boolean;
+  children?: React.ReactNode
+  title?: string
+  description?: string
+  className?: string
+  showCloseButton?: boolean
+  showTrigger?: boolean
+  overlay?: boolean
+  footer?: React.ReactNode
+  onValueChange?: (value: string) => void
+  value?: string
+  shouldFilter?: boolean
 }) {
+  const modifierKey = useModifierKey()
+
   return (
     <Dialog {...props}>
       {showTrigger && (
         <DialogTrigger asChild>
-          <Button aria-label="Open command menu" size="sm" variant="ghost">
+          <Button aria-label="open command palette" size="sm" variant="ghost">
             <KbdGroup>
-              <Kbd>⌘</Kbd>
+              <Kbd>{modifierKey}</Kbd>
               <Kbd>K</Kbd>
             </KbdGroup>
           </Button>
@@ -79,6 +85,7 @@ function CommandDialog({
           className,
         )}
         showCloseButton={showCloseButton}
+        overlay={overlay}
       >
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>
@@ -88,14 +95,14 @@ function CommandDialog({
           value={value}
           onValueChange={onValueChange}
           shouldFilter={shouldFilter}
-          className="**:[[cmdk-group-heading]]:text-muted-foreground min-h-0 flex-1 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input-wrapper]]:min-h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2"
+          className="**:[[cmdk-group-heading]]:text-muted-foreground min-h-0 flex-1 rounded-none [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input-wrapper]]:min-h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2"
         >
           {children}
         </Command>
         {footer}
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 function CommandEmpty({
@@ -107,7 +114,7 @@ function CommandEmpty({
       className="text-muted-foreground py-3 text-center text-sm"
       {...props}
     />
-  );
+  )
 }
 
 function CommandGroup({
@@ -124,14 +131,14 @@ function CommandGroup({
       )}
       {...props}
     />
-  );
+  )
 }
 
 const CommandInput = React.forwardRef<
   React.ComponentRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
-    isFetching?: boolean;
-    containerClassName?: string;
+    isFetching?: boolean
+    containerClassName?: string
   }
 >(({ className, isFetching, containerClassName, ...props }, ref) => {
   return (
@@ -145,9 +152,9 @@ const CommandInput = React.forwardRef<
       data-slot="command-input-wrapper"
     >
       {isFetching ? (
-        <Loader2Icon className="text-muted-foreground size-4 shrink-0 animate-spin" />
+        <Loader2Icon className="text-muted-foreground size-3.5 shrink-0 animate-spin" />
       ) : (
-        <SearchIcon className="text-muted-foreground size-4 shrink-0" />
+        <SearchIcon className="text-muted-foreground size-3.5 shrink-0" />
       )}
       <CommandPrimitive.Input
         ref={ref}
@@ -159,9 +166,9 @@ const CommandInput = React.forwardRef<
         {...props}
       />
     </div>
-  );
-});
-CommandInput.displayName = "CommandInput";
+  )
+})
+CommandInput.displayName = "CommandInput"
 
 function CommandItem({
   className,
@@ -178,24 +185,37 @@ function CommandItem({
       )}
       {...props}
     />
-  );
+  )
 }
 
 const CommandList = React.forwardRef<
-  React.ComponentRef<typeof CommandPrimitive.List>,
+  HTMLDivElement,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.List
-    ref={ref}
+>(({ className, children, ...props }, ref) => (
+  <ScrollAreaPrimitive.Root
     data-slot="command-list"
     className={cn(
-      "max-h-full min-h-0 grow scroll-py-1 overflow-x-hidden overflow-y-auto not-last-of-type:pb-1",
+      "relative flex min-h-0 grow flex-col overflow-hidden not-last-of-type:pb-1",
       className,
     )}
-    {...props}
-  />
-));
-CommandList.displayName = "CommandList";
+  >
+    <ScrollAreaPrimitive.Viewport
+      ref={ref}
+      data-slot="scroll-area-viewport"
+      className="min-h-0 w-full flex-1"
+    >
+      <CommandPrimitive.List
+        className="!max-h-[none] !overflow-visible"
+        {...props}
+      >
+        {children}
+      </CommandPrimitive.List>
+    </ScrollAreaPrimitive.Viewport>
+    <ScrollBar />
+    <ScrollAreaPrimitive.Corner />
+  </ScrollAreaPrimitive.Root>
+))
+CommandList.displayName = "CommandList"
 
 function CommandSeparator({
   className,
@@ -207,7 +227,7 @@ function CommandSeparator({
       className={cn("bg-border -mx-1 h-px", className)}
       {...props}
     />
-  );
+  )
 }
 
 function CommandShortcut({
@@ -223,70 +243,66 @@ function CommandShortcut({
       )}
       {...props}
     />
-  );
+  )
 }
 
 // Action system types
 type CommandAction = {
-  id: string;
-  label: string;
+  id: string
+  label: string
   shortcut?: {
-    key: string;
-    meta?: boolean;
-    shift?: boolean;
-    ctrl?: boolean;
-  };
-  onAction: () => void;
-};
+    key: string
+    meta?: boolean
+    shift?: boolean
+    ctrl?: boolean
+  }
+  onAction: () => void
+}
 
 type CommandActionsContextValue = {
-  actions: CommandAction[];
-  setActions: (actions: CommandAction[]) => void;
-};
+  actions: CommandAction[]
+  setActions: (actions: CommandAction[]) => void
+}
 
 const CommandActionsContext = createContext<CommandActionsContextValue | null>(
   null,
-);
+)
 
 function useCommandActions() {
-  const context = useContext(CommandActionsContext);
+  const context = useContext(CommandActionsContext)
   if (!context) {
     throw new Error(
       "useCommandActions must be used within CommandActionsProvider",
-    );
+    )
   }
-  return context;
+  return context
 }
 
 function CommandActionsProvider({ children }: { children: React.ReactNode }) {
-  const [actions, setActions] = React.useState<CommandAction[]>([]);
+  const [actions, setActions] = React.useState<CommandAction[]>([])
 
   return (
     <CommandActionsContext.Provider value={{ actions, setActions }}>
       {children}
     </CommandActionsContext.Provider>
-  );
+  )
 }
 
 function CommandFooter({ className }: { className?: string }) {
-  const { actions } = useCommandActions();
+  const { actions } = useCommandActions()
+  const metaKey = useModifierKey()
 
-  if (actions.length === 0) return null;
-
-  const isMac =
-    typeof navigator !== "undefined" &&
-    /Mac|iPhone|iPad/.test(navigator.userAgent);
-  const metaKey = isMac ? "⌘" : "Ctrl";
+  if (actions.length === 0) return null
 
   const formatShortcut = (shortcut: CommandAction["shortcut"]) => {
-    if (!shortcut) return null;
-    const parts: string[] = [];
-    if (shortcut.meta) parts.push(metaKey);
-    if (shortcut.ctrl) parts.push("Ctrl");
-    if (shortcut.shift) parts.push("⇧");
-    parts.push(shortcut.key.toUpperCase());
-    return parts;
-  };
+    if (!shortcut) return null
+    const parts: string[] = []
+    if (shortcut.meta) parts.push(metaKey)
+    if (shortcut.ctrl) parts.push("Ctrl")
+    if (shortcut.shift) parts.push("⇧")
+    parts.push(shortcut.key.toUpperCase())
+    return parts
+  }
 
   return (
     <div
@@ -297,8 +313,8 @@ function CommandFooter({ className }: { className?: string }) {
       )}
     >
       {actions.map((action, index) => {
-        const shortcutParts = formatShortcut(action.shortcut);
-        const isPrimary = index === 0;
+        const shortcutParts = formatShortcut(action.shortcut)
+        const isPrimary = index === 0
 
         return (
           <button
@@ -321,13 +337,13 @@ function CommandFooter({ className }: { className?: string }) {
               </span>
             )}
           </button>
-        );
+        )
       })}
     </div>
-  );
+  )
 }
 
-export { Kbd, KbdGroup } from "~/components/ui/kbd";
+export { Kbd, KbdGroup } from "~/components/ui/kbd"
 export {
   Command,
   CommandActionsProvider,
@@ -342,5 +358,5 @@ export {
   CommandSeparator,
   CommandShortcut,
   useCommandActions,
-};
-export type { CommandAction };
+}
+export type { CommandAction }

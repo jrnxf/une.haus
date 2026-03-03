@@ -1,8 +1,10 @@
-import type {
-  NotificationData,
-  NotificationEntityType,
-  NotificationType,
-} from "~/db/schema";
+import pluralize from "pluralize"
+
+import {
+  type NotificationData,
+  type NotificationEntityType,
+  type NotificationType,
+} from "~/db/schema"
 
 /**
  * Get the URL to navigate to when clicking a notification
@@ -13,34 +15,49 @@ export function getNotificationUrl(
   data?: NotificationData | null,
 ): string {
   switch (entityType) {
+    case "chat": {
+      return "/chat"
+    }
     case "post": {
-      return `/posts/${entityId}`;
+      return `/posts/${entityId}`
     }
     case "riuSet": {
-      return `/games/rius/sets/${entityId}`;
+      return `/games/rius/sets/${entityId}`
     }
     case "riuSubmission": {
-      return `/games/rius/submissions/${entityId}`;
+      return `/games/rius/submissions/${entityId}`
     }
     case "biuSet": {
-      return `/games/bius/sets/${entityId}`;
+      return `/games/bius/sets/${entityId}`
+    }
+    case "siuSet": {
+      return `/games/sius/sets/${entityId}`
+    }
+    case "siu": {
+      return "/games/sius"
     }
     case "utvVideo": {
-      return `/vault/${entityId}`;
+      return `/vault/${entityId}`
     }
     case "user": {
-      return `/users/${entityId}`;
+      return `/users/${entityId}`
     }
     case "trickSubmission":
     case "trickSuggestion":
     case "trickVideo": {
       if (data?.trickSlug) {
-        return `/tricks/${data.trickSlug}`;
+        return `/tricks/${data.trickSlug}`
       }
-      return "/tricks";
+      return "/tricks"
+    }
+    case "glossaryProposal": {
+      return "/tricks/glossary"
+    }
+    case "utvVideoSuggestion": {
+      return "/vault"
     }
     default: {
-      return "/";
+      return "/"
     }
   }
 }
@@ -55,27 +72,33 @@ export function getNotificationMessage(
   actorNames: string[],
   entityTitle?: string,
 ): string {
-  const actorText = formatActors(actorNames, count);
+  const actorText = formatActors(actorNames, count)
 
   switch (type) {
     case "like": {
-      return `${actorText} liked your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`;
+      return `${actorText} liked your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
     }
     case "comment": {
-      return `${actorText} commented on your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`;
+      return `${actorText} commented on your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
     }
     case "follow": {
-      return `${actorText} started following you`;
+      return `${actorText} started following you`
     }
     case "new_content": {
-      return `${actorText} ${count > 1 ? "created new content" : `posted ${formatEntityType(entityType)}`}${entityTitle ? `: "${entityTitle}"` : ""}`;
+      return `${actorText} ${count > 1 ? "created new content" : `posted ${formatEntityType(entityType)}`}${entityTitle ? `: "${entityTitle}"` : ""}`
     }
     case "review": {
       // entityTitle contains "approved" or "rejected"
-      return `Your ${formatEntityType(entityType)} was ${entityTitle}`;
+      return `${actorText} ${entityTitle} your ${formatEntityType(entityType)}`
+    }
+    case "flag": {
+      return `${actorText} flagged ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
+    }
+    case "mention": {
+      return `${actorText} mentioned you in a ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
     }
     default: {
-      return "You have a new notification";
+      return "You have a new notification"
     }
   }
 }
@@ -90,79 +113,100 @@ export function getNotificationAction(
 ): string {
   switch (type) {
     case "like": {
-      return `liked your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+      return `liked your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
     }
     case "comment": {
-      return `commented on your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+      return `commented on your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
     }
     case "follow": {
-      return "started following you";
+      return "started following you"
     }
     case "new_content": {
-      return `posted ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`;
+      return `posted ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
     }
     case "review": {
       // entityTitle contains "approved" or "rejected"
-      return `${formatEntityType(entityType)} was ${entityTitle}`;
+      return `${entityTitle} your ${formatEntityType(entityType)}`
+    }
+    case "flag": {
+      return `flagged ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
+    }
+    case "mention": {
+      return `mentioned you in a ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
     }
     default: {
-      return "sent you a notification";
+      return "sent you a notification"
     }
   }
 }
 
 function formatActors(names: string[], totalCount: number): string {
-  if (names.length === 0) return "Someone";
+  if (names.length === 0) return "Someone"
   if (names.length === 1) {
     if (totalCount > 1) {
-      return `${names[0]} and ${totalCount - 1} ${totalCount - 1 === 1 ? "other" : "others"}`;
+      return `${names[0]} and ${totalCount - 1} ${pluralize("other", totalCount - 1)}`
     }
-    return names[0];
+    return names[0]
   }
   if (names.length === 2) {
     if (totalCount > 2) {
-      return `${names[0]}, ${names[1]} and ${totalCount - 2} ${totalCount - 2 === 1 ? "other" : "others"}`;
+      return `${names[0]}, ${names[1]} and ${totalCount - 2} ${pluralize("other", totalCount - 2)}`
     }
-    return `${names[0]} and ${names[1]}`;
+    return `${names[0]} and ${names[1]}`
   }
   // 3+ names
   if (totalCount > names.length) {
-    return `${names[0]}, ${names[1]} and ${totalCount - 2} others`;
+    return `${names[0]}, ${names[1]} and ${totalCount - 2} others`
   }
-  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`
 }
 
 function formatEntityType(entityType: NotificationEntityType): string {
   switch (entityType) {
+    case "chat": {
+      return "chat"
+    }
     case "post": {
-      return "post";
+      return "post"
     }
     case "riuSet": {
-      return "RIU set";
+      return "RIU set"
     }
     case "riuSubmission": {
-      return "RIU submission";
+      return "RIU submission"
     }
     case "biuSet": {
-      return "BIU set";
+      return "BIU set"
+    }
+    case "siuSet": {
+      return "SIU set"
+    }
+    case "siu": {
+      return "SIU round"
     }
     case "utvVideo": {
-      return "video";
+      return "video"
     }
     case "user": {
-      return "profile";
+      return "profile"
     }
     case "trickSubmission": {
-      return "trick submission";
+      return "trick submission"
     }
     case "trickSuggestion": {
-      return "trick suggestion";
+      return "trick suggestion"
     }
     case "trickVideo": {
-      return "trick video";
+      return "trick video"
+    }
+    case "glossaryProposal": {
+      return "glossary proposal"
+    }
+    case "utvVideoSuggestion": {
+      return "video suggestion"
     }
     default: {
-      return "content";
+      return "content"
     }
   }
 }

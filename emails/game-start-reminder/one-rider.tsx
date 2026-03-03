@@ -1,4 +1,4 @@
-import GameStartReminderTemplate from "../game-start-reminder";
+import GameStartReminderTemplate from "../game-start-reminder"
 
 export default function OneRider() {
   return (
@@ -12,5 +12,5 @@ export default function OneRider() {
       unsubscribeReminderUrl="https://une.haus/unsubscribe?type=game-reminder"
       unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
     />
-  );
+  )
 }

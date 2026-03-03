@@ -1,40 +1,41 @@
-import { Link } from "@tanstack/react-router";
-import { Pencil, ShieldIcon, Video } from "lucide-react";
+import { Link } from "@tanstack/react-router"
+import { ShieldIcon } from "lucide-react"
 
-import { VideoCarousel } from "~/components/tricks/video-carousel";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
+import { RichText } from "~/components/rich-text"
+import { VideoCarousel } from "~/components/tricks/video-carousel"
+import { Badge } from "~/components/ui/badge"
+import { Button } from "~/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "~/components/ui/dialog";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import type { Trick, TricksData } from "~/lib/tricks";
+} from "~/components/ui/dialog"
+import { ScrollArea } from "~/components/ui/scroll-area"
+import { type Trick, type TricksData } from "~/lib/tricks"
 
 type TrickDetailProps = {
-  trick: Trick;
-  tricksData: TricksData;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onNavigateToTrick: (trickId: string) => void;
-  isAdmin?: boolean;
-};
+  trick: Trick
+  tricksData: TricksData
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onNavigateToTrick: (trickId: string) => void
+  isAdmin?: boolean
+}
 
 function TrickLink({
   trickId,
   tricksData,
   onNavigate,
 }: {
-  trickId: string;
-  tricksData: TricksData;
-  onNavigate: (trickId: string) => void;
+  trickId: string
+  tricksData: TricksData
+  onNavigate: (trickId: string) => void
 }) {
-  const trick = tricksData.byId[trickId];
+  const trick = tricksData.byId[trickId]
   if (!trick) {
-    return <span className="text-muted-foreground">{trickId}</span>;
+    return <span className="text-muted-foreground">{trickId}</span>
   }
 
   return (
@@ -45,7 +46,7 @@ function TrickLink({
     >
       {trick.name}
     </Button>
-  );
+  )
 }
 
 export function TrickDetail({
@@ -58,10 +59,10 @@ export function TrickDetail({
 }: TrickDetailProps) {
   const prerequisiteTrick = trick.prerequisite
     ? tricksData.byId[trick.prerequisite]
-    : null;
+    : null
   const optionalPrerequisiteTrick = trick.optionalPrerequisite
     ? tricksData.byId[trick.optionalPrerequisite]
-    : null;
+    : null
 
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
@@ -72,7 +73,7 @@ export function TrickDetail({
               <DialogTitle className="pr-8 text-xl">{trick.name}</DialogTitle>
               {trick.alternateNames.length > 0 && (
                 <DialogDescription>
-                  Also known as: {trick.alternateNames.join(", ")}
+                  also known as: {trick.alternateNames.join(", ")}
                 </DialogDescription>
               )}
             </DialogHeader>
@@ -84,7 +85,7 @@ export function TrickDetail({
             {trick.isCompound && trick.compositions.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  Composition
+                  composition
                 </h3>
                 <div className="flex flex-wrap items-center gap-1">
                   {trick.compositions.map((comp, i) => (
@@ -117,13 +118,13 @@ export function TrickDetail({
               ))}
             </div>
 
-            {/* Definition */}
-            {trick.definition && (
+            {/* Description */}
+            {trick.description && (
               <div className="space-y-1">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  Definition
+                  description
                 </h3>
-                <p className="text-sm">{trick.definition}</p>
+                <RichText content={trick.description} className="text-sm" />
               </div>
             )}
 
@@ -131,7 +132,7 @@ export function TrickDetail({
             {(prerequisiteTrick || optionalPrerequisiteTrick) && (
               <div className="space-y-2">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  Prerequisites
+                  prerequisites
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {prerequisiteTrick && (
@@ -156,7 +157,7 @@ export function TrickDetail({
             {trick.dependents.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  Leads to
+                  leads to
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {trick.dependents.slice(0, 8).map((depId) => (
@@ -180,7 +181,7 @@ export function TrickDetail({
             {trick.neighbors.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  Nearby
+                  nearby
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {trick.neighbors.slice(0, 8).map((neighbor) => (
@@ -204,11 +205,11 @@ export function TrickDetail({
             {(trick.inventedBy || trick.yearLanded) && (
               <div className="space-y-1">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  History
+                  history
                 </h3>
                 <p className="text-sm">
                   {trick.inventedBy && (
-                    <span>First landed by {trick.inventedBy}</span>
+                    <span>first landed by {trick.inventedBy}</span>
                   )}
                   {trick.inventedBy && trick.yearLanded && <span> in </span>}
                   {trick.yearLanded && <span>{trick.yearLanded}</span>}
@@ -220,9 +221,12 @@ export function TrickDetail({
             {trick.notes && (
               <div className="space-y-1">
                 <h3 className="text-muted-foreground text-sm font-medium">
-                  Notes
+                  notes
                 </h3>
-                <p className="text-muted-foreground text-sm">{trick.notes}</p>
+                <RichText
+                  content={trick.notes}
+                  className="text-muted-foreground text-sm"
+                />
               </div>
             )}
 
@@ -234,8 +238,7 @@ export function TrickDetail({
                     to="/tricks/$trickId/submit-video"
                     params={{ trickId: trick.id }}
                   >
-                    <Video className="size-3" />
-                    Submit Video
+                    submit
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
@@ -243,8 +246,7 @@ export function TrickDetail({
                     to="/tricks/$trickId/suggest"
                     params={{ trickId: trick.id }}
                   >
-                    <Pencil className="size-3" />
-                    Suggest Edit
+                    edit
                   </Link>
                 </Button>
                 {isAdmin && (
@@ -263,5 +265,5 @@ export function TrickDetail({
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

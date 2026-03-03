@@ -1,10 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState } from "react"
+import { toast } from "sonner"
 
-import { toast } from "sonner";
+import { cn } from "~/lib/utils"
 
-import { cn } from "~/lib/utils";
-
-const ANIMATION_DURATION = 400;
+const ANIMATION_DURATION = 400
 
 const paths = [
   "M186.135 1.26857C187.769 0.768408 189.243 0.98937 190.423 1.74611C191.576 2.48524 192.358 3.67466 192.778 4.96877C193.605 7.51608 193.145 10.8639 190.799 12.8486L190.75 12.8916L190.694 12.9268C186.666 15.5146 181.063 19.1661 176.919 21.8047C176.919 21.8107 176.92 21.8163 176.921 21.8203L176.917 21.8154L176.921 21.8223C176.924 21.8274 176.93 21.8357 176.941 21.8438C176.953 21.8522 176.966 21.858 176.979 21.8613C176.985 21.8628 176.989 21.863 176.992 21.8633C179.2 20.4647 181.389 19.0405 183.595 17.6182L183.665 17.5733L183.74 17.541C188.029 15.6877 193.163 18.7767 193.163 23.7666V44.2608L193.158 44.3115C192.979 46.0545 192.148 47.6404 190.784 48.7783L190.736 48.8174L190.683 48.8516C189.58 49.5603 188.323 50.5248 186.933 51.6045C185.557 52.6738 184.062 53.8469 182.529 54.9277C179.513 57.054 176.117 58.9998 172.897 59C169.193 59 166.173 56.0195 166.173 52.3262C166.173 51.5437 166.163 50.6327 166.517 49.71C166.884 48.7546 167.593 47.8924 168.804 47.0108L168.823 46.9971L168.842 46.9844L182.251 38.1426C182.251 38.1421 182.252 38.1417 182.253 38.1406C182.255 38.1376 182.258 38.1312 182.259 38.1221C182.263 38.102 182.258 38.0891 182.254 38.083V38.082C182.253 38.0814 182.251 38.0796 182.248 38.0772C182.243 38.0743 182.235 38.0706 182.223 38.0684C182.196 38.0633 182.18 38.0712 182.177 38.0733L182.173 38.0762V38.0772C182.172 38.0775 182.171 38.0775 182.17 38.0781C182.168 38.0794 182.165 38.0817 182.162 38.084C182.154 38.0889 182.144 38.0961 182.13 38.1055C182.101 38.1245 182.059 38.1524 182.005 38.1885C181.896 38.2608 181.739 38.3659 181.544 38.4961C181.153 38.7566 180.61 39.119 180 39.5254C178.78 40.3383 177.291 41.3294 176.218 42.0401L176.182 42.0635L176.143 42.085C173.951 43.2752 171.443 42.9512 169.527 41.7852C167.612 40.6196 166.163 38.5377 166.163 36.0498V16.3164C166.163 14.6469 166.429 13.2549 167.164 12.0176C167.892 10.7918 169.019 9.82415 170.535 8.88185C172.045 7.94304 174.029 6.97757 176.545 5.79787C179.076 4.61049 182.177 3.1918 185.989 1.32619L186.06 1.29201L186.135 1.26857Z",
@@ -15,83 +14,85 @@ const paths = [
   "M72.2471 1.00515C77.6097 1.00515 81.9737 5.34763 81.9737 10.6585C81.9735 15.9752 77.603 20.2678 72.2471 20.2678H67.5723C67.5291 20.2679 67.5033 20.2835 67.4893 20.2971C67.482 20.3043 67.4774 20.3114 67.4747 20.3176C67.4723 20.3232 67.4698 20.3315 67.4698 20.345C67.4698 20.3619 67.4757 20.3815 67.4962 20.4016C67.5178 20.4226 67.545 20.4328 67.5723 20.4329H72.2471C77.6032 20.4329 81.9737 24.7264 81.9737 30.0432C81.9737 35.0707 78.0315 39.2444 73.0001 39.6282L72.962 39.6311H67.5723C67.5293 39.6312 67.5035 39.6467 67.4893 39.6604C67.482 39.6676 67.4774 39.6746 67.4747 39.6809C67.4723 39.6865 67.4698 39.6948 67.4698 39.7083C67.4698 39.7252 67.4755 39.7447 67.4962 39.7649C67.5179 39.7862 67.5451 39.7971 67.5723 39.7971H72.961L72.9981 39.8001C78.0328 40.1718 81.9737 44.359 81.9737 49.3743C81.9736 54.6995 77.6055 59.0051 72.2471 59.0051H61.5889C57.9564 58.9298 54.9737 55.955 54.9737 52.3264V7.68386C54.9737 3.98324 58.0118 1.00515 61.7296 1.00515H72.2471Z",
   "M34.7106 1.00002C36.9226 1.00004 38.7372 2.08512 40.0397 3.69142L40.2936 4.01955L40.3044 4.03419L40.3141 4.04787L46.0329 12.4033L46.0349 12.4063C46.0435 12.419 46.0524 12.4259 46.0583 12.4297C46.0647 12.4338 46.0711 12.4364 46.0768 12.4375C46.0824 12.4385 46.0867 12.4381 46.0895 12.4375C46.0916 12.4371 46.096 12.4361 46.1022 12.4317C46.1086 12.427 46.1228 12.4123 46.1286 12.3789C46.1345 12.3447 46.126 12.3174 46.1149 12.3008V12.2998L42.0641 6.40334V6.40236C41.8003 6.0198 41.6417 5.59368 41.6247 5.13869C41.6078 4.68539 41.7333 4.27189 41.9294 3.91701C42.3058 3.23606 42.9726 2.7089 43.6442 2.31837C44.9989 1.53076 46.8594 1.02255 48.2634 1.02248C51.9782 1.02248 54.987 4.08533 54.987 7.83302V52.1895C54.987 55.936 51.9901 59 48.2634 59C45.9039 59 43.9963 57.7654 42.6804 55.9805L42.6696 55.9658L42.6599 55.9522L36.9411 47.5967L36.9391 47.5938C36.9305 47.581 36.9216 47.5742 36.9157 47.5703C36.9093 47.5662 36.9029 47.5636 36.8972 47.5625C36.8916 47.5615 36.8873 47.562 36.8845 47.5625C36.8824 47.563 36.878 47.5639 36.8718 47.5684C36.8654 47.573 36.8512 47.5877 36.8454 47.6211C36.8395 47.6553 36.848 47.6827 36.8591 47.6992L40.9079 53.5938C41.173 53.9771 41.3322 54.4051 41.3493 54.8613C41.3662 55.3146 41.2407 55.7281 41.0446 56.083C40.6682 56.764 40.0014 57.2911 39.3298 57.6817C37.9751 58.4693 36.1146 58.9775 34.7106 58.9776C30.9958 58.9776 27.987 55.9147 27.987 52.167V7.81056C27.987 4.06404 30.9839 1.00002 34.7106 1.00002Z",
   "M21.293 1.00002V1.00099C24.9911 1.00707 28 3.98796 28 7.67873V45.5977C27.9999 52.9882 21.9357 59 14.5107 59C7.10567 59 1.05396 53.0306 1.02246 45.6553L1 45.5576V7.67873C1.00001 3.9842 4.01549 1.00002 7.71875 1.00002C11.4218 1.00026 14.4365 3.98435 14.4365 7.67873V46.2119C14.4366 46.2235 14.4401 46.2361 14.4531 46.249C14.4663 46.2621 14.4821 46.2676 14.5 46.2676C14.5179 46.2676 14.5337 46.2621 14.5469 46.249C14.5599 46.2361 14.5634 46.2235 14.5635 46.2119V7.68459L14.5752 7.63673C14.5979 3.96536 17.5972 1.00702 21.2812 1.00099V1.00002H21.293Z",
-];
+]
 
 const baseClasses =
-  "h-14 shrink-0 fill-transparent stroke-black stroke-2 dark:stroke-white";
+  "h-14 shrink-0 fill-transparent stroke-black stroke-2 dark:stroke-white"
 
 export function LogoRandomScatter({ className }: { className?: string }) {
   const [transforms, setTransforms] = useState(() =>
     paths.map(() => ({ x: 0, y: 0, rotate: 0 })),
-  );
-  const [hoveredPaths, setHoveredPaths] = useState<Set<number>>(new Set());
-  const enterTimesRef = useRef<Map<number, number>>(new Map());
+  )
+  const [hoveredPaths, setHoveredPaths] = useState<Set<number>>(new Set())
+  const enterTimesRef = useRef<Map<number, number>>(new Map())
   const pendingTimeoutsRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
     new Map(),
-  );
+  )
 
   const handlePathMouseEnter = (index: number) => {
-    const pendingTimeout = pendingTimeoutsRef.current.get(index);
+    const pendingTimeout = pendingTimeoutsRef.current.get(index)
     if (pendingTimeout) {
-      clearTimeout(pendingTimeout);
-      pendingTimeoutsRef.current.delete(index);
+      clearTimeout(pendingTimeout)
+      pendingTimeoutsRef.current.delete(index)
     }
 
-    // eslint-disable-next-line react-hooks/purity -- event handler, not render
-    enterTimesRef.current.set(index, Date.now());
+    enterTimesRef.current.set(index, Date.now())
 
     setTransforms((prev) => {
-      const next = [...prev];
+      const next = [...prev]
       next[index] = {
         x: (Math.random() - 0.5) * 40,
         y: (Math.random() - 0.5) * 30,
         rotate: (Math.random() - 0.5) * 30,
-      };
-      return next;
-    });
-    setHoveredPaths((prev) => new Set(prev).add(index));
-  };
+      }
+      return next
+    })
+    setHoveredPaths((prev) => new Set(prev).add(index))
+  }
 
   const handlePathMouseLeave = (index: number) => {
-    const enterTime = enterTimesRef.current.get(index) ?? 0;
-    // eslint-disable-next-line react-hooks/purity -- event handler, not render
-    const elapsed = Date.now() - enterTime;
-    const remaining = ANIMATION_DURATION - elapsed;
+    const enterTime = enterTimesRef.current.get(index) ?? 0
+    const elapsed = Date.now() - enterTime
+    const remaining = ANIMATION_DURATION - elapsed
 
     const removePath = () => {
-      pendingTimeoutsRef.current.delete(index);
+      pendingTimeoutsRef.current.delete(index)
       setHoveredPaths((prev) => {
-        const next = new Set(prev);
-        next.delete(index);
-        return next;
-      });
-    };
+        const next = new Set(prev)
+        next.delete(index)
+        return next
+      })
+    }
 
     if (remaining > 0) {
-      const timeout = setTimeout(removePath, remaining);
-      pendingTimeoutsRef.current.set(index, timeout);
+      const timeout = setTimeout(removePath, remaining)
+      pendingTimeoutsRef.current.set(index, timeout)
     } else {
-      removePath();
+      removePath()
     }
-  };
+  }
 
-  const toastFiredRef = useRef(false);
+  const toastFiredRef = useRef(false)
 
   const fireToast = () => {
-    if (toastFiredRef.current) return;
-    toastFiredRef.current = true;
+    if (toastFiredRef.current) return
+    toastFiredRef.current = true
     toast("Logo by Walker Orner", {
-      action: {
-        label: "Instagram",
-        onClick: () =>
-          window.open(
-            "https://www.instagram.com/walkertorner",
-            "_blank",
-            "noopener,noreferrer",
-          ),
-      },
-    });
-  };
+      action: (
+        <button
+          onClick={() =>
+            window.open(
+              "https://www.instagram.com/walkertorner",
+              "_blank",
+              "noopener,noreferrer",
+            )
+          }
+        >
+          Instagram
+        </button>
+      ),
+    })
+  }
 
   return (
     <svg
@@ -103,7 +104,7 @@ export function LogoRandomScatter({ className }: { className?: string }) {
       onMouseEnter={fireToast}
     >
       {paths.map((d, i) => {
-        const isActive = hoveredPaths.has(i);
+        const isActive = hoveredPaths.has(i)
         return (
           <g key={i}>
             {/* Invisible hit area stays at resting position */}
@@ -132,8 +133,8 @@ export function LogoRandomScatter({ className }: { className?: string }) {
               }}
             />
           </g>
-        );
+        )
       })}
     </svg>
-  );
+  )
 }

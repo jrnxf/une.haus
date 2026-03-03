@@ -1,7 +1,7 @@
-import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
-import type { ComponentRef } from "react";
+import { Switch as SwitchPrimitive } from "@base-ui/react/switch"
+import { type ComponentRef } from "react"
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
 function Switch({
   className,
@@ -13,7 +13,7 @@ function Switch({
         "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-xs transition-colors",
         "focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        "data-[unchecked]:bg-input data-[checked]:bg-primary",
+        "data-[checked]:bg-primary data-[unchecked]:bg-input",
         className,
       )}
       {...props}
@@ -25,9 +25,9 @@ function Switch({
         )}
       />
     </SwitchPrimitive.Root>
-  );
+  )
 }
 
-type SwitchRef = ComponentRef<typeof SwitchPrimitive.Root>;
+type SwitchRef = ComponentRef<typeof SwitchPrimitive.Root>
 
-export { Switch, type SwitchRef };
+export { Switch, type SwitchRef }

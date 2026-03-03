@@ -1,21 +1,32 @@
-import { Tailwind } from "@react-email/components";
+import { Tailwind } from "@react-email/components"
 
 type NotificationGroup = {
-  type: "likes" | "comments" | "followers";
-  count: number;
+  type: "likes" | "comments" | "followers"
+  count: number
   items: Array<{
-    title: string;
-    preview?: string;
-  }>;
-};
+    title: string
+    preview?: string
+  }>
+}
 
 type NotificationDigestTemplateProps = {
-  userName: string;
-  groups: NotificationGroup[];
-  unsubscribeDigestUrl: string;
-  unsubscribeAllUrl: string;
-  viewNotificationsUrl: string;
-};
+  userName: string
+  groups: NotificationGroup[]
+  unsubscribeDigestUrl: string
+  unsubscribeAllUrl: string
+  viewNotificationsUrl: string
+}
+
+function getGroupTitle(group: NotificationGroup) {
+  switch (group.type) {
+    case "likes":
+      return `${group.count} ${group.count === 1 ? "like" : "likes"} on your content`
+    case "comments":
+      return `${group.count} ${group.count === 1 ? "comment" : "comments"}`
+    case "followers":
+      return `${group.count} new ${group.count === 1 ? "follower" : "followers"}`
+  }
+}
 
 export default function NotificationDigestTemplate({
   userName = "User",
@@ -24,31 +35,20 @@ export default function NotificationDigestTemplate({
   unsubscribeAllUrl = "#",
   viewNotificationsUrl = "#",
 }: NotificationDigestTemplateProps) {
-  const hasContent = groups.length > 0;
+  const hasContent = groups.length > 0
 
   if (!hasContent) {
-    return null;
+    return null
   }
-
-  const getGroupTitle = (group: NotificationGroup) => {
-    switch (group.type) {
-      case "likes":
-        return `${group.count} ${group.count === 1 ? "like" : "likes"} on your content`;
-      case "comments":
-        return `${group.count} ${group.count === 1 ? "comment" : "comments"}`;
-      case "followers":
-        return `${group.count} new ${group.count === 1 ? "follower" : "followers"}`;
-    }
-  };
 
   return (
     <Tailwind>
       <div className="mx-auto max-w-lg font-sans">
         <h1 className="mb-1 text-2xl font-bold">une.haus</h1>
-        <p className="mb-6 text-gray-600">Your week on une.haus</p>
+        <p className="mb-6 text-gray-600">your week on une.haus</p>
 
-        <p className="mb-4">Hey {userName},</p>
-        <p className="mb-6">Here's what you missed this week:</p>
+        <p className="mb-4">hey {userName},</p>
+        <p className="mb-6">here's what you missed this week:</p>
 
         {groups.map((group) => (
           <div key={group.type} className="mb-6">
@@ -76,7 +76,7 @@ export default function NotificationDigestTemplate({
             href={viewNotificationsUrl}
             className="inline-block rounded bg-black px-4 py-2 text-white no-underline"
           >
-            View All Notifications
+            view all notifications
           </a>
         </div>
 
@@ -84,14 +84,14 @@ export default function NotificationDigestTemplate({
 
         <p className="text-xs text-gray-500">
           <a href={unsubscribeDigestUrl} className="text-gray-500 underline">
-            Unsubscribe from digests
+            unsubscribe from digests
           </a>
           {" · "}
           <a href={unsubscribeAllUrl} className="text-gray-500 underline">
-            Unsubscribe from all emails
+            unsubscribe from all emails
           </a>
         </p>
       </div>
     </Tailwind>
-  );
+  )
 }

@@ -1,24 +1,24 @@
-import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer";
-import * as React from "react";
+import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer"
+import * as React from "react"
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/utils"
 
-type DrawerDirection = "top" | "bottom" | "left" | "right";
+type DrawerDirection = "top" | "bottom" | "left" | "right"
 
-const DrawerDirectionContext = React.createContext<DrawerDirection>("bottom");
+const DrawerDirectionContext = React.createContext<DrawerDirection>("bottom")
 
 const directionToSwipeDirection = {
   top: "up",
   bottom: "down",
   left: "left",
   right: "right",
-} as const;
+} as const
 
 function Drawer({
   direction = "bottom",
   ...props
 }: Omit<DrawerPrimitive.Root.Props, "swipeDirection"> & {
-  direction?: DrawerDirection;
+  direction?: DrawerDirection
 }) {
   return (
     <DrawerDirectionContext.Provider value={direction}>
@@ -28,7 +28,7 @@ function Drawer({
         {...props}
       />
     </DrawerDirectionContext.Provider>
-  );
+  )
 }
 
 function DrawerTrigger({
@@ -40,9 +40,9 @@ function DrawerTrigger({
   const resolvedRender =
     asChild && React.isValidElement(children)
       ? (children as React.ReactElement)
-      : render;
+      : render
   const resolvedChildren =
-    asChild && React.isValidElement(children) ? undefined : children;
+    asChild && React.isValidElement(children) ? undefined : children
   return (
     <DrawerPrimitive.Trigger
       data-slot="drawer-trigger"
@@ -51,11 +51,11 @@ function DrawerTrigger({
     >
       {resolvedChildren}
     </DrawerPrimitive.Trigger>
-  );
+  )
 }
 
 function DrawerPortal({ ...props }: DrawerPrimitive.Portal.Props) {
-  return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />;
+  return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />
 }
 
 function DrawerClose({
@@ -67,9 +67,9 @@ function DrawerClose({
   const resolvedRender =
     asChild && React.isValidElement(children)
       ? (children as React.ReactElement)
-      : render;
+      : render
   const resolvedChildren =
-    asChild && React.isValidElement(children) ? undefined : children;
+    asChild && React.isValidElement(children) ? undefined : children
   return (
     <DrawerPrimitive.Close
       data-slot="drawer-close"
@@ -78,7 +78,7 @@ function DrawerClose({
     >
       {resolvedChildren}
     </DrawerPrimitive.Close>
-  );
+  )
 }
 
 function DrawerOverlay({
@@ -94,7 +94,7 @@ function DrawerOverlay({
       )}
       {...props}
     />
-  );
+  )
 }
 
 const viewportClasses: Record<DrawerDirection, string> = {
@@ -102,7 +102,7 @@ const viewportClasses: Record<DrawerDirection, string> = {
   top: "fixed inset-0 z-50 flex items-start",
   right: "fixed inset-0 z-50 flex items-stretch justify-end",
   left: "fixed inset-0 z-50 flex items-stretch justify-start",
-};
+}
 
 const popupClasses: Record<DrawerDirection, string> = {
   bottom:
@@ -110,8 +110,8 @@ const popupClasses: Record<DrawerDirection, string> = {
   top: "w-full max-h-[90vh] rounded-b-lg border-b [transform:translateY(var(--drawer-swipe-movement-y))] data-[starting-style]:[transform:translateY(-100%)] data-[ending-style]:[transform:translateY(-100%)]",
   right:
     "h-full w-3/4 border-l sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(100%)] data-[ending-style]:[transform:translateX(100%)]",
-  left: "h-full w-3/4 border-r sm:max-w-sm [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(-100%)] data-[ending-style]:[transform:translateX(-100%)]",
-};
+  left: "h-full w-3/4 border-r sm:max-w-lg [transform:translateX(var(--drawer-swipe-movement-x))] data-[starting-style]:[transform:translateX(-100%)] data-[ending-style]:[transform:translateX(-100%)]",
+}
 
 function DrawerContent({
   className,
@@ -119,9 +119,9 @@ function DrawerContent({
   overlay = true,
   ...props
 }: DrawerPrimitive.Popup.Props & {
-  overlay?: boolean;
+  overlay?: boolean
 }) {
-  const direction = React.useContext(DrawerDirectionContext);
+  const direction = React.useContext(DrawerDirectionContext)
   return (
     <DrawerPortal>
       {overlay && <DrawerOverlay />}
@@ -135,15 +135,19 @@ function DrawerContent({
           )}
           {...props}
         >
-          <div
-            aria-hidden
-            className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"
-          />
-          <DrawerPrimitive.Content>{children}</DrawerPrimitive.Content>
+          {(direction === "top" || direction === "bottom") && (
+            <div
+              aria-hidden
+              className="bg-muted mx-auto my-2 h-1.5 w-12 shrink-0 rounded-full"
+            />
+          )}
+          <DrawerPrimitive.Content className="flex min-h-0 flex-1 flex-col">
+            {children}
+          </DrawerPrimitive.Content>
         </DrawerPrimitive.Popup>
       </DrawerPrimitive.Viewport>
     </DrawerPortal>
-  );
+  )
 }
 
 function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
@@ -156,7 +160,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  );
+  )
 }
 
 function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
@@ -166,7 +170,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("mt-auto flex flex-col gap-2 p-4", className)}
       {...props}
     />
-  );
+  )
 }
 
 function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
@@ -176,7 +180,7 @@ function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
       className={cn("text-foreground font-semibold", className)}
       {...props}
     />
-  );
+  )
 }
 
 function DrawerDescription({
@@ -189,7 +193,7 @@ function DrawerDescription({
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -203,4 +207,4 @@ export {
   DrawerPortal,
   DrawerTitle,
   DrawerTrigger,
-};
+}

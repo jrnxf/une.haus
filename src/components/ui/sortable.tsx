@@ -1,19 +1,17 @@
-"use client";
-
-import * as React from "react";
+"use client"
 
 import {
   DndContext,
-  DragOverlay,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
   type DragEndEvent,
   type DraggableSyntheticListeners,
+  DragOverlay,
   type DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
   type UniqueIdentifier,
-} from "@dnd-kit/core";
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import {
   arrayMove,
   rectSortingStrategy,
@@ -21,38 +19,39 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import * as React from "react"
 
-import { Slot } from "~/lib/slot";
-import { cn } from "~/lib/utils";
+import { Slot } from "~/lib/slot"
+import { cn } from "~/lib/utils"
 
 // Sortable Item Context
 const SortableItemContext = React.createContext<{
-  listeners: DraggableSyntheticListeners | undefined;
-  isDragging?: boolean;
-  disabled?: boolean;
+  listeners: DraggableSyntheticListeners | undefined
+  isDragging?: boolean
+  disabled?: boolean
 }>({
   listeners: undefined,
   isDragging: false,
   disabled: false,
-});
+})
 
 // Multipurpose Sortable Component
 export interface SortableRootProps<T> {
-  value: T[];
-  onValueChange: (value: T[]) => void;
-  getItemValue: (item: T) => string;
-  children: React.ReactNode;
-  className?: string;
+  value: T[]
+  onValueChange: (value: T[]) => void
+  getItemValue: (item: T) => string
+  children: React.ReactNode
+  className?: string
   onMove?: (event: {
-    event: DragEndEvent;
-    activeIndex: number;
-    overIndex: number;
-  }) => void;
-  strategy?: "horizontal" | "vertical" | "grid";
-  onDragStart?: (event: DragStartEvent) => void;
-  onDragEnd?: (event: DragEndEvent) => void;
+    event: DragEndEvent
+    activeIndex: number
+    overIndex: number
+  }) => void
+  strategy?: "horizontal" | "vertical" | "grid"
+  onDragStart?: (event: DragStartEvent) => void
+  onDragEnd?: (event: DragEndEvent) => void
 }
 
 function Sortable<T>({
@@ -66,7 +65,7 @@ function Sortable<T>({
   onDragStart,
   onDragEnd,
 }: SortableRootProps<T>) {
-  const [activeId, setActiveId] = React.useState<UniqueIdentifier | null>(null);
+  const [activeId, setActiveId] = React.useState<UniqueIdentifier | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -77,60 +76,60 @@ function Sortable<T>({
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
-  );
+  )
 
   const handleDragStart = React.useCallback(
     (event: DragStartEvent) => {
-      setActiveId(event.active.id);
-      onDragStart?.(event);
+      setActiveId(event.active.id)
+      onDragStart?.(event)
     },
     [onDragStart],
-  );
+  )
 
   const handleDragEnd = React.useCallback(
     (event: DragEndEvent) => {
-      const { active, over } = event;
-      setActiveId(null);
-      onDragEnd?.(event);
+      const { active, over } = event
+      setActiveId(null)
+      onDragEnd?.(event)
 
-      if (!over) return;
+      if (!over) return
 
       // Handle item reordering
       const activeIndex = value.findIndex(
         (item: T) => getItemValue(item) === active.id,
-      );
+      )
       const overIndex = value.findIndex(
         (item: T) => getItemValue(item) === over.id,
-      );
+      )
 
       if (activeIndex !== overIndex) {
         if (onMove) {
-          onMove({ event, activeIndex, overIndex });
+          onMove({ event, activeIndex, overIndex })
         } else {
-          const newValue = arrayMove(value, activeIndex, overIndex);
-          onValueChange(newValue);
+          const newValue = arrayMove(value, activeIndex, overIndex)
+          onValueChange(newValue)
         }
       }
     },
     [value, getItemValue, onValueChange, onMove, onDragEnd],
-  );
+  )
 
   const getStrategy = () => {
     switch (strategy) {
       case "horizontal":
       case "grid": {
-        return rectSortingStrategy;
+        return rectSortingStrategy
       }
       default: {
-        return verticalListSortingStrategy;
+        return verticalListSortingStrategy
       }
     }
-  };
+  }
 
   const itemIds = React.useMemo(
     () => value.map(getItemValue),
     [value, getItemValue],
-  );
+  )
 
   return (
     <DndContext
@@ -154,31 +153,31 @@ function Sortable<T>({
             {React.Children.map(children, (child) => {
               if (
                 React.isValidElement<{
-                  value: UniqueIdentifier;
-                  className?: string;
+                  value: UniqueIdentifier
+                  className?: string
                 }>(child) &&
                 child.props.value === activeId
               ) {
                 return React.cloneElement(child, {
                   ...child.props,
                   className: cn(child.props.className, "z-50 shadow-lg"),
-                });
+                })
               }
-              return null;
+              return null
             })}
           </div>
         ) : null}
       </DragOverlay>
     </DndContext>
-  );
+  )
 }
 
 export interface SortableItemProps {
-  value: string;
-  asChild?: boolean;
-  className?: string;
-  children: React.ReactNode;
-  disabled?: boolean;
+  value: string
+  asChild?: boolean
+  className?: string
+  children: React.ReactNode
+  disabled?: boolean
 }
 
 function SortableItem({
@@ -198,14 +197,14 @@ function SortableItem({
   } = useSortable({
     id: value,
     disabled,
-  });
+  })
 
   const style = {
     transition,
     transform: CSS.Translate.toString(transform),
-  } as React.CSSProperties;
+  } as React.CSSProperties
 
-  const Comp = asChild ? Slot : "div";
+  const Comp = asChild ? Slot : "div"
 
   return (
     <SortableItemContext.Provider
@@ -228,14 +227,14 @@ function SortableItem({
         {children}
       </Comp>
     </SortableItemContext.Provider>
-  );
+  )
 }
 
 export interface SortableItemHandleProps {
-  asChild?: boolean;
-  className?: string;
-  children?: React.ReactNode;
-  cursor?: boolean;
+  asChild?: boolean
+  className?: string
+  children?: React.ReactNode
+  cursor?: boolean
 }
 
 function SortableItemHandle({
@@ -245,9 +244,9 @@ function SortableItemHandle({
   cursor = true,
 }: SortableItemHandleProps) {
   const { listeners, isDragging, disabled } =
-    React.useContext(SortableItemContext);
+    React.useContext(SortableItemContext)
 
-  const Comp = asChild ? Slot : "div";
+  const Comp = asChild ? Slot : "div"
 
   return (
     <Comp
@@ -262,7 +261,7 @@ function SortableItemHandle({
     >
       {children}
     </Comp>
-  );
+  )
 }
 
-export { Sortable, SortableItem, SortableItemHandle };
+export { Sortable, SortableItem, SortableItemHandle }

@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from "zod"
 
-import { CATCH_TYPES, TRICK_RELATIONSHIP_TYPES } from "~/db/schema";
+import { CATCH_TYPES, TRICK_RELATIONSHIP_TYPES } from "~/db/schema"
 
 // Modifier schemas
 export const createModifierSchema = z.object({
@@ -10,20 +10,19 @@ export const createModifierSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable().optional(),
-  sortOrder: z.number().int(),
-});
+})
 
-export type CreateModifierArgs = z.infer<typeof createModifierSchema>;
+export type CreateModifierArgs = z.infer<typeof createModifierSchema>
 
 export const updateModifierSchema = createModifierSchema.extend({
   id: z.number(),
-});
+})
 
-export type UpdateModifierArgs = z.infer<typeof updateModifierSchema>;
+export type UpdateModifierArgs = z.infer<typeof updateModifierSchema>
 
-export const deleteModifierSchema = z.number();
+export const deleteModifierSchema = z.number()
 
-export const listModifiersSchema = z.object({}).optional();
+export const listModifiersSchema = z.object({}).optional()
 
 // Element schemas
 export const createElementSchema = z.object({
@@ -33,33 +32,32 @@ export const createElementSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable().optional(),
-  sortOrder: z.number().int(),
-});
+})
 
-export type CreateElementArgs = z.infer<typeof createElementSchema>;
+export type CreateElementArgs = z.infer<typeof createElementSchema>
 
 export const updateElementSchema = createElementSchema.extend({
   id: z.number(),
-});
+})
 
-export type UpdateElementArgs = z.infer<typeof updateElementSchema>;
+export type UpdateElementArgs = z.infer<typeof updateElementSchema>
 
-export const deleteElementSchema = z.number();
+export const deleteElementSchema = z.number()
 
-export const listElementsSchema = z.object({}).optional();
+export const listElementsSchema = z.object({}).optional()
 
 // Trick relationship schema
 export const trickRelationshipSchema = z.object({
   targetTrickId: z.number(),
   type: z.enum(TRICK_RELATIONSHIP_TYPES),
-});
+})
 
 // Composition schema (for compound tricks)
 export const trickCompositionSchema = z.object({
   componentTrickId: z.number(),
   position: z.number().int().min(0).max(2),
   catchType: z.enum(CATCH_TYPES).nullable(),
-});
+})
 
 // Core trick schemas
 export const createTrickSchema = z.object({
@@ -69,8 +67,9 @@ export const createTrickSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   alternateNames: z.array(z.string()).default([]),
-  definition: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   inventedBy: z.string().optional().nullable(),
+  inventedByUserId: z.number().optional().nullable(),
   yearLanded: z.number().int().min(1900).max(2100).optional().nullable(),
   muxAssetIds: z
     .array(z.string())
@@ -81,25 +80,25 @@ export const createTrickSchema = z.object({
   elementIds: z.array(z.number()).default([]),
   isCompound: z.boolean().default(false),
   compositions: z.array(trickCompositionSchema).default([]),
-});
+})
 
-export type CreateTrickArgs = z.infer<typeof createTrickSchema>;
+export type CreateTrickArgs = z.infer<typeof createTrickSchema>
 
 export const updateTrickSchema = createTrickSchema.extend({
   id: z.number(),
-});
+})
 
-export type UpdateTrickArgs = z.infer<typeof updateTrickSchema>;
+export type UpdateTrickArgs = z.infer<typeof updateTrickSchema>
 
-export const deleteTrickSchema = z.number();
+export const deleteTrickSchema = z.number()
 
 export const getTrickSchema = z.object({
   slug: z.string(),
-});
+})
 
 export const getTrickByIdSchema = z.object({
   id: z.number(),
-});
+})
 
 export const listTricksSchema = z
   .object({
@@ -108,19 +107,18 @@ export const listTricksSchema = z
     cursor: z.number().optional(),
     limit: z.number().int().min(1).max(100).default(50),
   })
-  .optional();
+  .optional()
 
-export type ListTricksArgs = z.infer<typeof listTricksSchema>;
-export type ListTricksInput = z.input<typeof listTricksSchema>;
+export type ListTricksArgs = z.infer<typeof listTricksSchema>
+export type ListTricksInput = z.input<typeof listTricksSchema>
 
 // search tricks for selector
 export const searchTricksSchema = z.object({
   q: z.string().optional(),
   excludeIds: z.array(z.number()).default([]),
-  limit: z.number().int().min(1).max(50).default(20),
-});
+})
 
-export type SearchTricksArgs = z.infer<typeof searchTricksSchema>;
+export type SearchTricksArgs = z.infer<typeof searchTricksSchema>
 
 // Form-specific relationship type (includes display info for selectors)
 // Only includes types that the form UI supports (not optional_prerequisite)
@@ -129,20 +127,20 @@ export const trickRelationshipFormSchema = z.object({
   targetTrickSlug: z.string(),
   targetTrickName: z.string(),
   type: z.enum(["prerequisite", "related"]),
-});
+})
 
 export type TrickRelationshipFormValue = z.infer<
   typeof trickRelationshipFormSchema
->;
+>
 
 // Element form schema for tag selector
 export const elementFormSchema = z.object({
   id: z.number(),
   slug: z.string(),
   name: z.string(),
-});
+})
 
-export type ElementFormValue = z.infer<typeof elementFormSchema>;
+export type ElementFormValue = z.infer<typeof elementFormSchema>
 
 // Form-level composition schema (includes display info)
 export const compositionFormSchema = z.object({
@@ -151,9 +149,9 @@ export const compositionFormSchema = z.object({
   componentTrickName: z.string(),
   position: z.number().int().min(0).max(2),
   catchType: z.enum(CATCH_TYPES).nullable(),
-});
+})
 
-export type CompositionFormValue = z.infer<typeof compositionFormSchema>;
+export type CompositionFormValue = z.infer<typeof compositionFormSchema>
 
 // Form schema - extends createTrickSchema with separate relationship arrays for UI
 export const trickFormSchema = z.object({
@@ -163,8 +161,9 @@ export const trickFormSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   alternateNames: z.array(z.string()),
-  definition: z.string().nullable(),
+  description: z.string().nullable(),
   inventedBy: z.string().nullable(),
+  inventedByUserId: z.number().nullable(),
   yearLanded: z.number().int().min(1900).max(2100).nullable(),
   muxAssetIds: z.array(z.string()).max(5, "Maximum 5 videos allowed"),
   notes: z.string().nullable(),
@@ -172,8 +171,6 @@ export const trickFormSchema = z.object({
   prerequisites: z.array(trickRelationshipFormSchema),
   relatedTricks: z.array(trickRelationshipFormSchema),
   elements: z.array(elementFormSchema),
-  isCompound: z.boolean(),
-  compositions: z.array(compositionFormSchema),
-});
+})
 
-export type TrickFormValues = z.infer<typeof trickFormSchema>;
+export type TrickFormValues = z.infer<typeof trickFormSchema>

@@ -1,7 +1,6 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { Link, useNavigate } from "@tanstack/react-router"
+import React, { type ReactNode, useState } from "react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
   Command,
   CommandEmpty,
@@ -9,30 +8,30 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "~/components/ui/command";
+} from "~/components/ui/command"
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 
 type User = {
-  id: number;
-  name: string;
-  avatarId: string | null;
-};
+  id: number
+  name: string
+  avatarId: string | null
+}
 
 type UsersDialogProps = {
-  users: User[];
-  title: string;
-  trigger?: ReactNode;
-  disabled?: boolean;
-  withSearch?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-};
+  users: User[]
+  title: string
+  trigger?: ReactNode
+  disabled?: boolean
+  withSearch?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
 
 export function UsersDialog({
   users,
@@ -43,17 +42,18 @@ export function UsersDialog({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: UsersDialogProps) {
-  const [internalOpen, setInternalOpen] = useState(false);
-  const navigate = useNavigate();
+  const [internalOpen, setInternalOpen] = useState(false)
+  const navigate = useNavigate()
+  const isNavigatingRef = React.useRef(false)
 
-  const isControlled = controlledOpen !== undefined;
-  const open = isControlled ? controlledOpen : internalOpen;
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : internalOpen
   const setOpen = isControlled
     ? (controlledOnOpenChange ?? (() => {}))
-    : setInternalOpen;
+    : setInternalOpen
 
   if (disabled || users.length === 0) {
-    return <>{trigger}</>;
+    return <>{trigger}</>
   }
 
   if (withSearch) {
@@ -64,18 +64,18 @@ export function UsersDialog({
           <Command className="bg-inherit">
             <CommandInput autoFocus placeholder="search users..." />
             <CommandList>
-              <CommandEmpty>No users found.</CommandEmpty>
+              <CommandEmpty>no users found.</CommandEmpty>
               <CommandGroup>
                 {users.map((user) => (
                   <CommandItem
                     key={user.id}
                     value={user.name}
                     onSelect={() => {
-                      setOpen(false);
+                      setOpen(false)
                       navigate({
                         to: "/users/$userId",
                         params: { userId: user.id },
-                      });
+                      })
                     }}
                   >
                     <span className="text-sm font-medium">{user.name}</span>
@@ -86,38 +86,43 @@ export function UsersDialog({
           </Command>
         </DialogContent>
       </Dialog>
-    );
+    )
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="w-full max-w-xs">
-        <DialogHeader>
-          <DialogTitle className="text-sm">reactions</DialogTitle>
-        </DialogHeader>
-        <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto">
-          {users.map((user) => (
+    <DropdownMenu
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (isNavigatingRef.current) {
+          isNavigatingRef.current = false
+        } else {
+          setOpen(nextOpen)
+        }
+      }}
+    >
+      {trigger && <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>}
+      <DropdownMenuContent
+        align="center"
+        className="max-h-[calc((var(--spacing)*8)*6+10px)] w-max"
+      >
+        {users.map((user) => (
+          <DropdownMenuItem
+            key={user.id}
+            asChild
+            onClick={() => {
+              isNavigatingRef.current = true
+            }}
+          >
             <Link
-              key={user.id}
               to="/users/$userId"
               params={{ userId: user.id }}
-              onClick={() => setOpen(false)}
-              className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors"
+              className="flex items-center gap-2"
             >
-              <Avatar
-                className="size-6"
-                cloudflareId={user.avatarId}
-                alt={user.name}
-              >
-                <AvatarImage width={24} quality={85} />
-                <AvatarFallback className="text-xs" name={user.name} />
-              </Avatar>
-              <span className="text-sm">{user.name}</span>
+              <span>{user.name}</span>
             </Link>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }

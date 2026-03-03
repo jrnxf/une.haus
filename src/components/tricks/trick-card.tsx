@@ -1,13 +1,13 @@
-import { Badge } from "~/components/ui/badge";
-import type { Trick } from "~/lib/tricks";
-import { cn } from "~/lib/utils";
+import { Badge } from "~/components/ui/badge"
+import { type Trick } from "~/lib/tricks"
+import { cn } from "~/lib/utils"
 
 type TrickCardProps = {
-  trick: Trick;
-  onSelect: (trick: Trick) => void;
-  isSelected?: boolean;
-  compact?: boolean;
-};
+  trick: Trick
+  onSelect: (trick: Trick) => void
+  isSelected?: boolean
+  compact?: boolean
+}
 
 // Assign colors to elements for visual distinction
 const ELEMENT_COLORS: Record<string, string> = {
@@ -24,10 +24,10 @@ const ELEMENT_COLORS: Record<string, string> = {
   mount: "bg-indigo-500/20 text-indigo-700 dark:text-indigo-300",
   basic: "bg-gray-500/20 text-gray-700 dark:text-gray-300",
   wild: "bg-rose-500/20 text-rose-700 dark:text-rose-300",
-};
+}
 
 function getElementColor(element: string): string {
-  return ELEMENT_COLORS[element] ?? "bg-secondary text-muted-foreground";
+  return ELEMENT_COLORS[element] ?? "bg-secondary text-muted-foreground"
 }
 
 export function TrickCard({
@@ -40,7 +40,7 @@ export function TrickCard({
     <button
       className={cn(
         "bg-card flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-colors",
-        "hover:bg-accent hover:border-accent-foreground/20",
+        "hover:border-accent-foreground/20 hover:bg-accent",
         isSelected && "border-primary bg-primary/5",
         compact ? "max-w-[180px] min-w-[140px]" : "max-w-[220px] min-w-[180px]",
       )}
@@ -79,5 +79,5 @@ export function TrickCard({
         )}
       </div>
     </button>
-  );
+  )
 }

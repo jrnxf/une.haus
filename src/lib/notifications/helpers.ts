@@ -1,14 +1,14 @@
-import { eq } from "drizzle-orm";
+import { eq } from "drizzle-orm"
 
-import { db } from "~/db";
+import { db } from "~/db"
 import {
+  type NotificationEntityType,
+  type NotificationType,
   notifications,
   userFollows,
   userNotificationSettings,
-  type NotificationEntityType,
-  type NotificationType,
-} from "~/db/schema";
-import type { CreateNotificationInput } from "~/lib/notifications/schemas";
+} from "~/db/schema"
+import { type CreateNotificationInput } from "~/lib/notifications/schemas"
 
 /**
  * Creates a single notification.
@@ -20,13 +20,13 @@ export async function createNotification(
 ): Promise<void> {
   // Don't notify yourself
   if (input.actorId && input.actorId === input.userId) {
-    return;
+    return
   }
 
   // Check user preferences
   const settings = await db.query.userNotificationSettings.findFirst({
     where: eq(userNotificationSettings.userId, input.userId),
-  });
+  })
 
   // If settings exist, check if this notification type is enabled
   // Note: archive_request, chain_archived, and review bypass preference checks as they are important admin/system notifications
@@ -34,7 +34,8 @@ export async function createNotification(
     settings &&
     input.type !== "archive_request" &&
     input.type !== "chain_archived" &&
-    input.type !== "review"
+    input.type !== "review" &&
+    input.type !== "flag"
   ) {
     const typeToSetting: Partial<
       Record<NotificationType, keyof typeof settings>
@@ -43,11 +44,12 @@ export async function createNotification(
       comment: "commentsEnabled",
       follow: "followsEnabled",
       new_content: "newContentEnabled",
-    };
+      mention: "mentionsEnabled",
+    }
 
-    const settingKey = typeToSetting[input.type];
+    const settingKey = typeToSetting[input.type]
     if (settingKey && !settings[settingKey]) {
-      return; // User has disabled this notification type
+      return // User has disabled this notification type
     }
   }
 
@@ -58,7 +60,7 @@ export async function createNotification(
     entityType: input.entityType,
     entityId: input.entityId,
     data: input.data,
-  });
+  })
 }
 
 /**
@@ -66,24 +68,24 @@ export async function createNotification(
  * Used when a followed user creates new content.
  */
 export async function notifyFollowers(args: {
-  actorId: number;
-  actorName: string;
-  actorAvatarId?: string | null;
-  type: "new_content";
-  entityType: NotificationEntityType;
-  entityId: number;
-  entityTitle?: string;
+  actorId: number
+  actorName: string
+  actorAvatarId?: string | null
+  type: "new_content"
+  entityType: NotificationEntityType
+  entityId: number
+  entityTitle?: string
 }): Promise<void> {
   // Get all followers of this user
   const followers = await db
     .select({ followedByUserId: userFollows.followedByUserId })
     .from(userFollows)
-    .where(eq(userFollows.followedUserId, args.actorId));
+    .where(eq(userFollows.followedUserId, args.actorId))
 
-  if (followers.length === 0) return;
+  if (followers.length === 0) return
 
   // Get notification settings for all followers to filter
-  const followerIds = followers.map((f) => f.followedByUserId);
+  const followerIds = followers.map((f) => f.followedByUserId)
 
   // Get settings for followers who have disabled new_content
   const disabledSettings = await db.query.userNotificationSettings.findMany({
@@ -93,16 +95,16 @@ export async function notifyFollowers(args: {
         eqOp(settings.newContentEnabled, false),
       ),
     columns: { userId: true },
-  });
+  })
 
-  const disabledUserIds = new Set(disabledSettings.map((s) => s.userId));
+  const disabledUserIds = new Set(disabledSettings.map((s) => s.userId))
 
   // Filter out users who have disabled new_content notifications
   const enabledFollowers = followers.filter(
     (f) => !disabledUserIds.has(f.followedByUserId),
-  );
+  )
 
-  if (enabledFollowers.length === 0) return;
+  if (enabledFollowers.length === 0) return
 
   // Batch insert all follower notifications
   await db.insert(notifications).values(
@@ -118,7 +120,7 @@ export async function notifyFollowers(args: {
         entityTitle: args.entityTitle,
       },
     })),
-  );
+  )
 }
 
 /**
@@ -134,79 +136,86 @@ export async function getContentOwner(
       const post = await db.query.posts.findFirst({
         where: (posts, { eq: eqOp }) => eqOp(posts.id, entityId),
         columns: { userId: true },
-      });
-      return post?.userId ?? null;
+      })
+      return post?.userId ?? null
     }
     case "riuSet": {
       const set = await db.query.riuSets.findFirst({
         where: (sets, { eq: eqOp }) => eqOp(sets.id, entityId),
         columns: { userId: true },
-      });
-      return set?.userId ?? null;
+      })
+      return set?.userId ?? null
     }
     case "riuSubmission": {
       const sub = await db.query.riuSubmissions.findFirst({
         where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
         columns: { userId: true },
-      });
-      return sub?.userId ?? null;
+      })
+      return sub?.userId ?? null
     }
     case "biuSet": {
       const set = await db.query.biuSets.findFirst({
         where: (sets, { eq: eqOp }) => eqOp(sets.id, entityId),
         columns: { userId: true },
-      });
-      return set?.userId ?? null;
+      })
+      return set?.userId ?? null
     }
-    case "siuStack": {
-      const stack = await db.query.siuStacks.findFirst({
-        where: (stacks, { eq: eqOp }) => eqOp(stacks.id, entityId),
+    case "siuSet": {
+      const set = await db.query.siuSets.findFirst({
+        where: (sets, { eq: eqOp }) => eqOp(sets.id, entityId),
         columns: { userId: true },
-      });
-      return stack?.userId ?? null;
+      })
+      return set?.userId ?? null
     }
-    case "siuChain": {
-      // SIU chains don't have a single owner
-      return null;
+    case "siu": {
+      // SIU rounds don't have a single owner
+      return null
     }
     case "utvVideo": {
       // UTV videos don't have owners (legacy content)
-      return null;
+      return null
     }
     case "utvVideoSuggestion": {
       const suggestion = await db.query.utvVideoSuggestions.findFirst({
         where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
         columns: { submittedByUserId: true },
-      });
-      return suggestion?.submittedByUserId ?? null;
+      })
+      return suggestion?.submittedByUserId ?? null
     }
     case "trickSubmission": {
       const submission = await db.query.trickSubmissions.findFirst({
         where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
         columns: { submittedByUserId: true },
-      });
-      return submission?.submittedByUserId ?? null;
+      })
+      return submission?.submittedByUserId ?? null
     }
     case "trickSuggestion": {
       const suggestion = await db.query.trickSuggestions.findFirst({
         where: (subs, { eq: eqOp }) => eqOp(subs.id, entityId),
         columns: { submittedByUserId: true },
-      });
-      return suggestion?.submittedByUserId ?? null;
+      })
+      return suggestion?.submittedByUserId ?? null
     }
     case "trickVideo": {
       const video = await db.query.trickVideos.findFirst({
         where: (videos, { eq: eqOp }) => eqOp(videos.id, entityId),
         columns: { submittedByUserId: true },
-      });
-      return video?.submittedByUserId ?? null;
+      })
+      return video?.submittedByUserId ?? null
+    }
+    case "glossaryProposal": {
+      const proposal = await db.query.glossaryProposals.findFirst({
+        where: (proposals, { eq: eqOp }) => eqOp(proposals.id, entityId),
+        columns: { submittedByUserId: true },
+      })
+      return proposal?.submittedByUserId ?? null
     }
     case "user": {
       // For follow notifications, the entityId is the user being followed
-      return entityId;
+      return entityId
     }
     default: {
-      return null;
+      return null
     }
   }
 }

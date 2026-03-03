@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query"
 
 import {
   clearSessionServerFn,
@@ -6,9 +6,9 @@ import {
   setSessionFlashServerFn,
   setSessionSidebarServerFn,
   setSessionThemeServerFn,
-} from "~/lib/session/fns";
+} from "~/lib/session/fns"
 
-export const HAUS_SESSION_KEY = "haus_session";
+export const HAUS_SESSION_KEY = "haus.session"
 
 export const session = {
   get: {
@@ -17,7 +17,7 @@ export const session = {
       return queryOptions({
         queryKey: ["session.get"],
         queryFn: getSessionServerFn,
-      });
+      })
     },
   },
   clear: {
@@ -38,4 +38,4 @@ export const session = {
       fn: setSessionSidebarServerFn,
     },
   },
-};
+}
