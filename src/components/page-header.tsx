@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb"
 import { SidebarTrigger } from "~/components/ui/sidebar"
+import { haptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
 
 function HeaderDivider() {
@@ -117,6 +118,7 @@ function Tab({
   return (
     <Link
       to={to}
+      onClick={() => haptics.selection()}
       className={
         isActive
           ? "bg-secondary text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors"

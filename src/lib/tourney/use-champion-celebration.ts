@@ -1,6 +1,8 @@
 import confetti from "canvas-confetti"
 import { useEffect, useRef, useState } from "react"
 
+import { haptics } from "~/lib/haptics"
+
 const colors = [
   "#ff6b6b",
   "#ff8c42",
@@ -59,6 +61,7 @@ export function useChampionCelebration(champion: string | null) {
       fireConfetti
     ) {
       prevChampionForConfettiRef.current = champion
+      haptics.heavy()
       fireConfetti({
         particleCount: 80,
         spread: 100,

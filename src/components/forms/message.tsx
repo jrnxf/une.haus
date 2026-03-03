@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router"
 import { CornerDownLeftIcon } from "lucide-react"
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 
 import { MentionTextarea } from "~/components/input/mention-textarea"
 import { Button } from "~/components/ui/button"
@@ -19,6 +19,19 @@ export function BaseMessageForm({
   const sessionUser = useSessionUser()
   const [content, setContent] = useState(initialContent ?? "")
   const [resetVersion, setResetVersion] = useState(0)
+  const formRef = useRef<HTMLFormElement>(null)
+  const prevHeight = useRef(0)
+
+  useLayoutEffect(() => {
+    const el = formRef.current
+    if (!el) return
+    const h = el.offsetHeight
+    if (prevHeight.current && h > prevHeight.current) {
+      const main = document.getElementById("main-content")
+      if (main) main.scrollTop = main.scrollHeight
+    }
+    prevHeight.current = h
+  })
 
   const reset = () => {
     setContent("")
@@ -44,6 +57,7 @@ export function BaseMessageForm({
 
   return (
     <form
+      ref={formRef}
       className="bg-background focus-within:ring-ring relative w-full overflow-clip rounded-lg border focus-within:ring-2"
       method="post"
       onClick={(event) => {
@@ -63,7 +77,7 @@ export function BaseMessageForm({
       }}
     >
       <div className="dark:bg-input/30 flex items-end bg-transparent px-2">
-        <div className="w-full">
+        <div className="min-w-0 flex-1">
           <MentionTextarea
             key={`mention-textarea-${resetVersion}`}
             value={content}

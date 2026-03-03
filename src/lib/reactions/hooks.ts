@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query"
 import { toast } from "sonner"
 
+import { haptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { reactions } from "~/lib/reactions"
 import {
@@ -45,6 +46,7 @@ export function useLikeRecord({
   const mutation = useMutation({
     mutationFn: reactions.like.fn,
     onMutate: async () => {
+      haptics.selection()
       invariant(sessionUser, "Not authenticated")
       qc.cancelQueries({ queryKey: optimisticUpdateQueryKey })
 
@@ -151,6 +153,7 @@ export function useUnlikeRecord({
   const mutation = useMutation({
     mutationFn: reactions.unlike.fn,
     onMutate: async () => {
+      haptics.selection()
       invariant(sessionUser, "Not authenticated")
 
       qc.cancelQueries({ queryKey: optimisticUpdateQueryKey })

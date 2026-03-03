@@ -152,7 +152,7 @@ export function MentionTextarea({
       data-mention-ready={isReady ? "true" : undefined}
       style={{ "--mention-rows": rows } as CSSProperties}
       className={cn(
-        "tiptap-wrapper [&_.tiptap]:min-h-[calc(1rem_+_var(--mention-rows)*1.5rem)] [&_.tiptap]:outline-none [&_.tiptap_p]:m-0",
+        "tiptap-wrapper [&_.tiptap]:min-h-[calc(var(--mention-rows)*1.5rem)] [&_.tiptap]:break-words [&_.tiptap]:outline-none [&_.tiptap_p]:m-0",
         "[&_.tiptap_.is-editor-empty:first-child::before]:text-muted-foreground [&_.tiptap_.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_.is-editor-empty:first-child::before]:float-left [&_.tiptap_.is-editor-empty:first-child::before]:h-0 [&_.tiptap_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
 
         // standard textarea

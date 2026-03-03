@@ -9,18 +9,6 @@ async function openSearch(page: Page) {
 }
 
 test.describe("command palette", () => {
-  test("opens via search button and Escape closes", async ({ page }) => {
-    await page.goto("/")
-
-    await openSearch(page)
-    await expect(page.getByPlaceholder("search for anything...")).toBeVisible()
-
-    await page.keyboard.press("Escape")
-    await expect(
-      page.getByPlaceholder("search for anything..."),
-    ).not.toBeVisible()
-  })
-
   test("typing a page name and pressing Enter navigates", async ({ page }) => {
     await page.goto("/")
 

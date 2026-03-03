@@ -1,9 +1,11 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
 
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
+  EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
 import { games } from "~/lib/games"
@@ -29,11 +31,11 @@ function NoRoundsComponent() {
   return (
     <Empty>
       <EmptyHeader>
-        <EmptyTitle>no rounds</EmptyTitle>
-        <EmptyDescription>
-          there are no rounds right now. check back soon for a new challenge to
-          back up!
-        </EmptyDescription>
+        <EmptyMedia variant="icon">
+          <GhostIcon />
+        </EmptyMedia>
+        <EmptyTitle>no active round</EmptyTitle>
+        <EmptyDescription>try again later</EmptyDescription>
       </EmptyHeader>
     </Empty>
   )

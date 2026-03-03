@@ -10,6 +10,63 @@ import {
 } from "~/db/schema"
 import { type CreateNotificationInput } from "~/lib/notifications/schemas"
 
+export type NotificationPreferences = {
+  likesEnabled: boolean
+  commentsEnabled: boolean
+  followsEnabled: boolean
+  newContentEnabled: boolean
+  mentionsEnabled: boolean
+}
+
+const SYSTEM_TYPES: ReadonlySet<NotificationType> = new Set([
+  "archive_request",
+  "chain_archived",
+  "review",
+  "flag",
+])
+
+const TYPE_TO_SETTING: Partial<
+  Record<NotificationType, keyof NotificationPreferences>
+> = {
+  like: "likesEnabled",
+  comment: "commentsEnabled",
+  follow: "followsEnabled",
+  new_content: "newContentEnabled",
+  mention: "mentionsEnabled",
+}
+
+/**
+ * Pure decision function: should a notification be created?
+ * Returns false for self-notifications or when user preferences disable the type.
+ * System notifications (archive_request, chain_archived, review, flag) bypass preferences.
+ */
+export function shouldCreateNotification(
+  input: Pick<CreateNotificationInput, "actorId" | "userId" | "type">,
+  settings: NotificationPreferences | null,
+): boolean {
+  // Don't notify yourself
+  if (input.actorId && input.actorId === input.userId) {
+    return false
+  }
+
+  // System notifications always go through
+  if (SYSTEM_TYPES.has(input.type)) {
+    return true
+  }
+
+  // No settings means all defaults (enabled)
+  if (!settings) {
+    return true
+  }
+
+  const settingKey = TYPE_TO_SETTING[input.type]
+  if (settingKey && !settings[settingKey]) {
+    return false
+  }
+
+  return true
+}
+
 /**
  * Creates a single notification.
  * Checks that actor !== recipient to avoid self-notifications.
@@ -18,39 +75,13 @@ import { type CreateNotificationInput } from "~/lib/notifications/schemas"
 export async function createNotification(
   input: CreateNotificationInput,
 ): Promise<void> {
-  // Don't notify yourself
-  if (input.actorId && input.actorId === input.userId) {
-    return
-  }
-
   // Check user preferences
   const settings = await db.query.userNotificationSettings.findFirst({
     where: eq(userNotificationSettings.userId, input.userId),
   })
 
-  // If settings exist, check if this notification type is enabled
-  // Note: archive_request, chain_archived, and review bypass preference checks as they are important admin/system notifications
-  if (
-    settings &&
-    input.type !== "archive_request" &&
-    input.type !== "chain_archived" &&
-    input.type !== "review" &&
-    input.type !== "flag"
-  ) {
-    const typeToSetting: Partial<
-      Record<NotificationType, keyof typeof settings>
-    > = {
-      like: "likesEnabled",
-      comment: "commentsEnabled",
-      follow: "followsEnabled",
-      new_content: "newContentEnabled",
-      mention: "mentionsEnabled",
-    }
-
-    const settingKey = typeToSetting[input.type]
-    if (settingKey && !settings[settingKey]) {
-      return // User has disabled this notification type
-    }
+  if (!shouldCreateNotification(input, settings ?? null)) {
+    return
   }
 
   await db.insert(notifications).values({

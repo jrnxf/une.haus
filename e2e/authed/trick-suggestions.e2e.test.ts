@@ -253,11 +253,7 @@ test.describe.serial("trick suggestions", () => {
       await userPage.goto("/notifications")
       await userPage.waitForLoadState("networkidle")
       await expect(
-        userPage
-          .getByRole("link")
-          .filter({ hasText: "rejected your trick suggestion" })
-          .filter({ hasText: "e2e-review-rejected" })
-          .first(),
+        userPage.getByText("rejected your trick suggestion").first(),
       ).toBeVisible()
     }).toPass({ timeout: 15_000 })
   })

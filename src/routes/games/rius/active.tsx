@@ -70,8 +70,8 @@ function RouteComponent() {
             <EmptyMedia variant="icon">
               <GhostIcon />
             </EmptyMedia>
-            <EmptyTitle>no active sets</EmptyTitle>
-            <EmptyDescription>check back soon!</EmptyDescription>
+            <EmptyTitle>no active round</EmptyTitle>
+            <EmptyDescription>try again later</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (

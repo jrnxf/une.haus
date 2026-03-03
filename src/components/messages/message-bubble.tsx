@@ -31,6 +31,7 @@ import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
 import { useFlagContent } from "~/lib/flags/hooks"
+import { haptics } from "~/lib/haptics"
 import {
   extractMentionedUserIds,
   stripMentionTokens,
@@ -91,10 +92,12 @@ export function MessageBubble({
       queryClient.invalidateQueries({
         queryKey: messages.list.queryOptions(parent).queryKey,
       })
+      haptics.success()
       toast.success("message deleted")
       setActionsOpen(false)
     },
     onError: () => {
+      haptics.error()
       toast.error("failed to delete message")
     },
   })
@@ -110,6 +113,7 @@ export function MessageBubble({
       (id) => userMap.get(id)?.name,
     )
     navigator.clipboard.writeText(plainText)
+    haptics.success()
     toast.success("message copied", { duration: 1000 })
     setActionsOpen(false)
   }
@@ -331,10 +335,12 @@ function EditMessageDrawer({
       queryClient.invalidateQueries({
         queryKey: messages.list.queryOptions(parent).queryKey,
       })
+      haptics.success()
       toast.success("message updated")
       onOpenChange(false)
     },
     onError: () => {
+      haptics.error()
       toast.error("failed to update message")
     },
   })
@@ -345,10 +351,12 @@ function EditMessageDrawer({
       queryClient.invalidateQueries({
         queryKey: messages.list.queryOptions(parent).queryKey,
       })
+      haptics.success()
       toast.success("message deleted")
       onOpenChange(false)
     },
     onError: () => {
+      haptics.error()
       toast.error("failed to delete message")
     },
   })

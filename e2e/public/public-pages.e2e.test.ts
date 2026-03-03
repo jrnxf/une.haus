@@ -29,6 +29,11 @@ test("shop page renders", async ({ page }) => {
   await expect(page.getByText("coming soon")).toBeVisible()
 })
 
+test("map page renders", async ({ page }) => {
+  await page.goto("/map")
+  await expect(page.getByRole("main")).toBeVisible()
+})
+
 test("not found route shows fallback", async ({ page }) => {
   await page.goto("/this-does-not-exist")
   await expect(page.getByText("not found")).toBeVisible()

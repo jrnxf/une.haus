@@ -7,6 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip"
+import { haptics } from "~/lib/haptics"
 
 export function ShareButton() {
   return (
@@ -18,6 +19,7 @@ export function ShareButton() {
           aria-label="share"
           onClick={() => {
             navigator.clipboard.writeText(globalThis.location.href)
+            haptics.success()
             toast.success("link copied")
           }}
         >

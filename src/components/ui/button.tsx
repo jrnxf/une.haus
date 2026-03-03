@@ -1,5 +1,4 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
-import { createClientOnlyFn } from "@tanstack/react-start"
 import { cva, type VariantProps } from "class-variance-authority"
 import * as React from "react"
 
@@ -83,27 +82,3 @@ function Button({
 }
 
 export { Button, buttonVariants }
-
-export const vibrate = createClientOnlyFn(() => {
-  if (navigator.vibrate) {
-    navigator.vibrate(200)
-  } else {
-    const el = document.createElement("div")
-    const id = Math.random().toString(36).slice(2)
-    el.innerHTML =
-      `<input type="checkbox" id="` +
-      id +
-      `" switch /><label for="` +
-      id +
-      `"></label>`
-    el.setAttribute(
-      "style",
-      "display:none !important;opacity:0 !important;visibility:hidden !important;",
-    )
-    document.querySelector("body")?.append(el)
-    el.querySelector("label")?.click()
-    setTimeout(() => {
-      el.remove()
-    }, 1500)
-  }
-})

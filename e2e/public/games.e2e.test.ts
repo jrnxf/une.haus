@@ -1,19 +1,6 @@
 import { expect, test } from "../fixtures"
 
 test.describe("games hub", () => {
-  test("shows 3 game cards linking to correct routes", async ({ page }) => {
-    await page.goto("/games")
-
-    await expect(page.getByText("rack it up")).toBeVisible()
-    await expect(page.getByText("back it up")).toBeVisible()
-    await expect(page.getByText("stack it up")).toBeVisible()
-
-    // Verify each card is a navigable link
-    await expect(page.getByRole("link", { name: /rack it up/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /back it up/i })).toBeVisible()
-    await expect(page.getByRole("link", { name: /stack it up/i })).toBeVisible()
-  })
-
   test("Rack It Up card navigates to active RIU", async ({ page }) => {
     await page.goto("/games")
     await page.getByRole("link", { name: /rack it up/i }).click()

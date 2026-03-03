@@ -2,6 +2,7 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { X } from "lucide-react"
 
 import { buttonVariants } from "~/components/ui/base-button"
+import { haptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
 
 import type * as React from "react"
@@ -236,7 +237,10 @@ function ConfirmDialog({
                     variant === "destructive" ? "destructive" : "primary",
                 }),
               )}
-              onClick={onConfirm}
+              onClick={() => {
+                if (variant === "destructive") haptics.warning()
+                onConfirm()
+              }}
             >
               {confirmText}
             </AlertDialogPrimitive.Close>

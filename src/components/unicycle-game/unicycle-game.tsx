@@ -182,7 +182,8 @@ export function UnicycleGame() {
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-1 cursor-pointer items-center justify-center select-none"
+      className="relative flex flex-1 cursor-pointer touch-none items-center justify-center select-none"
+      style={{ WebkitTouchCallout: "none" }}
       onPointerDown={jump}
       onPointerUp={releaseJump}
       onPointerCancel={releaseJump}
