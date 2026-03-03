@@ -5,6 +5,7 @@ export default defineConfig({
   testDir: "./e2e",
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  workers: "100%",
   reporter: [["list", { printSteps: true }], ["html"]],
   use: {
     baseURL: "http://localhost:3000",
