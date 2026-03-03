@@ -54,9 +54,9 @@ Components are organized in domain-specific folders. **Do NOT use barrel files (
 // Good - direct imports
 
 // Bad - barrel imports (do not use)
-import { StatCard } from "~/components/stats";
-import { ActivityChart } from "~/components/stats/activity-chart";
-import { StatCard } from "~/components/stats/stat-card";
+import { StatCard } from "~/components/stats"
+import { ActivityChart } from "~/components/stats/activity-chart"
+import { StatCard } from "~/components/stats/stat-card"
 ```
 
 ## Query Key Hierarchy
@@ -107,10 +107,10 @@ Routes use a loader + suspense pattern:
 ```ts
 // Loader pre-fetches data
 loader: ({ context }) =>
-  context.queryClient.ensureQueryData(domain.get.queryOptions());
+  context.queryClient.ensureQueryData(domain.get.queryOptions())
 
 // Component uses same query options
-const { data } = useSuspenseQuery(domain.get.queryOptions());
+const { data } = useSuspenseQuery(domain.get.queryOptions())
 ```
 
 ### Loaders Must Await Data for SSR
@@ -351,8 +351,8 @@ This project uses TanStack Router with TanStack Query (react-query) for data fet
 When auth state changes (login/logout), use `queryClient.resetQueries()` to clear the session cache:
 
 ```ts
-await queryClient.resetQueries({ queryKey: ["session.get"] });
-navigate({ to: "/destination" });
+await queryClient.resetQueries({ queryKey: ["session.get"] })
+navigate({ to: "/destination" })
 ```
 
 **Why `resetQueries` instead of `invalidateQueries`?**
@@ -378,41 +378,41 @@ There are two patterns depending on whether you stay on the same page or navigat
 When a mutation modifies data and the user stays on the same page, use optimistic updates for immediate UI feedback:
 
 ```ts
-const listQueryKey = domain.list.queryOptions({ status: "pending" }).queryKey;
+const listQueryKey = domain.list.queryOptions({ status: "pending" }).queryKey
 
 const mutation = useMutation({
   mutationFn: domain.review.fn,
   onMutate: async ({ data: { id } }) => {
     // Cancel in-flight queries
-    await qc.cancelQueries({ queryKey: listQueryKey });
+    await qc.cancelQueries({ queryKey: listQueryKey })
 
     // Get previous data for rollback
-    const prev = qc.getQueryData(listQueryKey);
+    const prev = qc.getQueryData(listQueryKey)
 
     // Optimistically update (e.g., remove item from list)
     qc.setQueryData(listQueryKey, (old) =>
       old?.filter((item) => item.id !== id),
-    );
+    )
 
-    return { prev };
+    return { prev }
   },
   onSuccess: () => {
     // Remove other affected queries for when user navigates later
-    qc.removeQueries({ queryKey: otherDomain.graph.queryOptions().queryKey });
-    toast.success("Done");
+    qc.removeQueries({ queryKey: otherDomain.graph.queryOptions().queryKey })
+    toast.success("Done")
   },
   onError: (error, _, context) => {
     // Rollback on error
     if (context?.prev) {
-      qc.setQueryData(listQueryKey, context.prev);
+      qc.setQueryData(listQueryKey, context.prev)
     }
-    toast.error(error.message);
+    toast.error(error.message)
   },
   onSettled: () => {
     // Ensure data consistency
-    qc.invalidateQueries({ queryKey: listQueryKey });
+    qc.invalidateQueries({ queryKey: listQueryKey })
   },
-});
+})
 ```
 
 ### Pattern 2: Remove + Navigate (navigating to different page)
@@ -425,15 +425,15 @@ When a mutation completes and navigates to a page that displays affected data, u
 const mutation = useMutation({
   mutationFn: domain.create.fn,
   onMutate: () => {
-    qc.cancelQueries({ queryKey: listQueryKey });
+    qc.cancelQueries({ queryKey: listQueryKey })
   },
   onSuccess: () => {
-    toast.success("Created");
+    toast.success("Created")
     // Remove queries so loader fetches fresh data on navigation
-    qc.removeQueries({ queryKey: listQueryKey });
-    navigate({ to: "/destination" });
+    qc.removeQueries({ queryKey: listQueryKey })
+    navigate({ to: "/destination" })
   },
-});
+})
 ```
 
 ### Why these patterns?
@@ -451,10 +451,10 @@ const mutation = useMutation({
 qc.removeQueries({
   queryKey: tricks.submissions.list.queryOptions({ status: "pending" })
     .queryKey,
-});
+})
 
 // Bad - manually constructing keys can drift from actual keys
-qc.removeQueries({ queryKey: ["tricks.submissions.list"] });
+qc.removeQueries({ queryKey: ["tricks.submissions.list"] })
 ```
 
 ## UI Guidelines
