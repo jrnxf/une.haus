@@ -25,6 +25,7 @@ import {
 import { MobileFooter } from "~/components/site-header"
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
 import { Toaster } from "~/components/ui/sonner"
+import { HapticsProvider } from "~/lib/haptics-provider"
 import { presence } from "~/lib/presence"
 import { useRootRouteContext } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
@@ -156,37 +157,39 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="overscroll-none font-mono antialiased">
         <ThemeProvider>
-          <Toaster />
-          <ConfirmDialog />
-          <MobileNavProvider>
-            <div ref={setPortalContainer} className="relative h-dvh">
-              <MobileNavIndentBackground />
-              <MobileNavIndent>
-                <SidebarProvider
-                  defaultOpen={sessionData.sidebarOpen}
-                  style={
-                    {
-                      "--sidebar-width": "calc(var(--spacing) * 62)",
-                      "--header-height": "calc(var(--spacing) * 12)",
-                    } as React.CSSProperties
-                  }
-                >
-                  <GlobalShortcuts />
-                  <AppSidebar variant="inset" />
-                  <SidebarInset>
-                    <div
-                      className="flex flex-1 flex-col overflow-y-auto overscroll-none"
-                      id="main-content"
-                    >
-                      {children}
-                    </div>
-                    <MobileFooter />
-                  </SidebarInset>
-                </SidebarProvider>
-              </MobileNavIndent>
-              <MobileNavPopup portalContainer={portalContainer} />
-            </div>
-          </MobileNavProvider>
+          <HapticsProvider>
+            <Toaster />
+            <ConfirmDialog />
+            <MobileNavProvider>
+              <div ref={setPortalContainer} className="relative h-dvh">
+                <MobileNavIndentBackground />
+                <MobileNavIndent>
+                  <SidebarProvider
+                    defaultOpen={sessionData.sidebarOpen}
+                    style={
+                      {
+                        "--sidebar-width": "calc(var(--spacing) * 62)",
+                        "--header-height": "calc(var(--spacing) * 12)",
+                      } as React.CSSProperties
+                    }
+                  >
+                    <GlobalShortcuts />
+                    <AppSidebar variant="inset" />
+                    <SidebarInset>
+                      <div
+                        className="flex flex-1 flex-col overflow-y-auto overscroll-none"
+                        id="main-content"
+                      >
+                        {children}
+                      </div>
+                      <MobileFooter />
+                    </SidebarInset>
+                  </SidebarProvider>
+                </MobileNavIndent>
+                <MobileNavPopup portalContainer={portalContainer} />
+              </div>
+            </MobileNavProvider>
+          </HapticsProvider>
         </ThemeProvider>
         <TanStackDevtools
           config={{

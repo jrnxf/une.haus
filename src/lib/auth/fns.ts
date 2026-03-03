@@ -12,7 +12,7 @@ import {
   registerSchema,
   sendCodeSchema,
 } from "~/lib/auth/schemas"
-import { env } from "~/lib/env"
+import { env, isDevelopment } from "~/lib/env"
 import { invariant } from "~/lib/invariant"
 import { useServerSession } from "~/lib/session/hooks"
 
@@ -24,16 +24,24 @@ export const sendAuthCodeServerFn = createServerFn({
   .inputValidator(zodValidator(sendCodeSchema))
   .handler(async ({ data: input }) => {
     const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5)
+    const code = isDevelopment
+      ? "9999"
+      : String(Math.floor(Math.random() * 10_000)).padStart(4, "0")
 
     const [authCode] = await db
       .insert(authCodes)
       .values({
         email: input.email,
         id: nanoid(),
-        code: String(Math.floor(Math.random() * 10_000)).padStart(4, "0"),
+        code,
         expiresAt: inFiveMinutes,
       })
       .returning()
+
+    if (isDevelopment) {
+      console.log(`[dev] Auth code for ${input.email}: ${authCode.code}`)
+      return
+    }
 
     const { data, error } = await resendClient.emails.send({
       from: "Colby Thomas <colby@jrnxf.co>",

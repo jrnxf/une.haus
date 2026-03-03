@@ -13,7 +13,7 @@ test.describe.serial("vault suggestions", () => {
     try {
       await sql`DELETE FROM utv_video_suggestions WHERE reason LIKE 'e2e-%'`
       await sql`UPDATE utv_videos SET title = REPLACE(title, ${E2E_SUFFIX}, '') WHERE title LIKE ${`%${E2E_SUFFIX}`}`
-      await sql`DELETE FROM notifications WHERE data::text LIKE '%e2e-%'`
+      await sql`DELETE FROM notifications WHERE entity_type = 'utvVideoSuggestion' AND data::text LIKE '%e2e-%'`
     } finally {
       await sql.end()
     }

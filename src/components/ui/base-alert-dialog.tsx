@@ -2,7 +2,7 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { X } from "lucide-react"
 
 import { buttonVariants } from "~/components/ui/base-button"
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
 
 import type * as React from "react"
@@ -215,6 +215,7 @@ function ConfirmDialog({
   variant = "default",
   onConfirm,
 }: ConfirmDialogProps) {
+  const haptics = useHaptics()
   return (
     <AlertDialogPrimitive.Root handle={handle}>
       <AlertDialogPortal>

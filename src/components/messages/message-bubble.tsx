@@ -31,7 +31,7 @@ import { Label } from "~/components/ui/label"
 import { Textarea } from "~/components/ui/textarea"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
 import { useFlagContent } from "~/lib/flags/hooks"
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 import {
   extractMentionedUserIds,
   stripMentionTokens,
@@ -53,6 +53,7 @@ export function MessageBubble({
   parent: MessageParent
   message: Message
 }) {
+  const haptics = useHaptics()
   const messageType = `${parent.type}Message` as const
   const navigate = useNavigate()
   const sessionUser = useSessionUser()
@@ -317,6 +318,7 @@ function EditMessageDrawer({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
+  const haptics = useHaptics()
   const queryClient = useQueryClient()
   const [content, setContent] = React.useState(message.content)
   const wasOpenRef = React.useRef(open)

@@ -66,7 +66,7 @@ export function PostView({ postId }: { postId: number }) {
   return (
     <div className="mx-auto flex h-auto w-full max-w-5xl flex-col justify-start gap-6 p-4">
       <div className="flex items-start gap-2">
-        <div className="shrink-0 space-y-1">
+        <div className="min-w-0 space-y-1">
           <h1 className="text-2xl leading-none font-semibold tracking-tight">
             {post.title}
           </h1>
@@ -107,11 +107,11 @@ export function PostView({ postId }: { postId: number }) {
             </Tooltip>
           )}
           {post.likes.length > 0 && (
-            <UsersDialog
-              users={post.likes.map((like) => like.user)}
-              title={`${post.likes.length} ${pluralize("Like", post.likes.length)}`}
-              trigger={
-                <Tooltip>
+            <Tooltip>
+              <UsersDialog
+                users={post.likes.map((like) => like.user)}
+                title={`${post.likes.length} ${pluralize("Like", post.likes.length)}`}
+                trigger={
                   <TooltipTrigger asChild>
                     <Button
                       size="icon-sm"
@@ -121,10 +121,10 @@ export function PostView({ postId }: { postId: number }) {
                       <TrendingUpIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>likes</TooltipContent>
-                </Tooltip>
-              }
-            />
+                }
+              />
+              <TooltipContent>likes</TooltipContent>
+            </Tooltip>
           )}
           <ShareButton />
           {sessionUser && !isOwner && (
@@ -177,7 +177,7 @@ export function PostView({ postId }: { postId: number }) {
         </div>
       </div>
 
-      <div className="wrap-break-word whitespace-pre-wrap">
+      <div className="overflow-hidden wrap-break-word whitespace-pre-wrap">
         {post.imageId && (
           <img
             alt=""

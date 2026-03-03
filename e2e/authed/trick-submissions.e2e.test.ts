@@ -11,7 +11,7 @@ test.describe.serial("trick submissions", () => {
     try {
       await sql`DELETE FROM trick_submissions WHERE name LIKE 'e2e-%'`
       await sql`DELETE FROM tricks WHERE name LIKE 'e2e-%'`
-      await sql`DELETE FROM notifications WHERE data::text LIKE '%e2e-%'`
+      await sql`DELETE FROM notifications WHERE entity_type = 'trickSubmission' AND data::text LIKE '%e2e-%'`
     } finally {
       await sql.end()
     }

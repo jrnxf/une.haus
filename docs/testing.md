@@ -69,3 +69,15 @@ async function createNotification(input) {
 ```
 
 This gives you fast, deterministic tests without mock setup/teardown overhead.
+
+## Manual testing with Playwright MCP
+
+In development mode (`VITE_ENVIRONMENT=development`), auth codes are fixed to `9999` and no email is sent. This lets the Playwright MCP browser test authenticated flows without database access:
+
+1. Navigate to `/auth`
+2. Enter any existing user's email (e.g., `colby@jrnxf.co`) and click "send code"
+3. On `/auth/verify`, enter `9999` and click "verify"
+
+The server logs the code to console: `[dev] Auth code for <email>: 9999`
+
+This only applies to the dev environment — production always generates random codes and sends emails via Resend.

@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { reactions } from "~/lib/reactions"
 import {
@@ -42,6 +42,7 @@ export function useLikeRecord({
 }: RecordReactionArgs) {
   const qc = useQueryClient()
   const sessionUser = useSessionUser()
+  const haptics = useHaptics()
 
   const mutation = useMutation({
     mutationFn: reactions.like.fn,
@@ -149,6 +150,7 @@ export function useUnlikeRecord({
 }: RecordReactionArgs) {
   const qc = useQueryClient()
   const sessionUser = useSessionUser()
+  const haptics = useHaptics()
 
   const mutation = useMutation({
     mutationFn: reactions.unlike.fn,

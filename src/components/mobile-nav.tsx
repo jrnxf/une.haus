@@ -42,7 +42,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { usePeripherals } from "~/hooks/use-peripherals"
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 import { notifications } from "~/lib/notifications"
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { cn } from "~/lib/utils"
@@ -98,14 +98,20 @@ function NavItem({
 
 export function MobileNavProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = usePeripherals("nav")
+  const haptics = useHaptics()
 
   return (
-    <MobileNavContext.Provider value={() => setOpen(true)}>
+    <MobileNavContext.Provider
+      value={() => {
+        haptics.selection()
+        setOpen(true)
+      }}
+    >
       <DrawerPrimitive.Provider>
         <DrawerPrimitive.Root
           open={open}
           onOpenChange={(next) => {
-            haptics.selection()
+            if (!next) haptics.selection()
             setOpen(next)
           }}
           modal={false}

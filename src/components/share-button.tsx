@@ -7,9 +7,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip"
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 
 export function ShareButton() {
+  const haptics = useHaptics()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

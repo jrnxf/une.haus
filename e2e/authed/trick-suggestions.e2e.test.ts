@@ -18,7 +18,7 @@ test.describe.serial("trick suggestions", () => {
         WHERE description LIKE ${`%${E2E_SUFFIX}`}
       `
       await sql`DELETE FROM trick_suggestions WHERE reason LIKE 'e2e-%'`
-      await sql`DELETE FROM notifications WHERE data::text LIKE '%e2e-%'`
+      await sql`DELETE FROM notifications WHERE entity_type = 'trickSuggestion' AND data::text LIKE '%e2e-%'`
     } finally {
       await sql.end()
     }

@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb"
 import { SidebarTrigger } from "~/components/ui/sidebar"
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
 
 function HeaderDivider() {
@@ -112,6 +112,7 @@ function Tab({
   icon?: React.ComponentType<{ className?: string }>
   children: ReactNode
 }) {
+  const haptics = useHaptics()
   const pathname = useLocation({ select: (l) => l.pathname })
   const isActive = pathname.startsWith(to)
 

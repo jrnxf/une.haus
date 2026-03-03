@@ -1,19 +1,26 @@
-import { WebHaptics } from "web-haptics"
+import { createContext, useContext, useMemo } from "react"
 
-let instance: WebHaptics | null = null
+import type { HapticInput, TriggerOptions } from "web-haptics"
 
-function get(): WebHaptics | null {
-  if (typeof window === "undefined") return null
-  if (!instance) instance = new WebHaptics()
-  return instance
-}
+type TriggerFn = (
+  input?: HapticInput,
+  options?: TriggerOptions,
+) => Promise<void> | undefined
 
-export const haptics = {
-  selection: () => get()?.trigger("selection"),
-  success: () => get()?.trigger("success"),
-  error: () => get()?.trigger("error"),
-  warning: () => get()?.trigger("warning"),
-  heavy: () => get()?.trigger("heavy"),
-  light: () => get()?.trigger("light"),
-  medium: () => get()?.trigger("medium"),
+export const HapticsContext = createContext<TriggerFn | null>(null)
+
+export function useHaptics() {
+  const trigger = useContext(HapticsContext)
+  return useMemo(
+    () => ({
+      selection: () => trigger?.("selection"),
+      success: () => trigger?.("success"),
+      error: () => trigger?.("error"),
+      warning: () => trigger?.("warning"),
+      heavy: () => trigger?.("heavy"),
+      light: () => trigger?.("light"),
+      medium: () => trigger?.("medium"),
+    }),
+    [trigger],
+  )
 }

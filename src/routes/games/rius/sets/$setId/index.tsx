@@ -175,11 +175,11 @@ function SetView({ setId }: { setId: number }) {
             </Tooltip>
           )}
           {set.likes.length > 0 && (
-            <UsersDialog
-              users={set.likes?.map((l) => l.user) ?? []}
-              title={`${set.likes?.length ?? 0} ${pluralize("Like", set.likes?.length ?? 0)}`}
-              trigger={
-                <Tooltip>
+            <Tooltip>
+              <UsersDialog
+                users={set.likes?.map((l) => l.user) ?? []}
+                title={`${set.likes?.length ?? 0} ${pluralize("Like", set.likes?.length ?? 0)}`}
+                trigger={
                   <TooltipTrigger asChild>
                     <Button
                       size="icon-sm"
@@ -189,10 +189,10 @@ function SetView({ setId }: { setId: number }) {
                       <TrendingUpIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>likes</TooltipContent>
-                </Tooltip>
-              }
-            />
+                }
+              />
+              <TooltipContent>likes</TooltipContent>
+            </Tooltip>
           )}
           <ShareButton />
           {sessionUser && !isOwner && (

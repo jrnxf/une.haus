@@ -1,7 +1,7 @@
 import confetti from "canvas-confetti"
 import { useEffect, useRef, useState } from "react"
 
-import { haptics } from "~/lib/haptics"
+import { useHaptics } from "~/lib/haptics"
 
 const colors = [
   "#ff6b6b",
@@ -20,6 +20,7 @@ const colors = [
 ]
 
 export function useChampionCelebration(champion: string | null) {
+  const haptics = useHaptics()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const confettiRef = useRef<confetti.CreateTypes | null>(null)
   const [celebrationDismissed, setCelebrationDismissed] = useState(false)
@@ -71,7 +72,7 @@ export function useChampionCelebration(champion: string | null) {
     } else if (!champion) {
       prevChampionForConfettiRef.current = null
     }
-  }, [champion])
+  }, [champion, haptics])
 
   return {
     canvasRef,

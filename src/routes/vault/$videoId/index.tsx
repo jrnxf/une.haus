@@ -160,20 +160,20 @@ function RouteComponent() {
                 </Tooltip>
               )}
               {video.likes.length > 0 && (
-                <UsersDialog
-                  users={video.likes.map((like) => like.user)}
-                  title={`${video.likes.length} ${pluralize("Like", video.likes.length)}`}
-                  trigger={
-                    <Tooltip>
+                <Tooltip>
+                  <UsersDialog
+                    users={video.likes.map((like) => like.user)}
+                    title={`${video.likes.length} ${pluralize("Like", video.likes.length)}`}
+                    trigger={
                       <TooltipTrigger asChild>
                         <Button size="icon-sm" variant="outline">
                           <TrendingUpIcon className="size-4" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>likes</TooltipContent>
-                    </Tooltip>
-                  }
-                />
+                    }
+                  />
+                  <TooltipContent>likes</TooltipContent>
+                </Tooltip>
               )}
               <ShareButton />
               {sessionUser && (

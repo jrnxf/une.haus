@@ -11,7 +11,7 @@ test.describe.serial("glossary proposals", () => {
     try {
       await sql`DELETE FROM glossary_proposals WHERE reason LIKE 'e2e-%'`
       await sql`DELETE FROM trick_elements WHERE name LIKE 'e2e-%'`
-      await sql`DELETE FROM notifications WHERE data::text LIKE '%e2e-%'`
+      await sql`DELETE FROM notifications WHERE entity_type = 'glossaryProposal' AND data::text LIKE '%e2e-%'`
     } finally {
       await sql.end()
     }

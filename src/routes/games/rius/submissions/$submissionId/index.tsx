@@ -191,20 +191,20 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
             </Tooltip>
           )}
           {submission.likes.length > 0 && (
-            <UsersDialog
-              users={submission.likes.map((l) => l.user)}
-              title={`${submission.likes.length} ${pluralize("Like", submission.likes.length)}`}
-              trigger={
-                <Tooltip>
+            <Tooltip>
+              <UsersDialog
+                users={submission.likes.map((l) => l.user)}
+                title={`${submission.likes.length} ${pluralize("Like", submission.likes.length)}`}
+                trigger={
                   <TooltipTrigger asChild>
                     <Button size="icon-sm" variant="outline">
                       <TrendingUpIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>likes</TooltipContent>
-                </Tooltip>
-              }
-            />
+                }
+              />
+              <TooltipContent>likes</TooltipContent>
+            </Tooltip>
           )}
           <ShareButton />
           {sessionUser && !isOwner && (

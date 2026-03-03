@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authed/notifications/")({
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        notifications.grouped.queryOptions({ limit: 50, unreadOnly: false }),
+        notifications.grouped.queryOptions({ limit: 50, unreadOnly: true }),
       ),
       context.queryClient.ensureQueryData(
         notifications.unreadCount.queryOptions(),
