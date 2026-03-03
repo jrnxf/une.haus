@@ -14,10 +14,8 @@ import {
   utvVideoMessages,
 } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
-import {
-  extractMentionedUserIds,
-  stripMentionTokensPlain,
-} from "~/lib/mentions/parse"
+import { extractMentionedUserIds } from "~/lib/mentions/parse"
+import { resolvePreview } from "~/lib/mentions/resolve"
 import {
   createMessageSchema,
   deleteMessageSchema,
@@ -438,7 +436,7 @@ export const createMessageServerFn = createServerFn({
         .returning()
     }
 
-    const preview = stripMentionTokensPlain(content).slice(0, 100)
+    const preview = await resolvePreview(content)
 
     // Create comment notification for the content owner (non-chat only)
     const entityType = MESSAGE_ENTITY_TYPES[type]
@@ -518,7 +516,7 @@ export const updateMessageServerFn = createServerFn({
       const entityType = MESSAGE_ENTITY_TYPES[type]
       const mentionEntityType = entityType ?? "chat"
       const mentionEntityId = input.id ?? 0
-      const preview = stripMentionTokensPlain(content).slice(0, 100)
+      const preview = await resolvePreview(content)
 
       for (const mentionedUserId of newMentions) {
         if (mentionedUserId === userId) continue

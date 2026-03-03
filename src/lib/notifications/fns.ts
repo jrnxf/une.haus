@@ -4,7 +4,7 @@ import { and, count, desc, eq, isNull, lt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import { notifications } from "~/db/schema"
-import { authMiddleware } from "~/lib/middleware"
+import { authMiddleware, authOptionalMiddleware } from "~/lib/middleware"
 import {
   deleteNotificationSchema,
   listNotificationsSchema,
@@ -152,8 +152,10 @@ export const listGroupedNotificationsServerFn = createServerFn({
 export const getUnreadCountServerFn = createServerFn({
   method: "GET",
 })
-  .middleware([authMiddleware])
+  .middleware([authOptionalMiddleware])
   .handler(async ({ context }) => {
+    if (!context.user) return 0
+
     const userId = context.user.id
 
     const [result] = await db

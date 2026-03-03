@@ -6,10 +6,8 @@ import { db } from "~/db"
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
 import { invariant } from "~/lib/invariant"
-import {
-  extractMentionedUserIds,
-  stripMentionTokensPlain,
-} from "~/lib/mentions/parse"
+import { extractMentionedUserIds } from "~/lib/mentions/parse"
+import { resolvePreview } from "~/lib/mentions/resolve"
 import { authMiddleware } from "~/lib/middleware"
 import {
   createNotification,
@@ -169,7 +167,7 @@ export const createPostServerFn = createServerFn({
 
     // Notify @mentioned users in the post content
     const mentionedUserIds = extractMentionedUserIds(input.content)
-    const preview = stripMentionTokensPlain(input.content).slice(0, 100)
+    const preview = await resolvePreview(input.content)
     for (const mentionedUserId of mentionedUserIds) {
       if (mentionedUserId === userId) continue
       createNotification({
@@ -210,6 +208,33 @@ export const updatePostServerFn = createServerFn({
       .set({ ...updateData, userId })
       .where(eq(posts.id, postId))
       .returning()
+
+    // Notify only newly added @mentions
+    if (updateData.content) {
+      const oldMentions = new Set(extractMentionedUserIds(existing.content))
+      const newMentions = extractMentionedUserIds(updateData.content).filter(
+        (uid) => !oldMentions.has(uid),
+      )
+
+      if (newMentions.length > 0) {
+        const preview = await resolvePreview(updateData.content)
+        for (const mentionedUserId of newMentions) {
+          if (mentionedUserId === userId) continue
+          createNotification({
+            userId: mentionedUserId,
+            actorId: userId,
+            type: "mention",
+            entityType: "post",
+            entityId: postId,
+            data: {
+              actorName: context.user.name,
+              actorAvatarId: context.user.avatarId,
+              entityPreview: preview,
+            },
+          }).catch(console.error)
+        }
+      }
+    }
 
     return post
   })
