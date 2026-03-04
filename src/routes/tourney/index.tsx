@@ -59,7 +59,7 @@ function RouteComponent() {
                 <GhostIcon />
               </EmptyMedia>
               <EmptyTitle>no tournaments</EmptyTitle>
-              <EmptyDescription>check back later</EmptyDescription>
+              <EmptyDescription>try again later</EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (

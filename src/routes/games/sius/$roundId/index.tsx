@@ -1,11 +1,20 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
 import { z } from "zod"
 
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button"
 import { RoundStatusBanner } from "~/components/games/sius/round-status-banner"
 import { SetLineage } from "~/components/games/sius/set-lineage"
 import { Button } from "~/components/ui/button"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty"
 import {
   Tooltip,
   TooltipContent,
@@ -55,6 +64,37 @@ function RouteComponent() {
     latestSet.user.id !== sessionUser.id &&
     round.status === "active"
 
+  if (sets.length === 0) {
+    return (
+      <div className="space-y-6">
+        <RoundStatusBanner
+          status={round.status ?? "active"}
+          roundLength={sets.length}
+          voteCount={voteCount}
+        />
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GhostIcon />
+            </EmptyMedia>
+            <EmptyTitle>no sets yet</EmptyTitle>
+            <EmptyDescription>
+              this round is waiting for its first set. upload one to get
+              started!
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button asChild>
+              <Link to="/games/sius/$siuId/upload" params={{ siuId: round.id }}>
+                upload
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <RoundStatusBanner
@@ -67,10 +107,7 @@ function RouteComponent() {
         <div className="flex items-center gap-2">
           {canAddSet ? (
             <Button asChild>
-              <Link
-                to="/games/sius/upload"
-                search={{ parentSetId: latestSet.id }}
-              >
+              <Link to="/games/sius/$siuId/upload" params={{ siuId: round.id }}>
                 upload
               </Link>
             </Button>

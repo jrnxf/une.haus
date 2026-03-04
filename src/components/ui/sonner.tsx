@@ -50,7 +50,7 @@ function useFlashToaster() {
     if (sessionFlash) {
       requestAnimationFrame(() => {
         // ensures the toast has a proper transition in
-        toast(sessionFlash)
+        toast[sessionFlash.type](sessionFlash.message.toLowerCase())
       })
     }
   }, [sessionFlash])

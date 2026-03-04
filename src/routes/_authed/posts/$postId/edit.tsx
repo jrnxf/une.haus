@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
 
     if (post.user.id !== context.user.id) {
       await session.flash.set.fn({
-        data: { message: "You can only edit your own posts" },
+        data: { type: "error", message: "you can only edit your own posts" },
       })
       throw redirect({ to: "/posts/$postId", params: { postId } })
     }
@@ -57,7 +57,9 @@ export const Route = createFileRoute("/_authed/posts/$postId/edit")({
         posts.get.queryOptions({ postId }),
       )
     } catch (error) {
-      await session.flash.set.fn({ data: { message: errorFmt(error) } })
+      await session.flash.set.fn({
+        data: { type: "error", message: errorFmt(error) },
+      })
       throw redirect({ to: "/posts" })
     }
   },

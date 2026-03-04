@@ -360,8 +360,10 @@ export const createMessageServerFn = createServerFn({
 
     const { content, id, type } = input
 
+    let messageId: number | undefined
+
     if (type === "post") {
-      await db
+      const [row] = await db
         .insert(postMessages)
         .values({
           content,
@@ -369,20 +371,22 @@ export const createMessageServerFn = createServerFn({
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     if (type === "chat") {
-      await db
+      const [row] = await db
         .insert(chatMessages)
         .values({
           content,
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     if (type === "riuSet") {
-      await db
+      const [row] = await db
         .insert(riuSetMessages)
         .values({
           content,
@@ -390,10 +394,11 @@ export const createMessageServerFn = createServerFn({
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     if (type === "riuSubmission") {
-      await db
+      const [row] = await db
         .insert(riuSubmissionMessages)
         .values({
           content,
@@ -401,10 +406,11 @@ export const createMessageServerFn = createServerFn({
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     if (type === "utvVideo") {
-      await db
+      const [row] = await db
         .insert(utvVideoMessages)
         .values({
           content,
@@ -412,10 +418,11 @@ export const createMessageServerFn = createServerFn({
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     if (type === "biuSet") {
-      await db
+      const [row] = await db
         .insert(biuSetMessages)
         .values({
           content,
@@ -423,10 +430,11 @@ export const createMessageServerFn = createServerFn({
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     if (type === "siuSet") {
-      await db
+      const [row] = await db
         .insert(siuSetMessages)
         .values({
           content,
@@ -434,6 +442,7 @@ export const createMessageServerFn = createServerFn({
           userId,
         })
         .returning()
+      messageId = row.id
     }
 
     const preview = await resolvePreview(content)
@@ -454,6 +463,7 @@ export const createMessageServerFn = createServerFn({
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
             entityPreview: preview,
+            messageId,
           },
         }).catch(console.error)
       }
@@ -477,6 +487,7 @@ export const createMessageServerFn = createServerFn({
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
           entityPreview: preview,
+          messageId,
         },
       }).catch(console.error)
     }
@@ -515,7 +526,10 @@ export const updateMessageServerFn = createServerFn({
 
       const entityType = MESSAGE_ENTITY_TYPES[type]
       const mentionEntityType = entityType ?? "chat"
-      const mentionEntityId = input.id ?? 0
+      // input.id is the message ID, not the parent entity ID
+      const mentionEntityId = entityType
+        ? await getMessageParentEntityId(type, id)
+        : 0
       const preview = await resolvePreview(content)
 
       for (const mentionedUserId of newMentions) {
@@ -531,6 +545,7 @@ export const updateMessageServerFn = createServerFn({
             actorName: context.user.name,
             actorAvatarId: context.user.avatarId,
             entityPreview: preview,
+            messageId: id,
           },
         }).catch(console.error)
       }
@@ -551,6 +566,29 @@ export const deleteMessageServerFn = createServerFn({
       .delete(table)
       .where(and(eq(table.id, input.id), eq(table.userId, userId)))
   })
+
+/**
+ * Look up the parent entity ID for a message.
+ * For chat messages, returns 0 (no parent entity).
+ */
+async function getMessageParentEntityId(
+  type: MessageParentType,
+  messageId: number,
+): Promise<number> {
+  if (type === "chat") return 0
+
+  const table = getTableByType(type)
+  const fkColumn = `${type}Id`
+
+  const row = await db
+    // @ts-expect-error dynamic FK column — follows `${type}Id` pattern
+    .select({ parentId: table[fkColumn] })
+    .from(table)
+    .where(eq(table.id, messageId))
+    .then((rows) => rows[0])
+
+  return (row?.parentId as number) ?? 0
+}
 
 export const getTableByType = (type: MessageParentType) => {
   switch (type) {

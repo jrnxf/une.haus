@@ -1,13 +1,16 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
 import { z } from "zod"
 
 import { SetLineage } from "~/components/games/bius/set-lineage"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
+  EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
 import {
@@ -54,18 +57,21 @@ function RouteComponent() {
     return (
       <Empty>
         <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <GhostIcon />
+          </EmptyMedia>
           <EmptyTitle>no sets yet</EmptyTitle>
           <EmptyDescription>
             this round is waiting for its first set. upload one to get started!
           </EmptyDescription>
         </EmptyHeader>
-        {sessionUser && (
+        <EmptyContent>
           <Button asChild>
-            <Link to="/games/bius/upload" search={{ parentSetId: 0 }}>
+            <Link to="/games/bius/$biuId/upload" params={{ biuId: round.id }}>
               upload
             </Link>
           </Button>
-        )}
+        </EmptyContent>
       </Empty>
     )
   }
@@ -76,10 +82,7 @@ function RouteComponent() {
         <div className="flex items-center gap-2">
           {canBackUp ? (
             <Button asChild>
-              <Link
-                to="/games/bius/upload"
-                search={{ parentSetId: latestSet.id }}
-              >
+              <Link to="/games/bius/$biuId/upload" params={{ biuId: round.id }}>
                 upload
               </Link>
             </Button>

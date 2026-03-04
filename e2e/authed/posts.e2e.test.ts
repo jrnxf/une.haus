@@ -66,6 +66,7 @@ test.describe("posts flow", () => {
     try {
       await sql`DELETE FROM post_messages WHERE content LIKE 'e2e-%'`
       await sql`DELETE FROM posts WHERE title = 'Playwright Test Post'`
+      await sql`DELETE FROM notifications WHERE entity_type = 'post' AND data::text LIKE '%e2e-%'`
     } finally {
       await sql.end()
     }

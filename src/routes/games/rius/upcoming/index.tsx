@@ -95,9 +95,9 @@ function RouteComponent() {
               <EmptyMedia variant="icon">
                 <GhostIcon />
               </EmptyMedia>
-              <EmptyTitle>no players yet</EmptyTitle>
+              <EmptyTitle>no riders</EmptyTitle>
               <EmptyDescription>
-                be the first to join the next round!
+                be the first to join the next round?
               </EmptyDescription>
             </EmptyHeader>
             {(!user || !isUserInGame) && (

@@ -2,11 +2,11 @@ import { z } from "zod"
 
 export const baseRiuSetSchema = z.object({
   instructions: z.string().optional(),
-  name: z.string().min(1, { message: "Required" }),
+  name: z.string().trim().min(1, { message: "required" }),
 })
 
 export const createRiuSetSchema = baseRiuSetSchema.extend({
-  muxAssetId: z.string().min(1, { message: "Required" }),
+  muxAssetId: z.string().min(1, { message: "required" }),
 })
 
 export type CreateRiuSetArgs = z.infer<typeof createRiuSetSchema>

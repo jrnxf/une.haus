@@ -17,7 +17,6 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
-import { flashMessage } from "~/lib/flash"
 import { games } from "~/lib/games"
 import { useDeleteSubmission } from "~/lib/games/rius/hooks"
 import { invariant } from "~/lib/invariant"
@@ -26,6 +25,7 @@ import { useCreateMessage } from "~/lib/messages/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
+import { session } from "~/lib/session/index"
 import { cn } from "~/lib/utils"
 import { MessagesView } from "~/views/messages"
 
@@ -54,7 +54,9 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
       } catch {
         // Only show flash message on actual navigation, not preload
         if (!preload) {
-          await flashMessage("Submission not found")
+          await session.flash.set.fn({
+            data: { type: "error", message: "submission not found" },
+          })
         }
         throw redirect({ to: "/games/rius/active" })
       }

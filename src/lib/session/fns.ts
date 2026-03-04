@@ -40,7 +40,7 @@ export const setSessionFlashServerFn = createServerFn({
   .inputValidator(zodValidator(setFlashSchema))
   .handler(async ({ data: input }) => {
     const session = await useServerSession()
-    await session.update({ flash: input.message })
+    await session.update({ flash: input })
   })
 
 export const clearSessionServerFn = createServerFn({ method: "POST" }).handler(

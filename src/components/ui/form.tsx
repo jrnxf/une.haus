@@ -284,11 +284,13 @@ function FormMessage({
   ref?: React.Ref<HTMLParagraphElement>
 }) {
   const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message ?? "") : children
+  const body = error?.message ? String(error.message) : children
 
   if (!body) {
     return null
   }
+
+  const normalizedBody = typeof body === "string" ? body.toLowerCase() : body
 
   return (
     <p
@@ -297,7 +299,7 @@ function FormMessage({
       className={cn("text-destructive text-sm font-medium", className)}
       {...props}
     >
-      {body}
+      {normalizedBody}
     </p>
   )
 }

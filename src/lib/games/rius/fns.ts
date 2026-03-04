@@ -518,28 +518,28 @@ export const getArchivedRiusServerFn = createServerFn({
 export const listArchivedRiusServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
-  // Get all archived RIUs with the number of sets attached to each using Drizzle
+  // Get all archived RIUs with aggregate set/submission counts for each round.
   const archivedRius = await db
     .select({
       id: rius.id,
       createdAt: rius.createdAt,
-      setsCount: sql<number>`COUNT(${riuSets.id})`.as("setsCount"),
+      setsCount: sql<number>`COUNT(DISTINCT ${riuSets.id})`.as("setsCount"),
+      submissionsCount: sql<number>`COUNT(${riuSubmissions.id})`.as(
+        "submissionsCount",
+      ),
     })
     .from(rius)
     .leftJoin(riuSets, eq(rius.id, riuSets.riuId))
+    .leftJoin(riuSubmissions, eq(riuSubmissions.riuSetId, riuSets.id))
     .where(eq(rius.status, "archived"))
     .groupBy(rius.id, rius.createdAt)
     .orderBy(desc(rius.createdAt))
 
-  // Only return RIUs that have at least one set, casting setsCount as a number
-  const riusWithSets = archivedRius
-    .map((riu) => ({
-      ...riu,
-      setsCount: Number(riu.setsCount),
-    }))
-    .filter((riu) => riu.setsCount > 0)
-
-  return riusWithSets
+  return archivedRius.map((riu) => ({
+    ...riu,
+    setsCount: Number(riu.setsCount),
+    submissionsCount: Number(riu.submissionsCount),
+  }))
 })
 
 export const listUpcomingRiuRosterServerFn = createServerFn({

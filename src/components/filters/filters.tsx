@@ -1,7 +1,19 @@
-import { flip, offset, shift, useFloating } from "@floating-ui/react"
+import {
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useFloating,
+} from "@floating-ui/react"
 import { CheckIcon, ChevronRightIcon, FilterIcon, XIcon } from "lucide-react"
-import { createContext, useCallback, useContext, useRef, useState } from "react"
-import { createPortal } from "react-dom"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
@@ -93,6 +105,16 @@ function countSelected(options: FilterOption[], values: string[]): number {
   }, 0)
 }
 
+function findSelectedLeaves(
+  options: FilterOption[],
+  values: string[],
+): FilterOption[] {
+  return options.flatMap((opt) => {
+    if (opt.children) return findSelectedLeaves(opt.children, values)
+    return values.includes(opt.value) ? [opt] : []
+  })
+}
+
 function toggleFilterValue(
   filters: ActiveFilter[],
   fieldKey: string,
@@ -115,6 +137,56 @@ function toggleFilterValue(
   return filters.map((f) =>
     f.field === fieldKey ? { ...f, values: nextValues } : f,
   )
+}
+
+function getDefaultOperator(field: FilterField): string {
+  return (
+    field.defaultOperator ||
+    DEFAULT_OPERATORS[field.type || "select"]?.[0]?.value ||
+    "is"
+  )
+}
+
+function addFilterByField(
+  filters: ActiveFilter[],
+  fields: FilterField[],
+  fieldKey: string,
+): ActiveFilter[] {
+  if (filters.some((f) => f.field === fieldKey)) return filters
+  const field = fields.find((f) => f.key === fieldKey)
+  if (!field) return filters
+
+  return [...filters, createFilter(fieldKey, getDefaultOperator(field))]
+}
+
+function getFieldsSortedByActive(
+  fields: FilterField[],
+  filters: ActiveFilter[],
+): FilterField[] {
+  const activeFieldKeys = new Set(filters.map((f) => f.field))
+
+  return fields
+    .map((field, index) => ({
+      field,
+      index,
+      isActive: activeFieldKeys.has(field.key),
+    }))
+    .toSorted(
+      (a, b) => Number(a.isActive) - Number(b.isActive) || a.index - b.index,
+    )
+    .map(({ field }) => field)
+}
+
+function toggleFilterByField(
+  filters: ActiveFilter[],
+  fields: FilterField[],
+  fieldKey: string,
+): ActiveFilter[] {
+  if (filters.some((f) => f.field === fieldKey)) {
+    return filters.filter((f) => f.field !== fieldKey)
+  }
+
+  return addFilterByField(filters, fields, fieldKey)
 }
 
 // --- Context ---
@@ -143,20 +215,26 @@ function SubPanel({
   onClose: () => void
   children: React.ReactNode
 }) {
-  const { refs, floatingStyles } = useFloating({
-    strategy: "fixed",
+  const { refs, floatingStyles, update } = useFloating({
+    strategy: "absolute",
     placement: "right-start",
     middleware: [offset(2), flip(), shift({ padding: 8 })],
-    elements: { reference: anchorEl },
+    whileElementsMounted: autoUpdate,
   })
+
+  useEffect(() => {
+    if (!anchorEl) return
+    refs.setReference(anchorEl)
+    void update()
+  }, [anchorEl, refs, update])
 
   if (!anchorEl) return null
 
-  return createPortal(
+  return (
     <div
       ref={refs.setFloating}
       data-slot="filter-panel"
-      className="bg-popover text-popover-foreground border-border z-50 w-[200px] rounded-md border shadow-md"
+      className="bg-popover text-popover-foreground border-border z-99 w-[200px] rounded-md border"
       style={floatingStyles}
       onKeyDown={(e) => {
         if (e.key === "Escape") {
@@ -167,8 +245,7 @@ function SubPanel({
       }}
     >
       {children}
-    </div>,
-    document.body,
+    </div>
   )
 }
 
@@ -180,24 +257,26 @@ function OptionsMenu({
   onToggle,
   onClose,
   onSelectSingle,
+  autoFocusInput = false,
 }: {
   options: FilterOption[]
   values: string[]
   onToggle: (value: string) => void
   onClose: () => void
   onSelectSingle?: (value: string) => void
+  autoFocusInput?: boolean
 }) {
+  const commandRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [search, setSearch] = useState("")
   const [openSub, setOpenSub] = useState<string | null>(null)
-  const [highlighted, setHighlighted] = useState("")
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  const highlightedOption = options.find(
-    (o) => o.label.toLowerCase() === highlighted.toLowerCase(),
-  )
-
   const closeSub = useCallback(() => {
+    setOpenSub(null)
+  }, [])
+
+  const closeSubAndFocusInput = useCallback(() => {
     setOpenSub(null)
     inputRef.current?.focus()
   }, [])
@@ -224,30 +303,30 @@ function OptionsMenu({
       }
       const isSelected = values.includes(value)
       if (isSelected) {
-        const idx = selectedLeaves.findIndex((o) => o.value === value)
-        const remaining = selectedLeaves.filter((o) => o.value !== value)
-        const next =
-          remaining[Math.min(idx, remaining.length - 1)] ?? unselectedLeaves[0]
-        if (next) setHighlighted(next.value)
+        // Let cmdk manage active row; we only manage selected values.
       } else {
-        const idx = unselectedLeaves.findIndex((o) => o.value === value)
-        const remaining = unselectedLeaves.filter((o) => o.value !== value)
-        const next =
-          remaining[Math.min(idx, remaining.length - 1)] ?? selectedLeaves[0]
-        if (next) setHighlighted(next.value)
+        // Let cmdk manage active row; we only manage selected values.
       }
       onToggle(value)
       setSearch("")
     },
-    [selectedLeaves, unselectedLeaves, values, onToggle, onSelectSingle],
+    [values, onToggle, onSelectSingle],
   )
+
+  useEffect(() => {
+    if (!autoFocusInput) return
+    const id = window.requestAnimationFrame(() => {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [autoFocusInput])
 
   return (
     <>
       <Command
+        ref={commandRef}
         className={cn("bg-popover dark:bg-popover", compactItems)}
-        value={highlighted}
-        onValueChange={setHighlighted}
       >
         <CommandInput
           ref={inputRef}
@@ -255,13 +334,23 @@ function OptionsMenu({
           value={search}
           onValueChange={setSearch}
           onKeyDown={(e) => {
-            if (e.key === "ArrowRight" && highlightedOption?.children) {
-              e.preventDefault()
-              setOpenSub(highlightedOption.value)
+            if (e.key === "ArrowRight") {
+              const selectedItem =
+                commandRef.current?.querySelector<HTMLElement>(
+                  '[data-slot="command-item"][data-selected="true"]',
+                )
+              const selectedLabel = selectedItem?.dataset.value
+              const selectedOption = options.find(
+                (o) => o.label.toLowerCase() === selectedLabel?.toLowerCase(),
+              )
+              if (selectedOption?.children) {
+                e.preventDefault()
+                setOpenSub(selectedOption.value)
+              }
             } else if (e.key === "ArrowLeft") {
               if (openSub) {
                 e.preventDefault()
-                closeSub()
+                closeSubAndFocusInput()
               } else if (
                 inputRef.current?.selectionStart === 0 &&
                 inputRef.current?.selectionEnd === 0
@@ -272,7 +361,7 @@ function OptionsMenu({
             } else if (e.key === "Escape") {
               e.preventDefault()
               e.stopPropagation()
-              if (openSub) closeSub()
+              if (openSub) closeSubAndFocusInput()
               else onClose()
             }
           }}
@@ -293,6 +382,9 @@ function OptionsMenu({
                   >
                     <CommandItem
                       value={option.label}
+                      onPointerEnter={() => {
+                        setOpenSub(option.value)
+                      }}
                       onSelect={() =>
                         setOpenSub(
                           openSub === option.value ? null : option.value,
@@ -318,7 +410,8 @@ function OptionsMenu({
               {selectedLeaves.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
+                  value={option.label}
+                  onPointerEnter={() => setOpenSub(null)}
                   onSelect={() => handleToggle(option.value)}
                 >
                   <CheckIcon className="text-primary size-4" />
@@ -337,7 +430,8 @@ function OptionsMenu({
               {unselectedLeaves.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
+                  value={option.label}
+                  onPointerEnter={() => setOpenSub(null)}
                   onSelect={() => handleToggle(option.value)}
                 >
                   <CheckIcon className="size-4 opacity-0" />
@@ -350,7 +444,7 @@ function OptionsMenu({
       </Command>
 
       {openSub && openSubOption?.children && (
-        <SubPanel anchorEl={anchorEl} onClose={closeSub}>
+        <SubPanel anchorEl={anchorEl} onClose={closeSubAndFocusInput}>
           <OptionsMenu
             options={openSubOption.children}
             values={values}
@@ -431,7 +525,7 @@ function FilterValuePopover({
   const [open, setOpen] = useState(false)
 
   const options = field.options ?? []
-  const selectedOptions = options.filter((opt) => values.includes(opt.value))
+  const selectedOptions = findSelectedLeaves(options, values)
   const displayLabel =
     selectedOptions.length === 1
       ? selectedOptions[0].label
@@ -534,104 +628,58 @@ function FiltersTrigger({
   fields,
   filters,
   onSelectField,
-  onToggleValue,
   size,
 }: {
   fields: FilterField[]
   filters: ActiveFilter[]
   onSelectField?: (fieldKey: string) => void
-  onToggleValue?: (fieldKey: string, value: string) => void
   size?: "sm" | "default"
 }) {
   const [open, setOpen] = useState(false)
-  const [openSub, setOpenSub] = useState<string | null>(null)
-  const [highlighted, setHighlighted] = useState("")
-  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
-
-  const closeSub = useCallback(() => {
-    setOpenSub(null)
-  }, [])
-
-  const openSubField = openSub ? fields.find((f) => f.key === openSub) : null
-  const openSubValues = filters.find((f) => f.field === openSub)?.values ?? []
-  const anchorEl = openSub ? (itemRefs.current[openSub] ?? null) : null
+  const activeFieldKeys = new Set(filters.map((f) => f.field))
+  const sortedFields = getFieldsSortedByActive(fields, filters)
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o)
-        if (!o) setOpenSub(null)
-      }}
-    >
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size={size ?? "sm"}>
           <FilterIcon className="size-3.5" />
           filters
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[220px] gap-0 p-0" align="start">
-        <Command
-          className={cn("bg-popover dark:bg-popover", compactItems)}
-          value={highlighted}
-          onValueChange={setHighlighted}
-        >
+      <PopoverContent className="relative w-[220px] gap-0 p-0" align="start">
+        <Command className={cn("bg-popover dark:bg-popover", compactItems)}>
           <CommandList>
-            <CommandEmpty>no fields</CommandEmpty>
-            <CommandGroup>
-              {fields.map((field) => {
-                const hasOptions = (field.options?.length ?? 0) > 0
-                const active = filters.find((f) => f.field === field.key)
-                const values = active?.values ?? []
-                const count = hasOptions
-                  ? countSelected(field.options!, values)
-                  : 0
-
-                return (
-                  <div
-                    key={field.key}
-                    ref={(el) => {
-                      itemRefs.current[field.key] = el
-                    }}
-                  >
+            {sortedFields.length === 0 ? (
+              <CommandEmpty>no fields</CommandEmpty>
+            ) : (
+              <CommandGroup>
+                {sortedFields.map((field) => {
+                  const isActive = activeFieldKeys.has(field.key)
+                  return (
                     <CommandItem
+                      key={field.key}
                       value={field.label}
+                      className="justify-between"
                       onSelect={() => {
-                        if (hasOptions) {
-                          setOpenSub(openSub === field.key ? null : field.key)
-                        } else {
-                          onSelectField?.(field.key)
-                          setOpen(false)
-                        }
+                        onSelectField?.(field.key)
+                        setOpen(false)
                       }}
                     >
-                      <span className="flex-1">{field.label}</span>
-                      {count > 0 && (
-                        <Badge variant="secondary" className="px-1 text-xs">
-                          {count}
-                        </Badge>
-                      )}
-                      {hasOptions && (
-                        <ChevronRightIcon className="text-muted-foreground size-3.5" />
-                      )}
+                      <span>{field.label}</span>
+                      <CheckIcon
+                        className={cn(
+                          "text-primary size-4",
+                          isActive ? "opacity-100" : "opacity-0",
+                        )}
+                      />
                     </CommandItem>
-                  </div>
-                )
-              })}
-            </CommandGroup>
+                  )
+                })}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
-
-        {openSub && openSubField && openSubField.options && (
-          <SubPanel anchorEl={anchorEl} onClose={closeSub}>
-            <OptionsMenu
-              options={openSubField.options}
-              values={openSubValues}
-              onToggle={(value) => onToggleValue?.(openSub, value)}
-              onClose={closeSub}
-            />
-          </SubPanel>
-        )}
       </PopoverContent>
     </Popover>
   )
@@ -652,16 +700,11 @@ function Filters({
   size?: "sm" | "default"
   className?: string
 }) {
-  const addFilter = useCallback(
+  const toggleFieldFilter = useCallback(
     (fieldKey: string) => {
-      const field = fields.find((f) => f.key === fieldKey)
-      if (!field) return
-      const defaultOp =
-        field.defaultOperator ||
-        DEFAULT_OPERATORS[field.type || "select"]?.[0]?.value ||
-        "is"
-      const newFilter = createFilter(fieldKey, defaultOp)
-      onFiltersChange([...filters, newFilter])
+      const nextFilters = toggleFilterByField(filters, fields, fieldKey)
+      if (nextFilters === filters) return
+      onFiltersChange(nextFilters)
     },
     [fields, filters, onFiltersChange],
   )
@@ -682,46 +725,13 @@ function Filters({
     [filters, onFiltersChange],
   )
 
-  const handleToggleValue = useCallback(
-    (fieldKey: string, value: string) => {
-      const existing = filters.find((f) => f.field === fieldKey)
-      if (!existing) {
-        const field = fields.find((f) => f.key === fieldKey)
-        const defaultOp =
-          field?.defaultOperator ||
-          DEFAULT_OPERATORS[field?.type || "multiselect"]?.[0]?.value ||
-          "is_any_of"
-        onFiltersChange([
-          ...filters,
-          createFilter(fieldKey, defaultOp, [value]),
-        ])
-        return
-      }
-      const has = existing.values.includes(value)
-      const nextValues = has
-        ? existing.values.filter((v) => v !== value)
-        : [...existing.values, value]
-      if (nextValues.length === 0) {
-        onFiltersChange(filters.filter((f) => f.id !== existing.id))
-      } else {
-        onFiltersChange(
-          filters.map((f) =>
-            f.id === existing.id ? { ...f, values: nextValues } : f,
-          ),
-        )
-      }
-    },
-    [fields, filters, onFiltersChange],
-  )
-
   return (
     <FilterSizeContext.Provider value={{ size }}>
       <div className={cn("flex flex-wrap items-center gap-2", className)}>
         <FiltersTrigger
           fields={fields}
           filters={filters}
-          onSelectField={addFilter}
-          onToggleValue={handleToggleValue}
+          onSelectField={toggleFieldFilter}
           size={size}
         />
 
@@ -752,10 +762,13 @@ function Filters({
 }
 
 export {
-  Filters,
-  FiltersTrigger,
+  addFilterByField,
   countSelected,
   createFilter,
+  Filters,
+  FiltersTrigger,
+  getFieldsSortedByActive,
+  toggleFilterByField,
   toggleFilterValue,
 }
 export type { ActiveFilter, FilterField, FilterOperator, FilterOption }

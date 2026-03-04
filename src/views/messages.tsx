@@ -113,6 +113,24 @@ export function MessagesView({
     scrollCountReference.current++
   }, [scrollTargetId, lastChatMessageByUserId, chatMessageCount, sessionUser])
 
+  // Scroll to and highlight a message when navigating via notification anchor link
+  useLayoutEffect(() => {
+    const hash = window.location.hash
+    if (!hash.startsWith("#message-")) return
+
+    const element = document.getElementById(hash.slice(1))
+    if (!element) return
+
+    element.scrollIntoView({ behavior: "smooth", block: "center" })
+
+    const bubble = element.querySelector<HTMLElement>(
+      '[data-slot="message-bubble"]',
+    )
+    if (bubble) {
+      bubble.classList.add("animate-highlight-glow")
+    }
+  }, [])
+
   // When scrollTargetId is passed, we're embedded in a container that already
   // provides padding and max-width constraints
   const isEmbedded = Boolean(scrollTargetId)
@@ -140,6 +158,7 @@ export function MessagesView({
               const isNewSection = prev?.user.id !== message.user.id
               return (
                 <div
+                  id={`message-${message.id}`}
                   data-slot="message"
                   className={cn(
                     "flex max-w-full flex-col",
@@ -202,6 +221,7 @@ export function MessagesView({
         const isNewSection = prev?.user.id !== message.user.id
         return (
           <div
+            id={`message-${message.id}`}
             data-slot="message"
             className={cn(
               "flex max-w-full flex-col",

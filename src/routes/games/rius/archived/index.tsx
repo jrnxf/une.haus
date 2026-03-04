@@ -31,24 +31,14 @@ export const Route = createFileRoute("/games/rius/archived/")({
 
 function EmptyArchive() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">archived</h2>
-        <p className="text-muted-foreground text-sm">
-          previous rounds and their sets
-        </p>
-      </div>
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <GhostIcon />
-          </EmptyMedia>
-          <EmptyTitle>no archives yet</EmptyTitle>
-          <EmptyDescription>
-            completed rounds will show up here
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    </div>
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <GhostIcon />
+        </EmptyMedia>
+        <EmptyTitle>no archived rounds</EmptyTitle>
+        <EmptyDescription>completed rounds will show up here</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   )
 }

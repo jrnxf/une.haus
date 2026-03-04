@@ -109,7 +109,7 @@ export function MultiVideoInput({
           getInputProps={getInputProps}
           disabled={isUploadInProgress || !canAddMore}
         >
-          <span className="text-muted-foreground text-sm">
+          <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
             {currentFileName ?? `add video (${value.length}/${maxVideos})`}
           </span>
 

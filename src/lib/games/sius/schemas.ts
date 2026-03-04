@@ -7,19 +7,27 @@ export const getSetSchema = z.object({
 
 export type GetSetArgs = z.infer<typeof getSetSchema>
 
-// Start a new round (first set) - admin only
-export const startRoundSchema = z.object({
-  name: z.string().min(1, { message: "Trick name is required" }),
-  muxAssetId: z.string().min(1, { message: "Video is required" }),
-})
+// Start a new empty round - admin only
+export const startRoundSchema = z.object({})
 
 export type StartRoundArgs = z.infer<typeof startRoundSchema>
 
+// Create first set in an empty round
+export const createFirstSetSchema = z.object({
+  roundId: z.number().positive({ message: "required" }),
+  name: z.string().trim().min(1, { message: "required" }),
+  instructions: z.string().optional(),
+  muxAssetId: z.string().min(1, { message: "required" }),
+})
+
+export type CreateFirstSetArgs = z.infer<typeof createFirstSetSchema>
+
 // Add set (continue round with full line + new trick)
 export const addSetSchema = z.object({
-  parentSetId: z.number().positive({ message: "Parent set is required" }),
-  name: z.string().min(1, { message: "New trick name is required" }),
-  muxAssetId: z.string().min(1, { message: "Video is required" }),
+  roundId: z.number().positive({ message: "required" }),
+  name: z.string().trim().min(1, { message: "required" }),
+  instructions: z.string().optional(),
+  muxAssetId: z.string().min(1, { message: "required" }),
 })
 
 export type AddSetArgs = z.infer<typeof addSetSchema>

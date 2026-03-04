@@ -21,6 +21,17 @@
     var(--tw-animation-iteration-count, 1) var(--tw-animation-direction, normal)
     var(--tw-animation-fill-mode, none);
 
+  --animate-highlight-glow: highlight-glow 3s ease-out;
+
+  @keyframes highlight-glow {
+    0% {
+      border-color: oklch(0.75 0.15 85);
+    }
+    100% {
+      border-color: var(--border);
+    }
+  }
+
   @keyframes accordion-down {
     0% {
       height: 0;
@@ -232,6 +243,11 @@
   h5,
   h6 {
     text-wrap: balance;
+  }
+
+  ::selection {
+    background: var(--foreground);
+    color: var(--background);
   }
   .maplibregl-popup-content {
     @apply rounded-none! bg-transparent! p-0! shadow-none!;

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "bun:test"
 
-import { countSelected, toggleFilterValue } from "./filters"
+import {
+  addFilterByField,
+  countSelected,
+  getFieldsSortedByActive,
+  toggleFilterByField,
+  toggleFilterValue,
+} from "./filters"
 
 import type { ActiveFilter, FilterOption } from "./filters"
 
@@ -168,6 +174,116 @@ describe("toggleFilterValue", () => {
     expect(result).toEqual([
       { id: "1", field: "status", operator: "is", values: ["done"] },
       { id: "", field: "priority", operator: "", values: ["high"] },
+    ])
+  })
+})
+
+describe("getFieldsSortedByActive", () => {
+  const fields = [
+    { key: "name", label: "name" },
+    { key: "status", label: "status" },
+    { key: "tags", label: "tags" },
+  ]
+
+  it("moves active fields to the bottom", () => {
+    const filters: ActiveFilter[] = [
+      { id: "1", field: "status", operator: "is", values: [] },
+    ]
+
+    expect(getFieldsSortedByActive(fields, filters).map((f) => f.key)).toEqual([
+      "name",
+      "tags",
+      "status",
+    ])
+  })
+
+  it("preserves field order when all are active", () => {
+    const filters: ActiveFilter[] = [
+      { id: "1", field: "name", operator: "contains", values: [] },
+      { id: "2", field: "status", operator: "is", values: [] },
+      { id: "3", field: "tags", operator: "is_any_of", values: [] },
+    ]
+
+    expect(getFieldsSortedByActive(fields, filters).map((f) => f.key)).toEqual([
+      "name",
+      "status",
+      "tags",
+    ])
+  })
+})
+
+describe("addFilterByField", () => {
+  const fields = [
+    {
+      key: "name",
+      label: "name",
+      type: "text" as const,
+      defaultOperator: "contains",
+    },
+    {
+      key: "status",
+      label: "status",
+      type: "select" as const,
+      defaultOperator: "is",
+    },
+  ]
+
+  it("creates a new empty chip using the field default operator", () => {
+    const result = addFilterByField([], fields, "name")
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.field).toBe("name")
+    expect(result[0]?.operator).toBe("contains")
+    expect(result[0]?.values).toEqual([])
+    expect(typeof result[0]?.id).toBe("string")
+  })
+
+  it("does not add duplicate chips for the same field", () => {
+    const existing: ActiveFilter[] = [
+      { id: "1", field: "status", operator: "is", values: [] },
+    ]
+
+    const result = addFilterByField(existing, fields, "status")
+
+    expect(result).toBe(existing)
+    expect(result).toHaveLength(1)
+  })
+})
+
+describe("toggleFilterByField", () => {
+  const fields = [
+    {
+      key: "name",
+      label: "name",
+      type: "text" as const,
+      defaultOperator: "contains",
+    },
+    {
+      key: "status",
+      label: "status",
+      type: "select" as const,
+      defaultOperator: "is",
+    },
+  ]
+
+  it("adds a filter when field is not active", () => {
+    const result = toggleFilterByField([], fields, "name")
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.field).toBe("name")
+    expect(result[0]?.values).toEqual([])
+  })
+
+  it("removes a filter when field is active", () => {
+    const existing: ActiveFilter[] = [
+      { id: "1", field: "status", operator: "is", values: ["done"] },
+      { id: "2", field: "name", operator: "contains", values: ["john"] },
+    ]
+
+    const result = toggleFilterByField(existing, fields, "status")
+
+    expect(result).toEqual([
+      { id: "2", field: "name", operator: "contains", values: ["john"] },
     ])
   })
 })

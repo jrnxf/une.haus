@@ -14,52 +14,68 @@ export function getNotificationUrl(
   entityId: number,
   data?: NotificationData | null,
 ): string {
+  let url: string
   switch (entityType) {
     case "chat": {
-      return "/chat"
+      url = "/chat"
+      break
     }
     case "post": {
-      return `/posts/${entityId}`
+      url = `/posts/${entityId}`
+      break
     }
     case "riuSet": {
-      return `/games/rius/sets/${entityId}`
+      url = `/games/rius/sets/${entityId}`
+      break
     }
     case "riuSubmission": {
-      return `/games/rius/submissions/${entityId}`
+      url = `/games/rius/submissions/${entityId}`
+      break
     }
     case "biuSet": {
-      return `/games/bius/sets/${entityId}`
+      url = `/games/bius/sets/${entityId}`
+      break
     }
     case "siuSet": {
-      return `/games/sius/sets/${entityId}`
+      url = `/games/sius/sets/${entityId}`
+      break
     }
     case "siu": {
-      return "/games/sius"
+      url = "/games/sius"
+      break
     }
     case "utvVideo": {
-      return `/vault/${entityId}`
+      url = `/vault/${entityId}`
+      break
     }
     case "user": {
-      return `/users/${entityId}`
+      url = `/users/${entityId}`
+      break
     }
     case "trickSubmission":
     case "trickSuggestion":
     case "trickVideo": {
-      if (data?.trickSlug) {
-        return `/tricks/${data.trickSlug}`
-      }
-      return "/tricks"
+      url = data?.trickSlug ? `/tricks/${data.trickSlug}` : "/tricks"
+      break
     }
     case "glossaryProposal": {
-      return "/tricks/glossary"
+      url = "/tricks/glossary"
+      break
     }
     case "utvVideoSuggestion": {
-      return "/vault"
+      url = "/vault"
+      break
     }
     default: {
-      return "/"
+      url = "/"
     }
   }
+
+  if (data?.messageId) {
+    url += `#message-${data.messageId}`
+  }
+
+  return url
 }
 
 /**

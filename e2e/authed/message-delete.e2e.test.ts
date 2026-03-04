@@ -18,6 +18,7 @@ test.describe("message deletion", () => {
     const sql = postgres(process.env.DATABASE_URL!)
     try {
       await sql`DELETE FROM chat_messages WHERE content LIKE 'e2e-del-%'`
+      await sql`DELETE FROM notifications WHERE entity_type = 'chat' AND data::text LIKE '%e2e-del-%'`
     } finally {
       await sql.end()
     }

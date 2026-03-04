@@ -1,5 +1,13 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
 
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty"
 import { games } from "~/lib/games"
 
 export const Route = createFileRoute("/games/sius/archived/")({
@@ -23,18 +31,14 @@ export const Route = createFileRoute("/games/sius/archived/")({
 
 function EmptyArchive() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">archived</h2>
-        <p className="text-muted-foreground text-sm">
-          previous rounds and their sets
-        </p>
-      </div>
-      <div className="rounded-lg border p-8 text-center">
-        <p className="text-muted-foreground">
-          no archived rounds yet. complete a round to see it here!
-        </p>
-      </div>
-    </div>
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <GhostIcon />
+        </EmptyMedia>
+        <EmptyTitle>no archived rounds</EmptyTitle>
+        <EmptyDescription>completed rounds will show up here</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   )
 }

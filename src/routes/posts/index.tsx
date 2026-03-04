@@ -1,12 +1,7 @@
 import { useDebouncedCallback } from "@tanstack/react-pacer"
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import {
-  GhostIcon,
-  HeartIcon,
-  MessageCircleIcon,
-  PaperclipIcon,
-} from "lucide-react"
+import { HeartIcon, MessageCircleIcon, PaperclipIcon } from "lucide-react"
 import {
   Suspense,
   useCallback,
@@ -22,16 +17,10 @@ import {
   type ActiveFilter,
   type FilterField,
 } from "~/components/filters/filters"
+import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
 import { Button } from "~/components/ui/button"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { getMuxPoster } from "~/components/video-player"
 import { POST_TAGS } from "~/db/schema"
@@ -227,17 +216,7 @@ function PostsList({
 
   return (
     <>
-      {displayedPosts.length === 0 && (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <GhostIcon />
-            </EmptyMedia>
-            <EmptyTitle>no posts</EmptyTitle>
-            <EmptyDescription>try adjusting your filters</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      )}
+      {displayedPosts.length === 0 && <NoResultsEmpty />}
       {displayedPosts.map((post) => {
         const posterUrl =
           post.imageId ||

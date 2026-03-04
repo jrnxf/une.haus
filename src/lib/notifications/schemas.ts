@@ -40,6 +40,7 @@ export const createNotificationSchema = z.object({
       entityTitle: z.string().optional(),
       entityPreview: z.string().optional(),
       trickSlug: z.string().optional(),
+      messageId: z.number().optional(),
     })
     .optional(),
 })

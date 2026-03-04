@@ -3,7 +3,7 @@ import { z } from "zod"
 
 import { UserForm } from "~/components/forms/user"
 import { PageHeader } from "~/components/page-header"
-import { flashMessage } from "~/lib/flash"
+import { session } from "~/lib/session/index"
 
 const searchParamsSchema = z
   .object({
@@ -21,7 +21,9 @@ export const Route = createFileRoute("/auth/register")({
   validateSearch: searchParamsSchema,
   loader: async ({ context }) => {
     if (context.session.user) {
-      await flashMessage("You are already logged in")
+      await session.flash.set.fn({
+        data: { type: "info", message: "you are already logged in" },
+      })
       throw redirect({ to: "/auth/me" })
     }
   },

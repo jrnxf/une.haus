@@ -65,7 +65,9 @@ export const Route = createFileRoute("/games/sius/sets/$setId/")({
     } catch {
       // Only show flash message on actual navigation, not preload
       if (!preload) {
-        await session.flash.set.fn({ data: { message: "Set not found" } })
+        await session.flash.set.fn({
+          data: { type: "error", message: "set not found" },
+        })
       }
       throw redirect({ to: "/games/sius" })
     }
@@ -328,7 +330,7 @@ function SetView({ setId }: { setId: number }) {
       {canAddSet && (
         <div className="flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/games/sius/upload" search={{ parentSetId: set.id }}>
+            <Link to="/games/sius/$siuId/upload" params={{ siuId: set.siu.id }}>
               upload
             </Link>
           </Button>

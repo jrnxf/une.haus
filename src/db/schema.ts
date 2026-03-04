@@ -633,6 +633,7 @@ export type NotificationData = {
   entityTitle?: string
   entityPreview?: string
   trickSlug?: string
+  messageId?: number
 }
 
 export const notifications = pgTable(

@@ -1,33 +1,20 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { ChevronDown } from "lucide-react"
-import pluralize from "pluralize"
+import { createFileRoute } from "@tanstack/react-router"
+import { GhostIcon } from "lucide-react"
 import { useMemo } from "react"
-import { VList } from "virtua"
 import { z } from "zod"
 
 import { SetsGroupedList } from "~/components/games/sets-grouped-list"
-import { Button } from "~/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty"
 import { games, groupSetsByUserWithRankings } from "~/lib/games"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
-
-const VIRTUALIZE_THRESHOLD = 10
-
-const formatRiuDate = (createdAt: Date | string) => {
-  const date = typeof createdAt === "string" ? new Date(createdAt) : createdAt
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
-}
 
 const searchSchema = z.object({
   open: z.number().optional(),
@@ -65,10 +52,6 @@ function RouteComponent() {
   const { open } = Route.useSearch()
   const selectedRiuId = Number.parseInt(riuId, 10)
 
-  const { data: archivedRius } = useSuspenseQuery(
-    games.rius.archived.list.queryOptions(),
-  )
-
   const { data: selectedRiu } = useSuspenseQuery(
     games.rius.archived.get.queryOptions({ riuId: selectedRiuId }),
   )
@@ -78,58 +61,27 @@ function RouteComponent() {
     return groupSetsByUserWithRankings(selectedRiu.sets)
   }, [selectedRiu])
 
-  const participantCount = rankedRiders.length
   const setCount = selectedRiu?.sets.length ?? 0
+  const submissionCount =
+    selectedRiu?.sets.reduce(
+      (count, set) => count + set.submissions.length,
+      0,
+    ) ?? 0
+  const hasNoActivity = setCount === 0 && submissionCount === 0
 
   return (
     <div className="space-y-6">
-      {/* Section Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">archived</h2>
-          <p className="text-muted-foreground text-sm">
-            {participantCount} {pluralize("player", participantCount)} ·{" "}
-            {setCount} {pluralize("set", setCount)}
-          </p>
-        </div>
-
-        {/* Round Selector */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between gap-2 sm:w-auto"
-            >
-              <span>round {selectedRiu?.id}</span>
-              <ChevronDown className="text-muted-foreground size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 overflow-hidden p-0">
-            {archivedRius.length > VIRTUALIZE_THRESHOLD ? (
-              <div className="h-[300px] p-1">
-                <VList className="h-full">
-                  {[...archivedRius]
-                    .toSorted((a, b) => b.id - a.id)
-                    .map((riu) => (
-                      <RiuItem key={riu.id} riu={riu} />
-                    ))}
-                </VList>
-              </div>
-            ) : (
-              <div className="p-1">
-                {[...archivedRius]
-                  .toSorted((a, b) => b.id - a.id)
-                  .map((riu) => (
-                    <RiuItem key={riu.id} riu={riu} />
-                  ))}
-              </div>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Sets List */}
-      {selectedRiu && rankedRiders.length > 0 && (
+      {hasNoActivity ? (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GhostIcon />
+            </EmptyMedia>
+            <EmptyTitle>no activity</EmptyTitle>
+            <EmptyDescription>no riders joined this round</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
         <SetsGroupedList
           rankedRiders={rankedRiders}
           openUserId={open}
@@ -138,24 +90,5 @@ function RouteComponent() {
         />
       )}
     </div>
-  )
-}
-
-function RiuItem({ riu }: { riu: { id: number; createdAt: Date | string } }) {
-  return (
-    <DropdownMenuItem asChild>
-      <Link
-        to="/games/rius/archived/$riuId"
-        params={{ riuId: riu.id.toString() }}
-        className="flex flex-col items-start"
-      >
-        <span className="leading-tight font-medium lowercase">
-          round {riu.id}
-        </span>
-        <span className="text-muted-foreground text-xs leading-tight lowercase">
-          {formatRiuDate(riu.createdAt)}
-        </span>
-      </Link>
-    </DropdownMenuItem>
   )
 }

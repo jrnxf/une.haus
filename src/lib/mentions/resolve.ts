@@ -1,9 +1,8 @@
 import { inArray } from "drizzle-orm"
 
+import { extractMentionedUserIds, stripMentionTokens } from "./parse"
 import { db } from "~/db"
 import { users } from "~/db/schema"
-
-import { extractMentionedUserIds, stripMentionTokens } from "./parse"
 
 /** Resolve @[userId] tokens to @name using a DB lookup, truncated to 100 chars */
 export async function resolvePreview(content: string): Promise<string> {
@@ -17,8 +16,8 @@ export async function resolvePreview(content: string): Promise<string> {
 
   const nameMap = new Map(rows.map((r) => [r.id, r.name]))
 
-  return stripMentionTokens(content, (id) => nameMap.get(id) ?? undefined).slice(
-    0,
-    100,
-  )
+  return stripMentionTokens(
+    content,
+    (id) => nameMap.get(id) ?? undefined,
+  ).slice(0, 100)
 }

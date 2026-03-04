@@ -6,22 +6,22 @@ import { games } from "~/lib/games"
 
 const activeRoundsKey = games.sius.rounds.active.queryOptions().queryKey
 
-export function useStartRound() {
+export function useCreateFirstSet() {
   const navigate = useNavigate()
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: games.sius.rounds.start.fn,
+    mutationFn: games.sius.sets.createFirst.fn,
     onSuccess: (data) => {
-      toast.success("successfully started a new siu")
+      toast.success("set uploaded")
       qc.invalidateQueries({ queryKey: activeRoundsKey })
       navigate({
         to: "/games/sius/sets/$setId",
-        params: { setId: data.set.id },
+        params: { setId: data.id },
       })
     },
     onError: (error) => {
-      toast.error(error.message || "failed to start round")
+      toast.error(error.message || "failed to upload set")
     },
   })
 }

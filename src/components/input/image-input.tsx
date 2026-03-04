@@ -130,7 +130,7 @@ export const ImageInput = ({
       getInputProps={getInputProps}
       inputId={formItemId}
     >
-      <span className="text-muted-foreground text-sm">
+      <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
         {file ? file.name : "Select an image to upload"}
       </span>
     </UploadDropZone>

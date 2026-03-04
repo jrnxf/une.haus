@@ -248,7 +248,7 @@ function FeedbackVideoInput({
       getInputProps={getInputProps}
       disabled={isUploading || isProcessing}
     >
-      <span className="text-muted-foreground text-sm">
+      <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
         {fileName ?? "upload video"}
       </span>
 

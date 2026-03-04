@@ -13,6 +13,12 @@ test.describe("follow / unfollow", () => {
         DELETE FROM user_follows
         WHERE followed_by_user_id = (SELECT id FROM users WHERE email = 'colby@jrnxf.co')
       `
+      // Clean up follow notifications created by the admin test user
+      await sql`
+        DELETE FROM notifications
+        WHERE type = 'follow'
+        AND actor_id = (SELECT id FROM users WHERE email = 'colby@jrnxf.co')
+      `
     } finally {
       await sql.end()
     }

@@ -63,4 +63,19 @@ test.describe("command palette", () => {
     await expect(page.getByPlaceholder("search for anything...")).toBeVisible()
     await expect(page.getByText("Pages")).toBeVisible()
   })
+
+  test("clicking the overlay closes the palette", async ({ page }) => {
+    await page.goto("/")
+
+    await openSearch(page)
+    await expect(page.getByPlaceholder("search for anything...")).toBeVisible()
+
+    // Click outside the dialog on the backdrop/overlay.
+    await page.mouse.click(8, 8)
+
+    await expect(
+      page.getByPlaceholder("search for anything..."),
+    ).not.toBeVisible()
+    await expect(page).toHaveURL("/")
+  })
 })

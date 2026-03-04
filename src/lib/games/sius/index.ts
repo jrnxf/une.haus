@@ -3,6 +3,7 @@ import { queryOptions } from "@tanstack/react-query"
 import {
   addSetServerFn,
   archiveRoundServerFn,
+  createFirstSetServerFn,
   deleteSetServerFn,
   getActiveRoundsServerFn,
   getArchivedRoundServerFn,
@@ -16,6 +17,7 @@ import {
 import {
   addSetSchema,
   archiveRoundSchema,
+  createFirstSetSchema,
   deleteSetSchema,
   getArchivedRoundSchema,
   getSetSchema,
@@ -80,6 +82,10 @@ export const sius = {
     add: {
       fn: addSetServerFn,
       schema: addSetSchema,
+    },
+    createFirst: {
+      fn: createFirstSetServerFn,
+      schema: createFirstSetSchema,
     },
     delete: {
       fn: deleteSetServerFn,

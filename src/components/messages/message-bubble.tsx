@@ -159,6 +159,7 @@ export function MessageBubble({
         >
           <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
             <MenuTrigger
+              data-slot="message-bubble"
               aria-label={`Message: ${message.content}`}
               className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
               style={{ wordBreak: "break-word" }}

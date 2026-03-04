@@ -20,6 +20,7 @@ import {
   type ActiveFilter,
   type FilterField,
 } from "~/components/filters/filters"
+import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { Button } from "~/components/ui/button"
 import { getMuxPoster } from "~/components/video-player"
@@ -278,6 +279,7 @@ function VideoGrid({
   return (
     <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
       <div className="@container mx-auto flex max-w-5xl flex-col px-4">
+        {displayedVideos.length === 0 && <NoResultsEmpty />}
         <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3">
           {displayedVideos.map((video) => (
             <Link

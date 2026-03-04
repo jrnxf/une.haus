@@ -45,7 +45,7 @@ test.describe("filtered lists", () => {
     await textFilterInput(page).fill("zzzznonexistent")
     await textFilterInput(page).press("Enter")
 
-    await expect(page.getByText("no users")).toBeVisible()
+    await expect(page.getByText("no results")).toBeVisible()
   })
 
   test("posts search narrows results", async ({ page }) => {
@@ -57,7 +57,7 @@ test.describe("filtered lists", () => {
     await textFilterInput(page).fill("zzzznonexistent")
     await textFilterInput(page).press("Enter")
 
-    await expect(page.getByText("no posts")).toBeVisible()
+    await expect(page.getByText("no results")).toBeVisible()
   })
 
   test("vault search narrows results", async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe("filtered lists", () => {
 
     await textFilterInput(page).fill("zzzznonexistent")
     await textFilterInput(page).press("Enter")
-    await expect(page.getByText("no users")).toBeVisible()
+    await expect(page.getByText("no results")).toBeVisible()
 
     // Remove the filter
     await page.getByRole("button", { name: "Remove filter" }).click()

@@ -6,6 +6,26 @@ import { games } from "~/lib/games"
 
 const roundsKey = games.bius.rounds.queryOptions().queryKey
 
+export function useCreateFirstSet() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.bius.sets.createFirst.fn,
+    onSuccess: (data) => {
+      toast.success("set uploaded")
+      qc.invalidateQueries({ queryKey: roundsKey })
+      navigate({
+        to: "/games/bius/sets/$setId",
+        params: { setId: data.id },
+      })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to upload set")
+    },
+  })
+}
+
 export function useBackUpSet() {
   const navigate = useNavigate()
   const qc = useQueryClient()

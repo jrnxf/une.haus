@@ -1,7 +1,6 @@
 import { useDebouncedCallback } from "@tanstack/react-pacer"
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { GhostIcon } from "lucide-react"
 import {
   Suspense,
   useCallback,
@@ -18,15 +17,9 @@ import {
   type ActiveFilter,
   type FilterField,
 } from "~/components/filters/filters"
+import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty"
 import { USER_DISCIPLINES } from "~/db/schema"
 import { seo } from "~/lib/seo"
 import { users } from "~/lib/users"
@@ -228,17 +221,7 @@ function UsersList({
 
   return (
     <>
-      {displayedUsers.length === 0 && (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <GhostIcon />
-            </EmptyMedia>
-            <EmptyTitle>no users</EmptyTitle>
-            <EmptyDescription>try adjusting your filters</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      )}
+      {displayedUsers.length === 0 && <NoResultsEmpty />}
 
       {displayedUsers.map((user, idx) => {
         return (

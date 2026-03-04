@@ -17,13 +17,13 @@ import {
 import { UserChip } from "~/components/user-chip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { type UserDiscipline } from "~/db/schema"
-import { flashMessage } from "~/lib/flash"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
+import { session } from "~/lib/session/index"
 import { cn } from "~/lib/utils"
 import { utv } from "~/lib/utv/core"
 import { MessagesView } from "~/views/messages"
@@ -46,7 +46,9 @@ export const Route = createFileRoute("/vault/$videoId/")({
       } catch {
         // Only show flash message on actual navigation, not preload
         if (!preload) {
-          await flashMessage("Video not found")
+          await session.flash.set.fn({
+            data: { type: "error", message: "video not found" },
+          })
         }
         throw redirect({ to: "/vault" })
       }

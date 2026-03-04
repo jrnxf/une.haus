@@ -14,6 +14,7 @@ import { toast } from "sonner"
 
 import { FiltersDemo } from "~/components/filters-demo"
 import { LinkCard } from "~/components/link-card"
+import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert"
@@ -873,6 +874,7 @@ function RouteComponent() {
                     </EmptyDescription>
                   </EmptyHeader>
                 </Empty>
+                <NoResultsEmpty />
               </Subsection>
             </div>
           </section>

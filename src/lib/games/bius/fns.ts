@@ -1,13 +1,25 @@
 import { createServerFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, desc, eq, isNull } from "drizzle-orm"
+import { and, desc, eq, isNull, sql } from "drizzle-orm"
 
-import { backUpSetSchema, deleteSetSchema, getSetSchema } from "./schemas"
+import {
+  backUpSetSchema,
+  createFirstSetSchema,
+  deleteSetSchema,
+  getSetSchema,
+  startRoundSchema,
+} from "./schemas"
 import { db } from "~/db"
 import { bius, biuSetLikes, biuSetMessages, biuSets } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
-import { authMiddleware, authOptionalMiddleware } from "~/lib/middleware"
+import {
+  adminOnlyMiddleware,
+  authMiddleware,
+  authOptionalMiddleware,
+} from "~/lib/middleware"
 import { notifyFollowers } from "~/lib/notifications/helpers"
+
+const MAX_ACTIVE_ROUNDS = 3
 
 // Get all chains with all sets (ordered by position desc for UI)
 export const getChainsServerFn = createServerFn({ method: "GET" })
@@ -49,6 +61,76 @@ export const getChainsServerFn = createServerFn({ method: "GET" })
     })
 
     return chains
+  })
+
+// Start a new BIU round (admin only)
+export const startRoundServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(startRoundSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async () => {
+    const activeRounds = await db.query.bius.findMany({
+      columns: { id: true },
+    })
+
+    invariant(
+      activeRounds.length < MAX_ACTIVE_ROUNDS,
+      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+    )
+
+    const [round] = await db.insert(bius).values({}).returning()
+
+    return { round }
+  })
+
+// Create first set in an existing empty round
+export const createFirstSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(createFirstSetSchema))
+  .middleware([authMiddleware])
+  .handler(async ({ data: input, context }) => {
+    const userId = context.user.id
+
+    return db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(7201, ${input.roundId})`,
+      )
+
+      const round = await tx.query.bius.findFirst({
+        where: eq(bius.id, input.roundId),
+        columns: { id: true },
+      })
+
+      invariant(round, "Round not found")
+
+      const existingSet = await tx.query.biuSets.findFirst({
+        where: and(eq(biuSets.biuId, input.roundId), isNull(biuSets.deletedAt)),
+        columns: { id: true },
+      })
+
+      invariant(!existingSet, "Round already has a first set")
+
+      const [set] = await tx
+        .insert(biuSets)
+        .values({
+          biuId: input.roundId,
+          userId,
+          muxAssetId: input.muxAssetId,
+          name: input.name,
+          position: 1,
+          parentSetId: null,
+        })
+        .returning()
+
+      const instructions = input.instructions?.trim()
+      if (instructions) {
+        await tx.insert(biuSetMessages).values({
+          biuSetId: set.id,
+          userId,
+          content: instructions,
+        })
+      }
+
+      return set
+    })
   })
 
 // Get single set with full details
@@ -121,52 +203,72 @@ export const backUpSetServerFn = createServerFn({ method: "POST" })
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id
 
-    // Get the parent set
-    const parentSet = await db.query.biuSets.findFirst({
-      where: eq(biuSets.id, input.parentSetId),
-      with: {
-        biu: true,
-      },
-    })
+    return db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(7202, ${input.roundId})`,
+      )
 
-    invariant(parentSet, "Parent set not found")
-    invariant(parentSet.userId !== userId, "You cannot back up your own set")
-
-    // Ensure this is the latest set in the chain (no non-deleted child)
-    const existingBackup = await db.query.biuSets.findFirst({
-      where: and(
-        eq(biuSets.parentSetId, input.parentSetId),
-        isNull(biuSets.deletedAt),
-      ),
-    })
-
-    invariant(!existingBackup, "This set has already been backed up")
-
-    // Create the new set
-    const [set] = await db
-      .insert(biuSets)
-      .values({
-        biuId: parentSet.biuId,
-        userId,
-        muxAssetId: input.muxAssetId,
-        name: input.name,
-        position: parentSet.position + 1,
-        parentSetId: parentSet.id,
+      const round = await tx.query.bius.findFirst({
+        where: eq(bius.id, input.roundId),
+        columns: { id: true },
       })
-      .returning()
 
-    // Notify followers about the new BIU set
-    notifyFollowers({
-      actorId: userId,
-      actorName: context.user.name,
-      actorAvatarId: context.user.avatarId,
-      type: "new_content",
-      entityType: "biuSet",
-      entityId: set.id,
-      entityTitle: set.name,
-    }).catch(console.error)
+      invariant(round, "Round not found")
 
-    return set
+      const parentSet = await tx.query.biuSets.findFirst({
+        where: and(eq(biuSets.biuId, input.roundId), isNull(biuSets.deletedAt)),
+        orderBy: desc(biuSets.position),
+        columns: { id: true, userId: true, position: true },
+      })
+
+      invariant(parentSet, "Round has no sets yet")
+      invariant(parentSet.userId !== userId, "You cannot back up your own set")
+
+      // Ensure this latest set is still uncontinued.
+      const existingBackup = await tx.query.biuSets.findFirst({
+        where: and(
+          eq(biuSets.parentSetId, parentSet.id),
+          isNull(biuSets.deletedAt),
+        ),
+        columns: { id: true },
+      })
+
+      invariant(!existingBackup, "This set has already been backed up")
+
+      const [set] = await tx
+        .insert(biuSets)
+        .values({
+          biuId: input.roundId,
+          userId,
+          muxAssetId: input.muxAssetId,
+          name: input.name,
+          position: parentSet.position + 1,
+          parentSetId: parentSet.id,
+        })
+        .returning()
+
+      const instructions = input.instructions?.trim()
+      if (instructions) {
+        await tx.insert(biuSetMessages).values({
+          biuSetId: set.id,
+          userId,
+          content: instructions,
+        })
+      }
+
+      // Notify followers about the new BIU set
+      notifyFollowers({
+        actorId: userId,
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        type: "new_content",
+        entityType: "biuSet",
+        entityId: set.id,
+        entityTitle: set.name,
+      }).catch(console.error)
+
+      return set
+    })
   })
 
 // Delete set (owner only)

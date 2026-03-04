@@ -4,176 +4,83 @@ import { Link } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { type z } from "zod"
 
+import { SetUploadForm } from "~/components/forms/games/set-upload-form"
 import { TrickLine } from "~/components/games/sius/trick-line"
-import { VideoInput } from "~/components/input/video-input"
 import { Alert } from "~/components/ui/alert"
-import { Button } from "~/components/ui/button"
-import { ButtonGroup } from "~/components/ui/button-group"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormSubmitButton,
-} from "~/components/ui/form"
-import { Input } from "~/components/ui/input"
 import { games } from "~/lib/games"
-import { useAddSet, useStartRound } from "~/lib/games/sius/hooks"
+import { useAddSet, useCreateFirstSet } from "~/lib/games/sius/hooks"
+import { invariant } from "~/lib/invariant"
 
-export function StartRoundForm() {
-  const rhf = useForm<z.infer<typeof games.sius.rounds.start.schema>>({
-    resolver: zodResolver(games.sius.rounds.start.schema),
-  })
-
-  const { control, handleSubmit } = rhf
-
-  const startRound = useStartRound()
-
-  return (
-    <Form
-      rhf={rhf}
-      className="space-y-4"
-      method="post"
-      onSubmit={(event) => {
-        event.preventDefault()
-        handleSubmit((data) => {
-          startRound.mutate({ data })
-        })(event)
-      }}
-    >
-      <FormField
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>trick name</FormLabel>
-            <FormDescription>name the first trick in the line</FormDescription>
-            <FormControl>
-              <Input {...field} placeholder="Kickflip" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="muxAssetId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>video</FormLabel>
-            <FormDescription>
-              record yourself performing this trick
-            </FormDescription>
-            <FormControl>
-              <VideoInput {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <ButtonGroup className="ml-auto">
-        <ButtonGroup>
-          <Button asChild type="button" variant="outline">
-            <Link to="/games/sius">cancel</Link>
-          </Button>
-        </ButtonGroup>
-        <FormSubmitButton busy={startRound.isPending}>
-          start round
-        </FormSubmitButton>
-      </ButtonGroup>
-    </Form>
-  )
-}
-
-export function AddSetForm({ parentSetId }: { parentSetId: number }) {
-  const rhf = useForm<z.infer<typeof games.sius.sets.add.schema>>({
-    resolver: zodResolver(games.sius.sets.add.schema),
+export function CreateFirstSetForm({ roundId }: { roundId: number }) {
+  const rhf = useForm<z.infer<typeof games.sius.sets.createFirst.schema>>({
+    resolver: zodResolver(games.sius.sets.createFirst.schema),
     defaultValues: {
-      parentSetId,
+      roundId,
     },
   })
 
-  const { control, handleSubmit } = rhf
+  const createFirstSet = useCreateFirstSet()
+
+  return (
+    <SetUploadForm
+      rhf={rhf}
+      idFieldName="roundId"
+      isPending={createFirstSet.isPending}
+      onSubmit={(data) => {
+        createFirstSet.mutate({ data })
+      }}
+      cancel={
+        <Link to="/games/sius/$roundId" params={{ roundId }}>
+          cancel
+        </Link>
+      }
+    />
+  )
+}
+
+export function AddSetForm({ roundId }: { roundId: number }) {
+  const rhf = useForm<z.infer<typeof games.sius.sets.add.schema>>({
+    resolver: zodResolver(games.sius.sets.add.schema),
+    defaultValues: {
+      roundId,
+    },
+  })
 
   const addSet = useAddSet()
 
+  const { data: rounds } = useSuspenseQuery(
+    games.sius.rounds.active.queryOptions(),
+  )
+  const round = rounds.find((c) => c.id === roundId)
+  const latestSet = round?.sets?.find((set) => !set.deletedAt)
+
+  invariant(latestSet, "Latest set not found")
+
   // Get the line of tricks that need to be landed
   const { data: line } = useSuspenseQuery(
-    games.sius.sets.line.queryOptions({ setId: parentSetId }),
+    games.sius.sets.line.queryOptions({ setId: latestSet.id }),
   )
 
   return (
-    <Form
+    <SetUploadForm
       rhf={rhf}
-      className="space-y-4"
-      method="post"
-      onSubmit={(event) => {
-        event.preventDefault()
-        handleSubmit((data) => {
-          addSet.mutate({ data })
-        })(event)
+      idFieldName="roundId"
+      isPending={addSet.isPending}
+      onSubmit={(data) => {
+        addSet.mutate({ data })
       }}
-    >
-      <FormField
-        control={control}
-        name="parentSetId"
-        render={({ field }) => <input type="hidden" {...field} />}
-      />
-
-      {line && line.length > 0 && (
-        <Alert className="block">
-          <TrickLine tricks={line} />
-        </Alert>
-      )}
-
-      <FormField
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>new set</FormLabel>
-            <FormDescription>
-              the name of the new trick you&apos;re adding to the line
-            </FormDescription>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="muxAssetId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>video</FormLabel>
-            <FormDescription>
-              record yourself landing all previous tricks in the line in order,
-              then landing your new trick at the end
-            </FormDescription>
-            <FormControl>
-              <VideoInput {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <ButtonGroup className="ml-auto">
-        <ButtonGroup>
-          <Button asChild type="button" variant="outline">
-            <Link to="/games/sius">cancel</Link>
-          </Button>
-        </ButtonGroup>
-        <FormSubmitButton busy={addSet.isPending}>upload</FormSubmitButton>
-      </ButtonGroup>
-    </Form>
+      topContent={
+        line && line.length > 0 ? (
+          <Alert className="block">
+            <TrickLine tricks={line} />
+          </Alert>
+        ) : undefined
+      }
+      cancel={
+        <Link to="/games/sius/$roundId" params={{ roundId }}>
+          cancel
+        </Link>
+      }
+    />
   )
 }

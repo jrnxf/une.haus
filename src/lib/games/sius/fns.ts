@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, count, desc, eq, isNull } from "drizzle-orm"
+import { and, count, desc, eq, isNull, sql } from "drizzle-orm"
 import pluralize from "pluralize"
 
 import {
   addSetSchema,
   archiveRoundSchema,
+  createFirstSetSchema,
   deleteSetSchema,
   getArchivedRoundSchema,
   getSetSchema,
@@ -162,9 +163,7 @@ export const getSetServerFn = createServerFn({ method: "GET" })
 export const startRoundServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(startRoundSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
-
+  .handler(async () => {
     // Check if max active rounds reached
     const activeRounds = await db.query.sius.findMany({
       where: eq(sius.status, "active"),
@@ -182,20 +181,59 @@ export const startRoundServerFn = createServerFn({ method: "POST" })
       .values({ status: "active" })
       .returning()
 
-    // Create first set
-    const [set] = await db
-      .insert(siuSets)
-      .values({
-        siuId: round.id,
-        userId,
-        muxAssetId: input.muxAssetId,
-        name: input.name,
-        position: 1,
-        parentSetId: null,
-      })
-      .returning()
+    return { round }
+  })
 
-    return { round, set }
+// Create first set in an existing empty round
+export const createFirstSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(createFirstSetSchema))
+  .middleware([authMiddleware])
+  .handler(async ({ data: input, context }) => {
+    const userId = context.user.id
+
+    return db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(7101, ${input.roundId})`,
+      )
+
+      const round = await tx.query.sius.findFirst({
+        where: eq(sius.id, input.roundId),
+        columns: { id: true, status: true },
+      })
+
+      invariant(round, "Round not found")
+      invariant(round.status === "active", "Round is not active")
+
+      const existingSet = await tx.query.siuSets.findFirst({
+        where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
+        columns: { id: true },
+      })
+
+      invariant(!existingSet, "Round already has a first set")
+
+      const [set] = await tx
+        .insert(siuSets)
+        .values({
+          siuId: input.roundId,
+          userId,
+          muxAssetId: input.muxAssetId,
+          name: input.name,
+          position: 1,
+          parentSetId: null,
+        })
+        .returning()
+
+      const instructions = input.instructions?.trim()
+      if (instructions) {
+        await tx.insert(siuSetMessages).values({
+          siuSetId: set.id,
+          userId,
+          content: instructions,
+        })
+      }
+
+      return set
+    })
   })
 
 // Add set (continue the round with full line + new trick)
@@ -205,53 +243,76 @@ export const addSetServerFn = createServerFn({ method: "POST" })
   .handler(async ({ data: input, context }) => {
     const userId = context.user.id
 
-    // Get the parent set
-    const parentSet = await db.query.siuSets.findFirst({
-      where: eq(siuSets.id, input.parentSetId),
-      with: {
-        siu: true,
-      },
-    })
+    return db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(7102, ${input.roundId})`,
+      )
 
-    invariant(parentSet, "Parent set not found")
-    invariant(parentSet.siu.status === "active", "Round is not active")
-    invariant(parentSet.userId !== userId, "You cannot stack up your own trick")
-
-    // Ensure this is the latest set in the round (no non-deleted child)
-    const existingSet = await db.query.siuSets.findFirst({
-      where: and(
-        eq(siuSets.parentSetId, input.parentSetId),
-        isNull(siuSets.deletedAt),
-      ),
-    })
-
-    invariant(!existingSet, "This set has already been continued")
-
-    // Create the new set
-    const [set] = await db
-      .insert(siuSets)
-      .values({
-        siuId: parentSet.siuId,
-        userId,
-        muxAssetId: input.muxAssetId,
-        name: input.name,
-        position: parentSet.position + 1,
-        parentSetId: parentSet.id,
+      const round = await tx.query.sius.findFirst({
+        where: eq(sius.id, input.roundId),
+        columns: { id: true, status: true },
       })
-      .returning()
 
-    // Notify followers about the new SIU set
-    notifyFollowers({
-      actorId: userId,
-      actorName: context.user.name,
-      actorAvatarId: context.user.avatarId,
-      type: "new_content",
-      entityType: "siuSet",
-      entityId: set.id,
-      entityTitle: set.name,
-    }).catch(console.error)
+      invariant(round, "Round not found")
+      invariant(round.status === "active", "Round is not active")
 
-    return set
+      const parentSet = await tx.query.siuSets.findFirst({
+        where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
+        orderBy: desc(siuSets.position),
+        columns: { id: true, userId: true, position: true },
+      })
+
+      invariant(parentSet, "Round has no sets yet")
+      invariant(
+        parentSet.userId !== userId,
+        "You cannot stack up your own trick",
+      )
+
+      // Ensure this latest set is still uncontinued.
+      const existingSet = await tx.query.siuSets.findFirst({
+        where: and(
+          eq(siuSets.parentSetId, parentSet.id),
+          isNull(siuSets.deletedAt),
+        ),
+        columns: { id: true },
+      })
+
+      invariant(!existingSet, "This set has already been continued")
+
+      const [set] = await tx
+        .insert(siuSets)
+        .values({
+          siuId: input.roundId,
+          userId,
+          muxAssetId: input.muxAssetId,
+          name: input.name,
+          position: parentSet.position + 1,
+          parentSetId: parentSet.id,
+        })
+        .returning()
+
+      const instructions = input.instructions?.trim()
+      if (instructions) {
+        await tx.insert(siuSetMessages).values({
+          siuSetId: set.id,
+          userId,
+          content: instructions,
+        })
+      }
+
+      // Notify followers about the new SIU set
+      notifyFollowers({
+        actorId: userId,
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        type: "new_content",
+        entityType: "siuSet",
+        entityId: set.id,
+        entityTitle: set.name,
+      }).catch(console.error)
+
+      return set
+    })
   })
 
 // Vote to archive round

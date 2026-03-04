@@ -2,11 +2,19 @@ import { queryOptions } from "@tanstack/react-query"
 
 import {
   backUpSetServerFn,
+  createFirstSetServerFn,
   deleteSetServerFn,
   getChainsServerFn,
   getSetServerFn,
+  startRoundServerFn,
 } from "./fns"
-import { backUpSetSchema, deleteSetSchema, getSetSchema } from "./schemas"
+import {
+  backUpSetSchema,
+  createFirstSetSchema,
+  deleteSetSchema,
+  getSetSchema,
+  startRoundSchema,
+} from "./schemas"
 import { type ServerFnData } from "~/lib/types"
 
 export const bius = {
@@ -17,6 +25,10 @@ export const bius = {
         queryKey: ["games.bius.rounds"] as const,
         queryFn: getChainsServerFn,
       }),
+    start: {
+      fn: startRoundServerFn,
+      schema: startRoundSchema,
+    },
   },
   sets: {
     get: {
@@ -31,6 +43,10 @@ export const bius = {
     backUp: {
       fn: backUpSetServerFn,
       schema: backUpSetSchema,
+    },
+    createFirst: {
+      fn: createFirstSetServerFn,
+      schema: createFirstSetSchema,
     },
     delete: {
       fn: deleteSetServerFn,

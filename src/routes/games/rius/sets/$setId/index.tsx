@@ -64,7 +64,9 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
       } catch {
         // Only show flash message on actual navigation, not preload
         if (!preload) {
-          await session.flash.set.fn({ data: { message: "Set not found" } })
+          await session.flash.set.fn({
+            data: { type: "error", message: "set not found" },
+          })
         }
         throw redirect({ to: "/games/rius" })
       }

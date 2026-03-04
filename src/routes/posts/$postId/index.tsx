@@ -4,10 +4,10 @@ import { z } from "zod"
 
 import { PageHeader } from "~/components/page-header"
 import { getMuxPoster } from "~/components/video-player"
-import { flashMessage } from "~/lib/flash"
 import { messages } from "~/lib/messages"
 import { posts } from "~/lib/posts"
 import { seo } from "~/lib/seo"
+import { session } from "~/lib/session/index"
 import { getCloudflareImageUrl } from "~/lib/utils"
 import { PostView } from "~/views/post"
 
@@ -29,7 +29,9 @@ export const Route = createFileRoute("/posts/$postId/")({
       } catch {
         // Only show flash message on actual navigation, not preload
         if (!preload) {
-          await flashMessage("Post not found")
+          await session.flash.set.fn({
+            data: { type: "error", message: "post not found" },
+          })
         }
         throw redirect({ to: "/posts" })
       }

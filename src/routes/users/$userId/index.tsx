@@ -23,7 +23,9 @@ export const Route = createFileRoute("/users/$userId/")({
       ])
       return { user }
     } catch (error) {
-      await session.flash.set.fn({ data: { message: errorFmt(error) } })
+      await session.flash.set.fn({
+        data: { type: "error", message: errorFmt(error) },
+      })
       throw redirect({ to: "/users" })
     }
   },

@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { ArrowDownIcon, ArrowUpIcon, GhostIcon } from "lucide-react"
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { z } from "zod"
 
@@ -19,15 +19,10 @@ import {
   type ActiveFilter,
   type FilterField,
 } from "~/components/filters/filters"
+import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty"
 import {
   Table,
   TableBody,
@@ -413,17 +408,7 @@ function TricksListPage() {
 
         {filteredTricks.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <GhostIcon />
-                </EmptyMedia>
-                <EmptyTitle>no tricks found</EmptyTitle>
-              </EmptyHeader>
-              <p className="text-muted-foreground text-sm">
-                try adjusting your filters
-              </p>
-            </Empty>
+            <NoResultsEmpty />
           </div>
         ) : (
           <div className="flex min-h-0 flex-col overflow-hidden rounded-lg border">
