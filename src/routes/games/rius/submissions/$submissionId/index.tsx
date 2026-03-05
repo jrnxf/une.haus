@@ -5,9 +5,8 @@ import pluralize from "pluralize"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
-import { FlagTray } from "~/components/flag-tray"
 import { UsersDialog } from "~/components/likes-dialog"
-import { ShareButton } from "~/components/share-button"
+import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Separator } from "~/components/ui/separator"
@@ -162,6 +161,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
                     }
                     size="icon-sm"
                     variant="outline"
+                    aria-label="delete submission"
                   >
                     <TrashIcon className="size-4" />
                   </Button>
@@ -177,6 +177,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
                 <Button
                   size="icon-sm"
                   variant="outline"
+                  aria-label={authUserLiked ? "unlike" : "like"}
                   onClick={likeUnlike.mutate}
                 >
                   <HeartIcon
@@ -199,7 +200,11 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
                 title={`${submission.likes.length} ${pluralize("Like", submission.likes.length)}`}
                 trigger={
                   <TooltipTrigger asChild>
-                    <Button size="icon-sm" variant="outline">
+                    <Button
+                      size="icon-sm"
+                      variant="outline"
+                      aria-label="view likes"
+                    >
                       <TrendingUpIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
@@ -208,10 +213,11 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               <TooltipContent>likes</TooltipContent>
             </Tooltip>
           )}
-          <ShareButton />
-          {sessionUser && !isOwner && (
-            <FlagTray entityType="riuSubmission" entityId={submission.id} />
-          )}
+          <ShareFlagMenu
+            entityType="riuSubmission"
+            entityId={submission.id}
+            canFlag={Boolean(sessionUser && !isOwner)}
+          />
         </div>
       </div>
 

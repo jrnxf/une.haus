@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react"
+import { useLayoutEffect, useRef } from "react"
 
 import { BaseMessageForm } from "~/components/forms/message"
 import { MessageAuthor } from "~/components/messages/message-author"
@@ -57,7 +57,6 @@ export function MessagesView({
 }) {
   const scrollCountReference = useRef(0)
   const pendingScrollRef = useRef(false)
-  const [formResetKey, setFormResetKey] = useState(0)
 
   const sessionUser = useSessionUser()
 
@@ -187,10 +186,8 @@ export function MessagesView({
         </div>
         <div className="shrink-0 pt-4">
           <BaseMessageForm
-            key={`message-form-${formResetKey}`}
             onSubmit={(newMessage) => {
               pendingScrollRef.current = true
-              setFormResetKey((key) => key + 1)
               handleCreateMessage(newMessage)
             }}
           />
@@ -245,7 +242,6 @@ export function MessagesView({
       })}
       <div className="pt-2">
         <BaseMessageForm
-          key={`message-form-${formResetKey}`}
           onFocus={() =>
             window.scrollTo({
               top: document.body.scrollHeight,
@@ -257,7 +253,6 @@ export function MessagesView({
               top: document.body.scrollHeight,
               behavior: "instant",
             })
-            setFormResetKey((key) => key + 1)
             handleCreateMessage(newMessage)
           }}
         />

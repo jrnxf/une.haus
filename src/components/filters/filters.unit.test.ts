@@ -201,7 +201,7 @@ describe("getFieldsSortedByActive", () => {
     const filters: ActiveFilter[] = [
       { id: "1", field: "name", operator: "contains", values: [] },
       { id: "2", field: "status", operator: "is", values: [] },
-      { id: "3", field: "tags", operator: "is_any_of", values: [] },
+      { id: "3", field: "tags", operator: "includes", values: [] },
     ]
 
     expect(getFieldsSortedByActive(fields, filters).map((f) => f.key)).toEqual([

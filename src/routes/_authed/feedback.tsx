@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, useRouter } from "@tanstack/react-router"
 import { Loader2Icon, TrashIcon } from "lucide-react"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -20,6 +20,7 @@ import {
   FormLabel,
   FormMessage,
   FormSubmitButton,
+  useFormMedia,
 } from "~/components/ui/form"
 import { Label } from "~/components/ui/label"
 import { Progress } from "~/components/ui/progress"
@@ -27,7 +28,11 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Textarea } from "~/components/ui/textarea"
 import { VideoPlayer } from "~/components/video-player"
 import { feedback } from "~/lib/feedback"
-import { useVideoUpload } from "~/lib/media"
+import {
+  getVideoFileRejectionMessage,
+  MAX_VIDEO_FILE_SIZE_BYTES,
+  useVideoUpload,
+} from "~/lib/media"
 
 const MEDIA_OPTIONS = {
   none: "none",
@@ -189,12 +194,23 @@ function FeedbackVideoInput({
   value?: { assetId: string; playbackId: string }
   onChange: (data: { assetId: string; playbackId: string } | undefined) => void
 }) {
+  const { setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus } =
+    useFormMedia()
   const [fileName, setFileName] = useState<string>()
 
   const { uploadVideo, isUploading, uploadProgress, isProcessing, reset } =
     useVideoUpload({
       onSuccess: (data) => {
         onChange(data)
+        setMediaUploadFileName(undefined)
+        setMediaUploadFileSizeBytes(undefined)
+        setVideoUploadStatus("idle")
+      },
+      onError: () => {
+        setFileName(undefined)
+        setMediaUploadFileName(undefined)
+        setMediaUploadFileSizeBytes(undefined)
+        setVideoUploadStatus("idle")
       },
     })
 
@@ -204,28 +220,53 @@ function FeedbackVideoInput({
 
       if (file) {
         setFileName(file.name)
+        setMediaUploadFileName(file.name)
+        setMediaUploadFileSizeBytes(file.size)
+        setVideoUploadStatus(0)
         uploadVideo(file)
       }
     },
-    [uploadVideo],
+    [
+      setMediaUploadFileName,
+      setMediaUploadFileSizeBytes,
+      setVideoUploadStatus,
+      uploadVideo,
+    ],
   )
 
   const { getInputProps, getRootProps } = useDropzone({
     accept: { "video/*": [] },
     multiple: false,
+    maxSize: MAX_VIDEO_FILE_SIZE_BYTES,
     onDrop,
+    onDropRejected: (fileRejections) => {
+      setFileName(undefined)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+      toast.error(getVideoFileRejectionMessage(fileRejections))
+    },
   })
 
   const handleReset = () => {
     reset()
+    setMediaUploadFileName(undefined)
+    setMediaUploadFileSizeBytes(undefined)
+    setVideoUploadStatus("idle")
     setFileName(undefined)
     onChange(undefined)
   }
 
+  useEffect(() => {
+    if (isProcessing) {
+      setVideoUploadStatus("processing")
+    }
+  }, [isProcessing, setVideoUploadStatus])
+
   if (value?.playbackId) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="relative flex overflow-clip rounded-md border">
+        <div className="border-input relative flex overflow-clip rounded-md border">
           <VideoPlayer playbackId={value.playbackId} />
 
           <Button
@@ -247,9 +288,10 @@ function FeedbackVideoInput({
       getRootProps={getRootProps}
       getInputProps={getInputProps}
       disabled={isUploading || isProcessing}
+      hasValue={!!fileName}
     >
-      <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
-        {fileName ?? "upload video"}
+      <span className="text-muted-foreground block w-full truncate text-left text-sm">
+        {fileName ?? "Choose File"}
       </span>
 
       {isUploading && (

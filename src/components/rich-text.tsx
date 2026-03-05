@@ -5,18 +5,34 @@ import { parseRichTokens } from "~/lib/mentions/parse"
 import { useUserMap } from "~/lib/users/use-user-map"
 import { preprocessText } from "~/lib/utils"
 
+export type MentionMode = "link" | "accentText" | "plainText"
+
+type RichTextProps = {
+  content: string
+  className?: string
+  mentionMode?: MentionMode
+  /** Backward-compatible alias for mentionMode="accentText" */
+  disableLinks?: boolean
+}
+
+export function resolveMentionMode({
+  mentionMode,
+  disableLinks,
+}: Pick<RichTextProps, "mentionMode" | "disableLinks">): MentionMode {
+  if (mentionMode) return mentionMode
+  if (disableLinks) return "accentText"
+  return "link"
+}
+
 export function RichText({
   content,
   className,
+  mentionMode,
   disableLinks,
-}: {
-  content: string
-  className?: string
-  /** Render mentions as styled spans instead of links (for use inside interactive elements) */
-  disableLinks?: boolean
-}) {
+}: RichTextProps) {
   const { userMap } = useUserMap()
   const tokens = parseRichTokens(preprocessText(content))
+  const resolvedMentionMode = resolveMentionMode({ mentionMode, disableLinks })
 
   return (
     <span className={className}>
@@ -28,12 +44,15 @@ export function RichText({
           case "mention": {
             const user = userMap.get(token.userId)
             if (user) {
-              if (disableLinks) {
+              if (resolvedMentionMode === "accentText") {
                 return (
                   <span key={i} className="text-blue-400 dark:text-blue-300">
                     {user.name}
                   </span>
                 )
+              }
+              if (resolvedMentionMode === "plainText") {
+                return <Fragment key={i}>{user.name}</Fragment>
               }
               return (
                 <Link

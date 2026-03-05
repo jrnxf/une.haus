@@ -250,7 +250,12 @@ export function TrickDetail({
                   </Link>
                 </Button>
                 {isAdmin && (
-                  <Button variant="secondary" size="icon-xs" asChild>
+                  <Button
+                    variant="secondary"
+                    size="icon-xs"
+                    asChild
+                    aria-label="edit trick as admin"
+                  >
                     <Link
                       to="/admin/tricks/$trickId/edit"
                       params={{ trickId: trick.id }}

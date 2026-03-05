@@ -1,9 +1,12 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import {
+  ArrowDownIcon,
+  ArrowUpIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   HeartIcon,
+  InfoIcon,
   TrashIcon,
   TrendingUpIcon,
 } from "lucide-react"
@@ -12,17 +15,18 @@ import { useState } from "react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
-import { FlagTray } from "~/components/flag-tray"
 import { BaseMessageForm } from "~/components/forms/message"
-import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button"
 import { TrickLine } from "~/components/games/sius/trick-line"
 import { UsersDialog } from "~/components/likes-dialog"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
-import { ShareButton } from "~/components/share-button"
+import { ShareFlagMenu } from "~/components/share-flag-menu"
+import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
+import { Card, CardContent } from "~/components/ui/card"
+import { Metaline } from "~/components/ui/metaline"
+import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import {
   Tooltip,
   TooltipContent,
@@ -30,13 +34,13 @@ import {
 } from "~/components/ui/tooltip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
-import { useArchiveRound, useDeleteSet } from "~/lib/games/sius/hooks"
+import { useDeleteSet } from "~/lib/games/sius/hooks"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
-import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
+import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type ServerFnReturn } from "~/lib/types"
 import { cn } from "~/lib/utils"
@@ -115,10 +119,7 @@ function SetView({ setId }: { setId: number }) {
   const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record))
   const createMessage = useCreateMessage(record)
   const deleteSet = useDeleteSet()
-  const archiveRound = useArchiveRound()
-
   const sessionUser = useSessionUser()
-  const isAdmin = useIsAdmin()
   const isOwner = set.user.id === sessionUser?.id
   const isDeleted = !!set.deletedAt
 
@@ -131,33 +132,66 @@ function SetView({ setId }: { setId: number }) {
             <h1 className="text-muted-foreground text-2xl font-semibold">
               this set was deleted
             </h1>
-            <p className="text-muted-foreground text-sm">
-              Trick #{set.position}
-            </p>
+            <Metaline
+              parts={[
+                `#${set.position}`,
+                <RelativeTimeCard
+                  key="created-at"
+                  date={set.createdAt}
+                  variant="muted"
+                />,
+              ]}
+            />
           </div>
-          {set.parentSet && (
-            <Button size="sm" variant="outline" asChild>
-              <Link
-                to="/games/sius/sets/$setId"
-                params={{ setId: set.parentSet.id }}
-              >
-                previous
-              </Link>
-            </Button>
-          )}
+          <div className="flex shrink-0 items-center gap-1">
+            {set.childSet && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    asChild
+                    aria-label="next set"
+                  >
+                    <Link
+                      to="/games/sius/sets/$setId"
+                      params={{ setId: set.childSet.id }}
+                    >
+                      <ArrowUpIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>next</TooltipContent>
+              </Tooltip>
+            )}
+            {set.parentSet && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    asChild
+                    aria-label="previous set"
+                  >
+                    <Link
+                      to="/games/sius/sets/$setId"
+                      params={{ setId: set.parentSet.id }}
+                    >
+                      <ArrowDownIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>previous</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
   const isLatest = set.isLatest
-
-  // Get vote info
-  const voteCount = set.siu.archiveVotes?.length ?? 0
-  const hasVoted =
-    sessionUser &&
-    set.siu.archiveVotes?.some((v) => v.user.id === sessionUser.id)
-  const thresholdReached = voteCount >= 5
+  const landedTricks = line.toReversed()
 
   // Can add set if: user logged in, round active, not own set, is latest
   const canAddSet =
@@ -190,20 +224,93 @@ function SetView({ setId }: { setId: number }) {
               </Badge>
             )}
           </div>
-          <p className="text-muted-foreground text-sm">
-            by{" "}
-            <Link
-              to="/users/$userId"
-              params={{ userId: set.user.id }}
-              className="hover:underline"
-            >
-              {set.user.name}
-            </Link>{" "}
-            - Trick #{set.position}
-          </p>
+          <Metaline
+            parts={[
+              <Link
+                key="author"
+                to="/users/$userId"
+                params={{ userId: set.user.id }}
+                className="hover:underline"
+              >
+                {set.user.name}
+              </Link>,
+              `#${set.position}`,
+              <RelativeTimeCard
+                key="created-at"
+                date={set.createdAt}
+                variant="muted"
+              />,
+            ]}
+          />
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
+          {set.childSet && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  asChild
+                  aria-label="next set"
+                >
+                  <Link
+                    to="/games/sius/sets/$setId"
+                    params={{ setId: set.childSet.id }}
+                  >
+                    <ArrowUpIcon className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>next</TooltipContent>
+            </Tooltip>
+          )}
+          {set.parentSet && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  asChild
+                  aria-label="previous set"
+                >
+                  <Link
+                    to="/games/sius/sets/$setId"
+                    params={{ setId: set.parentSet.id }}
+                  >
+                    <ArrowDownIcon className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>previous</TooltipContent>
+            </Tooltip>
+          )}
+          {landedTricks.length > 0 && (
+            <Tray>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TrayTrigger asChild>
+                    <Button
+                      size="icon-sm"
+                      variant="outline"
+                      aria-label="stack info"
+                    >
+                      <InfoIcon className="size-4" />
+                    </Button>
+                  </TrayTrigger>
+                </TooltipTrigger>
+                <TooltipContent>stack info</TooltipContent>
+              </Tooltip>
+              <TrayContent className="space-y-3" dialogClassName="max-w-2xl">
+                <TrayTitle>stack info</TrayTitle>
+                <Card>
+                  <CardContent>
+                    <TrickLine tricks={landedTricks} />
+                  </CardContent>
+                </Card>
+              </TrayContent>
+            </Tray>
+          )}
           {sessionUser && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -250,10 +357,11 @@ function SetView({ setId }: { setId: number }) {
               <TooltipContent>likes</TooltipContent>
             </Tooltip>
           )}
-          <ShareButton />
-          {sessionUser && !isOwner && (
-            <FlagTray entityType="siuSet" entityId={set.id} />
-          )}
+          <ShareFlagMenu
+            entityType="siuSet"
+            entityId={set.id}
+            canFlag={Boolean(sessionUser && !isOwner)}
+          />
           {canDelete && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -282,45 +390,6 @@ function SetView({ setId }: { setId: number }) {
         </div>
       </div>
 
-      {/* Parent set reference */}
-      {set.parentSet && (
-        <Card className="bg-muted/30">
-          <CardContent className="p-4">
-            <p className="text-muted-foreground mb-2 text-xs font-medium uppercase">
-              continued from
-            </p>
-            <Link
-              to="/games/sius/sets/$setId"
-              params={{ setId: set.parentSet.id }}
-              className="hover:text-primary font-medium transition-colors"
-            >
-              {set.parentSet.name}
-            </Link>
-            {set.parentSet.user && (
-              <p className="text-muted-foreground text-sm">
-                by{" "}
-                <Link
-                  to="/users/$userId"
-                  params={{ userId: set.parentSet.user.id }}
-                  className="hover:underline"
-                >
-                  {set.parentSet.user.name}
-                </Link>
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* The Line - all tricks that need to be landed */}
-      {line && line.length > 0 && (
-        <Card>
-          <CardContent>
-            <TrickLine tricks={line} />
-          </CardContent>
-        </Card>
-      )}
-
       {/* Video */}
       {set.video?.playbackId && (
         <VideoPlayer playbackId={set.video.playbackId} />
@@ -335,73 +404,6 @@ function SetView({ setId }: { setId: number }) {
             </Link>
           </Button>
         </div>
-      )}
-
-      {/* Vote to archive section */}
-      {sessionUser && set.siu.status === "active" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">archive</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-muted-foreground text-sm">
-              think this line is too difficult to continue? vote to archive it.
-            </p>
-
-            <ArchiveVoteButton
-              roundId={set.siu.id}
-              voteCount={voteCount}
-              hasVoted={!!hasVoted}
-            />
-
-            {set.siu.archiveVotes && set.siu.archiveVotes.length > 0 && (
-              <div className="mt-4 border-t pt-4">
-                <p className="text-muted-foreground mb-2 text-xs">
-                  Users who voted to archive:
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {set.siu.archiveVotes.map((vote) => (
-                    <Link
-                      key={vote.user.id}
-                      to="/users/$userId"
-                      params={{ userId: vote.user.id }}
-                    >
-                      <Badge variant="secondary">{vote.user.name}</Badge>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Admin archive button */}
-            {isAdmin && thresholdReached && (
-              <div className="border-destructive/30 bg-destructive/5 mt-4 border-t pt-4">
-                <p className="text-muted-foreground mb-2 text-sm">
-                  Vote threshold reached. As an admin, you can archive this
-                  round.
-                </p>
-                <Button
-                  variant="destructive"
-                  onClick={() =>
-                    confirm.open({
-                      title: "archive round",
-                      description:
-                        "are you sure you want to archive this round? all participants will be notified.",
-                      confirmText: "archive",
-                      onConfirm: () => {
-                        archiveRound.mutate({
-                          data: { roundId: set.siu.id },
-                        })
-                      },
-                    })
-                  }
-                >
-                  archive
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       )}
 
       {/* Messages */}

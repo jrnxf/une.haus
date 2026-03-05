@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { Metaline } from "~/components/ui/metaline"
 
 import {
   DEATH_FREEZE_FRAMES,
@@ -194,15 +195,22 @@ export function UnicycleGame() {
       />
       {!isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-          <p className="text-muted-foreground font-mono text-xs">
-            <span className="md:hidden">
-              tap to jump · double tap for air jump
-            </span>
-            <span className="hidden md:inline">
-              <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
-              jump · press again mid-air for double jump
-            </span>
-          </p>
+          <Metaline
+            className="text-muted-foreground font-mono text-xs md:hidden"
+            separator="·"
+            parts={["tap to jump", "double tap for air jump"]}
+          />
+          <Metaline
+            className="text-muted-foreground hidden font-mono text-xs md:inline"
+            separator="·"
+            parts={[
+              <>
+                <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
+                jump
+              </>,
+              "press again mid-air for double jump",
+            ]}
+          />
         </div>
       )}
       {isDead && (

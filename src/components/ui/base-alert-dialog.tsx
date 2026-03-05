@@ -1,11 +1,11 @@
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 import { X } from "lucide-react"
+import * as React from "react"
 
 import { buttonVariants } from "~/components/ui/base-button"
+import { buttonVariants as uiButtonVariants } from "~/components/ui/button"
 import { useHaptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
-
-import type * as React from "react"
 
 // Base UI Alert Dialog Root
 function AlertDialog({
@@ -200,6 +200,7 @@ export type ConfirmDialogConfig = {
   cancelText?: string
   variant?: "default" | "destructive"
   onConfirm: () => void
+  onCancel?: () => void
 }
 
 type ConfirmDialogProps = ConfirmDialogConfig & {
@@ -214,10 +215,22 @@ function ConfirmDialog({
   cancelText = "cancel",
   variant = "default",
   onConfirm,
+  onCancel,
 }: ConfirmDialogProps) {
   const haptics = useHaptics()
+  const isConfirmingRef = React.useRef(false)
   return (
-    <AlertDialogPrimitive.Root handle={handle}>
+    <AlertDialogPrimitive.Root
+      handle={handle}
+      onOpenChange={(open) => {
+        if (!open) {
+          if (!isConfirmingRef.current) {
+            onCancel?.()
+          }
+          isConfirmingRef.current = false
+        }
+      }}
+    >
       <AlertDialogPortal>
         <AlertDialogBackdrop />
         <AlertDialogPopup>
@@ -233,12 +246,12 @@ function ConfirmDialog({
             </AlertDialogPrimitive.Close>
             <AlertDialogPrimitive.Close
               className={cn(
-                buttonVariants({
-                  variant:
-                    variant === "destructive" ? "destructive" : "primary",
-                }),
+                variant === "destructive"
+                  ? uiButtonVariants({ variant: "destructive" })
+                  : buttonVariants({ variant: "primary" }),
               )}
               onClick={() => {
+                isConfirmingRef.current = true
                 if (variant === "destructive") haptics.warning()
                 onConfirm()
               }}

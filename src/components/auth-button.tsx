@@ -34,7 +34,12 @@ export function AuthButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2" asChild>
-        <Button size="icon-sm" variant="ghost" className="rounded-full">
+        <Button
+          size="icon-sm"
+          variant="ghost"
+          className="rounded-full"
+          aria-label="open user menu"
+        >
           <Avatar
             className="size-8"
             cloudflareId={sessionUser.avatarId}

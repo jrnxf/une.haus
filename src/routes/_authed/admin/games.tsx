@@ -11,13 +11,13 @@ import {
   useRouterState,
 } from "@tanstack/react-router"
 import pluralize from "pluralize"
-import { Fragment } from "react"
 import { toast } from "sonner"
 
 import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
+import { Metaline } from "~/components/ui/metaline"
 import { games } from "~/lib/games"
 import { useAdminRotateRius } from "~/lib/games/rius/hooks"
 
@@ -60,26 +60,6 @@ function RouteComponent() {
         <BiusSection />
       </div>
     </>
-  )
-}
-
-const Slash = () => <span className="opacity-25">/</span>
-
-function MetaLine({ parts }: { parts: string[] }) {
-  return (
-    <p className="text-muted-foreground text-xs">
-      {parts.map((part, index) => (
-        <Fragment key={`${part}-${index}`}>
-          {index > 0 && (
-            <>
-              {" "}
-              <Slash />{" "}
-            </>
-          )}
-          {part}
-        </Fragment>
-      ))}
-    </p>
   )
 }
 
@@ -173,7 +153,8 @@ function SiusSection() {
             >
               <div>
                 <p className="text-sm font-medium">round {round.id}</p>
-                <MetaLine
+                <Metaline
+                  className="text-xs"
                   parts={[
                     `${round.sets?.length ?? 0} ${pluralize("trick", round.sets?.length ?? 0)}`,
                     `${round.archiveVotes?.length ?? 0} ${pluralize("archive vote", round.archiveVotes?.length ?? 0)}`,
@@ -268,7 +249,8 @@ function BiusSection() {
             >
               <div>
                 <p className="text-sm font-medium">round {round.id}</p>
-                <MetaLine
+                <Metaline
+                  className="text-xs"
                   parts={[
                     `${round.sets?.length ?? 0} ${pluralize("set", round.sets?.length ?? 0)}`,
                   ]}

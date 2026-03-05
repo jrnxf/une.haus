@@ -7,6 +7,14 @@ import { type z } from "zod"
 import { SetUploadForm } from "~/components/forms/games/set-upload-form"
 import { TrickLine } from "~/components/games/sius/trick-line"
 import { Alert } from "~/components/ui/alert"
+import { Checkbox } from "~/components/ui/checkbox"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form"
 import { games } from "~/lib/games"
 import { useAddSet, useCreateFirstSet } from "~/lib/games/sius/hooks"
 import { invariant } from "~/lib/invariant"
@@ -43,6 +51,7 @@ export function AddSetForm({ roundId }: { roundId: number }) {
     resolver: zodResolver(games.sius.sets.add.schema),
     defaultValues: {
       roundId,
+      confirmLine: false,
     },
   })
 
@@ -69,10 +78,32 @@ export function AddSetForm({ roundId }: { roundId: number }) {
       onSubmit={(data) => {
         addSet.mutate({ data })
       }}
-      topContent={
+      bottomContent={
         line && line.length > 0 ? (
-          <Alert className="block">
-            <TrickLine tricks={line} />
+          <Alert className="block space-y-3">
+            <TrickLine tricks={line} description="" includeYourSet />
+            <FormField
+              control={rhf.control}
+              name="confirmLine"
+              render={({ field }) => (
+                <FormItem className="gap-2">
+                  <div className="flex items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value === true}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked === true)
+                        }
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm font-normal">
+                      i confirm my set includes the listed tricks in order
+                    </FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </Alert>
         ) : undefined
       }

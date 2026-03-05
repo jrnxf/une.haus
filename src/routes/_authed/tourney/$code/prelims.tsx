@@ -182,7 +182,11 @@ function RouteComponent() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon-xs">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="open rider actions"
+                    >
                       <EllipsisVerticalIcon className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>

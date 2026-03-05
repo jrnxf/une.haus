@@ -58,7 +58,12 @@ const PRIORITIES: FilterOption[] = [
 
 const FIELDS: FilterField[] = [
   { key: "status", label: "Status", options: STATUSES },
-  { key: "elements", label: "Elements", options: ELEMENTS },
+  {
+    key: "elements",
+    label: "Elements",
+    type: "multiselect",
+    options: ELEMENTS,
+  },
   { key: "priority", label: "Priority", options: PRIORITIES },
 ]
 
@@ -67,7 +72,7 @@ export function FiltersDemo() {
     {
       id: "demo-1",
       field: "elements",
-      operator: "is_any_of",
+      operator: "contain",
       values: ["spin", "flip"],
     },
   ])

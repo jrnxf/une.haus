@@ -95,7 +95,11 @@ export function NavUser() {
               open state and causing the menu to jump to (0,0). */}
           <DropdownMenu key="unauthed" modal={!isMobile}>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="open account menu"
+              >
                 <PowerIcon className="size-3.5" />
               </Button>
             </DropdownMenuTrigger>

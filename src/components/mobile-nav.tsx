@@ -161,6 +161,7 @@ export function MobileNavTrigger({ className }: { className?: string }) {
     <Button
       variant="secondary"
       size="icon"
+      aria-label="open navigation menu"
       onClick={openNav}
       className={cn("md:hidden", className)}
     >
@@ -263,7 +264,11 @@ function MobileNavFooter() {
         ) : (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="open account menu"
+              >
                 <PowerIcon className="size-4" />
               </Button>
             </DropdownMenuTrigger>

@@ -14,14 +14,13 @@ import { useState } from "react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
-import { FlagTray } from "~/components/flag-tray"
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius"
 import { BaseMessageForm } from "~/components/forms/message"
 import { UsersDialog } from "~/components/likes-dialog"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
 import { RichText } from "~/components/rich-text"
-import { ShareButton } from "~/components/share-button"
+import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import {
@@ -196,10 +195,11 @@ function SetView({ setId }: { setId: number }) {
               <TooltipContent>likes</TooltipContent>
             </Tooltip>
           )}
-          <ShareButton />
-          {sessionUser && !isOwner && (
-            <FlagTray entityType="riuSet" entityId={set.id} />
-          )}
+          <ShareFlagMenu
+            entityType="riuSet"
+            entityId={set.id}
+            canFlag={Boolean(sessionUser && !isOwner)}
+          />
         </div>
       </div>
 

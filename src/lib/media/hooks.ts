@@ -12,8 +12,11 @@ export type VideoUploadOptions = {
 }
 
 const CHUNK_SIZE = 5120
-const MAX_FILE_SIZE_MB = 50
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+export const MAX_VIDEO_FILE_SIZE_MB = 50
+export const MAX_VIDEO_FILE_SIZE_BYTES = MAX_VIDEO_FILE_SIZE_MB * 1024 * 1024
+export const VIDEO_INVALID_TYPE_MESSAGE =
+  "invalid file type. please upload a video file."
+export const VIDEO_TOO_LARGE_MESSAGE = `file too large. maximum size is ${MAX_VIDEO_FILE_SIZE_MB}MB.`
 const ALLOWED_VIDEO_TYPES = new Set([
   "video/mp4",
   "video/quicktime",
@@ -21,6 +24,32 @@ const ALLOWED_VIDEO_TYPES = new Set([
   "video/x-msvideo",
   "video/x-matroska",
 ])
+
+type FileRejectionLike = {
+  errors: ReadonlyArray<{ code: string }>
+}
+
+export function getVideoFileRejectionMessage(
+  fileRejections: ReadonlyArray<FileRejectionLike>,
+) {
+  const hasTooLarge = fileRejections.some((rejection) =>
+    rejection.errors.some((error) => error.code === "file-too-large"),
+  )
+
+  if (hasTooLarge) {
+    return VIDEO_TOO_LARGE_MESSAGE
+  }
+
+  const hasInvalidType = fileRejections.some((rejection) =>
+    rejection.errors.some((error) => error.code === "file-invalid-type"),
+  )
+
+  if (hasInvalidType) {
+    return VIDEO_INVALID_TYPE_MESSAGE
+  }
+
+  return "upload failed. please try another file."
+}
 
 export function useVideoUpload(options: VideoUploadOptions = {}) {
   const { onSuccess, onError, onProgress } = options
@@ -40,13 +69,13 @@ export function useVideoUpload(options: VideoUploadOptions = {}) {
   const uploadVideo = useCallback(
     async (file: File) => {
       if (!ALLOWED_VIDEO_TYPES.has(file.type)) {
-        toast.error("invalid file type. please upload a video file.")
+        toast.error(VIDEO_INVALID_TYPE_MESSAGE)
         onError?.(new Error("Invalid file type"))
         return
       }
 
-      if (file.size > MAX_FILE_SIZE_BYTES) {
-        toast.error(`file too large. maximum size is ${MAX_FILE_SIZE_MB}MB.`)
+      if (file.size > MAX_VIDEO_FILE_SIZE_BYTES) {
+        toast.error(VIDEO_TOO_LARGE_MESSAGE)
         onError?.(new Error("File too large"))
         return
       }

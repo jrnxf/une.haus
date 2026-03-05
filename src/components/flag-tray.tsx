@@ -19,6 +19,9 @@ type FlagTrayProps = {
   entityId: number
   parentEntityId?: number
   placeholder?: string
+  hideTrigger?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export function FlagTray({
@@ -26,10 +29,15 @@ export function FlagTray({
   entityId,
   parentEntityId,
   placeholder = "explain why this should be reviewed",
+  hideTrigger = false,
+  open: openProp,
+  onOpenChange,
 }: FlagTrayProps) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [reason, setReason] = useState("")
   const flagContent = useFlagContent()
+  const open = openProp ?? internalOpen
+  const setOpen = onOpenChange ?? setInternalOpen
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,16 +62,18 @@ export function FlagTray({
 
   return (
     <Tray open={open} onOpenChange={setOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <TrayTrigger asChild>
-            <Button variant="outline" size="icon-sm" aria-label="flag">
-              <FlagIcon className="size-4" />
-            </Button>
-          </TrayTrigger>
-        </TooltipTrigger>
-        <TooltipContent>flag</TooltipContent>
-      </Tooltip>
+      {!hideTrigger && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <TrayTrigger asChild>
+              <Button variant="outline" size="icon-sm" aria-label="flag">
+                <FlagIcon className="size-4" />
+              </Button>
+            </TrayTrigger>
+          </TooltipTrigger>
+          <TooltipContent>flag</TooltipContent>
+        </Tooltip>
+      )}
       <TrayContent>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">

@@ -1,3 +1,5 @@
+import * as React from "react"
+
 import {
   Drawer,
   DrawerContent,
@@ -11,8 +13,6 @@ import {
 } from "~/components/ui/popover"
 import { useIsMobile } from "~/hooks/use-mobile"
 import { cn } from "~/lib/utils"
-
-import type * as React from "react"
 
 type ResponsiveComboboxProps = {
   open: boolean

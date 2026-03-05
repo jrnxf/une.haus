@@ -46,6 +46,17 @@ export const Route = createFileRoute("/users/")({
   component: RouteComponent,
 })
 
+const normalizeMultiOperator = (operator?: string): "contain" | "equal" => {
+  if (
+    operator === "equal" ||
+    operator === "includes_all" ||
+    operator === "is"
+  ) {
+    return "equal"
+  }
+  return "contain"
+}
+
 function RouteComponent() {
   const searchParams = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -54,6 +65,9 @@ function RouteComponent() {
   const [nameInput, setNameInput] = useState(searchParams.name ?? "")
   const [disciplines, setDisciplines] = useState<string[]>(
     searchParams.disciplines ?? [],
+  )
+  const [disciplineOp, setDisciplineOp] = useState<"contain" | "equal">(
+    "contain",
   )
 
   // Debounced navigate — updates URL (and loaderDeps) after wait period
@@ -99,8 +113,11 @@ function RouteComponent() {
         key: "disciplines",
         label: "disciplines",
         type: "multiselect" as const,
-        operators: [{ value: "includes_all", label: "includes" }],
-        defaultOperator: "includes_all",
+        operators: [
+          { value: "contain", label: "contain" },
+          { value: "equal", label: "equal" },
+        ],
+        defaultOperator: "contain",
         options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
       },
     ],
@@ -122,12 +139,12 @@ function RouteComponent() {
       result.push({
         id: "disciplines",
         field: "disciplines",
-        operator: "includes_all",
+        operator: disciplineOp,
         values: disciplines,
       })
     }
     return result
-  }, [nameInput, disciplines, activeFields])
+  }, [nameInput, disciplines, activeFields, disciplineOp])
 
   const handleFiltersChange = useCallback(
     (next: ActiveFilter[]) => {
@@ -152,10 +169,12 @@ function RouteComponent() {
       const newName = nameFilter?.values[0] || ""
       const newDisciplines =
         discFilter && discFilter.values.length > 0 ? discFilter.values : []
+      const newDisciplineOp = normalizeMultiOperator(discFilter?.operator)
 
       // Update local state immediately for instant feedback
       setNameInput(newName)
       setDisciplines(newDisciplines)
+      if (discFilter) setDisciplineOp(newDisciplineOp)
 
       // Debounced URL update via router
       debouncedNavigate({ name: newName, disciplines: newDisciplines })
@@ -195,6 +214,7 @@ function RouteComponent() {
             <UsersList
               queryParams={queryParams}
               deferredDisciplines={deferredDisciplines}
+              deferredDisciplinesOperator={disciplineOp}
             />
           </Suspense>
         </div>
@@ -206,9 +226,11 @@ function RouteComponent() {
 function UsersList({
   queryParams,
   deferredDisciplines,
+  deferredDisciplinesOperator,
 }: {
   queryParams: { name?: string; disciplines?: string[] }
   deferredDisciplines: string[] | undefined
+  deferredDisciplinesOperator: "contain" | "equal"
 }) {
   const {
     data: usersPages,
@@ -217,7 +239,26 @@ function UsersList({
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(users.list.infiniteQueryOptions(queryParams))
 
-  const displayedUsers = useMemo(() => usersPages.pages.flat(), [usersPages])
+  const displayedUsers = useMemo(() => {
+    const allUsers = usersPages.pages.flat()
+    if (
+      deferredDisciplinesOperator !== "equal" ||
+      !deferredDisciplines ||
+      deferredDisciplines.length === 0
+    ) {
+      return allUsers
+    }
+
+    const filterSet = new Set(deferredDisciplines.map(String))
+    return allUsers.filter((user) => {
+      const userSet = new Set((user.disciplines ?? []).map(String))
+      if (userSet.size !== filterSet.size) return false
+      for (const discipline of filterSet) {
+        if (!userSet.has(discipline)) return false
+      }
+      return true
+    })
+  }, [usersPages, deferredDisciplines, deferredDisciplinesOperator])
 
   return (
     <>
@@ -266,8 +307,8 @@ function UsersList({
                   </Link>
                 </div>
                 {user.bio && (
-                  <div className="relative z-10 line-clamp-3 text-sm">
-                    <RichText content={user.bio} />
+                  <div className="line-clamp-3 text-sm">
+                    <RichText content={user.bio} mentionMode="plainText" />
                   </div>
                 )}
                 <Badges

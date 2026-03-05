@@ -43,12 +43,13 @@ import {
 } from "~/components/ui/select"
 import { type ActivityItem, users } from "~/lib/users"
 import { ACTIVITY_TYPES, type ActivityTypeFilter } from "~/lib/users/schemas"
+import { cn } from "~/lib/utils"
 
 const TYPE_LABELS: Record<ActivityTypeFilter, string> = {
   post: "Posts",
   comment: "Comments",
-  riuSet: "RIU Sets",
-  riuSubmission: "RIU Submissions",
+  riuSet: "riu Sets",
+  riuSubmission: "riu Submissions",
   biuSet: "BIU Sets",
   trickSubmission: "Trick Submissions",
   trickSuggestion: "Trick Suggestions",
@@ -67,13 +68,32 @@ type ActivityGroup = {
   items: ActivityItem[]
 }
 
+const SAME_DAY_SET_AND_SUBMISSION_TYPES: ReadonlySet<ActivityItem["type"]> =
+  new Set(["riuSet", "riuSubmission", "biuSet", "trickSubmission", "siuSet"])
+
+function getDescriptionPreview(content?: string | null): string | undefined {
+  const trimmed = content?.trim()
+  if (!trimmed) {
+    return undefined
+  }
+  return trimmed.slice(0, 100)
+}
+
+function getLocalDayKey(dateValue: Date): string {
+  const year = dateValue.getFullYear()
+  const month = String(dateValue.getMonth() + 1).padStart(2, "0")
+  const day = String(dateValue.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
 function getGroupKey(item: ActivityItem): string {
+  if (SAME_DAY_SET_AND_SUBMISSION_TYPES.has(item.type)) {
+    return `${item.type}-day-${getLocalDayKey(new Date(item.createdAt))}`
+  }
+
   switch (item.type) {
     case "comment": {
       return `comment-${item.parentType}-${item.parentId}`
-    }
-    case "riuSubmission": {
-      return `riuSubmission-${item.riuSetId}`
     }
     case "trickSuggestion": {
       return `trickSuggestion-${item.trickId}`
@@ -84,15 +104,63 @@ function getGroupKey(item: ActivityItem): string {
     case "utvVideoSuggestion": {
       return `utvVideoSuggestion-${item.videoId}`
     }
-    case "biuSet": {
-      return `biuSet-${item.biuId}`
-    }
-    case "siuSet": {
-      return `siuSet-${item.siuId}`
-    }
     default: {
       return `${item.type}-${item.id}`
     }
+  }
+}
+
+function getGroupedSummaryLabel(items: ActivityItem[]): string | undefined {
+  if (items.length < 2) {
+    return undefined
+  }
+
+  const firstType = items[0]?.type
+  if (!firstType || !items.every((item) => item.type === firstType)) {
+    return undefined
+  }
+
+  const count = items.length
+
+  switch (firstType) {
+    case "riuSet":
+      return `uploaded ${count} riu set${count === 1 ? "" : "s"}`
+    case "riuSubmission":
+      return `submitted ${count} riu submission${count === 1 ? "" : "s"}`
+    case "biuSet":
+      return `added ${count} biu set${count === 1 ? "" : "s"}`
+    case "siuSet":
+      return `added ${count} siu set${count === 1 ? "" : "s"}`
+    case "trickSubmission":
+      return `submitted ${count} trick submission${count === 1 ? "" : "s"}`
+    default:
+      return undefined
+  }
+}
+
+function getGroupedSubItemText(
+  item: ActivityItem,
+  display: {
+    label: string
+    description?: string
+  },
+): {
+  label: string
+  description?: string
+} {
+  switch (item.type) {
+    case "riuSet":
+      return {
+        label: item.name?.trim() || display.label,
+        description: display.description,
+      }
+    case "riuSubmission":
+      return {
+        label: item.parentTitle?.trim() || display.label,
+        description: display.description,
+      }
+    default:
+      return display
   }
 }
 
@@ -115,6 +183,9 @@ const SEPARATOR_CLASS =
 
 const INDICATOR_CLASS =
   "flex size-6 items-center justify-center rounded-full border-none bg-muted text-muted-foreground group-data-[orientation=vertical]/timeline:-left-7 group-data-[orientation=vertical]/timeline:top-1"
+
+const ITEM_CLASS =
+  "group-data-[orientation=vertical]/timeline:ms-10 group-data-[orientation=vertical]/timeline:not-last:pb-4"
 
 type ActivityFeedProps = {
   userId: number
@@ -146,7 +217,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
       onValueChange={(v) => setTypeFilter(v as ActivityTypeFilter | "all")}
       items={ACTIVITY_ITEMS}
     >
-      <SelectTrigger className="h-7 w-36 text-xs">
+      <SelectTrigger className="h-7 w-fit text-xs">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -250,16 +321,26 @@ function ActivityGroupRow({
   const count = group.items.length
   const isGrouped = count > 1
   const { icon, label, description, url } = getActivityDisplay(first)
+  const groupedItems = isGrouped
+    ? group.items.map((item) => ({
+        item,
+        display: getActivityDisplay(item),
+      }))
+    : []
+  const groupedSummaryLabel = getGroupedSummaryLabel(group.items)
+  const groupedHeaderLabel = groupedSummaryLabel ?? label
+  const showGroupedDescription =
+    !!description &&
+    !groupedItems.some(({ display }) => display.description === description)
 
   if (!isGrouped) {
     return (
       <TimelineItem
         step={step}
-        className={
-          isLast
-            ? "group-data-[orientation=vertical]/timeline:ms-10 group-data-[orientation=vertical]/timeline:pb-0!"
-            : "group-data-[orientation=vertical]/timeline:ms-10"
-        }
+        className={cn(
+          ITEM_CLASS,
+          isLast && "group-data-[orientation=vertical]/timeline:pb-0!",
+        )}
       >
         <TimelineHeader>
           <TimelineSeparator className={SEPARATOR_CLASS} />
@@ -279,12 +360,12 @@ function ActivityGroupRow({
                 </Link>
               </TimelineTitle>
               {description && (
-                <p className="text-muted-foreground relative z-10 truncate text-xs">
-                  <RichText content={description} />
+                <p className="text-muted-foreground truncate text-xs">
+                  <RichText content={description} mentionMode="plainText" />
                 </p>
               )}
             </div>
-            <TimelineDate className="relative z-10 mb-0 shrink-0">
+            <TimelineDate className="mb-0 shrink-0">
               <RelativeTimeCard
                 date={new Date(first.createdAt)}
                 variant="muted"
@@ -299,11 +380,10 @@ function ActivityGroupRow({
   return (
     <TimelineItem
       step={step}
-      className={
-        isLast
-          ? "group-data-[orientation=vertical]/timeline:ms-10 group-data-[orientation=vertical]/timeline:pb-0!"
-          : "group-data-[orientation=vertical]/timeline:ms-10"
-      }
+      className={cn(
+        ITEM_CLASS,
+        isLast && "group-data-[orientation=vertical]/timeline:pb-0!",
+      )}
     >
       <TimelineHeader>
         <TimelineSeparator className={SEPARATOR_CLASS} />
@@ -319,12 +399,14 @@ function ActivityGroupRow({
         >
           <div className="min-w-0 flex-1">
             <TimelineTitle className="truncate">
-              {label}
-              <span className="text-muted-foreground ml-1 text-xs">
-                &times; {count}
-              </span>
+              {groupedHeaderLabel}
+              {!groupedSummaryLabel && (
+                <span className="text-muted-foreground ml-1 text-xs">
+                  &times; {count}
+                </span>
+              )}
             </TimelineTitle>
-            {description && (
+            {showGroupedDescription && (
               <p className="text-muted-foreground truncate text-xs">
                 <RichText content={description} />
               </p>
@@ -347,29 +429,37 @@ function ActivityGroupRow({
 
         {expanded && (
           <div className="border-border ml-2 flex flex-col border-l">
-            {group.items.map((item) => {
-              const display = getActivityDisplay(item)
+            {groupedItems.map(({ item, display }) => {
+              const subItemText = getGroupedSubItemText(item, display)
+              const showSubItemLabel =
+                subItemText.label !== groupedHeaderLabel ||
+                !subItemText.description
               return (
                 <div
                   key={`${item.type}-${item.id}`}
                   className="hover:bg-accent/50 relative flex min-w-0 items-center gap-2 rounded-md px-4 py-1"
                 >
+                  <Link
+                    to={display.url}
+                    aria-label={subItemText.label}
+                    className="absolute inset-0 rounded-md"
+                  />
                   <div className="min-w-0 flex-1">
-                    <p className="text-muted-foreground truncate text-xs">
-                      <Link
-                        to={display.url}
-                        className="after:absolute after:inset-0 after:rounded-md"
-                      >
-                        {display.label}
-                      </Link>
-                    </p>
-                    {display.description && (
-                      <p className="text-muted-foreground relative z-10 truncate text-xs">
-                        <RichText content={display.description} />
+                    {showSubItemLabel && (
+                      <p className="text-foreground truncate text-xs">
+                        {subItemText.label}
+                      </p>
+                    )}
+                    {subItemText.description && (
+                      <p className="text-muted-foreground truncate text-xs">
+                        <RichText
+                          content={subItemText.description}
+                          mentionMode="plainText"
+                        />
                       </p>
                     )}
                   </div>
-                  <span className="text-muted-foreground relative z-10 shrink-0 text-xs">
+                  <span className="text-muted-foreground shrink-0 text-xs">
                     <RelativeTimeCard
                       date={new Date(item.createdAt)}
                       variant="muted"
@@ -388,7 +478,7 @@ function ActivityGroupRow({
 function getActivityDisplay(item: ActivityItem): {
   icon: React.ReactNode
   label: string
-  description: string
+  description?: string
   url: string
 } {
   switch (item.type) {
@@ -396,7 +486,7 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <StickyNoteIcon className="size-2.5" />,
         label: `posted ${item.title ?? "untitled"}`,
-        description: item.content?.slice(0, 100) ?? "post",
+        description: getDescriptionPreview(item.content),
         url: `/posts/${item.id}`,
       }
     }
@@ -404,31 +494,30 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <MessageCircleIcon className="size-2.5" />,
         label: `commented on ${item.parentTitle ?? "a post"}`,
-        description: item.content?.slice(0, 100) ?? "comment",
+        description: getDescriptionPreview(item.content),
         url: getParentUrl(item),
       }
     }
     case "riuSet": {
       return {
         icon: <MergeIcon className="size-2.5" />,
-        label: `created RIU set ${item.name}`,
-        description: item.content?.slice(0, 100) ?? "run it up",
+        label: `uploaded riu set ${item.name}`,
+        description: getDescriptionPreview(item.content),
         url: `/games/rius/sets/${item.id}`,
       }
     }
     case "riuSubmission": {
       return {
         icon: <MergeIcon className="size-2.5" />,
-        label: `submitted to RIU set ${item.parentTitle ?? "a set"}`,
-        description: "run it up submission",
+        label: `submitted to riu set ${item.parentTitle ?? "a set"}`,
+        description: getDescriptionPreview(item.content),
         url: `/games/rius/submissions/${item.id}`,
       }
     }
     case "biuSet": {
       return {
         icon: <ArrowLeftRightIcon className="size-2.5" />,
-        label: `added to BIU round ${item.name}`,
-        description: "back it up",
+        label: `added to biu round ${item.name}`,
         url: `/games/bius/${item.biuId}`,
       }
     }
@@ -436,7 +525,6 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <FileTextIcon className="size-2.5" />,
         label: `submitted trick ${item.name ?? "untitled"}`,
-        description: "new trick submission",
         url: "/tricks",
       }
     }
@@ -444,7 +532,6 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <EditIcon className="size-2.5" />,
         label: `suggested edit to ${item.trickName ?? "a trick"}`,
-        description: "trick suggestion",
         url: item.trickSlug ? `/tricks/${item.trickSlug}` : "/tricks",
       }
     }
@@ -452,7 +539,6 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <VideoIcon className="size-2.5" />,
         label: `submitted video for ${item.trickName ?? "a trick"}`,
-        description: "trick video",
         url: item.trickSlug ? `/tricks/${item.trickSlug}` : "/tricks",
       }
     }
@@ -460,15 +546,13 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <EditIcon className="size-2.5" />,
         label: `suggested edit to ${item.videoTitle ?? "a video"}`,
-        description: "vault suggestion",
         url: item.videoId ? `/vault/${item.videoId}` : "/vault",
       }
     }
     case "siuSet": {
       return {
         icon: <StackItUpIcon className="size-2.5" />,
-        label: `added to SIU round ${item.name ?? ""}`,
-        description: "stack it up",
+        label: `added to siu round ${item.name ?? ""}`,
         url: `/games/sius/${item.siuId}`,
       }
     }
@@ -476,7 +560,6 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <StickyNoteIcon className="size-2.5" />,
         label: "activity",
-        description: "",
         url: "/",
       }
     }

@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/field"
 import {
   Form,
+  FormCancelButton,
   FormControl,
   FormField,
   FormItem,
@@ -122,9 +123,9 @@ export function VideoSubmitForm({
               : "submit video"}
           </Button>
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <FormCancelButton onClick={onCancel}>
               cancel
-            </Button>
+            </FormCancelButton>
           )}
         </Field>
       </FieldGroup>

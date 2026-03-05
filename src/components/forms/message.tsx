@@ -21,6 +21,14 @@ export function BaseMessageForm({
   const [resetVersion, setResetVersion] = useState(0)
   const formRef = useRef<HTMLFormElement>(null)
   const prevHeight = useRef(0)
+  const refocusAfterSubmitRef = useRef(false)
+
+  const focusEditor = () => {
+    const editor = formRef.current?.querySelector<HTMLElement>(
+      "#content, [contenteditable]",
+    )
+    editor?.focus()
+  }
 
   useLayoutEffect(() => {
     const el = formRef.current
@@ -31,6 +39,11 @@ export function BaseMessageForm({
       if (main) main.scrollTop = main.scrollHeight
     }
     prevHeight.current = h
+
+    if (refocusAfterSubmitRef.current) {
+      refocusAfterSubmitRef.current = false
+      focusEditor()
+    }
   })
 
   const reset = () => {
@@ -66,13 +79,14 @@ export function BaseMessageForm({
           event.target === event.currentTarget ||
           !(event.target as HTMLElement).closest("[contenteditable], button")
         ) {
-          document.getElementById("content")?.focus()
+          focusEditor()
         }
       }}
       onSubmit={(event) => {
         event.preventDefault()
         if (!content) return
         onSubmit(content)
+        refocusAfterSubmitRef.current = true
         reset()
       }}
     >
@@ -90,6 +104,7 @@ export function BaseMessageForm({
             onSubmit={() => {
               if (content) {
                 onSubmit(content)
+                refocusAfterSubmitRef.current = true
                 reset()
               }
             }}
@@ -103,15 +118,7 @@ export function BaseMessageForm({
           aria-label="submit"
           onClick={() => {
             if (!content) {
-              // Focus the tiptap editor contenteditable
-              const el = document.getElementById("content")
-              if (el) {
-                el.focus()
-              } else {
-                document
-                  .querySelector<HTMLElement>("[contenteditable]")
-                  ?.focus()
-              }
+              focusEditor()
             }
           }}
         >

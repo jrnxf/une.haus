@@ -14,12 +14,11 @@ import { useState } from "react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
-import { FlagTray } from "~/components/flag-tray"
 import { BaseMessageForm } from "~/components/forms/message"
 import { UsersDialog } from "~/components/likes-dialog"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
-import { ShareButton } from "~/components/share-button"
+import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
@@ -127,26 +126,6 @@ function SetView({ setId }: { setId: number }) {
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            {set.parentSet && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon-sm"
-                    variant="outline"
-                    asChild
-                    aria-label="previous set"
-                  >
-                    <Link
-                      to="/games/bius/sets/$setId"
-                      params={{ setId: set.parentSet.id }}
-                    >
-                      <ArrowUpIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>previous</TooltipContent>
-              </Tooltip>
-            )}
             {set.childSet && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -160,11 +139,31 @@ function SetView({ setId }: { setId: number }) {
                       to="/games/bius/sets/$setId"
                       params={{ setId: set.childSet.id }}
                     >
-                      <ArrowDownIcon className="size-4" />
+                      <ArrowUpIcon className="size-4" />
                     </Link>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>next</TooltipContent>
+              </Tooltip>
+            )}
+            {set.parentSet && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    asChild
+                    aria-label="previous set"
+                  >
+                    <Link
+                      to="/games/bius/sets/$setId"
+                      params={{ setId: set.parentSet.id }}
+                    >
+                      <ArrowDownIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>previous</TooltipContent>
               </Tooltip>
             )}
           </div>
@@ -221,26 +220,6 @@ function SetView({ setId }: { setId: number }) {
 
         <div className="flex shrink-0 items-center gap-1">
           {/* Chain navigation */}
-          {set.parentSet && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  asChild
-                  aria-label="previous set"
-                >
-                  <Link
-                    to="/games/bius/sets/$setId"
-                    params={{ setId: set.parentSet.id }}
-                  >
-                    <ArrowUpIcon className="size-4" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>previous</TooltipContent>
-            </Tooltip>
-          )}
           {set.childSet && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -254,11 +233,31 @@ function SetView({ setId }: { setId: number }) {
                     to="/games/bius/sets/$setId"
                     params={{ setId: set.childSet.id }}
                   >
-                    <ArrowDownIcon className="size-4" />
+                    <ArrowUpIcon className="size-4" />
                   </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>next</TooltipContent>
+            </Tooltip>
+          )}
+          {set.parentSet && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  asChild
+                  aria-label="previous set"
+                >
+                  <Link
+                    to="/games/bius/sets/$setId"
+                    params={{ setId: set.parentSet.id }}
+                  >
+                    <ArrowDownIcon className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>previous</TooltipContent>
             </Tooltip>
           )}
 
@@ -308,10 +307,11 @@ function SetView({ setId }: { setId: number }) {
               <TooltipContent>likes</TooltipContent>
             </Tooltip>
           )}
-          <ShareButton />
-          {sessionUser && !isOwner && (
-            <FlagTray entityType="biuSet" entityId={set.id} />
-          )}
+          <ShareFlagMenu
+            entityType="biuSet"
+            entityId={set.id}
+            canFlag={Boolean(sessionUser && !isOwner)}
+          />
           {canDelete && (
             <Tooltip>
               <TooltipTrigger asChild>

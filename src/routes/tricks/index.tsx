@@ -15,9 +15,9 @@ import { useCallback, useMemo, useRef, useState } from "react"
 import { z } from "zod"
 
 import {
-  Filters,
   type ActiveFilter,
   type FilterField,
+  Filters,
 } from "~/components/filters/filters"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
@@ -64,6 +64,16 @@ export const Route = createFileRoute("/tricks/")({
 })
 
 const strip = (s: string) => s.toLowerCase().replaceAll(/[^a-z0-9]/g, "")
+const normalizeElementOperator = (operator?: string): "contain" | "equal" => {
+  if (
+    operator === "equal" ||
+    operator === "is" ||
+    operator === "includes_all"
+  ) {
+    return "equal"
+  }
+  return "contain"
+}
 
 const columnHelper = createColumnHelper<Trick>()
 
@@ -150,8 +160,8 @@ function TricksListPage() {
     searchParams.elements ?? [],
   )
   const [name_op, setName_op] = useState(searchParams.name_op ?? "contains")
-  const [elements_op, setElements_op] = useState(
-    searchParams.elements_op ?? "is_any_of",
+  const [elements_op, setElements_op] = useState<"contain" | "equal">(
+    normalizeElementOperator(searchParams.elements_op),
   )
 
   // Debounced navigate — updates URL after wait period
@@ -209,10 +219,10 @@ function TricksListPage() {
         label: "elements",
         type: "multiselect" as const,
         operators: [
-          { value: "is_any_of", label: "includes" },
-          { value: "includes_all", label: "is exactly" },
+          { value: "contain", label: "contain" },
+          { value: "equal", label: "equal" },
         ],
-        defaultOperator: "is_any_of",
+        defaultOperator: "contain",
         options: data.elements.map((e) => ({ value: e, label: e })),
       },
     ],
@@ -267,7 +277,7 @@ function TricksListPage() {
         elementsFilter && elementsFilter.values.length > 0
           ? elementsFilter.values
           : []
-      const newElementsOp = elementsFilter?.operator ?? "is_any_of"
+      const newElementsOp = normalizeElementOperator(elementsFilter?.operator)
 
       // Update local state immediately for instant feedback
       setNameInput(newName)
@@ -328,12 +338,12 @@ function TricksListPage() {
     }
 
     if (searchParams.elements && searchParams.elements.length > 0) {
-      const op = searchParams.elements_op ?? "is_any_of"
-      if (op === "is_any_of") {
+      const op = normalizeElementOperator(searchParams.elements_op)
+      if (op === "contain") {
         result = result.filter((t) =>
           searchParams.elements!.some((v) => t.elements.includes(v)),
         )
-      } else if (op === "includes_all") {
+      } else if (op === "equal") {
         result = result.filter((t) => {
           const trickSet = new Set(t.elements)
           const filterSet = new Set(searchParams.elements!)

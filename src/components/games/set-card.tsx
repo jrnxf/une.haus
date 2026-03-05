@@ -52,8 +52,8 @@ export function SetCard({ set, showAuthor = false, className }: SetCardProps) {
 
         <div className="text-muted-foreground mt-1 flex items-center justify-between gap-4 text-xs">
           {set.instructions ? (
-            <div className="relative z-10 min-w-0 flex-1 truncate">
-              <RichText content={set.instructions} disableLinks />
+            <div className="min-w-0 flex-1 truncate">
+              <RichText content={set.instructions} mentionMode="plainText" />
             </div>
           ) : (
             <div />

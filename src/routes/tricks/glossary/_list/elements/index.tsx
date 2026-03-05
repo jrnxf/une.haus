@@ -43,6 +43,7 @@ function GlossaryElementsPage() {
               <Link
                 to="/tricks/glossary/elements/$elementId/suggest"
                 params={{ elementId: element.id }}
+                aria-label={`suggest edit for ${element.name}`}
               >
                 <PencilIcon className="size-3.5" />
               </Link>

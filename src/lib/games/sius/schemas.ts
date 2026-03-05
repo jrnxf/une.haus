@@ -28,6 +28,9 @@ export const addSetSchema = z.object({
   name: z.string().trim().min(1, { message: "required" }),
   instructions: z.string().optional(),
   muxAssetId: z.string().min(1, { message: "required" }),
+  confirmLine: z.boolean().refine((value) => value, {
+    message: "you must confirm your video has the trick line in order",
+  }),
 })
 
 export type AddSetArgs = z.infer<typeof addSetSchema>

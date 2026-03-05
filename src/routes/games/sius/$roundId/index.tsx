@@ -53,7 +53,8 @@ function RouteComponent() {
 
   const round = rounds.find((c) => c.id === roundId) ?? rounds[0]
   const sets = round.sets ?? []
-  const latestSet = sets[0]
+  const activeSets = sets.filter((set) => !set.deletedAt)
+  const latestSet = activeSets[0]
   const voteCount = round.archiveVotes?.length ?? 0
   const hasVoted =
     sessionUser && round.archiveVotes?.some((v) => v.user.id === sessionUser.id)
@@ -64,12 +65,12 @@ function RouteComponent() {
     latestSet.user.id !== sessionUser.id &&
     round.status === "active"
 
-  if (sets.length === 0) {
+  if (activeSets.length === 0) {
     return (
       <div className="space-y-6">
         <RoundStatusBanner
           status={round.status ?? "active"}
-          roundLength={sets.length}
+          roundLength={activeSets.length}
           voteCount={voteCount}
         />
         <Empty>
@@ -99,7 +100,7 @@ function RouteComponent() {
     <div className="space-y-6">
       <RoundStatusBanner
         status={round.status ?? "active"}
-        roundLength={sets.length}
+        roundLength={activeSets.length}
         voteCount={voteCount}
       />
 

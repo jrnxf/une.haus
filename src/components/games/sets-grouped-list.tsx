@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import pluralize from "pluralize"
-import { Fragment, type ReactNode } from "react"
+import { type ReactNode } from "react"
 
 import { SetCard } from "./set-card"
 import {
@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion"
+import { Metaline } from "~/components/ui/metaline"
 import { type RankedRider } from "~/lib/games"
 import { type RiderScore } from "~/lib/games/rius/ranking"
 import { cn } from "~/lib/utils"
@@ -35,8 +36,6 @@ type SetsGroupedListProps = {
   searchParams?: Record<string, unknown>
 }
 
-const Slash = () => <span className="opacity-25">/</span>
-
 function RiderStats({ ranking }: { ranking: RiderScore }) {
   const parts: ReactNode[] = []
 
@@ -50,29 +49,9 @@ function RiderStats({ ranking }: { ranking: RiderScore }) {
   }
 
   const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "pts"}`
+  parts.push(pointsText)
 
-  return (
-    <p className="text-muted-foreground text-xs">
-      {parts.map((part, i) => (
-        <Fragment key={i}>
-          {i > 0 && (
-            <>
-              {" "}
-              <Slash />{" "}
-            </>
-          )}
-          {part}
-        </Fragment>
-      ))}
-      {parts.length > 0 && (
-        <>
-          {" "}
-          <Slash />{" "}
-        </>
-      )}
-      {pointsText}
-    </p>
-  )
+  return <Metaline className="text-xs" parts={parts} />
 }
 
 export function SetsGroupedList({

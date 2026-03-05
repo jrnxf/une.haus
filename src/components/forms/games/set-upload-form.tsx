@@ -3,10 +3,10 @@ import { type Path, type UseFormReturn } from "react-hook-form"
 
 import { MentionTextarea } from "~/components/input/mention-textarea"
 import { VideoInput } from "~/components/input/video-input"
-import { Button } from "~/components/ui/button"
 import { ButtonGroup } from "~/components/ui/button-group"
 import {
   Form,
+  FormCancelButton,
   FormControl,
   FormField,
   FormItem,
@@ -29,6 +29,7 @@ export function SetUploadForm<TValues extends UploadFormValues>({
   onSubmit,
   cancel,
   topContent,
+  bottomContent,
   idFieldName,
 }: {
   rhf: UseFormReturn<TValues>
@@ -36,6 +37,7 @@ export function SetUploadForm<TValues extends UploadFormValues>({
   onSubmit: (data: TValues) => void
   cancel: ReactNode
   topContent?: ReactNode
+  bottomContent?: ReactNode
   idFieldName?: Path<TValues>
 }) {
   const { control, handleSubmit } = rhf
@@ -111,11 +113,13 @@ export function SetUploadForm<TValues extends UploadFormValues>({
         )}
       />
 
+      {bottomContent}
+
       <ButtonGroup className="ml-auto">
         <ButtonGroup>
-          <Button asChild type="button" variant="outline">
+          <FormCancelButton asChild>
             {cancel}
-          </Button>
+          </FormCancelButton>
         </ButtonGroup>
         <FormSubmitButton busy={isPending}>upload</FormSubmitButton>
       </ButtonGroup>

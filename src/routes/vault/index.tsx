@@ -52,6 +52,17 @@ export const Route = createFileRoute("/vault/")({
   component: RouteComponent,
 })
 
+const normalizeMultiOperator = (operator?: string): "contain" | "equal" => {
+  if (
+    operator === "equal" ||
+    operator === "includes_all" ||
+    operator === "is"
+  ) {
+    return "equal"
+  }
+  return "contain"
+}
+
 function RouteComponent() {
   const searchParams = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -64,6 +75,10 @@ function RouteComponent() {
     searchParams.disciplines ?? [],
   )
   const [riders, setRiders] = useState<string[]>(searchParams.riders ?? [])
+  const [disciplineOp, setDisciplineOp] = useState<"contain" | "equal">(
+    "contain",
+  )
+  const [riderOp, setRiderOp] = useState<"contain" | "equal">("contain")
 
   // Debounced navigate — updates URL (and loaderDeps) after wait period
   const debouncedNavigate = useDebouncedCallback(
@@ -114,16 +129,22 @@ function RouteComponent() {
         key: "disciplines",
         label: "disciplines",
         type: "multiselect" as const,
-        operators: [{ value: "is_any_of", label: "includes" }],
-        defaultOperator: "is_any_of",
+        operators: [
+          { value: "contain", label: "contain" },
+          { value: "equal", label: "equal" },
+        ],
+        defaultOperator: "contain",
         options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
       },
       {
         key: "riders",
         label: "riders",
         type: "multiselect" as const,
-        operators: [{ value: "is_any_of", label: "includes" }],
-        defaultOperator: "is_any_of",
+        operators: [
+          { value: "contain", label: "contain" },
+          { value: "equal", label: "equal" },
+        ],
+        defaultOperator: "contain",
         options: riderNames.map((w) => ({ value: w, label: w })),
       },
     ],
@@ -145,7 +166,7 @@ function RouteComponent() {
       result.push({
         id: "disciplines",
         field: "disciplines",
-        operator: "is_any_of",
+        operator: disciplineOp,
         values: disciplines,
       })
     }
@@ -153,12 +174,12 @@ function RouteComponent() {
       result.push({
         id: "riders",
         field: "riders",
-        operator: "is_any_of",
+        operator: riderOp,
         values: riders,
       })
     }
     return result
-  }, [queryInput, disciplines, riders, activeFields])
+  }, [queryInput, disciplines, riders, activeFields, disciplineOp, riderOp])
 
   const handleFiltersChange = useCallback(
     (next: ActiveFilter[]) => {
@@ -193,11 +214,17 @@ function RouteComponent() {
         ridersFilter && ridersFilter.values.length > 0
           ? ridersFilter.values
           : []
+      const newDisciplineOp = normalizeMultiOperator(
+        disciplinesFilter?.operator,
+      )
+      const newRiderOp = normalizeMultiOperator(ridersFilter?.operator)
 
       // Update local state immediately for instant feedback
       setQueryInput(newQ)
       setDisciplines(newDisciplines)
       setRiders(newRiders)
+      if (disciplinesFilter) setDisciplineOp(newDisciplineOp)
+      if (ridersFilter) setRiderOp(newRiderOp)
 
       // Debounced URL update via router
       debouncedNavigate({
@@ -254,7 +281,13 @@ function RouteComponent() {
         </div>
 
         <Suspense>
-          <VideoGrid queryParams={queryParams} />
+          <VideoGrid
+            queryParams={queryParams}
+            deferredDisciplines={deferredDisciplines}
+            deferredDisciplinesOperator={disciplineOp}
+            deferredRiders={deferredRiders}
+            deferredRidersOperator={riderOp}
+          />
         </Suspense>
       </div>
     </>
@@ -263,8 +296,16 @@ function RouteComponent() {
 
 function VideoGrid({
   queryParams,
+  deferredDisciplines,
+  deferredDisciplinesOperator,
+  deferredRiders,
+  deferredRidersOperator,
 }: {
   queryParams: { q?: string; disciplines?: string[]; riders?: string[] }
+  deferredDisciplines: string[] | undefined
+  deferredDisciplinesOperator: "contain" | "equal"
+  deferredRiders: string[] | undefined
+  deferredRidersOperator: "contain" | "equal"
 }) {
   const {
     data: videosPages,
@@ -273,7 +314,49 @@ function VideoGrid({
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(utv.list.infiniteQueryOptions(queryParams))
 
-  const displayedVideos = useMemo(() => videosPages.pages.flat(), [videosPages])
+  const displayedVideos = useMemo(() => {
+    let videos = videosPages.pages.flat()
+
+    if (
+      deferredDisciplinesOperator === "equal" &&
+      deferredDisciplines &&
+      deferredDisciplines.length > 0
+    ) {
+      const filterSet = new Set(deferredDisciplines.map(String))
+      videos = videos.filter((video) => {
+        const videoSet = new Set((video.disciplines ?? []).map(String))
+        if (videoSet.size !== filterSet.size) return false
+        for (const discipline of filterSet) {
+          if (!videoSet.has(discipline)) return false
+        }
+        return true
+      })
+    }
+
+    if (
+      deferredRidersOperator === "equal" &&
+      deferredRiders &&
+      deferredRiders.length > 0
+    ) {
+      const filterSet = new Set(deferredRiders)
+      videos = videos.filter((video) => {
+        const videoSet = new Set(video.riders ?? [])
+        if (videoSet.size !== filterSet.size) return false
+        for (const rider of filterSet) {
+          if (!videoSet.has(rider)) return false
+        }
+        return true
+      })
+    }
+
+    return videos
+  }, [
+    videosPages,
+    deferredDisciplines,
+    deferredDisciplinesOperator,
+    deferredRiders,
+    deferredRidersOperator,
+  ])
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null)
 
   return (

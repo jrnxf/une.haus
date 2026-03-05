@@ -146,6 +146,7 @@ function RouteComponent() {
                     <Button
                       size="icon-sm"
                       variant="outline"
+                      aria-label={authUserLiked ? "unlike" : "like"}
                       onClick={likeUnlikeVideo}
                     >
                       <HeartIcon
@@ -168,7 +169,11 @@ function RouteComponent() {
                     title={`${video.likes.length} ${pluralize("Like", video.likes.length)}`}
                     trigger={
                       <TooltipTrigger asChild>
-                        <Button size="icon-sm" variant="outline">
+                        <Button
+                          size="icon-sm"
+                          variant="outline"
+                          aria-label="view likes"
+                        >
                           <TrendingUpIcon className="size-4" />
                         </Button>
                       </TooltipTrigger>
@@ -181,7 +186,12 @@ function RouteComponent() {
               {sessionUser && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon-sm" asChild>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      asChild
+                      aria-label="edit video"
+                    >
                       <Link
                         to={
                           isAdmin

@@ -43,6 +43,7 @@ function GlossaryModifiersPage() {
               <Link
                 to="/tricks/glossary/modifiers/$modifierId/suggest"
                 params={{ modifierId: modifier.id }}
+                aria-label={`suggest edit for ${modifier.name}`}
               >
                 <PencilIcon className="size-3.5" />
               </Link>

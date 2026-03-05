@@ -37,7 +37,7 @@ export function ActivityCard({ item }: ActivityCardProps) {
               {display.typeLabel}
             </Badge>
           </div>
-          <span className="text-muted-foreground relative z-10 shrink-0 text-xs">
+          <span className="text-muted-foreground shrink-0 text-xs">
             <RelativeTimeCard date={new Date(item.createdAt)} variant="muted" />
           </span>
         </div>
@@ -50,8 +50,8 @@ export function ActivityCard({ item }: ActivityCardProps) {
             {display.title}
           </Link>
           {display.description && (
-            <div className="text-muted-foreground relative z-10 mt-1 line-clamp-2 text-sm">
-              <RichText content={display.description} disableLinks />
+            <div className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+              <RichText content={display.description} mentionMode="plainText" />
             </div>
           )}
         </div>
@@ -78,12 +78,12 @@ function PostCard({ item }: { item: ActivityItem }) {
             {item.title ?? "Untitled"}
           </Link>
           {item.content && (
-            <div className="relative z-10 line-clamp-3 text-sm">
-              <RichText content={item.content} disableLinks />
+            <div className="line-clamp-3 text-sm">
+              <RichText content={item.content} mentionMode="plainText" />
             </div>
           )}
           <div className="flex w-full justify-between gap-4">
-            <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-sm">
+            <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
               <RelativeTimeCard
                 date={new Date(item.createdAt)}
                 variant="muted"

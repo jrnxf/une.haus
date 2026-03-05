@@ -1,13 +1,19 @@
 import { Loader2Icon, TrashIcon } from "lucide-react"
 import pluralize from "pluralize"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
+import { toast } from "sonner"
 
 import { UploadDropZone } from "~/components/input/upload-drop-zone"
 import { Button } from "~/components/ui/button"
+import { useFormMedia } from "~/components/ui/form"
 import { Progress } from "~/components/ui/progress"
 import { VideoPlayer } from "~/components/video-player"
-import { useVideoUpload } from "~/lib/media"
+import {
+  getVideoFileRejectionMessage,
+  MAX_VIDEO_FILE_SIZE_BYTES,
+  useVideoUpload,
+} from "~/lib/media"
 
 type VideoItem = {
   assetId: string
@@ -25,6 +31,8 @@ export function MultiVideoInput({
   onChange,
   maxVideos = 5,
 }: MultiVideoInputProps) {
+  const { setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus } =
+    useFormMedia()
   const [uploadedVideos, setUploadedVideos] = useState<VideoItem[]>([])
   const [currentFileName, setCurrentFileName] = useState<string>()
   const [isUploadActive, setIsUploadActive] = useState(false)
@@ -37,10 +45,16 @@ export function MultiVideoInput({
         onChange([...value, data.assetId])
         setCurrentFileName(undefined)
         setIsUploadActive(false)
+        setMediaUploadFileName(undefined)
+        setMediaUploadFileSizeBytes(undefined)
+        setVideoUploadStatus("idle")
       },
       onError: () => {
         setCurrentFileName(undefined)
         setIsUploadActive(false)
+        setMediaUploadFileName(undefined)
+        setMediaUploadFileSizeBytes(undefined)
+        setVideoUploadStatus("idle")
       },
     })
 
@@ -50,17 +64,36 @@ export function MultiVideoInput({
 
       if (file && value.length < maxVideos) {
         setCurrentFileName(file.name)
+        setMediaUploadFileName(file.name)
+        setMediaUploadFileSizeBytes(file.size)
         setIsUploadActive(true)
+        setVideoUploadStatus(0)
         uploadVideo(file)
       }
     },
-    [uploadVideo, value.length, maxVideos],
+    [
+      uploadVideo,
+      maxVideos,
+      setMediaUploadFileName,
+      setMediaUploadFileSizeBytes,
+      setVideoUploadStatus,
+      value.length,
+    ],
   )
 
   const { getInputProps, getRootProps } = useDropzone({
     accept: { "video/*": [] },
     multiple: false,
+    maxSize: MAX_VIDEO_FILE_SIZE_BYTES,
     onDrop,
+    onDropRejected: (fileRejections) => {
+      setCurrentFileName(undefined)
+      setIsUploadActive(false)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+      toast.error(getVideoFileRejectionMessage(fileRejections))
+    },
     disabled: value.length >= maxVideos || isUploading || isProcessing,
   })
 
@@ -74,6 +107,12 @@ export function MultiVideoInput({
   const isUploadInProgress = isUploading || isProcessing
   const canAddMore = value.length < maxVideos && !isUploadInProgress
 
+  useEffect(() => {
+    if (isProcessing) {
+      setVideoUploadStatus("processing")
+    }
+  }, [isProcessing, setVideoUploadStatus])
+
   return (
     <div className="space-y-3">
       {/* Uploaded videos preview */}
@@ -82,7 +121,7 @@ export function MultiVideoInput({
           {uploadedVideos.map((video, index) => (
             <div
               key={video.assetId}
-              className="relative overflow-clip rounded-md border"
+              className="border-input relative overflow-clip rounded-md border"
             >
               <VideoPlayer className="w-full" playbackId={video.playbackId} />
               <Button
@@ -108,9 +147,10 @@ export function MultiVideoInput({
           getRootProps={getRootProps}
           getInputProps={getInputProps}
           disabled={isUploadInProgress || !canAddMore}
+          hasValue={!!currentFileName}
         >
-          <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
-            {currentFileName ?? `add video (${value.length}/${maxVideos})`}
+          <span className="text-muted-foreground block w-full truncate text-left text-sm">
+            {currentFileName ?? "Choose File"}
           </span>
 
           {isUploadActive && isUploading && (

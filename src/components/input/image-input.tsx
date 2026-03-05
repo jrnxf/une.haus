@@ -35,13 +35,20 @@ export const ImageInput = ({
     mutationFn: media.createCloudflareImagesDirectUpload.fn,
   })
 
-  const { imageUploadStatus, setImageUploadStatus } = useFormMedia()
+  const {
+    imageUploadStatus,
+    setImageUploadStatus,
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+  } = useFormMedia()
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const [file] = acceptedFiles
       if (file) {
         setFile(file)
+        setMediaUploadFileName(file.name)
+        setMediaUploadFileSizeBytes(file.size)
         try {
           setImageUploadStatus("pending")
           const directUpload =
@@ -66,12 +73,22 @@ export const ImageInput = ({
           onChange(parsedData.result.id)
         } catch {
           setFile(undefined)
+          setMediaUploadFileName(undefined)
+          setMediaUploadFileSizeBytes(undefined)
         } finally {
           setImageUploadStatus("idle")
+          setMediaUploadFileName(undefined)
+          setMediaUploadFileSizeBytes(undefined)
         }
       }
     },
-    [createCloudflareImagesDirectUpload, onChange, setImageUploadStatus],
+    [
+      createCloudflareImagesDirectUpload,
+      onChange,
+      setImageUploadStatus,
+      setMediaUploadFileName,
+      setMediaUploadFileSizeBytes,
+    ],
   )
 
   const { getInputProps, getRootProps } = useDropzone({
@@ -130,8 +147,8 @@ export const ImageInput = ({
       getInputProps={getInputProps}
       inputId={formItemId}
     >
-      <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
-        {file ? file.name : "Select an image to upload"}
+      <span className="text-muted-foreground block w-full truncate text-left text-sm">
+        {file ? file.name : "Choose File"}
       </span>
     </UploadDropZone>
   )

@@ -89,8 +89,8 @@ const DEFAULT_OPERATORS: Record<string, FilterOperator[]> = {
     { value: "is_not", label: "is not" },
   ],
   multiselect: [
-    { value: "is_any_of", label: "includes" },
-    { value: "includes_all", label: "is exactly" },
+    { value: "contain", label: "contain" },
+    { value: "equal", label: "equal" },
   ],
   text: [
     { value: "contains", label: "contains" },
@@ -614,6 +614,7 @@ function FilterChip({
         aria-label="remove filter"
         variant="outline"
         size={size === "sm" ? "icon-sm" : "icon"}
+        className="text-muted-foreground hover:text-foreground"
         onClick={onRemove}
       >
         <XIcon />
@@ -637,7 +638,11 @@ function FiltersTrigger({
 }) {
   const [open, setOpen] = useState(false)
   const activeFieldKeys = new Set(filters.map((f) => f.field))
-  const sortedFields = getFieldsSortedByActive(fields, filters)
+  const availableFields = getFieldsSortedByActive(fields, filters).filter(
+    (field) => !activeFieldKeys.has(field.key),
+  )
+
+  if (availableFields.length === 0) return null
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -650,12 +655,11 @@ function FiltersTrigger({
       <PopoverContent className="relative w-[220px] gap-0 p-0" align="start">
         <Command className={cn("bg-popover dark:bg-popover", compactItems)}>
           <CommandList>
-            {sortedFields.length === 0 ? (
+            {availableFields.length === 0 ? (
               <CommandEmpty>no fields</CommandEmpty>
             ) : (
               <CommandGroup>
-                {sortedFields.map((field) => {
-                  const isActive = activeFieldKeys.has(field.key)
+                {availableFields.map((field) => {
                   return (
                     <CommandItem
                       key={field.key}
@@ -667,12 +671,6 @@ function FiltersTrigger({
                       }}
                     >
                       <span>{field.label}</span>
-                      <CheckIcon
-                        className={cn(
-                          "text-primary size-4",
-                          isActive ? "opacity-100" : "opacity-0",
-                        )}
-                      />
                     </CommandItem>
                   )
                 })}

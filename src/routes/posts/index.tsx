@@ -48,6 +48,17 @@ export const Route = createFileRoute("/posts/")({
   component: RouteComponent,
 })
 
+const normalizeMultiOperator = (operator?: string): "contain" | "equal" => {
+  if (
+    operator === "equal" ||
+    operator === "includes_all" ||
+    operator === "is"
+  ) {
+    return "equal"
+  }
+  return "contain"
+}
+
 function RouteComponent() {
   const searchParams = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -55,6 +66,7 @@ function RouteComponent() {
   // Local state for immediate input feedback
   const [queryInput, setQueryInput] = useState(searchParams.q ?? "")
   const [tags, setTags] = useState<string[]>(searchParams.tags ?? [])
+  const [tagOp, setTagOp] = useState<"contain" | "equal">("contain")
 
   // Debounced navigate — updates URL (and loaderDeps) after wait period
   const debouncedNavigate = useDebouncedCallback(
@@ -97,8 +109,11 @@ function RouteComponent() {
         key: "tags",
         label: "tags",
         type: "multiselect" as const,
-        operators: [{ value: "is_any_of", label: "includes" }],
-        defaultOperator: "is_any_of",
+        operators: [
+          { value: "contain", label: "contain" },
+          { value: "equal", label: "equal" },
+        ],
+        defaultOperator: "contain",
         options: POST_TAGS.map((t) => ({ value: t, label: t })),
       },
     ],
@@ -120,12 +135,12 @@ function RouteComponent() {
       result.push({
         id: "tags",
         field: "tags",
-        operator: "is_any_of",
+        operator: tagOp,
         values: tags,
       })
     }
     return result
-  }, [queryInput, tags, activeFields])
+  }, [queryInput, tags, activeFields, tagOp])
 
   const handleFiltersChange = useCallback(
     (next: ActiveFilter[]) => {
@@ -147,10 +162,12 @@ function RouteComponent() {
       const newQ = qFilter?.values[0] || ""
       const newTags =
         tagsFilter && tagsFilter.values.length > 0 ? tagsFilter.values : []
+      const newTagOp = normalizeMultiOperator(tagsFilter?.operator)
 
       // Update local state immediately for instant feedback
       setQueryInput(newQ)
       setTags(newTags)
+      if (tagsFilter) setTagOp(newTagOp)
 
       // Debounced URL update via router
       debouncedNavigate({ q: newQ, tags: newTags })
@@ -190,7 +207,11 @@ function RouteComponent() {
             size="sm"
           />
           <Suspense>
-            <PostsList queryParams={queryParams} deferredTags={deferredTags} />
+            <PostsList
+              queryParams={queryParams}
+              deferredTags={deferredTags}
+              deferredTagsOperator={tagOp}
+            />
           </Suspense>
         </div>
       </div>
@@ -201,9 +222,11 @@ function RouteComponent() {
 function PostsList({
   queryParams,
   deferredTags,
+  deferredTagsOperator,
 }: {
   queryParams: { q?: string; tags?: string[] }
   deferredTags: string[] | undefined
+  deferredTagsOperator: "contain" | "equal"
 }) {
   const {
     data: postsPages,
@@ -212,7 +235,27 @@ function PostsList({
     isFetchingNextPage,
   } = useSuspenseInfiniteQuery(posts.list.infiniteQueryOptions(queryParams))
 
-  const displayedPosts = useMemo(() => postsPages.pages.flat(), [postsPages])
+  const displayedPosts = useMemo(() => {
+    const allPosts = postsPages.pages.flat()
+    if (
+      deferredTagsOperator !== "equal" ||
+      !deferredTags ||
+      deferredTags.length === 0
+    ) {
+      return allPosts
+    }
+
+    const filterSet = new Set(deferredTags.map(String))
+
+    return allPosts.filter((post) => {
+      const postSet = new Set((post.tags ?? []).map(String))
+      if (postSet.size !== filterSet.size) return false
+      for (const tag of filterSet) {
+        if (!postSet.has(tag)) return false
+      }
+      return true
+    })
+  }, [postsPages, deferredTags, deferredTagsOperator])
 
   return (
     <>
@@ -238,19 +281,13 @@ function PostsList({
                   )}
                   {post.title}
                 </Link>
-                <div className="relative z-10 line-clamp-3 text-sm">
-                  <RichText content={post.content} />
+                <div className="line-clamp-3 text-sm">
+                  <RichText content={post.content} mentionMode="plainText" />
                 </div>
                 <Badges content={post.tags} active={deferredTags ?? []} />
                 <div className="flex w-full justify-between gap-4">
-                  <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-sm">
-                    <Link
-                      to="/users/$userId"
-                      params={{ userId: post.user.id }}
-                      className="hover:underline"
-                    >
-                      {post.user.name}
-                    </Link>
+                  <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
+                    <span>{post.user.name}</span>
                     <span className="opacity-25">/</span>
                     <RelativeTimeCard date={post.createdAt} variant="muted" />
                   </p>

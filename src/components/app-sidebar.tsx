@@ -11,6 +11,7 @@ import {
   TrafficConeIcon,
   UsersIcon,
 } from "lucide-react"
+import * as React from "react"
 
 import { BracketIcon } from "~/components/icons/bracket-icon"
 import { PodiumIcon } from "~/components/icons/podium-icon"
@@ -30,8 +31,6 @@ import {
   SidebarRail,
 } from "~/components/ui/sidebar"
 import { useIsAdmin } from "~/lib/session/hooks"
-
-import type * as React from "react"
 
 const data = {
   navMain: [

@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, count, desc, eq, isNull, sql } from "drizzle-orm"
+import { and, count, desc, eq, isNull, lte, sql } from "drizzle-orm"
 import pluralize from "pluralize"
 
 import {
@@ -153,10 +153,10 @@ export const getSetServerFn = createServerFn({ method: "GET" })
     // Check if this is the latest set in its round (no non-deleted children)
     const childSet = await db.query.siuSets.findFirst({
       where: and(eq(siuSets.parentSetId, set.id), isNull(siuSets.deletedAt)),
-      columns: { id: true },
+      columns: { id: true, name: true },
     })
 
-    return { ...set, isLatest: !childSet }
+    return { ...set, childSet, isLatest: !childSet }
   })
 
 // Start a new round (admin only)
@@ -592,20 +592,24 @@ export const getArchivedRoundServerFn = createServerFn({ method: "GET" })
     return round ?? null
   })
 
-// Get all tricks in the line (for displaying what needs to be landed)
+// Get all tricks in the line up to and including the requested set
 export const getLineServerFn = createServerFn({ method: "GET" })
   .inputValidator(zodValidator(getSetSchema))
   .handler(async ({ data: input }) => {
     const set = await db.query.siuSets.findFirst({
       where: eq(siuSets.id, input.setId),
-      columns: { siuId: true },
+      columns: { siuId: true, position: true },
     })
 
     if (!set) return []
 
-    // Get all non-deleted sets in the round ordered by position (ascending for line display)
+    // Show the landed line for the current set, not future additions.
     const sets = await db.query.siuSets.findMany({
-      where: and(eq(siuSets.siuId, set.siuId), isNull(siuSets.deletedAt)),
+      where: and(
+        eq(siuSets.siuId, set.siuId),
+        lte(siuSets.position, set.position),
+        isNull(siuSets.deletedAt),
+      ),
       orderBy: siuSets.position,
       columns: { id: true, name: true, position: true },
       with: {

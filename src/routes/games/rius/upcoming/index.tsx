@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { GhostIcon } from "lucide-react"
-import pluralize from "pluralize"
+import { useEffect, useState } from "react"
 
+import { CountdownClock } from "~/components/ui/countdown-clock"
 import { DeleteSetButton } from "~/components/delete-set-button"
 import { RichText } from "~/components/rich-text"
 import { Button } from "~/components/ui/button"
@@ -19,6 +20,45 @@ import { UserChip } from "~/components/user-chip"
 import { VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
 import { useSessionUser } from "~/lib/session/hooks"
+
+function getNextMidnightUtcDate(nowMs = Date.now()) {
+  const now = new Date(nowMs)
+  return new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1,
+      0,
+      0,
+      0,
+      0,
+    ),
+  )
+}
+
+function NextGameCountdown() {
+  const [targetDate, setTargetDate] = useState(() => getNextMidnightUtcDate())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (Date.now() >= targetDate.getTime()) {
+        setTargetDate(getNextMidnightUtcDate())
+      }
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [targetDate])
+
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-muted-foreground">starts in</span>
+      <CountdownClock
+        targetDate={targetDate}
+        size="xs"
+        variant="secondary"
+      />
+    </div>
+  )
+}
 
 export const Route = createFileRoute("/games/rius/upcoming/")({
   component: RouteComponent,
@@ -41,7 +81,7 @@ function RouteComponent() {
 
   return (
     <div className="space-y-6">
-      {/* My Sets Section - Show first if user has sets */}
+      {/* My Sets Section */}
       {hasUserSets && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
@@ -109,14 +149,11 @@ function RouteComponent() {
             )}
           </Empty>
         ) : (
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">roster</h2>
-                <p className="text-muted-foreground text-sm">
-                  {playerRoster.length}{" "}
-                  {pluralize("rider", playerRoster.length)} joined
-                </p>
+                <NextGameCountdown />
               </div>
               {(!user || !isUserInGame) && (
                 <Button asChild>
@@ -125,16 +162,18 @@ function RouteComponent() {
               )}
             </div>
 
-            {playerRoster.map((player) => (
-              <UserChip
-                key={player.id}
-                user={{
-                  id: player.id,
-                  name: player.name,
-                  avatarId: player.avatarId,
-                }}
-              />
-            ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {playerRoster.map((player) => (
+                <UserChip
+                  key={player.id}
+                  user={{
+                    id: player.id,
+                    name: player.name,
+                    avatarId: player.avatarId,
+                  }}
+                />
+              ))}
+            </div>
           </div>
         )}
       </section>

@@ -481,6 +481,7 @@ export const getUserActivityServerFn = createServerFn({
               createdAt: riuSubmissions.createdAt,
               riuSetId: riuSubmissions.riuSetId,
               parentTitle: riuSets.name,
+              content: riuSets.instructions,
             })
             .from(riuSubmissions)
             .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
@@ -669,6 +670,7 @@ export const getUserActivityServerFn = createServerFn({
         createdAt: row.createdAt,
         riuSetId: row.riuSetId,
         parentTitle: row.parentTitle,
+        content: row.content,
         _ts: getTime(row.createdAt),
       })),
       ...biuSetsData.map((row) => ({

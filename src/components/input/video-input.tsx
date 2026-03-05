@@ -1,13 +1,18 @@
 import { Loader2Icon, TrashIcon } from "lucide-react"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
+import { toast } from "sonner"
 
 import { UploadDropZone } from "~/components/input/upload-drop-zone"
 import { Button } from "~/components/ui/button"
 import { useFormField, useFormMedia } from "~/components/ui/form"
 import { Progress } from "~/components/ui/progress"
 import { VideoPlayer } from "~/components/video-player"
-import { useVideoUpload } from "~/lib/media"
+import {
+  getVideoFileRejectionMessage,
+  MAX_VIDEO_FILE_SIZE_BYTES,
+  useVideoUpload,
+} from "~/lib/media"
 
 export const VideoInput = ({
   onChange,
@@ -21,19 +26,25 @@ export const VideoInput = ({
   const [fileName, setFileName] = useState<string>()
   const [playbackId, setPlaybackId] = useState<string>()
 
-  const { setVideoUploadStatus } = useFormMedia()
+  const { setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus } =
+    useFormMedia()
 
   const { uploadVideo, isUploading, uploadProgress, isProcessing } =
     useVideoUpload({
       onSuccess: (data) => {
         onChange(data.assetId)
         setPlaybackId(data.playbackId)
+        setMediaUploadFileName(undefined)
+        setMediaUploadFileSizeBytes(undefined)
         setVideoUploadStatus("idle")
       },
       onProgress: (progress) => {
         setVideoUploadStatus(progress)
       },
       onError: () => {
+        setFileName(undefined)
+        setMediaUploadFileName(undefined)
+        setMediaUploadFileSizeBytes(undefined)
         setVideoUploadStatus("idle")
       },
     })
@@ -44,25 +55,57 @@ export const VideoInput = ({
 
       if (file) {
         setFileName(file.name)
+        setMediaUploadFileName(file.name)
+        setMediaUploadFileSizeBytes(file.size)
         setVideoUploadStatus(0)
         uploadVideo(file)
       }
     },
-    [uploadVideo, setVideoUploadStatus],
+    [
+      uploadVideo,
+      setMediaUploadFileName,
+      setMediaUploadFileSizeBytes,
+      setVideoUploadStatus,
+    ],
+  )
+
+  const onDropRejected = useCallback(
+    (
+      fileRejections: ReadonlyArray<{
+        errors: ReadonlyArray<{ code: string }>
+      }>,
+    ) => {
+      setFileName(undefined)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+      toast.error(getVideoFileRejectionMessage(fileRejections))
+    },
+    [setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus],
   )
 
   const { getInputProps, getRootProps } = useDropzone({
     accept: { "video/*": [] },
     multiple: false,
+    maxSize: MAX_VIDEO_FILE_SIZE_BYTES,
     onDrop,
+    onDropRejected,
   })
 
   const reset = () => {
     setVideoUploadStatus("idle")
+    setMediaUploadFileName(undefined)
+    setMediaUploadFileSizeBytes(undefined)
     setPlaybackId(undefined)
     setFileName(undefined)
     onChange(undefined)
   }
+
+  useEffect(() => {
+    if (isProcessing) {
+      setVideoUploadStatus("processing")
+    }
+  }, [isProcessing, setVideoUploadStatus])
 
   if (playbackId) {
     if (!showPreview) {
@@ -70,7 +113,7 @@ export const VideoInput = ({
     }
     return (
       <div className="flex flex-col gap-2">
-        <div className="relative overflow-clip rounded-md border">
+        <div className="border-input relative overflow-clip rounded-md border">
           <VideoPlayer className="w-full" playbackId={playbackId} />
 
           <Button
@@ -94,9 +137,10 @@ export const VideoInput = ({
       getInputProps={getInputProps}
       inputId={formItemId}
       disabled={isUploading || isProcessing}
+      hasValue={!!fileName}
     >
-      <span className="text-muted-foreground block w-full truncate px-3 text-center text-sm">
-        {fileName ?? "upload video"}
+      <span className="text-muted-foreground block w-full truncate text-left text-sm">
+        {fileName ?? "Choose File"}
       </span>
 
       {isUploading && !isProcessing && (

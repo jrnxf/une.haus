@@ -102,6 +102,19 @@ export const allUtvVideosServerFn = createServerFn({
       id: utvVideos.id,
       title: utvVideos.title,
       legacyUrl: utvVideos.legacyUrl,
+      disciplines: utvVideos.disciplines,
+      riders: sql<string[]>`
+        COALESCE(
+          (
+            SELECT array_agg(DISTINCT COALESCE(${users.name}, ${utvVideoRiders.name}))
+            FROM ${utvVideoRiders}
+            LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
+            WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
+              AND COALESCE(${users.name}, ${utvVideoRiders.name}) IS NOT NULL
+          ),
+          ARRAY[]::text[]
+        )
+      `,
       scale: utvVideos.thumbnailScale,
       thumbnailSeconds: utvVideos.thumbnailSeconds,
       assetId: muxVideos.assetId,
@@ -158,6 +171,19 @@ export const listUtvVideosServerFn = createServerFn({
         id: utvVideos.id,
         title: utvVideos.title,
         legacyUrl: utvVideos.legacyUrl,
+        disciplines: utvVideos.disciplines,
+        riders: sql<string[]>`
+          COALESCE(
+            (
+              SELECT array_agg(DISTINCT COALESCE(${users.name}, ${utvVideoRiders.name}))
+              FROM ${utvVideoRiders}
+              LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
+              WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
+                AND COALESCE(${users.name}, ${utvVideoRiders.name}) IS NOT NULL
+            ),
+            ARRAY[]::text[]
+          )
+        `,
         scale: utvVideos.thumbnailScale,
         thumbnailSeconds: utvVideos.thumbnailSeconds,
         assetId: muxVideos.assetId,

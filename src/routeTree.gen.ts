@@ -75,6 +75,8 @@ import { Route as AuthedTourneyCodeRankingRouteImport } from './routes/_authed/t
 import { Route as AuthedTourneyCodePrelimsRouteImport } from './routes/_authed/tourney/$code/prelims'
 import { Route as AuthedTourneyCodeBracketRouteImport } from './routes/_authed/tourney/$code/bracket'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
+import { Route as AuthedGamesSiusUploadRouteImport } from './routes/_authed/games/sius/upload'
+import { Route as AuthedGamesBiusUploadRouteImport } from './routes/_authed/games/bius/upload'
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
 import { Route as TricksGlossaryListModifiersIndexRouteImport } from './routes/tricks/glossary/_list/modifiers/index'
 import { Route as TricksGlossaryListElementsIndexRouteImport } from './routes/tricks/glossary/_list/elements/index'
@@ -430,6 +432,16 @@ const AuthedPostsPostIdEditRoute = AuthedPostsPostIdEditRouteImport.update({
   path: '/posts/$postId/edit',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedGamesSiusUploadRoute = AuthedGamesSiusUploadRouteImport.update({
+  id: '/games/sius/upload',
+  path: '/games/sius/upload',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedGamesBiusUploadRoute = AuthedGamesBiusUploadRouteImport.update({
+  id: '/games/bius/upload',
+  path: '/games/bius/upload',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedAuthMeEditRoute = AuthedAuthMeEditRouteImport.update({
   id: '/auth/me/edit',
   path: '/auth/me/edit',
@@ -572,6 +584,8 @@ export interface FileRoutesByFullPath {
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
+  '/games/bius/upload': typeof AuthedGamesBiusUploadRoute
+  '/games/sius/upload': typeof AuthedGamesSiusUploadRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
@@ -651,6 +665,8 @@ export interface FileRoutesByTo {
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
+  '/games/bius/upload': typeof AuthedGamesBiusUploadRoute
+  '/games/sius/upload': typeof AuthedGamesSiusUploadRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
@@ -736,6 +752,8 @@ export interface FileRoutesById {
   '/users/$userId/': typeof UsersUserIdIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
+  '/_authed/games/bius/upload': typeof AuthedGamesBiusUploadRoute
+  '/_authed/games/sius/upload': typeof AuthedGamesSiusUploadRoute
   '/_authed/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/_authed/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
   '/_authed/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
@@ -820,6 +838,8 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/vault/$videoId'
     | '/auth/me/edit'
+    | '/games/bius/upload'
+    | '/games/sius/upload'
     | '/posts/$postId/edit'
     | '/tourney/$code/bracket'
     | '/tourney/$code/prelims'
@@ -899,6 +919,8 @@ export interface FileRouteTypes {
     | '/users/$userId'
     | '/vault/$videoId'
     | '/auth/me/edit'
+    | '/games/bius/upload'
+    | '/games/sius/upload'
     | '/posts/$postId/edit'
     | '/tourney/$code/bracket'
     | '/tourney/$code/prelims'
@@ -983,6 +1005,8 @@ export interface FileRouteTypes {
     | '/users/$userId/'
     | '/vault/$videoId/'
     | '/_authed/auth/me/edit'
+    | '/_authed/games/bius/upload'
+    | '/_authed/games/sius/upload'
     | '/_authed/posts/$postId/edit'
     | '/_authed/tourney/$code/bracket'
     | '/_authed/tourney/$code/prelims'
@@ -1521,6 +1545,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedPostsPostIdEditRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/games/sius/upload': {
+      id: '/_authed/games/sius/upload'
+      path: '/games/sius/upload'
+      fullPath: '/games/sius/upload'
+      preLoaderRoute: typeof AuthedGamesSiusUploadRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/games/bius/upload': {
+      id: '/_authed/games/bius/upload'
+      path: '/games/bius/upload'
+      fullPath: '/games/bius/upload'
+      preLoaderRoute: typeof AuthedGamesBiusUploadRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/auth/me/edit': {
       id: '/_authed/auth/me/edit'
       path: '/auth/me/edit'
@@ -1665,6 +1703,8 @@ interface AuthedRouteChildren {
   AuthedTricksCreateRoute: typeof AuthedTricksCreateRoute
   AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute
   AuthedAuthMeEditRoute: typeof AuthedAuthMeEditRoute
+  AuthedGamesBiusUploadRoute: typeof AuthedGamesBiusUploadRoute
+  AuthedGamesSiusUploadRoute: typeof AuthedGamesSiusUploadRoute
   AuthedPostsPostIdEditRoute: typeof AuthedPostsPostIdEditRoute
   AuthedTourneyCodeBracketRoute: typeof AuthedTourneyCodeBracketRoute
   AuthedTourneyCodePrelimsRoute: typeof AuthedTourneyCodePrelimsRoute
@@ -1691,6 +1731,8 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedTricksCreateRoute: AuthedTricksCreateRoute,
   AuthedNotificationsIndexRoute: AuthedNotificationsIndexRoute,
   AuthedAuthMeEditRoute: AuthedAuthMeEditRoute,
+  AuthedGamesBiusUploadRoute: AuthedGamesBiusUploadRoute,
+  AuthedGamesSiusUploadRoute: AuthedGamesSiusUploadRoute,
   AuthedPostsPostIdEditRoute: AuthedPostsPostIdEditRoute,
   AuthedTourneyCodeBracketRoute: AuthedTourneyCodeBracketRoute,
   AuthedTourneyCodePrelimsRoute: AuthedTourneyCodePrelimsRoute,

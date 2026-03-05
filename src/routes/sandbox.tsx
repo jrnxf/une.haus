@@ -9,7 +9,8 @@ import {
   PencilIcon,
   TimerIcon,
 } from "lucide-react"
-import { useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { FiltersDemo } from "~/components/filters-demo"
@@ -30,6 +31,7 @@ import {
 } from "~/components/ui/card"
 import { Checkbox } from "~/components/ui/checkbox"
 import { CountChip } from "~/components/ui/count-chip"
+import { CountdownClock } from "~/components/ui/countdown-clock"
 import {
   Dialog,
   DialogContent,
@@ -56,7 +58,9 @@ import {
 import { Input } from "~/components/ui/input"
 import { Kbd, KbdGroup } from "~/components/ui/kbd"
 import { Label } from "~/components/ui/label"
+import { Metaline } from "~/components/ui/metaline"
 import { Progress } from "~/components/ui/progress"
+import { Form, useFormMedia } from "~/components/ui/form"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Scrollspy } from "~/components/ui/scrollspy"
 import {
@@ -262,9 +266,11 @@ function MorphCards() {
                   </div>
                 </div>
 
-                <p className="text-muted-foreground text-xs">
-                  #{card.position} · {card.user}
-                </p>
+                <Metaline
+                  className="text-xs"
+                  separator="·"
+                  parts={[`#${card.position}`, card.user]}
+                />
               </div>
             </div>
           </div>
@@ -328,7 +334,7 @@ function FlagDialogDemo() {
   return (
     <Tray open={open} onOpenChange={setOpen}>
       <TrayTrigger asChild>
-        <Button variant="outline" size="icon-sm">
+        <Button variant="outline" size="icon-sm" aria-label="flag content">
           <FlagIcon className="size-4" />
         </Button>
       </TrayTrigger>
@@ -361,6 +367,157 @@ function FlagDialogDemo() {
         </form>
       </TrayContent>
     </Tray>
+  )
+}
+
+function UploadStatusTransitionDemo() {
+  const rhf = useForm<{ demo: string }>({
+    defaultValues: { demo: "" },
+  })
+
+  return (
+    <Form
+      rhf={rhf}
+      className="space-y-2"
+      onSubmit={(event) => {
+        event.preventDefault()
+      }}
+    >
+      <UploadStatusTransitionControls />
+    </Form>
+  )
+}
+
+function UploadStatusTransitionControls() {
+  const {
+    isMediaUploading,
+    setImageUploadStatus,
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  } = useFormMedia()
+  const intervalRef = useRef<number | undefined>(undefined)
+  const timeoutRef = useRef<number | undefined>(undefined)
+
+  const clearSimulation = useCallback(() => {
+    if (intervalRef.current !== undefined) {
+      window.clearInterval(intervalRef.current)
+      intervalRef.current = undefined
+    }
+
+    if (timeoutRef.current !== undefined) {
+      window.clearTimeout(timeoutRef.current)
+      timeoutRef.current = undefined
+    }
+  }, [])
+
+  const reset = useCallback(() => {
+    clearSimulation()
+    setImageUploadStatus("idle")
+    setMediaUploadFileName(undefined)
+    setMediaUploadFileSizeBytes(undefined)
+    setVideoUploadStatus("idle")
+  }, [
+    clearSimulation,
+    setImageUploadStatus,
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  ])
+
+  const runTransition = useCallback(() => {
+    clearSimulation()
+    setImageUploadStatus("idle")
+    setMediaUploadFileName(
+      "my-long-demo-video-filename-for-status-preview.mp4",
+    )
+    setMediaUploadFileSizeBytes(52 * 1024 * 1024)
+
+    let progress = 0
+    setVideoUploadStatus(progress)
+
+    intervalRef.current = window.setInterval(() => {
+      progress = Math.min(100, progress + 7)
+      setVideoUploadStatus(progress)
+
+      if (progress >= 100) {
+        if (intervalRef.current !== undefined) {
+          window.clearInterval(intervalRef.current)
+          intervalRef.current = undefined
+        }
+
+        setVideoUploadStatus("processing")
+        timeoutRef.current = window.setTimeout(() => {
+          reset()
+        }, 1600)
+      }
+    }, 140)
+  }, [
+    clearSimulation,
+    reset,
+    setImageUploadStatus,
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  ])
+
+  useEffect(() => {
+    return () => {
+      clearSimulation()
+      setImageUploadStatus("idle")
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    }
+  }, [
+    clearSimulation,
+    setImageUploadStatus,
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  ])
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        disabled={isMediaUploading}
+        onClick={runTransition}
+      >
+        simulate upload transition
+      </Button>
+    </div>
+  )
+}
+
+function SandboxCountdownDemo() {
+  const [oneDayTarget] = useState(
+    () => new Date(Date.now() + 24 * 60 * 60 * 1000),
+  )
+  const [oneHourTarget] = useState(() => new Date(Date.now() + 60 * 60 * 1000))
+  const [oneMinuteTarget] = useState(() => new Date(Date.now() + 60 * 1000))
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground w-16 text-xs">1 day</span>
+        <CountdownClock targetDate={oneDayTarget} size="md" variant="secondary" />
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground w-16 text-xs">1 hour</span>
+        <CountdownClock targetDate={oneHourTarget} size="md" variant="secondary" />
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground w-16 text-xs">1 minute</span>
+        <CountdownClock
+          targetDate={oneMinuteTarget}
+          size="md"
+          variant="secondary"
+        />
+      </div>
+    </div>
   )
 }
 
@@ -862,6 +1019,12 @@ function RouteComponent() {
                 </div>
               </Subsection>
 
+              <div className="sm:col-span-2">
+                <Subsection label="upload status transitions">
+                  <UploadStatusTransitionDemo />
+                </Subsection>
+              </div>
+
               <Subsection label="empty state">
                 <Empty className="rounded-lg border">
                   <EmptyHeader>
@@ -1089,6 +1252,10 @@ function RouteComponent() {
                   <p className="text-sm">card body content goes here.</p>
                 </CardContent>
               </Card>
+            </Subsection>
+
+            <Subsection label="countdown clock">
+              <SandboxCountdownDemo />
             </Subsection>
 
             <Subsection label="link card">

@@ -15,6 +15,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
+import { Metaline } from "~/components/ui/metaline"
 import { games, groupSetsByUserWithRankings } from "~/lib/games"
 import { messages } from "~/lib/messages"
 import { useSessionUser } from "~/lib/session/hooks"
@@ -88,11 +89,15 @@ function RouteComponent() {
           {/* Section Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">round #{data.id}</h2>
-              <p className="text-muted-foreground text-sm">
-                {participantCount} {pluralize("player", participantCount)} ·{" "}
-                {setCount} {pluralize("set", setCount)}
-              </p>
+              <h2 className="text-lg font-semibold">round {data.id}</h2>
+              <Metaline
+                className="text-sm"
+                separator="·"
+                parts={[
+                  `${participantCount} ${pluralize("player", participantCount)}`,
+                  `${setCount} ${pluralize("set", setCount)}`,
+                ]}
+              />
             </div>
           </div>
           <SetsGroupedList
