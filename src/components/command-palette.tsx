@@ -32,7 +32,6 @@ import { usePeripherals } from "~/hooks/use-peripherals"
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { useTheme } from "~/lib/theme/context"
 import { users as usersApi } from "~/lib/users"
-import { cn } from "~/lib/utils"
 import { utv } from "~/lib/utv/core"
 import { useFzf } from "~/lib/ux/hooks/use-fzf"
 
@@ -365,7 +364,7 @@ export function CommandPalette() {
   }
 
   const footer = (
-    <div className="bg-input/30 flex w-full items-center justify-end gap-1 border-t px-2 py-1.5">
+    <div className="dark:bg-input/30 flex w-full items-center justify-end gap-1 border-t px-2 py-1.5">
       {/* Back action for sub-pages */}
       {pages.length > 1 && (
         <Button
@@ -424,20 +423,12 @@ export function CommandPalette() {
 
   return (
     <>
-      <div
-        className={cn(
-          "fixed inset-0 z-50 bg-black/50 transition-opacity duration-200",
-          open ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
-        onClick={closeMenu}
-      />
       <CommandDialog
         onOpenChange={(open) => {
           if (open) reset()
           setOpen(open)
         }}
         open={open}
-        overlay={false}
         title="command palette"
         showCloseButton={false}
         showTrigger={false}
@@ -615,10 +606,10 @@ export function CommandPalette() {
               </CommandItem>
               <CommandItem
                 value="arcade"
-                onSelect={() => closeAndNavigate("/games/arcade")}
+                onSelect={() => closeAndNavigate("/arcade")}
                 asChild
               >
-                <Link to="/games/arcade" replace>
+                <Link to="/arcade" replace>
                   arcade
                 </Link>
               </CommandItem>

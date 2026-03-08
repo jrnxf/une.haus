@@ -252,6 +252,17 @@ describe("phase transitions", () => {
     expect(stateValueToDbPhase(next.value)).toBe("ranking")
   })
 
+  it("advances from prelims to ranking with two qualified riders", () => {
+    const ctx = makeContext({
+      prelimStatuses: { 0: "done", 1: "done", 2: "dq", 3: "dq" },
+    })
+    const next = apply("prelims", ctx, {
+      type: "phase.advance",
+      phase: "ranking",
+    })
+    expect(stateValueToDbPhase(next.value)).toBe("ranking")
+  })
+
   it("blocks prelims to ranking when all riders disqualified", () => {
     const ctx = makeContext({
       prelimStatuses: { 0: "dq", 1: "dq", 2: "dq", 3: "dq" },
@@ -263,9 +274,9 @@ describe("phase transitions", () => {
     expect(stateValueToDbPhase(next.value)).toBe("prelims")
   })
 
-  it("blocks prelims to ranking with 2 or fewer qualified riders", () => {
+  it("blocks prelims to ranking with only one qualified rider", () => {
     const ctx = makeContext({
-      prelimStatuses: { 0: "done", 1: "done", 2: "dq", 3: "dq" },
+      prelimStatuses: { 0: "done", 1: "dq", 2: "dq", 3: "dq" },
     })
     const next = apply("prelims", ctx, {
       type: "phase.advance",

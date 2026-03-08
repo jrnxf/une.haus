@@ -1,9 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { HeartIcon, MessageCircleIcon, UploadIcon } from "lucide-react"
-import pluralize from "pluralize"
 
-import { RichText } from "~/components/rich-text"
+import { Button } from "~/components/ui/button"
+import { StatBadge } from "~/components/ui/stat-badge"
 import { messages } from "~/lib/messages"
 import { cn } from "~/lib/utils"
 
@@ -21,15 +21,18 @@ type SetCardProps = {
     likes?: unknown[]
     submissions?: unknown[]
   }
-  showAuthor?: boolean
   className?: string
+  showStats?: boolean
 }
 
-export function SetCard({ set, showAuthor = false, className }: SetCardProps) {
+export function SetCard({ set, className, showStats = true }: SetCardProps) {
   const record = { type: "riuSet" as const, id: set.id }
-  const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record))
+  const messagesQuery = useQuery({
+    ...messages.list.queryOptions(record),
+    enabled: showStats,
+  })
 
-  const messageCount = messagesQuery.data.messages.length
+  const messageCount = messagesQuery.data?.messages.length ?? 0
   const likeCount = Array.isArray(set.likes) ? set.likes.length : 0
   const submissionCount = Array.isArray(set.submissions)
     ? set.submissions.length
@@ -37,61 +40,40 @@ export function SetCard({ set, showAuthor = false, className }: SetCardProps) {
 
   return (
     <div className={cn("group relative", className)}>
-      <div className="bg-card rounded-md border p-3">
-        <Link
-          to="/games/rius/sets/$setId"
-          params={{ setId: set.id }}
-          className="w-fit truncate text-sm font-medium after:absolute after:inset-0 after:rounded-md"
-        >
-          {set.name}
-        </Link>
+      <Button variant="card" className="flex w-full p-3" asChild>
+        <Link to="/games/rius/sets/$setId" params={{ setId: set.id }}>
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="flex min-w-0 items-end justify-between gap-4">
+              <div className="flex flex-col gap-0.5">
+                <span className="min-w-0 truncate text-sm font-medium">
+                  {set.name}
+                </span>
+                {set.instructions && (
+                  <span className="text-muted-foreground min-w-0 truncate text-xs">
+                    {set.instructions}
+                  </span>
+                )}
+              </div>
 
-        {showAuthor && (
-          <p className="text-muted-foreground text-xs">{set.user.name}</p>
-        )}
-
-        <div className="text-muted-foreground mt-1 flex items-center justify-between gap-4 text-xs">
-          {set.instructions ? (
-            <div className="min-w-0 flex-1 truncate">
-              <RichText content={set.instructions} mentionMode="plainText" />
+              {showStats && (
+                <div className="flex shrink-0 items-center justify-end gap-2 text-xs">
+                  <StatBadge
+                    icon={MessageCircleIcon}
+                    count={messageCount}
+                    label="message"
+                  />
+                  <StatBadge icon={HeartIcon} count={likeCount} label="like" />
+                  <StatBadge
+                    icon={UploadIcon}
+                    count={submissionCount}
+                    label="submission"
+                  />
+                </div>
+              )}
             </div>
-          ) : (
-            <div />
-          )}
-
-          <div className="flex shrink-0 items-center gap-2">
-            <StatBadge
-              icon={MessageCircleIcon}
-              count={messageCount}
-              label="message"
-            />
-            <StatBadge icon={HeartIcon} count={likeCount} label="like" />
-            <StatBadge
-              icon={UploadIcon}
-              count={submissionCount}
-              label="submission"
-            />
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-type StatBadgeProps = {
-  icon: React.ComponentType<{ className?: string }>
-  count: number
-  label: string
-}
-
-function StatBadge({ icon: Icon, count, label }: StatBadgeProps) {
-  return (
-    <div
-      className="flex items-center gap-1"
-      title={`${count} ${pluralize(label, count)}`}
-    >
-      <Icon className="size-3" />
-      <span>{count}</span>
+        </Link>
+      </Button>
     </div>
   )
 }

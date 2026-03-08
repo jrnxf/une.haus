@@ -2,6 +2,7 @@ import { assign, setup, transition } from "xstate"
 
 import { decodeWinners, encodeWinners } from "~/lib/tourney/bracket"
 import { applyWinners, generateBracket } from "~/lib/tourney/bracket-logic"
+import { MIN_QUALIFIED_RIDERS } from "~/lib/tourney/constants"
 import {
   type PrelimStatus,
   type TournamentPhase,
@@ -252,7 +253,7 @@ export const tournamentMachine = setup({
             const qualified = context.riders.filter(
               (_, i) => context.prelimStatuses[i] === "done",
             ).length
-            return qualified >= 3
+            return qualified >= MIN_QUALIFIED_RIDERS
           },
         },
         "prelim.resetRider": {

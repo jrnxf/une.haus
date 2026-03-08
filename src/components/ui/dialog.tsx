@@ -47,7 +47,17 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="dialog-overlay"
       className={cn(
-        "animate-in fade-in-0 fixed inset-0 z-50 bg-black/50",
+        "pointer-events-none absolute inset-0 isolate",
+        "group-data-[open]/dialog-viewport:animate-in",
+        "group-data-[closed]/dialog-viewport:animate-out",
+        "group-data-[closed]/dialog-viewport:fade-out-0",
+        "group-data-[open]/dialog-viewport:fade-in-0",
+        "bg-black/10 duration-100",
+        "group-data-[starting-style]/dialog-viewport:opacity-0",
+        "group-data-[ending-style]/dialog-viewport:opacity-0",
+        "supports-backdrop-filter:backdrop-blur-xs",
+        "group-data-[closed]/dialog-viewport:[backdrop-filter:none]",
+        "group-data-[ending-style]/dialog-viewport:[backdrop-filter:none]",
         className,
       )}
       {...props}
@@ -60,47 +70,43 @@ function DialogContent({
   children,
   showCloseButton = true,
   overlay = true,
-  iconButtonSlot,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
   overlay?: boolean
-  iconButtonSlot?: React.ReactNode
 }) {
   return (
     <DialogPortal>
-      {overlay && <DialogOverlay />}
-      <DialogPrimitive.Popup
-        data-slot="dialog-content"
-        className={cn(
-          "bg-background",
-          "data-closed:animate-out data-open:animate-in",
-          "data-closed:fade-out-0 data-open:fade-in-0",
-          "data-closed:zoom-out-95 data-open:zoom-in-95",
-          "fixed top-[15%] left-[50%] z-50 w-full",
-          "grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%]",
-          "gap-4 rounded-lg border p-6 shadow-lg",
-          "duration-200",
-          "sm:max-w-lg",
-          className,
-        )}
-        {...props}
+      <DialogPrimitive.Viewport
+        data-slot="dialog-viewport"
+        className="group/dialog-viewport fixed inset-0 z-50 flex items-start justify-center p-4 pt-[15vh] sm:p-6 sm:pt-[15vh]"
       >
-        {children}
-
-        <div className="absolute top-4 right-4 flex items-center gap-2">
-          {iconButtonSlot}
-          {showCloseButton && (
-            <DialogPrimitive.Close
-              data-slot="dialog-close"
-              render={<Button size="icon-sm" variant="ghost" />}
-            >
-              <XIcon className="size-3.5" />
-              <span className="sr-only">close</span>
-            </DialogPrimitive.Close>
+        {overlay && <DialogOverlay />}
+        <DialogPrimitive.Popup
+          data-slot="dialog-content"
+          className={cn(
+            "bg-background",
+            "data-closed:animate-out data-open:animate-in",
+            "data-closed:fade-out-0 data-open:fade-in-0",
+            "data-closed:zoom-out-95 data-open:zoom-in-95",
+            "relative z-10 grid w-full max-w-[calc(100%-2rem)] gap-4 rounded-lg border p-6 shadow-lg",
+            "duration-200 sm:max-w-lg",
+            className,
           )}
-        </div>
-      </DialogPrimitive.Popup>
+          {...props}
+        >
+          {children}
+
+          {showCloseButton && (
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+              <DialogClose render={<Button size="icon-sm" variant="ghost" />}>
+                <XIcon className="size-3.5" />
+                <span className="sr-only">close</span>
+              </DialogClose>
+            </div>
+          )}
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Viewport>
     </DialogPortal>
   )
 }

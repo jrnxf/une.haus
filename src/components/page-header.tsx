@@ -26,18 +26,22 @@ function PageHeaderRoot({
   maxWidth?: string
 }) {
   return (
-    <header className="bg-background sticky top-0 z-30 shrink-0 border-b">
-      <div
-        className={cn(
-          "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
-          // maxWidth,
-        )}
-      >
-        <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
-        <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
-        <CommandPalette />
-      </div>
-    </header>
+    <>
+      <header className="bg-background sticky top-0 z-30 shrink-0 border-b">
+        <div
+          className={cn(
+            "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
+            // maxWidth,
+          )}
+        >
+          <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {children}
+          </div>
+        </div>
+      </header>
+      <CommandPalette />
+    </>
   )
 }
 

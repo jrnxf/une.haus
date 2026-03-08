@@ -18,6 +18,17 @@ import { useServerSession } from "~/lib/session/hooks"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
+type SessionStore = {
+  update: (payload: {
+    user: {
+      avatarId: null | string
+      email: string
+      id: number
+      name: string
+    }
+  }) => Promise<unknown>
+}
+
 export const sendAuthCodeServerFn = createServerFn({
   method: "POST",
 })
@@ -66,97 +77,122 @@ export const enterCodeServerFn = createServerFn({
 })
   .inputValidator(enterCodeSchema)
   .handler(async ({ data: input }) => {
-    const { code } = input
-
-    const [authCode] = await db
-      .select({
-        id: authCodes.id,
-        expiresAt: authCodes.expiresAt,
-        user: {
-          id: users.id,
-          email: users.email,
-          name: users.name,
-          avatarId: users.avatarId,
-          bio: users.bio,
-          disciplines: users.disciplines,
-        },
-      })
-      .from(authCodes)
-      .where(eq(authCodes.code, code))
-      .leftJoin(users, eq(users.email, authCodes.email))
-      .limit(1)
-
-    if (!authCode) {
-      throw new Error("Invalid code")
-    }
-
-    const deleteCode = async () => {
-      await db.delete(authCodes).where(eq(authCodes.id, authCode.id))
-    }
-
-    if (!authCode.user) {
-      await deleteCode()
-      return {
-        status: "user_not_found",
-      }
-    }
-
-    if (authCode.expiresAt < new Date()) {
-      await deleteCode()
-      invariant(false, "Code has expired")
-    }
-
-    // biome-ignore lint/correctness/useHookAtTopLevel: server function, not a React component
-    const [session] = await Promise.all([useServerSession(), deleteCode()])
-
-    await session.update({
-      user: authCode.user,
-    })
-
-    return {
-      status: "success",
-    }
+    const session = await useServerSession()
+    return enterCodeImpl({ data: input, session })
   })
+
+export async function enterCodeImpl({
+  data: input,
+  session,
+}: {
+  data: {
+    code: string
+  }
+  session: SessionStore
+}) {
+  const { code } = input
+
+  const [authCode] = await db
+    .select({
+      id: authCodes.id,
+      expiresAt: authCodes.expiresAt,
+      user: {
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        avatarId: users.avatarId,
+        bio: users.bio,
+        disciplines: users.disciplines,
+      },
+    })
+    .from(authCodes)
+    .where(eq(authCodes.code, code))
+    .leftJoin(users, eq(users.email, authCodes.email))
+    .limit(1)
+
+  if (!authCode) {
+    throw new Error("Invalid code")
+  }
+
+  const deleteCode = async () => {
+    await db.delete(authCodes).where(eq(authCodes.id, authCode.id))
+  }
+
+  if (!authCode.user) {
+    await deleteCode()
+    return {
+      status: "user_not_found",
+    }
+  }
+
+  if (authCode.expiresAt < new Date()) {
+    await deleteCode()
+    invariant(false, "Code has expired")
+  }
+
+  await deleteCode()
+
+  await session.update({
+    user: authCode.user,
+  })
+
+  return {
+    status: "success",
+  }
+}
 
 export const registerServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(registerSchema))
   .handler(async ({ data: input }) => {
-    const {
-      // TODO use code
-      // code,
+    const session = await useServerSession()
+    await registerImpl({ data: input, session })
+  })
+
+export async function registerImpl({
+  data: input,
+  session,
+}: {
+  data: {
+    bio?: null | string
+    email: string
+    name: string
+  }
+  session: SessionStore
+}) {
+  const {
+    // TODO use code
+    // code,
+    email,
+    name,
+    bio,
+  } = input
+
+  const existingUsers = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1)
+
+  if (existingUsers.length > 0) {
+    throw new Error("User already exists")
+  }
+
+  const [newUser] = await db
+    .insert(users)
+    .values({
       email,
       name,
       bio,
-    } = input
-
-    const user = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1)
-
-    if (user) {
-      throw new Error("User already exists")
-    }
-
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        email,
-        name,
-        bio,
-      })
-      .returning()
-
-    if (!newUser) {
-      throw new Error("Failed to create user")
-    }
-
-    const session = await useServerSession()
-
-    await session.update({
-      user: newUser,
     })
+    .returning()
+
+  if (!newUser) {
+    throw new Error("Failed to create user")
+  }
+
+  await session.update({
+    user: newUser,
   })
+}

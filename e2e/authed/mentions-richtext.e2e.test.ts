@@ -237,7 +237,7 @@ test.describe("mentions & rich text", () => {
     await deleteMessageViaUI(page, rawContent)
   })
 
-  test("mention appears as menu item in message bubble", async ({ page }) => {
+  test("mention becomes clickable in the message tray", async ({ page }) => {
     await page.goto("/chat")
     await page.waitForLoadState("networkidle")
     await dismissOverlay(page)
@@ -269,16 +269,13 @@ test.describe("mentions & rich text", () => {
     // Mentions should NOT render as links inside the bubble (disableLinks)
     await expect(messageBubble.locator("a")).toHaveCount(0)
 
-    // Open the context menu by clicking the bubble
+    // Open the tray by clicking the bubble
     await messageBubble.click()
-    const menu = page.getByRole("menu")
-    await expect(menu).toBeVisible({ timeout: 3000 })
+    const detailsDialog = page.getByRole("dialog", { name: "message details" })
+    await expect(detailsDialog).toBeVisible({ timeout: 3000 })
 
-    // The mentioned user should appear as a menu item (not Like/Copy/Edit/Delete)
-    // The first menu item should be the mentioned user (above the standard actions)
-    const firstMenuItem = menu.getByRole("menuitem").first()
-    const firstItemText = await firstMenuItem.textContent()
-    expect(firstItemText).not.toMatch(/^(Like|Unlike|Copy|Edit|Delete)$/i)
+    // The rendered mention should now be a clickable profile link inside the tray.
+    await expect(detailsDialog.locator("a[href^='/users/']")).toHaveCount(1)
 
     // Cleanup handled by afterAll SQL
     await page.keyboard.press("Escape")

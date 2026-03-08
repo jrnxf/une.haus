@@ -14,14 +14,25 @@ import {
 import {
   adminHeartbeatSchema,
   advancePhaseSchema,
+  type AdvancePhaseInput,
   bracketActionSchema,
+  type BracketActionInput,
   createTournamentSchema,
+  type CreateTournamentInput,
   getTournamentSchema,
   listTournamentsSchema,
   prelimActionSchema,
+  type PrelimActionInput,
   rankingActionSchema,
+  type RankingActionInput,
 } from "~/lib/tourney/schemas"
 import { type TournamentPhase, type TournamentState } from "~/lib/tourney/types"
+
+type AuthenticatedContext = {
+  user: {
+    id: number
+  }
+}
 
 // Characters that are unambiguous (no 0/O/1/I/L)
 const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
@@ -84,37 +95,45 @@ export const createTournamentServerFn = createServerFn({
 })
   .inputValidator(zodValidator(createTournamentSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const code = await generateUniqueCode()
+  .handler(createTournamentImpl)
 
-    const initialState: TournamentState = {
-      riders: input.riders,
-      prelimTime: input.prelimTime,
-      battleTime: input.battleTime,
-      finalsTime: input.finalsTime,
-      bracketSize: input.bracketSize,
-      prelimStatuses: {},
-      currentRiderIndex: null,
-      timer: null,
-      ranking: null,
-      bracketRiders: null,
-      winners: null,
-      celebrating: false,
-    }
+export async function createTournamentImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: CreateTournamentInput
+}) {
+  const code = await generateUniqueCode()
 
-    const [tournament] = await db
-      .insert(tournaments)
-      .values({
-        code,
-        name: input.name,
-        phase: "prelims",
-        createdByUserId: context.user.id,
-        state: initialState,
-      })
-      .returning()
+  const initialState: TournamentState = {
+    riders: input.riders,
+    prelimTime: input.prelimTime,
+    battleTime: input.battleTime,
+    finalsTime: input.finalsTime,
+    bracketSize: input.bracketSize,
+    prelimStatuses: {},
+    currentRiderIndex: null,
+    timer: null,
+    ranking: null,
+    bracketRiders: null,
+    winners: null,
+    celebrating: false,
+  }
 
-    return tournament
-  })
+  const [tournament] = await db
+    .insert(tournaments)
+    .values({
+      code,
+      name: input.name,
+      phase: "prelims",
+      createdByUserId: context.user.id,
+      state: initialState,
+    })
+    .returning()
+
+  return tournament
+}
 
 export const getTournamentServerFn = createServerFn({
   method: "GET",
@@ -140,118 +159,160 @@ export const prelimActionServerFn = createServerFn({
 })
   .inputValidator(zodValidator(prelimActionSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const tournament = await getTournamentByCode(input.code)
-    invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+  .handler(prelimActionImpl)
 
-    const event = mapPrelimActionToEvent(input.action)
-    const result = applyMachineEvent(
-      tournament.phase as TournamentPhase,
-      tournament.state as TournamentState,
-      event,
-    )
+export async function prelimActionImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: PrelimActionInput
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
 
-    await updateTournamentState(
-      tournament.id,
-      tournament.code,
-      tournament.phase,
-      result.state,
-    )
-    return { state: result.state }
-  })
+  const event = mapPrelimActionToEvent(input.action)
+  const result = applyMachineEvent(
+    tournament.phase as TournamentPhase,
+    tournament.state as TournamentState,
+    event,
+  )
+
+  await updateTournamentState(
+    tournament.id,
+    tournament.code,
+    tournament.phase,
+    result.state,
+  )
+  return { state: result.state }
+}
 
 export const rankingActionServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(rankingActionSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const tournament = await getTournamentByCode(input.code)
-    invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+  .handler(rankingActionImpl)
 
-    const event: TournamentEvent = {
-      type: "ranking.save",
-      ranking: input.ranking,
-    }
-    const result = applyMachineEvent(
-      tournament.phase as TournamentPhase,
-      tournament.state as TournamentState,
-      event,
-    )
+export async function rankingActionImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: RankingActionInput
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
 
-    await updateTournamentState(
-      tournament.id,
-      tournament.code,
-      tournament.phase,
-      result.state,
-    )
-    return { state: result.state }
-  })
+  const event: TournamentEvent = {
+    type: "ranking.save",
+    ranking: input.ranking,
+  }
+  const result = applyMachineEvent(
+    tournament.phase as TournamentPhase,
+    tournament.state as TournamentState,
+    event,
+  )
+
+  await updateTournamentState(
+    tournament.id,
+    tournament.code,
+    tournament.phase,
+    result.state,
+  )
+  return { state: result.state }
+}
 
 export const bracketActionServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(bracketActionSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const tournament = await getTournamentByCode(input.code)
-    invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+  .handler(bracketActionImpl)
 
-    const event = mapBracketActionToEvent(input.action)
-    const result = applyMachineEvent(
-      tournament.phase as TournamentPhase,
-      tournament.state as TournamentState,
-      event,
-    )
+export async function bracketActionImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: BracketActionInput
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
 
-    await updateTournamentState(
-      tournament.id,
-      tournament.code,
-      tournament.phase,
-      result.state,
-    )
-    return { state: result.state }
-  })
+  const event = mapBracketActionToEvent(input.action)
+  const result = applyMachineEvent(
+    tournament.phase as TournamentPhase,
+    tournament.state as TournamentState,
+    event,
+  )
+
+  await updateTournamentState(
+    tournament.id,
+    tournament.code,
+    tournament.phase,
+    result.state,
+  )
+  return { state: result.state }
+}
 
 export const advancePhaseServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(advancePhaseSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const tournament = await getTournamentByCode(input.code)
-    invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+  .handler(advancePhaseImpl)
 
-    const event: TournamentEvent = {
-      type: "phase.advance",
-      phase: input.phase,
-    }
-    const result = applyMachineEvent(
-      tournament.phase as TournamentPhase,
-      tournament.state as TournamentState,
-      event,
-    )
+export async function advancePhaseImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: AdvancePhaseInput
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
 
-    await updateTournamentState(
-      tournament.id,
-      tournament.code,
-      tournament.phase,
-      result.state,
-      result.phase,
-    )
-    return { phase: result.phase, state: result.state }
-  })
+  const event: TournamentEvent = {
+    type: "phase.advance",
+    phase: input.phase,
+  }
+  const result = applyMachineEvent(
+    tournament.phase as TournamentPhase,
+    tournament.state as TournamentState,
+    event,
+  )
+
+  await updateTournamentState(
+    tournament.id,
+    tournament.code,
+    tournament.phase,
+    result.state,
+    result.phase,
+  )
+  return { phase: result.phase, state: result.state }
+}
 
 export const adminHeartbeatServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(adminHeartbeatSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const tournament = await getTournamentByCode(input.code)
-    invariant(tournament.createdByUserId === context.user.id, "Not authorized")
-    publishAdminHeartbeat(tournament.code)
-  })
+  .handler(adminHeartbeatImpl)
+
+export async function adminHeartbeatImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    code: string
+  }
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+  publishAdminHeartbeat(tournament.code)
+}
 
 // ---------------------------------------------------------------------------
 // Action → Event adapters

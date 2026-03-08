@@ -11,28 +11,41 @@ import {
   setThemeSchema,
 } from "~/lib/session/schema"
 
+type SessionStore = {
+  clear: () => Promise<unknown>
+  data: unknown
+  update: (payload: Partial<HausSession>) => Promise<unknown>
+}
+
 export const getSessionServerFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<HausSession> => {
     const session = await useServerSession()
-
-    const parsedSession = hausSessionSchema.parse(session.data)
-
-    // capture the flash
-    const flash = parsedSession.flash
-
-    if (flash) {
-      await session.update({ flash: undefined })
-    }
-
-    const sessionData = {
-      ...parsedSession,
-      // return the flash
-      flash,
-    }
-
-    return sessionData
+    return getSessionImpl({ session })
   },
 )
+
+export async function getSessionImpl({
+  session,
+}: {
+  session: SessionStore
+}): Promise<HausSession> {
+  const parsedSession = hausSessionSchema.parse(session.data)
+
+  // capture the flash
+  const flash = parsedSession.flash
+
+  if (flash) {
+    await session.update({ flash: undefined })
+  }
+
+  const sessionData = {
+    ...parsedSession,
+    // return the flash
+    flash,
+  }
+
+  return sessionData
+}
 
 export const setSessionFlashServerFn = createServerFn({
   method: "POST",
@@ -46,14 +59,33 @@ export const setSessionFlashServerFn = createServerFn({
 export const clearSessionServerFn = createServerFn({ method: "POST" }).handler(
   async () => {
     const session = await useServerSession()
-
-    if (session.data.user) {
-      removeUser(session.data.user.id)
-    }
-
-    await session.clear()
+    await clearSessionImpl({
+      removePresenceUser: removeUser,
+      session,
+    })
   },
 )
+
+export async function clearSessionImpl({
+  removePresenceUser,
+  session,
+}: {
+  removePresenceUser: (userId: number) => void
+  session: {
+    clear: () => Promise<unknown>
+    data: {
+      user?: {
+        id: number
+      }
+    }
+  }
+}) {
+  if (session.data.user) {
+    removePresenceUser(session.data.user.id)
+  }
+
+  await session.clear()
+}
 
 export const setSessionThemeServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(setThemeSchema))

@@ -1,11 +1,10 @@
 import { useSuspenseQueries } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { HeartIcon, PencilIcon, TrendingUpIcon } from "lucide-react"
-import pluralize from "pluralize"
+import { PencilIcon } from "lucide-react"
 import { z } from "zod"
 
 import { DisciplineBadge } from "~/components/badges"
-import { UsersDialog } from "~/components/likes-dialog"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { PageHeader } from "~/components/page-header"
 import { ShareButton } from "~/components/share-button"
 import { Button } from "~/components/ui/button"
@@ -24,7 +23,6 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
-import { cn } from "~/lib/utils"
 import { utv } from "~/lib/utv/core"
 import { MessagesView } from "~/views/messages"
 
@@ -140,48 +138,11 @@ function RouteComponent() {
               {displayTitle}
             </h1>
             <div className="flex shrink-0 items-center gap-1">
-              {sessionUser && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label={authUserLiked ? "unlike" : "like"}
-                      onClick={likeUnlikeVideo}
-                    >
-                      <HeartIcon
-                        className={cn(
-                          "size-4",
-                          authUserLiked && "fill-red-700/50 stroke-red-700",
-                        )}
-                      />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {authUserLiked ? "unlike" : "like"}
-                  </TooltipContent>
-                </Tooltip>
-              )}
-              {video.likes.length > 0 && (
-                <Tooltip>
-                  <UsersDialog
-                    users={video.likes.map((like) => like.user)}
-                    title={`${video.likes.length} ${pluralize("Like", video.likes.length)}`}
-                    trigger={
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="icon-sm"
-                          variant="outline"
-                          aria-label="view likes"
-                        >
-                          <TrendingUpIcon className="size-4" />
-                        </Button>
-                      </TooltipTrigger>
-                    }
-                  />
-                  <TooltipContent>likes</TooltipContent>
-                </Tooltip>
-              )}
+              <LikesButtonGroup
+                users={video.likes.map((like) => like.user)}
+                authUserLiked={authUserLiked}
+                onLikeUnlike={sessionUser ? likeUnlikeVideo : undefined}
+              />
               <ShareButton />
               {sessionUser && (
                 <Tooltip>

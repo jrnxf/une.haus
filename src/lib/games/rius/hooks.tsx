@@ -81,8 +81,34 @@ export function useCreateSubmission() {
   })
 }
 
-export function useDeleteSet() {
+export function useUpdateSet({ setId }: { setId: number }) {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.rius.sets.update.fn,
+    onSuccess: () => {
+      toast.success("set updated")
+      qc.invalidateQueries({
+        queryKey: games.rius.sets.get.queryOptions({ setId }).queryKey,
+      })
+      qc.invalidateQueries({
+        queryKey: games.rius.upcoming.roster.queryOptions().queryKey,
+      })
+      navigate({ to: "/games/rius/sets/$setId", params: { setId } })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to update set")
+      console.error(error)
+    },
+  })
+}
+
+export function useDeleteSet({
+  redirectToUpcoming = false,
+}: { redirectToUpcoming?: boolean } = {}) {
   const sessionUser = useSessionUser()
+  const navigate = useNavigate()
 
   const qc = useQueryClient()
 
@@ -119,8 +145,19 @@ export function useDeleteSet() {
       qc.invalidateQueries({
         queryKey: upcomingRosterQueryKey,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, { data: { riuSetId } }) => {
+      qc.removeQueries({
+        queryKey: games.rius.sets.get.queryOptions({ setId: riuSetId })
+          .queryKey,
+      })
       toast.success("set deleted")
+      if (redirectToUpcoming) {
+        navigate({ to: "/games/rius/upcoming" })
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to delete set")
+      console.error(error)
     },
   })
 }

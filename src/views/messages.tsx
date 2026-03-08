@@ -140,9 +140,6 @@ export function MessagesView({
       <div className="flex h-full flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto" ref={ref}>
           <div className="space-y-2">
-            {messages.length === 0 && (
-              <p className="text-muted-foreground">no messages</p>
-            )}
             {messages.map((message, index) => {
               const prev = messages[index - 1]
               const isAuthUserMessage = Boolean(
@@ -204,9 +201,6 @@ export function MessagesView({
   // Non-embedded: simple layout, form flows after messages
   return (
     <div className="space-y-2">
-      {messages.length === 0 && (
-        <p className="text-muted-foreground">No messages</p>
-      )}
       {messages.map((message, index) => {
         const prev = messages[index - 1]
         const isAuthUserMessage = Boolean(

@@ -350,132 +350,221 @@ const MESSAGE_ENTITY_TYPES: Partial<
   utvVideo: "utvVideo",
 }
 
+type AuthenticatedContext = {
+  user: {
+    avatarId: string | null
+    id: number
+    name: string
+  }
+}
+
+type CreateMessageArgs = {
+  context: AuthenticatedContext
+  data: {
+    content: string
+    id: number | -1
+    type: MessageParentType
+  }
+}
+
+export async function createMessageImpl({
+  data: input,
+  context,
+}: CreateMessageArgs) {
+  const userId = context.user.id
+
+  const { content, id, type } = input
+
+  let messageId: number | undefined
+
+  if (type === "post") {
+    const [row] = await db
+      .insert(postMessages)
+      .values({
+        content,
+        postId: id,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  if (type === "chat") {
+    const [row] = await db
+      .insert(chatMessages)
+      .values({
+        content,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  if (type === "riuSet") {
+    const [row] = await db
+      .insert(riuSetMessages)
+      .values({
+        content,
+        riuSetId: id,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  if (type === "riuSubmission") {
+    const [row] = await db
+      .insert(riuSubmissionMessages)
+      .values({
+        content,
+        riuSubmissionId: id,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  if (type === "utvVideo") {
+    const [row] = await db
+      .insert(utvVideoMessages)
+      .values({
+        content,
+        utvVideoId: id,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  if (type === "biuSet") {
+    const [row] = await db
+      .insert(biuSetMessages)
+      .values({
+        content,
+        biuSetId: id,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  if (type === "siuSet") {
+    const [row] = await db
+      .insert(siuSetMessages)
+      .values({
+        content,
+        siuSetId: id,
+        userId,
+      })
+      .returning()
+    messageId = row.id
+  }
+
+  const preview = await resolvePreview(content)
+
+  // Create comment notification for the content owner (non-chat only)
+  const entityType = MESSAGE_ENTITY_TYPES[type]
+  let ownerId: number | null | undefined
+  if (entityType) {
+    ownerId = await getContentOwner(entityType, id)
+    if (ownerId && ownerId !== userId) {
+      createNotification({
+        userId: ownerId,
+        actorId: userId,
+        type: "comment",
+        entityType,
+        entityId: id,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityPreview: preview,
+          messageId,
+        },
+      }).catch(console.error)
+    }
+  }
+
+  // Notify @mentioned users (works for all message types including chat)
+  const mentionedUserIds = extractMentionedUserIds(content)
+  const mentionEntityType = entityType ?? "chat"
+  const mentionEntityId = entityType ? id : 0
+  for (const mentionedUserId of mentionedUserIds) {
+    if (mentionedUserId === userId) continue
+    if (mentionedUserId === ownerId) continue
+
+    createNotification({
+      userId: mentionedUserId,
+      actorId: userId,
+      type: "mention",
+      entityType: mentionEntityType,
+      entityId: mentionEntityId,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityPreview: preview,
+        messageId,
+      },
+    }).catch(console.error)
+  }
+}
+
 export const createMessageServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(createMessageSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(createMessageImpl)
 
-    const { content, id, type } = input
+export const updateMessageServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(updateMessageSchema))
+  .middleware([authMiddleware])
+  .handler(updateMessageImpl)
 
-    let messageId: number | undefined
+export async function updateMessageImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    content: string
+    id: number
+    type: MessageParentType
+  }
+}) {
+  const userId = context.user.id
 
-    if (type === "post") {
-      const [row] = await db
-        .insert(postMessages)
-        .values({
-          content,
-          postId: id,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
+  const { content, id, type } = input
 
-    if (type === "chat") {
-      const [row] = await db
-        .insert(chatMessages)
-        .values({
-          content,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
+  const table = getTableByType(type)
 
-    if (type === "riuSet") {
-      const [row] = await db
-        .insert(riuSetMessages)
-        .values({
-          content,
-          riuSetId: id,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
+  const existing = await db
+    .select({ content: table.content })
+    .from(table)
+    .where(and(eq(table.id, id), eq(table.userId, userId)))
+    .then((rows) => rows[0])
 
-    if (type === "riuSubmission") {
-      const [row] = await db
-        .insert(riuSubmissionMessages)
-        .values({
-          content,
-          riuSubmissionId: id,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
+  await db
+    .update(table)
+    .set({ content, userId })
+    .where(and(eq(table.id, id), eq(table.userId, userId)))
 
-    if (type === "utvVideo") {
-      const [row] = await db
-        .insert(utvVideoMessages)
-        .values({
-          content,
-          utvVideoId: id,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
+  if (existing) {
+    const oldMentions = new Set(extractMentionedUserIds(existing.content))
+    const newMentions = extractMentionedUserIds(content).filter(
+      (uid) => !oldMentions.has(uid),
+    )
 
-    if (type === "biuSet") {
-      const [row] = await db
-        .insert(biuSetMessages)
-        .values({
-          content,
-          biuSetId: id,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
-
-    if (type === "siuSet") {
-      const [row] = await db
-        .insert(siuSetMessages)
-        .values({
-          content,
-          siuSetId: id,
-          userId,
-        })
-        .returning()
-      messageId = row.id
-    }
-
+    const entityType = MESSAGE_ENTITY_TYPES[type]
+    const mentionEntityType = entityType ?? "chat"
+    const mentionEntityId = entityType
+      ? await getMessageParentEntityId(type, id)
+      : 0
     const preview = await resolvePreview(content)
 
-    // Create comment notification for the content owner (non-chat only)
-    const entityType = MESSAGE_ENTITY_TYPES[type]
-    let ownerId: number | null | undefined
-    if (entityType) {
-      ownerId = await getContentOwner(entityType, id)
-      if (ownerId && ownerId !== userId) {
-        createNotification({
-          userId: ownerId,
-          actorId: userId,
-          type: "comment",
-          entityType,
-          entityId: id,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-            entityPreview: preview,
-            messageId,
-          },
-        }).catch(console.error)
-      }
-    }
-
-    // Notify @mentioned users (works for all message types including chat)
-    const mentionedUserIds = extractMentionedUserIds(content)
-    const mentionEntityType = entityType ?? "chat"
-    const mentionEntityId = id ?? 0
-    for (const mentionedUserId of mentionedUserIds) {
+    for (const mentionedUserId of newMentions) {
       if (mentionedUserId === userId) continue
-      if (mentionedUserId === ownerId) continue
 
       createNotification({
         userId: mentionedUserId,
@@ -487,85 +576,38 @@ export const createMessageServerFn = createServerFn({
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
           entityPreview: preview,
-          messageId,
+          messageId: id,
         },
       }).catch(console.error)
     }
-  })
-
-export const updateMessageServerFn = createServerFn({
-  method: "POST",
-})
-  .inputValidator(zodValidator(updateMessageSchema))
-  .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
-
-    const { content, id, type } = input
-
-    const table = getTableByType(type)
-
-    // Fetch old content for mention dedup
-    const existing = await db
-      .select({ content: table.content })
-      .from(table)
-      .where(and(eq(table.id, id), eq(table.userId, userId)))
-      .then((rows) => rows[0])
-
-    await db
-      .update(table)
-      .set({ content, userId })
-      .where(and(eq(table.id, id), eq(table.userId, userId)))
-
-    // Notify only newly added @mentions (not in old content)
-    if (existing) {
-      const oldMentions = new Set(extractMentionedUserIds(existing.content))
-      const newMentions = extractMentionedUserIds(content).filter(
-        (uid) => !oldMentions.has(uid),
-      )
-
-      const entityType = MESSAGE_ENTITY_TYPES[type]
-      const mentionEntityType = entityType ?? "chat"
-      // input.id is the message ID, not the parent entity ID
-      const mentionEntityId = entityType
-        ? await getMessageParentEntityId(type, id)
-        : 0
-      const preview = await resolvePreview(content)
-
-      for (const mentionedUserId of newMentions) {
-        if (mentionedUserId === userId) continue
-
-        createNotification({
-          userId: mentionedUserId,
-          actorId: userId,
-          type: "mention",
-          entityType: mentionEntityType,
-          entityId: mentionEntityId,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-            entityPreview: preview,
-            messageId: id,
-          },
-        }).catch(console.error)
-      }
-    }
-  })
+  }
+}
 
 export const deleteMessageServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(deleteMessageSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(deleteMessageImpl)
 
-    const table = getTableByType(input.type)
+export async function deleteMessageImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    id: number
+    type: MessageParentType
+  }
+}) {
+  const userId = context.user.id
 
-    await db
-      .delete(table)
-      .where(and(eq(table.id, input.id), eq(table.userId, userId)))
-  })
+  const table = getTableByType(input.type)
+
+  await db
+    .delete(table)
+    .where(and(eq(table.id, input.id), eq(table.userId, userId)))
+}
 
 /**
  * Look up the parent entity ID for a message.

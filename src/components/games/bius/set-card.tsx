@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router"
 import { HeartIcon, MessageCircleIcon } from "lucide-react"
 
-import { Badge } from "~/components/ui/badge"
+import { Button } from "~/components/ui/button"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { StatBadge } from "~/components/ui/stat-badge"
 import { cn } from "~/lib/utils"
 
 type BiuSetCardProps = {
@@ -27,75 +29,51 @@ type BiuSetCardProps = {
       }
     } | null
   }
-  isLatest?: boolean
   className?: string
 }
 
-export function BiuSetCard({
-  set,
-  isLatest = false,
-  className,
-}: BiuSetCardProps) {
+export function BiuSetCard({ set, className }: BiuSetCardProps) {
   const likeCount = Array.isArray(set.likes) ? set.likes.length : 0
   const messageCount = Array.isArray(set.messages) ? set.messages.length : 0
 
   return (
     <div className={cn("group relative z-20", className)}>
-      <div
-        className={cn(
-          "bg-card overflow-hidden rounded-md border transition-colors",
-          "hover:bg-muted/70",
-        )}
+      <Button
+        variant="card"
+        asChild
+        className="flex w-full overflow-hidden p-3"
       >
-        {/* Main card content */}
-        <div className="p-3">
+        <Link to="/games/bius/sets/$setId" params={{ setId: set.id }}>
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex min-w-0 items-center gap-2">
-              <Link
-                to="/games/bius/sets/$setId"
-                params={{ setId: set.id }}
-                className="truncate text-sm font-medium after:absolute after:inset-0 after:rounded-md"
-              >
-                {set.name}
-              </Link>
-              {isLatest && (
-                <Badge variant="outline" className="text-[10px]">
-                  latest
-                </Badge>
-              )}
+              <span className="truncate text-sm font-medium">{set.name}</span>
             </div>
 
             <div className="flex items-center justify-between gap-2">
-              <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
-                <Link
-                  to="/users/$userId"
-                  params={{ userId: set.user.id }}
-                  className="relative z-10 hover:underline"
-                >
-                  {set.user.name}
-                </Link>
-                <span className="opacity-25">/</span>
-                <RelativeTimeCard
-                  date={set.createdAt}
-                  variant="muted"
-                  className="text-xs"
+              <Metaline
+                className="relative z-10 text-xs"
+                parts={[
+                  set.user.name,
+                  <RelativeTimeCard
+                    key="created-at"
+                    className="text-xs"
+                    variant="muted"
+                    date={set.createdAt}
+                  />,
+                ]}
+              />
+              <div className="flex shrink-0 items-center gap-2 text-xs">
+                <StatBadge icon={HeartIcon} count={likeCount} label="like" />
+                <StatBadge
+                  icon={MessageCircleIcon}
+                  count={messageCount}
+                  label="message"
                 />
-              </p>
-
-              <div className="text-muted-foreground flex shrink-0 items-center gap-2 text-xs">
-                <span className="flex items-center gap-0.5">
-                  <HeartIcon className="size-3" />
-                  {likeCount}
-                </span>
-                <span className="flex items-center gap-0.5">
-                  <MessageCircleIcon className="size-3" />
-                  {messageCount}
-                </span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </Link>
+      </Button>
     </div>
   )
 }

@@ -56,7 +56,9 @@ export function Tray(properties: {
   )
 }
 
-export function TrayClose(properties: React.ComponentProps<"button">) {
+export function TrayClose(
+  properties: React.ComponentProps<typeof DrawerClose>,
+) {
   const { isMobile } = useTrayContext()
 
   if (isMobile) {
@@ -70,12 +72,14 @@ export function TrayContent({
   dialogClassName,
   drawerClassName,
   children,
+  showCloseButton = true,
   ...properties
 }: {
   dialogClassName?: string
   drawerClassName?: string
   children?: React.ReactNode
   className?: string
+  showCloseButton?: boolean
 }) {
   const { isMobile } = useTrayContext()
 
@@ -93,6 +97,7 @@ export function TrayContent({
         <DialogContent
           className={cn(className, "p-4", dialogClassName)}
           overlay={false}
+          showCloseButton={showCloseButton}
           {...properties}
         >
           {children}

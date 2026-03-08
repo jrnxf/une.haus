@@ -1,14 +1,16 @@
 import { createServerFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm"
+import { and, asc, desc, eq, gt, ilike, notInArray, or } from "drizzle-orm"
 
 import { computeAllNeighbors, computeDepthsAndDependents } from "./compute"
 import {
   createElementSchema,
   createModifierSchema,
+  type CreateTrickArgs,
   createTrickSchema,
   deleteElementSchema,
   deleteModifierSchema,
+  type UpdateTrickArgs,
   deleteTrickSchema,
   getTrickByIdSchema,
   getTrickSchema,
@@ -33,6 +35,12 @@ import {
 } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
 import { adminOnlyMiddleware } from "~/lib/middleware"
+
+type AuthenticatedContext = {
+  user: {
+    id: number
+  }
+}
 
 // ==================== MODIFIERS ====================
 
@@ -160,50 +168,61 @@ export const listTricksServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(listTricksSchema))
-  .handler(async ({ data: input }) => {
-    const limit = input?.limit ?? 50
+  .handler(listTricksImpl)
 
-    const tricksData = await db.query.tricks.findMany({
-      where: and(
-        input?.q
-          ? or(
-              ilike(tricks.name, `%${input.q}%`),
-              ilike(tricks.slug, `%${input.q}%`),
-            )
-          : undefined,
-        input?.cursor ? eq(tricks.id, input.cursor) : undefined,
-      ),
-      with: {
-        elementAssignments: {
-          with: {
-            element: true,
-          },
+export async function listTricksImpl({
+  data: input,
+}: {
+  data?: {
+    cursor?: number
+    elementId?: number
+    limit?: number
+    q?: string
+  }
+}) {
+  const limit = input?.limit ?? 50
+
+  const tricksData = await db.query.tricks.findMany({
+    where: and(
+      input?.q
+        ? or(
+            ilike(tricks.name, `%${input.q}%`),
+            ilike(tricks.slug, `%${input.q}%`),
+          )
+        : undefined,
+      input?.cursor ? gt(tricks.id, input.cursor) : undefined,
+    ),
+    with: {
+      elementAssignments: {
+        with: {
+          element: true,
         },
-        outgoingRelationships: {
-          with: {
-            targetTrick: {
-              columns: {
-                id: true,
-                slug: true,
-                name: true,
-              },
+      },
+      outgoingRelationships: {
+        with: {
+          targetTrick: {
+            columns: {
+              id: true,
+              slug: true,
+              name: true,
             },
           },
         },
       },
-      orderBy: [asc(tricks.name)],
-      limit,
-    })
-
-    // Filter by element if specified
-    if (input?.elementId) {
-      return tricksData.filter((trick) =>
-        trick.elementAssignments.some((a) => a.element.id === input.elementId),
-      )
-    }
-
-    return tricksData
+    },
+    orderBy: [asc(tricks.name)],
+    limit,
   })
+
+  // Filter by element if specified
+  if (input?.elementId) {
+    return tricksData.filter((trick) =>
+      trick.elementAssignments.some((a) => a.element.id === input.elementId),
+    )
+  }
+
+  return tricksData
+}
 
 export const getTrickServerFn = createServerFn({
   method: "GET",
@@ -374,179 +393,192 @@ export const createTrickServerFn = createServerFn({
 })
   .inputValidator(zodValidator(createTrickSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data, context }) => {
-    const {
-      relationships,
-      muxAssetIds,
-      elementIds,
-      compositions,
-      ...trickData
-    } = data
+  .handler(createTrickImpl)
 
-    // Insert trick
-    const [trick] = await db.insert(tricks).values(trickData).returning()
-    invariant(trick, "Failed to create trick")
+export async function createTrickImpl({
+  data,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: CreateTrickArgs
+}) {
+  const { relationships, muxAssetIds, elementIds, compositions, ...trickData } =
+    data
 
-    // Insert relationships
-    if (relationships.length > 0) {
-      await db.insert(trickRelationships).values(
-        relationships.map((rel) => ({
-          sourceTrickId: trick.id,
-          targetTrickId: rel.targetTrickId,
-          type: rel.type,
-        })),
-      )
-    }
+  // Insert trick
+  const [trick] = await db.insert(tricks).values(trickData).returning()
+  invariant(trick, "Failed to create trick")
 
-    // Insert element assignments
-    if (elementIds.length > 0) {
-      await db.insert(trickElementAssignments).values(
-        elementIds.map((elementId) => ({
-          trickId: trick.id,
-          elementId,
-        })),
-      )
-    }
+  // Insert relationships
+  if (relationships.length > 0) {
+    await db.insert(trickRelationships).values(
+      relationships.map((rel) => ({
+        sourceTrickId: trick.id,
+        targetTrickId: rel.targetTrickId,
+        type: rel.type,
+      })),
+    )
+  }
 
-    // Insert videos (auto-approved as active for admin creation)
-    if (muxAssetIds.length > 0) {
-      await db.insert(trickVideos).values(
-        muxAssetIds.map((muxAssetId, index) => ({
-          trickId: trick.id,
-          muxAssetId,
-          status: "active" as const,
-          sortOrder: index,
-          submittedByUserId: context.user.id,
-          reviewedByUserId: context.user.id,
-          reviewedAt: new Date(),
-        })),
-      )
-    }
+  // Insert element assignments
+  if (elementIds.length > 0) {
+    await db.insert(trickElementAssignments).values(
+      elementIds.map((elementId) => ({
+        trickId: trick.id,
+        elementId,
+      })),
+    )
+  }
 
-    // Insert compositions (for compound tricks)
-    if (compositions.length > 0) {
-      await db.insert(trickCompositions).values(
-        compositions.map((comp) => ({
-          compoundTrickId: trick.id,
-          componentTrickId: comp.componentTrickId,
-          position: comp.position,
-          catchType: comp.catchType,
-        })),
-      )
-    }
+  // Insert videos (auto-approved as active for admin creation)
+  if (muxAssetIds.length > 0) {
+    await db.insert(trickVideos).values(
+      muxAssetIds.map((muxAssetId, index) => ({
+        trickId: trick.id,
+        muxAssetId,
+        status: "active" as const,
+        sortOrder: index,
+        submittedByUserId: context.user.id,
+        reviewedByUserId: context.user.id,
+        reviewedAt: new Date(),
+      })),
+    )
+  }
 
-    await recomputeAllTrickComputedFields()
+  // Insert compositions (for compound tricks)
+  if (compositions.length > 0) {
+    await db.insert(trickCompositions).values(
+      compositions.map((comp) => ({
+        compoundTrickId: trick.id,
+        componentTrickId: comp.componentTrickId,
+        position: comp.position,
+        catchType: comp.catchType,
+      })),
+    )
+  }
 
-    return trick
-  })
+  await recomputeAllTrickComputedFields()
+
+  return trick
+}
 
 export const updateTrickServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(updateTrickSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data, context }) => {
-    const {
-      id,
-      relationships,
-      muxAssetIds,
-      elementIds,
-      compositions,
-      ...trickData
-    } = data
+  .handler(updateTrickImpl)
 
-    // Update trick
-    const [trick] = await db
-      .update(tricks)
-      .set({ ...trickData, updatedAt: new Date() })
-      .where(eq(tricks.id, id))
-      .returning()
+export async function updateTrickImpl({
+  data,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: UpdateTrickArgs
+}) {
+  const {
+    id,
+    relationships,
+    muxAssetIds,
+    elementIds,
+    compositions,
+    ...trickData
+  } = data
 
-    invariant(trick, "Trick not found")
+  // Update trick
+  const [trick] = await db
+    .update(tricks)
+    .set({ ...trickData, updatedAt: new Date() })
+    .where(eq(tricks.id, id))
+    .returning()
 
-    // Update relationships - delete all outgoing and re-insert
-    await db
-      .delete(trickRelationships)
-      .where(eq(trickRelationships.sourceTrickId, id))
+  invariant(trick, "Trick not found")
 
-    if (relationships.length > 0) {
-      await db.insert(trickRelationships).values(
-        relationships.map((rel) => ({
-          sourceTrickId: id,
-          targetTrickId: rel.targetTrickId,
-          type: rel.type,
-        })),
-      )
-    }
+  // Update relationships - delete all outgoing and re-insert
+  await db
+    .delete(trickRelationships)
+    .where(eq(trickRelationships.sourceTrickId, id))
 
-    // Update element assignments - delete all and re-insert
-    await db
-      .delete(trickElementAssignments)
-      .where(eq(trickElementAssignments.trickId, id))
+  if (relationships.length > 0) {
+    await db.insert(trickRelationships).values(
+      relationships.map((rel) => ({
+        sourceTrickId: id,
+        targetTrickId: rel.targetTrickId,
+        type: rel.type,
+      })),
+    )
+  }
 
-    if (elementIds.length > 0) {
-      await db.insert(trickElementAssignments).values(
-        elementIds.map((elementId) => ({
-          trickId: id,
-          elementId,
-        })),
-      )
-    }
+  // Update element assignments - delete all and re-insert
+  await db
+    .delete(trickElementAssignments)
+    .where(eq(trickElementAssignments.trickId, id))
 
-    // Update videos - delete all active and re-insert
-    await db
-      .delete(trickVideos)
-      .where(and(eq(trickVideos.trickId, id), eq(trickVideos.status, "active")))
+  if (elementIds.length > 0) {
+    await db.insert(trickElementAssignments).values(
+      elementIds.map((elementId) => ({
+        trickId: id,
+        elementId,
+      })),
+    )
+  }
 
-    if (muxAssetIds.length > 0) {
-      await db.insert(trickVideos).values(
-        muxAssetIds.map((muxAssetId, index) => ({
-          trickId: id,
-          muxAssetId,
-          status: "active" as const,
-          sortOrder: index,
-          submittedByUserId: context.user.id,
-          reviewedByUserId: context.user.id,
-          reviewedAt: new Date(),
-        })),
-      )
-    }
+  // Update videos - delete all active and re-insert
+  await db
+    .delete(trickVideos)
+    .where(and(eq(trickVideos.trickId, id), eq(trickVideos.status, "active")))
 
-    // Update compositions - delete all and re-insert
-    await db
-      .delete(trickCompositions)
-      .where(eq(trickCompositions.compoundTrickId, id))
+  if (muxAssetIds.length > 0) {
+    await db.insert(trickVideos).values(
+      muxAssetIds.map((muxAssetId, index) => ({
+        trickId: id,
+        muxAssetId,
+        status: "active" as const,
+        sortOrder: index,
+        submittedByUserId: context.user.id,
+        reviewedByUserId: context.user.id,
+        reviewedAt: new Date(),
+      })),
+    )
+  }
 
-    if (compositions.length > 0) {
-      await db.insert(trickCompositions).values(
-        compositions.map((comp) => ({
-          compoundTrickId: id,
-          componentTrickId: comp.componentTrickId,
-          position: comp.position,
-          catchType: comp.catchType,
-        })),
-      )
-    }
+  // Update compositions - delete all and re-insert
+  await db
+    .delete(trickCompositions)
+    .where(eq(trickCompositions.compoundTrickId, id))
 
-    await recomputeAllTrickComputedFields()
+  if (compositions.length > 0) {
+    await db.insert(trickCompositions).values(
+      compositions.map((comp) => ({
+        compoundTrickId: id,
+        componentTrickId: comp.componentTrickId,
+        position: comp.position,
+        catchType: comp.catchType,
+      })),
+    )
+  }
 
-    return trick
-  })
+  await recomputeAllTrickComputedFields()
+
+  return trick
+}
 
 export const deleteTrickServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(deleteTrickSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data: id }) => {
-    const [trick] = await db.delete(tricks).where(eq(tricks.id, id)).returning()
+  .handler(deleteTrickImpl)
 
-    invariant(trick, "Trick not found")
+export async function deleteTrickImpl({ data: id }: { data: number }) {
+  const [trick] = await db.delete(tricks).where(eq(tricks.id, id)).returning()
 
-    await recomputeAllTrickComputedFields()
+  invariant(trick, "Trick not found")
 
-    return trick
-  })
+  await recomputeAllTrickComputedFields()
+
+  return trick
+}
 
 // ==================== RECOMPUTE ====================
 

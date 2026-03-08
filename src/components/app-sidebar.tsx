@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router"
 import {
   ActivityIcon,
   EarthIcon,
+  Joystick,
   LockIcon,
-  LockOpenIcon,
   MessagesSquareIcon,
   ShieldIcon,
   ShoppingBagIcon,
@@ -69,7 +69,6 @@ const data = {
       title: "vault",
       url: "/vault",
       icon: LockIcon,
-      activeIcon: LockOpenIcon,
     },
     {
       title: "tourney",
@@ -80,6 +79,11 @@ const data = {
       title: "metrics",
       url: "/metrics",
       icon: ActivityIcon,
+    },
+    {
+      title: "arcade",
+      url: "/arcade",
+      icon: Joystick,
     },
     {
       title: "shop",

@@ -152,9 +152,9 @@ const CommandInput = React.forwardRef<
       data-slot="command-input-wrapper"
     >
       {isFetching ? (
-        <Loader2Icon className="text-muted-foreground size-3.5 shrink-0 animate-spin" />
+        <Loader2Icon className="text-muted-foreground size-4 shrink-0 animate-spin" />
       ) : (
-        <SearchIcon className="text-muted-foreground size-3.5 shrink-0" />
+        <SearchIcon className="text-muted-foreground size-4 shrink-0" />
       )}
       <CommandPrimitive.Input
         ref={ref}

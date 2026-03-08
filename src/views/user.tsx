@@ -82,7 +82,13 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
                     </Button>
                   )}
                 </div>
-                <FollowButton user={user} isOwnProfile={isOwnProfile} />
+                {isOwnProfile ? (
+                  <Button asChild size="sm" className="shrink-0">
+                    <Link to="/auth/me/edit">edit</Link>
+                  </Button>
+                ) : (
+                  <FollowButton user={user} isOwnProfile={isOwnProfile} />
+                )}
               </div>
 
               <FollowStats {...user} />

@@ -25,7 +25,6 @@ export function NavMain({
     title: string
     url: string
     icon: LucideIcon
-    activeIcon?: LucideIcon
     isActive?: boolean
     items?: {
       title: string
@@ -47,16 +46,8 @@ export function NavMain({
                   replace={isMobile}
                   activeProps={{ "data-active": "true" }}
                 >
-                  {({ isActive }) => {
-                    const Icon =
-                      isActive && item.activeIcon ? item.activeIcon : item.icon
-                    return (
-                      <>
-                        <Icon />
-                        <span className="pb-px">{item.title}</span>
-                      </>
-                    )
-                  }}
+                  <item.icon />
+                  <span className="pb-px">{item.title}</span>
                 </Link>
               </SidebarMenuButton>
               {(item.items?.length ?? 0) > 0 ? (

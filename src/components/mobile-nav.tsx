@@ -6,8 +6,8 @@ import {
   BellIcon,
   EarthIcon,
   EyeOff,
+  Joystick,
   LockIcon,
-  LockOpenIcon,
   LogIn,
   LogOutIcon,
   type LucideIcon,
@@ -58,10 +58,10 @@ const navItems = [
     title: "vault",
     url: "/vault",
     icon: LockIcon,
-    activeIcon: LockOpenIcon,
   },
   { title: "tourney", url: "/tourney", icon: BracketIcon },
   { title: "metrics", url: "/metrics", icon: ActivityIcon },
+  { title: "arcade", url: "/arcade", icon: Joystick },
   { title: "shop", url: "/shop", icon: ShoppingBagIcon },
 ] as const
 
@@ -69,16 +69,13 @@ function NavItem({
   title,
   url,
   icon: Icon,
-  activeIcon: ActiveIcon,
   isActive,
 }: {
   title: string
   url: string
   icon: LucideIcon
-  activeIcon?: LucideIcon
   isActive: boolean
 }) {
-  const ResolvedIcon = isActive && ActiveIcon ? ActiveIcon : Icon
   return (
     <Link
       to={url}
@@ -90,7 +87,7 @@ function NavItem({
           : "text-foreground hover:bg-accent/50",
       )}
     >
-      <ResolvedIcon className="size-4" />
+      <Icon className="size-4" />
       <span>{title}</span>
     </Link>
   )
@@ -350,9 +347,6 @@ export function MobileNavPopup({
                     title={item.title}
                     url={item.url}
                     icon={item.icon}
-                    activeIcon={
-                      "activeIcon" in item ? item.activeIcon : undefined
-                    }
                     isActive={currentPath.startsWith(item.url)}
                   />
                 ))}

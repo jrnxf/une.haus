@@ -1,23 +1,31 @@
 import { useSuspenseQueries } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { HeartIcon, PencilIcon, TrashIcon, TrendingUpIcon } from "lucide-react"
-import pluralize from "pluralize"
+import {
+  EllipsisVerticalIcon,
+  FlagIcon,
+  LinkIcon,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 import { Badges } from "~/components/badges"
 import { confirm } from "~/components/confirm-dialog"
 import { FlagTray } from "~/components/flag-tray"
-import { UsersDialog } from "~/components/likes-dialog"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { RichText } from "~/components/rich-text"
-import { ShareButton } from "~/components/share-button"
 import { Button } from "~/components/ui/button"
-import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { VideoPlayer } from "~/components/video-player"
 import { YoutubeIframe } from "~/components/youtube-iframe"
+import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -25,8 +33,90 @@ import { posts } from "~/lib/posts"
 import { useDeletePost } from "~/lib/posts/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { useSessionUser } from "~/lib/session/hooks"
-import { cn, getCloudflareImageUrl } from "~/lib/utils"
+import { getCloudflareImageUrl } from "~/lib/utils"
 import { MessagesView } from "~/views/messages"
+
+function PostActions({
+  postId,
+  post,
+  isOwner,
+  sessionUser,
+  deletePost,
+}: {
+  postId: number
+  post: { id: number }
+  isOwner: boolean
+  sessionUser: { id: number } | null | undefined
+  deletePost: (args: { data: number }) => void
+}) {
+  const haptics = useHaptics()
+  const [flagOpen, setFlagOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon-sm" variant="outline" aria-label="actions">
+            <EllipsisVerticalIcon className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onSelect={() => {
+              navigator.clipboard.writeText(globalThis.location.href)
+              haptics.success()
+              toast.success("link copied")
+            }}
+          >
+            <LinkIcon className="size-4" />
+            Share
+          </DropdownMenuItem>
+          {sessionUser && !isOwner && (
+            <DropdownMenuItem onSelect={() => setFlagOpen(true)}>
+              <FlagIcon className="size-4" />
+              Flag
+            </DropdownMenuItem>
+          )}
+          {isOwner && (
+            <>
+              <DropdownMenuItem asChild>
+                <Link params={{ postId }} to="/posts/$postId/edit">
+                  <PencilIcon className="size-4" />
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  confirm.open({
+                    title: "delete post",
+                    description:
+                      "are you sure you want to delete this post? this action cannot be undone.",
+                    confirmText: "delete",
+                    onConfirm: () => {
+                      deletePost({ data: post.id })
+                    },
+                  })
+                }
+              >
+                <TrashIcon className="size-4" />
+                Delete
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {sessionUser && !isOwner && (
+        <FlagTray
+          entityType="post"
+          entityId={post.id}
+          hideTrigger
+          open={flagOpen}
+          onOpenChange={setFlagOpen}
+        />
+      )}
+    </>
+  )
+}
 
 export function PostView({ postId }: { postId: number }) {
   const [{ data: post }, { data: messagesData }] = useSuspenseQueries({
@@ -84,96 +174,18 @@ export function PostView({ postId }: { postId: number }) {
         </div>
 
         <div className="flex shrink-0 grow items-center justify-end gap-1">
-          {sessionUser && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  onClick={likeUnlikePost}
-                  aria-label={authUserLiked ? "unlike" : "like"}
-                >
-                  <HeartIcon
-                    className={cn(
-                      "size-4",
-                      authUserLiked && "fill-red-700/50 stroke-red-700",
-                    )}
-                  />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {authUserLiked ? "unlike" : "like"}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {post.likes.length > 0 && (
-            <Tooltip>
-              <UsersDialog
-                users={post.likes.map((like) => like.user)}
-                title={`${post.likes.length} ${pluralize("Like", post.likes.length)}`}
-                trigger={
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="view likes"
-                    >
-                      <TrendingUpIcon className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                }
-              />
-              <TooltipContent>likes</TooltipContent>
-            </Tooltip>
-          )}
-          <ShareButton />
-          {sessionUser && !isOwner && (
-            <FlagTray entityType="post" entityId={post.id} />
-          )}
-          {isOwner && (
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    asChild
-                    size="icon-sm"
-                    variant="outline"
-                    aria-label="edit"
-                  >
-                    <Link params={{ postId }} to="/posts/$postId/edit">
-                      <PencilIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>edit</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() =>
-                      confirm.open({
-                        title: "delete post",
-                        description:
-                          "are you sure you want to delete this post? this action cannot be undone.",
-                        confirmText: "delete",
-                        onConfirm: () => {
-                          deletePost({
-                            data: post.id,
-                          })
-                        },
-                      })
-                    }
-                    size="icon-sm"
-                    variant="outline"
-                    aria-label="delete"
-                  >
-                    <TrashIcon className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>delete</TooltipContent>
-              </Tooltip>
-            </>
-          )}
+          <LikesButtonGroup
+            users={post.likes.map((like) => like.user)}
+            authUserLiked={authUserLiked}
+            onLikeUnlike={sessionUser ? likeUnlikePost : undefined}
+          />
+          <PostActions
+            postId={postId}
+            post={post}
+            isOwner={isOwner}
+            sessionUser={sessionUser}
+            deletePost={deletePost}
+          />
         </div>
       </div>
 

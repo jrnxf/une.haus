@@ -15,7 +15,7 @@ const countdownClockVariants = cva("tabular-nums", {
       default: "bg-primary text-primary-foreground",
       secondary: "bg-secondary text-secondary-foreground",
       destructive: "bg-destructive text-destructive-foreground",
-      outline: "border-input bg-background border text-foreground",
+      outline: "border-input bg-background text-foreground border",
       muted: "bg-muted text-muted-foreground",
     },
   },

@@ -12,6 +12,7 @@ import {
 import { InView } from "react-intersection-observer"
 
 import { Badges } from "~/components/badges"
+import { ContentHeaderRow } from "~/components/content-header-row"
 import {
   Filters,
   type ActiveFilter,
@@ -22,6 +23,7 @@ import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
 import { Button } from "~/components/ui/button"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { StatBadge } from "~/components/ui/stat-badge"
 import { getMuxPoster } from "~/components/video-player"
 import { POST_TAGS } from "~/db/schema"
 import { posts } from "~/lib/posts"
@@ -189,22 +191,24 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>posts</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            <Button asChild>
-              <Link to="/posts/create">create</Link>
-            </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
 
       <div className="h-full overflow-y-auto">
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 p-4">
-          <Filters
-            fields={filterFields}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            size="sm"
+          <ContentHeaderRow
+            className="max-w-none"
+            left={
+              <Filters
+                fields={filterFields}
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+            }
+            right={
+              <Button asChild>
+                <Link to="/posts/create">create</Link>
+              </Button>
+            }
           />
           <Suspense>
             <PostsList
@@ -269,37 +273,45 @@ function PostsList({
             `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`)
         return (
           <div data-testid="post-card" key={post.id} className="relative">
-            <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
-              <div className="flex w-full flex-col gap-2">
-                <Link
-                  to="/posts/$postId"
-                  params={{ postId: post.id }}
-                  className="w-fit truncate font-semibold after:absolute after:inset-0 after:rounded-md"
-                >
-                  {Boolean(posterUrl) && (
-                    <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
-                  )}
-                  {post.title}
-                </Link>
-                <div className="line-clamp-3 text-sm">
-                  <RichText content={post.content} mentionMode="plainText" />
-                </div>
-                <Badges content={post.tags} active={deferredTags ?? []} />
-                <div className="flex w-full justify-between gap-4">
-                  <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-                    <span>{post.user.name}</span>
-                    <span className="opacity-25">/</span>
-                    <RelativeTimeCard date={post.createdAt} variant="muted" />
-                  </p>
-                  <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                    <MessageCircleIcon className="size-3" />
-                    {post.counts.messages}
-                    <HeartIcon className="size-3" />
-                    {post.counts.likes}
+            <Button
+              variant="card"
+              asChild
+              className="flex flex-col gap-4 p-3 sm:flex-row"
+            >
+              <Link to="/posts/$postId" params={{ postId: post.id }}>
+                <div className="flex w-full flex-col gap-2">
+                  <span className="w-fit truncate font-semibold">
+                    {Boolean(posterUrl) && (
+                      <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
+                    )}
+                    {post.title}
+                  </span>
+                  <div className="line-clamp-3 text-sm">
+                    <RichText content={post.content} mentionMode="plainText" />
+                  </div>
+                  <Badges content={post.tags} active={deferredTags ?? []} />
+                  <div className="flex w-full justify-between gap-4">
+                    <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
+                      <span>{post.user.name}</span>
+                      <span className="opacity-25">/</span>
+                      <RelativeTimeCard date={post.createdAt} variant="muted" />
+                    </p>
+                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                      <StatBadge
+                        icon={MessageCircleIcon}
+                        count={post.counts.messages}
+                        label="message"
+                      />
+                      <StatBadge
+                        icon={HeartIcon}
+                        count={post.counts.likes}
+                        label="like"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </Link>
+            </Button>
           </div>
         )
       })}

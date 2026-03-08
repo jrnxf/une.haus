@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, useRouter } from "@tanstack/react-router"
-import { Loader2Icon, TrashIcon } from "lucide-react"
+import { TrashIcon } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import { useForm } from "react-hook-form"
@@ -23,7 +23,6 @@ import {
   useFormMedia,
 } from "~/components/ui/form"
 import { Label } from "~/components/ui/label"
-import { Progress } from "~/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group"
 import { Textarea } from "~/components/ui/textarea"
 import { VideoPlayer } from "~/components/video-player"
@@ -194,25 +193,27 @@ function FeedbackVideoInput({
   value?: { assetId: string; playbackId: string }
   onChange: (data: { assetId: string; playbackId: string } | undefined) => void
 }) {
-  const { setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus } =
-    useFormMedia()
+  const {
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  } = useFormMedia()
   const [fileName, setFileName] = useState<string>()
 
-  const { uploadVideo, isUploading, uploadProgress, isProcessing, reset } =
-    useVideoUpload({
-      onSuccess: (data) => {
-        onChange(data)
-        setMediaUploadFileName(undefined)
-        setMediaUploadFileSizeBytes(undefined)
-        setVideoUploadStatus("idle")
-      },
-      onError: () => {
-        setFileName(undefined)
-        setMediaUploadFileName(undefined)
-        setMediaUploadFileSizeBytes(undefined)
-        setVideoUploadStatus("idle")
-      },
-    })
+  const { uploadVideo, isUploading, isProcessing, reset } = useVideoUpload({
+    onSuccess: (data) => {
+      onChange(data)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    },
+    onError: () => {
+      setFileName(undefined)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    },
+  })
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -288,25 +289,10 @@ function FeedbackVideoInput({
       getRootProps={getRootProps}
       getInputProps={getInputProps}
       disabled={isUploading || isProcessing}
-      hasValue={!!fileName}
     >
       <span className="text-muted-foreground block w-full truncate text-left text-sm">
         {fileName ?? "Choose File"}
       </span>
-
-      {isUploading && (
-        <Progress
-          value={uploadProgress}
-          className="absolute inset-x-0 bottom-0 h-1 rounded-none"
-        />
-      )}
-
-      {isProcessing && (
-        <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-          <span>processing</span>
-          <Loader2Icon className="size-3 animate-spin" />
-        </div>
-      )}
     </UploadDropZone>
   )
 }

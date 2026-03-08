@@ -5,19 +5,16 @@ import {
   ArrowUpIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  HeartIcon,
   InfoIcon,
   TrashIcon,
-  TrendingUpIcon,
 } from "lucide-react"
-import pluralize from "pluralize"
 import { useState } from "react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
 import { BaseMessageForm } from "~/components/forms/message"
 import { TrickLine } from "~/components/games/sius/trick-line"
-import { UsersDialog } from "~/components/likes-dialog"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
@@ -311,52 +308,15 @@ function SetView({ setId }: { setId: number }) {
               </TrayContent>
             </Tray>
           )}
-          {sessionUser && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  onClick={likeUnlike.mutate}
-                  aria-label={authUserLiked ? "Unlike" : "Like"}
-                >
-                  <HeartIcon
-                    className={cn(
-                      "size-4",
-                      authUserLiked && "fill-red-700/50 stroke-red-700",
-                    )}
-                  />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {authUserLiked ? "unlike" : "like"}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {set.likes.length > 0 && (
-            <Tooltip>
-              <UsersDialog
-                users={set.likes.map(
-                  (l: {
-                    user: { id: number; name: string; avatarId: string | null }
-                  }) => l.user,
-                )}
-                title={`${set.likes.length} ${pluralize("Like", set.likes.length)}`}
-                trigger={
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="view likes"
-                    >
-                      <TrendingUpIcon className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                }
-              />
-              <TooltipContent>likes</TooltipContent>
-            </Tooltip>
-          )}
+          <LikesButtonGroup
+            users={set.likes.map(
+              (l: {
+                user: { id: number; name: string; avatarId: string | null }
+              }) => l.user,
+            )}
+            authUserLiked={authUserLiked}
+            onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
+          />
           <ShareFlagMenu
             entityType="siuSet"
             entityId={set.id}

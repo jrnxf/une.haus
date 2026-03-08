@@ -1,7 +1,10 @@
 import { Link } from "@tanstack/react-router"
 import { HeartIcon, MessageCircleIcon } from "lucide-react"
 
+import { Button } from "~/components/ui/button"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { StatBadge } from "~/components/ui/stat-badge"
 import { cn } from "~/lib/utils"
 
 type SiuSetCardProps = {
@@ -35,50 +38,41 @@ export function SiuSetCard({ set, className }: SiuSetCardProps) {
 
   return (
     <div className={cn("group relative", className)}>
-      <div className={cn("bg-card rounded-md border p-3", "hover:bg-muted/70")}>
-        <div className="flex items-start gap-2.5">
-          <div className="min-w-0 flex-1 space-y-1">
-            <div className="flex min-w-0 items-center gap-2">
-              <Link
-                to="/games/sius/sets/$setId"
-                params={{ setId: set.id }}
-                className="truncate text-sm font-medium after:absolute after:inset-0 after:rounded-md"
-              >
-                {set.name}
-              </Link>
-            </div>
+      <Button variant="card" asChild className="flex w-full p-3">
+        <Link to="/games/sius/sets/$setId" params={{ setId: set.id }}>
+          <div className="flex w-full items-start gap-2.5">
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="truncate text-sm font-medium">{set.name}</span>
+              </div>
 
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-xs">
-                <Link
-                  to="/users/$userId"
-                  params={{ userId: set.user.id }}
-                  className="hover:underline"
-                >
-                  {set.user.name}
-                </Link>
-                <span className="opacity-25">/</span>
-                <RelativeTimeCard
-                  className="text-xs"
-                  variant="muted"
-                  date={set.createdAt}
+              <div className="flex w-full items-center justify-between gap-2">
+                <Metaline
+                  className="relative z-10 text-xs"
+                  parts={[
+                    set.user.name,
+                    <RelativeTimeCard
+                      key="created-at"
+                      className="text-xs"
+                      variant="muted"
+                      date={set.createdAt}
+                    />,
+                  ]}
                 />
-              </p>
 
-              <div className="text-muted-foreground flex shrink-0 items-center gap-2 text-xs">
-                <span className="flex items-center gap-0.5">
-                  <HeartIcon className="size-3" />
-                  {likeCount}
-                </span>
-                <span className="flex items-center gap-0.5">
-                  <MessageCircleIcon className="size-3" />
-                  {messageCount}
-                </span>
+                <div className="flex shrink-0 items-center gap-2 text-xs">
+                  <StatBadge icon={HeartIcon} count={likeCount} label="like" />
+                  <StatBadge
+                    icon={MessageCircleIcon}
+                    count={messageCount}
+                    label="message"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </Link>
+      </Button>
     </div>
   )
 }

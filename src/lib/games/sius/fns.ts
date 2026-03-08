@@ -37,6 +37,14 @@ import {
 const ARCHIVE_VOTE_THRESHOLD = 5
 const MAX_ACTIVE_ROUNDS = 3
 
+type AuthenticatedContext = {
+  user: {
+    avatarId: string | null
+    id: number
+    name: string
+  }
+}
+
 // Get active rounds with all sets (ordered by position desc for UI)
 export const getActiveRoundsServerFn = createServerFn({ method: "GET" })
   .middleware([authOptionalMiddleware])
@@ -188,342 +196,397 @@ export const startRoundServerFn = createServerFn({ method: "POST" })
 export const createFirstSetServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(createFirstSetSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(createFirstSiuSetImpl)
 
-    return db.transaction(async (tx) => {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(7101, ${input.roundId})`,
-      )
+export async function createFirstSiuSetImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    instructions?: string
+    muxAssetId: string
+    name: string
+    roundId: number
+  }
+}) {
+  const userId = context.user.id
 
-      const round = await tx.query.sius.findFirst({
-        where: eq(sius.id, input.roundId),
-        columns: { id: true, status: true },
-      })
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(7101, ${input.roundId})`)
 
-      invariant(round, "Round not found")
-      invariant(round.status === "active", "Round is not active")
-
-      const existingSet = await tx.query.siuSets.findFirst({
-        where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
-        columns: { id: true },
-      })
-
-      invariant(!existingSet, "Round already has a first set")
-
-      const [set] = await tx
-        .insert(siuSets)
-        .values({
-          siuId: input.roundId,
-          userId,
-          muxAssetId: input.muxAssetId,
-          name: input.name,
-          position: 1,
-          parentSetId: null,
-        })
-        .returning()
-
-      const instructions = input.instructions?.trim()
-      if (instructions) {
-        await tx.insert(siuSetMessages).values({
-          siuSetId: set.id,
-          userId,
-          content: instructions,
-        })
-      }
-
-      return set
-    })
-  })
-
-// Add set (continue the round with full line + new trick)
-export const addSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(addSetSchema))
-  .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
-
-    return db.transaction(async (tx) => {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(7102, ${input.roundId})`,
-      )
-
-      const round = await tx.query.sius.findFirst({
-        where: eq(sius.id, input.roundId),
-        columns: { id: true, status: true },
-      })
-
-      invariant(round, "Round not found")
-      invariant(round.status === "active", "Round is not active")
-
-      const parentSet = await tx.query.siuSets.findFirst({
-        where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
-        orderBy: desc(siuSets.position),
-        columns: { id: true, userId: true, position: true },
-      })
-
-      invariant(parentSet, "Round has no sets yet")
-      invariant(
-        parentSet.userId !== userId,
-        "You cannot stack up your own trick",
-      )
-
-      // Ensure this latest set is still uncontinued.
-      const existingSet = await tx.query.siuSets.findFirst({
-        where: and(
-          eq(siuSets.parentSetId, parentSet.id),
-          isNull(siuSets.deletedAt),
-        ),
-        columns: { id: true },
-      })
-
-      invariant(!existingSet, "This set has already been continued")
-
-      const [set] = await tx
-        .insert(siuSets)
-        .values({
-          siuId: input.roundId,
-          userId,
-          muxAssetId: input.muxAssetId,
-          name: input.name,
-          position: parentSet.position + 1,
-          parentSetId: parentSet.id,
-        })
-        .returning()
-
-      const instructions = input.instructions?.trim()
-      if (instructions) {
-        await tx.insert(siuSetMessages).values({
-          siuSetId: set.id,
-          userId,
-          content: instructions,
-        })
-      }
-
-      // Notify followers about the new SIU set
-      notifyFollowers({
-        actorId: userId,
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        type: "new_content",
-        entityType: "siuSet",
-        entityId: set.id,
-        entityTitle: set.name,
-      }).catch(console.error)
-
-      return set
-    })
-  })
-
-// Vote to archive round
-export const voteToArchiveServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(voteToArchiveSchema))
-  .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
-
-    const round = await db.query.sius.findFirst({
+    const round = await tx.query.sius.findFirst({
       where: eq(sius.id, input.roundId),
+      columns: { id: true, status: true },
     })
 
     invariant(round, "Round not found")
     invariant(round.status === "active", "Round is not active")
 
-    // Check if already voted
-    const existingVote = await db.query.siuArchiveVotes.findFirst({
-      where: and(
-        eq(siuArchiveVotes.siuId, input.roundId),
-        eq(siuArchiveVotes.userId, userId),
-      ),
+    const existingSet = await tx.query.siuSets.findFirst({
+      where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
+      columns: { id: true },
     })
 
-    invariant(!existingVote, "You have already voted to archive this round")
+    invariant(!existingSet, "Round already has a first set")
 
-    // Add vote
-    await db.insert(siuArchiveVotes).values({
-      siuId: input.roundId,
-      userId,
-    })
-
-    // Check vote count
-    const [result] = await db
-      .select({ count: count() })
-      .from(siuArchiveVotes)
-      .where(eq(siuArchiveVotes.siuId, input.roundId))
-
-    const voteCount = result?.count ?? 0
-
-    // If threshold reached, notify admins
-    if (voteCount >= ARCHIVE_VOTE_THRESHOLD) {
-      // Get all admins
-      const admins = await db.query.users.findMany({
-        where: eq(users.type, "admin"),
-        columns: { id: true },
+    const [set] = await tx
+      .insert(siuSets)
+      .values({
+        siuId: input.roundId,
+        userId,
+        muxAssetId: input.muxAssetId,
+        name: input.name,
+        position: 1,
+        parentSetId: null,
       })
+      .returning()
 
-      // Get round details for notification
-      const roundWithSets = await db.query.sius.findFirst({
-        where: eq(sius.id, input.roundId),
-        with: {
-          sets: {
-            orderBy: desc(siuSets.position),
-            limit: 1,
-          },
-        },
+    const instructions = input.instructions?.trim()
+    if (instructions) {
+      await tx.insert(siuSetMessages).values({
+        siuSetId: set.id,
+        userId,
+        content: instructions,
       })
-
-      const latestSet = roundWithSets?.sets[0]
-
-      // Notify each admin
-      for (const admin of admins) {
-        await createNotification({
-          userId: admin.id,
-          actorId: userId,
-          type: "archive_request",
-          entityType: "siu",
-          entityId: input.roundId,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-            entityTitle: `Stack It Up round with ${latestSet?.position ?? 0} ${pluralize("trick", latestSet?.position ?? 0)}`,
-            entityPreview: `${voteCount} ${pluralize("vote", voteCount)} to archive`,
-          },
-        })
-      }
     }
 
-    return { voteCount, thresholdReached: voteCount >= ARCHIVE_VOTE_THRESHOLD }
+    return set
   })
+}
 
-// Remove archive vote
-export const removeArchiveVoteServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(removeArchiveVoteSchema))
+// Add set (continue the round with full line + new trick)
+export const addSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(addSetSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(addSiuSetImpl)
 
-    await db
-      .delete(siuArchiveVotes)
-      .where(
-        and(
-          eq(siuArchiveVotes.siuId, input.roundId),
-          eq(siuArchiveVotes.userId, userId),
-        ),
-      )
+export async function addSiuSetImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    instructions?: string
+    muxAssetId: string
+    name: string
+    roundId: number
+  }
+}) {
+  const userId = context.user.id
 
-    // Get updated vote count
-    const [result] = await db
-      .select({ count: count() })
-      .from(siuArchiveVotes)
-      .where(eq(siuArchiveVotes.siuId, input.roundId))
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(7102, ${input.roundId})`)
 
-    return { voteCount: result?.count ?? 0 }
+    const round = await tx.query.sius.findFirst({
+      where: eq(sius.id, input.roundId),
+      columns: { id: true, status: true },
+    })
+
+    invariant(round, "Round not found")
+    invariant(round.status === "active", "Round is not active")
+
+    const parentSet = await tx.query.siuSets.findFirst({
+      where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
+      orderBy: desc(siuSets.position),
+      columns: { id: true, userId: true, position: true },
+    })
+
+    invariant(parentSet, "Round has no sets yet")
+    invariant(parentSet.userId !== userId, "You cannot stack up your own trick")
+
+    const existingSet = await tx.query.siuSets.findFirst({
+      where: and(
+        eq(siuSets.parentSetId, parentSet.id),
+        isNull(siuSets.deletedAt),
+      ),
+      columns: { id: true },
+    })
+
+    invariant(!existingSet, "This set has already been continued")
+
+    const [set] = await tx
+      .insert(siuSets)
+      .values({
+        siuId: input.roundId,
+        userId,
+        muxAssetId: input.muxAssetId,
+        name: input.name,
+        position: parentSet.position + 1,
+        parentSetId: parentSet.id,
+      })
+      .returning()
+
+    const instructions = input.instructions?.trim()
+    if (instructions) {
+      await tx.insert(siuSetMessages).values({
+        siuSetId: set.id,
+        userId,
+        content: instructions,
+      })
+    }
+
+    notifyFollowers({
+      actorId: userId,
+      actorName: context.user.name,
+      actorAvatarId: context.user.avatarId,
+      type: "new_content",
+      entityType: "siuSet",
+      entityId: set.id,
+      entityTitle: set.name,
+    }).catch(console.error)
+
+    return set
+  })
+}
+
+// Vote to archive round
+export const voteToArchiveServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(voteToArchiveSchema))
+  .middleware([authMiddleware])
+  .handler(voteToArchiveImpl)
+
+export async function voteToArchiveImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    roundId: number
+  }
+}) {
+  const userId = context.user.id
+
+  const round = await db.query.sius.findFirst({
+    where: eq(sius.id, input.roundId),
   })
 
-// Archive round (admin only)
-export const archiveRoundServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(archiveRoundSchema))
-  .middleware([adminOnlyMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const round = await db.query.sius.findFirst({
+  invariant(round, "Round not found")
+  invariant(round.status === "active", "Round is not active")
+
+  // Check if already voted
+  const existingVote = await db.query.siuArchiveVotes.findFirst({
+    where: and(
+      eq(siuArchiveVotes.siuId, input.roundId),
+      eq(siuArchiveVotes.userId, userId),
+    ),
+  })
+
+  invariant(!existingVote, "You have already voted to archive this round")
+
+  // Add vote
+  await db.insert(siuArchiveVotes).values({
+    siuId: input.roundId,
+    userId,
+  })
+
+  // Check vote count
+  const [result] = await db
+    .select({ count: count() })
+    .from(siuArchiveVotes)
+    .where(eq(siuArchiveVotes.siuId, input.roundId))
+
+  const voteCount = result?.count ?? 0
+
+  // If threshold reached, notify admins
+  if (voteCount === ARCHIVE_VOTE_THRESHOLD) {
+    // Get all admins
+    const admins = await db.query.users.findMany({
+      where: eq(users.type, "admin"),
+      columns: { id: true },
+    })
+
+    // Get round details for notification
+    const roundWithSets = await db.query.sius.findFirst({
       where: eq(sius.id, input.roundId),
       with: {
         sets: {
-          with: {
-            user: {
-              columns: { id: true, name: true },
-            },
-          },
+          orderBy: desc(siuSets.position),
+          limit: 1,
         },
       },
     })
 
-    invariant(round, "Round not found")
-    invariant(round.status === "active", "Round is already archived")
+    const latestSet = roundWithSets?.sets[0]
 
-    // Update round status
-    await db
-      .update(sius)
-      .set({ status: "archived", endedAt: new Date() })
-      .where(eq(sius.id, input.roundId))
-
-    // Get unique participants
-    const participantIds = [...new Set(round.sets.map((s) => s.userId))]
-
-    // Notify all participants that round was archived
-    for (const participantId of participantIds) {
+    // Notify each admin
+    for (const admin of admins) {
       await createNotification({
-        userId: participantId,
-        actorId: context.user.id,
-        type: "chain_archived",
+        userId: admin.id,
+        actorId: userId,
+        type: "archive_request",
         entityType: "siu",
         entityId: input.roundId,
         data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
-          entityTitle: `Stack It Up round with ${round.sets.length} ${pluralize("trick", round.sets.length)}`,
-          entityPreview: "Round has been archived",
+          entityTitle: `Stack It Up round with ${latestSet?.position ?? 0} ${pluralize("trick", latestSet?.position ?? 0)}`,
+          entityPreview: `${voteCount} ${pluralize("vote", voteCount)} to archive`,
         },
       })
     }
+  }
 
-    return { success: true }
+  return { voteCount, thresholdReached: voteCount >= ARCHIVE_VOTE_THRESHOLD }
+}
+
+// Remove archive vote
+export const removeArchiveVoteServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(removeArchiveVoteSchema))
+  .middleware([authMiddleware])
+  .handler(removeArchiveVoteImpl)
+
+export async function removeArchiveVoteImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    roundId: number
+  }
+}) {
+  const userId = context.user.id
+
+  await db
+    .delete(siuArchiveVotes)
+    .where(
+      and(
+        eq(siuArchiveVotes.siuId, input.roundId),
+        eq(siuArchiveVotes.userId, userId),
+      ),
+    )
+
+  const [result] = await db
+    .select({ count: count() })
+    .from(siuArchiveVotes)
+    .where(eq(siuArchiveVotes.siuId, input.roundId))
+
+  return { voteCount: result?.count ?? 0 }
+}
+
+// Archive round (admin only)
+export const archiveRoundServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(archiveRoundSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(archiveSiuRoundImpl)
+
+export async function archiveSiuRoundImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    roundId: number
+  }
+}) {
+  const round = await db.query.sius.findFirst({
+    where: eq(sius.id, input.roundId),
+    with: {
+      sets: {
+        with: {
+          user: {
+            columns: { id: true, name: true },
+          },
+        },
+      },
+    },
   })
+
+  invariant(round, "Round not found")
+  invariant(round.status === "active", "Round is already archived")
+
+  await db
+    .update(sius)
+    .set({ status: "archived", endedAt: new Date() })
+    .where(eq(sius.id, input.roundId))
+
+  const participantIds = [...new Set(round.sets.map((s) => s.userId))]
+
+  for (const participantId of participantIds) {
+    await createNotification({
+      userId: participantId,
+      actorId: context.user.id,
+      type: "chain_archived",
+      entityType: "siu",
+      entityId: input.roundId,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: `Stack It Up round with ${round.sets.length} ${pluralize("trick", round.sets.length)}`,
+        entityPreview: "Round has been archived",
+      },
+    })
+  }
+
+  return { success: true }
+}
 
 // Delete set (owner only)
 export const deleteSetServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(deleteSetSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(deleteSiuSetImpl)
 
-    const set = await db.query.siuSets.findFirst({
-      where: eq(siuSets.id, input.setId),
-    })
+export async function deleteSiuSetImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    setId: number
+  }
+}) {
+  const userId = context.user.id
 
-    invariant(set, "Set not found")
-    invariant(set.userId === userId, "Access denied")
-    invariant(!set.deletedAt, "Set is already deleted")
-
-    // Check if this set has non-deleted children
-    const childSet = await db.query.siuSets.findFirst({
-      where: and(eq(siuSets.parentSetId, set.id), isNull(siuSets.deletedAt)),
-    })
-
-    if (childSet) {
-      // Soft delete: keep row for round integrity, remove engagement data
-      await db
-        .update(siuSets)
-        .set({ deletedAt: new Date() })
-        .where(eq(siuSets.id, input.setId))
-
-      // Hard-delete engagement data (message likes cascade from messages)
-      await db
-        .delete(siuSetMessages)
-        .where(eq(siuSetMessages.siuSetId, input.setId))
-      await db.delete(siuSetLikes).where(eq(siuSetLikes.siuSetId, input.setId))
-
-      return { type: "soft" as const }
-    }
-
-    // Hard delete: no children, remove the row entirely
-    await db.delete(siuSets).where(eq(siuSets.id, input.setId))
-
-    // If this was the only set, archive the round
-    if (set.position === 1) {
-      await db
-        .update(sius)
-        .set({ status: "archived", endedAt: new Date() })
-        .where(eq(sius.id, set.siuId))
-    }
-
-    return { type: "hard" as const }
+  const set = await db.query.siuSets.findFirst({
+    where: eq(siuSets.id, input.setId),
   })
+
+  invariant(set, "Set not found")
+  invariant(set.userId === userId, "Access denied")
+  invariant(!set.deletedAt, "Set is already deleted")
+
+  // Check if this set has non-deleted children
+  const childSet = await db.query.siuSets.findFirst({
+    where: and(eq(siuSets.parentSetId, set.id), isNull(siuSets.deletedAt)),
+  })
+
+  if (childSet) {
+    // Soft delete: keep row for round integrity, remove engagement data
+    await db
+      .update(siuSets)
+      .set({ deletedAt: new Date() })
+      .where(eq(siuSets.id, input.setId))
+
+    // Hard-delete engagement data (message likes cascade from messages)
+    await db
+      .delete(siuSetMessages)
+      .where(eq(siuSetMessages.siuSetId, input.setId))
+    await db.delete(siuSetLikes).where(eq(siuSetLikes.siuSetId, input.setId))
+
+    return { type: "soft" as const }
+  }
+
+  // Hard delete: no children, remove the row entirely
+  await db.delete(siuSets).where(eq(siuSets.id, input.setId))
+
+  // If this was the only set, archive the round
+  if (set.position === 1) {
+    await db
+      .update(sius)
+      .set({ status: "archived", endedAt: new Date() })
+      .where(eq(sius.id, set.siuId))
+  }
+
+  return { type: "hard" as const }
+}
 
 // List archived rounds
 export const listArchivedRoundsServerFn = createServerFn({
   method: "GET",
-}).handler(async () => {
+}).handler(listArchivedRoundsImpl)
+
+export async function listArchivedRoundsImpl() {
   const rounds = await db.query.sius.findMany({
     where: eq(sius.status, "archived"),
     columns: { id: true, createdAt: true, endedAt: true },
@@ -541,56 +604,64 @@ export const listArchivedRoundsServerFn = createServerFn({
     endedAt: round.endedAt,
     setsCount: round.sets.filter((s) => !s.deletedAt).length,
   }))
-})
+}
 
 // Get specific archived round with all sets
 export const getArchivedRoundServerFn = createServerFn({ method: "GET" })
   .inputValidator(zodValidator(getArchivedRoundSchema))
-  .handler(async ({ data: input }) => {
-    const round = await db.query.sius.findFirst({
-      where: and(eq(sius.id, input.roundId), eq(sius.status, "archived")),
-      with: {
-        sets: {
-          orderBy: desc(siuSets.position),
-          with: {
-            user: {
-              columns: { id: true, name: true, avatarId: true },
-            },
-            video: {
-              columns: { playbackId: true },
-            },
-            likes: {
-              with: {
-                user: {
-                  columns: { id: true, name: true, avatarId: true },
-                },
-              },
-            },
-            messages: {
-              columns: { id: true },
-            },
-            parentSet: {
-              columns: { id: true, name: true },
-              with: {
-                user: {
-                  columns: { id: true, name: true },
-                },
+  .handler(getArchivedRoundImpl)
+
+export async function getArchivedRoundImpl({
+  data: input,
+}: {
+  data: {
+    roundId: number
+  }
+}) {
+  const round = await db.query.sius.findFirst({
+    where: and(eq(sius.id, input.roundId), eq(sius.status, "archived")),
+    with: {
+      sets: {
+        orderBy: desc(siuSets.position),
+        with: {
+          user: {
+            columns: { id: true, name: true, avatarId: true },
+          },
+          video: {
+            columns: { playbackId: true },
+          },
+          likes: {
+            with: {
+              user: {
+                columns: { id: true, name: true, avatarId: true },
               },
             },
           },
-        },
-        archiveVotes: {
-          with: {
-            user: {
-              columns: { id: true, name: true, avatarId: true },
+          messages: {
+            columns: { id: true },
+          },
+          parentSet: {
+            columns: { id: true, name: true },
+            with: {
+              user: {
+                columns: { id: true, name: true },
+              },
             },
           },
         },
       },
-    })
-
-    return round ?? null
+      archiveVotes: {
+        with: {
+          user: {
+            columns: { id: true, name: true, avatarId: true },
+          },
+        },
+      },
+    },
   })
+
+  return round ?? null
+}
 
 // Get all tricks in the line up to and including the requested set
 export const getLineServerFn = createServerFn({ method: "GET" })

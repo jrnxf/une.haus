@@ -117,9 +117,7 @@ export function SetUploadForm<TValues extends UploadFormValues>({
 
       <ButtonGroup className="ml-auto">
         <ButtonGroup>
-          <FormCancelButton asChild>
-            {cancel}
-          </FormCancelButton>
+          <FormCancelButton asChild>{cancel}</FormCancelButton>
         </ButtonGroup>
         <FormSubmitButton busy={isPending}>upload</FormSubmitButton>
       </ButtonGroup>

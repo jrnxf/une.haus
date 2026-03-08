@@ -20,6 +20,7 @@ import {
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
+import { Button } from "~/components/ui/button"
 import { USER_DISCIPLINES } from "~/db/schema"
 import { seo } from "~/lib/seo"
 import { users } from "~/lib/users"
@@ -207,7 +208,6 @@ function RouteComponent() {
             fields={filterFields}
             filters={filters}
             onFiltersChange={handleFiltersChange}
-            size="sm"
           />
 
           <Suspense>
@@ -283,40 +283,42 @@ function UsersList({
               }
             }}
           >
-            <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
-              <div className="flex w-full flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  {user.avatarId && (
-                    <img
-                      src={getCloudflareImageUrl(user.avatarId, {
-                        width: 72,
-                        quality: 70,
-                      })}
-                      alt={user.name}
-                      fetchPriority="high"
-                      loading={idx < 6 ? "eager" : "lazy"}
-                      className="size-6 rounded-full"
-                    />
-                  )}
-                  <Link
-                    to="/users/$userId"
-                    params={{ userId: user.id }}
-                    className="truncate text-base font-semibold after:absolute after:inset-0 after:rounded-md"
-                  >
-                    {user.name}
-                  </Link>
-                </div>
-                {user.bio && (
-                  <div className="line-clamp-3 text-sm">
-                    <RichText content={user.bio} mentionMode="plainText" />
+            <Button
+              variant="card"
+              className="flex w-full flex-col gap-4 p-3 sm:flex-row"
+              asChild
+            >
+              <Link to="/users/$userId" params={{ userId: user.id }}>
+                <div className="flex w-full flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    {user.avatarId && (
+                      <img
+                        src={getCloudflareImageUrl(user.avatarId, {
+                          width: 72,
+                          quality: 70,
+                        })}
+                        alt={user.name}
+                        fetchPriority="high"
+                        loading={idx < 6 ? "eager" : "lazy"}
+                        className="size-6 rounded-full"
+                      />
+                    )}
+                    <span className="truncate text-base font-semibold">
+                      {user.name}
+                    </span>
                   </div>
-                )}
-                <Badges
-                  content={user.disciplines}
-                  active={deferredDisciplines ?? []}
-                />
-              </div>
-            </div>
+                  {user.bio && (
+                    <div className="line-clamp-3 text-sm">
+                      <RichText content={user.bio} mentionMode="plainText" />
+                    </div>
+                  )}
+                  <Badges
+                    content={user.disciplines}
+                    active={deferredDisciplines ?? []}
+                  />
+                </div>
+              </Link>
+            </Button>
           </div>
         )
       })}

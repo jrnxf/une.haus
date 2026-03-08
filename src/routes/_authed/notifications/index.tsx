@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Check, GhostIcon, Loader2 } from "lucide-react"
 import { useState } from "react"
 
+import { ContentHeaderRow } from "~/components/content-header-row"
 import { formatActorNames } from "~/components/notifications/notification-item"
 import {
   NotificationTimeline,
@@ -67,52 +68,56 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>notifications</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            {unreadCount > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => markAllRead.mutate({ data: {} })}
-                disabled={markAllRead.isPending}
-              >
-                {markAllRead.isPending ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Check className="size-4" />
-                )}
-                read
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/notifications/settings">settings</Link>
-            </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
 
       <div className="h-full overflow-y-auto">
         <div className="mx-auto max-w-5xl p-4">
-          {/* Tabs */}
-          <Tabs
-            value={filter}
-            onValueChange={(v) => setFilter(v as "all" | "unread")}
-            className="mb-4"
-          >
-            <TabsList>
-              <TabsTrigger value="unread" className="text-xs">
-                unread
+          <ContentHeaderRow
+            className="max-w-none pb-4"
+            left={
+              <Tabs
+                value={filter}
+                onValueChange={(v) => setFilter(v as "all" | "unread")}
+                className="w-fit"
+              >
+                <TabsList>
+                  <TabsTrigger value="unread" className="text-xs">
+                    unread
+                    {unreadCount > 0 && (
+                      <span className="flex size-4 items-center justify-center rounded-full bg-blue-600 text-[10px] leading-none font-semibold text-white">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="all" className="text-xs">
+                    all
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            }
+            right={
+              <>
                 {unreadCount > 0 && (
-                  <span className="flex size-4 items-center justify-center rounded-full bg-blue-600 text-[10px] leading-none font-semibold text-white">
-                    {unreadCount}
-                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => markAllRead.mutate({ data: {} })}
+                    disabled={markAllRead.isPending}
+                  >
+                    {markAllRead.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Check className="size-4" />
+                    )}
+                    read
+                  </Button>
                 )}
-              </TabsTrigger>
-              <TabsTrigger value="all" className="text-xs">
-                all
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/notifications/settings">settings</Link>
+                </Button>
+              </>
+            }
+          />
 
           {/* Notification list - timeline */}
           {groupedNotifications && groupedNotifications.length > 0 ? (

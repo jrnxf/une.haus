@@ -99,8 +99,17 @@ function TrickDetailPage() {
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
+      </PageHeader>
+
+      <div className="mx-auto w-full max-w-5xl p-4">
+        <div className="space-y-6">
+          {/* Hero: Name */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-3xl font-bold tracking-tight">
+                {trick.name}
+              </h1>
+            </div>
             <Button asChild size="sm">
               <Link
                 to={
@@ -113,22 +122,17 @@ function TrickDetailPage() {
                 Edit
               </Link>
             </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
-      </PageHeader>
-
-      <div className="mx-auto w-full max-w-5xl p-4">
-        <div className="space-y-6">
-          {/* Hero: Name + Description */}
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{trick.name}</h1>
-            {trick.description && (
-              <RichText
-                content={trick.description}
-                className="text-muted-foreground mt-1 text-base leading-relaxed"
-              />
-            )}
           </div>
+
+          {/* Definition */}
+          {trick.description && (
+            <div className="space-y-2">
+              <h3 className="text-muted-foreground text-sm font-medium">
+                definition
+              </h3>
+              <RichText content={trick.description} className="text-sm" />
+            </div>
+          )}
 
           {/* Aka */}
           {trick.alternateNames.length > 0 && (

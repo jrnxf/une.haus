@@ -116,21 +116,31 @@ test.describe("posts flow", () => {
   test("can like a post", async ({ page }) => {
     await navigateToFirstPost(page)
 
-    const likeBtn = page.getByRole("button", { name: "like", exact: true })
-    const unlikeBtn = page.getByRole("button", { name: "unlike" })
+    const likesBtn = page
+      .getByRole("button", { name: "likes", exact: true })
+      .first()
+    const likeItem = page.getByRole("menuitem", { name: "like", exact: true })
+    const unlikeItem = page.getByRole("menuitem", {
+      name: "unlike",
+      exact: true,
+    })
 
     // If already liked from a previous run, unlike first
-    if (await unlikeBtn.isVisible().catch(() => false)) {
-      await unlikeBtn.click()
-      await expect(likeBtn).toBeVisible()
+    await likesBtn.click()
+    if (await unlikeItem.isVisible().catch(() => false)) {
+      await unlikeItem.click()
+      await likesBtn.click()
+      await expect(likeItem).toBeVisible()
     }
 
-    await likeBtn.click()
-    await expect(unlikeBtn).toBeVisible()
+    await likeItem.click()
+    await likesBtn.click()
+    await expect(unlikeItem).toBeVisible()
 
     // Clean up: unlike so the test is idempotent
-    await unlikeBtn.click()
-    await expect(likeBtn).toBeVisible()
+    await unlikeItem.click()
+    await likesBtn.click()
+    await expect(likeItem).toBeVisible()
   })
 
   test("can comment on a post", async ({ page }) => {
@@ -162,36 +172,36 @@ test.describe("posts flow", () => {
     const messageBubble = page.getByRole("button", {
       name: `Message: ${uniqueText}`,
     })
+    const detailsDialog = page.getByRole("dialog", { name: "message details" })
 
-    const messageContainer = page
-      .getByTestId("message-container")
-      .filter({ has: messageBubble })
-
-    // Retry the full like flow — the click may not register if DOM detaches mid-animation,
-    // and the refetch can temporarily remove the badge. Combining action + verification
-    // in one retry block ensures we re-attempt the like if it didn't take effect.
+    // Retry the full like flow — assert against the tray state itself rather than the
+    // compact like badge, which is now secondary to the tray actions in this POC.
     await expect(async () => {
-      const badgeVisible = await messageContainer
-        .getByRole("button", { name: /likes/ })
-        .isVisible()
-        .catch(() => false)
+      if (await detailsDialog.isVisible().catch(() => false)) {
+        await page.keyboard.press("Escape")
+        await expect(detailsDialog).not.toBeVisible({ timeout: 2000 })
+      }
 
-      if (!badgeVisible) {
-        await messageBubble.click()
-        await page
-          .getByRole("menuitem", { name: "Like" })
+      await messageBubble.click()
+      await expect(detailsDialog).toBeVisible({ timeout: 3000 })
+      const unlikeButton = detailsDialog.getByRole("button", { name: "unlike" })
+
+      if (!(await unlikeButton.isVisible().catch(() => false))) {
+        await detailsDialog
+          .getByRole("button", { name: "like" })
           .click({ force: true, timeout: 3000 })
         // Wait for mutation + refetch to settle
         await page.waitForLoadState("networkidle")
         await dismissOverlay(page)
       }
 
+      await expect(unlikeButton).toBeVisible({ timeout: 5000 })
       await expect(
-        messageContainer.getByRole("button", { name: /likes/ }),
-      ).toBeVisible({
-        timeout: 5000,
-      })
+        detailsDialog.getByRole("button", { name: /view 1 like/i }),
+      ).toBeVisible({ timeout: 5000 })
     }).toPass({ timeout: 30_000 })
+
+    await page.keyboard.press("Escape")
 
     // Clean up: unlike then delete the comment via UI
     await unlikeMessageViaUI(page, uniqueText)
@@ -220,7 +230,8 @@ test.describe("posts flow", () => {
     await expect(async () => {
       await messageBubble.click()
       await page
-        .getByRole("menuitem", { name: "Copy" })
+        .getByRole("dialog", { name: "message details" })
+        .getByRole("button", { name: "copy" })
         .click({ force: true, timeout: 3000 })
     }).toPass({ timeout: 15_000 })
 

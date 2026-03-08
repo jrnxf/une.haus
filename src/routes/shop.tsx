@@ -110,7 +110,7 @@ function RouteComponent() {
                 </div>
               ) : (
                 <p className="text-muted-foreground text-sm">
-                  be the first to know when the shop opens
+                  be the first to know when the shop opens?
                 </p>
               )}
             </EmptyDescription>

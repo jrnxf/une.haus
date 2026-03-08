@@ -1,4 +1,4 @@
-import { Loader2Icon, TrashIcon } from "lucide-react"
+import { TrashIcon } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import { toast } from "sonner"
@@ -6,7 +6,6 @@ import { toast } from "sonner"
 import { UploadDropZone } from "~/components/input/upload-drop-zone"
 import { Button } from "~/components/ui/button"
 import { useFormField, useFormMedia } from "~/components/ui/form"
-import { Progress } from "~/components/ui/progress"
 import { VideoPlayer } from "~/components/video-player"
 import {
   getVideoFileRejectionMessage,
@@ -26,28 +25,30 @@ export const VideoInput = ({
   const [fileName, setFileName] = useState<string>()
   const [playbackId, setPlaybackId] = useState<string>()
 
-  const { setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus } =
-    useFormMedia()
+  const {
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  } = useFormMedia()
 
-  const { uploadVideo, isUploading, uploadProgress, isProcessing } =
-    useVideoUpload({
-      onSuccess: (data) => {
-        onChange(data.assetId)
-        setPlaybackId(data.playbackId)
-        setMediaUploadFileName(undefined)
-        setMediaUploadFileSizeBytes(undefined)
-        setVideoUploadStatus("idle")
-      },
-      onProgress: (progress) => {
-        setVideoUploadStatus(progress)
-      },
-      onError: () => {
-        setFileName(undefined)
-        setMediaUploadFileName(undefined)
-        setMediaUploadFileSizeBytes(undefined)
-        setVideoUploadStatus("idle")
-      },
-    })
+  const { uploadVideo, isUploading, isProcessing } = useVideoUpload({
+    onSuccess: (data) => {
+      onChange(data.assetId)
+      setPlaybackId(data.playbackId)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    },
+    onProgress: (progress) => {
+      setVideoUploadStatus(progress)
+    },
+    onError: () => {
+      setFileName(undefined)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    },
+  })
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -137,25 +138,10 @@ export const VideoInput = ({
       getInputProps={getInputProps}
       inputId={formItemId}
       disabled={isUploading || isProcessing}
-      hasValue={!!fileName}
     >
       <span className="text-muted-foreground block w-full truncate text-left text-sm">
         {fileName ?? "Choose File"}
       </span>
-
-      {isUploading && !isProcessing && (
-        <Progress
-          value={uploadProgress}
-          className="absolute inset-x-0 bottom-0 h-1 rounded-none"
-        />
-      )}
-
-      {isProcessing && (
-        <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-          <span>processing</span>
-          <Loader2Icon className="size-3 animate-spin" />
-        </div>
-      )}
     </UploadDropZone>
   )
 }

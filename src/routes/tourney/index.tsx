@@ -7,6 +7,7 @@ import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -40,62 +41,64 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tourney</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        {user && (
-          <PageHeader.Right>
-            <PageHeader.Actions>
-              <Button asChild>
-                <Link to="/tourney/create">create</Link>
-              </Button>
-            </PageHeader.Actions>
-          </PageHeader.Right>
-        )}
       </PageHeader>
 
-      <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 p-4">
-        {tournaments.length === 0 ? (
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <GhostIcon />
-              </EmptyMedia>
-              <EmptyTitle>no tournaments</EmptyTitle>
-              <EmptyDescription>try again later</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          tournaments.map((t) => (
-            <div key={t.id} className="relative">
-              <div className="bg-card flex flex-col gap-2 rounded-md border p-3">
-                <div className="flex items-center justify-between">
-                  <Link
-                    to="/tourney/live/$code"
-                    params={{ code: t.code }}
-                    className="truncate font-semibold after:absolute after:inset-0 after:rounded-md"
-                  >
-                    {t.name}
-                  </Link>
-                  <Badge variant="secondary">{t.code}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-xs">
-                    <RelativeTimeCard date={t.createdAt} variant="muted" />
-                  </p>
-                  {user?.id === t.createdByUserId && (
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link
-                        to={getPhaseRoute(t.phase)}
-                        params={{ code: t.code }}
-                        className="relative z-10"
-                      >
-                        manage
-                      </Link>
-                    </Button>
-                  )}
+      <div className="mx-auto w-full max-w-3xl p-4">
+        <div className="grid grid-cols-1 gap-4">
+          {tournaments.length === 0 ? (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <GhostIcon />
+                </EmptyMedia>
+                <EmptyTitle>no tournaments</EmptyTitle>
+                <EmptyDescription>
+                  be the first to create a tournament?
+                </EmptyDescription>
+              </EmptyHeader>
+              {user && (
+                <EmptyContent>
+                  <Button asChild>
+                    <Link to="/tourney/create">create</Link>
+                  </Button>
+                </EmptyContent>
+              )}
+            </Empty>
+          ) : (
+            tournaments.map((t) => (
+              <div key={t.id} className="relative">
+                <div className="bg-card flex flex-col gap-2 rounded-md border p-3">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      to="/tourney/live/$code"
+                      params={{ code: t.code }}
+                      className="truncate font-semibold after:absolute after:inset-0 after:rounded-md"
+                    >
+                      {t.name}
+                    </Link>
+                    <Badge variant="secondary">{t.code}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-xs">
+                      <RelativeTimeCard date={t.createdAt} variant="muted" />
+                    </p>
+                    {user?.id === t.createdByUserId && (
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link
+                          to={getPhaseRoute(t.phase)}
+                          params={{ code: t.code }}
+                          className="relative z-10"
+                        >
+                          manage
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </>
   )

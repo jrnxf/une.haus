@@ -136,7 +136,7 @@ export function TrickForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>name *</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>name</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
@@ -395,9 +395,7 @@ export function TrickForm({
         {/* Actions */}
         <div className="flex items-center justify-between">
           {onCancel && (
-            <FormCancelButton onClick={onCancel}>
-              cancel
-            </FormCancelButton>
+            <FormCancelButton onClick={onCancel}>cancel</FormCancelButton>
           )}
           {!onCancel && <div />}
           {onAdminSubmit ? (

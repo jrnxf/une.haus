@@ -33,11 +33,6 @@ export function SetLineage({ sets }: SetLineageProps) {
     return null
   }
 
-  // Sets should already be ordered by position desc (newest first)
-  // Find the latest non-deleted set for the "latest" badge
-  const latestPosition =
-    sets.find((s) => !s.deletedAt)?.position ?? sets[0]?.position ?? 0
-
   return (
     <div className="relative pl-10">
       <div className="space-y-4">
@@ -68,15 +63,11 @@ export function SetLineage({ sets }: SetLineageProps) {
             </div>
 
             {set.deletedAt ? (
-              <div className="border-border/50 text-muted-foreground w-full rounded-lg border border-dashed px-4 py-3 text-sm italic">
+              <div className="border-border text-muted-foreground w-full rounded-lg border border-dashed px-4 py-3 text-sm italic">
                 deleted
               </div>
             ) : (
-              <BiuSetCard
-                set={set}
-                isLatest={set.position === latestPosition}
-                className="w-full"
-              />
+              <BiuSetCard set={set} className="w-full" />
             )}
           </div>
         ))}

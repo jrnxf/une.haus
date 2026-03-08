@@ -13,6 +13,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SandboxRouteImport } from './routes/sandbox'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ArcadeRouteImport } from './routes/arcade'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
@@ -42,15 +43,15 @@ import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/ind
 import { Route as TricksGlossaryIndexRouteImport } from './routes/tricks/glossary/index'
 import { Route as TourneyLiveIndexRouteImport } from './routes/tourney/live/index'
 import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
-import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
-import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin/index'
 import { Route as VaultValutBakRouteImport } from './routes/vault/valut.bak'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
 import { Route as TricksGlossaryListRouteImport } from './routes/tricks/glossary/_list'
 import { Route as TourneyLiveCodeRouteImport } from './routes/tourney/live/$code'
-import { Route as GamesRiusActiveRouteImport } from './routes/games/rius/active'
+import { Route as GamesSiusBrowseRouteImport } from './routes/games/sius/_browse'
+import { Route as GamesRiusBrowseRouteImport } from './routes/games/rius/_browse'
+import { Route as GamesBiusBrowseRouteImport } from './routes/games/bius/_browse'
 import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
 import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/create'
 import { Route as AuthedTourneyCreateRouteImport } from './routes/_authed/tourney/create'
@@ -58,15 +59,11 @@ import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/cr
 import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
 import { Route as AuthedAdminReviewRouteImport } from './routes/_authed/admin/review'
 import { Route as AuthedAdminGamesRouteImport } from './routes/_authed/admin/games'
-import { Route as GamesSiusArchivedIndexRouteImport } from './routes/games/sius/archived/index'
-import { Route as GamesSiusRoundIdIndexRouteImport } from './routes/games/sius/$roundId/index'
-import { Route as GamesRiusUpcomingIndexRouteImport } from './routes/games/rius/upcoming/index'
+import { Route as GamesSiusBrowseIndexRouteImport } from './routes/games/sius/_browse/index'
 import { Route as GamesRiusSetsIndexRouteImport } from './routes/games/rius/sets/index'
-import { Route as GamesRiusArchivedIndexRouteImport } from './routes/games/rius/archived/index'
-import { Route as GamesBiusRoundIdIndexRouteImport } from './routes/games/bius/$roundId/index'
+import { Route as GamesBiusBrowseIndexRouteImport } from './routes/games/bius/_browse/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
-import { Route as GamesSiusArchivedRoundIdRouteImport } from './routes/games/sius/archived/$roundId'
-import { Route as GamesRiusArchivedRiuIdRouteImport } from './routes/games/rius/archived/$riuId'
+import { Route as GamesRiusBrowseActiveRouteImport } from './routes/games/rius/_browse/active'
 import { Route as ApiTourneySseCodeRouteImport } from './routes/api/tourney/sse.$code'
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
@@ -81,9 +78,16 @@ import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/e
 import { Route as TricksGlossaryListModifiersIndexRouteImport } from './routes/tricks/glossary/_list/modifiers/index'
 import { Route as TricksGlossaryListElementsIndexRouteImport } from './routes/tricks/glossary/_list/elements/index'
 import { Route as GamesSiusSetsSetIdIndexRouteImport } from './routes/games/sius/sets/$setId/index'
+import { Route as GamesSiusBrowseArchivedIndexRouteImport } from './routes/games/sius/_browse/archived/index'
+import { Route as GamesSiusBrowseRoundIdIndexRouteImport } from './routes/games/sius/_browse/$roundId/index'
 import { Route as GamesRiusSubmissionsSubmissionIdIndexRouteImport } from './routes/games/rius/submissions/$submissionId/index'
 import { Route as GamesRiusSetsSetIdIndexRouteImport } from './routes/games/rius/sets/$setId/index'
+import { Route as GamesRiusBrowseUpcomingIndexRouteImport } from './routes/games/rius/_browse/upcoming/index'
+import { Route as GamesRiusBrowseArchivedIndexRouteImport } from './routes/games/rius/_browse/archived/index'
 import { Route as GamesBiusSetsSetIdIndexRouteImport } from './routes/games/bius/sets/$setId/index'
+import { Route as GamesBiusBrowseRoundIdIndexRouteImport } from './routes/games/bius/_browse/$roundId/index'
+import { Route as GamesSiusBrowseArchivedRoundIdRouteImport } from './routes/games/sius/_browse/archived/$roundId'
+import { Route as GamesRiusBrowseArchivedRiuIdRouteImport } from './routes/games/rius/_browse/archived/$riuId'
 import { Route as AuthedTricksGlossaryModifiersCreateRouteImport } from './routes/_authed/tricks/glossary/modifiers/create'
 import { Route as AuthedTricksGlossaryElementsCreateRouteImport } from './routes/_authed/tricks/glossary/elements/create'
 import { Route as AuthedGamesSiusSiuIdUploadRouteImport } from './routes/_authed/games/sius/$siuId/upload'
@@ -93,6 +97,7 @@ import { Route as AuthedAdminTricksTrickIdVideosRouteImport } from './routes/_au
 import { Route as AuthedAdminTricksTrickIdEditRouteImport } from './routes/_authed/admin/tricks/$trickId/edit'
 import { Route as AuthedTricksGlossaryModifiersModifierIdSuggestRouteImport } from './routes/_authed/tricks/glossary/modifiers/$modifierId/suggest'
 import { Route as AuthedTricksGlossaryElementsElementIdSuggestRouteImport } from './routes/_authed/tricks/glossary/elements/$elementId/suggest'
+import { Route as AuthedGamesRiusSetsSetIdEditRouteImport } from './routes/_authed/games/rius/sets/$setId/edit'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -112,6 +117,11 @@ const SandboxRoute = SandboxRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArcadeRoute = ArcadeRouteImport.update({
+  id: '/arcade',
+  path: '/arcade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedRoute = AuthedRouteImport.update({
@@ -258,16 +268,6 @@ const PostsPostIdIndexRoute = PostsPostIdIndexRouteImport.update({
   path: '/posts/$postId/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GamesSiusIndexRoute = GamesSiusIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GamesSiusRouteRoute,
-} as any)
-const GamesBiusIndexRoute = GamesBiusIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GamesBiusRouteRoute,
-} as any)
 const AuthedNotificationsIndexRoute =
   AuthedNotificationsIndexRouteImport.update({
     id: '/notifications/',
@@ -299,10 +299,17 @@ const TourneyLiveCodeRoute = TourneyLiveCodeRouteImport.update({
   path: '/tourney/live/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GamesRiusActiveRoute = GamesRiusActiveRouteImport.update({
-  id: '/active',
-  path: '/active',
+const GamesSiusBrowseRoute = GamesSiusBrowseRouteImport.update({
+  id: '/_browse',
+  getParentRoute: () => GamesSiusRouteRoute,
+} as any)
+const GamesRiusBrowseRoute = GamesRiusBrowseRouteImport.update({
+  id: '/_browse',
   getParentRoute: () => GamesRiusRouteRoute,
+} as any)
+const GamesBiusBrowseRoute = GamesBiusBrowseRouteImport.update({
+  id: '/_browse',
+  getParentRoute: () => GamesBiusRouteRoute,
 } as any)
 const ApiMuxWebhookRoute = ApiMuxWebhookRouteImport.update({
   id: '/api/mux/webhook',
@@ -340,51 +347,30 @@ const AuthedAdminGamesRoute = AuthedAdminGamesRouteImport.update({
   path: '/games',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
-const GamesSiusArchivedIndexRoute = GamesSiusArchivedIndexRouteImport.update({
-  id: '/archived/',
-  path: '/archived/',
-  getParentRoute: () => GamesSiusRouteRoute,
-} as any)
-const GamesSiusRoundIdIndexRoute = GamesSiusRoundIdIndexRouteImport.update({
-  id: '/$roundId/',
-  path: '/$roundId/',
-  getParentRoute: () => GamesSiusRouteRoute,
-} as any)
-const GamesRiusUpcomingIndexRoute = GamesRiusUpcomingIndexRouteImport.update({
-  id: '/upcoming/',
-  path: '/upcoming/',
-  getParentRoute: () => GamesRiusRouteRoute,
+const GamesSiusBrowseIndexRoute = GamesSiusBrowseIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GamesSiusBrowseRoute,
 } as any)
 const GamesRiusSetsIndexRoute = GamesRiusSetsIndexRouteImport.update({
   id: '/sets/',
   path: '/sets/',
   getParentRoute: () => GamesRiusRouteRoute,
 } as any)
-const GamesRiusArchivedIndexRoute = GamesRiusArchivedIndexRouteImport.update({
-  id: '/archived/',
-  path: '/archived/',
-  getParentRoute: () => GamesRiusRouteRoute,
-} as any)
-const GamesBiusRoundIdIndexRoute = GamesBiusRoundIdIndexRouteImport.update({
-  id: '/$roundId/',
-  path: '/$roundId/',
-  getParentRoute: () => GamesBiusRouteRoute,
+const GamesBiusBrowseIndexRoute = GamesBiusBrowseIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GamesBiusBrowseRoute,
 } as any)
 const AuthedAuthMeIndexRoute = AuthedAuthMeIndexRouteImport.update({
   id: '/auth/me/',
   path: '/auth/me/',
   getParentRoute: () => AuthedRoute,
 } as any)
-const GamesSiusArchivedRoundIdRoute =
-  GamesSiusArchivedRoundIdRouteImport.update({
-    id: '/archived/$roundId',
-    path: '/archived/$roundId',
-    getParentRoute: () => GamesSiusRouteRoute,
-  } as any)
-const GamesRiusArchivedRiuIdRoute = GamesRiusArchivedRiuIdRouteImport.update({
-  id: '/archived/$riuId',
-  path: '/archived/$riuId',
-  getParentRoute: () => GamesRiusRouteRoute,
+const GamesRiusBrowseActiveRoute = GamesRiusBrowseActiveRouteImport.update({
+  id: '/active',
+  path: '/active',
+  getParentRoute: () => GamesRiusBrowseRoute,
 } as any)
 const ApiTourneySseCodeRoute = ApiTourneySseCodeRouteImport.update({
   id: '/api/tourney/sse/$code',
@@ -464,6 +450,18 @@ const GamesSiusSetsSetIdIndexRoute = GamesSiusSetsSetIdIndexRouteImport.update({
   path: '/sets/$setId/',
   getParentRoute: () => GamesSiusRouteRoute,
 } as any)
+const GamesSiusBrowseArchivedIndexRoute =
+  GamesSiusBrowseArchivedIndexRouteImport.update({
+    id: '/archived/',
+    path: '/archived/',
+    getParentRoute: () => GamesSiusBrowseRoute,
+  } as any)
+const GamesSiusBrowseRoundIdIndexRoute =
+  GamesSiusBrowseRoundIdIndexRouteImport.update({
+    id: '/$roundId/',
+    path: '/$roundId/',
+    getParentRoute: () => GamesSiusBrowseRoute,
+  } as any)
 const GamesRiusSubmissionsSubmissionIdIndexRoute =
   GamesRiusSubmissionsSubmissionIdIndexRouteImport.update({
     id: '/submissions/$submissionId/',
@@ -475,11 +473,41 @@ const GamesRiusSetsSetIdIndexRoute = GamesRiusSetsSetIdIndexRouteImport.update({
   path: '/sets/$setId/',
   getParentRoute: () => GamesRiusRouteRoute,
 } as any)
+const GamesRiusBrowseUpcomingIndexRoute =
+  GamesRiusBrowseUpcomingIndexRouteImport.update({
+    id: '/upcoming/',
+    path: '/upcoming/',
+    getParentRoute: () => GamesRiusBrowseRoute,
+  } as any)
+const GamesRiusBrowseArchivedIndexRoute =
+  GamesRiusBrowseArchivedIndexRouteImport.update({
+    id: '/archived/',
+    path: '/archived/',
+    getParentRoute: () => GamesRiusBrowseRoute,
+  } as any)
 const GamesBiusSetsSetIdIndexRoute = GamesBiusSetsSetIdIndexRouteImport.update({
   id: '/sets/$setId/',
   path: '/sets/$setId/',
   getParentRoute: () => GamesBiusRouteRoute,
 } as any)
+const GamesBiusBrowseRoundIdIndexRoute =
+  GamesBiusBrowseRoundIdIndexRouteImport.update({
+    id: '/$roundId/',
+    path: '/$roundId/',
+    getParentRoute: () => GamesBiusBrowseRoute,
+  } as any)
+const GamesSiusBrowseArchivedRoundIdRoute =
+  GamesSiusBrowseArchivedRoundIdRouteImport.update({
+    id: '/archived/$roundId',
+    path: '/archived/$roundId',
+    getParentRoute: () => GamesSiusBrowseRoute,
+  } as any)
+const GamesRiusBrowseArchivedRiuIdRoute =
+  GamesRiusBrowseArchivedRiuIdRouteImport.update({
+    id: '/archived/$riuId',
+    path: '/archived/$riuId',
+    getParentRoute: () => GamesRiusBrowseRoute,
+  } as any)
 const AuthedTricksGlossaryModifiersCreateRoute =
   AuthedTricksGlossaryModifiersCreateRouteImport.update({
     id: '/tricks/glossary/modifiers/create',
@@ -534,16 +562,23 @@ const AuthedTricksGlossaryElementsElementIdSuggestRoute =
     path: '/tricks/glossary/elements/$elementId/suggest',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedGamesRiusSetsSetIdEditRoute =
+  AuthedGamesRiusSetsSetIdEditRouteImport.update({
+    id: '/games/rius/sets/$setId/edit',
+    path: '/games/rius/sets/$setId/edit',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
-  '/games/bius': typeof GamesBiusRouteRouteWithChildren
-  '/games/rius': typeof GamesRiusRouteRouteWithChildren
-  '/games/sius': typeof GamesSiusRouteRouteWithChildren
+  '/games/bius': typeof GamesBiusBrowseRouteWithChildren
+  '/games/rius': typeof GamesRiusBrowseRouteWithChildren
+  '/games/sius': typeof GamesSiusBrowseRouteWithChildren
   '/admin': typeof AuthedAdminRouteWithChildren
   '/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
@@ -570,15 +605,12 @@ export interface FileRoutesByFullPath {
   '/tourney/create': typeof AuthedTourneyCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
-  '/games/rius/active': typeof GamesRiusActiveRoute
   '/tourney/live/$code': typeof TourneyLiveCodeRoute
   '/tricks/glossary': typeof TricksGlossaryIndexRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/admin/': typeof AuthedAdminIndexRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
-  '/games/bius/': typeof GamesBiusIndexRoute
-  '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/tourney/live': typeof TourneyLiveIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
@@ -594,15 +626,11 @@ export interface FileRoutesByFullPath {
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
   '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
-  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
-  '/games/sius/archived/$roundId': typeof GamesSiusArchivedRoundIdRoute
+  '/games/rius/active': typeof GamesRiusBrowseActiveRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
-  '/games/bius/$roundId': typeof GamesBiusRoundIdIndexRoute
-  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
+  '/games/bius/': typeof GamesBiusBrowseIndexRoute
   '/games/rius/sets': typeof GamesRiusSetsIndexRoute
-  '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
-  '/games/sius/$roundId': typeof GamesSiusRoundIdIndexRoute
-  '/games/sius/archived': typeof GamesSiusArchivedIndexRoute
+  '/games/sius/': typeof GamesSiusBrowseIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
   '/games/bius/$biuId/upload': typeof AuthedGamesBiusBiuIdUploadRoute
@@ -610,22 +638,33 @@ export interface FileRoutesByFullPath {
   '/games/sius/$siuId/upload': typeof AuthedGamesSiusSiuIdUploadRoute
   '/tricks/glossary/elements/create': typeof AuthedTricksGlossaryElementsCreateRoute
   '/tricks/glossary/modifiers/create': typeof AuthedTricksGlossaryModifiersCreateRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusBrowseArchivedRiuIdRoute
+  '/games/sius/archived/$roundId': typeof GamesSiusBrowseArchivedRoundIdRoute
+  '/games/bius/$roundId': typeof GamesBiusBrowseRoundIdIndexRoute
   '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/archived': typeof GamesRiusBrowseArchivedIndexRoute
+  '/games/rius/upcoming': typeof GamesRiusBrowseUpcomingIndexRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/$roundId': typeof GamesSiusBrowseRoundIdIndexRoute
+  '/games/sius/archived': typeof GamesSiusBrowseArchivedIndexRoute
   '/games/sius/sets/$setId': typeof GamesSiusSetsSetIdIndexRoute
   '/tricks/glossary/elements': typeof TricksGlossaryListElementsIndexRoute
   '/tricks/glossary/modifiers': typeof TricksGlossaryListModifiersIndexRoute
+  '/games/rius/sets/$setId/edit': typeof AuthedGamesRiusSetsSetIdEditRoute
   '/tricks/glossary/elements/$elementId/suggest': typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   '/tricks/glossary/modifiers/$modifierId/suggest': typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
-  '/games/rius': typeof GamesRiusRouteRouteWithChildren
+  '/games/bius': typeof GamesBiusBrowseIndexRoute
+  '/games/rius': typeof GamesRiusBrowseRouteWithChildren
+  '/games/sius': typeof GamesSiusBrowseIndexRoute
   '/feedback': typeof AuthedFeedbackRoute
   '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
@@ -651,15 +690,12 @@ export interface FileRoutesByTo {
   '/tourney/create': typeof AuthedTourneyCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
-  '/games/rius/active': typeof GamesRiusActiveRoute
   '/tourney/live/$code': typeof TourneyLiveCodeRoute
   '/tricks/glossary': typeof TricksGlossaryIndexRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/admin': typeof AuthedAdminIndexRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
-  '/games/bius': typeof GamesBiusIndexRoute
-  '/games/sius': typeof GamesSiusIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/tourney/live': typeof TourneyLiveIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
@@ -675,15 +711,9 @@ export interface FileRoutesByTo {
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
   '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
-  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
-  '/games/sius/archived/$roundId': typeof GamesSiusArchivedRoundIdRoute
+  '/games/rius/active': typeof GamesRiusBrowseActiveRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
-  '/games/bius/$roundId': typeof GamesBiusRoundIdIndexRoute
-  '/games/rius/archived': typeof GamesRiusArchivedIndexRoute
   '/games/rius/sets': typeof GamesRiusSetsIndexRoute
-  '/games/rius/upcoming': typeof GamesRiusUpcomingIndexRoute
-  '/games/sius/$roundId': typeof GamesSiusRoundIdIndexRoute
-  '/games/sius/archived': typeof GamesSiusArchivedIndexRoute
   '/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
   '/games/bius/$biuId/upload': typeof AuthedGamesBiusBiuIdUploadRoute
@@ -691,12 +721,20 @@ export interface FileRoutesByTo {
   '/games/sius/$siuId/upload': typeof AuthedGamesSiusSiuIdUploadRoute
   '/tricks/glossary/elements/create': typeof AuthedTricksGlossaryElementsCreateRoute
   '/tricks/glossary/modifiers/create': typeof AuthedTricksGlossaryModifiersCreateRoute
+  '/games/rius/archived/$riuId': typeof GamesRiusBrowseArchivedRiuIdRoute
+  '/games/sius/archived/$roundId': typeof GamesSiusBrowseArchivedRoundIdRoute
+  '/games/bius/$roundId': typeof GamesBiusBrowseRoundIdIndexRoute
   '/games/bius/sets/$setId': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/archived': typeof GamesRiusBrowseArchivedIndexRoute
+  '/games/rius/upcoming': typeof GamesRiusBrowseUpcomingIndexRoute
   '/games/rius/sets/$setId': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/$roundId': typeof GamesSiusBrowseRoundIdIndexRoute
+  '/games/sius/archived': typeof GamesSiusBrowseArchivedIndexRoute
   '/games/sius/sets/$setId': typeof GamesSiusSetsSetIdIndexRoute
   '/tricks/glossary/elements': typeof TricksGlossaryListElementsIndexRoute
   '/tricks/glossary/modifiers': typeof TricksGlossaryListModifiersIndexRoute
+  '/games/rius/sets/$setId/edit': typeof AuthedGamesRiusSetsSetIdEditRoute
   '/tricks/glossary/elements/$elementId/suggest': typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   '/tricks/glossary/modifiers/$modifierId/suggest': typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -704,6 +742,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
+  '/arcade': typeof ArcadeRoute
   '/privacy': typeof PrivacyRoute
   '/sandbox': typeof SandboxRoute
   '/shop': typeof ShopRoute
@@ -737,15 +776,15 @@ export interface FileRoutesById {
   '/_authed/tourney/create': typeof AuthedTourneyCreateRoute
   '/_authed/tricks/create': typeof AuthedTricksCreateRoute
   '/api/mux/webhook': typeof ApiMuxWebhookRoute
-  '/games/rius/active': typeof GamesRiusActiveRoute
+  '/games/bius/_browse': typeof GamesBiusBrowseRouteWithChildren
+  '/games/rius/_browse': typeof GamesRiusBrowseRouteWithChildren
+  '/games/sius/_browse': typeof GamesSiusBrowseRouteWithChildren
   '/tourney/live/$code': typeof TourneyLiveCodeRoute
   '/tricks/glossary/_list': typeof TricksGlossaryListRouteWithChildren
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/vault/valut/bak': typeof VaultValutBakRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
-  '/games/bius/': typeof GamesBiusIndexRoute
-  '/games/sius/': typeof GamesSiusIndexRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/tourney/live/': typeof TourneyLiveIndexRoute
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
@@ -762,15 +801,11 @@ export interface FileRoutesById {
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
   '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
-  '/games/rius/archived/$riuId': typeof GamesRiusArchivedRiuIdRoute
-  '/games/sius/archived/$roundId': typeof GamesSiusArchivedRoundIdRoute
+  '/games/rius/_browse/active': typeof GamesRiusBrowseActiveRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
-  '/games/bius/$roundId/': typeof GamesBiusRoundIdIndexRoute
-  '/games/rius/archived/': typeof GamesRiusArchivedIndexRoute
+  '/games/bius/_browse/': typeof GamesBiusBrowseIndexRoute
   '/games/rius/sets/': typeof GamesRiusSetsIndexRoute
-  '/games/rius/upcoming/': typeof GamesRiusUpcomingIndexRoute
-  '/games/sius/$roundId/': typeof GamesSiusRoundIdIndexRoute
-  '/games/sius/archived/': typeof GamesSiusArchivedIndexRoute
+  '/games/sius/_browse/': typeof GamesSiusBrowseIndexRoute
   '/_authed/admin/tricks/$trickId/edit': typeof AuthedAdminTricksTrickIdEditRoute
   '/_authed/admin/tricks/$trickId/videos': typeof AuthedAdminTricksTrickIdVideosRoute
   '/_authed/games/bius/$biuId/upload': typeof AuthedGamesBiusBiuIdUploadRoute
@@ -778,12 +813,20 @@ export interface FileRoutesById {
   '/_authed/games/sius/$siuId/upload': typeof AuthedGamesSiusSiuIdUploadRoute
   '/_authed/tricks/glossary/elements/create': typeof AuthedTricksGlossaryElementsCreateRoute
   '/_authed/tricks/glossary/modifiers/create': typeof AuthedTricksGlossaryModifiersCreateRoute
+  '/games/rius/_browse/archived/$riuId': typeof GamesRiusBrowseArchivedRiuIdRoute
+  '/games/sius/_browse/archived/$roundId': typeof GamesSiusBrowseArchivedRoundIdRoute
+  '/games/bius/_browse/$roundId/': typeof GamesBiusBrowseRoundIdIndexRoute
   '/games/bius/sets/$setId/': typeof GamesBiusSetsSetIdIndexRoute
+  '/games/rius/_browse/archived/': typeof GamesRiusBrowseArchivedIndexRoute
+  '/games/rius/_browse/upcoming/': typeof GamesRiusBrowseUpcomingIndexRoute
   '/games/rius/sets/$setId/': typeof GamesRiusSetsSetIdIndexRoute
   '/games/rius/submissions/$submissionId/': typeof GamesRiusSubmissionsSubmissionIdIndexRoute
+  '/games/sius/_browse/$roundId/': typeof GamesSiusBrowseRoundIdIndexRoute
+  '/games/sius/_browse/archived/': typeof GamesSiusBrowseArchivedIndexRoute
   '/games/sius/sets/$setId/': typeof GamesSiusSetsSetIdIndexRoute
   '/tricks/glossary/_list/elements/': typeof TricksGlossaryListElementsIndexRoute
   '/tricks/glossary/_list/modifiers/': typeof TricksGlossaryListModifiersIndexRoute
+  '/_authed/games/rius/sets/$setId/edit': typeof AuthedGamesRiusSetsSetIdEditRoute
   '/_authed/tricks/glossary/elements/$elementId/suggest': typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   '/_authed/tricks/glossary/modifiers/$modifierId/suggest': typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -791,6 +834,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -824,15 +868,12 @@ export interface FileRouteTypes {
     | '/tourney/create'
     | '/tricks/create'
     | '/api/mux/webhook'
-    | '/games/rius/active'
     | '/tourney/live/$code'
     | '/tricks/glossary'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/admin/'
     | '/notifications'
-    | '/games/bius/'
-    | '/games/sius/'
     | '/posts/$postId'
     | '/tourney/live'
     | '/users/$userId'
@@ -848,15 +889,11 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
     | '/api/tourney/sse/$code'
-    | '/games/rius/archived/$riuId'
-    | '/games/sius/archived/$roundId'
+    | '/games/rius/active'
     | '/auth/me'
-    | '/games/bius/$roundId'
-    | '/games/rius/archived'
+    | '/games/bius/'
     | '/games/rius/sets'
-    | '/games/rius/upcoming'
-    | '/games/sius/$roundId'
-    | '/games/sius/archived'
+    | '/games/sius/'
     | '/admin/tricks/$trickId/edit'
     | '/admin/tricks/$trickId/videos'
     | '/games/bius/$biuId/upload'
@@ -864,22 +901,33 @@ export interface FileRouteTypes {
     | '/games/sius/$siuId/upload'
     | '/tricks/glossary/elements/create'
     | '/tricks/glossary/modifiers/create'
+    | '/games/rius/archived/$riuId'
+    | '/games/sius/archived/$roundId'
+    | '/games/bius/$roundId'
     | '/games/bius/sets/$setId'
+    | '/games/rius/archived'
+    | '/games/rius/upcoming'
     | '/games/rius/sets/$setId'
     | '/games/rius/submissions/$submissionId'
+    | '/games/sius/$roundId'
+    | '/games/sius/archived'
     | '/games/sius/sets/$setId'
     | '/tricks/glossary/elements'
     | '/tricks/glossary/modifiers'
+    | '/games/rius/sets/$setId/edit'
     | '/tricks/glossary/elements/$elementId/suggest'
     | '/tricks/glossary/modifiers/$modifierId/suggest'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
     | '/terms'
+    | '/games/bius'
     | '/games/rius'
+    | '/games/sius'
     | '/feedback'
     | '/api/unsubscribe'
     | '/auth/register'
@@ -905,15 +953,12 @@ export interface FileRouteTypes {
     | '/tourney/create'
     | '/tricks/create'
     | '/api/mux/webhook'
-    | '/games/rius/active'
     | '/tourney/live/$code'
     | '/tricks/glossary'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/admin'
     | '/notifications'
-    | '/games/bius'
-    | '/games/sius'
     | '/posts/$postId'
     | '/tourney/live'
     | '/users/$userId'
@@ -929,15 +974,9 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
     | '/api/tourney/sse/$code'
-    | '/games/rius/archived/$riuId'
-    | '/games/sius/archived/$roundId'
+    | '/games/rius/active'
     | '/auth/me'
-    | '/games/bius/$roundId'
-    | '/games/rius/archived'
     | '/games/rius/sets'
-    | '/games/rius/upcoming'
-    | '/games/sius/$roundId'
-    | '/games/sius/archived'
     | '/admin/tricks/$trickId/edit'
     | '/admin/tricks/$trickId/videos'
     | '/games/bius/$biuId/upload'
@@ -945,18 +984,27 @@ export interface FileRouteTypes {
     | '/games/sius/$siuId/upload'
     | '/tricks/glossary/elements/create'
     | '/tricks/glossary/modifiers/create'
+    | '/games/rius/archived/$riuId'
+    | '/games/sius/archived/$roundId'
+    | '/games/bius/$roundId'
     | '/games/bius/sets/$setId'
+    | '/games/rius/archived'
+    | '/games/rius/upcoming'
     | '/games/rius/sets/$setId'
     | '/games/rius/submissions/$submissionId'
+    | '/games/sius/$roundId'
+    | '/games/sius/archived'
     | '/games/sius/sets/$setId'
     | '/tricks/glossary/elements'
     | '/tricks/glossary/modifiers'
+    | '/games/rius/sets/$setId/edit'
     | '/tricks/glossary/elements/$elementId/suggest'
     | '/tricks/glossary/modifiers/$modifierId/suggest'
   id:
     | '__root__'
     | '/'
     | '/_authed'
+    | '/arcade'
     | '/privacy'
     | '/sandbox'
     | '/shop'
@@ -990,15 +1038,15 @@ export interface FileRouteTypes {
     | '/_authed/tourney/create'
     | '/_authed/tricks/create'
     | '/api/mux/webhook'
-    | '/games/rius/active'
+    | '/games/bius/_browse'
+    | '/games/rius/_browse'
+    | '/games/sius/_browse'
     | '/tourney/live/$code'
     | '/tricks/glossary/_list'
     | '/vault/$videoId/edit'
     | '/vault/valut/bak'
     | '/_authed/admin/'
     | '/_authed/notifications/'
-    | '/games/bius/'
-    | '/games/sius/'
     | '/posts/$postId/'
     | '/tourney/live/'
     | '/tricks/glossary/'
@@ -1015,15 +1063,11 @@ export interface FileRouteTypes {
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/vault/$videoId/suggest'
     | '/api/tourney/sse/$code'
-    | '/games/rius/archived/$riuId'
-    | '/games/sius/archived/$roundId'
+    | '/games/rius/_browse/active'
     | '/_authed/auth/me/'
-    | '/games/bius/$roundId/'
-    | '/games/rius/archived/'
+    | '/games/bius/_browse/'
     | '/games/rius/sets/'
-    | '/games/rius/upcoming/'
-    | '/games/sius/$roundId/'
-    | '/games/sius/archived/'
+    | '/games/sius/_browse/'
     | '/_authed/admin/tricks/$trickId/edit'
     | '/_authed/admin/tricks/$trickId/videos'
     | '/_authed/games/bius/$biuId/upload'
@@ -1031,12 +1075,20 @@ export interface FileRouteTypes {
     | '/_authed/games/sius/$siuId/upload'
     | '/_authed/tricks/glossary/elements/create'
     | '/_authed/tricks/glossary/modifiers/create'
+    | '/games/rius/_browse/archived/$riuId'
+    | '/games/sius/_browse/archived/$roundId'
+    | '/games/bius/_browse/$roundId/'
     | '/games/bius/sets/$setId/'
+    | '/games/rius/_browse/archived/'
+    | '/games/rius/_browse/upcoming/'
     | '/games/rius/sets/$setId/'
     | '/games/rius/submissions/$submissionId/'
+    | '/games/sius/_browse/$roundId/'
+    | '/games/sius/_browse/archived/'
     | '/games/sius/sets/$setId/'
     | '/tricks/glossary/_list/elements/'
     | '/tricks/glossary/_list/modifiers/'
+    | '/_authed/games/rius/sets/$setId/edit'
     | '/_authed/tricks/glossary/elements/$elementId/suggest'
     | '/_authed/tricks/glossary/modifiers/$modifierId/suggest'
   fileRoutesById: FileRoutesById
@@ -1044,6 +1096,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
+  ArcadeRoute: typeof ArcadeRoute
   PrivacyRoute: typeof PrivacyRoute
   SandboxRoute: typeof SandboxRoute
   ShopRoute: typeof ShopRoute
@@ -1109,6 +1162,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arcade': {
+      id: '/arcade'
+      path: '/arcade'
+      fullPath: '/arcade'
+      preLoaderRoute: typeof ArcadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed': {
@@ -1314,20 +1374,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/games/sius/': {
-      id: '/games/sius/'
-      path: '/'
-      fullPath: '/games/sius/'
-      preLoaderRoute: typeof GamesSiusIndexRouteImport
-      parentRoute: typeof GamesSiusRouteRoute
-    }
-    '/games/bius/': {
-      id: '/games/bius/'
-      path: '/'
-      fullPath: '/games/bius/'
-      preLoaderRoute: typeof GamesBiusIndexRouteImport
-      parentRoute: typeof GamesBiusRouteRoute
-    }
     '/_authed/notifications/': {
       id: '/_authed/notifications/'
       path: '/notifications'
@@ -1370,12 +1416,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TourneyLiveCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/games/rius/active': {
-      id: '/games/rius/active'
-      path: '/active'
-      fullPath: '/games/rius/active'
-      preLoaderRoute: typeof GamesRiusActiveRouteImport
+    '/games/sius/_browse': {
+      id: '/games/sius/_browse'
+      path: ''
+      fullPath: '/games/sius'
+      preLoaderRoute: typeof GamesSiusBrowseRouteImport
+      parentRoute: typeof GamesSiusRouteRoute
+    }
+    '/games/rius/_browse': {
+      id: '/games/rius/_browse'
+      path: ''
+      fullPath: '/games/rius'
+      preLoaderRoute: typeof GamesRiusBrowseRouteImport
       parentRoute: typeof GamesRiusRouteRoute
+    }
+    '/games/bius/_browse': {
+      id: '/games/bius/_browse'
+      path: ''
+      fullPath: '/games/bius'
+      preLoaderRoute: typeof GamesBiusBrowseRouteImport
+      parentRoute: typeof GamesBiusRouteRoute
     }
     '/api/mux/webhook': {
       id: '/api/mux/webhook'
@@ -1426,26 +1486,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminGamesRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
-    '/games/sius/archived/': {
-      id: '/games/sius/archived/'
-      path: '/archived'
-      fullPath: '/games/sius/archived'
-      preLoaderRoute: typeof GamesSiusArchivedIndexRouteImport
-      parentRoute: typeof GamesSiusRouteRoute
-    }
-    '/games/sius/$roundId/': {
-      id: '/games/sius/$roundId/'
-      path: '/$roundId'
-      fullPath: '/games/sius/$roundId'
-      preLoaderRoute: typeof GamesSiusRoundIdIndexRouteImport
-      parentRoute: typeof GamesSiusRouteRoute
-    }
-    '/games/rius/upcoming/': {
-      id: '/games/rius/upcoming/'
-      path: '/upcoming'
-      fullPath: '/games/rius/upcoming'
-      preLoaderRoute: typeof GamesRiusUpcomingIndexRouteImport
-      parentRoute: typeof GamesRiusRouteRoute
+    '/games/sius/_browse/': {
+      id: '/games/sius/_browse/'
+      path: '/'
+      fullPath: '/games/sius/'
+      preLoaderRoute: typeof GamesSiusBrowseIndexRouteImport
+      parentRoute: typeof GamesSiusBrowseRoute
     }
     '/games/rius/sets/': {
       id: '/games/rius/sets/'
@@ -1454,19 +1500,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesRiusSetsIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
-    '/games/rius/archived/': {
-      id: '/games/rius/archived/'
-      path: '/archived'
-      fullPath: '/games/rius/archived'
-      preLoaderRoute: typeof GamesRiusArchivedIndexRouteImport
-      parentRoute: typeof GamesRiusRouteRoute
-    }
-    '/games/bius/$roundId/': {
-      id: '/games/bius/$roundId/'
-      path: '/$roundId'
-      fullPath: '/games/bius/$roundId'
-      preLoaderRoute: typeof GamesBiusRoundIdIndexRouteImport
-      parentRoute: typeof GamesBiusRouteRoute
+    '/games/bius/_browse/': {
+      id: '/games/bius/_browse/'
+      path: '/'
+      fullPath: '/games/bius/'
+      preLoaderRoute: typeof GamesBiusBrowseIndexRouteImport
+      parentRoute: typeof GamesBiusBrowseRoute
     }
     '/_authed/auth/me/': {
       id: '/_authed/auth/me/'
@@ -1475,19 +1514,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAuthMeIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/games/sius/archived/$roundId': {
-      id: '/games/sius/archived/$roundId'
-      path: '/archived/$roundId'
-      fullPath: '/games/sius/archived/$roundId'
-      preLoaderRoute: typeof GamesSiusArchivedRoundIdRouteImport
-      parentRoute: typeof GamesSiusRouteRoute
-    }
-    '/games/rius/archived/$riuId': {
-      id: '/games/rius/archived/$riuId'
-      path: '/archived/$riuId'
-      fullPath: '/games/rius/archived/$riuId'
-      preLoaderRoute: typeof GamesRiusArchivedRiuIdRouteImport
-      parentRoute: typeof GamesRiusRouteRoute
+    '/games/rius/_browse/active': {
+      id: '/games/rius/_browse/active'
+      path: '/active'
+      fullPath: '/games/rius/active'
+      preLoaderRoute: typeof GamesRiusBrowseActiveRouteImport
+      parentRoute: typeof GamesRiusBrowseRoute
     }
     '/api/tourney/sse/$code': {
       id: '/api/tourney/sse/$code'
@@ -1587,6 +1619,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesSiusSetsSetIdIndexRouteImport
       parentRoute: typeof GamesSiusRouteRoute
     }
+    '/games/sius/_browse/archived/': {
+      id: '/games/sius/_browse/archived/'
+      path: '/archived'
+      fullPath: '/games/sius/archived'
+      preLoaderRoute: typeof GamesSiusBrowseArchivedIndexRouteImport
+      parentRoute: typeof GamesSiusBrowseRoute
+    }
+    '/games/sius/_browse/$roundId/': {
+      id: '/games/sius/_browse/$roundId/'
+      path: '/$roundId'
+      fullPath: '/games/sius/$roundId'
+      preLoaderRoute: typeof GamesSiusBrowseRoundIdIndexRouteImport
+      parentRoute: typeof GamesSiusBrowseRoute
+    }
     '/games/rius/submissions/$submissionId/': {
       id: '/games/rius/submissions/$submissionId/'
       path: '/submissions/$submissionId'
@@ -1601,12 +1647,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesRiusSetsSetIdIndexRouteImport
       parentRoute: typeof GamesRiusRouteRoute
     }
+    '/games/rius/_browse/upcoming/': {
+      id: '/games/rius/_browse/upcoming/'
+      path: '/upcoming'
+      fullPath: '/games/rius/upcoming'
+      preLoaderRoute: typeof GamesRiusBrowseUpcomingIndexRouteImport
+      parentRoute: typeof GamesRiusBrowseRoute
+    }
+    '/games/rius/_browse/archived/': {
+      id: '/games/rius/_browse/archived/'
+      path: '/archived'
+      fullPath: '/games/rius/archived'
+      preLoaderRoute: typeof GamesRiusBrowseArchivedIndexRouteImport
+      parentRoute: typeof GamesRiusBrowseRoute
+    }
     '/games/bius/sets/$setId/': {
       id: '/games/bius/sets/$setId/'
       path: '/sets/$setId'
       fullPath: '/games/bius/sets/$setId'
       preLoaderRoute: typeof GamesBiusSetsSetIdIndexRouteImport
       parentRoute: typeof GamesBiusRouteRoute
+    }
+    '/games/bius/_browse/$roundId/': {
+      id: '/games/bius/_browse/$roundId/'
+      path: '/$roundId'
+      fullPath: '/games/bius/$roundId'
+      preLoaderRoute: typeof GamesBiusBrowseRoundIdIndexRouteImport
+      parentRoute: typeof GamesBiusBrowseRoute
+    }
+    '/games/sius/_browse/archived/$roundId': {
+      id: '/games/sius/_browse/archived/$roundId'
+      path: '/archived/$roundId'
+      fullPath: '/games/sius/archived/$roundId'
+      preLoaderRoute: typeof GamesSiusBrowseArchivedRoundIdRouteImport
+      parentRoute: typeof GamesSiusBrowseRoute
+    }
+    '/games/rius/_browse/archived/$riuId': {
+      id: '/games/rius/_browse/archived/$riuId'
+      path: '/archived/$riuId'
+      fullPath: '/games/rius/archived/$riuId'
+      preLoaderRoute: typeof GamesRiusBrowseArchivedRiuIdRouteImport
+      parentRoute: typeof GamesRiusBrowseRoute
     }
     '/_authed/tricks/glossary/modifiers/create': {
       id: '/_authed/tricks/glossary/modifiers/create'
@@ -1671,6 +1752,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTricksGlossaryElementsElementIdSuggestRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/games/rius/sets/$setId/edit': {
+      id: '/_authed/games/rius/sets/$setId/edit'
+      path: '/games/rius/sets/$setId/edit'
+      fullPath: '/games/rius/sets/$setId/edit'
+      preLoaderRoute: typeof AuthedGamesRiusSetsSetIdEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
@@ -1718,6 +1806,7 @@ interface AuthedRouteChildren {
   AuthedGamesSiusSiuIdUploadRoute: typeof AuthedGamesSiusSiuIdUploadRoute
   AuthedTricksGlossaryElementsCreateRoute: typeof AuthedTricksGlossaryElementsCreateRoute
   AuthedTricksGlossaryModifiersCreateRoute: typeof AuthedTricksGlossaryModifiersCreateRoute
+  AuthedGamesRiusSetsSetIdEditRoute: typeof AuthedGamesRiusSetsSetIdEditRoute
   AuthedTricksGlossaryElementsElementIdSuggestRoute: typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   AuthedTricksGlossaryModifiersModifierIdSuggestRoute: typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -1748,6 +1837,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
     AuthedTricksGlossaryElementsCreateRoute,
   AuthedTricksGlossaryModifiersCreateRoute:
     AuthedTricksGlossaryModifiersCreateRoute,
+  AuthedGamesRiusSetsSetIdEditRoute: AuthedGamesRiusSetsSetIdEditRoute,
   AuthedTricksGlossaryElementsElementIdSuggestRoute:
     AuthedTricksGlossaryElementsElementIdSuggestRoute,
   AuthedTricksGlossaryModifiersModifierIdSuggestRoute:
@@ -1757,15 +1847,27 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
+interface GamesBiusBrowseRouteChildren {
+  GamesBiusBrowseIndexRoute: typeof GamesBiusBrowseIndexRoute
+  GamesBiusBrowseRoundIdIndexRoute: typeof GamesBiusBrowseRoundIdIndexRoute
+}
+
+const GamesBiusBrowseRouteChildren: GamesBiusBrowseRouteChildren = {
+  GamesBiusBrowseIndexRoute: GamesBiusBrowseIndexRoute,
+  GamesBiusBrowseRoundIdIndexRoute: GamesBiusBrowseRoundIdIndexRoute,
+}
+
+const GamesBiusBrowseRouteWithChildren = GamesBiusBrowseRoute._addFileChildren(
+  GamesBiusBrowseRouteChildren,
+)
+
 interface GamesBiusRouteRouteChildren {
-  GamesBiusIndexRoute: typeof GamesBiusIndexRoute
-  GamesBiusRoundIdIndexRoute: typeof GamesBiusRoundIdIndexRoute
+  GamesBiusBrowseRoute: typeof GamesBiusBrowseRouteWithChildren
   GamesBiusSetsSetIdIndexRoute: typeof GamesBiusSetsSetIdIndexRoute
 }
 
 const GamesBiusRouteRouteChildren: GamesBiusRouteRouteChildren = {
-  GamesBiusIndexRoute: GamesBiusIndexRoute,
-  GamesBiusRoundIdIndexRoute: GamesBiusRoundIdIndexRoute,
+  GamesBiusBrowseRoute: GamesBiusBrowseRouteWithChildren,
   GamesBiusSetsSetIdIndexRoute: GamesBiusSetsSetIdIndexRoute,
 }
 
@@ -1773,22 +1875,34 @@ const GamesBiusRouteRouteWithChildren = GamesBiusRouteRoute._addFileChildren(
   GamesBiusRouteRouteChildren,
 )
 
+interface GamesRiusBrowseRouteChildren {
+  GamesRiusBrowseActiveRoute: typeof GamesRiusBrowseActiveRoute
+  GamesRiusBrowseArchivedRiuIdRoute: typeof GamesRiusBrowseArchivedRiuIdRoute
+  GamesRiusBrowseArchivedIndexRoute: typeof GamesRiusBrowseArchivedIndexRoute
+  GamesRiusBrowseUpcomingIndexRoute: typeof GamesRiusBrowseUpcomingIndexRoute
+}
+
+const GamesRiusBrowseRouteChildren: GamesRiusBrowseRouteChildren = {
+  GamesRiusBrowseActiveRoute: GamesRiusBrowseActiveRoute,
+  GamesRiusBrowseArchivedRiuIdRoute: GamesRiusBrowseArchivedRiuIdRoute,
+  GamesRiusBrowseArchivedIndexRoute: GamesRiusBrowseArchivedIndexRoute,
+  GamesRiusBrowseUpcomingIndexRoute: GamesRiusBrowseUpcomingIndexRoute,
+}
+
+const GamesRiusBrowseRouteWithChildren = GamesRiusBrowseRoute._addFileChildren(
+  GamesRiusBrowseRouteChildren,
+)
+
 interface GamesRiusRouteRouteChildren {
-  GamesRiusActiveRoute: typeof GamesRiusActiveRoute
-  GamesRiusArchivedRiuIdRoute: typeof GamesRiusArchivedRiuIdRoute
-  GamesRiusArchivedIndexRoute: typeof GamesRiusArchivedIndexRoute
+  GamesRiusBrowseRoute: typeof GamesRiusBrowseRouteWithChildren
   GamesRiusSetsIndexRoute: typeof GamesRiusSetsIndexRoute
-  GamesRiusUpcomingIndexRoute: typeof GamesRiusUpcomingIndexRoute
   GamesRiusSetsSetIdIndexRoute: typeof GamesRiusSetsSetIdIndexRoute
   GamesRiusSubmissionsSubmissionIdIndexRoute: typeof GamesRiusSubmissionsSubmissionIdIndexRoute
 }
 
 const GamesRiusRouteRouteChildren: GamesRiusRouteRouteChildren = {
-  GamesRiusActiveRoute: GamesRiusActiveRoute,
-  GamesRiusArchivedRiuIdRoute: GamesRiusArchivedRiuIdRoute,
-  GamesRiusArchivedIndexRoute: GamesRiusArchivedIndexRoute,
+  GamesRiusBrowseRoute: GamesRiusBrowseRouteWithChildren,
   GamesRiusSetsIndexRoute: GamesRiusSetsIndexRoute,
-  GamesRiusUpcomingIndexRoute: GamesRiusUpcomingIndexRoute,
   GamesRiusSetsSetIdIndexRoute: GamesRiusSetsSetIdIndexRoute,
   GamesRiusSubmissionsSubmissionIdIndexRoute:
     GamesRiusSubmissionsSubmissionIdIndexRoute,
@@ -1798,19 +1912,31 @@ const GamesRiusRouteRouteWithChildren = GamesRiusRouteRoute._addFileChildren(
   GamesRiusRouteRouteChildren,
 )
 
+interface GamesSiusBrowseRouteChildren {
+  GamesSiusBrowseIndexRoute: typeof GamesSiusBrowseIndexRoute
+  GamesSiusBrowseArchivedRoundIdRoute: typeof GamesSiusBrowseArchivedRoundIdRoute
+  GamesSiusBrowseRoundIdIndexRoute: typeof GamesSiusBrowseRoundIdIndexRoute
+  GamesSiusBrowseArchivedIndexRoute: typeof GamesSiusBrowseArchivedIndexRoute
+}
+
+const GamesSiusBrowseRouteChildren: GamesSiusBrowseRouteChildren = {
+  GamesSiusBrowseIndexRoute: GamesSiusBrowseIndexRoute,
+  GamesSiusBrowseArchivedRoundIdRoute: GamesSiusBrowseArchivedRoundIdRoute,
+  GamesSiusBrowseRoundIdIndexRoute: GamesSiusBrowseRoundIdIndexRoute,
+  GamesSiusBrowseArchivedIndexRoute: GamesSiusBrowseArchivedIndexRoute,
+}
+
+const GamesSiusBrowseRouteWithChildren = GamesSiusBrowseRoute._addFileChildren(
+  GamesSiusBrowseRouteChildren,
+)
+
 interface GamesSiusRouteRouteChildren {
-  GamesSiusIndexRoute: typeof GamesSiusIndexRoute
-  GamesSiusArchivedRoundIdRoute: typeof GamesSiusArchivedRoundIdRoute
-  GamesSiusRoundIdIndexRoute: typeof GamesSiusRoundIdIndexRoute
-  GamesSiusArchivedIndexRoute: typeof GamesSiusArchivedIndexRoute
+  GamesSiusBrowseRoute: typeof GamesSiusBrowseRouteWithChildren
   GamesSiusSetsSetIdIndexRoute: typeof GamesSiusSetsSetIdIndexRoute
 }
 
 const GamesSiusRouteRouteChildren: GamesSiusRouteRouteChildren = {
-  GamesSiusIndexRoute: GamesSiusIndexRoute,
-  GamesSiusArchivedRoundIdRoute: GamesSiusArchivedRoundIdRoute,
-  GamesSiusRoundIdIndexRoute: GamesSiusRoundIdIndexRoute,
-  GamesSiusArchivedIndexRoute: GamesSiusArchivedIndexRoute,
+  GamesSiusBrowseRoute: GamesSiusBrowseRouteWithChildren,
   GamesSiusSetsSetIdIndexRoute: GamesSiusSetsSetIdIndexRoute,
 }
 
@@ -1834,6 +1960,7 @@ const TricksGlossaryListRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
+  ArcadeRoute: ArcadeRoute,
   PrivacyRoute: PrivacyRoute,
   SandboxRoute: SandboxRoute,
   ShopRoute: ShopRoute,

@@ -1,10 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link, redirect } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 import { PageHeader } from "~/components/page-header"
-import { Button } from "~/components/ui/button"
 import { seo } from "~/lib/seo"
-import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { users } from "~/lib/users"
 import { errorFmt, getCloudflareImageUrl } from "~/lib/utils"
@@ -50,8 +48,6 @@ export const Route = createFileRoute("/users/$userId/")({
 function RouteComponent() {
   const { userId } = Route.useParams()
   const { data } = useSuspenseQuery(users.get.queryOptions({ userId }))
-  const sessionUser = useSessionUser()
-  const isOwnProfile = sessionUser?.id === data.id
 
   return (
     <>
@@ -60,15 +56,6 @@ function RouteComponent() {
           <PageHeader.Crumb to="/users">users</PageHeader.Crumb>
           <PageHeader.Crumb>{data.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        {isOwnProfile && (
-          <PageHeader.Right>
-            <PageHeader.Actions>
-              <Button asChild>
-                <Link to="/auth/me/edit">edit</Link>
-              </Button>
-            </PageHeader.Actions>
-          </PageHeader.Right>
-        )}
       </PageHeader>
       <UserView user={data} />
     </>

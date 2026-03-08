@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Metaline } from "~/components/ui/metaline"
 
 import {
   DEATH_FREEZE_FRAMES,
@@ -19,6 +18,7 @@ import {
 } from "./helpers"
 import { type GameState } from "./types"
 import { updateGameState } from "./update"
+import { Metaline } from "~/components/ui/metaline"
 
 export function UnicycleGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)

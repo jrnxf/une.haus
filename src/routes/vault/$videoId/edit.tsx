@@ -10,6 +10,7 @@ import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { ContentHeaderRow } from "~/components/content-header-row"
 import { DisciplineSelector } from "~/components/input/discipline-selector"
 import { RiderSelector } from "~/components/input/rider-selector"
 import { PageHeader } from "~/components/page-header"
@@ -129,48 +130,51 @@ function RouteComponent() {
           </PageHeader.Crumb>
           <PageHeader.Crumb>edit</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="icon-xs"
-                  aria-label="admin menu"
-                >
-                  <ShieldIcon className="size-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {video.video?.assetId && (
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <MonitorIcon className="size-4" />
-                      mux
-                    </a>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem asChild>
-                  <a
-                    href={video.legacyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <TvIcon className="size-4" />
-                    utv
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
       <div className="h-full overflow-y-auto">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">
+          <ContentHeaderRow
+            className="max-w-none"
+            left={<p className="text-muted-foreground text-xs">admin tools</p>}
+            right={
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    size="icon-xs"
+                    aria-label="admin menu"
+                  >
+                    <ShieldIcon className="size-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {video.video?.assetId && (
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={`https://dashboard.mux.com/organizations/rm30mj/environments/62jevu/video/assets/${video.video.assetId}/monitor`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MonitorIcon className="size-4" />
+                        mux
+                      </a>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild>
+                    <a
+                      href={video.legacyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <TvIcon className="size-4" />
+                      utv
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            }
+          />
+
           <div className="space-y-2">
             <Label htmlFor="title">name</Label>
             <Input

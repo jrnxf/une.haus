@@ -23,21 +23,21 @@ const STAT_COLS = [
   {
     key: "contentCount",
     label: "content",
-    pts: 5,
+    points: 5,
     dot: "bg-rose-500",
     text: "text-rose-500",
   },
   {
     key: "messagesCount",
     label: "messages",
-    pts: 2,
+    points: 2,
     dot: "bg-chart-4",
     text: "text-chart-4",
   },
   {
     key: "likesCount",
     label: "likes",
-    pts: 1,
+    points: 1,
     dot: "bg-chart-2",
     text: "text-chart-2",
   },
@@ -108,12 +108,12 @@ export function TopContributors({ data }: TopContributorsProps) {
                     />
                     {col.label}
                     <span className="text-muted-foreground">
-                      &times;{col.pts}
+                      &times;{col.points}
                     </span>
                   </span>
                 </TableHead>
               ))}
-              <TableHead className="h-7 text-right">pts</TableHead>
+              <TableHead className="h-7 text-right">points</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

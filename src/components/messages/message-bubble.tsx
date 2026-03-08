@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
 import {
   CopyIcon,
   FlagIcon,
-  HeartCrackIcon,
   HeartIcon,
+  MoreHorizontalIcon,
   PencilIcon,
   Trash2Icon,
-  TrendingUpIcon,
+  XIcon,
 } from "lucide-react"
 import pluralize from "pluralize"
 import React from "react"
@@ -15,27 +14,31 @@ import { toast } from "sonner"
 
 import { confirm } from "~/components/confirm-dialog"
 import { MentionTextarea } from "~/components/input/mention-textarea"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { UsersDialog } from "~/components/likes-dialog"
 import { RichText } from "~/components/rich-text"
-import { Tray, TrayContent } from "~/components/tray"
 import {
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuSeparator,
-  MenuTrigger,
-} from "~/components/ui/base-menu"
+  Tray,
+  TrayClose,
+  TrayContent,
+  TrayTitle,
+  TrayTrigger,
+} from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import { Label } from "~/components/ui/label"
+import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Textarea } from "~/components/ui/textarea"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
 import { useFlagContent } from "~/lib/flags/hooks"
 import { useHaptics } from "~/lib/haptics"
-import {
-  extractMentionedUserIds,
-  stripMentionTokens,
-} from "~/lib/mentions/parse"
+import { stripMentionTokens } from "~/lib/mentions/parse"
 import { messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
@@ -55,9 +58,9 @@ export function MessageBubble({
 }) {
   const haptics = useHaptics()
   const messageType = `${parent.type}Message` as const
-  const navigate = useNavigate()
+  const flagType = `${parent.type}Message` as FlagEntityType
   const sessionUser = useSessionUser()
-  const [actionsOpen, setActionsOpen] = React.useState(false)
+  const [detailsOpen, setDetailsOpen] = React.useState(false)
   const [editDrawerOpen, setEditDrawerOpen] = React.useState(false)
   const [likesDropdownOpen, setLikesDropdownOpen] = React.useState(false)
   const [flagTrayOpen, setFlagTrayOpen] = React.useState(false)
@@ -66,17 +69,13 @@ export function MessageBubble({
   const { userMap } = useUserMap()
   const isOwnMessage = sessionUser && message.user.id === sessionUser.id
 
-  // Resolve mentioned users for menu items
-  const mentionedUsers = React.useMemo(() => {
-    const ids = extractMentionedUserIds(message.content)
-    return ids
-      .map((id) => userMap.get(id))
-      .filter((u): u is NonNullable<typeof u> => u != null)
-  }, [message.content, userMap])
-
   const authUserLiked = Boolean(
     sessionUser &&
     message.likes.some((like) => like.user.id === sessionUser.id),
+  )
+  const canFlagMessage = Boolean(
+    !isOwnMessage &&
+    (FLAG_ENTITY_TYPES as readonly string[]).includes(flagType),
   )
 
   const { mutate: likeUnlike } = useLikeUnlikeRecord({
@@ -95,7 +94,7 @@ export function MessageBubble({
       })
       haptics.success()
       toast.success("message deleted")
-      setActionsOpen(false)
+      setDetailsOpen(false)
     },
     onError: () => {
       haptics.error()
@@ -105,7 +104,6 @@ export function MessageBubble({
 
   const handleLikeUnlike = () => {
     likeUnlike()
-    setActionsOpen(false)
   }
 
   const handleCopy = () => {
@@ -116,15 +114,15 @@ export function MessageBubble({
     navigator.clipboard.writeText(plainText)
     haptics.success()
     toast.success("message copied", { duration: 1000 })
-    setActionsOpen(false)
   }
 
   const handleEdit = () => {
-    // setActionsOpen(false);
+    setDetailsOpen(false)
     setEditDrawerOpen(true)
   }
 
   const handleDelete = () => {
+    setDetailsOpen(false)
     confirm.open({
       title: "delete message?",
       description: "this action cannot be undone.",
@@ -157,107 +155,116 @@ export function MessageBubble({
             isOwnMessage ? "flex-row-reverse" : "flex-row",
           )}
         >
-          <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
-            <MenuTrigger
-              data-slot="message-bubble"
-              aria-label={`Message: ${message.content}`}
-              className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
-              style={{ wordBreak: "break-word" }}
-            >
-              <RichText
-                content={message.content}
-                className="leading-relaxed"
-                disableLinks
-              />
-            </MenuTrigger>
-            <MenuContent
-              showBackdrop={true}
-              side={isOwnMessage ? "left" : "right"}
-              align="start"
-              sideOffset={5}
-              alignOffset={0}
-              collisionPadding={8}
-              sticky={false}
-              collisionAvoidance={{
-                side: "shift",
-                align: "shift",
-              }}
-            >
-              {mentionedUsers.length > 0 && (
-                <>
-                  {mentionedUsers.map((user) => (
-                    <MenuItem
-                      key={user.id}
-                      onClick={() => {
-                        setActionsOpen(false)
-                        navigate({
-                          to: "/users/$userId",
-                          params: { userId: user.id },
-                        })
-                      }}
-                    >
-                      {user.name}
-                    </MenuItem>
-                  ))}
-                  <MenuSeparator />
-                </>
-              )}
-              {sessionUser && (
-                <ReactionMenuItem
-                  handleLikeUnlike={handleLikeUnlike}
-                  authUserLiked={authUserLiked}
+          {/* POC reference: this bubble previously rendered a menu trigger +
+              dropdown actions here. The active interaction now opens a tray. */}
+          <Tray open={detailsOpen} onOpenChange={setDetailsOpen}>
+            <TrayTrigger asChild>
+              <button
+                type="button"
+                data-slot="message-bubble"
+                aria-label={`Message: ${message.content}`}
+                className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
+                style={{ wordBreak: "break-word" }}
+              >
+                <RichText
+                  content={message.content}
+                  className="leading-relaxed"
+                  disableLinks
                 />
-              )}
-              <MenuItem onClick={handleCopy}>
-                <CopyIcon className="size-4" />
-                copy
-              </MenuItem>
-              {message.likes.length > 0 && (
-                <MenuItem
-                  onClick={() => {
-                    setActionsOpen(false)
-                    setLikesDropdownOpen(true)
-                  }}
-                >
-                  <TrendingUpIcon className="size-4" />
-                  reactions
-                </MenuItem>
-              )}
-              {sessionUser &&
-                !isOwnMessage &&
-                (() => {
-                  const flagType = `${parent.type}Message`
-                  if (
-                    !(FLAG_ENTITY_TYPES as readonly string[]).includes(flagType)
-                  )
-                    return null
-                  return (
-                    <MenuItem
-                      onClick={() => {
-                        setActionsOpen(false)
-                        setFlagTrayOpen(true)
-                      }}
-                    >
-                      <FlagIcon className="size-4" />
-                      flag
-                    </MenuItem>
-                  )
-                })()}
-              {isOwnMessage && (
-                <>
-                  <MenuSeparator />
-                  <MenuItem onClick={handleEdit}>
-                    <PencilIcon className="size-4" />
-                    edit
-                  </MenuItem>
-                  <MenuItem variant="destructive" onClick={handleDelete}>
-                    <Trash2Icon className="size-4" />
-                    delete
-                  </MenuItem>
-                </>
-              )}
-            </MenuContent>
-          </Menu>
+              </button>
+            </TrayTrigger>
+            <TrayContent
+              className="space-y-2"
+              dialogClassName="max-w-2xl"
+              drawerClassName="pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+              showCloseButton={false}
+            >
+              <TrayTitle className="sr-only">message details</TrayTitle>
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 truncate text-sm font-medium">
+                  {message.user.name}
+                </p>
+
+                <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                  <LikesButtonGroup
+                    users={message.likes.map((like) => like.user)}
+                    authUserLiked={authUserLiked}
+                    onLikeUnlike={sessionUser ? handleLikeUnlike : undefined}
+                    disabledLikeReason={
+                      sessionUser ? undefined : "login required"
+                    }
+                  />
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon-sm"
+                        variant="outline"
+                        aria-label="more actions"
+                      >
+                        <MoreHorizontalIcon className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleCopy}>
+                        <CopyIcon className="size-4" />
+                        copy
+                      </DropdownMenuItem>
+                      {canFlagMessage && (
+                        <DropdownMenuItem
+                          disabled={!sessionUser}
+                          onClick={() => {
+                            if (!sessionUser) return
+                            setDetailsOpen(false)
+                            setFlagTrayOpen(true)
+                          }}
+                        >
+                          <FlagIcon className="size-4" />
+                          {sessionUser ? "flag" : "flag (login required)"}
+                        </DropdownMenuItem>
+                      )}
+                      {isOwnMessage && (
+                        <DropdownMenuItem onClick={handleEdit}>
+                          <PencilIcon className="size-4" />
+                          edit
+                        </DropdownMenuItem>
+                      )}
+                      {isOwnMessage && (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={handleDelete}
+                        >
+                          <Trash2Icon className="size-4" />
+                          delete
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <TrayClose asChild>
+                    <Button size="icon-sm" variant="outline" aria-label="close">
+                      <XIcon className="size-4" />
+                    </Button>
+                  </TrayClose>
+                </div>
+              </div>
+
+              <div className="text-sm leading-relaxed">
+                <RichText
+                  content={message.content}
+                  className="text-pretty whitespace-pre-wrap"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <RelativeTimeCard
+                  date={message.createdAt}
+                  variant="muted"
+                  className="text-sm tabular-nums"
+                />
+              </div>
+            </TrayContent>
+          </Tray>
 
           {/* Like Count Badge - Absolutely Positioned */}
           {message.likes.length > 0 && (
@@ -440,7 +447,6 @@ function MessageFlagTray({
 }) {
   const [reason, setReason] = React.useState("")
   const flagContent = useFlagContent()
-
   const flagType = `${parent.type}Message` as FlagEntityType
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -466,7 +472,8 @@ function MessageFlagTray({
 
   return (
     <Tray open={open} onOpenChange={onOpenChange}>
-      <TrayContent>
+      <TrayContent drawerClassName="pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        <TrayTitle className="sr-only">flag message</TrayTitle>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">
             <Label>reason</Label>
@@ -494,120 +501,5 @@ function MessageFlagTray({
         </form>
       </TrayContent>
     </Tray>
-  )
-}
-
-// function EditMessageTray({
-//   record,
-//   message,
-//   onOpenChange,
-//   open,
-// }: {
-//   record: RecordWithMessages;
-//   message: Message;
-//   onOpenChange: (open: boolean) => void;
-//   open: boolean;
-// }) {
-//   return (
-//     <Tray onOpenChange={onOpenChange} open={open}>
-//       <TrayContent
-//         className="flex max-h-3/4 grow flex-col gap-2"
-//         dialogClassName="p-0"
-//       >
-//         <TrayTitle className="sr-only">Reactions</TrayTitle>
-//         <EditMessageForm
-//           record={record}
-//           message={message}
-//           onSuccess={() => {
-//             onOpenChange(false);
-//           }}
-//         />
-//       </TrayContent>
-//     </Tray>
-//   );
-// }
-
-// /**
-//  * NOTE: I tried having the markup look like:
-//  * dropdown-menu
-//  *   tray
-//  *     tray-trigger (reactions)
-//  *     tray-content
-//  *
-//  * this worked great in chrome but safari could not render the layout correctly,
-//  * so opting for this method instead where the focus returns on close but
-//  * without the nested markup
-//  */
-// function ReactionsTray({
-//   message,
-//   onOpenChange,
-//   open,
-//   triggerRef,
-// }: {
-//   message: Message;
-//   onOpenChange: (open: boolean) => void;
-//   open: boolean;
-//   triggerRef?: React.RefObject<HTMLElement>;
-// }) {
-//   return (
-//     <Tray onOpenChange={onOpenChange} open={open}>
-//       <TrayContent
-//         className="flex grow flex-col gap-2"
-//         drawerClassName="min-h-[400px]"
-//         onCloseAutoFocus={() => {
-//           triggerRef?.current?.focus();
-//         }}
-//       >
-//         <TrayTitle className="sr-only">Reactions</TrayTitle>
-//         <div className="flex flex-col gap-2">
-//           <p className="text-muted-foreground text-xs font-semibold uppercase">
-//             Reactions
-//           </p>
-//           {message.likes.length === 0 && (
-//             <p className="text-muted-foreground text-sm">No reactions yet</p>
-//           )}
-//           {message.likes.map((like) => (
-//             <div className="flex items-center gap-2" key={like.user.id}>
-//               <Avatar className="size-6 rounded-lg">
-//                 <AvatarImage
-//                   alt={like.user.name}
-//                   height={28}
-//                   quality={70}
-//                   src={like.user.avatarId}
-//                   width={28}
-//                 />
-//                 <AvatarFallback className="text-xs" name={like.user.name} />
-//               </Avatar>
-//               <p className="truncate text-base">{like.user.name}</p>
-//             </div>
-//           ))}
-//         </div>
-//       </TrayContent>
-//     </Tray>
-//   );
-// }
-
-/**
- * uses state so the text does not flicker when the like is toggled
- * @param param0
- * @returns
- */
-function ReactionMenuItem({
-  handleLikeUnlike,
-  authUserLiked,
-}: {
-  handleLikeUnlike: () => void
-  authUserLiked: boolean
-}) {
-  const [isLiked] = React.useState<boolean>(authUserLiked)
-  return (
-    <MenuItem onClick={handleLikeUnlike}>
-      {isLiked ? (
-        <HeartCrackIcon className="size-4" />
-      ) : (
-        <HeartIcon className="size-4" />
-      )}
-      <span>{isLiked ? "unlike" : "like"}</span>
-    </MenuItem>
   )
 }

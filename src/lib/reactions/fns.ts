@@ -27,10 +27,19 @@ import {
 } from "~/lib/notifications/helpers"
 import {
   likeRecordSchema,
+  type RecordWithLikes,
   type RecordWithLikesType,
   recordTypeWithLikes,
   unlikeRecordSchema,
 } from "~/lib/reactions/schemas"
+
+type AuthenticatedContext = {
+  user: {
+    avatarId: string | null
+    id: number
+    name: string
+  }
+}
 
 // Map reaction types to notification entity types (only primary content, not messages)
 const LIKEABLE_ENTITY_TYPES: Partial<
@@ -50,67 +59,83 @@ export const likeRecordServerFn = createServerFn({
 })
   .inputValidator(zodValidator(likeRecordSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(likeRecordImpl)
 
-    const { recordId, type } = input
+export async function likeRecordImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: RecordWithLikes
+}) {
+  const userId = context.user.id
 
-    const table = getTableByType(type)
+  const { recordId, type } = input
 
-    const columnName = `${type}Id` as const
+  const table = getTableByType(type)
 
-    const result = await db
-      .insert(table)
-      .values({
-        [columnName]: recordId,
-        userId,
-      })
-      .returning()
+  const columnName = `${type}Id` as const
 
-    // Create notification for primary content types (not message likes)
-    const entityType = LIKEABLE_ENTITY_TYPES[type]
-    if (entityType) {
-      const ownerId = await getContentOwner(entityType, recordId)
-      if (ownerId && ownerId !== userId) {
-        createNotification({
-          userId: ownerId,
-          actorId: userId,
-          type: "like",
-          entityType,
-          entityId: recordId,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-          },
-        }).catch(console.error)
-      }
+  const result = await db
+    .insert(table)
+    .values({
+      [columnName]: recordId,
+      userId,
+    })
+    .returning()
+
+  // Create notification for primary content types (not message likes)
+  const entityType = LIKEABLE_ENTITY_TYPES[type]
+  if (entityType) {
+    const ownerId = await getContentOwner(entityType, recordId)
+    if (ownerId && ownerId !== userId) {
+      createNotification({
+        userId: ownerId,
+        actorId: userId,
+        type: "like",
+        entityType,
+        entityId: recordId,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+        },
+      }).catch(console.error)
     }
+  }
 
-    return result
-  })
+  return result
+}
 
 export const unlikeRecordServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(unlikeRecordSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(unlikeRecordImpl)
 
-    const { recordId, type } = input
+export async function unlikeRecordImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: RecordWithLikes
+}) {
+  const userId = context.user.id
 
-    const table = getTableByType(type)
+  const { recordId, type } = input
 
-    const columnName = `${type}Id` as const
+  const table = getTableByType(type)
 
-    invariant(table, "Invalid table")
+  const columnName = `${type}Id` as const
 
-    return await db
-      .delete(table)
-      // @ts-expect-error TODO COLBY
-      .where(and(eq(table[columnName], recordId), eq(table.userId, userId)))
-      .returning()
-  })
+  invariant(table, "Invalid table")
+
+  return await db
+    .delete(table)
+    // @ts-expect-error TODO COLBY
+    .where(and(eq(table[columnName], recordId), eq(table.userId, userId)))
+    .returning()
+}
 
 export const getTableByType = (type: RecordWithLikesType) => {
   switch (type) {

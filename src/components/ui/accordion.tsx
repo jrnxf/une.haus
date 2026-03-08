@@ -1,5 +1,6 @@
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { cn } from "~/lib/utils"
 
@@ -57,18 +58,22 @@ function AccordionContent({
   children,
   ...props
 }: AccordionPrimitive.Panel.Props) {
+  const [canAnimate, setCanAnimate] = useState(false)
+
+  useEffect(() => {
+    setCanAnimate(true)
+  }, [])
+
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className="data-closed:animate-accordion-up data-open:animate-accordion-down overflow-hidden text-sm"
+      className={cn(
+        "h-(--accordion-panel-height) overflow-hidden text-sm data-ending-style:h-0 data-starting-style:h-0",
+        canAnimate && "transition-[height] duration-200 ease-out",
+      )}
       {...props}
     >
-      <div
-        className={cn(
-          "h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_p:not(:last-child)]:mb-4",
-          className,
-        )}
-      >
+      <div className={cn("pt-0 pb-4 [&_p:not(:last-child)]:mb-4", className)}>
         {children}
       </div>
     </AccordionPrimitive.Panel>

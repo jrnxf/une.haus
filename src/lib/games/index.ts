@@ -157,18 +157,32 @@ type User = {
 
 type SetWithSubmissions = {
   id: number
+  name: string
   createdAt: Date
   user: User
   submissions?: {
     id: number
     createdAt: Date
     user: Pick<User, "id" | "name" | "avatarId">
+    likes?: unknown[]
+    messages?: unknown[]
   }[]
 }
 
-export type RankedRider<T> = {
+export type GroupedRiuSubmission<
+  TSubmission extends NonNullable<SetWithSubmissions["submissions"]>[number] =
+    NonNullable<SetWithSubmissions["submissions"]>[number],
+> = TSubmission & {
+  riuSet: {
+    id: number
+    name: string
+  }
+}
+
+export type RankedRider<T extends SetWithSubmissions = SetWithSubmissions> = {
   user: User
   sets: T[]
+  submissions: GroupedRiuSubmission<NonNullable<T["submissions"]>[number]>[]
   ranking: RiderScore
 }
 
@@ -183,7 +197,14 @@ export function groupSetsByUserWithRankings<T extends SetWithSubmissions>(
   const rankings = calculateRiderRankings(sets)
 
   // Group sets by user
-  const groups = new Map<number, { user: User; sets: T[] }>()
+  const groups = new Map<
+    number,
+    {
+      user: User
+      sets: T[]
+      submissions: GroupedRiuSubmission<NonNullable<T["submissions"]>[number]>[]
+    }
+  >()
   for (const set of sets) {
     const userId = set.user.id
     const existing = groups.get(userId)
@@ -193,8 +214,37 @@ export function groupSetsByUserWithRankings<T extends SetWithSubmissions>(
       groups.set(userId, {
         user: set.user,
         sets: [set],
+        submissions: [],
       })
     }
+
+    for (const submission of set.submissions ?? []) {
+      const submissionUserId = submission.user.id
+      const groupedSubmission = {
+        ...submission,
+        riuSet: {
+          id: set.id,
+          name: set.name,
+        },
+      } satisfies GroupedRiuSubmission<NonNullable<T["submissions"]>[number]>
+
+      const submissionGroup = groups.get(submissionUserId)
+      if (submissionGroup) {
+        submissionGroup.submissions.push(groupedSubmission)
+      } else {
+        groups.set(submissionUserId, {
+          user: submission.user,
+          sets: [],
+          submissions: [groupedSubmission],
+        })
+      }
+    }
+  }
+
+  for (const group of groups.values()) {
+    group.submissions.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    )
   }
 
   // Combine groups with rankings and sort by rank
@@ -206,13 +256,14 @@ export function groupSetsByUserWithRankings<T extends SetWithSubmissions>(
       result.push({
         user: group.user,
         sets: group.sets,
+        submissions: group.submissions,
         ranking,
       })
     } else {
-      // User only has submissions, no sets
       result.push({
         user: ranking.user,
         sets: [],
+        submissions: [],
         ranking,
       })
     }

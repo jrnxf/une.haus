@@ -152,9 +152,6 @@ function RouteComponent() {
             <div className="space-y-2">
               <Label>riders</Label>
               <RiderSelector value={riders} onChange={setRiders} />
-              <p className="text-muted-foreground text-xs">
-                {riders.length} riders added
-              </p>
             </div>
 
             <div className="space-y-2">

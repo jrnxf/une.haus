@@ -98,6 +98,7 @@ function RouteComponent() {
 
   const [orderedRiders, setOrderedRiders] =
     useState<RankedRider[]>(completedRiders)
+  const advancingCount = Math.min(state.bracketSize, orderedRiders.length)
 
   const handleStart = () => {
     const ranking = orderedRiders.map((r) => r.originalIndex)
@@ -126,7 +127,7 @@ function RouteComponent() {
         <div>
           <h2 className="text-lg font-semibold">ranking</h2>
           <p className="text-muted-foreground text-sm">
-            Drag to rank riders. Top {state.bracketSize} advance to the bracket.
+            Drag to rank riders. Top {advancingCount} advance to the bracket.
           </p>
         </div>
 
@@ -139,7 +140,7 @@ function RouteComponent() {
           {orderedRiders.map((item, index) => {
             const resolved = resolveRider(item.rider)
             const name = resolved.name ?? "Unknown"
-            const advancing = index < state.bracketSize
+            const advancing = index < advancingCount
 
             return (
               <SortableItem
@@ -150,7 +151,7 @@ function RouteComponent() {
                   advancing
                     ? "border-primary/20 bg-primary/5"
                     : "bg-muted/70 border-transparent opacity-60",
-                  index === state.bracketSize && "mt-3",
+                  index === advancingCount && "mt-3",
                 )}
               >
                 <SortableItemHandle>
@@ -178,11 +179,11 @@ function RouteComponent() {
           })}
         </Sortable>
 
-        {orderedRiders.length > state.bracketSize && (
+        {orderedRiders.length > advancingCount && (
           <div className="flex items-center gap-2">
             <div className="bg-border h-px flex-1" />
             <span className="text-muted-foreground text-xs">
-              {orderedRiders.length - state.bracketSize} eliminated
+              {orderedRiders.length - advancingCount} eliminated
             </span>
             <div className="bg-border h-px flex-1" />
           </div>

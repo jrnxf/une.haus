@@ -1,11 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { HeartIcon, TrashIcon, TrendingUpIcon } from "lucide-react"
-import pluralize from "pluralize"
+import { TrashIcon } from "lucide-react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
-import { UsersDialog } from "~/components/likes-dialog"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
@@ -25,7 +24,6 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
-import { cn } from "~/lib/utils"
 import { MessagesView } from "~/views/messages"
 
 const pathParametersSchema = z.object({
@@ -74,7 +72,7 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
     })
 
     return seo({
-      title: submission.user.name,
+      title: submission.riuSet.name,
       description: `Rack It Up submission for ${submission.riuSet.name}`,
       path: `/games/rius/submissions/${submission.id}`,
       image,
@@ -126,16 +124,20 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <div className="shrink-0 space-y-1">
-          <Link
-            to="/users/$userId"
-            params={{ userId: submission.user.id }}
-            className="text-2xl leading-none font-semibold tracking-tight hover:underline"
-          >
-            {submission.user.name}
-          </Link>
+      <div className="flex items-start gap-3">
+        <div className="w-full space-y-1">
+          <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
+            {submission.riuSet.name}
+          </div>
           <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
+            <Link
+              to="/users/$userId"
+              params={{ userId: submission.user.id }}
+              className="hover:underline"
+            >
+              {submission.user.name}
+            </Link>
+            <span className="opacity-25">/</span>
             <RelativeTimeCard date={submission.createdAt} variant="muted" />
           </p>
         </div>
@@ -171,48 +173,11 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
               <Separator orientation="vertical" className="mx-1 h-6" />
             </>
           )}
-          {sessionUser && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  aria-label={authUserLiked ? "unlike" : "like"}
-                  onClick={likeUnlike.mutate}
-                >
-                  <HeartIcon
-                    className={cn(
-                      "size-4",
-                      authUserLiked && "fill-red-700/50 stroke-red-700",
-                    )}
-                  />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {authUserLiked ? "unlike" : "like"}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {submission.likes.length > 0 && (
-            <Tooltip>
-              <UsersDialog
-                users={submission.likes.map((l) => l.user)}
-                title={`${submission.likes.length} ${pluralize("Like", submission.likes.length)}`}
-                trigger={
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="view likes"
-                    >
-                      <TrendingUpIcon className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                }
-              />
-              <TooltipContent>likes</TooltipContent>
-            </Tooltip>
-          )}
+          <LikesButtonGroup
+            users={submission.likes.map((l) => l.user)}
+            authUserLiked={authUserLiked}
+            onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
+          />
           <ShareFlagMenu
             entityType="riuSubmission"
             entityId={submission.id}

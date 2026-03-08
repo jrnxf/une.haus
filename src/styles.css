@@ -66,6 +66,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
+  --color-card-2: var(--card-2);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
@@ -112,6 +113,12 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-table-header: var(--table-header);
+  --color-rank-gold: var(--rank-gold);
+  --color-rank-gold-foreground: var(--rank-gold-foreground);
+  --color-rank-silver: var(--rank-silver);
+  --color-rank-silver-foreground: var(--rank-silver-foreground);
+  --color-rank-bronze: var(--rank-bronze);
+  --color-rank-bronze-foreground: var(--rank-bronze-foreground);
 }
 
 :root {
@@ -119,6 +126,7 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
   --card: oklch(1 0 0);
+  --card-2: oklch(99.5% 0 0);
   --card-foreground: oklch(0 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
@@ -157,6 +165,12 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --table-header: oklch(0.98 0 0);
+  --rank-gold: oklch(0.87 0.17 93);
+  --rank-gold-foreground: oklch(0.33 0.06 93);
+  --rank-silver: oklch(0.81 0 0);
+  --rank-silver-foreground: oklch(0.36 0 0);
+  --rank-bronze: oklch(0.67 0.13 61);
+  --rank-bronze-foreground: oklch(0.28 0.06 55);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0 0 0);
   --sidebar-primary: oklch(17% 0 0);
@@ -171,6 +185,7 @@
   --background: oklch(0 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(17% 0 0);
+  --card-2: oklch(19% 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(17% 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -201,7 +216,8 @@
   --warning-bg: oklch(0.25 0.05 65);
   --warning-border: oklch(0.4 0.08 65);
   --border: oklch(0.25 0 0);
-  --input: oklch(1 0 0 / 15%);
+  --input: oklch(0.25 0 0);
+  /* --input: oklch(1 0 0 / 15%); */
   --ring: oklch(0.552 0.016 285);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -209,6 +225,12 @@
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
   --table-header: oklch(17% 0 0);
+  --rank-gold: oklch(0.87 0.17 93);
+  --rank-gold-foreground: oklch(0.33 0.06 93);
+  --rank-silver: oklch(0.81 0 0);
+  --rank-silver-foreground: oklch(0.36 0 0);
+  --rank-bronze: oklch(0.67 0.13 61);
+  --rank-bronze-foreground: oklch(0.28 0.06 55);
   --sidebar: oklch(17% 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);

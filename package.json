@@ -21,8 +21,8 @@
     "format": "oxfmt --write",
     "typecheck": "tsgo --noEmit",
     "test": "bun test",
-    "test:integration": "./src/scripts/run-integration-tests.sh",
-    "test:integration:poc": "./src/scripts/run-server-fns-poc.sh",
+    "test:integration": "bun run src/scripts/run-integration-tests.ts",
+    "test:integration:poc": "bun run src/scripts/run-integration-tests.ts ./src/test/integration/messages.integration.ts ./src/test/integration/sius.integration.ts",
     "e2e": "bun run playwright test",
     "e2e:ci": "CI=true bun run playwright test",
     "e2e:slow": "SLOW_MO=1 bun run playwright test --headed",
@@ -149,7 +149,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@react-email/preview-server": "5.2.5",
-"@tanstack/devtools-vite": "^0.4.1",
+    "@tanstack/devtools-vite": "^0.4.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/bcryptjs": "^2.4.6",
@@ -171,7 +171,7 @@
     "oxlint": "^1.50.0",
     "pg": "^8.14.1",
     "react-email": "^5.2.5",
-"typescript": "~5.8.3",
+    "typescript": "~5.8.3",
     "vite": "^7.1.7",
     "web-vitals": "^4.2.4"
   },

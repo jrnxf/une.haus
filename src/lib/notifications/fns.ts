@@ -13,231 +13,305 @@ import {
   markReadSchema,
 } from "~/lib/notifications/schemas"
 
+type AuthenticatedContext = {
+  user: {
+    id: number
+  }
+}
+
+type OptionalAuthContext = {
+  user?: {
+    id: number
+  } | null
+}
+
 export const listNotificationsServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(listNotificationsSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
-    const { cursor, limit, unreadOnly } = input
+  .handler(listNotificationsImpl)
 
-    // Build where conditions
-    const conditions = [eq(notifications.userId, userId)]
+export async function listNotificationsImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    cursor?: number
+    limit: number
+    unreadOnly: boolean
+  }
+}) {
+  const userId = context.user.id
+  const { cursor, limit, unreadOnly } = input
 
-    if (cursor) {
-      conditions.push(lt(notifications.id, cursor))
-    }
+  const conditions = [eq(notifications.userId, userId)]
 
-    if (unreadOnly) {
-      conditions.push(isNull(notifications.readAt))
-    }
+  if (cursor) {
+    conditions.push(lt(notifications.id, cursor))
+  }
 
-    const results = await db.query.notifications.findMany({
-      where: and(...conditions),
-      orderBy: desc(notifications.createdAt),
-      limit: limit + 1,
-      with: {
-        actor: {
-          columns: {
-            id: true,
-            name: true,
-            avatarId: true,
-          },
+  if (unreadOnly) {
+    conditions.push(isNull(notifications.readAt))
+  }
+
+  const results = await db.query.notifications.findMany({
+    where: and(...conditions),
+    orderBy: desc(notifications.createdAt),
+    limit: limit + 1,
+    with: {
+      actor: {
+        columns: {
+          id: true,
+          name: true,
+          avatarId: true,
         },
       },
-    })
-
-    const hasMore = results.length > limit
-    const items = hasMore ? results.slice(0, -1) : results
-    const nextCursor = hasMore ? items.at(-1)?.id : undefined
-
-    return {
-      items,
-      nextCursor,
-    }
+    },
   })
+
+  const hasMore = results.length > limit
+  const items = hasMore ? results.slice(0, -1) : results
+  const nextCursor = hasMore ? items.at(-1)?.id : undefined
+
+  return {
+    items,
+    nextCursor,
+  }
+}
 
 export const listGroupedNotificationsServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(listNotificationsSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
-    const { limit, unreadOnly } = input
+  .handler(listGroupedNotificationsImpl)
 
-    // Build where conditions for grouping query
-    const whereConditions = [eq(notifications.userId, userId)]
+export async function listGroupedNotificationsImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    limit: number
+    unreadOnly: boolean
+  }
+}) {
+  const userId = context.user.id
+  const { limit, unreadOnly } = input
 
-    if (unreadOnly) {
-      whereConditions.push(isNull(notifications.readAt))
-    }
+  const whereConditions = [eq(notifications.userId, userId)]
 
-    // Group notifications by type, entityType, and entityId
-    const grouped = await db
-      .select({
-        type: notifications.type,
-        entityType: notifications.entityType,
-        entityId: notifications.entityId,
-        count: count(),
-        latestId: sql<number>`MAX(${notifications.id})`,
-        latestAt: sql<Date>`MAX(${notifications.createdAt})`,
-        // Check if all notifications in this group are read
-        isRead: sql<boolean>`COUNT(*) FILTER (WHERE ${notifications.readAt} IS NULL) = 0`,
-        // Get the most recent unique actor IDs (up to 3)
-        actorIds: sql<number[]>`
-          (
-                    SELECT ARRAY_AGG(top_actors.actor_id)
-                    FROM (
-                      SELECT unique_actors.actor_id
-                      FROM (
-                        SELECT DISTINCT ON (n2.actor_id) n2.actor_id, n2.created_at
-                        FROM ${notifications} n2
-                        WHERE n2.user_id = ${userId}
-                          AND n2.type = ${notifications.type}
-                          AND n2.entity_type = ${notifications.entityType}
-                          AND n2.entity_id = ${notifications.entityId}
-                          ${unreadOnly ? sql`AND n2.read_at IS NULL` : sql``}
-                        ORDER BY n2.actor_id, n2.created_at DESC
-                      ) unique_actors
-                      ORDER BY unique_actors.created_at DESC
-                      LIMIT 3
-                    ) top_actors
-                  )
-        `,
-        // Get the data from the most recent notification in this group
-        data: sql<string>`(array_agg(${notifications.data}::text ORDER BY ${notifications.createdAt} DESC))[1]`,
-      })
-      .from(notifications)
-      .where(and(...whereConditions))
-      .groupBy(
-        notifications.type,
-        notifications.entityType,
-        notifications.entityId,
-      )
-      .orderBy(sql`MAX(${notifications.createdAt}) DESC`)
-      .limit(limit)
+  if (unreadOnly) {
+    whereConditions.push(isNull(notifications.readAt))
+  }
 
-    // Fetch actor details for the grouped notifications
-    const allActorIds = [...new Set(grouped.flatMap((g) => g.actorIds || []))]
+  const grouped = await db
+    .select({
+      type: notifications.type,
+      entityType: notifications.entityType,
+      entityId: notifications.entityId,
+      count: count(),
+      latestId: sql<number>`MAX(${notifications.id})`,
+      latestAt: sql<Date>`MAX(${notifications.createdAt})`,
+      isRead: sql<boolean>`COUNT(*) FILTER (WHERE ${notifications.readAt} IS NULL) = 0`,
+      data: sql<string>`(array_agg(${notifications.data}::text ORDER BY ${notifications.createdAt} DESC))[1]`,
+    })
+    .from(notifications)
+    .where(and(...whereConditions))
+    .groupBy(
+      notifications.type,
+      notifications.entityType,
+      notifications.entityId,
+    )
+    .orderBy(sql`MAX(${notifications.createdAt}) DESC`)
+    .limit(limit)
 
-    const actorDetails =
-      allActorIds.length > 0
-        ? await db.query.users.findMany({
-            where: (users, { inArray }) => inArray(users.id, allActorIds),
+  return Promise.all(
+    grouped.map(async (group) => {
+      const rows = await db.query.notifications.findMany({
+        where: (table, operators) =>
+          operators.and(
+            operators.eq(table.userId, userId),
+            operators.eq(table.type, group.type),
+            operators.eq(table.entityType, group.entityType),
+            operators.eq(table.entityId, group.entityId),
+            unreadOnly ? operators.isNull(table.readAt) : undefined,
+          ),
+        orderBy: (table, operators) => [operators.desc(table.createdAt)],
+        with: {
+          actor: {
             columns: {
               id: true,
               name: true,
               avatarId: true,
             },
-          })
-        : []
+          },
+        },
+      })
 
-    const actorMap = new Map(actorDetails.map((a) => [a.id, a]))
+      const seenActorIds = new Set<number>()
+      const actors = []
 
-    return grouped.map((g) => ({
-      type: g.type,
-      entityType: g.entityType,
-      entityId: g.entityId,
-      count: g.count,
-      latestId: g.latestId,
-      latestAt: g.latestAt,
-      isRead: g.isRead,
-      actors: (g.actorIds || []).map((id) => actorMap.get(id)).filter(Boolean),
-      data: g.data ? JSON.parse(g.data) : null,
-    }))
-  })
+      for (const row of rows) {
+        if (!row.actor || seenActorIds.has(row.actor.id)) {
+          continue
+        }
+
+        seenActorIds.add(row.actor.id)
+        actors.push(row.actor)
+
+        if (actors.length === 3) {
+          break
+        }
+      }
+
+      return {
+        type: group.type,
+        entityType: group.entityType,
+        entityId: group.entityId,
+        count: group.count,
+        latestId: group.latestId,
+        latestAt: group.latestAt,
+        isRead: group.isRead,
+        actors,
+        data: group.data ? JSON.parse(group.data) : null,
+      }
+    }),
+  )
+}
 
 export const getUnreadCountServerFn = createServerFn({
   method: "GET",
 })
   .middleware([authOptionalMiddleware])
-  .handler(async ({ context }) => {
-    if (!context.user) return 0
+  .handler(getUnreadCountImpl)
 
-    const userId = context.user.id
+export async function getUnreadCountImpl({
+  context,
+}: {
+  context: OptionalAuthContext
+}) {
+  if (!context.user) return 0
 
-    const [result] = await db
-      .select({ count: count() })
-      .from(notifications)
-      .where(
-        and(eq(notifications.userId, userId), isNull(notifications.readAt)),
-      )
+  const userId = context.user.id
 
-    return result?.count ?? 0
-  })
+  const [result] = await db
+    .select({ count: count() })
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), isNull(notifications.readAt)))
+
+  return result?.count ?? 0
+}
 
 export const markReadServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(markReadSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(markReadImpl)
 
-    await db
-      .update(notifications)
-      .set({ readAt: new Date() })
-      .where(
-        and(
-          eq(notifications.id, input.notificationId),
-          eq(notifications.userId, userId),
-        ),
-      )
-  })
+export async function markReadImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    notificationId: number
+  }
+}) {
+  const userId = context.user.id
+
+  await db
+    .update(notifications)
+    .set({ readAt: new Date() })
+    .where(
+      and(
+        eq(notifications.id, input.notificationId),
+        eq(notifications.userId, userId),
+      ),
+    )
+}
 
 export const markGroupReadServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(markGroupReadSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(markGroupReadImpl)
 
-    // Mark all notifications in this group as read
-    await db
-      .update(notifications)
-      .set({ readAt: new Date() })
-      .where(
-        and(
-          eq(notifications.userId, userId),
-          eq(notifications.entityType, input.entityType),
-          eq(notifications.entityId, input.entityId),
-        ),
-      )
-  })
+export async function markGroupReadImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    entityId: number
+    entityType: (typeof notifications.$inferInsert)["entityType"]
+    type: (typeof notifications.$inferInsert)["type"]
+  }
+}) {
+  const userId = context.user.id
+
+  // Mark only the requested notification group as read.
+  await db
+    .update(notifications)
+    .set({ readAt: new Date() })
+    .where(
+      and(
+        eq(notifications.userId, userId),
+        eq(notifications.type, input.type),
+        eq(notifications.entityType, input.entityType),
+        eq(notifications.entityId, input.entityId),
+      ),
+    )
+}
 
 export const markAllReadServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(markAllReadSchema))
   .middleware([authMiddleware])
-  .handler(async ({ context }) => {
-    const userId = context.user.id
+  .handler(markAllReadImpl)
 
-    await db
-      .update(notifications)
-      .set({ readAt: new Date() })
-      .where(
-        and(eq(notifications.userId, userId), isNull(notifications.readAt)),
-      )
-  })
+export async function markAllReadImpl({
+  context,
+}: {
+  context: AuthenticatedContext
+}) {
+  const userId = context.user.id
+
+  await db
+    .update(notifications)
+    .set({ readAt: new Date() })
+    .where(and(eq(notifications.userId, userId), isNull(notifications.readAt)))
+}
 
 export const deleteNotificationServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(deleteNotificationSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(deleteNotificationImpl)
 
-    await db
-      .delete(notifications)
-      .where(
-        and(
-          eq(notifications.id, input.notificationId),
-          eq(notifications.userId, userId),
-        ),
-      )
-  })
+export async function deleteNotificationImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    notificationId: number
+  }
+}) {
+  const userId = context.user.id
+
+  await db
+    .delete(notifications)
+    .where(
+      and(
+        eq(notifications.id, input.notificationId),
+        eq(notifications.userId, userId),
+      ),
+    )
+}

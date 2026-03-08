@@ -32,71 +32,72 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
 
 const config = defineConfig(async () => {
   return {
-  build: {
-    rollupOptions: {
-      onwarn(warning: RollupLog, defaultHandler: LoggingFunction) {
-        // "use client"/"use server" directives trigger Rollup warnings — safe to ignore
-        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return
-        defaultHandler(warning)
-      },
-    },
-  },
-  server: {
-    allowedHosts: [
-      // put ngrok url here
-    ],
-  },
-  plugins: [
-    await devtoolsPlugin(),
-    // this is the plugin that enables path aliases - must come before nitro
-    viteTsConfigPaths({
-      projects: ["./tsconfig.json"],
-    }),
-    // biome-ignore lint/suspicious/noExplicitAny: types here are not yet updated for nitro
-    (nitro({
-      preset: "bun",
-      compatibilityDate: "latest",
-      serverDir: "./server",
-      experimental: {
-        tasks: true,
-        vite: {
-          serverReload: true,
+    build: {
+      rollupOptions: {
+        external: ["postgres"],
+        onwarn(warning: RollupLog, defaultHandler: LoggingFunction) {
+          // "use client"/"use server" directives trigger Rollup warnings — safe to ignore
+          if (warning.code === "MODULE_LEVEL_DIRECTIVE") return
+          defaultHandler(warning)
         },
       },
-      scheduledTasks: {
-        // Heartbeat: run every minute
-        "* * * * *": [TASK_NAMES.HEARTBEAT],
-        // Run RIU rotation at midnight (00:00) every Monday (server timezone)
-        // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
-        "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
-        // Every hour at :00 — digest checks user's configured hour/day,
-        // game-start checks hours-until-rotation with 1h window
-        "0 * * * *": [
-          TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
-          TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
-        ],
-        // Once daily at midnight UTC — checks days-until-rotation
-        "0 0 * * *": [TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS],
-      },
-    } as any)),
-    tailwindcss(),
-    // beasties({
-    //   options: {
-    //     fonts: true,
-    //     logger: {
-    //       debug: (msg) => process.stdout.write(`[BEASTIES-DEBUG] ${msg}\n`),
-    //       error: (msg) => process.stderr.write(`[BEASTIES-ERROR] ${msg}\n`),
-    //       info: (msg) => process.stdout.write(`[BEASTIES-INFO] ${msg}\n`),
-    //       trace: (msg) => process.stdout.write(`[BEASTIES-TRACE] ${msg}\n`),
-    //       warn: (msg) => process.stderr.write(`[BEASTIES-WARN] ${msg}\n`),
-    //     },
-    //   },
-    // }),
-    tanstackStart(),
-    // react's vite plugin must come after start's vite plugin
-    viteReact(),
-  ].filter(Boolean) as PluginOption[],
-}
+    },
+    server: {
+      allowedHosts: [
+        // put ngrok url here
+      ],
+    },
+    plugins: [
+      await devtoolsPlugin(),
+      // this is the plugin that enables path aliases - must come before nitro
+      viteTsConfigPaths({
+        projects: ["./tsconfig.json"],
+      }),
+      // biome-ignore lint/suspicious/noExplicitAny: types here are not yet updated for nitro
+      nitro({
+        preset: "bun",
+        compatibilityDate: "latest",
+        serverDir: "./server",
+        experimental: {
+          tasks: true,
+          vite: {
+            serverReload: true,
+          },
+        },
+        scheduledTasks: {
+          // Heartbeat: run every minute
+          "* * * * *": [TASK_NAMES.HEARTBEAT],
+          // Run RIU rotation at midnight (00:00) every Monday (server timezone)
+          // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
+          "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
+          // Every hour at :00 — digest checks user's configured hour/day,
+          // game-start checks hours-until-rotation with 1h window
+          "0 * * * *": [
+            TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
+            TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
+          ],
+          // Once daily at midnight UTC — checks days-until-rotation
+          "0 0 * * *": [TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS],
+        },
+      } as any),
+      tailwindcss(),
+      // beasties({
+      //   options: {
+      //     fonts: true,
+      //     logger: {
+      //       debug: (msg) => process.stdout.write(`[BEASTIES-DEBUG] ${msg}\n`),
+      //       error: (msg) => process.stderr.write(`[BEASTIES-ERROR] ${msg}\n`),
+      //       info: (msg) => process.stdout.write(`[BEASTIES-INFO] ${msg}\n`),
+      //       trace: (msg) => process.stdout.write(`[BEASTIES-TRACE] ${msg}\n`),
+      //       warn: (msg) => process.stderr.write(`[BEASTIES-WARN] ${msg}\n`),
+      //     },
+      //   },
+      // }),
+      tanstackStart(),
+      // react's vite plugin must come after start's vite plugin
+      viteReact(),
+    ].filter(Boolean) as PluginOption[],
+  }
 })
 
 export default config

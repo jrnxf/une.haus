@@ -29,56 +29,40 @@ async function dismissToasts(page: Page) {
     .catch(() => {})
 }
 
-/** Delete a message via its context menu → Delete → confirm dialog. */
+/** Delete a message via its tray actions → Delete → confirm dialog. */
 export async function deleteMessageViaUI(page: Page, messageText: string) {
   const messageBubble = page.getByRole("button", {
     name: `Message: ${messageText}`,
   })
+  const detailsDialog = page.getByRole("dialog", { name: "message details" })
 
   await expect(async () => {
     await dismissOverlay(page)
 
-    if (
-      await page
-        .getByRole("alertdialog")
-        .isVisible()
-        .catch(() => false)
-    ) {
-      await page.keyboard.press("Escape")
-      await expect(page.getByRole("alertdialog")).not.toBeVisible({
-        timeout: 2000,
-      })
-    }
-
-    // Close any lingering context menu from a previous attempt or the unlike flow
-    if (
-      await page
-        .getByRole("menu")
-        .isVisible()
-        .catch(() => false)
-    ) {
-      await page.keyboard.press("Escape")
-      await expect(page.getByRole("menu")).not.toBeVisible({
-        timeout: 2000,
-      })
+    for (const dialog of [
+      page.getByRole("alertdialog"),
+      detailsDialog,
+    ] as const) {
+      if (await dialog.isVisible().catch(() => false)) {
+        await page.keyboard.press("Escape")
+        await expect(dialog).not.toBeVisible({ timeout: 2000 })
+      }
     }
 
     // Dismiss any visible toasts that could intercept clicks
     await dismissToasts(page)
 
     await messageBubble.click()
-    const deleteItem = page.getByRole("menuitem", { name: "Delete" })
-    await expect(deleteItem).toBeVisible({ timeout: 3000 })
-    // Base UI's backdrop intercepts pointer events; dispatchEvent
-    // fires the click directly on the element, bypassing hit-testing.
-    await deleteItem.dispatchEvent("click")
+    await expect(detailsDialog).toBeVisible({ timeout: 3000 })
+    await detailsDialog.getByRole("button", { name: "delete" }).click({
+      timeout: 3000,
+    })
 
     await expect(page.getByText("Delete message?")).toBeVisible({
       timeout: 3000,
     })
-    await expect(deleteItem).not.toBeVisible({ timeout: 3000 })
 
-    // Dismiss toasts again before clicking confirm — the menu close can race
+    // Dismiss toasts again before clicking confirm so they do not intercept input.
     await dismissToasts(page)
 
     const dialog = page.getByRole("alertdialog")
@@ -94,24 +78,30 @@ export async function deleteMessageViaUI(page: Page, messageText: string) {
   await expect(messageBubble).not.toBeVisible({ timeout: 5000 })
 }
 
-/** Unlike a message via its context menu (no-op if not liked). */
+/** Unlike a message via its tray actions (no-op if not liked). */
 export async function unlikeMessageViaUI(page: Page, messageText: string) {
   const messageBubble = page.getByRole("button", {
     name: `Message: ${messageText}`,
   })
+  const detailsDialog = page.getByRole("dialog", { name: "message details" })
 
   await dismissOverlay(page)
 
   await expect(async () => {
     await dismissToasts(page)
+    if (await detailsDialog.isVisible().catch(() => false)) {
+      await page.keyboard.press("Escape")
+      await expect(detailsDialog).not.toBeVisible({ timeout: 2000 })
+    }
     await messageBubble.click()
-    const unlikeItem = page.getByRole("menuitem", { name: "Unlike" })
-    const isLiked = await unlikeItem.isVisible().catch(() => false)
+    await expect(detailsDialog).toBeVisible({ timeout: 3000 })
+    const unlikeButton = detailsDialog.getByRole("button", { name: "unlike" })
+    const isLiked = await unlikeButton.isVisible().catch(() => false)
 
     if (isLiked) {
-      await unlikeItem.click({ timeout: 3000 })
+      await unlikeButton.click({ timeout: 3000 })
     } else {
-      // Not liked — close the menu
+      // Not liked — close the tray
       await page.keyboard.press("Escape")
     }
   }).toPass({ timeout: 15_000 })

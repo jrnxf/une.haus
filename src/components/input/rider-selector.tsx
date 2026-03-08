@@ -224,7 +224,7 @@ export function RiderSelector({
           value={value}
           onValueChange={onChange}
           getItemValue={(item) => item.orderId}
-          className="space-y-1"
+          className="space-y-2"
         >
           {value.map((rider, index) => {
             const user = rider.userId ? usersMap.get(rider.userId) : null

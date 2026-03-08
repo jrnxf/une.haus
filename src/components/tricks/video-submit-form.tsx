@@ -123,9 +123,7 @@ export function VideoSubmitForm({
               : "submit video"}
           </Button>
           {onCancel && (
-            <FormCancelButton onClick={onCancel}>
-              cancel
-            </FormCancelButton>
+            <FormCancelButton onClick={onCancel}>cancel</FormCancelButton>
           )}
         </Field>
       </FieldGroup>

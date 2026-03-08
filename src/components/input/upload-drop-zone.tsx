@@ -8,14 +8,12 @@ export function UploadDropZone({
   getInputProps,
   inputId,
   disabled,
-  hasValue = false,
   children,
 }: {
   getRootProps: () => object
   getInputProps: () => object
   inputId?: string
   disabled?: boolean
-  hasValue?: boolean
   children: ReactNode
 }) {
   return (
@@ -23,8 +21,7 @@ export function UploadDropZone({
       <Button
         aria-label="file upload"
         className={cn(
-          "border-input ring-offset-background dark:bg-input/30 text-foreground relative inline-flex h-9 max-w-full items-center justify-start overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base font-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-          hasValue ? "w-56" : "w-fit",
+          "border-input ring-offset-background dark:bg-input/30 text-foreground relative inline-flex h-9 w-56 max-w-full items-center justify-start overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base font-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         )}
         style={{ borderColor: "var(--input)" }}
         type="button"

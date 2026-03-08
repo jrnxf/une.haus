@@ -3,6 +3,7 @@ import { ArrowDownToLineIcon, LayersIcon, PaperclipIcon } from "lucide-react"
 
 import { RichText } from "~/components/rich-text"
 import { Badge } from "~/components/ui/badge"
+import { buttonVariants } from "~/components/ui/button"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { type ActivityItem } from "~/lib/users"
 import { cn } from "~/lib/utils"
@@ -65,7 +66,12 @@ function PostCard({ item }: { item: ActivityItem }) {
 
   return (
     <div className="relative">
-      <div className="bg-card flex flex-col gap-4 rounded-md border p-3 sm:flex-row">
+      <div
+        className={cn(
+          buttonVariants({ variant: "card" }),
+          "flex flex-col gap-4 p-3 sm:flex-row",
+        )}
+      >
         <div className="flex w-full flex-col gap-2">
           <Link
             params={{ postId: item.id }}

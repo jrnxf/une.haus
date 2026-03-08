@@ -1,4 +1,4 @@
-import { Loader2Icon, TrashIcon } from "lucide-react"
+import { TrashIcon } from "lucide-react"
 import pluralize from "pluralize"
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
@@ -7,7 +7,6 @@ import { toast } from "sonner"
 import { UploadDropZone } from "~/components/input/upload-drop-zone"
 import { Button } from "~/components/ui/button"
 import { useFormMedia } from "~/components/ui/form"
-import { Progress } from "~/components/ui/progress"
 import { VideoPlayer } from "~/components/video-player"
 import {
   getVideoFileRejectionMessage,
@@ -31,32 +30,31 @@ export function MultiVideoInput({
   onChange,
   maxVideos = 5,
 }: MultiVideoInputProps) {
-  const { setMediaUploadFileName, setMediaUploadFileSizeBytes, setVideoUploadStatus } =
-    useFormMedia()
+  const {
+    setMediaUploadFileName,
+    setMediaUploadFileSizeBytes,
+    setVideoUploadStatus,
+  } = useFormMedia()
   const [uploadedVideos, setUploadedVideos] = useState<VideoItem[]>([])
   const [currentFileName, setCurrentFileName] = useState<string>()
-  const [isUploadActive, setIsUploadActive] = useState(false)
 
-  const { uploadVideo, isUploading, uploadProgress, isProcessing } =
-    useVideoUpload({
-      onSuccess: (data) => {
-        const newVideo = { assetId: data.assetId, playbackId: data.playbackId }
-        setUploadedVideos((prev) => [...prev, newVideo])
-        onChange([...value, data.assetId])
-        setCurrentFileName(undefined)
-        setIsUploadActive(false)
-        setMediaUploadFileName(undefined)
-        setMediaUploadFileSizeBytes(undefined)
-        setVideoUploadStatus("idle")
-      },
-      onError: () => {
-        setCurrentFileName(undefined)
-        setIsUploadActive(false)
-        setMediaUploadFileName(undefined)
-        setMediaUploadFileSizeBytes(undefined)
-        setVideoUploadStatus("idle")
-      },
-    })
+  const { uploadVideo, isUploading, isProcessing } = useVideoUpload({
+    onSuccess: (data) => {
+      const newVideo = { assetId: data.assetId, playbackId: data.playbackId }
+      setUploadedVideos((prev) => [...prev, newVideo])
+      onChange([...value, data.assetId])
+      setCurrentFileName(undefined)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    },
+    onError: () => {
+      setCurrentFileName(undefined)
+      setMediaUploadFileName(undefined)
+      setMediaUploadFileSizeBytes(undefined)
+      setVideoUploadStatus("idle")
+    },
+  })
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -66,7 +64,6 @@ export function MultiVideoInput({
         setCurrentFileName(file.name)
         setMediaUploadFileName(file.name)
         setMediaUploadFileSizeBytes(file.size)
-        setIsUploadActive(true)
         setVideoUploadStatus(0)
         uploadVideo(file)
       }
@@ -88,7 +85,6 @@ export function MultiVideoInput({
     onDrop,
     onDropRejected: (fileRejections) => {
       setCurrentFileName(undefined)
-      setIsUploadActive(false)
       setMediaUploadFileName(undefined)
       setMediaUploadFileSizeBytes(undefined)
       setVideoUploadStatus("idle")
@@ -147,25 +143,10 @@ export function MultiVideoInput({
           getRootProps={getRootProps}
           getInputProps={getInputProps}
           disabled={isUploadInProgress || !canAddMore}
-          hasValue={!!currentFileName}
         >
           <span className="text-muted-foreground block w-full truncate text-left text-sm">
             {currentFileName ?? "Choose File"}
           </span>
-
-          {isUploadActive && isUploading && (
-            <Progress
-              value={uploadProgress}
-              className="absolute inset-x-0 bottom-0 h-1 rounded-none"
-            />
-          )}
-
-          {isUploadActive && isProcessing && (
-            <div className="text-muted-foreground absolute bottom-0.5 flex w-full items-center justify-center gap-1 text-xs font-medium">
-              <span>processing</span>
-              <Loader2Icon className="size-3 animate-spin" />
-            </div>
-          )}
         </UploadDropZone>
       )}
 

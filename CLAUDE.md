@@ -4,6 +4,7 @@
 
 - Always use `type` instead of `interface` for type definitions
 - Avoid `useEffect` - prefer derived state, event handlers, or keying components
+- Never use non-null assertions (`!.`) - use safe alternatives like optional chaining with fallbacks, type narrowing, or early returns
 
 ## Library Organization (`src/lib/`)
 
@@ -320,6 +321,8 @@ Every route renders a `<PageHeader>` compound component that displays the sticky
 - Every route must render `<PageHeader>` (provides sidebar trigger + search)
 - The last `<PageHeader.Crumb>` (without `to` prop) represents the current page
 - Layout routes render `<PageHeader>` with breadcrumbs; child routes inside layouts do NOT render their own `<PageHeader>` (avoids duplicate headers)
+- Reach for pathless browse layouts when a section has shared navigation chrome for list/browse pages but detail pages should start directly with their own content. Example: `/games/*/route.tsx` renders the shared breadcrumb header, while `/games/*/_browse.tsx` owns browse-only controls like active/archived tabs, game selectors, and archive pickers.
+- Do not put browse-only controls in the top-level game layout if set/submission/detail routes live under the same URL subtree. Detail routes should inherit the shared breadcrumb shell, not the browse controls.
 - Dynamic breadcrumb labels use query data directly: `<PageHeader.Crumb>{trick.name}</PageHeader.Crumb>`
 
 ## Peripherals (URL-driven open/close)
@@ -530,7 +533,7 @@ import { ShieldIcon } from "lucide-react";
 Canonical examples:
 
 - `src/routes/vault/index.tsx` - Admin mode toggle
-- `src/routes/games/rius/route.tsx` - Admin dropdown menu
+- `src/routes/games/rius/_browse.tsx` - Browse-only game navigation
 - `src/routes/tricks/index.tsx` - Admin dropdown menu
 
 ## Spacing Guidelines

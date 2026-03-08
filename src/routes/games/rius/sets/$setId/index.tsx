@@ -3,20 +3,17 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  HeartIcon,
-  MessageCircleIcon,
   PencilIcon,
   TrashIcon,
-  TrendingUpIcon,
 } from "lucide-react"
-import pluralize from "pluralize"
 import { useState } from "react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius"
 import { BaseMessageForm } from "~/components/forms/message"
-import { UsersDialog } from "~/components/likes-dialog"
+import { RiuSubmissionCard } from "~/components/games/riu-submission-card"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
 import { RichText } from "~/components/rich-text"
@@ -30,6 +27,7 @@ import {
 } from "~/components/ui/tooltip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
+import { useDeleteSet } from "~/lib/games/rius/hooks"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -38,7 +36,7 @@ import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type ServerFnReturn } from "~/lib/types"
-import { cn } from "~/lib/utils"
+import { cn, errorFmt } from "~/lib/utils"
 
 const pathParametersSchema = z.object({
   setId: z.coerce.number(),
@@ -60,14 +58,17 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
           messages.list.queryOptions({ type: "riuSet", id: setId }),
         )
         return set
-      } catch {
+      } catch (error) {
+        if (errorFmt(error) === "Access denied") {
+          throw error
+        }
         // Only show flash message on actual navigation, not preload
         if (!preload) {
           await session.flash.set.fn({
-            data: { type: "error", message: "set not found" },
+            data: { type: "error", message: errorFmt(error) },
           })
         }
-        throw redirect({ to: "/games/rius" })
+        throw redirect({ to: "/games/rius/active" })
       }
     }
 
@@ -131,6 +132,8 @@ function SetView({ setId }: { setId: number }) {
   })
 
   const isOwner = set.user.id === sessionUser?.id
+  const canManageUpcomingSet = isOwner && set.riu.status === "upcoming"
+  const deleteSet = useDeleteSet({ redirectToUpcoming: true })
 
   return (
     <>
@@ -153,47 +156,59 @@ function SetView({ setId }: { setId: number }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
-          {sessionUser && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  onClick={likeUnlike.mutate}
-                  aria-label={authUserLiked ? "Unlike" : "Like"}
-                >
-                  <HeartIcon
-                    className={cn(
-                      "size-4",
-                      authUserLiked && "fill-red-700/50 stroke-red-700",
-                    )}
-                  />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {authUserLiked ? "unlike" : "like"}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          {set.likes.length > 0 && (
-            <Tooltip>
-              <UsersDialog
-                users={set.likes?.map((l) => l.user) ?? []}
-                title={`${set.likes?.length ?? 0} ${pluralize("Like", set.likes?.length ?? 0)}`}
-                trigger={
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="view likes"
+          <LikesButtonGroup
+            users={set.likes?.map((l) => l.user) ?? []}
+            authUserLiked={authUserLiked}
+            onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
+          />
+          {canManageUpcomingSet && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    aria-label="edit"
+                    asChild
+                  >
+                    <Link
+                      to="/games/rius/sets/$setId/edit"
+                      params={{ setId: set.id }}
                     >
-                      <TrendingUpIcon className="size-4" />
-                    </Button>
-                  </TooltipTrigger>
-                }
-              />
-              <TooltipContent>likes</TooltipContent>
-            </Tooltip>
+                      <PencilIcon className="size-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>edit</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() =>
+                      confirm.open({
+                        title: "delete set",
+                        description:
+                          "are you sure you want to delete this set? this action cannot be undone.",
+                        confirmText: "delete",
+                        onConfirm: () => {
+                          deleteSet.mutate({
+                            data: {
+                              riuSetId: set.id,
+                            },
+                          })
+                        },
+                      })
+                    }
+                    size="icon-sm"
+                    variant="outline"
+                    aria-label="delete"
+                  >
+                    <TrashIcon className="size-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>delete</TooltipContent>
+              </Tooltip>
+            </>
           )}
           <ShareFlagMenu
             entityType="riuSet"
@@ -208,50 +223,6 @@ function SetView({ setId }: { setId: number }) {
           <RichText content={set.instructions} />
         </div>
       )}
-
-      <div className="flex flex-wrap gap-2">
-        {isOwner && (
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  disabled
-                  aria-label="edit"
-                >
-                  <PencilIcon className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>edit</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={() =>
-                    confirm.open({
-                      title: "delete set",
-                      description:
-                        "are you sure you want to delete this set? this action cannot be undone.",
-                      confirmText: "delete",
-                      onConfirm: () => {
-                        // TODO: Implement delete set functionality
-                        console.log("Delete set", set.id)
-                      },
-                    })
-                  }
-                  size="icon-sm"
-                  variant="outline"
-                  aria-label="delete"
-                >
-                  <TrashIcon className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>delete</TooltipContent>
-            </Tooltip>
-          </div>
-        )}
-      </div>
 
       {set.video?.playbackId && (
         <VideoPlayer playbackId={set.video.playbackId} />
@@ -290,37 +261,18 @@ type SubmissionType = NonNullable<
 
 function SubmissionCard({ submission }: { submission: SubmissionType }) {
   return (
-    <Link
-      to="/games/rius/submissions/$submissionId"
-      params={{ submissionId: submission.id }}
-      className="block"
-    >
-      <Button
-        variant="outline"
-        className="h-auto w-full justify-between gap-6 p-4 text-left"
-        asChild
-      >
-        <div>
-          <span className="inline-flex items-center gap-1.5 truncate text-sm font-medium">
-            {submission.user.name}
-            <span className="text-muted-foreground font-normal">/</span>
-            <span className="text-muted-foreground font-normal">
-              <RelativeTimeCard date={submission.createdAt} variant="muted" />
-            </span>
+    <RiuSubmissionCard
+      submission={submission}
+      header={
+        <span className="inline-flex items-center gap-1.5 truncate text-sm font-medium">
+          {submission.user.name}
+          <span className="text-muted-foreground font-normal">/</span>
+          <span className="text-muted-foreground font-normal">
+            <RelativeTimeCard date={submission.createdAt} variant="muted" />
           </span>
-          <div className="text-muted-foreground flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1">
-              <HeartIcon className="size-3" />
-              <span>{submission.likes.length}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageCircleIcon className="size-3" />
-              <span>{submission.messages.length}</span>
-            </div>
-          </div>
-        </div>
-      </Button>
-    </Link>
+        </span>
+      }
+    />
   )
 }
 

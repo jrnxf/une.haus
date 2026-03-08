@@ -42,10 +42,9 @@ test.describe("message deletion", () => {
     const messageBubble = page.getByRole("button", {
       name: `Message: ${uniqueText}`,
     })
+    const detailsDialog = page.getByRole("dialog", { name: "message details" })
 
-    // Open menu → click Delete → confirm → verify toast.
-    // Retry the whole flow: the menu close animation can race with the confirm
-    // dialog, causing the onConfirm callback to not fire.
+    // Open tray → click Delete → confirm → verify toast.
     await expect(async () => {
       // Dismiss any stale dialog left from a previous attempt
       if (
@@ -59,20 +58,21 @@ test.describe("message deletion", () => {
           timeout: 2000,
         })
       }
+      if (await detailsDialog.isVisible().catch(() => false)) {
+        await page.keyboard.press("Escape")
+        await expect(detailsDialog).not.toBeVisible({ timeout: 2000 })
+      }
 
       await messageBubble.click()
-      const deleteItem = page.getByRole("menuitem", { name: "Delete" })
-      await expect(deleteItem).toBeVisible({ timeout: 3000 })
-      await deleteItem.click({ timeout: 3000 })
+      await expect(detailsDialog).toBeVisible({ timeout: 3000 })
+      await detailsDialog.getByRole("button", { name: "delete" }).click({
+        timeout: 3000,
+      })
 
       // Wait for confirm dialog to appear
       await expect(page.getByText("Delete message?")).toBeVisible({
         timeout: 3000,
       })
-
-      // Wait for the menu to fully close before clicking the confirm button.
-      // The menu backdrop can intercept clicks on the alert dialog.
-      await expect(deleteItem).not.toBeVisible({ timeout: 3000 })
 
       // Click the confirm button
       const dialog = page.getByRole("alertdialog")
@@ -107,8 +107,9 @@ test.describe("message deletion", () => {
     const messageBubble = page.getByRole("button", {
       name: `Message: ${uniqueText}`,
     })
+    const detailsDialog = page.getByRole("dialog", { name: "message details" })
 
-    // Open menu → Edit → Delete from drawer → confirm → verify toast.
+    // Open tray → Edit → Delete from drawer → confirm → verify toast.
     // Retry the whole flow: a message list refetch can remount the bubble,
     // resetting editDrawerOpen state and closing the edit dialog.
     await expect(async () => {
@@ -128,11 +129,12 @@ test.describe("message deletion", () => {
         }
       }
 
-      // Open menu → click Edit
+      // Open tray → click Edit
       await messageBubble.click()
-      const editItem = page.getByRole("menuitem", { name: "Edit" })
-      await expect(editItem).toBeVisible({ timeout: 3000 })
-      await editItem.click({ timeout: 3000 })
+      await expect(detailsDialog).toBeVisible({ timeout: 3000 })
+      await detailsDialog.getByRole("button", { name: "edit" }).click({
+        timeout: 3000,
+      })
 
       // Wait for edit dialog and let any pending refetches settle
       const editDialog = page.getByRole("dialog", { name: "edit message" })

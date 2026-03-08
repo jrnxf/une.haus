@@ -14,6 +14,7 @@ import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { z } from "zod"
 
+import { ContentHeaderRow } from "~/components/content-header-row"
 import {
   type ActiveFilter,
   type FilterField,
@@ -396,24 +397,28 @@ function TricksListPage() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tricks</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            <Button asChild>
-              <Link to="/tricks/create">create</Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link to="/tricks/glossary/elements">glossary</Link>
-            </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
 
       <div className="mx-auto flex min-h-0 w-full flex-1 flex-col gap-4 p-4">
-        <Filters
-          fields={filterFields}
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          size="sm"
+        <ContentHeaderRow
+          className="max-w-none"
+          left={
+            <Filters
+              fields={filterFields}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+            />
+          }
+          right={
+            <>
+              <Button asChild>
+                <Link to="/tricks/create">create</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link to="/tricks/glossary/elements">glossary</Link>
+              </Button>
+            </>
+          }
         />
 
         {filteredTricks.length === 0 ? (

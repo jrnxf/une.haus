@@ -41,21 +41,21 @@ const STAT_COLS = [
   {
     key: "contentCount" as const,
     label: "content",
-    pts: 5,
+    points: 5,
     dot: "bg-rose-500",
     text: "text-rose-500",
   },
   {
     key: "messagesCount" as const,
     label: "messages",
-    pts: 2,
+    points: 2,
     dot: "bg-chart-4",
     text: "text-chart-4",
   },
   {
     key: "likesCount" as const,
     label: "likes",
-    pts: 1,
+    points: 1,
     dot: "bg-chart-2",
     text: "text-chart-2",
   },
@@ -100,7 +100,7 @@ const columns = [
         <span className="flex items-center justify-end gap-1.5">
           <span className={cn("size-2 shrink-0 rounded-full", col.dot)} />
           {col.label}
-          <span className="text-muted-foreground">&times;{col.pts}</span>
+          <span className="text-muted-foreground">&times;{col.points}</span>
         </span>
       ),
       meta: { className: "text-right" },
@@ -122,7 +122,7 @@ const columns = [
     }),
   ),
   columnHelper.accessor("totalPoints", {
-    header: "pts",
+    header: "points",
     meta: { className: "text-right" },
     cell: (info) => (
       <span className="font-bold tabular-nums">{info.getValue()}</span>

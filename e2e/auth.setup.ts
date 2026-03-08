@@ -3,6 +3,10 @@ import postgres from "postgres"
 
 import type { Page } from "@playwright/test"
 
+async function waitForVerifyForm(page: Page) {
+  await page.getByRole("textbox").waitFor({ timeout: 5000 })
+}
+
 async function authenticate(
   page: Page,
   sql: ReturnType<typeof postgres>,
@@ -22,9 +26,11 @@ async function authenticate(
     )
   `
 
-  // Navigate to the verify page and wait for full hydration
+  // Navigate to the verify page and wait for the app to hydrate.
+  // `networkidle` is brittle here because the dev app now keeps background
+  // requests alive, which makes Playwright wait forever before any tests run.
   await page.goto("/auth/verify")
-  await page.waitForLoadState("networkidle")
+  await waitForVerifyForm(page)
 
   // Handle transient Nitro SSR errors — if the form doesn't load, reload
   const otpInput = page.getByRole("textbox")
@@ -32,8 +38,7 @@ async function authenticate(
     await otpInput.waitFor({ timeout: 5000 })
   } catch {
     await page.reload({ waitUntil: "domcontentloaded" })
-    await page.waitForLoadState("networkidle")
-    await otpInput.waitFor()
+    await waitForVerifyForm(page)
   }
 
   // Fill the OTP code and submit

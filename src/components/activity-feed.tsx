@@ -6,6 +6,7 @@ import {
   ChevronRightIcon,
   EditIcon,
   FileTextIcon,
+  GhostIcon,
   MergeIcon,
   MessageCircleIcon,
   StickyNoteIcon,
@@ -239,20 +240,20 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
       <div className="flex flex-col gap-2">
         {isFiltered && (
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium">Activity</h2>
+            <h2 className="text-sm font-medium">activity</h2>
             {filterDropdown}
           </div>
         )}
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <StickyNoteIcon />
+              <GhostIcon />
             </EmptyMedia>
             <EmptyTitle>no activity</EmptyTitle>
             <EmptyDescription>
               {isFiltered
-                ? `no ${TYPE_LABELS[typeFilter].toLowerCase()} found.`
-                : "no activity in the past year."}
+                ? `no ${TYPE_LABELS[typeFilter].toLowerCase()} found`
+                : "no activity in the past year"}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

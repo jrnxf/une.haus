@@ -4,11 +4,15 @@ import { and, asc, desc, eq, lt } from "drizzle-orm"
 
 import {
   deleteVideoSchema,
+  type DemoteVideoArgs,
   demoteVideoSchema,
   listPendingVideosSchema,
   listVideosSchema,
+  type ReorderVideosArgs,
   reorderVideosSchema,
+  type ReviewVideoArgs,
   reviewVideoSchema,
+  type SubmitVideoArgs,
   submitVideoSchema,
 } from "./schemas"
 import { db } from "~/db"
@@ -18,6 +22,14 @@ import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware"
 import { createNotification } from "~/lib/notifications/helpers"
 
 const MAX_ACTIVE_VIDEOS = 5
+
+type AuthenticatedContext = {
+  user: {
+    avatarId: string | null
+    id: number
+    name: string
+  }
+}
 
 // ==================== USER OPERATIONS ====================
 
@@ -56,28 +68,36 @@ export const submitVideoServerFn = createServerFn({
 })
   .inputValidator(zodValidator(submitVideoSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data, context }) => {
-    // Verify trick exists
-    const trick = await db.query.tricks.findFirst({
-      where: eq(tricks.id, data.trickId),
-    })
+  .handler(submitVideoImpl)
 
-    invariant(trick, "Trick not found")
-
-    const [video] = await db
-      .insert(trickVideos)
-      .values({
-        trickId: data.trickId,
-        muxAssetId: data.muxAssetId,
-        notes: data.notes,
-        submittedByUserId: context.user.id,
-        status: "pending",
-      })
-      .returning()
-
-    invariant(video, "Failed to submit video")
-    return video
+export async function submitVideoImpl({
+  data,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: SubmitVideoArgs
+}) {
+  // Verify trick exists
+  const trick = await db.query.tricks.findFirst({
+    where: eq(tricks.id, data.trickId),
   })
+
+  invariant(trick, "Trick not found")
+
+  const [video] = await db
+    .insert(trickVideos)
+    .values({
+      trickId: data.trickId,
+      muxAssetId: data.muxAssetId,
+      notes: data.notes,
+      submittedByUserId: context.user.id,
+      status: "pending",
+    })
+    .returning()
+
+  invariant(video, "Failed to submit video")
+  return video
+}
 
 // ==================== ADMIN OPERATIONS ====================
 
@@ -127,78 +147,48 @@ export const reviewVideoServerFn = createServerFn({
 })
   .inputValidator(zodValidator(reviewVideoSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data, context }) => {
-    const { id, status, reviewNotes } = data
+  .handler(reviewVideoImpl)
 
-    // Get the video
-    const video = await db.query.trickVideos.findFirst({
-      where: eq(trickVideos.id, id),
+export async function reviewVideoImpl({
+  data,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: ReviewVideoArgs
+}) {
+  const { id, status, reviewNotes } = data
+
+  // Get the video
+  const video = await db.query.trickVideos.findFirst({
+    where: eq(trickVideos.id, id),
+  })
+
+  invariant(video, "Video not found")
+  invariant(video.status === "pending", "Video already reviewed")
+
+  // If approving (setting to active), check the 5-video limit
+  if (status === "active") {
+    const activeCount = await db.query.trickVideos.findMany({
+      where: and(
+        eq(trickVideos.trickId, video.trickId),
+        eq(trickVideos.status, "active"),
+      ),
     })
 
-    invariant(video, "Video not found")
-    invariant(video.status === "pending", "Video already reviewed")
-
-    // If approving (setting to active), check the 5-video limit
-    if (status === "active") {
-      const activeCount = await db.query.trickVideos.findMany({
-        where: and(
-          eq(trickVideos.trickId, video.trickId),
-          eq(trickVideos.status, "active"),
-        ),
-      })
-
-      if (activeCount.length >= MAX_ACTIVE_VIDEOS) {
-        throw new Error(
-          `Cannot have more than ${MAX_ACTIVE_VIDEOS} active videos. Demote one first.`,
-        )
-      }
-
-      // Get the next sort order
-      const maxSortOrder = Math.max(...activeCount.map((v) => v.sortOrder), -1)
-
-      const [updatedVideo] = await db
-        .update(trickVideos)
-        .set({
-          status,
-          sortOrder: maxSortOrder + 1,
-          reviewedByUserId: context.user.id,
-          reviewedAt: new Date(),
-        })
-        .where(eq(trickVideos.id, id))
-        .returning()
-
-      // Get the trick for navigation
-      const trick = await db.query.tricks.findFirst({
-        where: eq(tricks.id, video.trickId),
-        columns: { slug: true },
-      })
-
-      // Notify the user who submitted the video
-      if (video.submittedByUserId) {
-        await createNotification({
-          userId: video.submittedByUserId,
-          actorId: context.user.id,
-          type: "review",
-          entityType: "trickVideo",
-          entityId: id,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-            entityTitle: "approved",
-            entityPreview: reviewNotes,
-            trickSlug: trick?.slug,
-          },
-        })
-      }
-
-      return updatedVideo
+    if (activeCount.length >= MAX_ACTIVE_VIDEOS) {
+      throw new Error(
+        `Cannot have more than ${MAX_ACTIVE_VIDEOS} active videos. Demote one first.`,
+      )
     }
 
-    // Rejecting
+    // Get the next sort order
+    const maxSortOrder = Math.max(...activeCount.map((v) => v.sortOrder), -1)
+
     const [updatedVideo] = await db
       .update(trickVideos)
       .set({
         status,
+        sortOrder: maxSortOrder + 1,
         reviewedByUserId: context.user.id,
         reviewedAt: new Date(),
       })
@@ -222,7 +212,7 @@ export const reviewVideoServerFn = createServerFn({
         data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
-          entityTitle: "rejected",
+          entityTitle: "approved",
           entityPreview: reviewNotes,
           trickSlug: trick?.slug,
         },
@@ -230,68 +220,110 @@ export const reviewVideoServerFn = createServerFn({
     }
 
     return updatedVideo
+  }
+
+  // Rejecting
+  const [updatedVideo] = await db
+    .update(trickVideos)
+    .set({
+      status,
+      reviewedByUserId: context.user.id,
+      reviewedAt: new Date(),
+    })
+    .where(eq(trickVideos.id, id))
+    .returning()
+
+  // Get the trick for navigation
+  const trick = await db.query.tricks.findFirst({
+    where: eq(tricks.id, video.trickId),
+    columns: { slug: true },
   })
+
+  // Notify the user who submitted the video
+  if (video.submittedByUserId) {
+    await createNotification({
+      userId: video.submittedByUserId,
+      actorId: context.user.id,
+      type: "review",
+      entityType: "trickVideo",
+      entityId: id,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: "rejected",
+        entityPreview: reviewNotes,
+        trickSlug: trick?.slug,
+      },
+    })
+  }
+
+  return updatedVideo
+}
 
 export const reorderVideosServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(reorderVideosSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data }) => {
-    const { trickId, videoIds } = data
+  .handler(reorderVideosImpl)
 
-    // Verify all videos belong to this trick and are active
-    const videos = await db.query.trickVideos.findMany({
-      where: and(
-        eq(trickVideos.trickId, trickId),
-        eq(trickVideos.status, "active"),
-      ),
-    })
+export async function reorderVideosImpl({ data }: { data: ReorderVideosArgs }) {
+  const { trickId, videoIds } = data
 
-    const activeIds = new Set(videos.map((v) => v.id))
-    for (const id of videoIds) {
-      invariant(activeIds.has(id), `Video ${id} is not active for this trick`)
-    }
-
-    // Update sort orders
-    await Promise.all(
-      videoIds.map((id, index) =>
-        db
-          .update(trickVideos)
-          .set({ sortOrder: index })
-          .where(eq(trickVideos.id, id)),
-      ),
-    )
-
-    return { success: true }
+  // Verify all videos belong to this trick and are active
+  const videos = await db.query.trickVideos.findMany({
+    where: and(
+      eq(trickVideos.trickId, trickId),
+      eq(trickVideos.status, "active"),
+    ),
   })
+
+  const activeIds = new Set(videos.map((v) => v.id))
+  for (const id of videoIds) {
+    invariant(activeIds.has(id), `Video ${id} is not active for this trick`)
+  }
+
+  // Update sort orders
+  await Promise.all(
+    videoIds.map((id, index) =>
+      db
+        .update(trickVideos)
+        .set({ sortOrder: index })
+        .where(eq(trickVideos.id, id)),
+    ),
+  )
+
+  return { success: true }
+}
 
 export const demoteVideoServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(demoteVideoSchema))
   .middleware([adminOnlyMiddleware])
-  .handler(async ({ data }) => {
-    const { id } = data
+  .handler(demoteVideoImpl)
 
-    const video = await db.query.trickVideos.findFirst({
-      where: eq(trickVideos.id, id),
-    })
+export async function demoteVideoImpl({ data }: { data: DemoteVideoArgs }) {
+  const { id } = data
 
-    invariant(video, "Video not found")
-    invariant(video.status === "active", "Video is not active")
-
-    const [updatedVideo] = await db
-      .update(trickVideos)
-      .set({
-        status: "pending",
-        sortOrder: 0,
-      })
-      .where(eq(trickVideos.id, id))
-      .returning()
-
-    return updatedVideo
+  const video = await db.query.trickVideos.findFirst({
+    where: eq(trickVideos.id, id),
   })
+
+  invariant(video, "Video not found")
+  invariant(video.status === "active", "Video is not active")
+
+  const [updatedVideo] = await db
+    .update(trickVideos)
+    .set({
+      status: "pending",
+      sortOrder: 0,
+    })
+    .where(eq(trickVideos.id, id))
+    .returning()
+
+  return updatedVideo
+}
 
 export const deleteVideoServerFn = createServerFn({
   method: "POST",

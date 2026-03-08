@@ -14,6 +14,8 @@ export const createTournamentSchema = z.object({
   bracketSize: z.number().min(4).max(32).default(8),
 })
 
+export type CreateTournamentInput = z.infer<typeof createTournamentSchema>
+
 export const getTournamentSchema = z.object({
   code: z.string().min(4).max(4),
 })
@@ -38,10 +40,14 @@ export const prelimActionSchema = z.object({
   ]),
 })
 
+export type PrelimActionInput = z.infer<typeof prelimActionSchema>
+
 export const rankingActionSchema = z.object({
   code: z.string(),
   ranking: z.array(z.number()),
 })
+
+export type RankingActionInput = z.infer<typeof rankingActionSchema>
 
 export const bracketActionSchema = z.object({
   code: z.string(),
@@ -73,10 +79,14 @@ export const bracketActionSchema = z.object({
   ]),
 })
 
+export type BracketActionInput = z.infer<typeof bracketActionSchema>
+
 export const advancePhaseSchema = z.object({
   code: z.string(),
   phase: z.enum(["prelims", "ranking", "bracket", "complete"]),
 })
+
+export type AdvancePhaseInput = z.infer<typeof advancePhaseSchema>
 
 export const adminHeartbeatSchema = z.object({
   code: z.string(),

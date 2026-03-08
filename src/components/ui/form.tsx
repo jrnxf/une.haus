@@ -1,6 +1,7 @@
 import { useBlocker } from "@tanstack/react-router"
 import { BugIcon, Loader2Icon } from "lucide-react"
 import * as React from "react"
+import { createPortal } from "react-dom"
 import {
   Controller,
   type ControllerProps,
@@ -10,7 +11,6 @@ import {
   type UseFormReturn,
   useFormContext,
 } from "react-hook-form"
-import { createPortal } from "react-dom"
 
 import { confirm } from "~/components/confirm-dialog"
 import { Button, type ButtonProps } from "~/components/ui/button"
@@ -154,9 +154,17 @@ function FormNavigationBlock() {
         blocker.reset?.()
       },
     })
-  }, [blocker])
+  }, [blocker, isVideoUploading, isImageUploading])
 
   return null
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
 function FormUploadStatus() {
@@ -252,15 +260,12 @@ function FormUploadStatus() {
       : displayMedia.imageUploadStatus === "pending"
         ? "uploading"
         : ""
-  const formatBytes = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
-  }
+
   const uploadedBytes =
     displayMedia.mediaUploadFileSizeBytes && isVideoUploading
-      ? Math.round((displayMedia.mediaUploadFileSizeBytes * progressValue) / 100)
+      ? Math.round(
+          (displayMedia.mediaUploadFileSizeBytes * progressValue) / 100,
+        )
       : undefined
   const sizeMeta = displayMedia.mediaUploadFileSizeBytes
     ? uploadedBytes !== undefined

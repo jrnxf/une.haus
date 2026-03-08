@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 
 import { PageHeader } from "~/components/page-header"
-import { Button } from "~/components/ui/button"
 import { users } from "~/lib/users"
 import { UserView } from "~/views/user"
 
@@ -36,13 +35,6 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>profile</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            <Button asChild>
-              <Link to="/auth/me/edit">edit</Link>
-            </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
       <UserView user={data} />
     </>

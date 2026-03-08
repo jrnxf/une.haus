@@ -52,18 +52,31 @@ bun dev
 
 ### scripts
 
-| command                | description                      |
-| ---------------------- | -------------------------------- |
-| `bun dev`              | start dev server                 |
-| `bun run build`        | build for production             |
-| `bun start`            | run production server            |
-| `bun run lint`         | lint and auto-fix                |
-| `bun run format`       | format with prettier             |
-| `bun run typecheck`    | type check                       |
-| `bun test`             | run unit tests                   |
-| `bunx playwright test` | run e2e tests                    |
-| `bun run db:migrate`   | push database migrations         |
-| `bun run db:seed`      | wipe, migrate, and seed database |
+| command                    | description                      |
+| -------------------------- | -------------------------------- |
+| `bun dev`                  | start dev server                 |
+| `bun run build`            | build for production             |
+| `bun run storybook`        | start storybook on port 6006     |
+| `bun run storybook:build`  | build static storybook output    |
+| `bun run storybook:doctor` | inspect storybook config health  |
+| `bun start`                | run production server            |
+| `bun run lint`             | lint and auto-fix                |
+| `bun run format`           | format with prettier             |
+| `bun run typecheck`        | type check                       |
+| `bun test`                 | run unit tests                   |
+| `bunx playwright test`     | run e2e tests                    |
+| `bun run db:migrate`       | push database migrations         |
+| `bun run db:seed`          | wipe, migrate, and seed database |
+
+### component workbench
+
+storybook is now the default isolated component workbench for `une.haus`.
+
+- `bun run storybook` starts the local Storybook dev server.
+- `bun run storybook:build` creates the static output in `storybook-static/`.
+- the initial POC covers `UI/Button`, `Forms/Input`, `Forms/Textarea`, and `Overlays/Tray`.
+- new isolated component work should go into Storybook instead of the sandbox.
+- the sandbox is frozen for this transition and is on a fast path to removal once the Storybook POC is accepted.
 
 ### contributing
 

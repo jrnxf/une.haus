@@ -29,11 +29,20 @@ import {
 } from "~/lib/middleware"
 import { notifyFollowers } from "~/lib/notifications/helpers"
 
+type AuthenticatedContext = {
+  user: {
+    avatarId: string | null
+    id: number
+    name: string
+  }
+}
+
 export const getRiuSetServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(getRiuSetSchema))
-  .handler(async ({ data: input }) => {
+  .middleware([authOptionalMiddleware])
+  .handler(async ({ data: input, context }) => {
     const set = await db.query.riuSets.findFirst({
       where: eq(riuSets.id, input.setId),
       with: {
@@ -100,6 +109,28 @@ export const getRiuSetServerFn = createServerFn({
       },
     })
 
+    invariant(set, "Set not found")
+
+    if (set.riu.status === "upcoming") {
+      const isOwner = context.user?.id === set.user.id
+      const authUser = context.user
+        ? await db.query.users.findFirst({
+            where: eq(users.id, context.user.id),
+            columns: {
+              type: true,
+            },
+          })
+        : null
+      const isAdmin = authUser?.type === "admin"
+
+      invariant(isOwner || isAdmin, "Access denied")
+    } else {
+      invariant(
+        set.riu.status === "active" || set.riu.status === "archived",
+        "Access denied",
+      )
+    }
+
     return set
   })
 
@@ -108,82 +139,145 @@ export const createRiuSetServerFn = createServerFn({
 })
   .inputValidator(zodValidator(createRiuSetSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(createRiuSetImpl)
 
-    const upcomingRiu = await db.query.rius.findFirst({
-      where: eq(rius.status, "upcoming"),
-    })
+export async function createRiuSetImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    instructions?: string
+    muxAssetId: string
+    name: string
+  }
+}) {
+  const userId = context.user.id
 
-    invariant(upcomingRiu, "No upcoming RIU found")
-
-    const [riuSet] = await db
-      .insert(riuSets)
-      .values({
-        ...input,
-
-        riuId: upcomingRiu.id,
-        userId,
-      })
-      .returning()
-
-    // Notify followers about the new RIU set
-    notifyFollowers({
-      actorId: userId,
-      actorName: context.user.name,
-      actorAvatarId: context.user.avatarId,
-      type: "new_content",
-      entityType: "riuSet",
-      entityId: riuSet.id,
-      entityTitle: riuSet.name,
-    }).catch(console.error)
-
-    return riuSet
+  const upcomingRiu = await db.query.rius.findFirst({
+    where: eq(rius.status, "upcoming"),
   })
+
+  invariant(upcomingRiu, "No upcoming RIU found")
+
+  const [riuSet] = await db
+    .insert(riuSets)
+    .values({
+      ...input,
+
+      riuId: upcomingRiu.id,
+      userId,
+    })
+    .returning()
+
+  // Notify followers about the new RIU set
+  notifyFollowers({
+    actorId: userId,
+    actorName: context.user.name,
+    actorAvatarId: context.user.avatarId,
+    type: "new_content",
+    entityType: "riuSet",
+    entityId: riuSet.id,
+    entityTitle: riuSet.name,
+  }).catch(console.error)
+
+  return riuSet
+}
 
 export const updateRiuSetServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(updateRiuSetSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const [riuSet] = await db
-      .update(riuSets)
-      .set({ ...input })
-      .where(
-        and(
-          eq(riuSets.id, input.riuSetId),
-          eq(riuSets.userId, context.user.id),
-        ),
-      )
-      .returning()
+  .handler(updateRiuSetImpl)
 
-    return riuSet
+export async function updateRiuSetImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    instructions?: string
+    name: string
+    riuSetId: number
+  }
+}) {
+  const set = await db.query.riuSets.findFirst({
+    where: eq(riuSets.id, input.riuSetId),
+    columns: {
+      userId: true,
+    },
+    with: {
+      riu: {
+        columns: {
+          status: true,
+        },
+      },
+    },
   })
+
+  invariant(set, "Set not found")
+  invariant(set.userId === context.user.id, "Access denied")
+  invariant(set.riu.status === "upcoming", "Access denied")
+
+  const [riuSet] = await db
+    .update(riuSets)
+    .set({
+      instructions: input.instructions,
+      name: input.name,
+    })
+    .where(
+      and(eq(riuSets.id, input.riuSetId), eq(riuSets.userId, context.user.id)),
+    )
+    .returning()
+
+  return riuSet
+}
 
 export const deleteRiuSetServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(deleteRiuSetSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(deleteRiuSetImpl)
 
-    const set = await db.query.riuSets.findFirst({
-      where: eq(riuSets.id, input.riuSetId),
-    })
+export async function deleteRiuSetImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    riuSetId: number
+  }
+}) {
+  const userId = context.user.id
 
-    invariant(set, "Set not found")
-
-    invariant(set.userId === userId, "Access denied")
-
-    const [deletedSet] = await db
-      .delete(riuSets)
-      .where(eq(riuSets.id, input.riuSetId))
-      .returning()
-
-    return deletedSet
+  const set = await db.query.riuSets.findFirst({
+    where: eq(riuSets.id, input.riuSetId),
+    columns: {
+      userId: true,
+    },
+    with: {
+      riu: {
+        columns: {
+          status: true,
+        },
+      },
+    },
   })
+
+  invariant(set, "Set not found")
+
+  invariant(set.userId === userId, "Access denied")
+  invariant(set.riu.status === "upcoming", "Access denied")
+
+  const [deletedSet] = await db
+    .delete(riuSets)
+    .where(eq(riuSets.id, input.riuSetId))
+    .returning()
+
+  return deletedSet
+}
 
 export const getRiuSubmissionServerFn = createServerFn({
   method: "GET",
@@ -260,68 +354,89 @@ export const deleteRiuSubmissionServerFn = createServerFn({
 })
   .inputValidator(zodValidator(deleteRiuSubmissionSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(deleteRiuSubmissionImpl)
 
-    const submission = await db.query.riuSubmissions.findFirst({
-      where: eq(riuSubmissions.id, input.submissionId),
-    })
+export async function deleteRiuSubmissionImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    submissionId: number
+  }
+}) {
+  const userId = context.user.id
 
-    invariant(submission, "Submission not found")
-
-    invariant(submission.userId === userId, "Access denied")
-
-    const [deletedSubmission] = await db
-      .delete(riuSubmissions)
-      .where(eq(riuSubmissions.id, input.submissionId))
-      .returning()
-
-    return deletedSubmission
+  const submission = await db.query.riuSubmissions.findFirst({
+    where: eq(riuSubmissions.id, input.submissionId),
   })
+
+  invariant(submission, "Submission not found")
+
+  invariant(submission.userId === userId, "Access denied")
+
+  const [deletedSubmission] = await db
+    .delete(riuSubmissions)
+    .where(eq(riuSubmissions.id, input.submissionId))
+    .returning()
+
+  return deletedSubmission
+}
 
 export const createRiuSubmissionServerFn = createServerFn({
   method: "POST",
 })
   .inputValidator(zodValidator(createRiuSubmissionSchema))
   .middleware([authMiddleware])
-  .handler(async ({ data: input, context }) => {
-    const userId = context.user.id
+  .handler(createRiuSubmissionImpl)
 
-    const [riuSet] = await db
-      .select({
-        id: riuSets.id,
-        userId: riuSets.userId,
-        riu: {
-          status: rius.status,
-        },
-      })
-      .from(riuSets)
-      .innerJoin(rius, eq(riuSets.riuId, rius.id))
-      .where(eq(riuSets.id, input.riuSetId))
+export async function createRiuSubmissionImpl({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    muxAssetId: string
+    riuSetId: number
+  }
+}) {
+  const userId = context.user.id
 
-    if (!riuSet) {
-      throw new Error("No RIU set found")
-    }
+  const [riuSet] = await db
+    .select({
+      id: riuSets.id,
+      userId: riuSets.userId,
+      riu: {
+        status: rius.status,
+      },
+    })
+    .from(riuSets)
+    .innerJoin(rius, eq(riuSets.riuId, rius.id))
+    .where(eq(riuSets.id, input.riuSetId))
 
-    if (riuSet.riu.status !== "active") {
-      throw new Error("RIU set is not from an active RIU")
-    }
+  if (!riuSet) {
+    throw new Error("No RIU set found")
+  }
 
-    if (riuSet.userId === userId) {
-      throw new Error("You cannot submit to your own set")
-    }
+  if (riuSet.riu.status !== "active") {
+    throw new Error("RIU set is not from an active RIU")
+  }
 
-    const [riuSubmission] = await db
-      .insert(riuSubmissions)
-      .values({
-        ...input,
-        riuSetId: riuSet.id,
-        userId,
-      })
-      .returning()
+  if (riuSet.userId === userId) {
+    throw new Error("You cannot submit to your own set")
+  }
 
-    return riuSubmission
-  })
+  const [riuSubmission] = await db
+    .insert(riuSubmissions)
+    .values({
+      ...input,
+      riuSetId: riuSet.id,
+      userId,
+    })
+    .returning()
+
+  return riuSubmission
+}
 
 export const listActiveRiusServerFn = createServerFn({
   method: "GET",
@@ -484,6 +599,11 @@ export const getArchivedRiusServerFn = createServerFn({
                     },
                   },
                 },
+                messages: {
+                  columns: {
+                    id: true,
+                  },
+                },
               },
             },
             messages: {
@@ -517,7 +637,9 @@ export const getArchivedRiusServerFn = createServerFn({
 
 export const listArchivedRiusServerFn = createServerFn({
   method: "GET",
-}).handler(async () => {
+}).handler(listArchivedRiusImpl)
+
+export async function listArchivedRiusImpl() {
   // Get all archived RIUs with aggregate set/submission counts for each round.
   const archivedRius = await db
     .select({
@@ -540,7 +662,7 @@ export const listArchivedRiusServerFn = createServerFn({
     setsCount: Number(riu.setsCount),
     submissionsCount: Number(riu.submissionsCount),
   }))
-})
+}
 
 export const listUpcomingRiuRosterServerFn = createServerFn({
   method: "GET",
@@ -549,6 +671,7 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
   .handler(async ({ context }) => {
     const sets = await db
       .select({
+        createdAt: riuSets.createdAt,
         instructions: riuSets.instructions,
         id: riuSets.id,
         name: riuSets.name,
@@ -610,24 +733,20 @@ export const adminOnlyRotateRiusServerFn = createServerFn({
   method: "POST",
 })
   .middleware([adminOnlyMiddleware])
-  .handler(async () => {
-    await db
-      .update(rius)
-      .set({ status: "archived" })
-      .where(eq(rius.status, "active"))
+  .handler(rotateRiusImpl)
 
-    console.log("moved active rius to archived")
+export async function rotateRiusImpl() {
+  await db
+    .update(rius)
+    .set({ status: "archived" })
+    .where(eq(rius.status, "active"))
 
-    await db
-      .update(rius)
-      .set({ status: "active" })
-      .where(eq(rius.status, "upcoming"))
+  await db
+    .update(rius)
+    .set({ status: "active" })
+    .where(eq(rius.status, "upcoming"))
 
-    console.log("moved upcoming riu to active")
-
-    await db.insert(rius).values({
-      status: "upcoming",
-    })
-
-    console.log("created new upcoming riu")
+  await db.insert(rius).values({
+    status: "upcoming",
   })
+}

@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { HeartIcon, MessageCircleIcon } from "lucide-react"
-import pluralize from "pluralize"
 import {
   Suspense,
   useCallback,
@@ -15,6 +14,7 @@ import {
 } from "react"
 import { InView } from "react-intersection-observer"
 
+import { ContentHeaderRow } from "~/components/content-header-row"
 import {
   Filters,
   type ActiveFilter,
@@ -23,6 +23,7 @@ import {
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { Button } from "~/components/ui/button"
+import { StatBadge } from "~/components/ui/stat-badge"
 import { getMuxPoster } from "~/components/video-player"
 import { USER_DISCIPLINES } from "~/db/schema"
 import { seo } from "~/lib/seo"
@@ -257,28 +258,25 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>vault</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            <Button variant="secondary" size="sm" asChild>
-              <Link to="/vault/history">history</Link>
-            </Button>
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
 
       <div className="flex h-full flex-col">
-        <div className="bg-background sticky top-0 z-10">
-          <div className="mx-auto flex max-w-5xl items-center gap-2 p-4">
-            <div className="min-w-0 flex-1">
-              <Filters
-                fields={filterFields}
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
-                size="sm"
-              />
-            </div>
-          </div>
-        </div>
+        <ContentHeaderRow
+          sticky
+          className="gap-2 p-4"
+          left={
+            <Filters
+              fields={filterFields}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+            />
+          }
+          right={
+            <Button variant="secondary" size="sm" asChild>
+              <Link to="/vault/history">history</Link>
+            </Button>
+          }
+        />
 
         <Suspense>
           <VideoGrid
@@ -388,20 +386,16 @@ function VideoGrid({
                   {video.title}
                 </h2>
                 <div className="flex shrink-0 items-center gap-2 text-xs text-white/70">
-                  <div
-                    className="flex items-center gap-1"
-                    title={`${video.likesCount} ${pluralize("like", video.likesCount)}`}
-                  >
-                    <HeartIcon className="size-3" />
-                    <span>{video.likesCount}</span>
-                  </div>
-                  <div
-                    className="flex items-center gap-1"
-                    title={`${video.messagesCount} ${pluralize("message", video.messagesCount)}`}
-                  >
-                    <MessageCircleIcon className="size-3" />
-                    <span>{video.messagesCount}</span>
-                  </div>
+                  <StatBadge
+                    icon={HeartIcon}
+                    count={video.likesCount}
+                    label="like"
+                  />
+                  <StatBadge
+                    icon={MessageCircleIcon}
+                    count={video.messagesCount}
+                    label="message"
+                  />
                 </div>
               </div>
             </Link>

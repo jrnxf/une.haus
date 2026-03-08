@@ -33,12 +33,7 @@ export function Metaline({
     <p className={cn("text-muted-foreground text-sm", className)}>
       {filledParts.map((part, index) => (
         <Fragment key={index}>
-          {index > 0 && (
-            <>
-              {" "}
-              {separator}{" "}
-            </>
-          )}
+          {index > 0 && <> {separator} </>}
           {part}
         </Fragment>
       ))}

@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { tourney } from "~/lib/tourney"
+import { MIN_QUALIFIED_RIDERS } from "~/lib/tourney/constants"
 import {
   useAdminHeartbeat,
   useAdvancePhase,
@@ -279,7 +280,7 @@ function RouteComponent() {
         </div>
 
         {allFinished &&
-          (qualifiedCount <= 2 ? (
+          (qualifiedCount < MIN_QUALIFIED_RIDERS ? (
             <div className="rounded-lg border border-dashed p-4 text-center">
               <p className="text-muted-foreground text-sm">
                 {qualifiedCount === 0

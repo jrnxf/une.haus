@@ -10,6 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        card: "border-border bg-card hover:bg-card hover:text-foreground aria-expanded:bg-card aria-expanded:text-foreground shrink justify-start text-left whitespace-normal",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
@@ -22,6 +23,7 @@ const buttonVariants = cva(
         unstyled: "",
       },
       size: {
+        auto: "h-auto p-0",
         default:
           "h-9 gap-1.5 px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
@@ -57,6 +59,8 @@ function Button({
   render,
   ...props
 }: ButtonProps) {
+  const resolvedSize = variant === "card" && size === "default" ? "auto" : size
+
   // Support asChild by converting the first child element to a render prop
   const resolvedRender =
     asChild && React.isValidElement(children)
@@ -69,7 +73,7 @@ function Button({
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size: resolvedSize, className }))}
       render={resolvedRender}
       nativeButton={!asChild}
       {...props}
