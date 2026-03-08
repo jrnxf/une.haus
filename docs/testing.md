@@ -1,10 +1,9 @@
 # Testing Philosophy
 
-This app now uses a three-layer test strategy:
+This app uses a two-layer test strategy:
 
 1. Unit tests for pure decision logic.
 2. Integration tests for server-side behavior against a real Postgres database.
-3. E2E tests for browser-level smoke coverage.
 
 The goal is to put each assertion at the cheapest layer that still proves the behavior we care about.
 
@@ -60,9 +59,7 @@ For this app, a lot of important behavior lives between pure logic and full brow
 - Background side effects triggered by server handlers.
 - Domain rules that depend on actual persisted state.
 
-Mocking the database here would test our mocks more than the app. Browser e2e would cover the behavior, but too slowly and too indirectly.
-
-Integration tests are the middle layer: real DB, real handler logic, minimal setup.
+Mocking the database here would test our mocks more than the app. Integration tests are the right layer: real DB, real handler logic, minimal setup.
 
 ### Real Postgres, not in-memory Postgres
 
@@ -154,50 +151,19 @@ Current integration suites live in:
 - [src/test/integration/notifications.integration.ts](/Users/colby/Dev/une.haus/src/test/integration/notifications.integration.ts)
 - [src/test/integration/sius.integration.ts](/Users/colby/Dev/une.haus/src/test/integration/sius.integration.ts)
 
-## E2E tests
-
-E2E tests verify critical user flows in a real browser.
-
-Good candidates:
-
-- Page loads and key elements render.
-- Auth redirects.
-- Full user flows that cross many layers.
-- Browser-only interactions that cannot be meaningfully proved below this layer.
-
-E2E tests are slower and more brittle than the other layers. They should stay focused on smoke coverage and user-critical flows.
-
-Convention:
-
-- Mirror the route structure under `e2e/`.
-- Run with `bun run e2e`.
-
-### Anti-pattern: testing library behavior in e2e
-
-Do not spend e2e coverage on third-party component behavior such as whether a Radix primitive opens, tabs switch, or accordion state toggles. That is library behavior.
-
-Instead:
-
-- Unit test the logic your code adds.
-- Integration test the server/data behavior.
-- E2E test the user-critical flow once.
-
 ## How to choose the layer
 
 Ask these in order:
 
 1. Can the behavior be expressed as pure input/output?
    Use a unit test.
-2. Does the behavior depend on actual persisted state or SQL behavior, but not a browser?
+2. Does the behavior depend on actual persisted state or SQL behavior?
    Use an integration test.
-3. Does the behavior require the browser, routing, or a multi-step UI flow?
-   Use an e2e test.
 
 Examples:
 
 - "Should we create this notification?" -> unit test.
 - "Does archiving the SIU round create the right notification rows?" -> integration test.
-- "Can a signed-in user complete the end-to-end upload flow?" -> e2e test.
 
 ## Extract, don't mock
 
@@ -238,7 +204,6 @@ Use these commands:
 - Unit tests: `bun test`
 - Integration tests: `bun run test:integration`
 - POC subset of integration tests: `bun run test:integration:poc`
-- E2E tests: `bun run e2e`
 
 ## Manual testing with Playwright MCP
 

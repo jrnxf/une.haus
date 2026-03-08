@@ -32,6 +32,9 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
 
 const config = defineConfig(async () => {
   return {
+    optimizeDeps: {
+      exclude: ["postgres"],
+    },
     build: {
       rollupOptions: {
         external: ["postgres"],

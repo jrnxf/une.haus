@@ -31,7 +31,7 @@ It intentionally excludes:
 
 - external provider boundaries like `media` and `location`
 - tiny write paths like `presence`
-- broad framework plumbing where e2e or contract tests are a better fit
+- broad framework plumbing where contract tests are a better fit
 
 ## Phase 6: Trick Suggestion Moderation
 
@@ -137,7 +137,7 @@ Scope guidance:
 
 - focus on persisted auth-code rows and session state transitions
 - do not try to broadly test TanStack middleware internals
-- use e2e for redirect behavior and cookie transport semantics
+- redirect behavior and cookie transport are framework plumbing, not integration test targets
 
 Coverage goals:
 
@@ -152,7 +152,7 @@ Coverage goals:
 Preferred shape:
 
 - one dedicated `auth.integration.ts` suite
-- if session plumbing is too framework-bound to test cleanly at the current seam, stop after documenting that constraint and rely on e2e for the remaining browser-cookie behavior
+- if session plumbing is too framework-bound to test cleanly at the current seam, stop after documenting that constraint
 
 ## Phase 9: Reporting Queries Only If They Matter Operationally
 
@@ -187,13 +187,13 @@ Preferred deliverable:
 ## Not Recommended For More DB Integration Right Now
 
 - `src/lib/media`
-  Prefer provider contract tests and one or two e2e flows.
+  Prefer provider contract tests.
 - `src/lib/location`
   Prefer boundary tests with mocked provider responses.
 - `src/lib/presence`
   Low complexity; unit or one tiny integration test only if it regresses.
 - broad framework-only auth/session plumbing
-  Prefer the narrow auth/session slice above plus e2e.
+  Prefer the narrow auth/session slice above.
 - already-covered mutation-heavy domains
   Keep extending an existing suite only when a new bug or risky branch appears.
 

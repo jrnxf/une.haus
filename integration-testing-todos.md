@@ -155,7 +155,7 @@ This file intentionally does not try to cover every server function. The focus i
 ## Lower Priority or Better Covered Elsewhere
 
 - `src/lib/auth/fns.ts`
-  Most value here is validation, expiry, and session plumbing. Some of that may be better covered with a focused auth integration suite or e2e, not generic DB integration tests.
+  Most value here is validation, expiry, and session plumbing. Some of that may be better covered with a focused auth integration suite, not generic DB integration tests.
 - `src/lib/location/fns.ts`
   External API wrappers; these are better covered with contract tests or mocks around the provider boundary.
 - `src/lib/media/fns.ts`
@@ -165,7 +165,7 @@ This file intentionally does not try to cover every server function. The focus i
 - `src/lib/stats/fns.ts`
   Worth testing eventually, but these are reporting queries rather than mutation-heavy business flows.
 - `src/lib/session/fns.ts`
-  Framework/session behavior is more valuable to verify through auth-focused integration or e2e flows.
+  Framework/session behavior is more valuable to verify through auth-focused integration tests.
 
 ## Suggested Next Batch
 

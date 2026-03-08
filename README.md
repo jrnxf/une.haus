@@ -64,7 +64,6 @@ bun dev
 | `bun run format`           | format with prettier             |
 | `bun run typecheck`        | type check                       |
 | `bun test`                 | run unit tests                   |
-| `bunx playwright test`     | run e2e tests                    |
 | `bun run db:migrate`       | push database migrations         |
 | `bun run db:seed`          | wipe, migrate, and seed database |
 
