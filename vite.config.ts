@@ -30,7 +30,8 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
   })
 }
 
-const config = defineConfig(async () => ({
+const config = defineConfig(async () => {
+  return {
   build: {
     rollupOptions: {
       onwarn(warning: RollupLog, defaultHandler: LoggingFunction) {
@@ -51,7 +52,8 @@ const config = defineConfig(async () => ({
     viteTsConfigPaths({
       projects: ["./tsconfig.json"],
     }),
-    nitro({
+    // biome-ignore lint/suspicious/noExplicitAny: types here are not yet updated for nitro
+    (nitro({
       preset: "bun",
       compatibilityDate: "latest",
       serverDir: "./server",
@@ -76,8 +78,7 @@ const config = defineConfig(async () => ({
         // Once daily at midnight UTC — checks days-until-rotation
         "0 0 * * *": [TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS],
       },
-      // biome-ignore lint/suspicious/noExplicitAny: types here are not yet updated for nitro
-    } as any),
+    } as any)),
     tailwindcss(),
     // beasties({
     //   options: {
@@ -94,7 +95,8 @@ const config = defineConfig(async () => ({
     tanstackStart(),
     // react's vite plugin must come after start's vite plugin
     viteReact(),
-  ],
-}))
+  ].filter(Boolean) as PluginOption[],
+}
+})
 
 export default config
