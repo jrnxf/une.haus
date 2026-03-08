@@ -23,9 +23,6 @@
     "test": "bun test",
     "test:integration": "bun run src/scripts/run-integration-tests.ts",
     "test:integration:poc": "bun run src/scripts/run-integration-tests.ts ./src/test/integration/messages.integration.ts ./src/test/integration/sius.integration.ts",
-    "e2e": "bun run playwright test",
-    "e2e:ci": "CI=true bun run playwright test",
-    "e2e:slow": "SLOW_MO=1 bun run playwright test --headed",
     "preflight": "bun run src/scripts/preflight.ts",
     "db:seed-games-bulk": "bun src/db/scripts/seed-games-bulk.ts"
   },
@@ -147,7 +144,6 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
     "@react-email/preview-server": "5.2.5",
     "@tanstack/devtools-vite": "^0.4.1",
     "@testing-library/dom": "^10.4.0",

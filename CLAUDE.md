@@ -608,15 +608,6 @@ Use `gap-4` in flex containers instead of manual margins (`mt-3`, `mb-1`):
 | Horizontal padding | `px-2`, `px-4`, `px-6`                                          | `px-3`, `px-5`                                 |
 | Vertical padding   | `py-1`, `py-2`, `py-4`, `py-6`                                  | `py-3`, `py-5`                                 |
 
-## E2E Testing
-
-- **Never use CSS class selectors** (`.bg-card`, `.text-white`, etc.) in Playwright locators
-- Always use a11y selectors: `getByRole`, `getByLabel`, `getByPlaceholder`, `getByText`
-- Use `data-testid` as a last resort when no semantic selector exists
-- If a component lacks a11y attributes needed for testing, add them to the component first
-- Import `{ test, expect }` from `"../fixtures"` (auto-waits for hydration)
-- Use `page.waitForLoadState("networkidle")` after navigation for interactive pages
-- **Tests must clean up after themselves.** Any data created during a test (posts, messages, likes) must be deleted in `afterAll`. Use direct SQL via `postgres` (same pattern as `e2e/auth.setup.ts`) to delete test data. Prefix test content with `e2e-` so cleanup queries can target it with `LIKE 'e2e-%'`. Foreign key cascades handle dependent rows (e.g., deleting a message cascades its likes).
 
 ## Documentation
 
