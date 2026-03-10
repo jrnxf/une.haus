@@ -31,6 +31,7 @@ function OnlineUserList({
           <Link
             to="/users/$userId"
             params={{ userId: user.id }}
+            replace
             onClick={onNavigate}
           >
             {user.name}

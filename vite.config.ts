@@ -11,11 +11,9 @@ import viteTsConfigPaths from "vite-tsconfig-paths"
 import { TASK_NAMES } from "./src/lib/tasks/constants"
 
 const devtoolsPlugin = async (): Promise<PluginOption> => {
-  if (process.env.NODE_ENV === "production") {
-    return null
-  }
   const { devtools } = await import("@tanstack/devtools-vite")
   return devtools({
+    removeDevtoolsOnBuild: true,
     editor: {
       name: "Cursor",
       open: async (path, lineNumber, columnNumber) => {

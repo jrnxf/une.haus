@@ -533,6 +533,22 @@ export function CommandPalette() {
                     >
                       logout
                     </CommandItem>
+                    {import.meta.env.DEV && isAdmin && (
+                      <CommandItem
+                        onSelect={() => {
+                          import("@tanstack/devtools-client").then(
+                            ({ devtoolsEventClient }) => {
+                              devtoolsEventClient.emit("trigger-toggled", {
+                                isOpen: true,
+                              })
+                            },
+                          )
+                          closeMenu()
+                        }}
+                      >
+                        devtools
+                      </CommandItem>
+                    )}
                   </>
                 ) : (
                   <CommandItem
