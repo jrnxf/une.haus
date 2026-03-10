@@ -163,6 +163,7 @@ export function MobileNavTrigger({ className }: { className?: string }) {
 
 function MobileNavFooter() {
   const sessionUser = useSessionUser()
+  const isAdmin = useIsAdmin()
   const logout = useLogout()
 
   const { data: unreadCount = 0 } = useQuery({
@@ -245,6 +246,14 @@ function MobileNavFooter() {
                     )}
                   </Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin">
+                      <ShieldIcon className="size-4" />
+                      admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => logout({})}>
                   <LogOutIcon className="size-4" />
                   log out
@@ -314,14 +323,7 @@ export function MobileNavPopup({
 }) {
   const matches = useMatches()
   const currentPath = matches.at(-1)?.pathname ?? "/"
-  const isAdmin = useIsAdmin()
-
-  const items = isAdmin
-    ? [
-        ...navItems,
-        { title: "admin", url: "/admin", icon: ShieldIcon } as const,
-      ]
-    : [...navItems]
+  const items = navItems
 
   return (
     <DrawerPrimitive.Portal container={portalContainer}>

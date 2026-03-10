@@ -11,6 +11,7 @@ import {
   PowerIcon,
   ScrollText,
   Send,
+  ShieldIcon,
   SunIcon,
   TerminalIcon,
   UserIcon,
@@ -39,7 +40,7 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar"
 import { notifications } from "~/lib/notifications"
-import { useLogout, useSessionUser } from "~/lib/session/hooks"
+import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { useTheme } from "~/lib/theme/context"
 import { cn } from "~/lib/utils"
 
@@ -81,6 +82,7 @@ export function ThemeSubmenu() {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const sessionUser = useSessionUser()
+  const isAdmin = useIsAdmin()
   const logout = useLogout()
 
   const { data: unreadCount = 0 } = useQuery({
@@ -247,6 +249,17 @@ export function NavUser() {
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/admin">
+                    <ShieldIcon className="size-3.5" />
+                    admin
+                  </Link>
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => logout({})}>
               <LogOut className="size-3.5" />

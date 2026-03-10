@@ -4,7 +4,6 @@ import {
   Joystick,
   LockIcon,
   MessagesSquareIcon,
-  ShieldIcon,
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
@@ -29,71 +28,64 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar"
-import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
+import { useSessionUser } from "~/lib/session/hooks"
 
-const data = {
-  navMain: [
-    {
-      title: "games",
-      url: "/games",
-      icon: PodiumIcon,
-      isActive: true,
-    },
-    {
-      title: "users",
-      url: "/users",
-      icon: UsersIcon,
-    },
-    {
-      title: "posts",
-      url: "/posts",
-      icon: StickyNoteIcon,
-    },
-    {
-      title: "chat",
-      url: "/chat",
-      icon: MessagesSquareIcon,
-    },
-    {
-      title: "tricks",
-      url: "/tricks",
-      icon: TrafficConeIcon,
-    },
-    {
-      title: "vault",
-      url: "/vault",
-      icon: LockIcon,
-    },
-    {
-      title: "tourney",
-      url: "/tourney",
-      icon: BracketIcon,
-    },
-    {
-      title: "metrics",
-      url: "/metrics",
-      icon: ActivityIcon,
-    },
-    {
-      title: "arcade",
-      url: "/arcade",
-      icon: Joystick,
-    },
-    {
-      title: "shop",
-      url: "/shop",
-      icon: ShoppingBagIcon,
-    },
-  ],
-}
+const navMain = [
+  {
+    title: "games",
+    url: "/games",
+    icon: PodiumIcon,
+    isActive: true,
+  },
+  {
+    title: "users",
+    url: "/users",
+    icon: UsersIcon,
+  },
+  {
+    title: "posts",
+    url: "/posts",
+    icon: StickyNoteIcon,
+  },
+  {
+    title: "chat",
+    url: "/chat",
+    icon: MessagesSquareIcon,
+  },
+  {
+    title: "tricks",
+    url: "/tricks",
+    icon: TrafficConeIcon,
+  },
+  {
+    title: "vault",
+    url: "/vault",
+    icon: LockIcon,
+  },
+  {
+    title: "tourney",
+    url: "/tourney",
+    icon: BracketIcon,
+  },
+  {
+    title: "metrics",
+    url: "/metrics",
+    icon: ActivityIcon,
+  },
+  {
+    title: "arcade",
+    url: "/arcade",
+    icon: Joystick,
+  },
+  {
+    title: "shop",
+    url: "/shop",
+    icon: ShoppingBagIcon,
+  },
+]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const isAdmin = useIsAdmin()
   const sessionUser = useSessionUser()
-
-  const items = isAdmin
-    ? [...data.navMain, { title: "admin", url: "/admin", icon: ShieldIcon }]
-    : data.navMain
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -115,7 +107,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SearchTrigger />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={items} />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         {sessionUser ? (
