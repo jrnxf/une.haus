@@ -65,21 +65,17 @@ export function OnlineIndicator({ className }: { className?: string }) {
           <span className="pr-1">
             <StatusIndicator className="bg-green-500" />
           </span>
-          {available ? (
-            <Suspense fallback={<span>0</span>}>
-              <OnlineCount />
-            </Suspense>
-          ) : (
-            <span>0</span>
-          )}
+          <Suspense fallback={<span>0</span>}>
+            {available ? <OnlineCount /> : <span>0</span>}
+          </Suspense>
           <span>online</span>
         </Button>
       </DropdownMenuTrigger>
-      {available && (
-        <Suspense>
+      <Suspense>
+        {available && (
           <OnlineDropdownContent onNavigate={() => setOpen(false)} />
-        </Suspense>
-      )}
+        )}
+      </Suspense>
     </DropdownMenu>
   )
 }

@@ -108,9 +108,9 @@ function RouteComponent() {
               </span>
             </Button>
 
-            <Button variant="link" type="button" asChild>
-              <Link to="/auth/verify">have a code?</Link>
-            </Button>
+            <FieldDescription>
+              have a code? <Link to="/auth/verify">verify</Link>
+            </FieldDescription>
           </div>
         </Form>
       </div>

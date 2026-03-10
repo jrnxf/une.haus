@@ -17,6 +17,11 @@ import { useSessionUser } from "~/lib/session/hooks"
 
 export const Route = createFileRoute("/games/rius/_browse")({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      games.rius.archived.list.queryOptions(),
+    )
+  },
 })
 
 const sections = [

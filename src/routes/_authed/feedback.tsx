@@ -292,7 +292,7 @@ function FeedbackVideoInput({
       hasFile={!!fileName}
     >
       <span className="text-muted-foreground block w-full truncate text-left text-sm">
-        {fileName ?? "Choose File"}
+        {fileName ?? "choose file"}
       </span>
     </UploadDropZone>
   )

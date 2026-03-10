@@ -34,7 +34,7 @@ export function ContentHeaderDropdown({
 }) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className={cn("max-w-full text-xs", triggerClassName)}>
+      <SelectTrigger className={cn("w-fit text-xs", triggerClassName)}>
         <span className="min-w-0 truncate">{triggerLabel}</span>
       </SelectTrigger>
       <SelectContent align={align} className={contentClassName}>

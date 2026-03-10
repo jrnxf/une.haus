@@ -74,7 +74,19 @@ function RouteComponent() {
               <span className="text-muted-foreground text-xs">
                 {item.label}
               </span>
-              <Badge variant="secondary">{item.value}</Badge>
+              {item.label === "commit" ? (
+                <a
+                  href={`https://github.com/jrnxf/une.haus/commit/${item.value}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Badge variant="secondary" className="hover:bg-accent">
+                    {item.value}
+                  </Badge>
+                </a>
+              ) : (
+                <Badge variant="secondary">{item.value}</Badge>
+              )}
             </div>
           ))}
         </div>
