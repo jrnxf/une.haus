@@ -6,10 +6,12 @@ import {
   useLocation,
   useNavigate,
 } from "@tanstack/react-router"
+import { InfoIcon } from "lucide-react"
 import pluralize from "pluralize"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
 import { ContentHeaderDropdown } from "~/components/games/content-header-dropdown"
+import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import { CountChip } from "~/components/ui/count-chip"
 import { games } from "~/lib/games"
@@ -147,6 +149,44 @@ function RouteComponent() {
                 </CountChip>
               </Button>
             )
+          ) : currentSection === "active" ? (
+            <Tray>
+              <TrayTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <InfoIcon className="size-4" />
+                </Button>
+              </TrayTrigger>
+              <TrayContent>
+                <TrayTitle>how to play</TrayTitle>
+                <div className="prose-sm pt-2">
+                  <p>
+                    RIU (rack it up) is a weekly unicycling game where riders
+                    upload sets of tricks and submit for other rider sets.
+                  </p>
+                  <p className="font-medium">scoring</p>
+                  <ul>
+                    <li>each set uploaded = 1 point</li>
+                    <li>each submission uploaded = 1 point</li>
+                  </ul>
+                  <p className="font-medium">tiebreakers</p>
+                  <ul>
+                    <li>
+                      riders with sets rank higher than riders with only
+                      submissions
+                    </li>
+                    <li>
+                      among riders with sets, whoever uploaded their last set
+                      first wins — even if one rider has more submissions, the
+                      last set time is what matters
+                    </li>
+                    <li>
+                      if last set times are equal, whoever uploaded their last
+                      submission first wins
+                    </li>
+                  </ul>
+                </div>
+              </TrayContent>
+            </Tray>
           ) : currentSection === "archived" && selectedArchivedRiu ? (
             <div className="text-muted-foreground text-xs">
               {formatRiuDate(selectedArchivedRiu.createdAt)}

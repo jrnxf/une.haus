@@ -6,9 +6,11 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router"
+import { InfoIcon } from "lucide-react"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
 import { ContentHeaderDropdown } from "~/components/games/content-header-dropdown"
+import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import {
   Tooltip,
@@ -40,66 +42,103 @@ function RouteComponent() {
   )
 
   return (
-    <div className="mx-auto w-full max-w-5xl p-4">
+    <div className="mx-auto w-full max-w-3xl p-4">
       <ContentHeaderRow
         className="max-w-none pb-4"
         left={
-          latestSet ? (
-            canBackUp ? (
-              <Button asChild>
-                <Link
-                  to="/games/bius/$biuId/upload"
-                  params={{ biuId: round!.id }}
-                >
-                  upload
-                </Link>
-              </Button>
-            ) : sessionUser ? (
-              latestSet.user.id === sessionUser.id ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="inline-flex">
-                      <Button disabled>upload</Button>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    you can&apos;t back up your own set
-                  </TooltipContent>
-                </Tooltip>
-              ) : null
-            ) : (
-              <Button asChild>
-                <Link
-                  to="/auth"
-                  search={{
-                    redirect: location.href,
-                  }}
-                >
-                  log in to join
-                </Link>
-              </Button>
-            )
-          ) : null
+          <div className="flex items-center gap-2">
+            {rounds.length > 1 && selectedRoundId !== undefined && (
+              <ContentHeaderDropdown
+                value={String(selectedRoundId)}
+                triggerLabel={`game ${selectedGameIndex + 1}`}
+                options={rounds.map((round, index) => ({
+                  value: String(round.id),
+                  label: `game ${index + 1}`,
+                }))}
+                onValueChange={(value) =>
+                  navigate({
+                    to: "/games/bius/$roundId",
+                    params: { roundId: Number(value) },
+                    replace: true,
+                  })
+                }
+              />
+            )}
+          </div>
         }
         right={
-          rounds.length > 1 &&
-          selectedRoundId !== undefined && (
-            <ContentHeaderDropdown
-              value={String(selectedRoundId)}
-              triggerLabel={`game ${selectedGameIndex + 1}`}
-              options={rounds.map((round, index) => ({
-                value: String(round.id),
-                label: `game ${index + 1}`,
-              }))}
-              onValueChange={(value) =>
-                navigate({
-                  to: "/games/bius/$roundId",
-                  params: { roundId: Number(value) },
-                  replace: true,
-                })
-              }
-            />
-          )
+          <div className="flex items-center gap-2">
+            <Tray>
+              <TrayTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <InfoIcon className="size-4" />
+                </Button>
+              </TrayTrigger>
+              <TrayContent>
+                <TrayTitle>how to play</TrayTitle>
+                <div className="prose-sm pt-2">
+                  <p>
+                    BIU (back it up) is a trick line game. a rider uploads a
+                    trick, and the next rider must land that trick plus a new
+                    one in a single line.
+                  </p>
+                  <p className="font-medium">how submissions work</p>
+                  <ul>
+                    <li>
+                      each submission must include the previous trick and your
+                      new trick filmed in one continuous line
+                    </li>
+                    <li>
+                      only the most recent trick carries forward — you don't
+                      need to do every trick from the history, just the last one
+                      plus yours
+                    </li>
+                  </ul>
+                  <p className="font-medium">when does it end?</p>
+                  <p>
+                    it doesn't — the game continues indefinitely as riders keep
+                    backing it up with new tricks.
+                  </p>
+                </div>
+              </TrayContent>
+            </Tray>
+            {latestSet ? (
+              canBackUp ? (
+                <Button asChild>
+                  <Link
+                    to="/games/bius/$biuId/upload"
+                    params={{ biuId: round!.id }}
+                  >
+                    upload
+                  </Link>
+                </Button>
+              ) : sessionUser ? (
+                latestSet.user.id === sessionUser.id ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex">
+                        <Button disabled>upload</Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      you can&apos;t back up your own set
+                    </TooltipContent>
+                  </Tooltip>
+                ) : null
+              ) : (
+                <Button asChild>
+                  <Link
+                    to="/auth"
+                    search={{
+                      redirect: location.href,
+                    }}
+                  >
+                    log in to join
+                  </Link>
+                </Button>
+              )
+            ) : null}
+          </div>
         }
       />
       <Outlet />
