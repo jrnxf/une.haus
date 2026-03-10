@@ -65,19 +65,19 @@ function PostActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            onSelect={() => {
+            onClick={() => {
               navigator.clipboard.writeText(globalThis.location.href)
               haptics.success()
               toast.success("link copied")
             }}
           >
             <LinkIcon className="size-4" />
-            Share
+            share
           </DropdownMenuItem>
           {sessionUser && !isOwner && (
-            <DropdownMenuItem onSelect={() => setFlagOpen(true)}>
+            <DropdownMenuItem onClick={() => setFlagOpen(true)}>
               <FlagIcon className="size-4" />
-              Flag
+              flag
             </DropdownMenuItem>
           )}
           {isOwner && (
@@ -85,11 +85,12 @@ function PostActions({
               <DropdownMenuItem asChild>
                 <Link params={{ postId }} to="/posts/$postId/edit">
                   <PencilIcon className="size-4" />
-                  Edit
+                  edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() =>
+                variant="destructive"
+                onClick={() =>
                   confirm.open({
                     title: "delete post",
                     description:
@@ -102,7 +103,7 @@ function PostActions({
                 }
               >
                 <TrashIcon className="size-4" />
-                Delete
+                delete
               </DropdownMenuItem>
             </>
           )}
