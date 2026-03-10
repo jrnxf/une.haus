@@ -5,9 +5,10 @@
  * - Each set uploaded = 1 point
  * - Each submission uploaded = 1 point
  *
- * Tiebreakers:
- * - If tied users only uploaded sets (no submissions), whoever uploaded their last set first wins
- * - If tied users have same sets AND submissions, whoever uploaded their last submission first wins
+ * Tiebreakers (in order):
+ * 1. Having sets beats not having sets (sets are weighted higher)
+ * 2. Among riders with sets, whoever uploaded their last set first wins
+ * 3. If still tied, whoever uploaded their last submission first wins
  */
 
 export type RiuSet = {
@@ -63,10 +64,9 @@ export function calculatePoints(
  *
  * Comparison rules:
  * 1. Higher points wins
- * 2. If tied points and both have only sets (no submissions):
- *    - Whoever uploaded their last set FIRST wins
- * 3. If tied points and at least one has submissions:
- *    - Whoever uploaded their last submission FIRST wins
+ * 2. Rider with sets beats rider without sets (sets are weighted higher)
+ * 3. Among riders with sets, whoever uploaded their last set FIRST wins
+ * 4. If still tied, whoever uploaded their last submission FIRST wins
  */
 export function compareRiders(a: RiderScore, b: RiderScore): number {
   // First compare by points (higher is better)
@@ -74,27 +74,20 @@ export function compareRiders(a: RiderScore, b: RiderScore): number {
     return b.points - a.points
   }
 
-  // Tied points - apply tiebreakers
-  const aHasSubmissions = a.submissionsCount > 0
-  const bHasSubmissions = b.submissionsCount > 0
-
-  // If neither has submissions, compare by last set time (earlier wins)
-  if (!aHasSubmissions && !bHasSubmissions) {
-    if (a.lastSetAt && b.lastSetAt) {
-      return a.lastSetAt.getTime() - b.lastSetAt.getTime()
-    }
-    // If one has no sets, they lose
-    if (a.lastSetAt && !b.lastSetAt) return -1
-    if (!a.lastSetAt && b.lastSetAt) return 1
-    return 0
+  // Tiebreaker 1: Compare by last set (sets take priority)
+  if (a.lastSetAt && b.lastSetAt) {
+    const diff = a.lastSetAt.getTime() - b.lastSetAt.getTime()
+    if (diff !== 0) return diff
+  } else if (a.lastSetAt && !b.lastSetAt) {
+    return -1
+  } else if (!a.lastSetAt && b.lastSetAt) {
+    return 1
   }
 
-  // At least one has submissions - compare by last submission time (earlier wins)
+  // Tiebreaker 2: Compare by last submission (earlier wins)
   if (a.lastSubmissionAt && b.lastSubmissionAt) {
     return a.lastSubmissionAt.getTime() - b.lastSubmissionAt.getTime()
   }
-  // If one has no submission timestamp but has submissions, that's unexpected
-  // Fall back to whoever has a submission wins
   if (a.lastSubmissionAt && !b.lastSubmissionAt) return -1
   if (!a.lastSubmissionAt && b.lastSubmissionAt) return 1
   return 0
