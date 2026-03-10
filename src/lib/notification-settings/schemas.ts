@@ -15,9 +15,6 @@ export const updateNotificationSettingsSchema = z.object({
   // Game start reminder preferences
   gameStartReminderEnabled: z.boolean().optional(),
   gameStartReminderHoursBefore: z.number().min(1).max(72).optional(),
-  // Pre-game trick reminder preferences
-  preTrickReminderEnabled: z.boolean().optional(),
-  preTrickReminderDaysBefore: z.number().min(1).max(7).optional(),
   // Global email unsubscribe
   emailUnsubscribedAll: z.boolean().optional(),
 })

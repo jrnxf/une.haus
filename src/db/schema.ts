@@ -661,11 +661,7 @@ export const notifications = pgTable(
 export const EMAIL_DIGEST_FREQUENCIES = ["off", "weekly", "monthly"] as const
 export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
 
-export const EMAIL_REMINDER_TYPES = [
-  "digest",
-  "game_start",
-  "pre_trick",
-] as const
+export const EMAIL_REMINDER_TYPES = ["digest", "game_start"] as const
 export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
 
 export const userNotificationSettings = pgTable("user_notification_settings", {
@@ -693,13 +689,6 @@ export const userNotificationSettings = pgTable("user_notification_settings", {
   gameStartReminderHoursBefore: integer(
     "game_start_reminder_hours_before",
   ).default(24),
-  // Pre-game trick reminder preferences (opt-in, default off)
-  preTrickReminderEnabled: boolean("pre_trick_reminder_enabled")
-    .notNull()
-    .default(false),
-  preTrickReminderDaysBefore: integer("pre_trick_reminder_days_before").default(
-    1,
-  ),
   // Global email unsubscribe
   emailUnsubscribedAll: boolean("email_unsubscribed_all")
     .notNull()

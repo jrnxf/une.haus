@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
     const updates: Partial<{
       emailDigestFrequency: "off" | "weekly" | "monthly"
       gameStartReminderEnabled: boolean
-      preTrickReminderEnabled: boolean
       emailUnsubscribedAll: boolean
     }> = {}
 
@@ -38,10 +37,6 @@ export default defineEventHandler(async (event) => {
       }
       case "game_start": {
         updates.gameStartReminderEnabled = false
-        break
-      }
-      case "pre_trick": {
-        updates.preTrickReminderEnabled = false
         break
       }
       case "all": {

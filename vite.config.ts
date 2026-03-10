@@ -92,8 +92,6 @@ const config = defineConfig(async () => {
             TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
             TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
           ],
-          // Once daily at midnight UTC — checks days-until-rotation
-          "0 0 * * *": [TASK_NAMES.NOTIFICATIONS_PRE_TRICK_REMINDERS],
         },
       } as any),
       tailwindcss(),
