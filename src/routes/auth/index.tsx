@@ -83,9 +83,9 @@ function RouteComponent() {
             control={sendCodeForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>email</FieldLabel>
+                <FieldLabel>send</FieldLabel>
                 <FieldDescription>
-                  we'll send you a verification code to log in or register
+                  enter your email for a verification code
                 </FieldDescription>
                 <Input {...field} autoFocus />
                 <FieldError errors={[fieldState.error]} />

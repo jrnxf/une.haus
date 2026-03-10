@@ -87,7 +87,7 @@ function UnauthenticatedView() {
       <div className="mx-auto w-full max-w-xl p-4">
         <div className="bg-card space-y-4 rounded-xl border p-6">
           <div className="space-y-1">
-            <p className="text-sm font-medium">join tourney</p>
+            <p className="text-sm font-medium">join</p>
             <FieldDescription>
               enter the 4-digit code to watch live
             </FieldDescription>
