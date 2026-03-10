@@ -248,6 +248,15 @@ export function CommandPalette() {
         onAction: () => closeAndNavigate("/tourney"),
       },
     },
+    {
+      id: "arcade",
+      label: "arcade",
+      value: "/arcade",
+      primaryAction: {
+        label: "open",
+        onAction: () => closeAndNavigate("/arcade"),
+      },
+    },
     ...(isAuthenticated
       ? [
           {
@@ -609,15 +618,6 @@ export function CommandPalette() {
               >
                 <Link to="/games/sius" replace>
                   stack it up
-                </Link>
-              </CommandItem>
-              <CommandItem
-                value="arcade"
-                onSelect={() => closeAndNavigate("/arcade")}
-                asChild
-              >
-                <Link to="/arcade" replace>
-                  arcade
                 </Link>
               </CommandItem>
             </CommandGroup>

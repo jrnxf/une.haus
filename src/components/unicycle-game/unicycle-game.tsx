@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import {
   DEATH_FREEZE_FRAMES,
   DOUBLE_JUMP_FORCE,
-  GROUND_Y_RATIO,
   JUMP_CUT,
   JUMP_FORCE,
   PLAYER_X,
@@ -19,6 +18,10 @@ import {
 import { type GameState } from "./types"
 import { updateGameState } from "./update"
 import { Metaline } from "~/components/ui/metaline"
+
+// Fixed distance from the bottom of the canvas to the ground line.
+// Height changes add/remove sky above; the ground stays anchored.
+const GROUND_BOTTOM_OFFSET = 120
 
 export function UnicycleGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -42,7 +45,7 @@ export function UnicycleGame() {
 
   const getGroundY = useCallback((canvas: HTMLCanvasElement) => {
     const dpr = window.devicePixelRatio || 1
-    return (canvas.height / dpr) * GROUND_Y_RATIO
+    return canvas.height / dpr - GROUND_BOTTOM_OFFSET
   }, [])
 
   const resetGame = useCallback(() => {
@@ -108,7 +111,7 @@ export function UnicycleGame() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     const w = canvas.width / dpr
     const h = canvas.height / dpr
-    const baseGroundY = h * GROUND_Y_RATIO
+    const baseGroundY = h - GROUND_BOTTOM_OFFSET
 
     // Recompute colors every 60 frames
     const colors = colorsRef.current
@@ -142,13 +145,18 @@ export function UnicycleGame() {
     const canvas = canvasRef.current
     const container = containerRef.current
     if (!canvas || !container) return
-    const rect = container.getBoundingClientRect()
     const dpr = window.devicePixelRatio || 1
+    const oldH = canvas.height / dpr
+    const rect = container.getBoundingClientRect()
     canvas.width = rect.width * dpr
     canvas.height = rect.height * dpr
+    const newH = canvas.height / dpr
     const gs = stateRef.current
     if (gs.status === "idle") {
       gs.playerY = getGroundY(canvas) - WHEEL_R
+    } else {
+      // Ground moved by the same amount as the height change
+      gs.playerY += newH - oldH
     }
   }, [getGroundY])
 
@@ -191,7 +199,7 @@ export function UnicycleGame() {
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-1 cursor-pointer touch-none items-center justify-center select-none"
+      className="relative min-h-0 flex-1 cursor-pointer touch-none overflow-hidden select-none"
       style={{ WebkitTouchCallout: "none" }}
       onPointerDown={jump}
       onPointerUp={releaseJump}
@@ -199,7 +207,7 @@ export function UnicycleGame() {
     >
       <canvas
         ref={canvasRef}
-        className="bg-background text-foreground h-full w-full"
+        className="bg-background text-foreground absolute inset-0 h-full w-full"
       />
       {!isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
