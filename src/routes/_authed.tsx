@@ -8,9 +8,6 @@ export const Route = createFileRoute("/_authed")({
       session.get.queryOptions(),
     )
     if (!sessionData.user) {
-      if (location.pathname === "/tourney") {
-        throw redirect({ to: "/tourney/join" })
-      }
       throw redirect({
         to: "/auth",
         search: {

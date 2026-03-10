@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultIndexRouteImport } from './routes/vault/index'
 import { Route as UsersIndexRouteImport } from './routes/users/index'
 import { Route as TricksIndexRouteImport } from './routes/tricks/index'
+import { Route as TourneyIndexRouteImport } from './routes/tourney/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as MetricsIndexRouteImport } from './routes/metrics/index'
 import { Route as GamesIndexRouteImport } from './routes/games/index'
@@ -41,7 +42,6 @@ import { Route as UsersMapIndexRouteImport } from './routes/users/map/index'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as TricksGlossaryIndexRouteImport } from './routes/tricks/glossary/index'
 import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
-import { Route as AuthedTourneyIndexRouteImport } from './routes/_authed/tourney/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin/index'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
@@ -137,6 +137,11 @@ const UsersIndexRoute = UsersIndexRouteImport.update({
 const TricksIndexRoute = TricksIndexRouteImport.update({
   id: '/tricks/',
   path: '/tricks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TourneyIndexRoute = TourneyIndexRouteImport.update({
+  id: '/tourney/',
+  path: '/tourney/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PostsIndexRoute = PostsIndexRouteImport.update({
@@ -253,11 +258,6 @@ const PostsPostIdIndexRoute = PostsPostIdIndexRouteImport.update({
   id: '/posts/$postId/',
   path: '/posts/$postId/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthedTourneyIndexRoute = AuthedTourneyIndexRouteImport.update({
-  id: '/tourney/',
-  path: '/tourney/',
-  getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedNotificationsIndexRoute =
   AuthedNotificationsIndexRouteImport.update({
@@ -569,6 +569,7 @@ export interface FileRoutesByFullPath {
   '/games/': typeof GamesIndexRoute
   '/metrics/': typeof MetricsIndexRoute
   '/posts/': typeof PostsIndexRoute
+  '/tourney/': typeof TourneyIndexRoute
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
@@ -583,7 +584,6 @@ export interface FileRoutesByFullPath {
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/admin/': typeof AuthedAdminIndexRoute
   '/notifications/': typeof AuthedNotificationsIndexRoute
-  '/tourney/': typeof AuthedTourneyIndexRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
@@ -651,6 +651,7 @@ export interface FileRoutesByTo {
   '/games': typeof GamesIndexRoute
   '/metrics': typeof MetricsIndexRoute
   '/posts': typeof PostsIndexRoute
+  '/tourney': typeof TourneyIndexRoute
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
@@ -665,7 +666,6 @@ export interface FileRoutesByTo {
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/admin': typeof AuthedAdminIndexRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
-  '/tourney': typeof AuthedTourneyIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/users/map': typeof UsersMapIndexRoute
@@ -733,6 +733,7 @@ export interface FileRoutesById {
   '/games/': typeof GamesIndexRoute
   '/metrics/': typeof MetricsIndexRoute
   '/posts/': typeof PostsIndexRoute
+  '/tourney/': typeof TourneyIndexRoute
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
@@ -750,7 +751,6 @@ export interface FileRoutesById {
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
-  '/_authed/tourney/': typeof AuthedTourneyIndexRoute
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
@@ -821,6 +821,7 @@ export interface FileRouteTypes {
     | '/games/'
     | '/metrics/'
     | '/posts/'
+    | '/tourney/'
     | '/tricks/'
     | '/users/'
     | '/vault/'
@@ -835,7 +836,6 @@ export interface FileRouteTypes {
     | '/vault/$videoId/edit'
     | '/admin/'
     | '/notifications/'
-    | '/tourney/'
     | '/posts/$postId/'
     | '/tricks/glossary/'
     | '/users/$userId/'
@@ -903,6 +903,7 @@ export interface FileRouteTypes {
     | '/games'
     | '/metrics'
     | '/posts'
+    | '/tourney'
     | '/tricks'
     | '/users'
     | '/vault'
@@ -917,7 +918,6 @@ export interface FileRouteTypes {
     | '/vault/$videoId/edit'
     | '/admin'
     | '/notifications'
-    | '/tourney'
     | '/posts/$postId'
     | '/users/$userId'
     | '/users/map'
@@ -984,6 +984,7 @@ export interface FileRouteTypes {
     | '/games/'
     | '/metrics/'
     | '/posts/'
+    | '/tourney/'
     | '/tricks/'
     | '/users/'
     | '/vault/'
@@ -1001,7 +1002,6 @@ export interface FileRouteTypes {
     | '/vault/$videoId/edit'
     | '/_authed/admin/'
     | '/_authed/notifications/'
-    | '/_authed/tourney/'
     | '/posts/$postId/'
     | '/tricks/glossary/'
     | '/users/$userId/'
@@ -1070,6 +1070,7 @@ export interface RootRouteChildren {
   GamesIndexRoute: typeof GamesIndexRoute
   MetricsIndexRoute: typeof MetricsIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
+  TourneyIndexRoute: typeof TourneyIndexRoute
   TricksIndexRoute: typeof TricksIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
@@ -1146,6 +1147,13 @@ declare module '@tanstack/react-router' {
       path: '/tricks'
       fullPath: '/tricks/'
       preLoaderRoute: typeof TricksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tourney/': {
+      id: '/tourney/'
+      path: '/tourney'
+      fullPath: '/tourney/'
+      preLoaderRoute: typeof TourneyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/posts/': {
@@ -1308,13 +1316,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/posts/$postId/'
       preLoaderRoute: typeof PostsPostIdIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authed/tourney/': {
-      id: '/_authed/tourney/'
-      path: '/tourney'
-      fullPath: '/tourney/'
-      preLoaderRoute: typeof AuthedTourneyIndexRouteImport
-      parentRoute: typeof AuthedRoute
     }
     '/_authed/notifications/': {
       id: '/_authed/notifications/'
@@ -1711,7 +1712,6 @@ interface AuthedRouteChildren {
   AuthedTourneyCreateRoute: typeof AuthedTourneyCreateRoute
   AuthedTricksCreateRoute: typeof AuthedTricksCreateRoute
   AuthedNotificationsIndexRoute: typeof AuthedNotificationsIndexRoute
-  AuthedTourneyIndexRoute: typeof AuthedTourneyIndexRoute
   AuthedAuthMeEditRoute: typeof AuthedAuthMeEditRoute
   AuthedGamesBiusUploadRoute: typeof AuthedGamesBiusUploadRoute
   AuthedGamesSiusUploadRoute: typeof AuthedGamesSiusUploadRoute
@@ -1741,7 +1741,6 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedTourneyCreateRoute: AuthedTourneyCreateRoute,
   AuthedTricksCreateRoute: AuthedTricksCreateRoute,
   AuthedNotificationsIndexRoute: AuthedNotificationsIndexRoute,
-  AuthedTourneyIndexRoute: AuthedTourneyIndexRoute,
   AuthedAuthMeEditRoute: AuthedAuthMeEditRoute,
   AuthedGamesBiusUploadRoute: AuthedGamesBiusUploadRoute,
   AuthedGamesSiusUploadRoute: AuthedGamesSiusUploadRoute,
@@ -1903,6 +1902,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesIndexRoute: GamesIndexRoute,
   MetricsIndexRoute: MetricsIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
+  TourneyIndexRoute: TourneyIndexRoute,
   TricksIndexRoute: TricksIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
