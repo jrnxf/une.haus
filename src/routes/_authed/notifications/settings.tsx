@@ -6,14 +6,10 @@ import {
 import { createFileRoute, useSearch } from "@tanstack/react-router"
 import {
   AtSignIcon,
-  Bell,
   CalendarClock,
   Heart,
-  Mail,
   MessageCircle,
   Sparkles,
-  TrafficConeIcon,
-  Trophy,
   UserPlus,
 } from "lucide-react"
 import { useEffect } from "react"
@@ -41,7 +37,7 @@ import { notificationSettings } from "~/lib/notification-settings"
 import { type UpdateNotificationSettingsInput } from "~/lib/notification-settings/schemas"
 
 const searchSchema = z.object({
-  unsubscribed: z.enum(["digest", "game_start", "pre_trick", "all"]).optional(),
+  unsubscribed: z.enum(["digest", "game_start", "all"]).optional(),
 })
 
 export const Route = createFileRoute("/_authed/notifications/settings")({
@@ -55,13 +51,13 @@ export const Route = createFileRoute("/_authed/notifications/settings")({
 })
 
 const DAYS_OF_WEEK = [
-  { value: "0", label: "Sunday" },
-  { value: "1", label: "Monday" },
-  { value: "2", label: "Tuesday" },
-  { value: "3", label: "Wednesday" },
-  { value: "4", label: "Thursday" },
-  { value: "5", label: "Friday" },
-  { value: "6", label: "Saturday" },
+  { value: "0", label: "sunday" },
+  { value: "1", label: "monday" },
+  { value: "2", label: "tuesday" },
+  { value: "3", label: "wednesday" },
+  { value: "4", label: "thursday" },
+  { value: "5", label: "friday" },
+  { value: "6", label: "saturday" },
 ]
 
 const HOURS_OF_DAY = Array.from({ length: 24 }, (_, i) => ({
@@ -81,13 +77,6 @@ const HOURS_BEFORE_OPTIONS = [
   { value: "72", label: "72 hours" },
 ]
 
-const DAYS_BEFORE_OPTIONS = [
-  { value: "1", label: "1 day" },
-  { value: "2", label: "2 days" },
-  { value: "3", label: "3 days" },
-  { value: "7", label: "1 week" },
-]
-
 function RouteComponent() {
   const qc = useQueryClient()
   const { unsubscribed } = useSearch({
@@ -102,7 +91,6 @@ function RouteComponent() {
       const messages: Record<string, string> = {
         digest: "you've been unsubscribed from digest emails",
         game_start: "you've been unsubscribed from game start reminders",
-        pre_trick: "you've been unsubscribed from pre-game trick reminders",
         all: "you've been unsubscribed from all emails",
       }
       toast.success(messages[unsubscribed])
@@ -170,21 +158,6 @@ function RouteComponent() {
       </PageHeader>
       <div className="h-full overflow-y-auto">
         <div className="mx-auto max-w-5xl p-6">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-muted flex size-10 items-center justify-center rounded-lg">
-                <Bell className="text-muted-foreground size-5" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">notifications settings</h1>
-                <p className="text-muted-foreground text-sm">
-                  choose what notifications you want to receive
-                </p>
-              </div>
-            </div>
-          </div>
-
           <div className="space-y-6">
             {/* In-App Notifications */}
             <Card>
@@ -236,7 +209,6 @@ function RouteComponent() {
             <Card className={isEmailDisabled ? "opacity-50" : undefined}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Mail className="size-5" />
                   digest
                 </CardTitle>
                 <CardDescription>
@@ -264,9 +236,9 @@ function RouteComponent() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="off">Off</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="off">off</SelectItem>
+                      <SelectItem value="weekly">weekly</SelectItem>
+                      <SelectItem value="monthly">monthly</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -287,6 +259,7 @@ function RouteComponent() {
                               })
                             }
                             disabled={updateSettings.isPending}
+                            items={DAYS_OF_WEEK}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -315,6 +288,7 @@ function RouteComponent() {
                               })
                             }
                             disabled={updateSettings.isPending}
+                            items={DAYS_OF_MONTH}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -340,6 +314,7 @@ function RouteComponent() {
                             handleUpdate({ emailDigestHourUtc: Number(value) })
                           }
                           disabled={updateSettings.isPending}
+                          items={HOURS_OF_DAY}
                         >
                           <SelectTrigger className="w-32">
                             <SelectValue />
@@ -362,7 +337,6 @@ function RouteComponent() {
             <Card className={isEmailDisabled ? "opacity-50" : undefined}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Trophy className="size-5" />
                   game reminders
                 </CardTitle>
                 <CardDescription>
@@ -418,76 +392,13 @@ function RouteComponent() {
                           })
                         }
                         disabled={updateSettings.isPending}
+                        items={HOURS_BEFORE_OPTIONS}
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {HOURS_BEFORE_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="text-muted-foreground text-sm">
-                        before
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Pre-Trick Reminder */}
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-muted mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md">
-                        <TrafficConeIcon className="text-muted-foreground size-4" />
-                      </div>
-                      <div>
-                        <Label
-                          htmlFor="preTrickReminderEnabled"
-                          className="cursor-pointer text-sm font-medium"
-                        >
-                          pre-game trick reminder
-                        </Label>
-                        <p className="text-muted-foreground text-sm">
-                          get a reminder of your submitted sets before the round
-                          starts
-                        </p>
-                      </div>
-                    </div>
-                    <Checkbox
-                      id="preTrickReminderEnabled"
-                      checked={settings.preTrickReminderEnabled}
-                      onCheckedChange={(checked) =>
-                        handleUpdate({
-                          preTrickReminderEnabled: checked === true,
-                        })
-                      }
-                      disabled={updateSettings.isPending || isEmailDisabled}
-                    />
-                  </div>
-
-                  {settings.preTrickReminderEnabled && !isEmailDisabled && (
-                    <div className="mt-4 ml-11 flex items-center gap-4">
-                      <Label className="text-muted-foreground text-sm">
-                        remind me
-                      </Label>
-                      <Select
-                        value={String(settings.preTrickReminderDaysBefore ?? 1)}
-                        onValueChange={(value) =>
-                          handleUpdate({
-                            preTrickReminderDaysBefore: Number(value),
-                          })
-                        }
-                        disabled={updateSettings.isPending}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DAYS_BEFORE_OPTIONS.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
                               {opt.label}
                             </SelectItem>
