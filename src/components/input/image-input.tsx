@@ -92,7 +92,7 @@ export const ImageInput = ({
   )
 
   const { getInputProps, getRootProps } = useDropzone({
-    accept: { "image/*": [] },
+    accept: { "image/jpeg": [], "image/png": [], "image/gif": [] },
     multiple: false,
     onDrop,
   })
@@ -149,7 +149,7 @@ export const ImageInput = ({
       hasFile={!!file}
     >
       <span className="text-muted-foreground block w-full truncate text-left text-sm">
-        {file ? file.name : "Choose File"}
+        {file ? file.name : "choose file"}
       </span>
     </UploadDropZone>
   )

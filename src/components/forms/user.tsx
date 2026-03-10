@@ -240,9 +240,7 @@ export function UserForm({
                 previewClassNames="rounded-md size-86"
                 value={field.value}
                 onChange={(data) => {
-                  field.onChange(
-                    data ? { type: "image", value: data } : undefined,
-                  )
+                  field.onChange(data ?? null)
                 }}
               />
             </FormItem>
