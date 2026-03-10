@@ -1,0 +1,26 @@
+{
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": false,
+  "jsxSingleQuote": false,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "ignorePatterns": ["**/routeTree.gen.ts"],
+  "sortImports": {
+    "groups": [
+      ["value-builtin", "value-external"],
+      ["value-internal", "value-parent", "value-sibling", "value-index"],
+      { "newlinesBetween": true },
+      ["type-builtin", "type-external"],
+      ["type-internal", "type-parent", "type-sibling", "type-index"],
+      "unknown"
+    ]
+  },
+  "sortTailwindcss": {
+    "functions": ["cn", "cva", "clsx"]
+  }
+}

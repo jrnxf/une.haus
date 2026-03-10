@@ -1,0 +1,35 @@
+{
+  "include": ["**/*.ts", "**/*.tsx", "src/views/user-with-globe.bak.ts"],
+  "exclude": [
+    "bak/**",
+    "**/*.bak.ts",
+    "**/*.bak.tsx",
+    "**/*.unit.test.ts",
+    "**/*.unit.test.tsx",
+    "src/scripts/**"
+  ],
+  "compilerOptions": {
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "react", "react-dom"],
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+
+    /* Linting */
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
+}

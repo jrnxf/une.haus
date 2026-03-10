@@ -1,0 +1,2243 @@
+[
+  {
+    "id": "180-unispin",
+    "name": "180 Unispin",
+    "alternateNames": ["180", "1spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 180 degrees, feet land back on pedals",
+    "prerequisite": null,
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-unispin",
+      "180-sidespin",
+      "180-secretsidespin",
+      "180-backside",
+      "180-antiside",
+      "hickflip"
+    ]
+  },
+  {
+    "id": "360-unispin",
+    "name": "360 Unispin",
+    "alternateNames": ["360", "3spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 360 degrees, feet land back on pedals",
+    "prerequisite": "180-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-unispin",
+      "540-unispin",
+      "360-sidespin",
+      "360-secretsidespin",
+      "360-backside",
+      "360-antiside",
+      "treyflip"
+    ]
+  },
+  {
+    "id": "540-unispin",
+    "name": "540 Unispin",
+    "alternateNames": ["540", "5spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 540 degrees, feet land back on pedals",
+    "prerequisite": "360-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-unispin",
+      "720-unispin",
+      "540-sidespin",
+      "540-secretsidespin",
+      "540-backside",
+      "540-antiside",
+      "fifthflip"
+    ]
+  },
+  {
+    "id": "720-unispin",
+    "name": "720 Unispin",
+    "alternateNames": ["720", "7spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 720 degrees, feet land back on pedals",
+    "prerequisite": "540-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-unispin",
+      "900-unispin",
+      "720-sidespin",
+      "720-secretsidespin",
+      "720-backside",
+      "sejflip"
+    ]
+  },
+  {
+    "id": "900-unispin",
+    "name": "900 Unispin",
+    "alternateNames": ["900", "9spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 900 degrees, feet land back on pedals",
+    "prerequisite": "720-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "720-unispin",
+      "1080-unispin",
+      "900-sidespin",
+      "ninthflip"
+    ]
+  },
+  {
+    "id": "1080-unispin",
+    "name": "1080 Unispin",
+    "alternateNames": ["1080", "10spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 1080 degrees, feet land back on pedals",
+    "prerequisite": "900-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "900-unispin",
+      "1260-unispin",
+      "1080-sidespin",
+      "tenthflip"
+    ]
+  },
+  {
+    "id": "1260-unispin",
+    "name": "1260 Unispin",
+    "alternateNames": ["1260", "12spin"],
+    "elements": ["spin"],
+    "description": "Feet leave pedals, unicycle spins 1260 degrees, feet land back on pedals",
+    "prerequisite": "1080-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["1080-unispin", "1260-sidespin"]
+  },
+  {
+    "id": "180-sidespin",
+    "name": "180 Sidespin",
+    "alternateNames": ["180 side", "hickside"],
+    "elements": ["spin", "wrap"],
+    "description": "180 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "180-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-unispin", "360-sidespin", "hicksideflip"]
+  },
+  {
+    "id": "360-sidespin",
+    "name": "360 Sidespin",
+    "alternateNames": ["360 side", "treyside"],
+    "elements": ["spin", "wrap"],
+    "description": "360 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "180-sidespin",
+    "optionalPrerequisite": "360-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-sidespin",
+      "540-sidespin",
+      "360-unispin",
+      "treysideflip"
+    ]
+  },
+  {
+    "id": "540-sidespin",
+    "name": "540 Sidespin",
+    "alternateNames": ["540 side", "fifthside"],
+    "elements": ["spin", "wrap"],
+    "description": "540 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "360-sidespin",
+    "optionalPrerequisite": "540-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-sidespin",
+      "720-sidespin",
+      "540-unispin",
+      "fifthsideflip"
+    ]
+  },
+  {
+    "id": "720-sidespin",
+    "name": "720 Sidespin",
+    "alternateNames": ["720 side", "sejside"],
+    "elements": ["spin", "wrap"],
+    "description": "720 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "540-sidespin",
+    "optionalPrerequisite": "720-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-sidespin",
+      "900-sidespin",
+      "720-unispin",
+      "sejsideflip"
+    ]
+  },
+  {
+    "id": "900-sidespin",
+    "name": "900 Sidespin",
+    "alternateNames": ["900 side", "ninthside"],
+    "elements": ["spin", "wrap"],
+    "description": "900 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "720-sidespin",
+    "optionalPrerequisite": "900-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "720-sidespin",
+      "1080-sidespin",
+      "900-unispin",
+      "ninthsideflip"
+    ]
+  },
+  {
+    "id": "1080-sidespin",
+    "name": "1080 Sidespin",
+    "alternateNames": ["1080 side", "tenthside"],
+    "elements": ["spin", "wrap"],
+    "description": "1080 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "900-sidespin",
+    "optionalPrerequisite": "1080-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "900-sidespin",
+      "1260-sidespin",
+      "1080-unispin",
+      "tenthsideflip"
+    ]
+  },
+  {
+    "id": "1260-sidespin",
+    "name": "1260 Sidespin",
+    "alternateNames": ["1260 side"],
+    "elements": ["spin", "wrap"],
+    "description": "1260 unispin wrapped around the same leg as hand in front of seat",
+    "prerequisite": "1080-sidespin",
+    "optionalPrerequisite": "1260-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["1080-sidespin", "1260-unispin"]
+  },
+  {
+    "id": "180-secretsidespin",
+    "name": "180 Secret Sidespin",
+    "alternateNames": ["180 secret", "hicksecret"],
+    "elements": ["spin", "wrap"],
+    "description": "180 unispin wrapped around both legs, starting with the same leg as hand in front of seat",
+    "prerequisite": "180-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-unispin", "360-secretsidespin", "180-sidespin"]
+  },
+  {
+    "id": "360-secretsidespin",
+    "name": "360 Secret Sidespin",
+    "alternateNames": ["360 secret", "treysecret"],
+    "elements": ["spin", "wrap"],
+    "description": "360 unispin wrapped around both legs, starting with the same leg as hand in front of seat",
+    "prerequisite": "180-secretsidespin",
+    "optionalPrerequisite": "360-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-secretsidespin",
+      "540-secretsidespin",
+      "360-sidespin",
+      "treysecretsideflip"
+    ]
+  },
+  {
+    "id": "540-secretsidespin",
+    "name": "540 Secret Sidespin",
+    "alternateNames": ["540 secret", "fifthsecret"],
+    "elements": ["spin", "wrap"],
+    "description": "540 unispin wrapped around both legs, starting with the same leg as hand in front of seat",
+    "prerequisite": "360-secretsidespin",
+    "optionalPrerequisite": "540-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-secretsidespin",
+      "720-secretsidespin",
+      "540-sidespin",
+      "fifthsecretsideflip"
+    ]
+  },
+  {
+    "id": "720-secretsidespin",
+    "name": "720 Secret Sidespin",
+    "alternateNames": ["720 secret", "sejsecret"],
+    "elements": ["spin", "wrap"],
+    "description": "720 unispin wrapped around both legs, starting with the same leg as hand in front of seat",
+    "prerequisite": "540-secretsidespin",
+    "optionalPrerequisite": "720-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["540-secretsidespin", "720-sidespin", "sejsecretsideflip"]
+  },
+  {
+    "id": "treysecretsideflip",
+    "name": "Treysecretsideflip",
+    "alternateNames": ["trey secret flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 secretsidespin with the wheel rotating forward once",
+    "prerequisite": "360-secretsidespin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-secretsidespin",
+      "treysecretdoubleflip",
+      "fifthsecretsideflip",
+      "treyflip"
+    ]
+  },
+  {
+    "id": "treysecretdoubleflip",
+    "name": "Treysecretdoubleflip",
+    "alternateNames": ["trey secret double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 secretsidespin with the wheel rotating forward twice",
+    "prerequisite": "treysecretsideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treysecretsideflip",
+      "treysecrettripleflip",
+      "fifthsecretdoubleflip"
+    ]
+  },
+  {
+    "id": "treysecrettripleflip",
+    "name": "Treysecrettripleflip",
+    "alternateNames": ["trey secret triple"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 secretsidespin with the wheel rotating forward three times",
+    "prerequisite": "treysecretdoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["treysecretdoubleflip", "fifthsecrettripleflip"]
+  },
+  {
+    "id": "fifthsecretsideflip",
+    "name": "Fifthsecretsideflip",
+    "alternateNames": ["fifth secret flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 secretsidespin with the wheel rotating forward once",
+    "prerequisite": "540-secretsidespin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-secretsidespin",
+      "fifthsecretdoubleflip",
+      "treysecretsideflip",
+      "sejsecretsideflip"
+    ]
+  },
+  {
+    "id": "fifthsecretdoubleflip",
+    "name": "Fifthsecretdoubleflip",
+    "alternateNames": ["fifth secret double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 secretsidespin with the wheel rotating forward twice",
+    "prerequisite": "fifthsecretsideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthsecretsideflip",
+      "fifthsecrettripleflip",
+      "treysecretdoubleflip"
+    ]
+  },
+  {
+    "id": "fifthsecrettripleflip",
+    "name": "Fifthsecrettripleflip",
+    "alternateNames": ["fifth secret triple"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 secretsidespin with the wheel rotating forward three times",
+    "prerequisite": "fifthsecretdoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthsecretdoubleflip", "treysecrettripleflip"]
+  },
+  {
+    "id": "sejsecretsideflip",
+    "name": "Sejsecretsideflip",
+    "alternateNames": ["sej secret flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "720 secretsidespin with the wheel rotating forward once",
+    "prerequisite": "720-secretsidespin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["720-secretsidespin", "fifthsecretsideflip"]
+  },
+  {
+    "id": "180-backside",
+    "name": "180 Backside",
+    "alternateNames": ["180 back wrap", "hickbackside"],
+    "elements": ["spin", "wrap"],
+    "description": "180 unispin threaded behind and around the leg opposite the spinning hand",
+    "prerequisite": "180-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-unispin",
+      "360-backside",
+      "180-sidespin",
+      "hickbacksideflip"
+    ]
+  },
+  {
+    "id": "360-backside",
+    "name": "360 Backside",
+    "alternateNames": ["360 back wrap", "treybackside"],
+    "elements": ["spin", "wrap"],
+    "description": "360 unispin threaded behind and around the leg opposite the spinning hand",
+    "prerequisite": "180-backside",
+    "optionalPrerequisite": "360-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-backside",
+      "540-backside",
+      "360-sidespin",
+      "treybacksideflip"
+    ]
+  },
+  {
+    "id": "540-backside",
+    "name": "540 Backside",
+    "alternateNames": ["540 back wrap", "fifthbackside"],
+    "elements": ["spin", "wrap"],
+    "description": "540 unispin threaded behind and around the leg opposite the spinning hand",
+    "prerequisite": "360-backside",
+    "optionalPrerequisite": "540-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-backside",
+      "720-backside",
+      "540-sidespin",
+      "fifthbacksideflip"
+    ]
+  },
+  {
+    "id": "720-backside",
+    "name": "720 Backside",
+    "alternateNames": ["720 back wrap", "sejbackside"],
+    "elements": ["spin", "wrap"],
+    "description": "720 unispin threaded behind and around the leg opposite the spinning hand",
+    "prerequisite": "540-backside",
+    "optionalPrerequisite": "720-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["540-backside", "720-sidespin", "sejbacksideflip"]
+  },
+  {
+    "id": "hickbacksideflip",
+    "name": "Hickbacksideflip",
+    "alternateNames": ["hick backside flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 backside with the wheel rotating forward once",
+    "prerequisite": "180-backside",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-backside",
+      "hickbacksidedoubleflip",
+      "treybacksideflip",
+      "hickflip"
+    ]
+  },
+  {
+    "id": "hickbacksidedoubleflip",
+    "name": "Hickbacksidedoubleflip",
+    "alternateNames": ["hick backside double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 backside with the wheel rotating forward twice",
+    "prerequisite": "hickbacksideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickbacksideflip",
+      "hickbacksidetripleflip",
+      "treybacksidedoubleflip"
+    ]
+  },
+  {
+    "id": "hickbacksidetripleflip",
+    "name": "Hickbacksidetripleflip",
+    "alternateNames": ["hick backside triple"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 backside with the wheel rotating forward three times",
+    "prerequisite": "hickbacksidedoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickbacksidedoubleflip", "fifthbacksidetripleflip"]
+  },
+  {
+    "id": "treybacksideflip",
+    "name": "Treybacksideflip",
+    "alternateNames": ["trey backside flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 backside with the wheel rotating forward once",
+    "prerequisite": "360-backside",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-backside",
+      "treybacksidedoubleflip",
+      "hickbacksideflip",
+      "fifthbacksideflip"
+    ]
+  },
+  {
+    "id": "treybacksidedoubleflip",
+    "name": "Treybacksidedoubleflip",
+    "alternateNames": ["trey backside double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 backside with the wheel rotating forward twice",
+    "prerequisite": "treybacksideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treybacksideflip",
+      "hickbacksidedoubleflip",
+      "fifthbacksidedoubleflip"
+    ]
+  },
+  {
+    "id": "fifthbacksideflip",
+    "name": "Fifthbacksideflip",
+    "alternateNames": ["fifth backside flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 backside with the wheel rotating forward once",
+    "prerequisite": "540-backside",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-backside",
+      "fifthbacksidedoubleflip",
+      "treybacksideflip",
+      "sejbacksideflip"
+    ]
+  },
+  {
+    "id": "fifthbacksidedoubleflip",
+    "name": "Fifthbacksidedoubleflip",
+    "alternateNames": ["fifth backside double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 backside with the wheel rotating forward twice",
+    "prerequisite": "fifthbacksideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthbacksideflip",
+      "fifthbacksidetripleflip",
+      "treybacksidedoubleflip"
+    ]
+  },
+  {
+    "id": "fifthbacksidetripleflip",
+    "name": "Fifthbacksidetripleflip",
+    "alternateNames": ["fifth backside triple"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 backside with the wheel rotating forward three times",
+    "prerequisite": "fifthbacksidedoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthbacksidedoubleflip", "hickbacksidetripleflip"]
+  },
+  {
+    "id": "sejbacksideflip",
+    "name": "Sejbacksideflip",
+    "alternateNames": ["sej backside flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "720 backside with the wheel rotating forward once",
+    "prerequisite": "720-backside",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["720-backside", "fifthbacksideflip"]
+  },
+  {
+    "id": "180-antiside",
+    "name": "180 Antiside",
+    "alternateNames": ["180 anti", "hickanti"],
+    "elements": ["spin", "wrap"],
+    "description": "180 unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs",
+    "prerequisite": "180-unispin",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-unispin",
+      "360-antiside",
+      "180-sidespin",
+      "hickantisideflip"
+    ]
+  },
+  {
+    "id": "360-antiside",
+    "name": "360 Antiside",
+    "alternateNames": ["360 anti", "treyanti"],
+    "elements": ["spin", "wrap"],
+    "description": "360 unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs",
+    "prerequisite": "180-antiside",
+    "optionalPrerequisite": "360-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-antiside", "540-antiside", "360-sidespin"]
+  },
+  {
+    "id": "540-antiside",
+    "name": "540 Antiside",
+    "alternateNames": ["540 anti", "fifthanti"],
+    "elements": ["spin", "wrap"],
+    "description": "540 unispin wrapped around the leg opposite the spinning hand, threaded around the side and up through the back between your legs",
+    "prerequisite": "360-antiside",
+    "optionalPrerequisite": "540-unispin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["360-antiside", "540-sidespin", "fifthantisideflip"]
+  },
+  {
+    "id": "hickantisideflip",
+    "name": "Hickantisideflip",
+    "alternateNames": ["hick anti flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 antiside with the wheel rotating forward once",
+    "prerequisite": "180-antiside",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-antiside",
+      "hickantisidedoubleflip",
+      "fifthantisideflip",
+      "hickflip"
+    ]
+  },
+  {
+    "id": "hickantisidedoubleflip",
+    "name": "Hickantisidedoubleflip",
+    "alternateNames": ["hick anti double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 antiside with the wheel rotating forward twice",
+    "prerequisite": "hickantisideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickantisideflip", "fifthantisidedoubleflip"]
+  },
+  {
+    "id": "fifthantisideflip",
+    "name": "Fifthantisideflip",
+    "alternateNames": ["fifth anti flip"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 antiside with the wheel rotating forward once",
+    "prerequisite": "540-antiside",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-antiside",
+      "fifthantisidedoubleflip",
+      "hickantisideflip"
+    ]
+  },
+  {
+    "id": "fifthantisidedoubleflip",
+    "name": "Fifthantisidedoubleflip",
+    "alternateNames": ["fifth anti double"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 antiside with the wheel rotating forward twice",
+    "prerequisite": "fifthantisideflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthantisideflip", "hickantisidedoubleflip"]
+  },
+  {
+    "id": "crankflip",
+    "name": "Crankflip",
+    "alternateNames": ["flip"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates forward once, feet land back on pedals",
+    "prerequisite": null,
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["doubleflip", "backflip", "hickflip", "overflip"]
+  },
+  {
+    "id": "doubleflip",
+    "name": "Doubleflip",
+    "alternateNames": ["double"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates forward twice, feet land back on pedals",
+    "prerequisite": "crankflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "crankflip",
+      "tripleflip",
+      "doublebackflip",
+      "hickdoubleflip"
+    ]
+  },
+  {
+    "id": "tripleflip",
+    "name": "Tripleflip",
+    "alternateNames": ["triple"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates forward three times, feet land back on pedals",
+    "prerequisite": "doubleflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "doubleflip",
+      "quadflip",
+      "triplebackflip",
+      "hicktripleflip"
+    ]
+  },
+  {
+    "id": "quadflip",
+    "name": "Quadflip",
+    "alternateNames": ["quad"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates forward four times, feet land back on pedals",
+    "prerequisite": "tripleflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["tripleflip", "quintflip", "quadbackflip", "hickquadflip"]
+  },
+  {
+    "id": "quintflip",
+    "name": "Quintflip",
+    "alternateNames": ["quint"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates forward five times, feet land back on pedals",
+    "prerequisite": "quadflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["quadflip", "sexflip", "quintbackflip", "hickquintflip"]
+  },
+  {
+    "id": "sexflip",
+    "name": "Sexflip",
+    "alternateNames": ["sex"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates forward six times, feet land back on pedals",
+    "prerequisite": "quintflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["quintflip", "sexbackflip"]
+  },
+  {
+    "id": "backflip",
+    "name": "Backflip",
+    "alternateNames": ["back"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates backward once, feet land back on pedals",
+    "prerequisite": "crankflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "crankflip",
+      "doublebackflip",
+      "hickbackflip",
+      "underflip"
+    ]
+  },
+  {
+    "id": "doublebackflip",
+    "name": "Doublebackflip",
+    "alternateNames": ["double back"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates backward twice, feet land back on pedals",
+    "prerequisite": "backflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "backflip",
+      "triplebackflip",
+      "doubleflip",
+      "hickdoublebackflip"
+    ]
+  },
+  {
+    "id": "triplebackflip",
+    "name": "Triplebackflip",
+    "alternateNames": ["triple back"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates backward three times, feet land back on pedals",
+    "prerequisite": "doublebackflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["doublebackflip", "quadbackflip", "tripleflip"]
+  },
+  {
+    "id": "quadbackflip",
+    "name": "Quadbackflip",
+    "alternateNames": ["quad back"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates backward four times, feet land back on pedals",
+    "prerequisite": "triplebackflip",
+    "optionalPrerequisite": "quadflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["triplebackflip", "quintbackflip", "quadflip"]
+  },
+  {
+    "id": "quintbackflip",
+    "name": "Quintbackflip",
+    "alternateNames": ["quint back"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates backward five times, feet land back on pedals",
+    "prerequisite": "quadbackflip",
+    "optionalPrerequisite": "quintflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["quadbackflip", "sexbackflip", "quintflip"]
+  },
+  {
+    "id": "sexbackflip",
+    "name": "Sexbackflip",
+    "alternateNames": ["sex back"],
+    "elements": ["flip"],
+    "description": "Feet leave pedals, wheel rotates backward six times, feet land back on pedals",
+    "prerequisite": "quintbackflip",
+    "optionalPrerequisite": "sexflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["quintbackflip", "sexflip"]
+  },
+  {
+    "id": "hickflip",
+    "name": "Hickflip",
+    "alternateNames": ["hick"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating forward once",
+    "prerequisite": "180-unispin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-unispin",
+      "crankflip",
+      "treyflip",
+      "hickdoubleflip",
+      "hickbackflip",
+      "hicksideflip",
+      "hickkickflip"
+    ]
+  },
+  {
+    "id": "treyflip",
+    "name": "Treyflip",
+    "alternateNames": ["trey"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating forward once",
+    "prerequisite": "360-unispin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-unispin",
+      "crankflip",
+      "hickflip",
+      "fifthflip",
+      "treydoubleflip",
+      "treybackflip",
+      "treysideflip",
+      "treykickflip"
+    ]
+  },
+  {
+    "id": "fifthflip",
+    "name": "Fifthflip",
+    "alternateNames": ["fifth"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with the wheel rotating forward once",
+    "prerequisite": "540-unispin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-unispin",
+      "crankflip",
+      "treyflip",
+      "sejflip",
+      "fifthdoubleflip",
+      "fifthbackflip",
+      "fifthsideflip",
+      "fifthkickflip"
+    ]
+  },
+  {
+    "id": "sejflip",
+    "name": "Sejflip",
+    "alternateNames": ["sej"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin with the wheel rotating forward once",
+    "prerequisite": "720-unispin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "720-unispin",
+      "crankflip",
+      "fifthflip",
+      "ninthflip",
+      "sejdoubleflip",
+      "sejbackflip",
+      "sejsideflip",
+      "sejkickflip"
+    ]
+  },
+  {
+    "id": "ninthflip",
+    "name": "Ninthflip",
+    "alternateNames": ["ninth"],
+    "elements": ["spin", "flip"],
+    "description": "900 unispin with the wheel rotating forward once",
+    "prerequisite": "900-unispin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "900-unispin",
+      "crankflip",
+      "sejflip",
+      "tenthflip",
+      "ninthbackflip",
+      "ninthsideflip"
+    ]
+  },
+  {
+    "id": "tenthflip",
+    "name": "Tenthflip",
+    "alternateNames": ["tenth"],
+    "elements": ["spin", "flip"],
+    "description": "1080 unispin with the wheel rotating forward once",
+    "prerequisite": "1080-unispin",
+    "optionalPrerequisite": "crankflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "1080-unispin",
+      "crankflip",
+      "ninthflip",
+      "tenthbackflip",
+      "tenthsideflip"
+    ]
+  },
+  {
+    "id": "hickdoubleflip",
+    "name": "Hickdoubleflip",
+    "alternateNames": ["hick double"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating forward twice",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickflip",
+      "doubleflip",
+      "treydoubleflip",
+      "hicktripleflip",
+      "hickdoublebackflip"
+    ]
+  },
+  {
+    "id": "treydoubleflip",
+    "name": "Treydoubleflip",
+    "alternateNames": ["trey double"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating forward twice",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treyflip",
+      "doubleflip",
+      "hickdoubleflip",
+      "fifthdoubleflip",
+      "treytripleflip",
+      "treydoublebackflip"
+    ]
+  },
+  {
+    "id": "fifthdoubleflip",
+    "name": "Fifthdoubleflip",
+    "alternateNames": ["fifth double"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with the wheel rotating forward twice",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthflip",
+      "doubleflip",
+      "treydoubleflip",
+      "sejdoubleflip",
+      "fifthtripleflip",
+      "fifthdoublebackflip"
+    ]
+  },
+  {
+    "id": "sejdoubleflip",
+    "name": "Sejdoubleflip",
+    "alternateNames": ["sej double"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin with the wheel rotating forward twice",
+    "prerequisite": "sejflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "sejflip",
+      "doubleflip",
+      "fifthdoubleflip",
+      "sejtripleflip",
+      "sejdoublebackflip"
+    ]
+  },
+  {
+    "id": "hicktripleflip",
+    "name": "Hicktripleflip",
+    "alternateNames": ["hick triple"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating forward three times",
+    "prerequisite": "hickdoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickdoubleflip",
+      "tripleflip",
+      "treytripleflip",
+      "hickquadflip"
+    ]
+  },
+  {
+    "id": "treytripleflip",
+    "name": "Treytripleflip",
+    "alternateNames": ["trey triple"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating forward three times",
+    "prerequisite": "treydoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treydoubleflip",
+      "tripleflip",
+      "hicktripleflip",
+      "fifthtripleflip",
+      "treyquadflip"
+    ]
+  },
+  {
+    "id": "fifthtripleflip",
+    "name": "Fifthtripleflip",
+    "alternateNames": ["fifth triple"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with the wheel rotating forward three times",
+    "prerequisite": "fifthdoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthdoubleflip",
+      "tripleflip",
+      "treytripleflip",
+      "sejtripleflip",
+      "fifthquadflip"
+    ]
+  },
+  {
+    "id": "sejtripleflip",
+    "name": "Sejtripleflip",
+    "alternateNames": ["sej triple"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin with the wheel rotating forward three times",
+    "prerequisite": "sejdoubleflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "sejdoubleflip",
+      "tripleflip",
+      "fifthtripleflip",
+      "sejquadflip"
+    ]
+  },
+  {
+    "id": "hickquadflip",
+    "name": "Hickquadflip",
+    "alternateNames": ["hick quad"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating forward four times",
+    "prerequisite": "hicktripleflip",
+    "optionalPrerequisite": "quadflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hicktripleflip",
+      "quadflip",
+      "treyquadflip",
+      "hickquintflip"
+    ]
+  },
+  {
+    "id": "treyquadflip",
+    "name": "Treyquadflip",
+    "alternateNames": ["trey quad"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating forward four times",
+    "prerequisite": "treytripleflip",
+    "optionalPrerequisite": "quadflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treytripleflip",
+      "quadflip",
+      "hickquadflip",
+      "fifthquadflip",
+      "treyquintflip"
+    ]
+  },
+  {
+    "id": "fifthquadflip",
+    "name": "Fifthquadflip",
+    "alternateNames": ["fifth quad"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with the wheel rotating forward four times",
+    "prerequisite": "fifthtripleflip",
+    "optionalPrerequisite": "quadflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthtripleflip",
+      "quadflip",
+      "treyquadflip",
+      "sejquadflip"
+    ]
+  },
+  {
+    "id": "sejquadflip",
+    "name": "Sejquadflip",
+    "alternateNames": ["sej quad"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin with the wheel rotating forward four times",
+    "prerequisite": "sejtripleflip",
+    "optionalPrerequisite": "quadflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["sejtripleflip", "quadflip", "fifthquadflip"]
+  },
+  {
+    "id": "hickquintflip",
+    "name": "Hickquintflip",
+    "alternateNames": ["hick quint"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating forward five times",
+    "prerequisite": "hickquadflip",
+    "optionalPrerequisite": "quintflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickquadflip", "quintflip", "treyquintflip"]
+  },
+  {
+    "id": "treyquintflip",
+    "name": "Treyquintflip",
+    "alternateNames": ["trey quint"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating forward five times",
+    "prerequisite": "treyquadflip",
+    "optionalPrerequisite": "quintflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["treyquadflip", "quintflip", "hickquintflip"]
+  },
+  {
+    "id": "hicksideflip",
+    "name": "Hicksideflip",
+    "alternateNames": ["hick side"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 sidespin with the wheel rotating forward once",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": "180-sidespin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "180-sidespin",
+      "hickflip",
+      "treysideflip",
+      "hicksidekickflip"
+    ]
+  },
+  {
+    "id": "treysideflip",
+    "name": "Treysideflip",
+    "alternateNames": ["trey side"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 sidespin with the wheel rotating forward once",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "360-sidespin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "360-sidespin",
+      "treyflip",
+      "hicksideflip",
+      "fifthsideflip",
+      "treysidekickflip"
+    ]
+  },
+  {
+    "id": "fifthsideflip",
+    "name": "Fifthsideflip",
+    "alternateNames": ["fifth side"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 sidespin with the wheel rotating forward once",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "540-sidespin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "540-sidespin",
+      "fifthflip",
+      "treysideflip",
+      "sejsideflip",
+      "fifthsidekickflip"
+    ]
+  },
+  {
+    "id": "sejsideflip",
+    "name": "Sejsideflip",
+    "alternateNames": ["sej side"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "720 sidespin with the wheel rotating forward once",
+    "prerequisite": "sejflip",
+    "optionalPrerequisite": "720-sidespin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "720-sidespin",
+      "sejflip",
+      "fifthsideflip",
+      "ninthsideflip",
+      "sejsidekickflip"
+    ]
+  },
+  {
+    "id": "ninthsideflip",
+    "name": "Ninthsideflip",
+    "alternateNames": ["ninth side"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "900 sidespin with the wheel rotating forward once",
+    "prerequisite": "ninthflip",
+    "optionalPrerequisite": "900-sidespin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "900-sidespin",
+      "ninthflip",
+      "sejsideflip",
+      "tenthsideflip"
+    ]
+  },
+  {
+    "id": "tenthsideflip",
+    "name": "Tenthsideflip",
+    "alternateNames": ["tenth side"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "1080 sidespin with the wheel rotating forward once",
+    "prerequisite": "tenthflip",
+    "optionalPrerequisite": "1080-sidespin",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["1080-sidespin", "tenthflip", "ninthsideflip"]
+  },
+  {
+    "id": "hickbackflip",
+    "name": "Hickbackflip",
+    "alternateNames": ["hick back"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating backward once",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": "backflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickflip",
+      "backflip",
+      "treybackflip",
+      "hickdoublebackflip"
+    ]
+  },
+  {
+    "id": "treybackflip",
+    "name": "Treybackflip",
+    "alternateNames": ["trey back"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating backward once",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "backflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treyflip",
+      "backflip",
+      "hickbackflip",
+      "fifthbackflip",
+      "treydoublebackflip"
+    ]
+  },
+  {
+    "id": "fifthbackflip",
+    "name": "Fifthbackflip",
+    "alternateNames": ["fifth back"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with the wheel rotating backward once",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "backflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthflip",
+      "backflip",
+      "treybackflip",
+      "sejbackflip",
+      "fifthdoublebackflip"
+    ]
+  },
+  {
+    "id": "sejbackflip",
+    "name": "Sejbackflip",
+    "alternateNames": ["sej back"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin with the wheel rotating backward once",
+    "prerequisite": "sejflip",
+    "optionalPrerequisite": "backflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "sejflip",
+      "backflip",
+      "fifthbackflip",
+      "ninthbackflip",
+      "sejdoublebackflip"
+    ]
+  },
+  {
+    "id": "ninthbackflip",
+    "name": "Ninthbackflip",
+    "alternateNames": ["ninth back"],
+    "elements": ["spin", "flip"],
+    "description": "900 unispin with the wheel rotating backward once",
+    "prerequisite": "ninthflip",
+    "optionalPrerequisite": "backflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["ninthflip", "backflip", "sejbackflip", "tenthbackflip"]
+  },
+  {
+    "id": "tenthbackflip",
+    "name": "Tenthbackflip",
+    "alternateNames": ["tenth back"],
+    "elements": ["spin", "flip"],
+    "description": "1080 unispin with the wheel rotating backward once",
+    "prerequisite": "tenthflip",
+    "optionalPrerequisite": "backflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["tenthflip", "backflip", "ninthbackflip"]
+  },
+  {
+    "id": "hickdoublebackflip",
+    "name": "Hickdoublebackflip",
+    "alternateNames": ["hick double back"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with the wheel rotating backward twice",
+    "prerequisite": "hickbackflip",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickbackflip",
+      "doublebackflip",
+      "hickdoubleflip",
+      "treydoublebackflip"
+    ]
+  },
+  {
+    "id": "treydoublebackflip",
+    "name": "Treydoublebackflip",
+    "alternateNames": ["trey double back"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with the wheel rotating backward twice",
+    "prerequisite": "treybackflip",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treybackflip",
+      "doublebackflip",
+      "treydoubleflip",
+      "hickdoublebackflip",
+      "fifthdoublebackflip"
+    ]
+  },
+  {
+    "id": "fifthdoublebackflip",
+    "name": "Fifthdoublebackflip",
+    "alternateNames": ["fifth double back"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with the wheel rotating backward twice",
+    "prerequisite": "fifthbackflip",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthbackflip",
+      "doublebackflip",
+      "fifthdoubleflip",
+      "treydoublebackflip",
+      "sejdoublebackflip"
+    ]
+  },
+  {
+    "id": "sejdoublebackflip",
+    "name": "Sejdoublebackflip",
+    "alternateNames": ["sej double back"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin with the wheel rotating backward twice",
+    "prerequisite": "sejbackflip",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "sejbackflip",
+      "doublebackflip",
+      "sejdoubleflip",
+      "fifthdoublebackflip"
+    ]
+  },
+  {
+    "id": "whip",
+    "name": "Whip",
+    "alternateNames": [],
+    "elements": ["whip"],
+    "description": "Frame rotates once around the wheel while rider stays stationary",
+    "prerequisite": null,
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["maxwhip", "rancwhip", "gustwhip", "adriwhip"]
+  },
+  {
+    "id": "maxwhip",
+    "name": "Maxwhip",
+    "alternateNames": [],
+    "elements": ["whip"],
+    "description": "Frame rotates around the wheel with extended rotation",
+    "prerequisite": "whip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["whip"]
+  },
+  {
+    "id": "rancwhip",
+    "name": "Rancwhip",
+    "alternateNames": [],
+    "elements": ["whip"],
+    "description": "Frame whip variation",
+    "prerequisite": "whip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["whip"]
+  },
+  {
+    "id": "gustwhip",
+    "name": "Gustwhip",
+    "alternateNames": [],
+    "elements": ["whip"],
+    "description": "Frame whip variation",
+    "prerequisite": "whip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["whip"]
+  },
+  {
+    "id": "adriwhip",
+    "name": "Adriwhip",
+    "alternateNames": [],
+    "elements": ["whip"],
+    "description": "Frame whip variation",
+    "prerequisite": "whip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["whip"]
+  },
+  {
+    "id": "overflip",
+    "name": "Overflip",
+    "alternateNames": [],
+    "elements": ["flip"],
+    "description": "No footer, wheel rotates forward once over the top",
+    "prerequisite": "crankflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "crankflip",
+      "doubleoverflip",
+      "hickoverflip",
+      "stutterflip"
+    ]
+  },
+  {
+    "id": "doubleoverflip",
+    "name": "Doubleoverflip",
+    "alternateNames": ["double over"],
+    "elements": ["flip"],
+    "description": "No footer, wheel rotates forward twice over the top",
+    "prerequisite": "overflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["overflip", "tripleoverflip"]
+  },
+  {
+    "id": "tripleoverflip",
+    "name": "Tripleoverflip",
+    "alternateNames": ["triple over"],
+    "elements": ["flip"],
+    "description": "No footer, wheel rotates forward three times over the top",
+    "prerequisite": "doubleoverflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["doubleoverflip"]
+  },
+  {
+    "id": "underflip",
+    "name": "Underflip",
+    "alternateNames": [],
+    "elements": ["flip"],
+    "description": "No footer, wheel rotates backward once under",
+    "prerequisite": "backflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["backflip", "doubleunderflip", "hickunderflip"]
+  },
+  {
+    "id": "doubleunderflip",
+    "name": "Doubleunderflip",
+    "alternateNames": ["double under"],
+    "elements": ["flip"],
+    "description": "No footer, wheel rotates backward twice under",
+    "prerequisite": "underflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["underflip", "tripleunderflip"]
+  },
+  {
+    "id": "tripleunderflip",
+    "name": "Tripleunderflip",
+    "alternateNames": ["triple under"],
+    "elements": ["flip"],
+    "description": "No footer, wheel rotates backward three times under",
+    "prerequisite": "doubleunderflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["doubleunderflip"]
+  },
+  {
+    "id": "stutterflip",
+    "name": "Stutterflip",
+    "alternateNames": [],
+    "elements": ["flip", "combo"],
+    "description": "Crankflip then catch front pedal and overflip",
+    "prerequisite": "crankflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["crankflip", "overflip", "doublestutterflip"]
+  },
+  {
+    "id": "doublestutterflip",
+    "name": "Doublestutterflip",
+    "alternateNames": ["double stutter"],
+    "elements": ["flip", "combo"],
+    "description": "Doubleflip then catch front pedal and overflip",
+    "prerequisite": "stutterflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["stutterflip", "triplestutterflip"]
+  },
+  {
+    "id": "triplestutterflip",
+    "name": "Triplestutterflip",
+    "alternateNames": ["triple stutter"],
+    "elements": ["flip", "combo"],
+    "description": "Tripleflip then catch front pedal and overflip",
+    "prerequisite": "doublestutterflip",
+    "optionalPrerequisite": "tripleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["doublestutterflip"]
+  },
+  {
+    "id": "hickoverflip",
+    "name": "Hickoverflip",
+    "alternateNames": ["hick over"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with wheel rotating forward once over the top",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickflip",
+      "overflip",
+      "treyoverflip",
+      "hickdoubleoverflip"
+    ]
+  },
+  {
+    "id": "hickdoubleoverflip",
+    "name": "Hickdoubleoverflip",
+    "alternateNames": ["hick double over"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with wheel rotating forward twice over the top",
+    "prerequisite": "hickoverflip",
+    "optionalPrerequisite": "doubleoverflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickoverflip", "hicktripleoverflip"]
+  },
+  {
+    "id": "hicktripleoverflip",
+    "name": "Hicktripleoverflip",
+    "alternateNames": ["hick triple over"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with wheel rotating forward three times over the top",
+    "prerequisite": "hickdoubleoverflip",
+    "optionalPrerequisite": "tripleoverflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickdoubleoverflip"]
+  },
+  {
+    "id": "treyoverflip",
+    "name": "Treyoverflip",
+    "alternateNames": ["trey over"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with wheel rotating forward once over the top",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treyflip",
+      "overflip",
+      "hickoverflip",
+      "fifthoverflip",
+      "treydoubleoverflip"
+    ]
+  },
+  {
+    "id": "treydoubleoverflip",
+    "name": "Treydoubleoverflip",
+    "alternateNames": ["trey double over"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with wheel rotating forward twice over the top",
+    "prerequisite": "treyoverflip",
+    "optionalPrerequisite": "doubleoverflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["treyoverflip", "hickdoubleoverflip"]
+  },
+  {
+    "id": "fifthoverflip",
+    "name": "Fifthoverflip",
+    "alternateNames": ["fifth over"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with wheel rotating forward once over the top",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthflip", "overflip", "treyoverflip"]
+  },
+  {
+    "id": "hickunderflip",
+    "name": "Hickunderflip",
+    "alternateNames": ["hick under"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with wheel rotating backward once under",
+    "prerequisite": "hickbackflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "hickbackflip",
+      "underflip",
+      "treyunderflip",
+      "hickdoubleunderflip"
+    ]
+  },
+  {
+    "id": "hickdoubleunderflip",
+    "name": "Hickdoubleunderflip",
+    "alternateNames": ["hick double under"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin with wheel rotating backward twice under",
+    "prerequisite": "hickunderflip",
+    "optionalPrerequisite": "doubleunderflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickunderflip", "treydoubleunderflip"]
+  },
+  {
+    "id": "treyunderflip",
+    "name": "Treyunderflip",
+    "alternateNames": ["trey under"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with wheel rotating backward once under",
+    "prerequisite": "treybackflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treybackflip",
+      "underflip",
+      "hickunderflip",
+      "fifthunderflip",
+      "treydoubleunderflip"
+    ]
+  },
+  {
+    "id": "treydoubleunderflip",
+    "name": "Treydoubleunderflip",
+    "alternateNames": ["trey double under"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin with wheel rotating backward twice under",
+    "prerequisite": "treyunderflip",
+    "optionalPrerequisite": "doubleunderflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["treyunderflip", "hickdoubleunderflip"]
+  },
+  {
+    "id": "fifthunderflip",
+    "name": "Fifthunderflip",
+    "alternateNames": ["fifth under"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin with wheel rotating backward once under",
+    "prerequisite": "fifthbackflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthbackflip", "underflip", "treyunderflip"]
+  },
+  {
+    "id": "180-overhickflip",
+    "name": "180 Overhickflip",
+    "alternateNames": ["over hick"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Overflip then 180 unispin with crankflip",
+    "prerequisite": "overflip",
+    "optionalPrerequisite": "hickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["overflip", "hickflip", "360-overhickflip"]
+  },
+  {
+    "id": "360-overhickflip",
+    "name": "360 Overhickflip",
+    "alternateNames": ["over trey"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Overflip then 360 unispin with crankflip",
+    "prerequisite": "180-overhickflip",
+    "optionalPrerequisite": "treyflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-overhickflip", "treyflip", "540-overhickflip"]
+  },
+  {
+    "id": "540-overhickflip",
+    "name": "540 Overhickflip",
+    "alternateNames": ["over fifth"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Overflip then 540 unispin with crankflip",
+    "prerequisite": "360-overhickflip",
+    "optionalPrerequisite": "fifthflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["360-overhickflip", "fifthflip"]
+  },
+  {
+    "id": "hickflip-overflip",
+    "name": "Hickflip-overflip",
+    "alternateNames": ["hick to over"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Hickflip then catch front pedal and overflip",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickflip", "overflip", "treyflip-overflip"]
+  },
+  {
+    "id": "treyflip-overflip",
+    "name": "Treyflip-overflip",
+    "alternateNames": ["trey to over"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Treyflip then catch front pedal and overflip",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treyflip",
+      "overflip",
+      "hickflip-overflip",
+      "fifthflip-overflip"
+    ]
+  },
+  {
+    "id": "fifthflip-overflip",
+    "name": "Fifthflip-overflip",
+    "alternateNames": ["fifth to over"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Fifthflip then catch front pedal and overflip",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthflip", "overflip", "treyflip-overflip"]
+  },
+  {
+    "id": "hickflip-underflip",
+    "name": "Hickflip-underflip",
+    "alternateNames": ["hick to under"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Hickflip then catch front pedal and underflip",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickflip", "underflip", "treyflip-underflip"]
+  },
+  {
+    "id": "treyflip-underflip",
+    "name": "Treyflip-underflip",
+    "alternateNames": ["trey to under"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Treyflip then catch front pedal and underflip",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treyflip",
+      "underflip",
+      "hickflip-underflip",
+      "fifthflip-underflip"
+    ]
+  },
+  {
+    "id": "fifthflip-underflip",
+    "name": "Fifthflip-underflip",
+    "alternateNames": ["fifth to under"],
+    "elements": ["spin", "flip", "combo"],
+    "description": "Fifthflip then catch front pedal and underflip",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["fifthflip", "underflip", "treyflip-underflip"]
+  },
+  {
+    "id": "backflip-overflip",
+    "name": "Backflip-overflip",
+    "alternateNames": ["back to over"],
+    "elements": ["flip", "combo"],
+    "description": "Backflip then catch front pedal and overflip",
+    "prerequisite": "backflip",
+    "optionalPrerequisite": "overflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["backflip", "overflip", "doublebackflip-overflip"]
+  },
+  {
+    "id": "doublebackflip-overflip",
+    "name": "Doublebackflip-overflip",
+    "alternateNames": ["double back to over"],
+    "elements": ["flip", "combo"],
+    "description": "Doublebackflip then catch front pedal and overflip",
+    "prerequisite": "backflip-overflip",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["backflip-overflip", "doublebackflip"]
+  },
+  {
+    "id": "flip-underflip",
+    "name": "Flip-underflip",
+    "alternateNames": ["flip to under"],
+    "elements": ["flip", "combo"],
+    "description": "Crankflip then catch front pedal and underflip",
+    "prerequisite": "crankflip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "crankflip",
+      "underflip",
+      "doubleflip-underflip",
+      "flip-underdoubleflip"
+    ]
+  },
+  {
+    "id": "doubleflip-underflip",
+    "name": "Doubleflip-underflip",
+    "alternateNames": ["double to under"],
+    "elements": ["flip", "combo"],
+    "description": "Doubleflip then catch front pedal and underflip",
+    "prerequisite": "flip-underflip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "flip-underflip",
+      "doubleflip",
+      "doubleflip-underdoubleflip"
+    ]
+  },
+  {
+    "id": "flip-underdoubleflip",
+    "name": "Flip-underdoubleflip",
+    "alternateNames": ["flip to double under"],
+    "elements": ["flip", "combo"],
+    "description": "Crankflip then catch front pedal and double underflip",
+    "prerequisite": "flip-underflip",
+    "optionalPrerequisite": "doubleunderflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "flip-underflip",
+      "doubleunderflip",
+      "doubleflip-underdoubleflip"
+    ]
+  },
+  {
+    "id": "doubleflip-underdoubleflip",
+    "name": "Doubleflip-underdoubleflip",
+    "alternateNames": ["double to double under"],
+    "elements": ["flip", "combo"],
+    "description": "Doubleflip then catch front pedal and double underflip",
+    "prerequisite": "doubleflip-underflip",
+    "optionalPrerequisite": "doubleunderflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["doubleflip-underflip", "flip-underdoubleflip"]
+  },
+  {
+    "id": "180-flip",
+    "name": "180 Flip",
+    "alternateNames": ["180 body flip"],
+    "elements": ["flip", "body"],
+    "description": "180 degree body rotation with crankflip",
+    "prerequisite": "crankflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "crankflip",
+      "360-flip",
+      "180-doubleflip",
+      "180-flip-underflip"
+    ]
+  },
+  {
+    "id": "360-flip",
+    "name": "360 Flip",
+    "alternateNames": ["360 body flip"],
+    "elements": ["flip", "body"],
+    "description": "360 degree body rotation with crankflip",
+    "prerequisite": "180-flip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-flip", "360-doubleflip", "360-flip-underflip"]
+  },
+  {
+    "id": "180-doubleflip",
+    "name": "180 Doubleflip",
+    "alternateNames": ["180 body double"],
+    "elements": ["flip", "body"],
+    "description": "180 degree body rotation with doubleflip",
+    "prerequisite": "180-flip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-flip", "doubleflip", "360-doubleflip"]
+  },
+  {
+    "id": "360-doubleflip",
+    "name": "360 Doubleflip",
+    "alternateNames": ["360 body double"],
+    "elements": ["flip", "body"],
+    "description": "360 degree body rotation with doubleflip",
+    "prerequisite": "360-flip",
+    "optionalPrerequisite": "doubleflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["360-flip", "doubleflip", "180-doubleflip"]
+  },
+  {
+    "id": "180-flip-underflip",
+    "name": "180 Flip-underflip",
+    "alternateNames": ["180 body flip under"],
+    "elements": ["flip", "body", "combo"],
+    "description": "180 degree body rotation with crankflip then underflip",
+    "prerequisite": "180-flip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-flip", "underflip", "360-flip-underflip"]
+  },
+  {
+    "id": "360-flip-underflip",
+    "name": "360 Flip-underflip",
+    "alternateNames": ["360 body flip under"],
+    "elements": ["flip", "body", "combo"],
+    "description": "360 degree body rotation with crankflip then underflip",
+    "prerequisite": "360-flip",
+    "optionalPrerequisite": "underflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["360-flip", "underflip", "180-flip-underflip"]
+  },
+  {
+    "id": "180-back",
+    "name": "180 Back",
+    "alternateNames": ["180 body back"],
+    "elements": ["flip", "body"],
+    "description": "180 degree body rotation with backflip",
+    "prerequisite": "backflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["backflip", "360-back", "180-doubleback"]
+  },
+  {
+    "id": "360-back",
+    "name": "360 Back",
+    "alternateNames": ["360 body back"],
+    "elements": ["flip", "body"],
+    "description": "360 degree body rotation with backflip",
+    "prerequisite": "180-back",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-back", "360-doubleback"]
+  },
+  {
+    "id": "180-doubleback",
+    "name": "180 Doubleback",
+    "alternateNames": ["180 body double back"],
+    "elements": ["flip", "body"],
+    "description": "180 degree body rotation with doublebackflip",
+    "prerequisite": "180-back",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["180-back", "doublebackflip", "360-doubleback"]
+  },
+  {
+    "id": "360-doubleback",
+    "name": "360 Doubleback",
+    "alternateNames": ["360 body double back"],
+    "elements": ["flip", "body"],
+    "description": "360 degree body rotation with doublebackflip",
+    "prerequisite": "360-back",
+    "optionalPrerequisite": "doublebackflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["360-back", "doublebackflip", "180-doubleback"]
+  },
+  {
+    "id": "hickkickflip",
+    "name": "Hickkickflip",
+    "alternateNames": ["hick kick"],
+    "elements": ["spin", "flip"],
+    "description": "180 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "hickflip",
+    "optionalPrerequisite": null,
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hickflip", "treykickflip", "hicksidekickflip"]
+  },
+  {
+    "id": "treykickflip",
+    "name": "Treykickflip",
+    "alternateNames": ["trey kick"],
+    "elements": ["spin", "flip"],
+    "description": "360 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "treyflip",
+    "optionalPrerequisite": "hickkickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treyflip",
+      "hickkickflip",
+      "fifthkickflip",
+      "treysidekickflip"
+    ]
+  },
+  {
+    "id": "fifthkickflip",
+    "name": "Fifthkickflip",
+    "alternateNames": ["fifth kick"],
+    "elements": ["spin", "flip"],
+    "description": "540 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "fifthflip",
+    "optionalPrerequisite": "treykickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthflip",
+      "treykickflip",
+      "sejkickflip",
+      "fifthsidekickflip"
+    ]
+  },
+  {
+    "id": "sejkickflip",
+    "name": "Sejkickflip",
+    "alternateNames": ["sej kick"],
+    "elements": ["spin", "flip"],
+    "description": "720 unispin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "sejflip",
+    "optionalPrerequisite": "fifthkickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["sejflip", "fifthkickflip", "sejsidekickflip"]
+  },
+  {
+    "id": "hicksidekickflip",
+    "name": "Hicksidekickflip",
+    "alternateNames": ["hick side kick"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "180 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "hicksideflip",
+    "optionalPrerequisite": "hickkickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["hicksideflip", "hickkickflip", "treysidekickflip"]
+  },
+  {
+    "id": "treysidekickflip",
+    "name": "Treysidekickflip",
+    "alternateNames": ["trey side kick"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "360 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "treysideflip",
+    "optionalPrerequisite": "treykickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "treysideflip",
+      "treykickflip",
+      "hicksidekickflip",
+      "fifthsidekickflip"
+    ]
+  },
+  {
+    "id": "fifthsidekickflip",
+    "name": "Fifthsidekickflip",
+    "alternateNames": ["fifth side kick"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "540 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "fifthsideflip",
+    "optionalPrerequisite": "fifthkickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": [
+      "fifthsideflip",
+      "fifthkickflip",
+      "treysidekickflip",
+      "sejsidekickflip"
+    ]
+  },
+  {
+    "id": "sejsidekickflip",
+    "name": "Sejsidekickflip",
+    "alternateNames": ["sej side kick"],
+    "elements": ["spin", "flip", "wrap"],
+    "description": "720 sidespin where mid spin rider kicks the tire with the same foot as the spinning hand to create a crankflip",
+    "prerequisite": "sejsideflip",
+    "optionalPrerequisite": "sejkickflip",
+    "isPrefix": false,
+    "notes": null,
+    "relatedTricks": ["sejsideflip", "sejkickflip", "fifthsidekickflip"]
+  }
+]
