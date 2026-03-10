@@ -1,7 +1,8 @@
 import { Link, type LinkProps, useLocation } from "@tanstack/react-router"
-import { Children, type ReactNode } from "react"
+import { Children, type ReactNode, useEffect } from "react"
 
 import { CommandPalette } from "~/components/command-palette"
+import { useSetMobileBreadcrumbs } from "~/components/mobile-breadcrumbs-context"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,14 +28,14 @@ function PageHeaderRoot({
 }) {
   return (
     <>
-      <header className="bg-background sticky top-0 z-30 shrink-0 border-b">
+      <header className="bg-background sticky top-0 z-30 hidden shrink-0 border-b md:block">
         <div
           className={cn(
             "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
             // maxWidth,
           )}
         >
-          <SidebarTrigger className="-ml-1 hidden md:flex" size="icon-xs" />
+          <SidebarTrigger className="-ml-1" size="icon-xs" />
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {children}
           </div>
@@ -45,23 +46,34 @@ function PageHeaderRoot({
   )
 }
 
-function Breadcrumbs({ children }: { children: ReactNode }) {
+function BreadcrumbsContent({ children }: { children: ReactNode }) {
   const items = Children.toArray(children)
   return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        {items.map((child, i) => (
+          <span key={i} className="contents">
+            {i > 0 && <BreadcrumbSeparator />}
+            <BreadcrumbItem>{child}</BreadcrumbItem>
+          </span>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+}
+
+function Breadcrumbs({ children }: { children: ReactNode }) {
+  const setMobileBreadcrumbs = useSetMobileBreadcrumbs()
+
+  useEffect(() => {
+    setMobileBreadcrumbs(<BreadcrumbsContent>{children}</BreadcrumbsContent>)
+    return () => setMobileBreadcrumbs(null)
+  })
+
+  return (
     <>
-      <div className="hidden md:block">
-        <HeaderDivider />
-      </div>
-      <Breadcrumb>
-        <BreadcrumbList>
-          {items.map((child, i) => (
-            <span key={i} className="contents">
-              {i > 0 && <BreadcrumbSeparator />}
-              <BreadcrumbItem>{child}</BreadcrumbItem>
-            </span>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
+      <HeaderDivider />
+      <BreadcrumbsContent>{children}</BreadcrumbsContent>
     </>
   )
 }

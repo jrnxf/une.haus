@@ -17,6 +17,7 @@ import { z } from "zod"
 import { AppSidebar } from "~/components/app-sidebar"
 import { ConfirmDialog } from "~/components/confirm-dialog"
 import { GlobalShortcuts } from "~/components/global-shortcuts"
+import { MobileBreadcrumbsProvider } from "~/components/mobile-breadcrumbs-context"
 import {
   MobileNavIndent,
   MobileNavIndentBackground,
@@ -164,27 +165,29 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                   <div ref={setPortalContainer} className="relative h-dvh">
                     <MobileNavIndentBackground />
                     <MobileNavIndent>
-                      <SidebarProvider
-                        defaultOpen={sessionData.sidebarOpen}
-                        style={
-                          {
-                            "--sidebar-width": "calc(var(--spacing) * 62)",
-                            "--header-height": "calc(var(--spacing) * 12)",
-                          } as React.CSSProperties
-                        }
-                      >
-                        <GlobalShortcuts />
-                        <AppSidebar variant="inset" />
-                        <SidebarInset>
-                          <div
-                            className="flex flex-1 flex-col overflow-y-auto overscroll-none"
-                            id="main-content"
-                          >
-                            {children}
-                          </div>
-                          <MobileFooter />
-                        </SidebarInset>
-                      </SidebarProvider>
+                      <MobileBreadcrumbsProvider>
+                        <SidebarProvider
+                          defaultOpen={sessionData.sidebarOpen}
+                          style={
+                            {
+                              "--sidebar-width": "calc(var(--spacing) * 62)",
+                              "--header-height": "calc(var(--spacing) * 12)",
+                            } as React.CSSProperties
+                          }
+                        >
+                          <GlobalShortcuts />
+                          <AppSidebar variant="inset" />
+                          <SidebarInset>
+                            <div
+                              className="flex flex-1 flex-col overflow-y-auto overscroll-none"
+                              id="main-content"
+                            >
+                              {children}
+                            </div>
+                            <MobileFooter />
+                          </SidebarInset>
+                        </SidebarProvider>
+                      </MobileBreadcrumbsProvider>
                     </MobileNavIndent>
                     <MobileNavPopup portalContainer={portalContainer} />
                   </div>
@@ -195,8 +198,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         </ThemeProvider>
         <TanStackDevtools
           config={{
-            position: "bottom-left",
-            hideUntilHover: true,
+            // hide it - our user profile opens it
+            customTrigger: <></>,
           }}
           plugins={[
             {
@@ -204,7 +207,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
               render: <TanStackRouterDevtoolsPanel router={router} />,
             },
             {
-              name: "React Query",
+              name: "TanStack Query",
               render: <ReactQueryDevtoolsPanel />,
             },
           ]}
