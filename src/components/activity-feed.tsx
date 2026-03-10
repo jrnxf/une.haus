@@ -222,11 +222,9 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all" label="all activity">
-          all activity
-        </SelectItem>
+        <SelectItem value="all">all activity</SelectItem>
         {ACTIVITY_TYPES.map((type) => (
-          <SelectItem key={type} value={type} label={TYPE_LABELS[type]}>
+          <SelectItem key={type} value={type}>
             {TYPE_LABELS[type]}
           </SelectItem>
         ))}

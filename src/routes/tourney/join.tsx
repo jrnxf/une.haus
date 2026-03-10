@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { PageHeader } from "~/components/page-header"
+import { FieldDescription } from "~/components/ui/field"
 import {
   InputOTP,
   InputOTPGroup,
@@ -37,41 +38,39 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
           <PageHeader.Crumb>join</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="flex flex-1 items-center justify-center p-4">
-        <div className="w-full max-w-xs space-y-6 text-center">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold">join tourney</h1>
-            <p className="text-muted-foreground text-sm">
-              enter the 4-digit code to watch live
-            </p>
-          </div>
 
-          <div className="flex justify-center">
-            <InputOTP
-              maxLength={4}
-              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-              value={code}
-              onChange={(v) => setCode(v.toUpperCase())}
-              onComplete={handleComplete}
-              disabled={loading}
-              autoFocus
-              autoComplete="off"
-              ref={inputRef}
-            >
-              <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-              </InputOTPGroup>
-            </InputOTP>
+      <div className="mx-auto w-full max-w-xl p-4">
+        <div className="bg-card space-y-4 rounded-xl border p-6">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">join</p>
+            <FieldDescription>
+              enter the 4-digit code to watch live
+            </FieldDescription>
           </div>
+          <InputOTP
+            maxLength={4}
+            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+            value={code}
+            onChange={(v) => setCode(v.toUpperCase())}
+            onComplete={handleComplete}
+            disabled={loading}
+            autoFocus
+            autoComplete="off"
+            ref={inputRef}
+          >
+            <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+              <InputOTPSlot index={3} />
+            </InputOTPGroup>
+          </InputOTP>
         </div>
       </div>
     </>

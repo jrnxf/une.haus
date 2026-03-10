@@ -640,7 +640,12 @@ export function getRailGapRailY(
   const baseRailY = baseGroundY - t.railHeight - RAIL_OFFSET + bob
   const progress = (worldX - t.x) / t.width
   const sag = 4 * progress * (1 - progress)
-  const sagDepth = t.width * 0.09
+  // Cap sag so the rail never dips below ground level (prevents false gap-death)
+  const maxSag = Math.max(
+    0,
+    t.railHeight + RAIL_OFFSET - RAIL_GAP_BOB_AMPLITUDE - 10,
+  )
+  const sagDepth = Math.min(t.width * 0.09, maxSag)
   return baseRailY + sag * sagDepth
 }
 

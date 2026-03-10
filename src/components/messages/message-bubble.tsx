@@ -22,7 +22,6 @@ import {
   TrayTitle,
   TrayTrigger,
 } from "~/components/tray"
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
 import {
@@ -209,17 +208,6 @@ export function MessageBubble({
                                   params={{ userId: like.user.id }}
                                   className="flex items-center gap-2"
                                 >
-                                  <Avatar
-                                    className="size-6"
-                                    cloudflareId={like.user.avatarId}
-                                    alt={like.user.name}
-                                  >
-                                    <AvatarImage width={48} quality={85} />
-                                    <AvatarFallback
-                                      className="text-xs"
-                                      name={like.user.name}
-                                    />
-                                  </Avatar>
                                   <span>{like.user.name}</span>
                                 </Link>
                               </DropdownMenuItem>

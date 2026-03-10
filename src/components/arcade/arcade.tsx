@@ -17,11 +17,13 @@ import {
 } from "./helpers"
 import { type GameState } from "./types"
 import { updateGameState } from "./update"
-import { Metaline } from "~/components/ui/metaline"
 
 // Fixed distance from the bottom of the canvas to the ground line.
 // Height changes add/remove sky above; the ground stays anchored.
 const GROUND_BOTTOM_OFFSET = 120
+
+// Fixed timestep: physics always runs at 60fps regardless of display refresh rate
+const FIXED_DT = 1000 / 120
 
 export function UnicycleGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -53,6 +55,8 @@ export function UnicycleGame() {
     if (!canvas) return
     syncDeadState(false)
     resetGameState(stateRef.current, getGroundY(canvas))
+    lastTimeRef.current = 0
+    accumRef.current = 0
   }, [getGroundY, syncDeadState])
 
   const jump = useCallback(() => {
@@ -100,46 +104,65 @@ export function UnicycleGame() {
     gs.jumpHeld = false
   }, [])
 
-  const gameLoop = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
+  const accumRef = useRef(0)
+  const lastTimeRef = useRef(0)
 
-    const gs = stateRef.current
-    const dpr = window.devicePixelRatio || 1
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    const w = canvas.width / dpr
-    const h = canvas.height / dpr
-    const baseGroundY = h - GROUND_BOTTOM_OFFSET
+  const gameLoop = useCallback(
+    (timestamp: number) => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
 
-    // Recompute colors every 60 frames
-    const colors = colorsRef.current
-    colors.frame++
-    if (colors.frame % 60 === 1) {
-      const styles = getComputedStyle(canvas)
-      colors.fg = styles.getPropertyValue("color") || "#000"
-      colors.bg = styles.getPropertyValue("background-color") || "#fff"
-      const tmp = document.createElement("canvas")
-      tmp.width = 1
-      tmp.height = 1
-      const tmpCtx = tmp.getContext("2d")!
-      tmpCtx.fillStyle = colors.fg
-      tmpCtx.fillRect(0, 0, 1, 1)
-      const [r, g, b] = tmpCtx.getImageData(0, 0, 1, 1).data
-      colors.muted = `rgba(${r},${g},${b},0.3)`
-    }
-    const { fg, bg, muted } = colors
+      // Bootstrap the first frame
+      if (lastTimeRef.current === 0) lastTimeRef.current = timestamp
 
-    ctx.fillStyle = bg
-    ctx.fillRect(0, 0, w, h)
+      // Clamp elapsed to avoid spiral of death after tab-away
+      const elapsed = Math.min(timestamp - lastTimeRef.current, FIXED_DT * 4)
+      lastTimeRef.current = timestamp
+      accumRef.current += elapsed
 
-    updateGameState(gs, baseGroundY, w, () => syncDeadState(true))
-    syncDeadState(gs.status === "dead")
-    drawFrame(ctx, gs, w, h, baseGroundY, fg, bg, muted)
+      const gs = stateRef.current
+      const dpr = window.devicePixelRatio || 1
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      const w = canvas.width / dpr
+      const h = canvas.height / dpr
+      const baseGroundY = h - GROUND_BOTTOM_OFFSET
 
-    animRef.current = requestAnimationFrame(gameLoop)
-  }, [syncDeadState])
+      // Run physics in fixed-size steps
+      while (accumRef.current >= FIXED_DT) {
+        updateGameState(gs, baseGroundY, w, () => syncDeadState(true))
+        syncDeadState(gs.status === "dead")
+        accumRef.current -= FIXED_DT
+      }
+
+      // Recompute colors every 60 frames
+      const colors = colorsRef.current
+      colors.frame++
+      if (colors.frame % 60 === 1) {
+        const styles = getComputedStyle(canvas)
+        colors.fg = styles.getPropertyValue("color") || "#000"
+        colors.bg = styles.getPropertyValue("background-color") || "#fff"
+        const tmp = document.createElement("canvas")
+        tmp.width = 1
+        tmp.height = 1
+        const tmpCtx = tmp.getContext("2d")!
+        tmpCtx.fillStyle = colors.fg
+        tmpCtx.fillRect(0, 0, 1, 1)
+        const [r, g, b] = tmpCtx.getImageData(0, 0, 1, 1).data
+        colors.muted = `rgba(${r},${g},${b},0.3)`
+      }
+      const { fg, bg, muted } = colors
+
+      ctx.fillStyle = bg
+      ctx.fillRect(0, 0, w, h)
+
+      drawFrame(ctx, gs, w, h, baseGroundY, fg, bg, muted)
+
+      animRef.current = requestAnimationFrame(gameLoop)
+    },
+    [syncDeadState],
+  )
 
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current
@@ -211,38 +234,39 @@ export function UnicycleGame() {
       />
       {!isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-          <Metaline
-            className="text-muted-foreground font-mono text-xs md:hidden"
-            separator="·"
-            parts={["tap to jump", "double tap for air jump"]}
-          />
-          <Metaline
-            className="text-muted-foreground hidden font-mono text-xs md:inline"
-            separator="·"
-            parts={[
-              <>
-                <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
-                jump
-              </>,
-              "press again mid-air for double jump",
-            ]}
-          />
+          <p className="text-muted-foreground text-center font-mono text-xs md:hidden">
+            <span className="inline-block">tap to jump /</span>{" "}
+            <span className="inline-block">double tap to double jump</span>
+          </p>
+          <p className="text-muted-foreground hidden text-center font-mono text-xs md:block">
+            <span className="inline-block">
+              <kbd className="bg-muted rounded px-1.5 py-0.5">space</kbd> to
+              jump /
+            </span>{" "}
+            <span className="inline-block">
+              <kbd className="bg-muted rounded px-1.5 py-0.5">space space</kbd>{" "}
+              to double jump
+            </span>
+          </p>
         </div>
       )}
       {isDead && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
           <p className="text-muted-foreground text-center font-mono text-xs">
-            want the real deal? play{" "}
-            <a
-              href="https://store.steampowered.com/app/2204900/STREET_UNI_X/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground underline"
-              onPointerDown={(e) => e.stopPropagation()}
-            >
-              street uni x
-            </a>{" "}
-            instead.
+            <span className="inline-block">want the real deal?</span>{" "}
+            <span className="inline-block">
+              play{" "}
+              <a
+                href="https://store.steampowered.com/app/2204900/STREET_UNI_X/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground underline"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                street uni x
+              </a>{" "}
+              instead
+            </span>
           </p>
         </div>
       )}
