@@ -3,23 +3,15 @@ import { useQuery } from "@tanstack/react-query"
 import { Link, useMatches } from "@tanstack/react-router"
 import {
   ActivityIcon,
-  BellIcon,
-  EyeOff,
   Joystick,
   LockIcon,
-  LogIn,
-  LogOutIcon,
   type LucideIcon,
   MenuIcon,
   MessagesSquareIcon,
   PowerIcon,
-  ScrollText,
-  Send,
-  ShieldIcon,
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
-  UserIcon,
   UsersIcon,
 } from "lucide-react"
 import { type ReactNode } from "react"
@@ -27,7 +19,10 @@ import { type ReactNode } from "react"
 import { BracketIcon } from "~/components/icons/bracket-icon"
 import { PodiumIcon } from "~/components/icons/podium-icon"
 import { MobileNavContext, useMobileNav } from "~/components/mobile-nav-context"
-import { ThemeSubmenu } from "~/components/nav-user"
+import {
+  AuthedUserMenuItems,
+  UnauthedUserMenuItems,
+} from "~/components/nav-user"
 import { OnlineIndicator } from "~/components/online-indicator"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
@@ -35,9 +30,6 @@ import { CountChip } from "~/components/ui/count-chip"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { usePeripherals } from "~/hooks/use-peripherals"
@@ -206,59 +198,12 @@ function MobileNavFooter() {
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link to="/feedback">
-                    <Send className="size-4" />
-                    feedback
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/privacy">
-                    <EyeOff className="size-4" />
-                    privacy
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/terms">
-                    <ScrollText className="size-4" />
-                    terms
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <ThemeSubmenu />
-                <DropdownMenuItem asChild>
-                  <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
-                    <UserIcon className="size-4" />
-                    profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/notifications">
-                    <BellIcon className="size-4" />
-                    notifications
-                    {unreadCount > 0 && (
-                      <CountChip className="ml-auto">
-                        {unreadCount > 99 ? "99+" : unreadCount}
-                      </CountChip>
-                    )}
-                  </Link>
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin">
-                      <ShieldIcon className="size-4" />
-                      admin
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => logout({})}>
-                  <LogOutIcon className="size-4" />
-                  log out
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
+              <AuthedUserMenuItems
+                sessionUser={sessionUser}
+                isAdmin={isAdmin}
+                logout={logout}
+                unreadCount={unreadCount}
+              />
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
@@ -278,36 +223,7 @@ function MobileNavFooter() {
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link to="/feedback">
-                    <Send className="size-4" />
-                    feedback
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/privacy">
-                    <EyeOff className="size-4" />
-                    privacy
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/terms">
-                    <ScrollText className="size-4" />
-                    terms
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <ThemeSubmenu />
-                <DropdownMenuItem asChild>
-                  <Link to="/auth">
-                    <LogIn className="size-4" />
-                    log in
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
+              <UnauthedUserMenuItems />
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -335,7 +251,7 @@ export function MobileNavPopup({
             className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"
           />
           <DrawerPrimitive.Content>
-            <nav className="overflow-y-auto px-4 pb-6">
+            <nav className="overflow-y-auto px-4 pb-4">
               <div className="grid grid-cols-2 gap-1">
                 {items.map((item) => (
                   <NavItem

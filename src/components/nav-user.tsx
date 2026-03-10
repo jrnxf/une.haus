@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
   Bell,
+  BugIcon,
   ChevronsUpDown,
   EyeOff,
   LogIn,
@@ -79,6 +80,151 @@ export function ThemeSubmenu() {
   )
 }
 
+export function AuthedUserMenuItems({
+  sessionUser,
+  isAdmin,
+  logout,
+  unreadCount,
+}: {
+  sessionUser: { id: number; name: string }
+  isAdmin?: boolean
+  logout: (opts: Record<string, never>) => void
+  unreadCount: number
+}) {
+  return (
+    <>
+      {(isAdmin || import.meta.env.DEV) && (
+        <>
+          <DropdownMenuGroup>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/admin">
+                  <ShieldIcon className="size-3.5" />
+                  admin
+                </Link>
+              </DropdownMenuItem>
+            )}
+            {import.meta.env.DEV && (
+              <DropdownMenuItem
+                onClick={() => {
+                  import("@tanstack/devtools-client").then(
+                    ({ devtoolsEventClient }) => {
+                      devtoolsEventClient.emit("trigger-toggled", {
+                        isOpen: true,
+                      })
+                    },
+                  )
+                }}
+              >
+                <BugIcon className="size-3.5" />
+                devtools
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+        </>
+      )}
+      <DropdownMenuGroup>
+        <DropdownMenuItem asChild>
+          <Link to="/feedback">
+            <Send className="size-3.5" />
+            feedback
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/privacy">
+            <EyeOff className="size-3.5" />
+            privacy
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/terms">
+            <ScrollText className="size-3.5" />
+            terms
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href="https://github.com/jrnxf/une.haus"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <TerminalIcon className="size-3.5" />
+            source
+          </a>
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuGroup>
+        <DropdownMenuItem asChild>
+          <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
+            <UserIcon className="size-3.5" />
+            profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/notifications">
+            <Bell className="size-3.5" />
+            notifications
+            {unreadCount > 0 && (
+              <CountChip className="ml-auto">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </CountChip>
+            )}
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <ThemeSubmenu />
+      <DropdownMenuSeparator />
+      <DropdownMenuItem onClick={() => logout({})}>
+        <LogOut className="size-3.5" />
+        log out
+      </DropdownMenuItem>
+    </>
+  )
+}
+
+export function UnauthedUserMenuItems() {
+  return (
+    <>
+      <DropdownMenuGroup>
+        <DropdownMenuItem asChild>
+          <Link to="/privacy">
+            <EyeOff className="size-3.5" />
+            privacy
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/terms">
+            <ScrollText className="size-3.5" />
+            terms
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href="https://github.com/jrnxf/une.haus"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <TerminalIcon className="size-3.5" />
+            source
+          </a>
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+      <ThemeSubmenu />
+      <DropdownMenuSeparator />
+      <DropdownMenuItem asChild>
+        <Link to="/auth">
+          <LogIn className="size-3.5" />
+          log in
+        </Link>
+      </DropdownMenuItem>
+    </>
+  )
+}
+
 export function NavUser() {
   const { isMobile } = useSidebar()
   const sessionUser = useSessionUser()
@@ -116,40 +262,7 @@ export function NavUser() {
               align="end"
               sideOffset={4}
             >
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link to="/privacy">
-                    <EyeOff className="size-3.5" />
-                    privacy
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/terms">
-                    <ScrollText className="size-3.5" />
-                    terms
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://github.com/jrnxf/une.haus"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <TerminalIcon className="size-3.5" />
-                    source
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <ThemeSubmenu />
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/auth">
-                  <LogIn className="size-3.5" />
-                  log in
-                </Link>
-              </DropdownMenuItem>
+              <UnauthedUserMenuItems />
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>
@@ -198,73 +311,12 @@ export function NavUser() {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link to="/feedback">
-                  <Send className="size-3.5" />
-                  feedback
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/privacy">
-                  <EyeOff className="size-3.5" />
-                  privacy
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/terms">
-                  <ScrollText className="size-3.5" />
-                  terms
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
-                  href="https://github.com/jrnxf/une.haus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <TerminalIcon className="size-3.5" />
-                  source
-                </a>
-              </DropdownMenuItem>
-              <ThemeSubmenu />
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
-                  <UserIcon className="size-3.5" />
-                  profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/notifications">
-                  <Bell className="size-3.5" />
-                  notifications
-                  {unreadCount > 0 && (
-                    <CountChip className="ml-auto">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </CountChip>
-                  )}
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            {isAdmin && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/admin">
-                    <ShieldIcon className="size-3.5" />
-                    admin
-                  </Link>
-                </DropdownMenuItem>
-              </>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout({})}>
-              <LogOut className="size-3.5" />
-              log out
-            </DropdownMenuItem>
+            <AuthedUserMenuItems
+              sessionUser={sessionUser}
+              isAdmin={isAdmin}
+              logout={logout}
+              unreadCount={unreadCount}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
