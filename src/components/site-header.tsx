@@ -3,7 +3,6 @@ import { MenuIcon } from "lucide-react"
 import { useMobileBreadcrumbs } from "~/components/mobile-breadcrumbs-context"
 import { useMobileNav } from "~/components/mobile-nav-context"
 import { Button } from "~/components/ui/button"
-import { cn } from "~/lib/utils"
 
 export function MobileFooter() {
   const openNav = useMobileNav()
@@ -18,13 +17,7 @@ export function MobileFooter() {
           size="icon"
           onClick={openNav}
           aria-label="menu"
-          className={cn(
-            "relative shrink-0",
-            // Expand tap target with an invisible pseudo-element so the
-            // button is easier to press on mobile (extra-wide on left
-            // since it sits at the trailing edge of the footer).
-            "before:absolute before:-inset-2 before:-left-4 before:content-['']",
-          )}
+          className="hit-area-y-2 hit-area-l-6 hit-area-r-4 shrink-0"
         >
           <MenuIcon />
         </Button>
