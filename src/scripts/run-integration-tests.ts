@@ -1,5 +1,4 @@
-import { $ } from "bun"
-import { Glob } from "bun"
+import { $, Glob } from "bun"
 import { resolve } from "node:path"
 
 process.chdir(resolve(import.meta.dirname, "../.."))
@@ -46,7 +45,7 @@ if (!port) {
   process.exit(1)
 }
 
-const env = {
+const testEnv = {
   ...process.env,
   DATABASE_URL: `postgresql://unehaus_test:unehaus_test@127.0.0.1:${port}/unehaus_test`,
   DATABASE_HOST: "127.0.0.1",
@@ -55,7 +54,7 @@ const env = {
   DATABASE_PASSWORD: "unehaus_test",
 }
 
-async function runStreaming(cmd: string[], runEnv = process.env) {
+async function runStreaming(cmd: string[], runEnv) {
   const proc = Bun.spawn(cmd, {
     cwd: process.cwd(),
     env: runEnv,
@@ -67,10 +66,10 @@ async function runStreaming(cmd: string[], runEnv = process.env) {
 }
 
 // Bootstrap schema
-console.log(`Bootstrapping schema on ${env.DATABASE_URL}`)
+console.log(`Bootstrapping schema on ${testEnv.DATABASE_URL}`)
 const bootstrapExitCode = await runStreaming(
   ["bunx", "drizzle-kit", "push", "--config=drizzle.config.ts"],
-  env,
+  testEnv,
 )
 if (bootstrapExitCode !== 0) {
   process.exit(bootstrapExitCode)
@@ -86,5 +85,5 @@ const testTarget =
         .toSorted()
         .map((f) => `./src/${f}`)
 
-const testExitCode = await runStreaming(["bun", "test", ...testTarget], env)
+const testExitCode = await runStreaming(["bun", "test", ...testTarget], testEnv)
 process.exit(testExitCode)

@@ -1,10 +1,12 @@
 import { type Config } from "drizzle-kit"
 
-import { env } from "~/lib/env"
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is required")
+}
 
 export default {
   dbCredentials: {
-    url: env.DATABASE_URL,
+    url: process.env.DATABASE_URL,
   },
   dialect: "postgresql",
   out: "./src/db",

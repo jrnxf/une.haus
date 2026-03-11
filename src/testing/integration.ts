@@ -3,6 +3,14 @@ import { sql } from "drizzle-orm"
 import { db } from "~/db"
 import { muxVideos, users } from "~/db/schema"
 
+// Safety: never run integration tests against a production database
+const dbUrl = process.env.DATABASE_URL ?? ""
+if (dbUrl.includes("neon.tech") || dbUrl.includes("production")) {
+  throw new Error(
+    `FATAL: Integration tests are pointing at a production database!\nDATABASE_URL: ${dbUrl}`,
+  )
+}
+
 export async function truncatePublicTables() {
   const rows = await db.execute(
     sql<{ tablename: string }>`

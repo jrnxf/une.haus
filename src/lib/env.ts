@@ -41,6 +41,8 @@ export const env = createEnv({
    */
   runtimeEnv: process.env,
 
+  skipValidation: process.env.BUN_ENV === "test",
+
   server: {
     CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
     CLOUDFLARE_ACCOUNT_ID: z.string(),
