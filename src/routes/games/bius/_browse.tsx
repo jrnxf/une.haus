@@ -17,8 +17,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
-import { useSessionUser } from "~/lib/session/hooks"
 
 export const Route = createFileRoute("/games/bius/_browse")({
   component: RouteComponent,
@@ -31,7 +31,7 @@ function RouteComponent() {
   const { data: rounds } = useSuspenseQuery(games.bius.rounds.queryOptions())
   const navigate = useNavigate()
   const params = useParams({ strict: false }) as { roundId?: number }
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
   const selectedRoundId = params.roundId
   const round = rounds.find((c) => c.id === Number(selectedRoundId))
   const latestSet = round?.sets?.[0]
@@ -112,31 +112,31 @@ function RouteComponent() {
                     upload
                   </Link>
                 </Button>
-              ) : sessionUser ? (
-                latestSet.user.id === sessionUser.id ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex">
-                        <Button disabled>upload</Button>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      you can&apos;t back up your own set
-                    </TooltipContent>
-                  </Tooltip>
-                ) : null
-              ) : (
-                <Button asChild>
-                  <Link
-                    to="/auth"
-                    search={{
-                      redirect: location.href,
-                    }}
-                  >
-                    log in to join
-                  </Link>
+              ) : sessionUser && latestSet.user.id === sessionUser.id ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <Button disabled>upload</Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    you can&apos;t back up your own set
+                  </TooltipContent>
+                </Tooltip>
+              ) : !sessionUser ? (
+                <Button
+                  onClick={() =>
+                    authGate(() =>
+                      navigate({
+                        to: "/games/bius/$biuId/upload",
+                        params: { biuId: round!.id },
+                      }),
+                    )
+                  }
+                >
+                  upload
                 </Button>
-              )
+              ) : null
             ) : null}
           </div>
         }

@@ -18,6 +18,7 @@ import { Button } from "~/components/ui/button"
 import { FlagEmoji } from "~/components/ui/flag-emoji"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { UsersCombobox } from "~/components/users-combobox"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { useSessionUser } from "~/lib/session/hooks"
 import { type UsersWithFollowsData } from "~/lib/users"
 import { useFollowMutations } from "~/lib/users/hooks"
@@ -153,7 +154,7 @@ function FollowButton({
   user: UsersWithFollowsData
   isOwnProfile: boolean
 }) {
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
   const { follow, unfollow } = useFollowMutations({ userId: user.id })
 
   const authUserFollowsUser = user.followers.users.some(
@@ -164,18 +165,16 @@ function FollowButton({
     return null
   }
 
-  if (!sessionUser) {
-    return null
-  }
-
   return (
     <Button
       className="shrink-0"
       variant="secondary"
       onClick={() =>
-        authUserFollowsUser
-          ? unfollow({ data: { userId: user.id } })
-          : follow({ data: { userId: user.id } })
+        authGate(() =>
+          authUserFollowsUser
+            ? unfollow({ data: { userId: user.id } })
+            : follow({ data: { userId: user.id } }),
+        )
       }
     >
       {authUserFollowsUser ? "unfollow" : "follow"}

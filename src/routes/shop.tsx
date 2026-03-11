@@ -1,5 +1,6 @@
 import {
   useMutation,
+  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query"
@@ -18,8 +19,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "~/components/ui/hover-card"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { seo } from "~/lib/seo"
-import { useSessionUser } from "~/lib/session/hooks"
+import { useIsAdmin } from "~/lib/session/hooks"
 import { users } from "~/lib/users"
 
 export const Route = createFileRoute("/shop")({
@@ -38,7 +45,8 @@ export const Route = createFileRoute("/shop")({
 })
 
 function RouteComponent() {
-  const sessionUser = useSessionUser()
+  const { authGate } = useAuthGate()
+  const isAdmin = useIsAdmin()
   const qc = useQueryClient()
 
   const { data: waitlist } = useSuspenseQuery(
@@ -75,6 +83,11 @@ function RouteComponent() {
     },
   })
 
+  const { data: waitlistUsers } = useQuery({
+    ...users.shopWaitlistUsers.queryOptions(),
+    enabled: isAdmin,
+  })
+
   const othersCount = waitlist.isOnWaitlist
     ? waitlist.count - 1
     : waitlist.count
@@ -96,10 +109,36 @@ function RouteComponent() {
             <EmptyDescription>
               {waitlist.count > 0 ? (
                 <div className="flex items-center gap-2">
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-blue-400 opacity-75" />
-                    <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
-                  </span>
+                  {isAdmin && waitlistUsers ? (
+                    <HoverCard>
+                      <HoverCardTrigger
+                        render={<span className="relative flex size-2" />}
+                      >
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-blue-400 opacity-75" />
+                        <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
+                      </HoverCardTrigger>
+                      <HoverCardContent
+                        align="start"
+                        className="w-auto min-w-32 p-1"
+                      >
+                        {waitlistUsers.map((user) => (
+                          <Link
+                            key={user.id}
+                            to="/users/$userId"
+                            params={{ userId: user.id }}
+                            className="hover:bg-accent block rounded-sm px-2 py-1.5 text-xs"
+                          >
+                            {user.name}
+                          </Link>
+                        ))}
+                      </HoverCardContent>
+                    </HoverCard>
+                  ) : (
+                    <span className="relative flex size-2">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-blue-400 opacity-75" />
+                      <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
+                    </span>
+                  )}
                   <p className="text-muted-foreground text-sm">
                     {waitlist.isOnWaitlist
                       ? othersCount > 0
@@ -116,18 +155,12 @@ function RouteComponent() {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            {sessionUser ? (
-              !waitlist.isOnWaitlist && (
-                <Button
-                  onClick={() => joinMutation.mutate()}
-                  disabled={joinMutation.isPending}
-                >
-                  {joinMutation.isPending ? "saving..." : "notify me"}
-                </Button>
-              )
-            ) : (
-              <Button asChild>
-                <Link to="/auth">login to join waitlist</Link>
+            {!waitlist.isOnWaitlist && (
+              <Button
+                onClick={() => authGate(() => joinMutation.mutate())}
+                disabled={joinMutation.isPending}
+              >
+                {joinMutation.isPending ? "saving..." : "notify me"}
               </Button>
             )}
           </EmptyContent>

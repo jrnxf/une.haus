@@ -1,7 +1,6 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import {
   createFileRoute,
-  Link,
   Outlet,
   useLocation,
   useNavigate,
@@ -14,8 +13,8 @@ import { ContentHeaderDropdown } from "~/components/games/content-header-dropdow
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import { CountChip } from "~/components/ui/count-chip"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
-import { useSessionUser } from "~/lib/session/hooks"
 
 export const Route = createFileRoute("/games/rius/_browse")({
   component: RouteComponent,
@@ -33,7 +32,7 @@ const sections = [
 ] as const
 
 function RouteComponent() {
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
   const navigate = useNavigate()
   const pathname = useLocation({ select: (l) => l.pathname })
   const { data: archivedRius } = useSuspenseQuery(
@@ -123,18 +122,7 @@ function RouteComponent() {
         }
         right={
           currentSection === "upcoming" ? (
-            !sessionUser ? (
-              <Button asChild>
-                <Link
-                  to="/auth"
-                  search={{
-                    redirect: location.href,
-                  }}
-                >
-                  log in to join
-                </Link>
-              </Button>
-            ) : isUpcomingUploadLimitReached ? (
+            isUpcomingUploadLimitReached ? (
               <Button disabled className="relative gap-0 pr-7">
                 upload
                 <CountChip className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2">
@@ -142,11 +130,18 @@ function RouteComponent() {
                 </CountChip>
               </Button>
             ) : (
-              <Button asChild className="relative">
-                <Link to="/games/rius/upcoming/join">upload</Link>
-                <CountChip className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2">
-                  {upcomingSetCount}/3
-                </CountChip>
+              <Button
+                className="relative"
+                onClick={() =>
+                  authGate(() => navigate({ to: "/games/rius/upcoming/join" }))
+                }
+              >
+                upload
+                {sessionUser && (
+                  <CountChip className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2">
+                    {upcomingSetCount}/3
+                  </CountChip>
+                )}
               </Button>
             )
           ) : currentSection === "active" ? (

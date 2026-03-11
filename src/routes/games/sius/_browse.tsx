@@ -19,8 +19,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
-import { useSessionUser } from "~/lib/session/hooks"
 
 export const Route = createFileRoute("/games/sius/_browse")({
   component: RouteComponent,
@@ -58,7 +58,7 @@ function RouteComponent() {
   const { data: rounds } = useSuspenseQuery(
     games.sius.rounds.active.queryOptions(),
   )
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
   const navigate = useNavigate()
   const pathname = useLocation({ select: (l) => l.pathname })
   const params = useParams({ strict: false }) as { roundId?: number }
@@ -143,39 +143,37 @@ function RouteComponent() {
                         upload
                       </Link>
                     </Button>
-                  ) : sessionUser ? (
-                    latestSet.user.id === sessionUser.id ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="inline-flex">
-                            <Button disabled>upload</Button>
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          you can&apos;t stack your own trick
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : null
-                  ) : (
-                    <Button asChild>
-                      <Link
-                        to="/auth"
-                        search={{
-                          redirect: location.href,
-                        }}
-                      >
-                        log in to join
-                      </Link>
+                  ) : sessionUser && latestSet.user.id === sessionUser.id ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-flex">
+                          <Button disabled>upload</Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        you can&apos;t stack your own trick
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : !sessionUser ? (
+                    <Button
+                      onClick={() =>
+                        authGate(() =>
+                          navigate({
+                            to: "/games/sius/$siuId/upload",
+                            params: { siuId: selectedRound.id },
+                          }),
+                        )
+                      }
+                    >
+                      upload
                     </Button>
-                  )}
+                  ) : null}
 
-                  {sessionUser && (
-                    <ArchiveVoteButton
-                      roundId={selectedRound.id}
-                      voteCount={voteCount}
-                      hasVoted={!!hasVoted}
-                    />
-                  )}
+                  <ArchiveVoteButton
+                    roundId={selectedRound.id}
+                    voteCount={voteCount}
+                    hasVoted={!!hasVoted}
+                  />
                 </>
               )}
             {isActive && <SiuInfoTray />}

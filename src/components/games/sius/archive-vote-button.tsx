@@ -1,5 +1,6 @@
 import { Button } from "~/components/ui/button"
 import { CountChip } from "~/components/ui/count-chip"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { useRemoveArchiveVote, useVoteToArchive } from "~/lib/games/sius/hooks"
 import { cn } from "~/lib/utils"
 
@@ -16,17 +17,20 @@ export function ArchiveVoteButton({
   hasVoted,
   className,
 }: ArchiveVoteButtonProps) {
+  const { authGate } = useAuthGate()
   const voteToArchive = useVoteToArchive()
   const removeVote = useRemoveArchiveVote()
 
   const isPending = voteToArchive.isPending || removeVote.isPending
 
   const handleClick = () => {
-    if (hasVoted) {
-      removeVote.mutate({ data: { roundId } })
-    } else {
-      voteToArchive.mutate({ data: { roundId } })
-    }
+    authGate(() => {
+      if (hasVoted) {
+        removeVote.mutate({ data: { roundId } })
+      } else {
+        voteToArchive.mutate({ data: { roundId } })
+      }
+    })
   }
 
   return (

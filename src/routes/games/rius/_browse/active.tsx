@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { GhostIcon } from "lucide-react"
 import { useMemo } from "react"
 import { z } from "zod"
@@ -14,9 +14,9 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games, groupSetsByUserWithRankings } from "~/lib/games"
 import { messages } from "~/lib/messages"
-import { useSessionUser } from "~/lib/session/hooks"
 
 const searchSchema = z.object({
   open: z.number().optional(),
@@ -42,8 +42,9 @@ export const Route = createFileRoute("/games/rius/_browse/active")({
 
 function RouteComponent() {
   const { open } = Route.useSearch()
+  const navigate = useNavigate()
   const { data } = useSuspenseQuery(games.rius.active.list.queryOptions())
-  const user = useSessionUser()
+  const { sessionUser: user, authGate } = useAuthGate()
   const upcomingRosterQuery = useQuery({
     ...games.rius.upcoming.roster.queryOptions(),
     enabled: data.sets.length === 0 && Boolean(user),
@@ -69,26 +70,17 @@ function RouteComponent() {
           be the first to join the next round?
         </EmptyDescription>
       </EmptyHeader>
-      {!user ? (
+      {(user ? !isUserInGame : true) && (
         <EmptyContent>
-          <Button asChild>
-            <Link
-              to="/auth"
-              search={{
-                redirect: location.href,
-              }}
-            >
-              log in to join
-            </Link>
+          <Button
+            onClick={() =>
+              authGate(() => navigate({ to: "/games/rius/upcoming/join" }))
+            }
+          >
+            join
           </Button>
         </EmptyContent>
-      ) : !isUserInGame ? (
-        <EmptyContent>
-          <Button asChild>
-            <Link to="/games/rius/upcoming/join">join</Link>
-          </Button>
-        </EmptyContent>
-      ) : null}
+      )}
     </Empty>
   ) : (
     <div className="space-y-6">

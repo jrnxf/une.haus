@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { useSessionUser } from "~/lib/session/hooks"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 
 export function RecordOptions({
   onDeleteRecord,
@@ -35,12 +35,8 @@ export function RecordOptions({
     }
   }
 }) {
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
   const menuTriggerReference = useRef<HTMLButtonElement>(null)
-
-  if (!sessionUser && record.likes.length === 0) {
-    return null
-  }
 
   const isOwnedByAuthUser = Boolean(
     sessionUser && sessionUser.id === record.user.id,
@@ -64,15 +60,15 @@ export function RecordOptions({
       </DropdownMenuTrigger>
       <DropdownMenuContent collisionPadding={8}>
         <DropdownMenuGroup>
-          {sessionUser && (
-            <DropdownMenuItem
-              onClick={() => {
-                onLikeUnlike(isLikedByAuthUser ? "unlike" : "like")
-              }}
-            >
-              {isLikedByAuthUser ? "unlike" : "like"}
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem
+            onClick={() => {
+              authGate(() =>
+                onLikeUnlike(isLikedByAuthUser ? "unlike" : "like"),
+              )
+            }}
+          >
+            {isLikedByAuthUser ? "unlike" : "like"}
+          </DropdownMenuItem>
 
           {record.likes.length > 0 && (
             <DropdownMenuItem onClick={onShowReactions}>

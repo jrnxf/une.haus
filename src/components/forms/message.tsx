@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router"
+import { useLocation, useNavigate } from "@tanstack/react-router"
 import { CornerDownLeftIcon } from "lucide-react"
 import { useLayoutEffect, useRef, useState } from "react"
 
@@ -16,6 +16,7 @@ export function BaseMessageForm({
   onFocus?: () => void
 }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const sessionUser = useSessionUser()
   const [content, setContent] = useState(initialContent ?? "")
   const [resetVersion, setResetVersion] = useState(0)
@@ -53,18 +54,15 @@ export function BaseMessageForm({
 
   if (!sessionUser) {
     return (
-      <div className="grid place-items-center pt-3">
-        <Button asChild>
-          <Link
-            to="/auth"
-            search={{
-              redirect: location.href,
-            }}
-          >
-            log in to chat
-          </Link>
-        </Button>
-      </div>
+      <button
+        type="button"
+        className="bg-background text-muted-foreground dark:bg-input/30 w-full rounded-lg border px-4 py-3 text-left text-base"
+        onClick={() => {
+          navigate({ to: "/auth", search: { redirect: location.href } })
+        }}
+      >
+        write a message...
+      </button>
     )
   }
 

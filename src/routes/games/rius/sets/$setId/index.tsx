@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
 import { useDeleteSet } from "~/lib/games/rius/hooks"
 import { invariant } from "~/lib/invariant"
@@ -119,7 +120,7 @@ function SetView({ setId }: { setId: number }) {
   const messagesQuery = useSuspenseQuery(messages.list.queryOptions(record))
   const createMessage = useCreateMessage(record)
 
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
 
   const authUserLiked = set.likes.some(
     (like) => like.userId === sessionUser?.id,
@@ -162,7 +163,7 @@ function SetView({ setId }: { setId: number }) {
           <LikesButtonGroup
             users={set.likes?.map((l) => l.user) ?? []}
             authUserLiked={authUserLiked}
-            onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
+            onLikeUnlike={() => authGate(() => likeUnlike.mutate())}
           />
           {canManageUpcomingSet && (
             <>
@@ -280,13 +281,7 @@ function SubmissionsTab({
         (sessionUser ? (
           <CreateRiuSubmissionForm riuSetId={setId} />
         ) : (
-          <div className="grid place-items-center">
-            <Button asChild>
-              <Link to="/auth" search={{ redirect: location.href }}>
-                log in to join
-              </Link>
-            </Button>
-          </div>
+          <AuthGateUploadButton />
         ))}
     </div>
   )
@@ -326,6 +321,23 @@ function SubmissionsList({ submissions }: { submissions: SubmissionType[] }) {
 type MessageType = ServerFnReturn<typeof messages.list.fn>["messages"][number]
 
 const INITIAL_VISIBLE_COUNT = 2
+
+function AuthGateUploadButton() {
+  const { authGate } = useAuthGate()
+  return (
+    <Button
+      variant="unstyled"
+      type="button"
+      className="border-input ring-offset-background dark:bg-input/30 text-foreground relative inline-flex h-9 w-fit items-center justify-start overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base font-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+      style={{ borderColor: "var(--input)" }}
+      onClick={() => authGate(() => {})}
+    >
+      <span className="text-muted-foreground block w-full truncate text-left text-sm">
+        upload video
+      </span>
+    </Button>
+  )
+}
 
 function CollapsibleMessages({
   record,
