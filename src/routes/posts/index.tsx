@@ -280,19 +280,21 @@ function PostsList({
             >
               <Link to="/posts/$postId" params={{ postId: post.id }}>
                 <div className="flex w-full flex-col gap-2">
-                  <span className="w-fit truncate font-semibold">
+                  <div className="flex items-center gap-2">
                     {Boolean(posterUrl) && (
-                      <PaperclipIcon className="text-muted-foreground mr-2 inline size-3" />
+                      <PaperclipIcon className="text-muted-foreground inline size-3" />
                     )}
-                    {post.title}
-                  </span>
+                    <span className="truncate font-semibold">{post.title}</span>
+                  </div>
                   <div className="line-clamp-3 text-sm">
                     <RichText content={post.content} mentionMode="plainText" />
                   </div>
                   <Badges content={post.tags} active={deferredTags ?? []} />
                   <div className="flex w-full justify-between gap-4">
                     <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-                      <span>{post.user.name}</span>
+                      <span className="text-foreground/50">
+                        {post.user.name}
+                      </span>
                       <span className="opacity-25">/</span>
                       <RelativeTimeCard date={post.createdAt} variant="muted" />
                     </p>

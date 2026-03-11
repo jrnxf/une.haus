@@ -537,15 +537,17 @@ function FormSubmitButton({
   const disabled = busy || isMediaUploading
 
   const button = (
-    <Button
-      disabled={disabled}
-      iconLeft={busy && <Loader2Icon className="size-4 animate-spin" />}
-      type="submit"
-      className={cn("self-start", className)}
-      {...props}
-    >
-      <span>{busy ? busyText : idleText}</span>
-    </Button>
+    <ButtonGroup>
+      <Button
+        disabled={disabled}
+        iconLeft={busy && <Loader2Icon className="size-4 animate-spin" />}
+        type="submit"
+        className={cn("self-start", className)}
+        {...props}
+      >
+        <span>{busy ? busyText : idleText}</span>
+      </Button>
+    </ButtonGroup>
   )
 
   if (isAdmin) {
@@ -554,7 +556,7 @@ function FormSubmitButton({
         <ButtonGroup>
           <FormDebug />
         </ButtonGroup>
-        <ButtonGroup>{button}</ButtonGroup>
+        {button}
       </ButtonGroup>
     )
   }
@@ -626,6 +628,7 @@ function FormDebug() {
 
 export {
   Form,
+  FormCancelButton,
   FormControl,
   FormDescription,
   FormField,
@@ -633,7 +636,6 @@ export {
   FormLabel,
   FormMediaProvider,
   FormMessage,
-  FormCancelButton,
   FormSubmitButton,
   useFormField,
   useFormMedia,

@@ -169,6 +169,7 @@ export function MessagesView({
                     <div
                       className={cn(
                         "mb-1",
+                        isAuthUserMessage ? "mr-1" : "ml-1",
                         index !== 0 && !showDayDivider && "mt-4",
                       )}
                     >

@@ -28,7 +28,7 @@ type SelectOption = { label: string; value: string }
 
 export function LocationSelector({
   onUpdate,
-  placeholder = "Select location...",
+  placeholder = "",
 }: {
   onUpdate: (location: LocationSelectorLocation | undefined) => void
   placeholder?: string
@@ -118,7 +118,7 @@ export function LocationSelector({
                 setNoResults(false) // prove me wrong
                 debouncedSearch(nextQuery)
               }}
-              placeholder="search cities..."
+              placeholder="search..."
             />
             {noResults && (
               <p className="border-t py-6 text-center text-sm">
