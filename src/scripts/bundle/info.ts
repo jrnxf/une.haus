@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 import { $ } from "bun"
 
-const sizeResult = await $`du -sk dist/client`.text()
+const sizeResult = await $`du -sk .output/public`.text()
 const sizeKB = Number.parseInt(sizeResult.split("\t")[0], 10)
 
-const chunkCount = await $`ls dist/client/assets/*.js | wc -l`.text()
+const chunkCount = await $`ls .output/public/assets/*.js | wc -l`.text()
 const chunks = Number.parseInt(chunkCount.trim(), 10)
 
-console.log(`dist/client (${sizeKB} kB | ${chunks} chunks)`)
+console.log(`.output/public (${sizeKB} kB | ${chunks} chunks)`)
