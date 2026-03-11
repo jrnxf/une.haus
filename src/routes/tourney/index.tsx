@@ -140,9 +140,9 @@ function AuthenticatedView() {
               <EmptyMedia variant="icon">
                 <GhostIcon />
               </EmptyMedia>
-              <EmptyTitle>no tournaments</EmptyTitle>
+              <EmptyTitle>no tourneys</EmptyTitle>
               <EmptyDescription>
-                create a tournament or join one with a code
+                join a tourney or create one yourself
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
