@@ -9,6 +9,7 @@ import { extractMentionedUserIds } from "~/lib/mentions/parse"
 import { resolvePreview } from "~/lib/mentions/resolve.server"
 import {
   createNotification,
+  deleteNotificationsForEntity,
   notifyFollowers,
 } from "~/lib/notifications/helpers.server"
 
@@ -279,6 +280,8 @@ export async function deletePost({
     .delete(posts)
     .where(eq(posts.id, postId))
     .returning()
+
+  await deleteNotificationsForEntity("post", postId)
 
   return deletedPost
 }

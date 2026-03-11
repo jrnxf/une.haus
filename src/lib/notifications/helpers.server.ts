@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 
 import { db } from "~/db"
 import {
@@ -153,6 +153,25 @@ export async function notifyFollowers(args: {
       },
     })),
   )
+}
+
+/**
+ * Deletes all notifications for a given entity.
+ * Call this when the entity behind a notification is deleted
+ * so that orphan notifications silently disappear.
+ */
+export async function deleteNotificationsForEntity(
+  entityType: NotificationEntityType,
+  entityId: number,
+): Promise<void> {
+  await db
+    .delete(notifications)
+    .where(
+      and(
+        eq(notifications.entityType, entityType),
+        eq(notifications.entityId, entityId),
+      ),
+    )
 }
 
 /**

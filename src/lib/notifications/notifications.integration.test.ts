@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
 import { notifications } from "~/db/schema"
+import { deleteNotificationsForEntity } from "~/lib/notifications/helpers.server"
 import {
   deleteNotification,
   getUnreadCount,
@@ -421,6 +422,77 @@ describe("notifications integration", () => {
 
     expect(rows[0]?.readAt).toBeInstanceOf(Date)
     expect(rows[1]?.readAt?.toISOString()).toBe("2024-01-01T00:00:00.000Z")
+  })
+
+  it("deleteNotificationsForEntity removes all notifications for that entity across users", async () => {
+    const userA = await seedUser({ name: "User A" })
+    const userB = await seedUser({ name: "User B" })
+    const actor = await seedUser({ name: "Actor" })
+
+    await db.insert(notifications).values([
+      // Two notifications for entity post:42 (different users)
+      {
+        actorId: actor.id,
+        entityId: 42,
+        entityType: "post",
+        type: "like",
+        userId: userA.id,
+      },
+      {
+        actorId: actor.id,
+        entityId: 42,
+        entityType: "post",
+        type: "comment",
+        userId: userB.id,
+      },
+      // Same entityId but different entityType — should NOT be deleted
+      {
+        actorId: actor.id,
+        entityId: 42,
+        entityType: "riuSet",
+        type: "like",
+        userId: userA.id,
+      },
+      // Different entityId same entityType — should NOT be deleted
+      {
+        actorId: actor.id,
+        entityId: 99,
+        entityType: "post",
+        type: "like",
+        userId: userA.id,
+      },
+    ])
+
+    await deleteNotificationsForEntity("post", 42)
+
+    const rows = await db.query.notifications.findMany({
+      orderBy: (table, { asc }) => [asc(table.id)],
+    })
+
+    expect(rows).toHaveLength(2)
+    expect(rows[0]?.entityType).toBe("riuSet")
+    expect(rows[0]?.entityId).toBe(42)
+    expect(rows[1]?.entityType).toBe("post")
+    expect(rows[1]?.entityId).toBe(99)
+  })
+
+  it("deleteNotificationsForEntity is a no-op when no notifications exist", async () => {
+    const user = await seedUser({ name: "User" })
+    const actor = await seedUser({ name: "Actor" })
+
+    await db.insert(notifications).values({
+      actorId: actor.id,
+      entityId: 10,
+      entityType: "post",
+      type: "like",
+      userId: user.id,
+    })
+
+    // Delete for a non-existent entity — nothing should change
+    await deleteNotificationsForEntity("post", 999)
+
+    const rows = await db.query.notifications.findMany()
+    expect(rows).toHaveLength(1)
   })
 
   it("deleteNotification deletes only the current user's row", async () => {

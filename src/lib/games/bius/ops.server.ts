@@ -4,7 +4,10 @@ import { and, desc, eq, isNull, sql } from "drizzle-orm"
 import { db } from "~/db"
 import { biuSetLikes, biuSetMessages, biuSets, bius } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
-import { notifyFollowers } from "~/lib/notifications/helpers.server"
+import {
+  deleteNotificationsForEntity,
+  notifyFollowers,
+} from "~/lib/notifications/helpers.server"
 
 type AuthenticatedContext = {
   user: {
@@ -306,11 +309,15 @@ export async function deleteBiuSet({
       .where(eq(biuSetMessages.biuSetId, input.setId))
     await db.delete(biuSetLikes).where(eq(biuSetLikes.biuSetId, input.setId))
 
+    await deleteNotificationsForEntity("biuSet", input.setId)
+
     return { type: "soft" as const }
   }
 
   // Hard delete: no children, remove the row entirely
   await db.delete(biuSets).where(eq(biuSets.id, input.setId))
+
+  await deleteNotificationsForEntity("biuSet", input.setId)
 
   return { type: "hard" as const }
 }

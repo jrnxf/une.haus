@@ -4,7 +4,10 @@ import { and, desc, eq, sql } from "drizzle-orm"
 import { db } from "~/db"
 import { riuSets, riuSubmissions, rius } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
-import { notifyFollowers } from "~/lib/notifications/helpers.server"
+import {
+  deleteNotificationsForEntity,
+  notifyFollowers,
+} from "~/lib/notifications/helpers.server"
 
 type AuthenticatedContext = {
   user: {
@@ -135,6 +138,8 @@ export async function deleteRiuSet({
     .where(eq(riuSets.id, input.riuSetId))
     .returning()
 
+  await deleteNotificationsForEntity("riuSet", input.riuSetId)
+
   return deletedSet
 }
 
@@ -161,6 +166,8 @@ export async function deleteRiuSubmission({
     .delete(riuSubmissions)
     .where(eq(riuSubmissions.id, input.submissionId))
     .returning()
+
+  await deleteNotificationsForEntity("riuSubmission", input.submissionId)
 
   return deletedSubmission
 }

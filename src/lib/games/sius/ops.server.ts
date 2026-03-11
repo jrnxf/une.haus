@@ -14,6 +14,7 @@ import {
 import { invariant } from "~/lib/invariant"
 import {
   createNotification,
+  deleteNotificationsForEntity,
   notifyFollowers,
 } from "~/lib/notifications/helpers.server"
 
@@ -363,11 +364,15 @@ export async function deleteSiuSet({
       .where(eq(siuSetMessages.siuSetId, input.setId))
     await db.delete(siuSetLikes).where(eq(siuSetLikes.siuSetId, input.setId))
 
+    await deleteNotificationsForEntity("siuSet", input.setId)
+
     return { type: "soft" as const }
   }
 
   // Hard delete: no children, remove the row entirely
   await db.delete(siuSets).where(eq(siuSets.id, input.setId))
+
+  await deleteNotificationsForEntity("siuSet", input.setId)
 
   // If this was the only set, archive the round
   if (set.position === 1) {
