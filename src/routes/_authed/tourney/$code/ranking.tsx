@@ -191,7 +191,18 @@ function RouteComponent() {
           </div>
         )}
 
-        <div className="flex justify-end">
+        <div className="flex justify-between">
+          <Button
+            variant="secondary"
+            onClick={() =>
+              advancePhase.mutate({
+                data: { code, phase: "prelims" },
+              })
+            }
+            disabled={rankingAction.isPending || advancePhase.isPending}
+          >
+            back
+          </Button>
           <Button
             onClick={handleStart}
             disabled={rankingAction.isPending || advancePhase.isPending}

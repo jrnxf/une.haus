@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
-import { GhostIcon } from "lucide-react"
+import { GhostIcon, Loader2Icon, Trash2Icon } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 
+import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
@@ -27,6 +28,7 @@ import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
 import { useSessionUser } from "~/lib/session/hooks"
 import { tourney } from "~/lib/tourney"
+import { useDeleteTournament } from "~/lib/tourney/hooks"
 
 export const Route = createFileRoute("/tourney/")({
   component: RouteComponent,
@@ -124,6 +126,7 @@ function UnauthenticatedView() {
 
 function AuthenticatedView() {
   const { data: tournaments = [] } = useQuery(tourney.list.queryOptions())
+  const deleteMutation = useDeleteTournament()
 
   return (
     <>
@@ -184,15 +187,41 @@ function AuthenticatedView() {
                       <p className="text-muted-foreground relative z-10 inline-flex items-center gap-1.5 text-xs">
                         <RelativeTimeCard date={t.createdAt} variant="muted" />
                       </p>
-                      <Button variant="secondary" size="sm" asChild>
-                        <Link
-                          to={getPhaseRoute(t.phase)}
-                          params={{ code: t.code }}
-                          className="relative z-10"
+                      <div className="relative z-10 flex items-center gap-2">
+                        <Button variant="secondary" size="sm" asChild>
+                          <Link
+                            to={getPhaseRoute(t.phase)}
+                            params={{ code: t.code }}
+                          >
+                            manage
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon-sm"
+                          aria-label="delete tourney"
+                          onClick={() =>
+                            confirm.open({
+                              title: "delete tournament",
+                              description:
+                                "are you sure you want to delete this tournament? this action cannot be undone.",
+                              confirmText: "delete",
+                              variant: "destructive",
+                              onConfirm: () => {
+                                deleteMutation.mutate({
+                                  data: { code: t.code },
+                                })
+                              },
+                            })
+                          }
                         >
-                          manage
-                        </Link>
-                      </Button>
+                          {deleteMutation.isPending ? (
+                            <Loader2Icon className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2Icon className="size-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

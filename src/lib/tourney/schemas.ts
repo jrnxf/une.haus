@@ -6,8 +6,10 @@ const tournamentRiderSchema = z.object({
 })
 
 export const createTournamentSchema = z.object({
-  name: z.string().min(1),
-  riders: z.array(tournamentRiderSchema).min(2),
+  name: z.string().min(1, "required"),
+  riders: z
+    .array(tournamentRiderSchema)
+    .min(2, "at least 2 riders are required"),
   prelimTime: z.number().min(1).max(3600).default(60),
   battleTime: z.number().min(1).max(3600).default(60),
   finalsTime: z.number().min(1).max(3600).default(120),
@@ -80,6 +82,12 @@ export const bracketActionSchema = z.object({
 })
 
 export type BracketActionInput = z.infer<typeof bracketActionSchema>
+
+export const deleteTournamentSchema = z.object({
+  code: z.string().min(4).max(4),
+})
+
+export type DeleteTournamentInput = z.infer<typeof deleteTournamentSchema>
 
 export const advancePhaseSchema = z.object({
   code: z.string(),

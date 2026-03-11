@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import { EllipsisVerticalIcon } from "lucide-react"
-import { useCallback, useMemo } from "react"
+import { EllipsisVerticalIcon, GripVerticalIcon } from "lucide-react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 
 import { PageHeader } from "~/components/page-header"
@@ -13,6 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
+import {
+  Sortable,
+  SortableItem,
+  SortableItemHandle,
+} from "~/components/ui/sortable"
 import { tourney } from "~/lib/tourney"
 import { MIN_QUALIFIED_RIDERS } from "~/lib/tourney/constants"
 import {
@@ -85,6 +90,24 @@ function RouteComponent() {
     [usersMap],
   )
 
+  const serverRiderItems = useMemo(
+    () =>
+      state.riders.map((rider, index) => ({
+        orderId: `rider-${index}`,
+        originalIndex: index,
+        rider,
+      })),
+    [state.riders],
+  )
+
+  // Local state for optimistic drag reorder — syncs from server on change
+  const [riderItems, setRiderItems] = useState(serverRiderItems)
+  const prevServerRef = useRef(serverRiderItems)
+  if (prevServerRef.current !== serverRiderItems) {
+    prevServerRef.current = serverRiderItems
+    setRiderItems(serverRiderItems)
+  }
+
   const getRiderStatus = useCallback(
     (index: number): PrelimStatus | "current" => {
       if (state.currentRiderIndex === index) return "current"
@@ -143,14 +166,36 @@ function RouteComponent() {
         </PageHeader.Right>
       </PageHeader>
       <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
-        <div className="divide-y rounded-lg border">
-          {state.riders.map((rider, index) => {
-            const status = getRiderStatus(index)
-            const resolved = resolveRider(rider)
+        <Sortable
+          value={riderItems}
+          onValueChange={(newItems) => {
+            setRiderItems(newItems)
+            const order = newItems.map((item) => item.originalIndex)
+            prelimAction.mutate({
+              data: {
+                code,
+                action: { type: "reorderRiders", order },
+              },
+            })
+          }}
+          getItemValue={(item) => item.orderId}
+          className="space-y-2"
+        >
+          {riderItems.map((item) => {
+            const status = getRiderStatus(item.originalIndex)
+            const resolved = resolveRider(item.rider)
             const name = resolved.name ?? "Unknown"
 
             return (
-              <div key={index} className="flex items-center gap-3 px-3 py-2">
+              <SortableItem
+                key={item.orderId}
+                value={item.orderId}
+                className="flex items-center gap-3 rounded-md border px-3 py-2"
+              >
+                <SortableItemHandle>
+                  <GripVerticalIcon className="text-muted-foreground size-3.5" />
+                </SortableItemHandle>
+
                 <div
                   className={cn(
                     "size-2 shrink-0 rounded-full",
@@ -177,7 +222,10 @@ function RouteComponent() {
                       prelimAction.mutate({
                         data: {
                           code,
-                          action: { type: "setCurrent", riderIndex: index },
+                          action: {
+                            type: "setCurrent",
+                            riderIndex: item.originalIndex,
+                          },
                         },
                       })
                     }
@@ -205,7 +253,7 @@ function RouteComponent() {
                               code,
                               action: {
                                 type: "disqualifyRider",
-                                riderIndex: index,
+                                riderIndex: item.originalIndex,
                               },
                             },
                           })
@@ -223,7 +271,7 @@ function RouteComponent() {
                                 code,
                                 action: {
                                   type: "setCurrent",
-                                  riderIndex: index,
+                                  riderIndex: item.originalIndex,
                                 },
                               },
                             })
@@ -238,7 +286,7 @@ function RouteComponent() {
                                 code,
                                 action: {
                                   type: "disqualifyRider",
-                                  riderIndex: index,
+                                  riderIndex: item.originalIndex,
                                 },
                               },
                             })
@@ -253,7 +301,7 @@ function RouteComponent() {
                                 code,
                                 action: {
                                   type: "resetRider",
-                                  riderIndex: index,
+                                  riderIndex: item.originalIndex,
                                 },
                               },
                             })
@@ -269,7 +317,10 @@ function RouteComponent() {
                           prelimAction.mutate({
                             data: {
                               code,
-                              action: { type: "resetRider", riderIndex: index },
+                              action: {
+                                type: "resetRider",
+                                riderIndex: item.originalIndex,
+                              },
                             },
                           })
                         }
@@ -279,10 +330,10 @@ function RouteComponent() {
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
+              </SortableItem>
             )
           })}
-        </div>
+        </Sortable>
 
         {allFinished &&
           (qualifiedCount < MIN_QUALIFIED_RIDERS ? (

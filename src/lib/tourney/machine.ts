@@ -455,6 +455,16 @@ export const tournamentMachine = setup({
         },
         "phase.advance": [
           {
+            target: "prelims",
+            guard: ({ event }) =>
+              event.type === "phase.advance" && event.phase === "prelims",
+            actions: assign({
+              ranking: null,
+              currentRiderIndex: null,
+              timer: null,
+            }),
+          },
+          {
             target: "bracket",
             guard: ({ event }) =>
               event.type === "phase.advance" && event.phase === "bracket",
@@ -478,11 +488,24 @@ export const tournamentMachine = setup({
       initial: "viewing",
       exit: "clearTimer",
       on: {
-        "phase.advance": {
-          target: "complete",
-          guard: ({ event }) =>
-            event.type === "phase.advance" && event.phase === "complete",
-        },
+        "phase.advance": [
+          {
+            target: "ranking",
+            guard: ({ event }) =>
+              event.type === "phase.advance" && event.phase === "ranking",
+            actions: assign({
+              bracketRiders: null,
+              winners: null,
+              timer: null,
+              celebrating: false,
+            }),
+          },
+          {
+            target: "complete",
+            guard: ({ event }) =>
+              event.type === "phase.advance" && event.phase === "complete",
+          },
+        ],
         "bracket.selectWinner": [
           {
             guard: "selectWinnerProducesChampion",

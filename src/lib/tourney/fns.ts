@@ -6,6 +6,7 @@ import {
   advancePhaseSchema,
   bracketActionSchema,
   createTournamentSchema,
+  deleteTournamentSchema,
   getTournamentSchema,
   listTournamentsSchema,
   prelimActionSchema,
@@ -24,6 +25,16 @@ export const createTournamentServerFn = createServerFn({
   .handler(async (ctx) => {
     const { createTournament } = await loadTourneyOps()
     return createTournament(ctx)
+  })
+
+export const deleteTournamentServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(deleteTournamentSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { deleteTournament } = await loadTourneyOps()
+    return deleteTournament(ctx)
   })
 
 export const getTournamentServerFn = createServerFn({

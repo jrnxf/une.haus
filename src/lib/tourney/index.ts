@@ -4,6 +4,7 @@ import {
   advancePhaseServerFn,
   bracketActionServerFn,
   createTournamentServerFn,
+  deleteTournamentServerFn,
   getTournamentServerFn,
   listTournamentsServerFn,
   prelimActionServerFn,
@@ -13,6 +14,7 @@ import {
   advancePhaseSchema,
   bracketActionSchema,
   createTournamentSchema,
+  deleteTournamentSchema,
   getTournamentSchema,
   listTournamentsSchema,
   prelimActionSchema,
@@ -24,6 +26,10 @@ export const tourney = {
   create: {
     fn: createTournamentServerFn,
     schema: createTournamentSchema,
+  },
+  delete: {
+    fn: deleteTournamentServerFn,
+    schema: deleteTournamentSchema,
   },
   get: {
     fn: getTournamentServerFn,

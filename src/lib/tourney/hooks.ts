@@ -26,6 +26,21 @@ export function useCreateTournament() {
   })
 }
 
+export function useDeleteTournament() {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: tourney.delete.fn,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: tourney.list.queryOptions().queryKey })
+      toast.success("tournament deleted")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+}
+
 export function usePrelimAction(code: string) {
   const qc = useQueryClient()
   const queryKey = tourney.get.queryOptions({ code }).queryKey

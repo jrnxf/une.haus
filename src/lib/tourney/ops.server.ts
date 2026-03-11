@@ -10,6 +10,7 @@ import {
   type AdvancePhaseInput,
   type BracketActionInput,
   type CreateTournamentInput,
+  type DeleteTournamentInput,
   type PrelimActionInput,
   type RankingActionInput,
 } from "~/lib/tourney/schemas"
@@ -134,6 +135,19 @@ export async function createTournament({
     .returning()
 
   return tournament
+}
+
+export async function deleteTournament({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: DeleteTournamentInput
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+
+  await db.delete(tournaments).where(eq(tournaments.id, tournament.id))
 }
 
 export async function prelimAction({

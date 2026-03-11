@@ -24,7 +24,7 @@ import {
   getWinnerName,
   type Match,
 } from "~/lib/tourney/bracket-logic"
-import { useBracketAction } from "~/lib/tourney/hooks"
+import { useAdvancePhase, useBracketAction } from "~/lib/tourney/hooks"
 import { AdminPresence } from "~/lib/tourney/use-admin-presence"
 import { useChampionCelebration } from "~/lib/tourney/use-champion-celebration"
 import { users as usersApi } from "~/lib/users"
@@ -57,6 +57,7 @@ function RouteComponent() {
   const { data: allUsers } = useSuspenseQuery(usersApi.all.queryOptions())
 
   const bracketAction = useBracketAction(code)
+  const advancePhase = useAdvancePhase(code)
 
   const { state } = tournament
 
@@ -288,6 +289,18 @@ function RouteComponent() {
                     {champion}
                   </Button>
                 )}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() =>
+                    advancePhase.mutate({
+                      data: { code, phase: "ranking" },
+                    })
+                  }
+                  disabled={advancePhase.isPending}
+                >
+                  back
+                </Button>
                 <Button
                   variant="secondary"
                   size="icon-xs"
