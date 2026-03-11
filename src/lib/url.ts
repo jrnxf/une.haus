@@ -20,6 +20,9 @@ export function stringifySearch(search: Record<string, unknown>): string {
     }
   }
   const encoded = defaultStringifySearch(flattened)
-  // Decode commas and tildes (safe in query values per RFC 3986)
-  return encoded.replaceAll(/%2C/gi, ",").replaceAll(/%7E/gi, "~")
+  // Decode commas, tildes, and slashes (safe in query values per RFC 3986)
+  return encoded
+    .replaceAll(/%2C/gi, ",")
+    .replaceAll(/%7E/gi, "~")
+    .replaceAll(/%2F/gi, "/")
 }

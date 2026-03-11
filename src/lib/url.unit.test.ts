@@ -87,6 +87,12 @@ describe("stringifySearch", () => {
     expect(result).toBe("?ids=1,2,3")
   })
 
+  it("decodes slashes in query values", () => {
+    const result = stringifySearch({ redirect: "/posts/create" })
+    expect(result).toBe("?redirect=/posts/create")
+    expect(result).not.toContain("%2F")
+  })
+
   it("leaves non-array values unchanged", () => {
     const result = stringifySearch({ q: "hello", page: 1 })
     expect(result).toContain("q=hello")
