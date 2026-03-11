@@ -1,7 +1,11 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
 
-import { authMiddleware, authOptionalMiddleware } from "~/lib/middleware"
+import {
+  adminOnlyMiddleware,
+  authMiddleware,
+  authOptionalMiddleware,
+} from "~/lib/middleware"
 import { useServerSession } from "~/lib/session/hooks"
 import {
   followUserSchema,
@@ -177,4 +181,13 @@ export const getShopWaitlistCountServerFn = createServerFn({
   .handler(async (ctx) => {
     const { getShopWaitlistCount } = await loadUserOps()
     return getShopWaitlistCount(ctx)
+  })
+
+export const getShopWaitlistUsersServerFn = createServerFn({
+  method: "GET",
+})
+  .middleware([adminOnlyMiddleware])
+  .handler(async () => {
+    const { getShopWaitlistUsers } = await loadUserOps()
+    return getShopWaitlistUsers()
   })

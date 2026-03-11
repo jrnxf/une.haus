@@ -733,3 +733,11 @@ export async function getShopWaitlistCount({
 
   return { count: result.count, isOnWaitlist }
 }
+
+export async function getShopWaitlistUsers() {
+  return db
+    .select({ id: users.id, name: users.name })
+    .from(users)
+    .where(eq(users.notifyWhenShop, true))
+    .orderBy(users.name)
+}

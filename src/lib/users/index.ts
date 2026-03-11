@@ -6,6 +6,7 @@ import {
   allUsersServerFn,
   followUserServerFn,
   getShopWaitlistCountServerFn,
+  getShopWaitlistUsersServerFn,
   getUserActivityServerFn,
   getUserFollowsServerFn,
   type getUserServerFn,
@@ -138,6 +139,15 @@ export const users = {
       return queryOptions({
         queryKey: ["users.shopWaitlistCount"],
         queryFn: getShopWaitlistCountServerFn,
+      })
+    },
+  },
+  shopWaitlistUsers: {
+    fn: getShopWaitlistUsersServerFn,
+    queryOptions: () => {
+      return queryOptions({
+        queryKey: ["users.shopWaitlistUsers"],
+        queryFn: getShopWaitlistUsersServerFn,
       })
     },
   },
