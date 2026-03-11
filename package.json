@@ -15,6 +15,7 @@
     "start": "bun .output/server/index.mjs",
     "db:seed": "bun src/db/scripts/wipe.ts && bunx drizzle-kit push && bun src/db/scripts/seed.ts",
     "db:migrate": "bunx drizzle-kit push",
+    "db:reset-dev": "bun run src/scripts/reset-dev-db.ts",
     "email:dev": "npx react-email dev",
     "check": "oxlint --fix && oxfmt --write",
     "lint": "oxlint",
