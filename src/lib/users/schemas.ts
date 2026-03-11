@@ -40,6 +40,27 @@ export const unfollowUserSchema = z.object({
   userId: z.coerce.number(),
 })
 
+/** Accepts URLs with or without protocol, prepends https:// if missing */
+const socialUrl = z
+  .string()
+  .trim()
+  .transform((val, ctx) => {
+    if (val === "") return val
+    const url = /^https?:\/\//.test(val) ? val : `https://${val}`
+    try {
+      new URL(url)
+    } catch {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid URL",
+      })
+      return z.NEVER
+    }
+    return url
+  })
+  .optional()
+  .nullable()
+
 export const updateUserSchema = z.object({
   avatarId: z.string().nullable(),
   bio: z.string().trim().nullable(),
@@ -58,12 +79,12 @@ export const updateUserSchema = z.object({
   disciplines: z.array(z.enum(USER_DISCIPLINES)).optional().nullable(),
   socials: z
     .object({
-      facebook: z.string().url().or(z.literal("")).optional().nullable(),
-      tiktok: z.string().url().or(z.literal("")).optional().nullable(),
-      twitter: z.string().url().or(z.literal("")).optional().nullable(),
-      youtube: z.string().url().or(z.literal("")).optional().nullable(),
-      instagram: z.string().url().or(z.literal("")).optional().nullable(),
-      spotify: z.string().url().or(z.literal("")).optional().nullable(),
+      facebook: socialUrl,
+      tiktok: socialUrl,
+      twitter: socialUrl,
+      youtube: socialUrl,
+      instagram: socialUrl,
+      spotify: socialUrl,
     })
     .optional()
     .nullable(),

@@ -198,9 +198,33 @@ describe("updateUserSchema", () => {
       expect(() =>
         updateUserSchema.parse({
           ...validUser,
-          socials: { youtube: "not-a-url" },
+          socials: { youtube: "://invalid" },
         }),
       ).toThrow()
+    })
+
+    it("prepends https:// to bare domains", () => {
+      const result = updateUserSchema.parse({
+        ...validUser,
+        socials: { youtube: "youtube.com/mychannel" },
+      })
+      expect(result.socials?.youtube).toBe("https://youtube.com/mychannel")
+    })
+
+    it("preserves http:// URLs as-is", () => {
+      const result = updateUserSchema.parse({
+        ...validUser,
+        socials: { youtube: "http://www.youtube.com/mychannel" },
+      })
+      expect(result.socials?.youtube).toBe("http://www.youtube.com/mychannel")
+    })
+
+    it("preserves https:// URLs as-is", () => {
+      const result = updateUserSchema.parse({
+        ...validUser,
+        socials: { youtube: "https://youtube.com/mychannel" },
+      })
+      expect(result.socials?.youtube).toBe("https://youtube.com/mychannel")
     })
 
     it("accepts null socials", () => {
