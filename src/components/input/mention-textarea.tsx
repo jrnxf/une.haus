@@ -32,6 +32,7 @@ type MentionTextareaProps = {
   className?: string
   onFocus?: () => void
   onSubmit?: () => void
+  submitOnEnter?: boolean
   id?: string
   disabled?: boolean
   rows?: number
@@ -54,6 +55,7 @@ export function MentionTextarea({
   className,
   onFocus,
   onSubmit,
+  submitOnEnter = true,
   id,
   disabled,
   "aria-labelledby": ariaLabelledBy,
@@ -108,11 +110,13 @@ export function MentionTextarea({
           return {
             Enter: () => {
               if (suggestionOpenRef.current) return false
-              onSubmitRef.current?.()
+              if (!submitOnEnter || !onSubmitRef.current) return false
+              onSubmitRef.current()
               return true
             },
             "Mod-Enter": () => {
-              onSubmitRef.current?.()
+              if (!onSubmitRef.current) return false
+              onSubmitRef.current()
               return true
             },
           }

@@ -443,7 +443,13 @@ function EditMessageDrawer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={false} className="gap-4 p-4">
         <DialogTitle className="sr-only">edit message</DialogTitle>
-        <MentionTextarea value={content} onChange={setContent} rows={4} />
+        <MentionTextarea
+          value={content}
+          onChange={setContent}
+          onSubmit={handleUpdate}
+          submitOnEnter={false}
+          rows={4}
+        />
         <div className="flex items-center gap-2">
           <Button
             size="icon"
