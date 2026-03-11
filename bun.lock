@@ -52,6 +52,7 @@
         "@tanstack/zod-adapter": "1.166.3",
         "@tiptap/extension-mention": "^3.20.0",
         "@tiptap/extension-placeholder": "^3.20.0",
+        "@tiptap/extension-underline": "^3.20.0",
         "@tiptap/pm": "^3.20.0",
         "@tiptap/react": "^3.20.0",
         "@tiptap/starter-kit": "^3.20.0",

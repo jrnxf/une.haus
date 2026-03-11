@@ -77,6 +77,12 @@ export function RichText({
           case "italic": {
             return <em key={i}>{token.value}</em>
           }
+          case "underline": {
+            return <u key={i}>{token.value}</u>
+          }
+          case "strike": {
+            return <s key={i}>{token.value}</s>
+          }
         }
       })}
     </span>

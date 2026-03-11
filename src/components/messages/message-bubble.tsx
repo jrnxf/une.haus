@@ -40,13 +40,13 @@ import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Textarea } from "~/components/ui/textarea"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
+import { useAuthGate } from "~/hooks/use-auth-gate"
 import { useFlagContent } from "~/lib/flags/hooks"
 import { useHaptics } from "~/lib/haptics"
 import { stripMentionTokens } from "~/lib/mentions/parse"
 import { messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
-import { useSessionUser } from "~/lib/session/hooks"
 import { type ServerFnReturn } from "~/lib/types"
 import { useUserMap } from "~/lib/users/use-user-map"
 import { cn } from "~/lib/utils"
@@ -63,7 +63,7 @@ export function MessageBubble({
   const haptics = useHaptics()
   const messageType = `${parent.type}Message` as const
   const flagType = `${parent.type}Message` as FlagEntityType
-  const sessionUser = useSessionUser()
+  const { sessionUser, authGate } = useAuthGate()
   const [detailsOpen, setDetailsOpen] = React.useState(false)
   const [editDrawerOpen, setEditDrawerOpen] = React.useState(false)
   const [flagTrayOpen, setFlagTrayOpen] = React.useState(false)
@@ -166,7 +166,7 @@ export function MessageBubble({
                 type="button"
                 data-slot="message-bubble"
                 aria-label={`Message: ${message.content}`}
-                className="bg-card hover:bg-accent/50 relative z-10 cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
+                className="bg-card hover:bg-accent/50 relative cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
                 style={{ wordBreak: "break-word" }}
               >
                 <RichText
@@ -217,76 +217,63 @@ export function MessageBubble({
                   ) : (
                     <div />
                   )}
-                  {sessionUser && (
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      onClick={handleLikeUnlike}
-                      aria-label={authUserLiked ? "unlike" : "like"}
-                    >
-                      <HeartIcon
-                        className={cn(
-                          "size-4",
-                          authUserLiked && "fill-red-700/50 stroke-red-700",
-                        )}
-                      />
-                    </Button>
-                  )}
+                  <Button
+                    size="icon-sm"
+                    variant="outline"
+                    onClick={() => authGate(handleLikeUnlike)}
+                    aria-label={authUserLiked ? "unlike" : "like"}
+                  >
+                    <HeartIcon
+                      className={cn(
+                        "size-4",
+                        authUserLiked && "fill-red-700/50 stroke-red-700",
+                      )}
+                    />
+                  </Button>
 
-                  {sessionUser ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="icon-sm"
-                          variant="outline"
-                          aria-label="more actions"
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon-sm"
+                        variant="outline"
+                        aria-label="more actions"
+                      >
+                        <MoreHorizontalIcon className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleCopy}>
+                        <CopyIcon className="size-4" />
+                        copy
+                      </DropdownMenuItem>
+                      {canFlagMessage && (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setDetailsOpen(false)
+                            setFlagTrayOpen(true)
+                          }}
                         >
-                          <MoreHorizontalIcon className="size-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={handleCopy}>
-                          <CopyIcon className="size-4" />
-                          copy
+                          <FlagIcon className="size-4" />
+                          flag
                         </DropdownMenuItem>
-                        {canFlagMessage && (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setDetailsOpen(false)
-                              setFlagTrayOpen(true)
-                            }}
-                          >
-                            <FlagIcon className="size-4" />
-                            flag
-                          </DropdownMenuItem>
-                        )}
-                        {isOwnMessage && (
-                          <DropdownMenuItem onClick={handleEdit}>
-                            <PencilIcon className="size-4" />
-                            edit
-                          </DropdownMenuItem>
-                        )}
-                        {isOwnMessage && (
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={handleDelete}
-                          >
-                            <Trash2Icon className="size-4" />
-                            delete
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : (
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="copy"
-                      onClick={handleCopy}
-                    >
-                      <CopyIcon className="size-4" />
-                    </Button>
-                  )}
+                      )}
+                      {isOwnMessage && (
+                        <DropdownMenuItem onClick={handleEdit}>
+                          <PencilIcon className="size-4" />
+                          edit
+                        </DropdownMenuItem>
+                      )}
+                      {isOwnMessage && (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={handleDelete}
+                        >
+                          <Trash2Icon className="size-4" />
+                          delete
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   <TrayClose asChild>
                     <Button size="icon-sm" variant="outline" aria-label="close">

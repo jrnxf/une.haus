@@ -2,14 +2,22 @@ import { computePosition, flip, shift } from "@floating-ui/dom"
 import { type Editor, Extension } from "@tiptap/core"
 import { Mention } from "@tiptap/extension-mention"
 import { Placeholder } from "@tiptap/extension-placeholder"
+import { Underline } from "@tiptap/extension-underline"
 import {
   EditorContent,
   posToDOMRect,
   ReactRenderer,
   useEditor,
 } from "@tiptap/react"
+import { BubbleMenu } from "@tiptap/react/menus"
 import { StarterKit } from "@tiptap/starter-kit"
 import { type SuggestionOptions } from "@tiptap/suggestion"
+import {
+  BoldIcon,
+  ItalicIcon,
+  StrikethroughIcon,
+  UnderlineIcon,
+} from "lucide-react"
 import { type CSSProperties, useEffect, useRef } from "react"
 
 import {
@@ -88,10 +96,10 @@ export function MentionTextarea({
         listItem: false,
         orderedList: false,
         code: false,
-        strike: false,
         dropcursor: false,
         gapcursor: false,
       }),
+      Underline,
       Mention.configure({
         HTMLAttributes: { class: "rounded-sm bg-blue-800 px-0.5" },
         renderText({ node }) {
@@ -168,7 +176,47 @@ export function MentionTextarea({
       )}
     >
       {editor ? (
-        <EditorContent editor={editor} />
+        <>
+          <BubbleMenu
+            editor={editor}
+            appendTo={document.body}
+            options={{
+              placement: "top",
+              offset: 8,
+            }}
+            className="bg-popover text-popover-foreground z-50 flex items-center gap-0.5 rounded-lg border p-1 shadow-md"
+          >
+            <ToolbarButton
+              active={editor.isActive("bold")}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              label="Bold"
+            >
+              <BoldIcon className="size-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("italic")}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              label="Italic"
+            >
+              <ItalicIcon className="size-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("underline")}
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              label="Underline"
+            >
+              <UnderlineIcon className="size-3.5" />
+            </ToolbarButton>
+            <ToolbarButton
+              active={editor.isActive("strike")}
+              onClick={() => editor.chain().focus().toggleStrike().run()}
+              label="Strikethrough"
+            >
+              <StrikethroughIcon className="size-3.5" />
+            </ToolbarButton>
+          </BubbleMenu>
+          <EditorContent editor={editor} />
+        </>
       ) : (
         <div
           className="tiptap outline-none"
@@ -273,6 +321,35 @@ function createSuggestionConfig(
       }
     },
   }
+}
+
+function ToolbarButton({
+  active,
+  onClick,
+  label,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={active}
+      className={cn(
+        "flex size-7 items-center justify-center rounded-md transition-colors",
+        active
+          ? "bg-accent text-accent-foreground"
+          : "hover:bg-accent/50 text-muted-foreground",
+      )}
+    >
+      {children}
+    </button>
+  )
 }
 
 function updateFloatingPosition(editor: Editor, element: HTMLElement) {

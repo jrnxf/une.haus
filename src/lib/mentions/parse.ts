@@ -32,8 +32,10 @@ export type RichToken =
   | { type: "mention"; userId: number }
   | { type: "bold"; value: string }
   | { type: "italic"; value: string }
+  | { type: "underline"; value: string }
+  | { type: "strike"; value: string }
 
-const TOKEN_REGEX = /@\[(\d+)\]|\*\*(.+?)\*\*|\*(.+?)\*/g
+const TOKEN_REGEX = /@\[(\d+)\]|\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|~~(.+?)~~/g
 
 /** Parse a content string into structured tokens for rendering */
 export function parseRichTokens(content: string): RichToken[] {
@@ -53,6 +55,10 @@ export function parseRichTokens(content: string): RichToken[] {
       tokens.push({ type: "bold", value: match[2] })
     } else if (match[3]) {
       tokens.push({ type: "italic", value: match[3] })
+    } else if (match[4]) {
+      tokens.push({ type: "underline", value: match[4] })
+    } else if (match[5]) {
+      tokens.push({ type: "strike", value: match[5] })
     }
 
     lastIndex = index + match[0].length
@@ -109,6 +115,10 @@ export function storageToHTML(
               return `<strong>${escapeHTML(token.value)}</strong>`
             case "italic":
               return `<em>${escapeHTML(token.value)}</em>`
+            case "underline":
+              return `<u>${escapeHTML(token.value)}</u>`
+            case "strike":
+              return `<s>${escapeHTML(token.value)}</s>`
           }
         })
         .join("")
@@ -147,6 +157,8 @@ function serializeInlineContent(content?: JSONContent[]): string {
           for (const mark of node.marks) {
             if (mark.type === "bold") text = `**${text}**`
             if (mark.type === "italic") text = `*${text}*`
+            if (mark.type === "underline") text = `__${text}__`
+            if (mark.type === "strike") text = `~~${text}~~`
           }
         }
         return text
