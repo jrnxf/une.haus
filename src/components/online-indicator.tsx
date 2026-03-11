@@ -34,14 +34,14 @@ function OnlineUserList({
             replace
             onClick={onNavigate}
           >
-            {user.name}
+            <span className="text-xs font-medium">{user.name}</span>
           </Link>
         </DropdownMenuItem>
       ))}
       {guests > 0 && (
         <DropdownMenuLabel>
           {users.length > 0 ? "+" : ""}
-          {guests} anonymous
+          {guests} guests
         </DropdownMenuLabel>
       )}
     </DropdownMenuGroup>
