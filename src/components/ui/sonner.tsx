@@ -16,7 +16,7 @@ export function Toaster(properties: ToasterProperties) {
   return (
     <Sonner
       className="toaster group"
-      position={isMobile ? "bottom-center" : "bottom-right"}
+      position={isMobile ? "top-center" : "bottom-right"}
       theme={theme as ToasterProperties["theme"]}
       toastOptions={{
         classNames: {
