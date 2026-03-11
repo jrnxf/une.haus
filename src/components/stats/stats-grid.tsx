@@ -70,10 +70,10 @@ export function StatsGrid({ data }: StatsGridProps) {
 
       {/* Row 3: Activity chart + discipline chart (equal heights) */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="h-[290px]">
+        <div className="h-[290px] overflow-hidden">
           <ActivityChart data={data.activityByMonth} />
         </div>
-        <div className="h-[290px]">
+        <div className="h-[290px] overflow-hidden">
           <DisciplineChart data={data.disciplineDistribution} />
         </div>
       </div>
