@@ -118,7 +118,7 @@ describe("parseRichTokens", () => {
   it("parses bold text", () => {
     expect(parseRichTokens("this is **bold** text")).toEqual([
       { type: "text", value: "this is " },
-      { type: "bold", value: "bold" },
+      { type: "bold", children: [{ type: "text", value: "bold" }] },
       { type: "text", value: " text" },
     ])
   })
@@ -126,16 +126,16 @@ describe("parseRichTokens", () => {
   it("parses italic text", () => {
     expect(parseRichTokens("this is *italic* text")).toEqual([
       { type: "text", value: "this is " },
-      { type: "italic", value: "italic" },
+      { type: "italic", children: [{ type: "text", value: "italic" }] },
       { type: "text", value: " text" },
     ])
   })
 
   it("parses mixed bold and italic", () => {
     expect(parseRichTokens("**bold** and *italic*")).toEqual([
-      { type: "bold", value: "bold" },
+      { type: "bold", children: [{ type: "text", value: "bold" }] },
       { type: "text", value: " and " },
-      { type: "italic", value: "italic" },
+      { type: "italic", children: [{ type: "text", value: "italic" }] },
     ])
   })
 
@@ -143,16 +143,16 @@ describe("parseRichTokens", () => {
     expect(parseRichTokens("@[1] did a **sick** *trick*")).toEqual([
       { type: "mention", userId: 1 },
       { type: "text", value: " did a " },
-      { type: "bold", value: "sick" },
+      { type: "bold", children: [{ type: "text", value: "sick" }] },
       { type: "text", value: " " },
-      { type: "italic", value: "trick" },
+      { type: "italic", children: [{ type: "text", value: "trick" }] },
     ])
   })
 
   it("handles adjacent tokens with no text between", () => {
     expect(parseRichTokens("**bold***italic*")).toEqual([
-      { type: "bold", value: "bold" },
-      { type: "italic", value: "italic" },
+      { type: "bold", children: [{ type: "text", value: "bold" }] },
+      { type: "italic", children: [{ type: "text", value: "italic" }] },
     ])
   })
 
@@ -171,14 +171,73 @@ describe("parseRichTokens", () => {
 
   it("handles bold with special characters inside", () => {
     expect(parseRichTokens("**hello world!**")).toEqual([
-      { type: "bold", value: "hello world!" },
+      { type: "bold", children: [{ type: "text", value: "hello world!" }] },
     ])
   })
 
   it("prefers bold over italic for ** markers", () => {
     // **text** should be bold, not italic wrapping *text*
     const tokens = parseRichTokens("**bold text**")
-    expect(tokens).toEqual([{ type: "bold", value: "bold text" }])
+    expect(tokens).toEqual([
+      { type: "bold", children: [{ type: "text", value: "bold text" }] },
+    ])
+  })
+
+  it("parses layered bold+italic (***...***)", () => {
+    expect(parseRichTokens("***both***")).toEqual([
+      {
+        type: "bold",
+        children: [
+          { type: "italic", children: [{ type: "text", value: "both" }] },
+        ],
+      },
+    ])
+  })
+
+  it("parses layered strike wrapping bold", () => {
+    expect(parseRichTokens("~~**text**~~")).toEqual([
+      {
+        type: "strike",
+        children: [
+          { type: "bold", children: [{ type: "text", value: "text" }] },
+        ],
+      },
+    ])
+  })
+
+  it("parses layered underline wrapping italic", () => {
+    expect(parseRichTokens("__*text*__")).toEqual([
+      {
+        type: "underline",
+        children: [
+          { type: "italic", children: [{ type: "text", value: "text" }] },
+        ],
+      },
+    ])
+  })
+
+  it("parses all four marks layered", () => {
+    expect(parseRichTokens("~~__***text***__~~")).toEqual([
+      {
+        type: "strike",
+        children: [
+          {
+            type: "underline",
+            children: [
+              {
+                type: "bold",
+                children: [
+                  {
+                    type: "italic",
+                    children: [{ type: "text", value: "text" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ])
   })
 
   it("handles content at the start with no leading text", () => {
@@ -276,6 +335,24 @@ describe("storageToHTML", () => {
 
   it("handles three or more lines", () => {
     expect(storageToHTML("a\nb\nc", userMap)).toBe("<p>a</p><p>b</p><p>c</p>")
+  })
+
+  it("converts layered bold+italic to nested HTML", () => {
+    expect(storageToHTML("***both***", userMap)).toBe(
+      "<p><strong><em>both</em></strong></p>",
+    )
+  })
+
+  it("converts all four marks layered to nested HTML", () => {
+    expect(storageToHTML("~~__***text***__~~", userMap)).toBe(
+      "<p><s><u><strong><em>text</em></strong></u></s></p>",
+    )
+  })
+
+  it("converts strike wrapping bold to nested HTML", () => {
+    expect(storageToHTML("~~**bold**~~", userMap)).toBe(
+      "<p><s><strong>bold</strong></s></p>",
+    )
   })
 
   it("escapes ampersands in text", () => {
@@ -652,6 +729,57 @@ describe("round-trip consistency", () => {
               { type: "text", text: "sick", marks: [{ type: "bold" }] },
               { type: "text", text: " " },
               { type: "text", text: "trick", marks: [{ type: "italic" }] },
+            ],
+          },
+        ],
+      }),
+    ).toBe(storage)
+  })
+
+  it("bold+italic survives round-trip", () => {
+    const storage = "***both***"
+    const html = storageToHTML(storage, userMap)
+    expect(html).toBe("<p><strong><em>both</em></strong></p>")
+    expect(
+      tiptapToStorage({
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "both",
+                marks: [{ type: "bold" }, { type: "italic" }],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toBe(storage)
+  })
+
+  it("all four marks survive round-trip", () => {
+    const storage = "~~__***text***__~~"
+    const html = storageToHTML(storage, userMap)
+    expect(html).toBe("<p><s><u><strong><em>text</em></strong></u></s></p>")
+    expect(
+      tiptapToStorage({
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              {
+                type: "text",
+                text: "text",
+                marks: [
+                  { type: "bold" },
+                  { type: "italic" },
+                  { type: "underline" },
+                  { type: "strike" },
+                ],
+              },
             ],
           },
         ],

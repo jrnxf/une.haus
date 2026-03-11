@@ -30,14 +30,16 @@ export function stripMentionTokensPlain(content: string): string {
 export type RichToken =
   | { type: "text"; value: string }
   | { type: "mention"; userId: number }
-  | { type: "bold"; value: string }
-  | { type: "italic"; value: string }
-  | { type: "underline"; value: string }
-  | { type: "strike"; value: string }
+  | { type: "bold"; children: RichToken[] }
+  | { type: "italic"; children: RichToken[] }
+  | { type: "underline"; children: RichToken[] }
+  | { type: "strike"; children: RichToken[] }
 
-const TOKEN_REGEX = /@\[(\d+)\]|\*\*(.+?)\*\*|\*(.+?)\*|__(.+?)__|~~(.+?)~~/g
+// Order matters: *** before ** before * to resolve ambiguity
+const TOKEN_REGEX =
+  /@\[(\d+)\]|~~(.+?)~~|__(.+?)__|\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*/g
 
-/** Parse a content string into structured tokens for rendering */
+/** Parse a content string into structured tokens for rendering (recursive) */
 export function parseRichTokens(content: string): RichToken[] {
   const tokens: RichToken[] = []
   let lastIndex = 0
@@ -52,13 +54,19 @@ export function parseRichTokens(content: string): RichToken[] {
     if (match[1]) {
       tokens.push({ type: "mention", userId: Number(match[1]) })
     } else if (match[2]) {
-      tokens.push({ type: "bold", value: match[2] })
+      tokens.push({ type: "strike", children: parseRichTokens(match[2]) })
     } else if (match[3]) {
-      tokens.push({ type: "italic", value: match[3] })
+      tokens.push({ type: "underline", children: parseRichTokens(match[3]) })
     } else if (match[4]) {
-      tokens.push({ type: "underline", value: match[4] })
+      // ***...*** = bold wrapping italic
+      tokens.push({
+        type: "bold",
+        children: [{ type: "italic", children: parseRichTokens(match[4]) }],
+      })
     } else if (match[5]) {
-      tokens.push({ type: "strike", value: match[5] })
+      tokens.push({ type: "bold", children: parseRichTokens(match[5]) })
+    } else if (match[6]) {
+      tokens.push({ type: "italic", children: parseRichTokens(match[6]) })
     }
 
     lastIndex = index + match[0].length
@@ -101,30 +109,33 @@ export function storageToHTML(
     .map((line) => {
       if (!line) return "<p><br></p>"
       const tokens = parseRichTokens(line)
-      const html = tokens
-        .map((token) => {
-          switch (token.type) {
-            case "text":
-              return escapeHTML(token.value)
-            case "mention": {
-              const user = userMap.get(token.userId)
-              const label = user?.name ?? "unknown"
-              return `<span data-type="mention" data-id="${token.userId}" data-label="${escapeHTML(label)}"></span>`
-            }
-            case "bold":
-              return `<strong>${escapeHTML(token.value)}</strong>`
-            case "italic":
-              return `<em>${escapeHTML(token.value)}</em>`
-            case "underline":
-              return `<u>${escapeHTML(token.value)}</u>`
-            case "strike":
-              return `<s>${escapeHTML(token.value)}</s>`
-          }
-        })
-        .join("")
+      const html = tokens.map((t) => tokenToHTML(t, userMap)).join("")
       return `<p>${html}</p>`
     })
     .join("")
+}
+
+function tokenToHTML(
+  token: RichToken,
+  userMap: Map<number, { name: string }>,
+): string {
+  switch (token.type) {
+    case "text":
+      return escapeHTML(token.value)
+    case "mention": {
+      const user = userMap.get(token.userId)
+      const label = user?.name ?? "unknown"
+      return `<span data-type="mention" data-id="${token.userId}" data-label="${escapeHTML(label)}"></span>`
+    }
+    case "bold":
+      return `<strong>${token.children.map((t) => tokenToHTML(t, userMap)).join("")}</strong>`
+    case "italic":
+      return `<em>${token.children.map((t) => tokenToHTML(t, userMap)).join("")}</em>`
+    case "underline":
+      return `<u>${token.children.map((t) => tokenToHTML(t, userMap)).join("")}</u>`
+    case "strike":
+      return `<s>${token.children.map((t) => tokenToHTML(t, userMap)).join("")}</s>`
+  }
 }
 
 /** Convert tiptap JSON document to storage format */
