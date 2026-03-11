@@ -30,6 +30,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "~/components/ui/hover-card"
 import { Label } from "~/components/ui/label"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Textarea } from "~/components/ui/textarea"
@@ -308,24 +313,46 @@ export function MessageBubble({
             </TrayContent>
           </Tray>
 
-          {/* Like Count Badge - opens tray on tap */}
+          {/* Like Count Badge - hover card shows who liked */}
           {message.likes.length > 0 && (
-            <button
-              aria-label={`${message.likes.length} likes`}
-              className={cn(
-                "absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
-                isOwnMessage
-                  ? "left-0 -translate-x-1/3"
-                  : "right-0 translate-x-1/3",
-              )}
-              onClick={(e) => {
-                e.stopPropagation()
-                setDetailsOpen(true)
-              }}
-            >
-              <HeartIcon className="mr-1 size-2 fill-white" />
-              {message.likes.length}
-            </button>
+            <HoverCard>
+              <HoverCardTrigger
+                render={
+                  <button
+                    aria-label={`${message.likes.length} likes`}
+                    className={cn(
+                      "absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
+                      isOwnMessage
+                        ? "left-0 -translate-x-1/3"
+                        : "right-0 translate-x-1/3",
+                    )}
+                    tabIndex={-1}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setDetailsOpen(true)
+                    }}
+                  />
+                }
+              >
+                <HeartIcon className="mr-1 size-2 fill-white" />
+                {message.likes.length}
+              </HoverCardTrigger>
+              <HoverCardContent className="w-auto max-w-48 min-w-32 p-2">
+                <ul className="flex flex-col gap-1">
+                  {message.likes.map((like) => (
+                    <li key={like.user.id}>
+                      <Link
+                        to="/users/$userId"
+                        params={{ userId: like.user.id }}
+                        className="text-sm hover:underline"
+                      >
+                        {like.user.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </HoverCardContent>
+            </HoverCard>
           )}
         </div>
       </div>
