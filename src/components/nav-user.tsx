@@ -218,7 +218,7 @@ export function UnauthedUserMenuItems() {
       <DropdownMenuItem asChild>
         <Link to="/auth">
           <LogIn className="size-3.5" />
-          log in
+          auth
         </Link>
       </DropdownMenuItem>
     </>
