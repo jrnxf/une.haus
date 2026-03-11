@@ -187,10 +187,13 @@ export async function followUser({
     userId: number
   }
 }) {
-  await db.insert(userFollows).values({
-    followedByUserId: context.user.id,
-    followedUserId: input.userId,
-  })
+  await db
+    .insert(userFollows)
+    .values({
+      followedByUserId: context.user.id,
+      followedUserId: input.userId,
+    })
+    .onConflictDoNothing()
 
   // Notify the followed user
   createNotification({
