@@ -34,17 +34,17 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
   return (
     <div className="h-full overflow-y-auto" key={user.id}>
       <div className="mx-auto w-full max-w-2xl px-4 py-6">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {/* Profile header */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-center gap-4">
             <Avatar
               className={cn(
                 "shrink-0",
                 user.location
-                  ? "size-24"
+                  ? "size-26"
                   : user.followers.count > 0 || user.following.count > 0
-                    ? "size-20"
-                    : "size-14",
+                    ? "size-18"
+                    : "size-10",
               )}
               cloudflareId={user.avatarId}
               alt={user.name}
@@ -94,7 +94,9 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
                 )}
               </div>
 
-              <FollowStats {...user} />
+              {(user.followers.count > 0 || user.following.count > 0) && (
+                <FollowStats {...user} />
+              )}
             </div>
           </div>
 
@@ -106,11 +108,11 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           )}
 
           {/* Disciplines */}
-          <Badges content={disciplines} clickable="disciplines" />
+          <Badges content={disciplines} />
 
           {/* Socials */}
           {hasSocials && (
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <SocialLink href={socials.youtube} icon={SiYoutube} />
               <SocialLink href={socials.tiktok} icon={SiTiktok} />
               <SocialLink href={socials.instagram} icon={SiInstagram} />

@@ -1,5 +1,7 @@
 import { type IconType } from "@icons-pack/react-simple-icons"
 
+import { Button } from "~/components/ui/button"
+
 export function SocialLink({
   href,
   icon,
@@ -14,12 +16,10 @@ export function SocialLink({
   const Icon = icon
 
   return (
-    <a
-      className="bg-background ring-offset-background focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:ring-offset-3 focus-visible:outline-hidden"
-      href={href}
-      target="_blank"
-    >
-      <Icon className="fill-muted-foreground size-4" />
-    </a>
+    <Button asChild size="icon-sm" variant="ghost" aria-label="social link">
+      <a href={href} target="_blank">
+        <Icon className="fill-muted-foreground size-4" />
+      </a>
+    </Button>
   )
 }

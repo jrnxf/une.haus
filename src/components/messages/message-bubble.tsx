@@ -324,20 +324,17 @@ export function MessageBubble({
                 <HeartIcon className="mr-1 size-2 fill-white" />
                 {message.likes.length}
               </HoverCardTrigger>
-              <HoverCardContent className="w-auto max-w-48 min-w-32 p-2">
-                <ul className="flex flex-col gap-1">
-                  {message.likes.map((like) => (
-                    <li key={like.user.id}>
-                      <Link
-                        to="/users/$userId"
-                        params={{ userId: like.user.id }}
-                        className="text-sm hover:underline"
-                      >
-                        {like.user.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+              <HoverCardContent className="w-auto max-w-48 min-w-32 p-1">
+                {message.likes.map((like) => (
+                  <Link
+                    key={like.user.id}
+                    to="/users/$userId"
+                    params={{ userId: like.user.id }}
+                    className="hover:bg-accent block rounded-sm px-2 py-1.5 text-xs"
+                  >
+                    {like.user.name}
+                  </Link>
+                ))}
               </HoverCardContent>
             </HoverCard>
           )}
