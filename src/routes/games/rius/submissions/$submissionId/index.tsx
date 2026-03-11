@@ -7,6 +7,7 @@ import { confirm } from "~/components/confirm-dialog"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Separator } from "~/components/ui/separator"
 import {
@@ -129,17 +130,24 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
           <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
             {submission.riuSet.name}
           </div>
-          <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-            <Link
-              to="/users/$userId"
-              params={{ userId: submission.user.id }}
-              className="hover:underline"
-            >
-              {submission.user.name}
-            </Link>
-            <span className="opacity-25">/</span>
-            <RelativeTimeCard date={submission.createdAt} variant="muted" />
-          </p>
+          <Metaline
+            className="inline-flex items-center gap-1.5"
+            parts={[
+              <Link
+                key="author"
+                to="/users/$userId"
+                params={{ userId: submission.user.id }}
+                className="hover:underline"
+              >
+                {submission.user.name}
+              </Link>,
+              <RelativeTimeCard
+                key="time"
+                date={submission.createdAt}
+                variant="muted"
+              />,
+            ]}
+          />
         </div>
 
         <div className="flex shrink-0 grow items-center justify-end gap-1">

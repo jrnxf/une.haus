@@ -18,6 +18,7 @@ import { MessageBubble } from "~/components/messages/message-bubble"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Separator } from "~/components/ui/separator"
 import {
@@ -202,18 +203,25 @@ function SetView({ setId }: { setId: number }) {
               </Badge>
             )}
           </div>
-          <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-            <Link
-              to="/users/$userId"
-              params={{ userId: set.user.id }}
-              className="hover:underline"
-            >
-              {set.user.name}
-            </Link>
-            <span className="opacity-25">/</span>#{set.position}
-            <span className="opacity-25">/</span>
-            <RelativeTimeCard date={set.createdAt} variant="muted" />
-          </p>
+          <Metaline
+            className="inline-flex items-center gap-1.5"
+            parts={[
+              <Link
+                key="author"
+                to="/users/$userId"
+                params={{ userId: set.user.id }}
+                className="hover:underline"
+              >
+                {set.user.name}
+              </Link>,
+              `#${set.position}`,
+              <RelativeTimeCard
+                key="time"
+                date={set.createdAt}
+                variant="muted"
+              />,
+            ]}
+          />
         </div>
 
         <div className="flex shrink-0 items-center gap-1">

@@ -22,6 +22,7 @@ import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
 import { Button } from "~/components/ui/button"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { StatBadge } from "~/components/ui/stat-badge"
 import { getMuxPoster } from "~/components/video-player"
@@ -291,13 +292,19 @@ function PostsList({
                   </div>
                   <Badges content={post.tags} active={deferredTags ?? []} />
                   <div className="flex w-full justify-between gap-4">
-                    <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-                      <span className="text-foreground/50">
-                        {post.user.name}
-                      </span>
-                      <span className="opacity-25">/</span>
-                      <RelativeTimeCard date={post.createdAt} variant="muted" />
-                    </p>
+                    <Metaline
+                      className="inline-flex items-center gap-1.5"
+                      parts={[
+                        <span key="author" className="text-foreground/50">
+                          {post.user.name}
+                        </span>,
+                        <RelativeTimeCard
+                          key="time"
+                          date={post.createdAt}
+                          variant="muted"
+                        />,
+                      ]}
+                    />
                     <div className="text-muted-foreground flex items-center gap-2 text-xs">
                       <StatBadge
                         icon={MessageCircleIcon}

@@ -23,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Separator } from "~/components/ui/separator"
 import { UserOnlineStatus } from "~/components/user-online-status"
@@ -164,18 +165,25 @@ export function PostView({ postId }: { postId: number }) {
           <h1 className="text-2xl leading-none font-semibold tracking-tight">
             {post.title}
           </h1>
-          <div className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-            <Link
-              to="/users/$userId"
-              params={{ userId: post.user.id }}
-              className="inline-flex items-center gap-1.5 hover:underline"
-            >
-              {post.user.name}
-              <UserOnlineStatus userId={post.user.id} />
-            </Link>
-            <span className="opacity-25">/</span>
-            <RelativeTimeCard date={post.createdAt} variant="muted" />
-          </div>
+          <Metaline
+            className="inline-flex items-center gap-1.5"
+            parts={[
+              <Link
+                key="author"
+                to="/users/$userId"
+                params={{ userId: post.user.id }}
+                className="inline-flex items-center gap-1.5 hover:underline"
+              >
+                {post.user.name}
+                <UserOnlineStatus userId={post.user.id} />
+              </Link>,
+              <RelativeTimeCard
+                key="created-at"
+                date={post.createdAt}
+                variant="muted"
+              />,
+            ]}
+          />
         </div>
 
         <div className="flex shrink-0 grow items-center justify-end gap-1">
@@ -220,7 +228,7 @@ export function PostView({ postId }: { postId: number }) {
         <VideoPlayer playbackId={post.video.playbackId} />
       )}
 
-      <Badges content={post.tags} clickable="tags" />
+      <Badges content={post.tags} />
 
       <div className="shrink-0 space-y-3">
         <div className="flex items-center justify-between">

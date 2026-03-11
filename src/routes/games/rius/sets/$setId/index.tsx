@@ -19,6 +19,7 @@ import { MessageBubble } from "~/components/messages/message-bubble"
 import { RichText } from "~/components/rich-text"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Separator } from "~/components/ui/separator"
 import {
@@ -146,17 +147,24 @@ function SetView({ setId }: { setId: number }) {
               {set.name}
             </span>
           </div>
-          <p className="text-muted-foreground inline-flex items-center gap-1.5 text-sm">
-            <Link
-              to="/users/$userId"
-              params={{ userId: set.user.id }}
-              className="hover:underline"
-            >
-              {set.user.name}
-            </Link>
-            <span className="opacity-25">/</span>
-            <RelativeTimeCard date={set.createdAt} variant="muted" />
-          </p>
+          <Metaline
+            className="inline-flex items-center gap-1.5"
+            parts={[
+              <Link
+                key="author"
+                to="/users/$userId"
+                params={{ userId: set.user.id }}
+                className="hover:underline"
+              >
+                {set.user.name}
+              </Link>,
+              <RelativeTimeCard
+                key="created-at"
+                date={set.createdAt}
+                variant="muted"
+              />,
+            ]}
+          />
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
@@ -296,13 +304,18 @@ function SubmissionCard({ submission }: { submission: SubmissionType }) {
     <RiuSubmissionCard
       submission={submission}
       header={
-        <span className="inline-flex items-center gap-1.5 truncate text-sm font-medium">
-          {submission.user.name}
-          <span className="text-muted-foreground font-normal">/</span>
-          <span className="text-muted-foreground font-normal">
-            <RelativeTimeCard date={submission.createdAt} variant="muted" />
-          </span>
-        </span>
+        <Metaline
+          className="inline-flex items-center gap-1.5 truncate font-medium"
+          parts={[
+            submission.user.name,
+            <span
+              key="created-at"
+              className="text-muted-foreground font-normal"
+            >
+              <RelativeTimeCard date={submission.createdAt} variant="muted" />
+            </span>,
+          ]}
+        />
       }
     />
   )
