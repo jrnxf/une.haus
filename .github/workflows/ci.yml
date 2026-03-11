@@ -24,6 +24,9 @@ env:
   MUX_WEBHOOK_SECRET: ${{ secrets.MUX_WEBHOOK_SECRET }}
   RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
   SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+  VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
 jobs:
   ci:

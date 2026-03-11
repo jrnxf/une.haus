@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/tanstackstart-react"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { type QueryClient } from "@tanstack/react-query"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
@@ -139,6 +140,10 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const { session: sessionData } = useRootRouteContext()
   const location = useLocation()
   const isChromeless = location.pathname.startsWith("/intro")
+
+  useEffect(() => {
+    Sentry.setUser(sessionData.user ?? null)
+  }, [sessionData.user])
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
     null,
   )

@@ -12,6 +12,7 @@ export const env = createEnv({
     VITE_ENVIRONMENT: z
       .enum(["development", "production"])
       .default("development"),
+    VITE_SENTRY_DSN: z.string().optional(),
   },
 
   /**
@@ -60,6 +61,8 @@ export const env = createEnv({
     RESEND_API_KEY: z.string(),
     SESSION_SECRET: z.string(),
     ABLY_API_KEY: z.string(),
+    SENTRY_DSN: z.string().optional(),
+    SENTRY_AUTH_TOKEN: z.string().optional(),
   },
 })
 

@@ -1,3 +1,4 @@
+import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
@@ -109,6 +110,11 @@ const config = defineConfig(async () => {
       }),
       // react's vite plugin must come after start's vite plugin
       viteReact(),
+      sentryTanstackStart({
+        org: "jrnxf",
+        project: "unehaus",
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+      }),
     ].filter(Boolean) as PluginOption[],
   }
 })

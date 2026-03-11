@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/tanstackstart-react"
 import { QueryClient } from "@tanstack/react-query"
 import { createRouter } from "@tanstack/react-router"
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query"
@@ -43,6 +44,23 @@ export function getRouter() {
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient })
+
+  if (!router.isServer) {
+    Sentry.init({
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+      sendDefaultPii: true,
+      integrations: [
+        Sentry.tanstackRouterBrowserTracingIntegration(router),
+        Sentry.replayIntegration(),
+      ],
+      enableLogs: true,
+      environment: import.meta.env.VITE_ENVIRONMENT || "development",
+      tracesSampleRate:
+        import.meta.env.VITE_ENVIRONMENT === "production" ? 0.2 : 1.0,
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
+    })
+  }
 
   return router
 }
