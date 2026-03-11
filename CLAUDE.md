@@ -1,5 +1,9 @@
 # Project Guidelines
 
+## Pre-commit
+
+Always run `bun preflight` before committing. It runs lint, format check, typecheck, and all tests in parallel. Do not commit if preflight fails — fix the issues first.
+
 ## TypeScript Style
 
 - Always use `type` instead of `interface` for type definitions
