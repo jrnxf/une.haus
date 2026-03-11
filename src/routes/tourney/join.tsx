@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { PageHeader } from "~/components/page-header"
-import { FieldDescription } from "~/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field"
 import {
   InputOTP,
   InputOTPGroup,
@@ -47,30 +47,30 @@ function RouteComponent() {
 
       <div className="mx-auto w-full max-w-xl p-4">
         <div className="bg-card space-y-4 rounded-xl border p-6">
-          <div className="space-y-1">
-            <p className="text-sm font-medium">join</p>
+          <Field>
+            <FieldLabel>join</FieldLabel>
             <FieldDescription>
               enter the 4-digit code to watch live
             </FieldDescription>
-          </div>
-          <InputOTP
-            maxLength={4}
-            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-            value={code}
-            onChange={(v) => setCode(v.toUpperCase())}
-            onComplete={handleComplete}
-            disabled={loading}
-            autoFocus
-            autoComplete="off"
-            ref={inputRef}
-          >
-            <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-            </InputOTPGroup>
-          </InputOTP>
+            <InputOTP
+              maxLength={4}
+              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+              value={code}
+              onChange={(v) => setCode(v.toUpperCase())}
+              onComplete={handleComplete}
+              disabled={loading}
+              autoFocus
+              autoComplete="off"
+              ref={inputRef}
+            >
+              <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+              </InputOTPGroup>
+            </InputOTP>
+          </Field>
         </div>
       </div>
     </>

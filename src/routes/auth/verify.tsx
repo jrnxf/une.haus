@@ -11,7 +11,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { PageHeader } from "~/components/page-header"
-import { FieldDescription } from "~/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "~/components/ui/field"
 import {
   InputOTP,
   InputOTPGroup,
@@ -71,35 +71,41 @@ function RouteComponent() {
       </PageHeader>
       <div className="mx-auto w-full max-w-xl p-4">
         <div className="bg-card space-y-4 rounded-xl border p-6">
-          <div className="space-y-1">
-            <p className="text-sm font-medium">verify</p>
+          <Field>
+            <FieldLabel>verify</FieldLabel>
             <FieldDescription>
               enter the 4-digit code sent to your email
             </FieldDescription>
-          </div>
-          <InputOTP
-            maxLength={4}
-            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-            value={code}
-            onChange={setCode}
-            onComplete={(value) =>
-              enterCodeMutation.mutate({ data: { code: value } })
-            }
-            disabled={enterCodeMutation.isPending}
-            autoComplete="off"
-            autoFocus
-            ref={inputRef}
-          >
-            <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-            </InputOTPGroup>
-          </InputOTP>
-          <FieldDescription>
-            didn&apos;t receive a code? <Link to="/auth">resend</Link>
-          </FieldDescription>
+            <InputOTP
+              maxLength={4}
+              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+              value={code}
+              onChange={setCode}
+              onComplete={(value) =>
+                enterCodeMutation.mutate({ data: { code: value } })
+              }
+              disabled={enterCodeMutation.isPending}
+              autoComplete="off"
+              autoFocus
+              ref={inputRef}
+            >
+              <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+              </InputOTPGroup>
+            </InputOTP>
+          </Field>
+          <p className="text-muted-foreground text-sm">
+            didn&apos;t receive a code?{" "}
+            <Link
+              to="/auth"
+              className="hover:text-primary underline underline-offset-4"
+            >
+              resend
+            </Link>
+          </p>
         </div>
       </div>
     </>

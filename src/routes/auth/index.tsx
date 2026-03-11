@@ -6,7 +6,6 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router"
-import { Loader2Icon } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -83,7 +82,7 @@ function RouteComponent() {
             control={sendCodeForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>send</FieldLabel>
+                <FieldLabel>auth</FieldLabel>
                 <FieldDescription>
                   enter your email for a verification code
                 </FieldDescription>
@@ -94,23 +93,19 @@ function RouteComponent() {
           />
 
           <div className="flex flex-row-reverse items-center justify-between">
-            <Button
-              disabled={sendCodeMutation.isPending}
-              iconLeft={
-                sendCodeMutation.isPending && (
-                  <Loader2Icon className="size-4 animate-spin" />
-                )
-              }
-              type="submit"
-            >
-              <span>
-                {sendCodeMutation.isPending ? "sending code" : "send code"}
-              </span>
+            <Button disabled={sendCodeMutation.isPending} type="submit">
+              <span>send</span>
             </Button>
 
-            <FieldDescription>
-              have a code? <Link to="/auth/verify">verify</Link>
-            </FieldDescription>
+            <p className="text-muted-foreground text-sm">
+              have a code?{" "}
+              <Link
+                to="/auth/verify"
+                className="hover:text-primary underline underline-offset-4"
+              >
+                verify
+              </Link>
+            </p>
           </div>
         </Form>
       </div>
