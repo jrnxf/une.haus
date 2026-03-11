@@ -187,50 +187,45 @@ export function MessageBubble({
                 </p>
 
                 <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                  {message.likes.length > 0 ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          {message.likes.length}{" "}
+                          {message.likes.length === 1 ? "like" : "likes"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="max-w-xs">
+                        {message.likes.map((like) => (
+                          <DropdownMenuItem key={like.user.id} asChild>
+                            <Link
+                              to="/users/$userId"
+                              params={{ userId: like.user.id }}
+                              className="flex items-center gap-2"
+                            >
+                              <span>{like.user.name}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <div />
+                  )}
                   {sessionUser && (
-                    <>
-                      {message.likes.length > 0 ? (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              {message.likes.length}{" "}
-                              {message.likes.length === 1 ? "like" : "likes"}
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="start"
-                            className="max-w-xs"
-                          >
-                            {message.likes.map((like) => (
-                              <DropdownMenuItem key={like.user.id} asChild>
-                                <Link
-                                  to="/users/$userId"
-                                  params={{ userId: like.user.id }}
-                                  className="flex items-center gap-2"
-                                >
-                                  <span>{like.user.name}</span>
-                                </Link>
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
-                        <div />
-                      )}
-                      <Button
-                        size="icon-sm"
-                        variant="outline"
-                        onClick={handleLikeUnlike}
-                        aria-label={authUserLiked ? "unlike" : "like"}
-                      >
-                        <HeartIcon
-                          className={cn(
-                            "size-4",
-                            authUserLiked && "fill-red-700/50 stroke-red-700",
-                          )}
-                        />
-                      </Button>
-                    </>
+                    <Button
+                      size="icon-sm"
+                      variant="outline"
+                      onClick={handleLikeUnlike}
+                      aria-label={authUserLiked ? "unlike" : "like"}
+                    >
+                      <HeartIcon
+                        className={cn(
+                          "size-4",
+                          authUserLiked && "fill-red-700/50 stroke-red-700",
+                        )}
+                      />
+                    </Button>
                   )}
 
                   {sessionUser ? (
