@@ -1,35 +1,13 @@
-import { Link } from "@tanstack/react-router"
-import { createSerializer, parseAsArrayOf, parseAsString } from "nuqs"
-
-import { Badge, badgeVariants } from "~/components/ui/badge"
+import { Badge } from "~/components/ui/badge"
 import { type UserDiscipline } from "~/db/schema"
 import { cn } from "~/lib/utils"
-
-const DISCIPLINE_LABELS: Record<UserDiscipline, string> = {
-  street: "street",
-  flatland: "flatland",
-  trials: "trials",
-  freestyle: "freestyle",
-  mountain: "mountain",
-  distance: "distance",
-  other: "other",
-}
-
-const disciplinesSerializer = createSerializer({
-  disciplines: parseAsArrayOf(parseAsString),
-})
-
-const tagsSerializer = createSerializer({
-  tags: parseAsArrayOf(parseAsString),
-})
 
 type BadgesProps = {
   content: null | string[]
   active?: string[]
-  clickable?: "disciplines" | "tags"
 }
 
-export function Badges({ content, active, clickable }: BadgesProps) {
+export function Badges({ content, active }: BadgesProps) {
   if (!content || content.length === 0) return null
 
   return (
@@ -40,33 +18,6 @@ export function Badges({ content, active, clickable }: BadgesProps) {
           "border-border",
           isActive && "bg-primary text-primary-foreground",
         )
-
-        if (clickable) {
-          // Toggle behavior: add if not active, remove if active
-          const newSelection = isActive
-            ? (active ?? []).filter((a) => a !== item)
-            : [...(active ?? []), item]
-
-          const to =
-            clickable === "disciplines"
-              ? disciplinesSerializer("/users", {
-                  disciplines: newSelection.length > 0 ? newSelection : null,
-                })
-              : tagsSerializer("/posts", {
-                  tags: newSelection.length > 0 ? newSelection : null,
-                })
-
-          return (
-            <Link
-              key={item}
-              to={to}
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-              className={cn(badgeVariants({ variant: "secondary" }), className)}
-            >
-              {item}
-            </Link>
-          )
-        }
 
         return (
           <Badge
@@ -80,6 +31,16 @@ export function Badges({ content, active, clickable }: BadgesProps) {
       })}
     </div>
   )
+}
+
+const DISCIPLINE_LABELS: Record<UserDiscipline, string> = {
+  street: "street",
+  flatland: "flatland",
+  trials: "trials",
+  freestyle: "freestyle",
+  mountain: "mountain",
+  distance: "distance",
+  other: "other",
 }
 
 export function DisciplineBadge({
