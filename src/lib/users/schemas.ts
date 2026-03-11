@@ -47,9 +47,7 @@ const socialUrl = z
   .transform((val, ctx) => {
     if (val === "") return val
     const url = /^https?:\/\//.test(val) ? val : `https://${val}`
-    try {
-      new URL(url)
-    } catch {
+    if (!URL.parse(url)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Invalid URL",
