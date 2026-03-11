@@ -1,14 +1,15 @@
+import * as Sentry from "@sentry/tanstackstart-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { PageHeader } from "~/components/page-header"
 import { Badge } from "~/components/ui/badge"
+import { Button } from "~/components/ui/button"
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card"
-
 export const Route = createFileRoute("/_authed/admin/")({
   loader: ({ context }) => {
     if (context.user.id !== 1) {
@@ -55,17 +56,30 @@ function RouteComponent() {
           ))}
         </div>
 
-        {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
-          <a
-            href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Badge variant="secondary" className="hover:bg-accent">
-              {__COMMIT_SHA__}
-            </Badge>
-          </a>
-        )}
+        <>
+          {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
+            <a
+              href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Badge variant="secondary" className="hover:bg-accent">
+                {__COMMIT_SHA__}
+              </Badge>
+            </a>
+          )}
+        </>
+
+        <Button
+          variant="destructive"
+          onClick={() => {
+            // Send a test metric before throwing the error
+            Sentry.metrics.count("test_counter", 1)
+            throw new Error("Sentry Test Error")
+          }}
+        >
+          sentry error test
+        </Button>
       </div>
     </>
   )
