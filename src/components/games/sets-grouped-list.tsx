@@ -59,9 +59,6 @@ function RiderStats({ ranking }: { ranking: RiderScore }) {
     )
   }
 
-  const pointsText = `${ranking.points} ${ranking.points === 1 ? "pt" : "points"}`
-  parts.push(pointsText)
-
   return <Metaline className="text-xs" parts={parts} />
 }
 
