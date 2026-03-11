@@ -22,11 +22,7 @@
     "typecheck": "tsgo --noEmit",
     "test:unit": "bun test unit.test",
     "test:integration": "bun run src/scripts/run-integration-tests.ts",
-    "preflight": "bun run src/scripts/preflight.ts",
-    "db:seed-games-bulk": "bun src/db/scripts/seed-games-bulk.ts",
-    "rius:short-instructions": "bun src/scripts/find-silly-riu-set-instructions.ts",
-    "db:convert-youtube-posts": "bun src/db/scripts/convert-youtube-posts.ts",
-    "db:clean-silly-riu-instructions": "bun src/db/scripts/clean-silly-riu-instructions.ts"
+    "preflight": "bun run src/scripts/preflight.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.609.0",
