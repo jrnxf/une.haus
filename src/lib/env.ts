@@ -44,11 +44,7 @@ export const env = createEnv({
   server: {
     CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
     CLOUDFLARE_ACCOUNT_ID: z.string(),
-    HAUS_AWS_ACCESS_KEY_ID: z.string(),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
-    HAUS_AWS_BUCKET_NAME: z.string(),
-    HAUS_AWS_REGION: z.string(),
-    HAUS_AWS_SECRET_ACCESS_KEY: z.string(),
     DATABASE_HOST: z.string(),
     DATABASE_NAME: z.string(),
     DATABASE_PASSWORD: z.string(),
