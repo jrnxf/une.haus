@@ -28,16 +28,10 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
 }
 
 const gitSha = (() => {
+  if (process.env.RAILWAY_GIT_COMMIT_SHA)
+    return process.env.RAILWAY_GIT_COMMIT_SHA.slice(0, 7)
   try {
     return execSync("git rev-parse --short HEAD").toString().trim()
-  } catch {
-    return "unknown"
-  }
-})()
-
-const gitBranch = (() => {
-  try {
-    return execSync("git rev-parse --abbrev-ref HEAD").toString().trim()
   } catch {
     return "unknown"
   }
@@ -46,9 +40,7 @@ const gitBranch = (() => {
 const config = defineConfig(async () => {
   return {
     define: {
-      __COMMIT_SHA__: JSON.stringify(process.env.COMMIT_SHA ?? gitSha),
-      __COMMIT_BRANCH__: JSON.stringify(process.env.COMMIT_BRANCH ?? gitBranch),
-      __BUILD_TIMESTAMP__: JSON.stringify(new Date().toISOString()),
+      __COMMIT_SHA__: JSON.stringify(gitSha),
     },
     build: {
       rollupOptions: {

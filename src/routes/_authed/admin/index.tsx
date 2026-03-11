@@ -31,19 +31,6 @@ const sections = [
   },
 ] as const
 
-const buildInfo = [
-  { label: "commit", value: __COMMIT_SHA__ },
-  { label: "branch", value: __COMMIT_BRANCH__ },
-  {
-    label: "built",
-    value: new Date(__BUILD_TIMESTAMP__).toLocaleString("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }),
-  },
-  { label: "env", value: import.meta.env.MODE },
-]
-
 function RouteComponent() {
   return (
     <>
@@ -68,28 +55,17 @@ function RouteComponent() {
           ))}
         </div>
 
-        <div className="space-y-2">
-          {buildInfo.map((item) => (
-            <div key={item.label} className="flex items-center gap-2">
-              <span className="text-muted-foreground text-xs">
-                {item.label}
-              </span>
-              {item.label === "commit" ? (
-                <a
-                  href={`https://github.com/jrnxf/une.haus/commit/${item.value}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Badge variant="secondary" className="hover:bg-accent">
-                    {item.value}
-                  </Badge>
-                </a>
-              ) : (
-                <Badge variant="secondary">{item.value}</Badge>
-              )}
-            </div>
-          ))}
-        </div>
+        {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
+          <a
+            href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Badge variant="secondary" className="hover:bg-accent">
+              {__COMMIT_SHA__}
+            </Badge>
+          </a>
+        )}
       </div>
     </>
   )
