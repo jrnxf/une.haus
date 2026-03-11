@@ -58,19 +58,17 @@ function RouteComponent() {
           <PageHeader.Crumb>map</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto flex min-h-0 w-full flex-1 flex-col p-4">
-        <div className="min-h-0 flex-1 overflow-hidden rounded-lg border">
-          <MapView
-            users={data}
-            initialCenter={
-              search.lng !== undefined && search.lat !== undefined
-                ? [search.lng, search.lat]
-                : undefined
-            }
-            initialZoom={search.z}
-            onMapMove={handleMapMove}
-          />
-        </div>
+      <div className="min-h-0 flex-1">
+        <MapView
+          users={data}
+          initialCenter={
+            search.lng !== undefined && search.lat !== undefined
+              ? [search.lng, search.lat]
+              : undefined
+          }
+          initialZoom={search.z}
+          onMapMove={handleMapMove}
+        />
       </div>
     </>
   )
