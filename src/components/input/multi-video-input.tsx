@@ -1,4 +1,4 @@
-import { TrashIcon } from "lucide-react"
+import { TrashIcon, UploadIcon } from "lucide-react"
 import pluralize from "pluralize"
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
@@ -130,7 +130,7 @@ export function MultiVideoInput({
                 <TrashIcon className="size-4" />
               </Button>
               <div className="bg-background/80 absolute bottom-2 left-2 rounded px-1.5 py-0.5 text-xs">
-                Video {index + 1}
+                video {index + 1}
               </div>
             </div>
           ))}
@@ -143,10 +143,11 @@ export function MultiVideoInput({
           getRootProps={getRootProps}
           getInputProps={getInputProps}
           disabled={isUploadInProgress || !canAddMore}
-          hasFile={!!currentFileName}
+          hasFile={Boolean(currentFileName)}
         >
-          <span className="text-muted-foreground block w-full truncate text-left text-sm">
-            {currentFileName ?? "upload video"}
+          <UploadIcon className="size-3.5" />
+          <span className="truncate text-left">
+            {currentFileName ?? "select file"}
           </span>
         </UploadDropZone>
       )}

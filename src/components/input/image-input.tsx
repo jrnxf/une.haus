@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { Loader2Icon } from "lucide-react"
+import { Loader2Icon, UploadIcon } from "lucide-react"
 import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import z from "zod"
@@ -146,11 +146,10 @@ export const ImageInput = ({
       getRootProps={getRootProps}
       getInputProps={getInputProps}
       inputId={formItemId}
-      hasFile={!!file}
+      hasFile={Boolean(file)}
     >
-      <span className="text-muted-foreground block w-full truncate text-left text-sm">
-        {file ? file.name : "choose file"}
-      </span>
+      <UploadIcon className="size-3.5" />
+      <span className="truncate text-left">select file</span>
     </UploadDropZone>
   )
 }

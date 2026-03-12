@@ -23,12 +23,12 @@ export function UploadDropZone({
       <Button
         aria-label="file upload"
         className={cn(
-          "border-input ring-offset-background dark:bg-input/30 text-foreground relative inline-flex h-9 max-w-full items-center justify-start overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base font-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-          hasFile ? "w-56" : "w-fit",
+          // "border-input ring-offset-background dark:bg-input/30 text-foreground relative inline-flex h-9 w-fit max-w-full items-center justify-start overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base font-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
+          hasFile && "max-w-56",
         )}
-        style={{ borderColor: "var(--input)" }}
         type="button"
-        variant="unstyled"
+        variant="outline"
+        // variant="unstyled"
         {...getRootProps()}
         disabled={disabled || undefined}
       >

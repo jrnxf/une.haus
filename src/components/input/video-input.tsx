@@ -1,4 +1,4 @@
-import { TrashIcon } from "lucide-react"
+import { TrashIcon, UploadIcon } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import { toast } from "sonner"
@@ -138,11 +138,10 @@ export const VideoInput = ({
       getInputProps={getInputProps}
       inputId={formItemId}
       disabled={isUploading || isProcessing}
-      hasFile={!!fileName}
+      hasFile={Boolean(fileName)}
     >
-      <span className="text-muted-foreground block w-full truncate text-left text-sm">
-        {fileName ?? "upload video"}
-      </span>
+      <UploadIcon className="size-3.5" />
+      <span className="truncate text-left">{fileName ?? "select file"}</span>
     </UploadDropZone>
   )
 }

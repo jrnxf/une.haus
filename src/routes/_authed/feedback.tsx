@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, useRouter } from "@tanstack/react-router"
-import { TrashIcon } from "lucide-react"
+import { TrashIcon, UploadIcon } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import { useForm } from "react-hook-form"
@@ -289,11 +289,10 @@ function FeedbackVideoInput({
       getRootProps={getRootProps}
       getInputProps={getInputProps}
       disabled={isUploading || isProcessing}
-      hasFile={!!fileName}
+      hasFile={Boolean(fileName)}
     >
-      <span className="text-muted-foreground block w-full truncate text-left text-sm">
-        {fileName ?? "choose file"}
-      </span>
+      <UploadIcon className="size-3.5" />
+      <span className="truncate text-left">{fileName ?? "select file"}</span>
     </UploadDropZone>
   )
 }
