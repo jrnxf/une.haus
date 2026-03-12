@@ -26,6 +26,7 @@ type SetData = {
     avatarId: string | null
   }
   likes?: unknown[]
+  messages?: unknown[]
   submissions?: {
     id: number
     createdAt: Date
@@ -39,7 +40,7 @@ type SetData = {
   }[]
 }
 
-type SetsGroupedListProps = {
+type RankedRidersProps = {
   rankedRiders: RankedRider<SetData>[]
   openUserId?: number
   basePath: string
@@ -62,13 +63,13 @@ function RiderStats({ ranking }: { ranking: RiderScore }) {
   return <Metaline className="text-xs" parts={parts} />
 }
 
-export function SetsGroupedList({
+export function RankedRiders({
   rankedRiders,
   openUserId,
   basePath,
   pathParams = {},
   searchParams = {},
-}: SetsGroupedListProps) {
+}: RankedRidersProps) {
   const navigate = useNavigate()
 
   if (rankedRiders.length === 0) {
@@ -139,7 +140,7 @@ export function SetsGroupedList({
               className="bg-card w-full overflow-hidden rounded-lg border last:border-b"
             >
               <AccordionTrigger className="[&[data-state=open]]:border-border items-center border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none">
-                <div className="text-left">
+                <div className="space-y-1">
                   <h3 className="text-sm font-medium">{user.name}</h3>
                   <RiderStats ranking={ranking} />
                 </div>
@@ -150,7 +151,7 @@ export function SetsGroupedList({
                   <div className="space-y-3 pt-1">
                     {sets.length > 0 && (
                       <div className="space-y-1.5">
-                        <fieldset className="min-w-0 pt-1.5">
+                        <fieldset className="pt-1.5">
                           <legend className="text-muted-foreground px-1 text-xs font-medium">
                             sets
                           </legend>
@@ -160,6 +161,7 @@ export function SetsGroupedList({
                                 key={set.id}
                                 set={set}
                                 className="w-full"
+                                showAuthor={false}
                               />
                             ))}
                           </div>
@@ -177,11 +179,7 @@ export function SetsGroupedList({
                               <RiuSubmissionCard
                                 key={submission.id}
                                 submission={submission}
-                                header={
-                                  <span className="min-w-0 truncate text-sm font-medium">
-                                    {submission.riuSet.name}
-                                  </span>
-                                }
+                                set={submission.riuSet}
                               />
                             ))}
                           </div>

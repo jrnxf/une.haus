@@ -25,19 +25,21 @@ describe("RiuSubmissionCard", () => {
           likes: [{ id: 1 }, { id: 2 }, { id: 3 }],
           messages: [{ id: 1 }, { id: 2 }],
         }}
-        header={
-          <>
-            <span>Target Set</span>
-            <span>moments ago</span>
-          </>
-        }
+        set={{
+          user: {
+            id: 1,
+            name: "Jane",
+          },
+          name: "Target Set",
+          instructions: null,
+        }}
       />,
     )
 
     expect(markup).toContain('href="/games/rius/submissions/42"')
     expect(markup).toContain("Target Set")
-    expect(markup).toContain("moments ago")
     expect(markup).toContain("3 likes")
     expect(markup).toContain("2 messages")
+    expect(markup).toContain("Jane")
   })
 })

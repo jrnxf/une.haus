@@ -194,6 +194,33 @@ export const getRiuSubmissionServerFn = createServerFn({
           columns: {
             id: true,
             name: true,
+            instructions: true,
+            createdAt: true,
+          },
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                avatarId: true,
+              },
+            },
+            likes: {
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    avatarId: true,
+                  },
+                },
+              },
+            },
+            submissions: {
+              columns: {
+                id: true,
+              },
+            },
           },
         },
         messages: {
@@ -289,6 +316,11 @@ export const listActiveRiusServerFn = createServerFn({
                     avatarId: true,
                   },
                 },
+              },
+            },
+            messages: {
+              columns: {
+                id: true,
               },
             },
             submissions: {

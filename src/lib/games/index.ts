@@ -158,6 +158,7 @@ type User = {
 type SetWithSubmissions = {
   id: number
   name: string
+  instructions: string | null
   createdAt: Date
   user: User
   submissions?: {
@@ -176,6 +177,8 @@ export type GroupedRiuSubmission<
   riuSet: {
     id: number
     name: string
+    instructions: string | null
+    user: Pick<User, "id" | "name" | "avatarId">
   }
 }
 
@@ -225,6 +228,8 @@ export function groupSetsByUserWithRankings<T extends SetWithSubmissions>(
         riuSet: {
           id: set.id,
           name: set.name,
+          instructions: set.instructions,
+          user: set.user,
         },
       } satisfies GroupedRiuSubmission<NonNullable<T["submissions"]>[number]>
 

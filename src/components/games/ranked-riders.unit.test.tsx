@@ -39,12 +39,12 @@ mock.module("./set-card", () => ({
   ),
 }))
 
-describe("SetsGroupedList", () => {
+describe("RankedRiders", () => {
   it("renders set cards before submission cards in mixed rider rows", async () => {
-    const { SetsGroupedList } = await import("./sets-grouped-list")
+    const { RankedRiders } = await import("./ranked-riders")
 
     const markup = renderToStaticMarkup(
-      <SetsGroupedList
+      <RankedRiders
         basePath="/games/rius/active"
         rankedRiders={[
           {
@@ -67,7 +67,12 @@ describe("SetsGroupedList", () => {
                 user: { id: 1, name: "Rider One", avatarId: null },
                 likes: [{ id: 1 }],
                 messages: [{ id: 1 }],
-                riuSet: { id: 12, name: "Target Set" },
+                riuSet: {
+                  id: 12,
+                  name: "Target Set",
+                  instructions: null,
+                  user: { id: 3, name: "Setter", avatarId: null },
+                },
               },
             ],
             ranking: {
@@ -94,10 +99,10 @@ describe("SetsGroupedList", () => {
   })
 
   it("renders submission cards instead of the submissions-only text", async () => {
-    const { SetsGroupedList } = await import("./sets-grouped-list")
+    const { RankedRiders } = await import("./ranked-riders")
 
     const markup = renderToStaticMarkup(
-      <SetsGroupedList
+      <RankedRiders
         basePath="/games/rius/active"
         rankedRiders={[
           {
@@ -110,7 +115,12 @@ describe("SetsGroupedList", () => {
                 user: { id: 2, name: "Submitter", avatarId: null },
                 likes: [{ id: 1 }, { id: 2 }],
                 messages: [{ id: 1 }],
-                riuSet: { id: 20, name: "Submission Target" },
+                riuSet: {
+                  id: 20,
+                  name: "Submission Target",
+                  instructions: null,
+                  user: { id: 4, name: "Setter 2", avatarId: null },
+                },
               },
             ],
             ranking: {

@@ -4,7 +4,7 @@ import { GhostIcon } from "lucide-react"
 import { useMemo } from "react"
 import { z } from "zod"
 
-import { SetsGroupedList } from "~/components/games/sets-grouped-list"
+import { RankedRiders } from "~/components/games/ranked-riders"
 import {
   Empty,
   EmptyDescription,
@@ -14,7 +14,6 @@ import {
 } from "~/components/ui/empty"
 import { games, groupSetsByUserWithRankings } from "~/lib/games"
 import { invariant } from "~/lib/invariant"
-import { messages } from "~/lib/messages"
 
 const searchSchema = z.object({
   open: z.number().optional(),
@@ -35,14 +34,6 @@ export const Route = createFileRoute("/games/rius/_browse/archived/$riuId")({
     )
 
     invariant(riu, "RIU not found")
-
-    const messagePromises = riu.sets.map((set) =>
-      context.queryClient.ensureQueryData(
-        messages.list.queryOptions({ type: "riuSet", id: set.id }),
-      ),
-    )
-
-    await Promise.all(messagePromises)
   },
 })
 
@@ -81,7 +72,7 @@ function RouteComponent() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <SetsGroupedList
+        <RankedRiders
           rankedRiders={rankedRiders}
           openUserId={open}
           basePath="/games/rius/archived/$riuId"

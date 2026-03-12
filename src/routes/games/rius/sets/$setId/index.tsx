@@ -282,7 +282,7 @@ function SubmissionsTab({
       </div>
 
       {hasSubmissions ? (
-        <SubmissionsList submissions={set.submissions} />
+        <SubmissionsList submissions={set.submissions} set={set} />
       ) : null}
 
       {canSubmit &&
@@ -299,33 +299,41 @@ type SubmissionType = NonNullable<
   ServerFnReturn<typeof games.rius.sets.get.fn>
 >["submissions"][number]
 
-function SubmissionCard({ submission }: { submission: SubmissionType }) {
-  return (
-    <RiuSubmissionCard
-      submission={submission}
-      header={
-        <Metaline
-          className="inline-flex items-center gap-1.5 truncate font-medium"
-          parts={[
-            submission.user.name,
-            <span
-              key="created-at"
-              className="text-muted-foreground font-normal"
-            >
-              <RelativeTimeCard date={submission.createdAt} variant="muted" />
-            </span>,
-          ]}
-        />
-      }
-    />
-  )
+function SubmissionCard({
+  submission,
+  set,
+}: {
+  submission: SubmissionType
+  set: {
+    user: {
+      id: number
+      name: string
+    }
+    name: string
+    instructions: string | null
+  }
+}) {
+  return <RiuSubmissionCard submission={submission} set={set} />
 }
 
-function SubmissionsList({ submissions }: { submissions: SubmissionType[] }) {
+function SubmissionsList({
+  submissions,
+  set,
+}: {
+  submissions: SubmissionType[]
+  set: {
+    user: {
+      id: number
+      name: string
+    }
+    name: string
+    instructions: string | null
+  }
+}) {
   return (
     <div className="flex flex-col gap-2">
       {submissions.map((submission) => (
-        <SubmissionCard key={submission.id} submission={submission} />
+        <SubmissionCard key={submission.id} submission={submission} set={set} />
       ))}
     </div>
   )

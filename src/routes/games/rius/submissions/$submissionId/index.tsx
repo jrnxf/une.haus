@@ -4,6 +4,7 @@ import { TrashIcon } from "lucide-react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
+import { SetCard } from "~/components/games/set-card"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
@@ -204,6 +205,15 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         handleCreateMessage={(content) => createMessage.mutate(content)}
         scrollTargetId="main-content"
       />
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Separator className="flex-1" />
+          <span className="text-muted-foreground px-2 text-xs italic">set</span>
+          <Separator className="flex-1" />
+        </div>
+        <SetCard set={submission.riuSet} />
+      </div>
     </>
   )
 }

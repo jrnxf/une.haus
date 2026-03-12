@@ -51,6 +51,7 @@ describe("groupSetsByUserWithRankings", () => {
       {
         id: 10,
         name: "Set Alpha",
+        instructions: null,
         createdAt: new Date("2024-01-01T10:00:00Z"),
         user: createUser(1, "Setter"),
         submissions: [
@@ -66,6 +67,7 @@ describe("groupSetsByUserWithRankings", () => {
       {
         id: 11,
         name: "Set Beta",
+        instructions: null,
         createdAt: new Date("2024-01-02T10:00:00Z"),
         user: createUser(3, "Setter 2"),
         submissions: [
@@ -99,6 +101,7 @@ describe("groupSetsByUserWithRankings", () => {
       {
         id: 10,
         name: "Set Alpha",
+        instructions: null,
         createdAt: new Date("2024-01-01T10:00:00Z"),
         user: createUser(1, "Rider One"),
         submissions: [
@@ -114,6 +117,7 @@ describe("groupSetsByUserWithRankings", () => {
       {
         id: 11,
         name: "Set Gamma",
+        instructions: null,
         createdAt: new Date("2024-01-02T10:00:00Z"),
         user: createUser(2, "Rider Two"),
         submissions: [],
@@ -127,6 +131,8 @@ describe("groupSetsByUserWithRankings", () => {
     expect(riderTwo?.submissions[0]?.riuSet).toEqual({
       id: 10,
       name: "Set Alpha",
+      instructions: null,
+      user: createUser(1, "Rider One"),
     })
   })
 })

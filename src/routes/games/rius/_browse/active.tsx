@@ -4,7 +4,7 @@ import { GhostIcon } from "lucide-react"
 import { useMemo } from "react"
 import { z } from "zod"
 
-import { SetsGroupedList } from "~/components/games/sets-grouped-list"
+import { RankedRiders } from "~/components/games/ranked-riders"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
@@ -16,7 +16,6 @@ import {
 } from "~/components/ui/empty"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games, groupSetsByUserWithRankings } from "~/lib/games"
-import { messages } from "~/lib/messages"
 
 const searchSchema = z.object({
   open: z.number().optional(),
@@ -26,17 +25,9 @@ export const Route = createFileRoute("/games/rius/_browse/active")({
   component: RouteComponent,
   validateSearch: searchSchema,
   loader: async ({ context }) => {
-    const activeRiuData = await context.queryClient.ensureQueryData(
+    await context.queryClient.ensureQueryData(
       games.rius.active.list.queryOptions(),
     )
-
-    const messagePromises = activeRiuData.sets.map((set) =>
-      context.queryClient.ensureQueryData(
-        messages.list.queryOptions({ type: "riuSet", id: set.id }),
-      ),
-    )
-
-    await Promise.all(messagePromises)
   },
 })
 
@@ -84,7 +75,7 @@ function RouteComponent() {
     </Empty>
   ) : (
     <div className="space-y-6">
-      <SetsGroupedList
+      <RankedRiders
         rankedRiders={rankedRiders}
         openUserId={open}
         basePath="/games/rius/active"
