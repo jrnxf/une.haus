@@ -32,7 +32,7 @@ export function Metaline({
   return (
     <div
       className={cn(
-        "text-muted-foreground min-w-0 flex-1 truncate text-xs",
+        "text-foreground/50 inline-flex min-w-0 flex-1 items-center gap-1.5 truncate text-sm",
         className,
       )}
     >

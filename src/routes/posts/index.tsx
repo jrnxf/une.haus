@@ -293,7 +293,7 @@ function PostsList({
                   <Badges content={post.tags} active={deferredTags ?? []} />
                   <div className="flex w-full justify-between gap-4">
                     <Metaline
-                      className="inline-flex items-center gap-1.5"
+                      className="inline-flex items-center gap-1.5 text-xs"
                       parts={[
                         <span key="author" className="text-foreground/50">
                           {post.user.name}

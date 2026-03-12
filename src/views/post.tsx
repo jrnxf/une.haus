@@ -166,7 +166,6 @@ export function PostView({ postId }: { postId: number }) {
             {post.title}
           </h1>
           <Metaline
-            className="inline-flex items-center gap-1.5"
             parts={[
               <Link
                 key="author"

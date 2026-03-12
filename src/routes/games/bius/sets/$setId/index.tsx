@@ -204,7 +204,6 @@ function SetView({ setId }: { setId: number }) {
             )}
           </div>
           <Metaline
-            className="inline-flex items-center gap-1.5"
             parts={[
               <Link
                 key="author"

@@ -109,7 +109,7 @@ function TimezoneCard(props: TimezoneCardProps) {
 }
 
 const triggerVariants = cva(
-  "text-foreground/70 hover:text-foreground/90 focus-visible:ring-ring/50 inline-flex w-fit items-center justify-center rounded-md text-sm outline-none focus-visible:ring-3",
+  "text-foreground/70 hover:text-foreground/90 focus-visible:ring-ring/50 inline-flex w-fit items-center justify-center rounded-md outline-none focus-visible:ring-3",
   {
     variants: {
       variant: {
