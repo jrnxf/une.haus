@@ -112,6 +112,29 @@ function RouteComponent() {
             and is discarded when you disconnect.
           </p>
 
+          <h2>Error Monitoring</h2>
+          <p>
+            We use{" "}
+            <a
+              href="https://sentry.io/privacy/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Sentry
+            </a>{" "}
+            to monitor application errors and performance. When an error occurs,
+            Sentry may collect technical information such as your browser type,
+            operating system, the URL you were visiting, stack traces, and your
+            IP address. If you are logged in, your user ID and email address are
+            associated with error reports. Sentry also records session replays —
+            recordings of page interactions (clicks, navigation, and page
+            structure) — for a sample of sessions to help us reproduce and fix
+            bugs. All text content, user input, and media (images and videos)
+            are masked or blocked in these recordings, but the page layout and
+            your actions (clicks, scrolls, navigation) are visible. This data is
+            used solely for debugging and improving the platform.
+          </p>
+
           <h2>Emails</h2>
           <p>We send emails for:</p>
           <ul>
@@ -159,6 +182,10 @@ function RouteComponent() {
             </li>
             <li>
               <strong>Ably</strong> — real-time presence and live updates
+            </li>
+            <li>
+              <strong>Sentry</strong> — error monitoring and performance
+              tracking
             </li>
           </ul>
           <p>
