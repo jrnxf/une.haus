@@ -26,14 +26,35 @@ export function useCreateTournament() {
   })
 }
 
+export function useUpdateTournament(code: string) {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: tourney.update.fn,
+    onSuccess: (updated) => {
+      qc.setQueryData(tourney.get.queryOptions({ code }).queryKey, (old) => {
+        if (!old) return old
+        return { ...old, name: updated.name, updatedAt: updated.updatedAt }
+      })
+      qc.invalidateQueries({ queryKey: tourney.list.queryOptions().queryKey })
+      toast.success("tournament updated")
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+}
+
 export function useDeleteTournament() {
   const qc = useQueryClient()
+  const navigate = useNavigate()
 
   return useMutation({
     mutationFn: tourney.delete.fn,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: tourney.list.queryOptions().queryKey })
+      qc.removeQueries({ queryKey: tourney.list.queryOptions().queryKey })
       toast.success("tournament deleted")
+      navigate({ to: "/tourney" })
     },
     onError: (error) => {
       toast.error(error.message)

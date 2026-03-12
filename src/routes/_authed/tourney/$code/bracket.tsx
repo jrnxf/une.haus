@@ -1,26 +1,32 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import {
-  MaximizeIcon,
-  MinimizeIcon,
-  RotateCcwIcon,
-  TrophyIcon,
-} from "lucide-react"
+import { GhostIcon } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
 import { BracketContainer, FitText } from "~/components/tourney/bracket-graph"
 import {
   SplitTimer,
   type TimerSyncEvent,
 } from "~/components/tourney/split-timer"
+import { TourneyAdminMenu } from "~/components/tourney/tourney-admin-menu"
+import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
+import { DropdownMenuItem } from "~/components/ui/dropdown-menu"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty"
 import { tourney } from "~/lib/tourney"
 import { decodeWinners } from "~/lib/tourney/bracket"
 import {
   applyWinners,
   generateBracket,
-  getRiderName,
   getWinnerName,
   type Match,
 } from "~/lib/tourney/bracket-logic"
@@ -116,26 +122,6 @@ function RouteComponent() {
     match: Match
     duration: number
   } | null>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
-    document.addEventListener("fullscreenchange", handleFullscreenChange)
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange)
-    }
-  }, [])
-
-  const toggleFullscreen = useCallback(() => {
-    if (!containerRef.current) return
-    if (document.fullscreenElement) {
-      document.exitFullscreen()
-    } else {
-      containerRef.current.requestFullscreen()
-    }
-  }, [])
 
   const selectWinner = useCallback(
     (matchId: string, winner: 1 | 2) => {
@@ -150,8 +136,17 @@ function RouteComponent() {
   )
 
   const reset = useCallback(() => {
-    bracketAction.mutate({
-      data: { code, action: { type: "resetBracket" } },
+    confirm.open({
+      title: "reset",
+      description:
+        "are you sure you want to reset the bracket? all match results will be lost.",
+      confirmText: "reset",
+      variant: "destructive",
+      onConfirm: () => {
+        bracketAction.mutate({
+          data: { code, action: { type: "resetBracket" } },
+        })
+      },
     })
   }, [bracketAction, code])
 
@@ -226,41 +221,25 @@ function RouteComponent() {
     return (
       <>
         <AdminPresence code={code} />
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-          <TrophyIcon className="text-muted-foreground size-12" />
-          <p className="text-muted-foreground text-center">
-            no participants configured
-          </p>
-          <Button asChild>
-            <Link to="/tourney">setup</Link>
-          </Button>
-        </div>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GhostIcon />
+            </EmptyMedia>
+            <EmptyTitle>no participants</EmptyTitle>
+            <EmptyDescription>
+              add at least two riders to start the bracket
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button asChild>
+              <Link to="/tourney">setup</Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
       </>
     )
   }
-
-  const timerHeader = activeTimer ? (
-    <>
-      <span className="text-sm font-medium">
-        {getRiderName(activeTimer.match.player1)} vs{" "}
-        {getRiderName(activeTimer.match.player2)}
-      </span>
-      <div className="flex items-center gap-2">
-        <Button
-          variant="secondary"
-          size="icon-xs"
-          onClick={toggleFullscreen}
-          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-        >
-          {isFullscreen ? (
-            <MinimizeIcon className="size-3.5" />
-          ) : (
-            <MaximizeIcon className="size-3.5" />
-          )}
-        </Button>
-      </div>
-    </>
-  ) : null
 
   return (
     <>
@@ -272,96 +251,52 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>
           <PageHeader.Actions>
-            {!activeTimer && !showCelebration && (
-              <>
-                {champion && (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() =>
-                      bracketAction.mutate({
-                        data: { code, action: { type: "showCelebration" } },
-                      })
-                    }
-                    className="gap-2"
-                  >
-                    <TrophyIcon className="size-4 text-yellow-500" />
-                    {champion}
-                  </Button>
-                )}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
+            <Badge variant="secondary">{code}</Badge>
+            <TourneyAdminMenu
+              code={code}
+              goTo={[
+                {
+                  label: "ranking",
+                  onClick: () =>
                     advancePhase.mutate({
                       data: { code, phase: "ranking" },
-                    })
-                  }
-                  disabled={advancePhase.isPending}
-                >
-                  back
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon-xs"
-                  onClick={reset}
-                  aria-label="reset bracket"
-                >
-                  <RotateCcwIcon className="size-3.5" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon-xs"
-                  onClick={toggleFullscreen}
-                  aria-label={
-                    isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
-                  }
-                >
-                  {isFullscreen ? (
-                    <MinimizeIcon className="size-3.5" />
-                  ) : (
-                    <MaximizeIcon className="size-3.5" />
-                  )}
-                </Button>
-              </>
-            )}
-            {showCelebration && champion && (
-              <>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    bracketAction.mutate({
-                      data: { code, action: { type: "dismissCelebration" } },
-                    })
-                  }
-                >
-                  bracket
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon-xs"
-                  onClick={reset}
-                  aria-label="reset bracket"
-                >
-                  <RotateCcwIcon className="size-3.5" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon-xs"
-                  onClick={toggleFullscreen}
-                  aria-label={
-                    isFullscreen ? "Exit fullscreen" : "Enter fullscreen"
-                  }
-                >
-                  {isFullscreen ? (
-                    <MinimizeIcon className="size-3.5" />
-                  ) : (
-                    <MaximizeIcon className="size-3.5" />
-                  )}
-                </Button>
-              </>
-            )}
+                    }),
+                  disabled: advancePhase.isPending,
+                },
+                ...(showCelebration
+                  ? [
+                      {
+                        label: "bracket",
+                        onClick: () =>
+                          bracketAction.mutate({
+                            data: {
+                              code,
+                              action: { type: "dismissCelebration" as const },
+                            },
+                          }),
+                      },
+                    ]
+                  : []),
+                ...(champion && !showCelebration
+                  ? [
+                      {
+                        label: "winner",
+                        onClick: () =>
+                          bracketAction.mutate({
+                            data: {
+                              code,
+                              action: { type: "showCelebration" as const },
+                            },
+                          }),
+                      },
+                    ]
+                  : []),
+              ]}
+            >
+              <DropdownMenuItem variant="destructive" onClick={reset}>
+                reset
+              </DropdownMenuItem>
+            </TourneyAdminMenu>
           </PageHeader.Actions>
         </PageHeader.Right>
       </PageHeader>
@@ -372,7 +307,6 @@ function RouteComponent() {
             rider1={activeTimer.match.player1 ?? undefined}
             rider2={activeTimer.match.player2 ?? undefined}
             time={activeTimer.duration}
-            headerContent={timerHeader}
             onSync={syncTimer}
             onClose={closeTimer}
           />

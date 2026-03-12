@@ -4,7 +4,9 @@ import { GripVerticalIcon } from "lucide-react"
 import { useCallback, useMemo, useState } from "react"
 
 import { PageHeader } from "~/components/page-header"
+import { TourneyAdminMenu } from "~/components/tourney/tourney-admin-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import {
   Sortable,
@@ -120,9 +122,27 @@ function RouteComponent() {
           <PageHeader.Crumb>ranking</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>
-          <span className="text-muted-foreground font-mono text-xs">
-            {code}
-          </span>
+          <PageHeader.Actions>
+            <Badge variant="secondary">{code}</Badge>
+            <TourneyAdminMenu
+              code={code}
+              goTo={[
+                {
+                  label: "prelims",
+                  onClick: () =>
+                    advancePhase.mutate({
+                      data: { code, phase: "prelims" },
+                    }),
+                  disabled: advancePhase.isPending,
+                },
+                {
+                  label: "bracket",
+                  onClick: handleStart,
+                  disabled: rankingAction.isPending || advancePhase.isPending,
+                },
+              ]}
+            />
+          </PageHeader.Actions>
         </PageHeader.Right>
       </PageHeader>
       <div className="mx-auto w-full max-w-5xl space-y-4 p-4">

@@ -83,6 +83,13 @@ export const bracketActionSchema = z.object({
 
 export type BracketActionInput = z.infer<typeof bracketActionSchema>
 
+export const updateTournamentSchema = z.object({
+  code: z.string().min(4).max(4),
+  name: z.string().min(1, "required"),
+})
+
+export type UpdateTournamentInput = z.infer<typeof updateTournamentSchema>
+
 export const deleteTournamentSchema = z.object({
   code: z.string().min(4).max(4),
 })

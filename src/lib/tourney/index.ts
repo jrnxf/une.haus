@@ -9,6 +9,7 @@ import {
   listTournamentsServerFn,
   prelimActionServerFn,
   rankingActionServerFn,
+  updateTournamentServerFn,
 } from "~/lib/tourney/fns"
 import {
   advancePhaseSchema,
@@ -19,6 +20,7 @@ import {
   listTournamentsSchema,
   prelimActionSchema,
   rankingActionSchema,
+  updateTournamentSchema,
 } from "~/lib/tourney/schemas"
 import { type ServerFnData } from "~/lib/types"
 
@@ -26,6 +28,10 @@ export const tourney = {
   create: {
     fn: createTournamentServerFn,
     schema: createTournamentSchema,
+  },
+  update: {
+    fn: updateTournamentServerFn,
+    schema: updateTournamentSchema,
   },
   delete: {
     fn: deleteTournamentServerFn,

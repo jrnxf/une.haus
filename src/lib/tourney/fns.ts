@@ -11,6 +11,7 @@ import {
   listTournamentsSchema,
   prelimActionSchema,
   rankingActionSchema,
+  updateTournamentSchema,
 } from "~/lib/tourney/schemas"
 
 const loadTourneyOps = createServerOnlyFn(
@@ -25,6 +26,16 @@ export const createTournamentServerFn = createServerFn({
   .handler(async (ctx) => {
     const { createTournament } = await loadTourneyOps()
     return createTournament(ctx)
+  })
+
+export const updateTournamentServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(updateTournamentSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { updateTournament } = await loadTourneyOps()
+    return updateTournament(ctx)
   })
 
 export const deleteTournamentServerFn = createServerFn({

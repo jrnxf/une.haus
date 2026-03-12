@@ -9,6 +9,7 @@ import {
   listTournaments,
   prelimAction,
   rankingAction,
+  updateTournament,
 } from "~/lib/tourney/ops.server"
 import { type TournamentState } from "~/lib/tourney/types"
 import { asUser, seedUser, truncatePublicTables } from "~/testing/integration"
@@ -215,6 +216,42 @@ describe("tournament integration", () => {
 
     expect(result?.phase).toBe("ranking")
     expect(reread?.phase).toBe("ranking")
+  })
+
+  it("updateTournament enforces auth and updates name", async () => {
+    const owner = await seedUser({ name: "Owner" })
+    const otherUser = await seedUser({ name: "Other User" })
+
+    const tournament = await createTournament({
+      ...asUser(owner),
+      data: {
+        battleTime: 60,
+        bracketSize: 4,
+        finalsTime: 120,
+        name: "Original Name",
+        prelimTime: 60,
+        riders: makeState().riders,
+      },
+    })
+
+    await expect(
+      updateTournament({
+        ...asUser(otherUser),
+        data: { code: tournament.code, name: "Hacked Name" },
+      }),
+    ).rejects.toThrow("Not authorized")
+
+    const updated = await updateTournament({
+      ...asUser(owner),
+      data: { code: tournament.code, name: "New Name" },
+    })
+
+    expect(updated.name).toBe("New Name")
+
+    const reread = await db.query.tournaments.findFirst({
+      where: (table, { eq }) => eq(table.id, tournament.id),
+    })
+    expect(reread?.name).toBe("New Name")
   })
 
   it("listTournaments returns only tournaments owned by the caller", async () => {

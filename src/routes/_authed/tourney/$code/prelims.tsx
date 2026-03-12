@@ -6,6 +6,8 @@ import { useHotkeys } from "react-hotkeys-hook"
 
 import { PageHeader } from "~/components/page-header"
 import { CountdownDisplay } from "~/components/tourney/countdown-display"
+import { TourneyAdminMenu } from "~/components/tourney/tourney-admin-menu"
+import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
@@ -160,9 +162,22 @@ function RouteComponent() {
           <PageHeader.Crumb>prelims</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>
-          <span className="text-muted-foreground font-mono text-xs">
-            {code}
-          </span>
+          <PageHeader.Actions>
+            <Badge variant="secondary">{code}</Badge>
+            <TourneyAdminMenu
+              code={code}
+              goTo={[
+                {
+                  label: "ranking",
+                  onClick: () =>
+                    advancePhase.mutate({
+                      data: { code, phase: "ranking" },
+                    }),
+                  disabled: advancePhase.isPending,
+                },
+              ]}
+            />
+          </PageHeader.Actions>
         </PageHeader.Right>
       </PageHeader>
       <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
@@ -387,6 +402,7 @@ function TimerView({
   prelimAction: ReturnType<typeof usePrelimAction>
   eventName: string
 }) {
+  const advancePhase = useAdvancePhase(code)
   const resolved = resolveRider(rider)
   const name = resolved.name ?? "Unknown"
 
@@ -433,23 +449,33 @@ function TimerView({
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>
           <PageHeader.Actions>
-            <span className="text-muted-foreground font-mono text-xs">
-              {code}
-            </span>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() =>
-                prelimAction.mutate({
-                  data: {
-                    code,
-                    action: { type: "setCurrent", riderIndex: -1 },
-                  },
-                })
-              }
+            <Badge variant="secondary">{code}</Badge>
+            <TourneyAdminMenu
+              code={code}
+              goTo={[
+                {
+                  label: "ranking",
+                  onClick: () =>
+                    advancePhase.mutate({
+                      data: { code, phase: "ranking" },
+                    }),
+                  disabled: advancePhase.isPending,
+                },
+              ]}
             >
-              queue
-            </Button>
+              <DropdownMenuItem
+                onClick={() =>
+                  prelimAction.mutate({
+                    data: {
+                      code,
+                      action: { type: "setCurrent", riderIndex: -1 },
+                    },
+                  })
+                }
+              >
+                queue
+              </DropdownMenuItem>
+            </TourneyAdminMenu>
           </PageHeader.Actions>
         </PageHeader.Right>
       </PageHeader>

@@ -66,6 +66,7 @@ import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
 import { Route as AuthedTourneyCodeRankingRouteImport } from './routes/_authed/tourney/$code/ranking'
 import { Route as AuthedTourneyCodePrelimsRouteImport } from './routes/_authed/tourney/$code/prelims'
+import { Route as AuthedTourneyCodeEditRouteImport } from './routes/_authed/tourney/$code/edit'
 import { Route as AuthedTourneyCodeBracketRouteImport } from './routes/_authed/tourney/$code/bracket'
 import { Route as AuthedPostsPostIdEditRouteImport } from './routes/_authed/posts/$postId/edit'
 import { Route as AuthedGamesSiusUploadRouteImport } from './routes/_authed/games/sius/upload'
@@ -383,6 +384,11 @@ const AuthedTourneyCodePrelimsRoute =
     path: '/tourney/$code/prelims',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedTourneyCodeEditRoute = AuthedTourneyCodeEditRouteImport.update({
+  id: '/tourney/$code/edit',
+  path: '/tourney/$code/edit',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedTourneyCodeBracketRoute =
   AuthedTourneyCodeBracketRouteImport.update({
     id: '/tourney/$code/bracket',
@@ -594,6 +600,7 @@ export interface FileRoutesByFullPath {
   '/games/sius/upload': typeof AuthedGamesSiusUploadRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
+  '/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
@@ -675,6 +682,7 @@ export interface FileRoutesByTo {
   '/games/sius/upload': typeof AuthedGamesSiusUploadRoute
   '/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
+  '/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
@@ -761,6 +769,7 @@ export interface FileRoutesById {
   '/_authed/games/sius/upload': typeof AuthedGamesSiusUploadRoute
   '/_authed/posts/$postId/edit': typeof AuthedPostsPostIdEditRoute
   '/_authed/tourney/$code/bracket': typeof AuthedTourneyCodeBracketRoute
+  '/_authed/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/_authed/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/_authed/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
@@ -846,6 +855,7 @@ export interface FileRouteTypes {
     | '/games/sius/upload'
     | '/posts/$postId/edit'
     | '/tourney/$code/bracket'
+    | '/tourney/$code/edit'
     | '/tourney/$code/prelims'
     | '/tourney/$code/ranking'
     | '/tricks/$trickId/submit-video'
@@ -927,6 +937,7 @@ export interface FileRouteTypes {
     | '/games/sius/upload'
     | '/posts/$postId/edit'
     | '/tourney/$code/bracket'
+    | '/tourney/$code/edit'
     | '/tourney/$code/prelims'
     | '/tourney/$code/ranking'
     | '/tricks/$trickId/submit-video'
@@ -1012,6 +1023,7 @@ export interface FileRouteTypes {
     | '/_authed/games/sius/upload'
     | '/_authed/posts/$postId/edit'
     | '/_authed/tourney/$code/bracket'
+    | '/_authed/tourney/$code/edit'
     | '/_authed/tourney/$code/prelims'
     | '/_authed/tourney/$code/ranking'
     | '/_authed/tricks/$trickId/submit-video'
@@ -1485,6 +1497,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTourneyCodePrelimsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/tourney/$code/edit': {
+      id: '/_authed/tourney/$code/edit'
+      path: '/tourney/$code/edit'
+      fullPath: '/tourney/$code/edit'
+      preLoaderRoute: typeof AuthedTourneyCodeEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/tourney/$code/bracket': {
       id: '/_authed/tourney/$code/bracket'
       path: '/tourney/$code/bracket'
@@ -1717,6 +1736,7 @@ interface AuthedRouteChildren {
   AuthedGamesSiusUploadRoute: typeof AuthedGamesSiusUploadRoute
   AuthedPostsPostIdEditRoute: typeof AuthedPostsPostIdEditRoute
   AuthedTourneyCodeBracketRoute: typeof AuthedTourneyCodeBracketRoute
+  AuthedTourneyCodeEditRoute: typeof AuthedTourneyCodeEditRoute
   AuthedTourneyCodePrelimsRoute: typeof AuthedTourneyCodePrelimsRoute
   AuthedTourneyCodeRankingRoute: typeof AuthedTourneyCodeRankingRoute
   AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute
@@ -1746,6 +1766,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedGamesSiusUploadRoute: AuthedGamesSiusUploadRoute,
   AuthedPostsPostIdEditRoute: AuthedPostsPostIdEditRoute,
   AuthedTourneyCodeBracketRoute: AuthedTourneyCodeBracketRoute,
+  AuthedTourneyCodeEditRoute: AuthedTourneyCodeEditRoute,
   AuthedTourneyCodePrelimsRoute: AuthedTourneyCodePrelimsRoute,
   AuthedTourneyCodeRankingRoute: AuthedTourneyCodeRankingRoute,
   AuthedTricksTrickIdSubmitVideoRoute: AuthedTricksTrickIdSubmitVideoRoute,

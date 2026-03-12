@@ -13,6 +13,7 @@ import {
   type DeleteTournamentInput,
   type PrelimActionInput,
   type RankingActionInput,
+  type UpdateTournamentInput,
 } from "~/lib/tourney/schemas"
 import { type TournamentPhase, type TournamentState } from "~/lib/tourney/types"
 
@@ -135,6 +136,25 @@ export async function createTournament({
     .returning()
 
   return tournament
+}
+
+export async function updateTournament({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: UpdateTournamentInput
+}) {
+  const tournament = await getTournamentByCode(input.code)
+  invariant(tournament.createdByUserId === context.user.id, "Not authorized")
+
+  const [updated] = await db
+    .update(tournaments)
+    .set({ name: input.name, updatedAt: new Date() })
+    .where(eq(tournaments.id, tournament.id))
+    .returning()
+
+  return updated
 }
 
 export async function deleteTournament({
