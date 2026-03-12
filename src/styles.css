@@ -557,3 +557,7 @@ button[aria-label="Open TanStack Devtools"] {
     pointer-events: inherit;
   }
 }
+
+fieldset {
+  @apply min-w-0;
+}

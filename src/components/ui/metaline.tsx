@@ -30,13 +30,18 @@ export function Metaline({
   }
 
   return (
-    <p className={cn("text-muted-foreground text-sm", className)}>
+    <div
+      className={cn(
+        "text-muted-foreground min-w-0 flex-1 truncate text-xs",
+        className,
+      )}
+    >
       {filledParts.map((part, index) => (
         <Fragment key={index}>
           {index > 0 && <> {separator} </>}
           {part}
         </Fragment>
       ))}
-    </p>
+    </div>
   )
 }
