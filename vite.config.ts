@@ -74,8 +74,6 @@ const config = defineConfig(async () => {
           },
         },
         scheduledTasks: {
-          // Heartbeat: run every minute
-          "* * * * *": [TASK_NAMES.HEARTBEAT],
           // Run RIU rotation at midnight (00:00) every Monday (server timezone)
           // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
           "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
