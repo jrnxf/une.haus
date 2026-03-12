@@ -12,8 +12,8 @@ export default function SingleLike() {
           items: [{ title: "Your kickflip video" }],
         },
       ]}
-      unsubscribeDigestUrl="https://une.haus/unsubscribe?type=digest"
-      unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
+      unsubscribeDigestUrl="https://une.haus/api/unsubscribe?type=digest"
+      unsubscribeAllUrl="https://une.haus/api/unsubscribe?type=all"
       viewNotificationsUrl="https://une.haus/notifications"
     />
   )

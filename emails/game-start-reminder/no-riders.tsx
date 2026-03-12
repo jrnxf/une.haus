@@ -9,8 +9,8 @@ export default function NoRiders() {
       setCount={0}
       viewRoundUrl="https://une.haus/games/rius"
       addSetUrl="https://une.haus/games/rius/sets/create"
-      unsubscribeReminderUrl="https://une.haus/unsubscribe?type=game-reminder"
-      unsubscribeAllUrl="https://une.haus/unsubscribe?type=all"
+      unsubscribeReminderUrl="https://une.haus/api/unsubscribe?type=game_start"
+      unsubscribeAllUrl="https://une.haus/api/unsubscribe?type=all"
     />
   )
 }
