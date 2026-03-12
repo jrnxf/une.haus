@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/tanstackstart-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { toast } from "sonner"
 
 import { PageHeader } from "~/components/page-header"
 import { Badge } from "~/components/ui/badge"
@@ -56,8 +57,8 @@ function RouteComponent() {
           ))}
         </div>
 
-        <>
-          {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
+        {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
+          <div>
             <a
               href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
               target="_blank"
@@ -67,19 +68,28 @@ function RouteComponent() {
                 {__COMMIT_SHA__}
               </Badge>
             </a>
-          )}
-        </>
+          </div>
+        )}
 
-        <Button
-          variant="destructive"
-          onClick={() => {
-            // Send a test metric before throwing the error
-            Sentry.metrics.count("test_counter", 1)
-            throw new Error("Sentry Test Error")
-          }}
-        >
-          sentry error test
-        </Button>
+        <div>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              const eventId = Sentry.captureException(
+                new Error("sentry test error"),
+              )
+              const url = `https://jrnxf.sentry.io/issues/?query=${eventId}`
+              toast("sentry error sent", {
+                action: {
+                  label: "view",
+                  onClick: () => window.open(url, "_blank"),
+                },
+              })
+            }}
+          >
+            throw error
+          </Button>
+        </div>
       </div>
     </>
   )
