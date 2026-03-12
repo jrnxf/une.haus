@@ -279,6 +279,52 @@ describe("getNotificationAction", () => {
   })
 })
 
+describe("message_like notifications", () => {
+  it("formats message_like notification message", () => {
+    const msg = getNotificationMessage("message_like", "post", 1, ["Alice"])
+    expect(msg).toBe("Alice liked your comment on post")
+  })
+
+  it("formats message_like notification message for chat", () => {
+    const msg = getNotificationMessage("message_like", "chat", 1, ["Bob"])
+    expect(msg).toBe("Bob liked your comment on chat")
+  })
+
+  it("formats message_like action", () => {
+    expect(getNotificationAction("message_like", "post")).toBe(
+      "liked your comment on post",
+    )
+  })
+
+  it("formats message_like action for RIU set", () => {
+    expect(getNotificationAction("message_like", "riuSet")).toBe(
+      "liked your comment on RIU set",
+    )
+  })
+})
+
+describe("getNotificationUrl for chat with focus", () => {
+  it("returns focus URL for chat with messageId", () => {
+    expect(getNotificationUrl("chat", 0, { messageId: 42 })).toBe(
+      "/chat?focus=42#message-42",
+    )
+  })
+
+  it("returns plain /chat without messageId", () => {
+    expect(getNotificationUrl("chat", 0)).toBe("/chat")
+  })
+
+  it("returns plain /chat with empty data", () => {
+    expect(getNotificationUrl("chat", 0, {})).toBe("/chat")
+  })
+
+  it("appends hash for non-chat entity with messageId", () => {
+    expect(getNotificationUrl("post", 123, { messageId: 55 })).toBe(
+      "/posts/123#message-55",
+    )
+  })
+})
+
 describe("getNotificationUrl with data", () => {
   it("returns trick URL with slug for trickSubmission", () => {
     expect(

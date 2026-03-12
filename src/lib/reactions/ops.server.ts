@@ -22,6 +22,7 @@ import { invariant } from "~/lib/invariant"
 import {
   createNotification,
   getContentOwner,
+  getMessageOwner,
 } from "~/lib/notifications/helpers.server"
 import {
   recordTypeWithLikes,
@@ -84,6 +85,23 @@ export async function likeRecord({
         data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
+        },
+      }).catch(console.error)
+    }
+  } else {
+    // Message like — notify the message author
+    const messageOwner = await getMessageOwner(type, recordId)
+    if (messageOwner && messageOwner.ownerId !== userId) {
+      createNotification({
+        userId: messageOwner.ownerId,
+        actorId: userId,
+        type: "message_like",
+        entityType: messageOwner.parentEntityType,
+        entityId: messageOwner.parentEntityId,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          messageId: recordId,
         },
       }).catch(console.error)
     }

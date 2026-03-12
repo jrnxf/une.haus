@@ -17,7 +17,7 @@ export const markReadSchema = z.object({
 export const markGroupReadSchema = z.object({
   type: z.enum(NOTIFICATION_TYPES),
   entityType: z.enum(NOTIFICATION_ENTITY_TYPES),
-  entityId: z.number().positive().int(),
+  entityId: z.number().nonnegative().int(),
 })
 
 export const markAllReadSchema = z.object({})
@@ -32,7 +32,7 @@ export const createNotificationSchema = z.object({
   actorId: z.number().positive().int().optional(),
   type: z.enum(NOTIFICATION_TYPES),
   entityType: z.enum(NOTIFICATION_ENTITY_TYPES),
-  entityId: z.number().positive().int(),
+  entityId: z.number().nonnegative().int(),
   data: z
     .object({
       actorName: z.string().optional(),

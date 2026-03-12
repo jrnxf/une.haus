@@ -39,6 +39,7 @@ describe("shouldCreateNotification", () => {
     it("allows all notification types when settings are null", () => {
       for (const type of [
         "like",
+        "message_like",
         "comment",
         "follow",
         "new_content",
@@ -62,6 +63,27 @@ describe("shouldCreateNotification", () => {
           },
         ),
       ).toBe(false)
+    })
+
+    it("skips message_like when likesEnabled is false", () => {
+      expect(
+        shouldCreateNotification(
+          { actorId: 2, userId: 1, type: "message_like" },
+          {
+            ...defaults,
+            likesEnabled: false,
+          },
+        ),
+      ).toBe(false)
+    })
+
+    it("allows message_like when likesEnabled is true", () => {
+      expect(
+        shouldCreateNotification(
+          { actorId: 2, userId: 1, type: "message_like" },
+          defaults,
+        ),
+      ).toBe(true)
     })
 
     it("skips comment when commentsEnabled is false", () => {

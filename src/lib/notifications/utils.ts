@@ -17,7 +17,9 @@ export function getNotificationUrl(
   let url: string
   switch (entityType) {
     case "chat": {
-      url = "/chat"
+      url = data?.messageId
+        ? `/chat?focus=${data.messageId}#message-${data.messageId}`
+        : "/chat"
       break
     }
     case "post": {
@@ -71,7 +73,7 @@ export function getNotificationUrl(
     }
   }
 
-  if (data?.messageId) {
+  if (data?.messageId && entityType !== "chat") {
     url += `#message-${data.messageId}`
   }
 
@@ -93,6 +95,9 @@ export function getNotificationMessage(
   switch (type) {
     case "like": {
       return `${actorText} liked your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
+    }
+    case "message_like": {
+      return `${actorText} liked your comment on ${formatEntityType(entityType)}`
     }
     case "comment": {
       return `${actorText} commented on your ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
@@ -130,6 +135,9 @@ export function getNotificationAction(
   switch (type) {
     case "like": {
       return `liked your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
+    }
+    case "message_like": {
+      return `liked your comment on ${formatEntityType(entityType)}`
     }
     case "comment": {
       return `commented on your ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`

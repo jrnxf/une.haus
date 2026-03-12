@@ -70,6 +70,7 @@ export const postTagEnum = pgEnum("post_tag", POST_TAGS)
 // Notification enums
 export const NOTIFICATION_TYPES = [
   "like",
+  "message_like",
   "comment",
   "follow",
   "new_content",

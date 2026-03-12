@@ -1,13 +1,20 @@
 import "@tanstack/react-start/server-only"
-import { and, eq } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import {
+  biuSetMessages,
+  chatMessages,
   type NotificationEntityType,
   type NotificationType,
   notifications,
+  postMessages,
+  riuSetMessages,
+  riuSubmissionMessages,
+  siuSetMessages,
   userFollows,
   userNotificationSettings,
+  utvVideoMessages,
 } from "~/db/schema"
 import { type CreateNotificationInput } from "~/lib/notifications/schemas"
 
@@ -30,6 +37,7 @@ const TYPE_TO_SETTING: Partial<
   Record<NotificationType, keyof NotificationPreferences>
 > = {
   like: "likesEnabled",
+  message_like: "likesEnabled",
   comment: "commentsEnabled",
   follow: "followsEnabled",
   new_content: "newContentEnabled",
@@ -269,4 +277,131 @@ export async function getContentOwner(
       return null
     }
   }
+}
+
+type MessageOwnerInfo = {
+  ownerId: number
+  parentEntityType: NotificationEntityType
+  parentEntityId: number
+}
+
+/**
+ * Get the owner and parent entity info for a message.
+ * Used to create message_like notifications that reference the parent entity.
+ */
+export async function getMessageOwner(
+  type: string,
+  messageId: number,
+): Promise<MessageOwnerInfo | null> {
+  switch (type) {
+    case "chatMessage": {
+      const msg = await db.query.chatMessages.findFirst({
+        where: eq(chatMessages.id, messageId),
+        columns: { userId: true },
+      })
+      return msg
+        ? { ownerId: msg.userId, parentEntityType: "chat", parentEntityId: 0 }
+        : null
+    }
+    case "postMessage": {
+      const msg = await db.query.postMessages.findFirst({
+        where: eq(postMessages.id, messageId),
+        columns: { userId: true, postId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "post",
+            parentEntityId: msg.postId,
+          }
+        : null
+    }
+    case "riuSetMessage": {
+      const msg = await db.query.riuSetMessages.findFirst({
+        where: eq(riuSetMessages.id, messageId),
+        columns: { userId: true, riuSetId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "riuSet",
+            parentEntityId: msg.riuSetId,
+          }
+        : null
+    }
+    case "riuSubmissionMessage": {
+      const msg = await db.query.riuSubmissionMessages.findFirst({
+        where: eq(riuSubmissionMessages.id, messageId),
+        columns: { userId: true, riuSubmissionId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "riuSubmission",
+            parentEntityId: msg.riuSubmissionId,
+          }
+        : null
+    }
+    case "utvVideoMessage": {
+      const msg = await db.query.utvVideoMessages.findFirst({
+        where: eq(utvVideoMessages.id, messageId),
+        columns: { userId: true, utvVideoId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "utvVideo",
+            parentEntityId: msg.utvVideoId,
+          }
+        : null
+    }
+    case "biuSetMessage": {
+      const msg = await db.query.biuSetMessages.findFirst({
+        where: eq(biuSetMessages.id, messageId),
+        columns: { userId: true, biuSetId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "biuSet",
+            parentEntityId: msg.biuSetId,
+          }
+        : null
+    }
+    case "siuSetMessage": {
+      const msg = await db.query.siuSetMessages.findFirst({
+        where: eq(siuSetMessages.id, messageId),
+        columns: { userId: true, siuSetId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "siuSet",
+            parentEntityId: msg.siuSetId,
+          }
+        : null
+    }
+    default: {
+      return null
+    }
+  }
+}
+
+/**
+ * Deletes message_like notifications for a specific message.
+ * Filters by entityType to prevent cross-table message ID collisions.
+ */
+export async function deleteNotificationsForMessage(
+  entityType: NotificationEntityType,
+  messageId: number,
+): Promise<void> {
+  await db
+    .delete(notifications)
+    .where(
+      and(
+        eq(notifications.type, "message_like"),
+        eq(notifications.entityType, entityType),
+        sql`(${notifications.data}->>'messageId')::int = ${messageId}`,
+      ),
+    )
 }

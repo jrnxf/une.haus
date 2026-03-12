@@ -470,6 +470,20 @@ qc.removeQueries({ queryKey: ["tricks.submissions.list"] })
 
 When creating a new route, always ensure there's a way to navigate to it from the existing UI. Add buttons, links, or menu items so users can reach the new page by clicking around. Never create orphan routes.
 
+### Copy / Static Text
+
+All user-facing static text (labels, banners, descriptions, placeholder text) must use **lowercase**. Do not capitalize the first letter of sentences or button labels.
+
+```tsx
+// Good
+<p>viewing older messages</p>
+<Button>jump to latest</Button>
+
+// Bad
+<p>Viewing older messages</p>
+<Button>Jump to latest</Button>
+```
+
 ### Button Labels
 
 - Use single-word labels: "Create", "Save", "Delete", "Edit"

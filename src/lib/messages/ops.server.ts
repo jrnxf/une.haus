@@ -21,6 +21,7 @@ import {
 } from "~/lib/messages/schemas"
 import {
   createNotification,
+  deleteNotificationsForMessage,
   getContentOwner,
 } from "~/lib/notifications/helpers.server"
 
@@ -268,6 +269,14 @@ export async function deleteMessage({
   const userId = context.user.id
 
   const table = getTableByType(input.type)
+
+  // Clean up message_like notifications before deleting
+  const entityType = MESSAGE_ENTITY_TYPES[input.type]
+  if (entityType) {
+    deleteNotificationsForMessage(entityType, input.id).catch(console.error)
+  } else if (input.type === "chat") {
+    deleteNotificationsForMessage("chat", input.id).catch(console.error)
+  }
 
   await db
     .delete(table)

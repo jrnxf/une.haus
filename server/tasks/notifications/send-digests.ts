@@ -94,7 +94,7 @@ export default defineTask({
 
         // Group notifications by type
         const likesNotifications = userNotifications.filter(
-          (n) => n.type === "like",
+          (n) => n.type === "like" || n.type === "message_like",
         )
         const commentsNotifications = userNotifications.filter(
           (n) => n.type === "comment",
@@ -116,9 +116,12 @@ export default defineTask({
             type: "likes",
             count: likesNotifications.length,
             items: likesNotifications.map((n) => ({
-              title: n.entityTitle
-                ? `Your ${n.entityType} "${n.entityTitle}" got a like`
-                : `Your ${n.entityType} got a like`,
+              title:
+                n.type === "message_like"
+                  ? `Your comment on ${n.entityType} got a like`
+                  : n.entityTitle
+                    ? `Your ${n.entityType} "${n.entityTitle}" got a like`
+                    : `Your ${n.entityType} got a like`,
             })),
           })
         }

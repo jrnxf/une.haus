@@ -49,11 +49,15 @@ export function MessagesView({
   messages,
   handleCreateMessage,
   scrollTargetId,
+  highlightMessageId,
+  footer,
 }: {
   record: MessageParent
   messages: Message[]
   handleCreateMessage: (newMessage: string) => void
   scrollTargetId?: string
+  highlightMessageId?: number
+  footer?: React.ReactNode
 }) {
   const scrollCountReference = useRef(0)
   const pendingScrollRef = useRef(false)
@@ -64,6 +68,7 @@ export function MessagesView({
 
   const lastChatMessageByUserId = messages.at(-1)?.userId
   const chatMessageCount = messages.length
+
   useLayoutEffect(() => {
     // For external scroll targets (embedded mode)
     if (scrollTargetId) {
@@ -72,9 +77,11 @@ export function MessagesView({
 
       const initialLoad = scrollCountReference.current === 0
 
-      // Scroll to bottom on initial load
+      // Scroll to bottom on initial load (skip if highlighting a specific message)
       if (initialLoad) {
-        target.scrollTop = target.scrollHeight
+        if (!highlightMessageId) {
+          target.scrollTop = target.scrollHeight
+        }
         scrollCountReference.current++
         return
       }
@@ -110,14 +117,24 @@ export function MessagesView({
       window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" })
     }
     scrollCountReference.current++
-  }, [scrollTargetId, lastChatMessageByUserId, chatMessageCount, sessionUser])
+  }, [
+    scrollTargetId,
+    lastChatMessageByUserId,
+    chatMessageCount,
+    sessionUser,
+    highlightMessageId,
+  ])
 
-  // Scroll to and highlight a message when navigating via notification anchor link
+  // Scroll to and highlight a message when navigating via notification or focus param
   useLayoutEffect(() => {
-    const hash = window.location.hash
-    if (!hash.startsWith("#message-")) return
+    const targetId = highlightMessageId
+      ? `message-${highlightMessageId}`
+      : window.location.hash.startsWith("#message-")
+        ? window.location.hash.slice(1)
+        : null
+    if (!targetId) return
 
-    const element = document.getElementById(hash.slice(1))
+    const element = document.getElementById(targetId)
     if (!element) return
 
     element.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -128,7 +145,7 @@ export function MessagesView({
     if (bubble) {
       bubble.classList.add("animate-highlight-glow")
     }
-  }, [])
+  }, [highlightMessageId])
 
   // When scrollTargetId is passed, we're embedded in a container that already
   // provides padding and max-width constraints
@@ -182,19 +199,25 @@ export function MessagesView({
             })}
           </div>
         </div>
+
         <div className="shrink-0 pt-4">
-          <BaseMessageForm
-            onSubmit={(newMessage) => {
-              pendingScrollRef.current = true
-              handleCreateMessage(newMessage)
+          {footer ?? (
+            <BaseMessageForm
+              onSubmit={(newMessage) => {
+                pendingScrollRef.current = true
+                handleCreateMessage(newMessage)
+              }}
+            />
+          )}
+        </div>
+
+        {!highlightMessageId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `document.getElementById('${scrollTargetId}')?.scrollTo(0,1e9)`,
             }}
           />
-        </div>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `document.getElementById('${scrollTargetId}')?.scrollTo(0,1e9)`,
-          }}
-        />
+        )}
       </div>
     )
   }
@@ -236,21 +259,23 @@ export function MessagesView({
         )
       })}
       <div className="pt-2">
-        <BaseMessageForm
-          onFocus={() =>
-            window.scrollTo({
-              top: document.body.scrollHeight,
-              behavior: "instant",
-            })
-          }
-          onSubmit={(newMessage) => {
-            window.scrollTo({
-              top: document.body.scrollHeight,
-              behavior: "instant",
-            })
-            handleCreateMessage(newMessage)
-          }}
-        />
+        {footer ?? (
+          <BaseMessageForm
+            onFocus={() =>
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "instant",
+              })
+            }
+            onSubmit={(newMessage) => {
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "instant",
+              })
+              handleCreateMessage(newMessage)
+            }}
+          />
+        )}
       </div>
     </div>
   )

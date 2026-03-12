@@ -31,8 +31,6 @@ export const listMessagesServerFn = createServerFn({
   .inputValidator(zodValidator(listMessagesSchema))
   .handler(async ({ data: input }) => {
     if (input.type === "chat") {
-      const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000)
-
       const chatMessagesWith = {
         likes: {
           columns: {
@@ -58,6 +56,8 @@ export const listMessagesServerFn = createServerFn({
         },
       } as const
 
+      const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000)
+
       // Get all messages from the last 28 days
       const recentMessages = await db.query.chatMessages.findMany({
         orderBy: asc(chatMessages.createdAt),
@@ -66,6 +66,8 @@ export const listMessagesServerFn = createServerFn({
         },
         with: chatMessagesWith,
       })
+
+      let defaultMessages = recentMessages
 
       // If fewer than 100 messages, fetch older ones to reach 100
       if (recentMessages.length < 100) {
@@ -78,15 +80,41 @@ export const listMessagesServerFn = createServerFn({
           with: chatMessagesWith,
         })
 
+        defaultMessages = [...olderMessages.toReversed(), ...recentMessages]
+      }
+
+      // Focus mode: if the target message is in the default window, just use that.
+      // Otherwise load a small window around the target message.
+      if (input.focus && !defaultMessages.some((m) => m.id === input.focus)) {
+        const beforeMessages = await db.query.chatMessages.findMany({
+          orderBy: desc(chatMessages.id),
+          limit: 10,
+          where(fields, operators) {
+            return operators.lt(fields.id, input.focus!)
+          },
+          with: chatMessagesWith,
+        })
+
+        const targetAndAfter = await db.query.chatMessages.findMany({
+          orderBy: asc(chatMessages.id),
+          limit: 11,
+          where(fields, operators) {
+            return operators.gte(fields.id, input.focus!)
+          },
+          with: chatMessagesWith,
+        })
+
         return {
           type: "chatMessages" as const,
-          messages: [...olderMessages.toReversed(), ...recentMessages],
+          focused: true as const,
+          messages: [...beforeMessages.toReversed(), ...targetAndAfter],
         }
       }
 
       return {
         type: "chatMessages" as const,
-        messages: recentMessages,
+        focused: false as const,
+        messages: defaultMessages,
       }
     }
 

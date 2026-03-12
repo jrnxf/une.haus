@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
-import { notifications } from "~/db/schema"
-import { deleteNotificationsForEntity } from "~/lib/notifications/helpers.server"
+import { chatMessages, notifications, postMessages, posts } from "~/db/schema"
+import {
+  deleteNotificationsForEntity,
+  deleteNotificationsForMessage,
+} from "~/lib/notifications/helpers.server"
 import {
   deleteNotification,
   getUnreadCount,
@@ -12,6 +15,7 @@ import {
   markGroupRead,
   markRead,
 } from "~/lib/notifications/ops.server"
+import { likeRecord } from "~/lib/reactions/ops.server"
 import { asUser, seedUser, truncatePublicTables } from "~/testing/integration"
 
 beforeEach(async () => {
@@ -538,5 +542,177 @@ describe("notifications integration", () => {
 
     expect(rows).toHaveLength(1)
     expect(rows[0]?.userId).toBe(otherUser.id)
+  })
+
+  it("message_like notification created when someone likes a post message", async () => {
+    const author = await seedUser({ name: "Author" })
+    const liker = await seedUser({ name: "Liker" })
+
+    const [post] = await db
+      .insert(posts)
+      .values({ content: "Test post", title: "Test", userId: author.id })
+      .returning()
+
+    const [message] = await db
+      .insert(postMessages)
+      .values({ content: "Great post!", postId: post.id, userId: author.id })
+      .returning()
+
+    await likeRecord({
+      ...asUser(liker),
+      data: { type: "postMessage", recordId: message.id },
+    })
+
+    // Wait for fire-and-forget notification creation
+    await new Promise((r) => setTimeout(r, 100))
+
+    const rows = await db.query.notifications.findMany()
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        userId: author.id,
+        actorId: liker.id,
+        type: "message_like",
+        entityType: "post",
+        entityId: post.id,
+      }),
+    )
+    expect(rows[0]?.data).toEqual(
+      expect.objectContaining({ messageId: message.id }),
+    )
+  })
+
+  it("message_like notification created when someone likes a chat message", async () => {
+    const author = await seedUser({ name: "Author" })
+    const liker = await seedUser({ name: "Liker" })
+
+    const [message] = await db
+      .insert(chatMessages)
+      .values({ content: "Hello chat!", userId: author.id })
+      .returning()
+
+    await likeRecord({
+      ...asUser(liker),
+      data: { type: "chatMessage", recordId: message.id },
+    })
+
+    // Wait for fire-and-forget notification creation
+    await new Promise((r) => setTimeout(r, 100))
+
+    const rows = await db.query.notifications.findMany()
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        userId: author.id,
+        actorId: liker.id,
+        type: "message_like",
+        entityType: "chat",
+        entityId: 0,
+      }),
+    )
+  })
+
+  it("self-like on a message does not create a notification", async () => {
+    const user = await seedUser({ name: "Self Liker" })
+
+    const [post] = await db
+      .insert(posts)
+      .values({ content: "Test post", title: "Test", userId: user.id })
+      .returning()
+
+    const [message] = await db
+      .insert(postMessages)
+      .values({ content: "My own comment", postId: post.id, userId: user.id })
+      .returning()
+
+    await likeRecord({
+      ...asUser(user),
+      data: { type: "postMessage", recordId: message.id },
+    })
+
+    // Wait for fire-and-forget notification creation
+    await new Promise((r) => setTimeout(r, 100))
+
+    const rows = await db.query.notifications.findMany()
+    expect(rows).toHaveLength(0)
+  })
+
+  it("deleteNotificationsForMessage removes only the targeted message's notifications", async () => {
+    const user = await seedUser({ name: "User" })
+    const actor = await seedUser({ name: "Actor" })
+
+    await db.insert(notifications).values([
+      {
+        actorId: actor.id,
+        entityId: 1,
+        entityType: "post",
+        type: "message_like",
+        userId: user.id,
+        data: { actorName: actor.name, messageId: 100 },
+      },
+      {
+        actorId: actor.id,
+        entityId: 1,
+        entityType: "post",
+        type: "message_like",
+        userId: user.id,
+        data: { actorName: actor.name, messageId: 200 },
+      },
+      {
+        actorId: actor.id,
+        entityId: 1,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+    ])
+
+    await deleteNotificationsForMessage("post", 100)
+
+    const rows = await db.query.notifications.findMany({
+      orderBy: (table, { asc }) => [asc(table.id)],
+    })
+
+    expect(rows).toHaveLength(2)
+    expect(rows[0]?.type).toBe("message_like")
+    expect((rows[0]?.data as { messageId?: number })?.messageId).toBe(200)
+    expect(rows[1]?.type).toBe("like")
+  })
+
+  it("deleteNotificationsForEntity also removes message_like notifications for that entity", async () => {
+    const user = await seedUser({ name: "User" })
+    const actor = await seedUser({ name: "Actor" })
+
+    await db.insert(notifications).values([
+      {
+        actorId: actor.id,
+        entityId: 42,
+        entityType: "post",
+        type: "message_like",
+        userId: user.id,
+        data: { actorName: actor.name, messageId: 100 },
+      },
+      {
+        actorId: actor.id,
+        entityId: 42,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+      {
+        actorId: actor.id,
+        entityId: 99,
+        entityType: "post",
+        type: "message_like",
+        userId: user.id,
+        data: { actorName: actor.name, messageId: 300 },
+      },
+    ])
+
+    await deleteNotificationsForEntity("post", 42)
+
+    const rows = await db.query.notifications.findMany()
+    expect(rows).toHaveLength(1)
+    expect(rows[0]?.entityId).toBe(99)
   })
 })

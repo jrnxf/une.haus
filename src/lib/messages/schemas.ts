@@ -16,6 +16,7 @@ export const messageFormSchema = z.object({
 export type MessageFormOutput = z.infer<typeof messageFormSchema>
 
 export const chatParentMessageSchema = z.object({
+  focus: z.number().positive().int().optional(),
   id: z.literal(-1),
   type: z.literal("chat"),
 })
