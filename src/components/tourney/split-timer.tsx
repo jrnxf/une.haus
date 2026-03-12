@@ -26,7 +26,6 @@ type SplitTimerProps = {
   rider1?: ResolvedRiderEntry
   rider2?: ResolvedRiderEntry
   time: number
-  headerContent?: React.ReactNode
   onSync?: (event: TimerSyncEvent) => void
   onClose?: () => void
 }
@@ -35,7 +34,6 @@ export function SplitTimer({
   rider1,
   rider2,
   time: initialSeconds,
-  headerContent,
   onSync,
   onClose,
 }: SplitTimerProps) {
@@ -230,13 +228,6 @@ export function SplitTimer({
 
   return (
     <div ref={containerRef} className="bg-background flex h-full flex-col">
-      {/* Header */}
-      {headerContent && (
-        <div className="flex items-center justify-between border-b px-4 py-4">
-          {headerContent}
-        </div>
-      )}
-
       {/* Split Timers */}
       <div className="relative flex grow flex-col md:flex-row">
         {/* Vertical divider (desktop) */}
@@ -247,7 +238,7 @@ export function SplitTimer({
           <div className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 md:top-4 md:translate-y-0">
             <Button
               variant="secondary"
-              size="icon-xs"
+              size="icon-sm"
               onClick={() =>
                 setSwapped((s) => {
                   const next = !s

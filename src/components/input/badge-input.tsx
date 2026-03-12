@@ -30,7 +30,9 @@ export function BadgeInput<T extends string>({
             }}
             type="button"
           >
-            <Badge variant={isSelected ? "default" : "outline"}>{option}</Badge>
+            <Badge variant={isSelected ? "default" : "secondary"}>
+              {option}
+            </Badge>
           </button>
         )
       })}

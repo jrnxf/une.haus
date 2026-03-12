@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router"
+import pluralize from "pluralize"
 import { Suspense, useEffect, useRef, useState } from "react"
 
 import { Button } from "~/components/ui/button"
@@ -41,7 +42,7 @@ function OnlineUserList({
       {guests > 0 && (
         <DropdownMenuLabel>
           {users.length > 0 ? "+" : ""}
-          {guests} guests
+          {guests} {pluralize("guest", guests)}
         </DropdownMenuLabel>
       )}
     </DropdownMenuGroup>
