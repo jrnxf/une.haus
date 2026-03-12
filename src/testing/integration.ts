@@ -3,11 +3,33 @@ import { sql } from "drizzle-orm"
 import { db } from "~/db"
 import { muxVideos, users } from "~/db/schema"
 
-// Safety: never run integration tests against a production database
+// Safety: integration tests must run inside the ephemeral Docker container
+// started by run-integration-tests.ts. Running them directly (e.g.
+// `bun test foo.integration.test.ts`) would hit your dev database and wipe it.
+if (process.env.INTEGRATION_TEST_DOCKER !== "true") {
+  throw new Error(
+    "FATAL: Integration tests must be run via `bun run test:integration`.\n" +
+      "Running them directly uses your dev DATABASE_URL and truncates all tables.\n" +
+      "The test:integration script spins up an ephemeral Docker Postgres container.",
+  )
+}
+
 const dbUrl = process.env.DATABASE_URL ?? ""
 if (dbUrl.includes("neon.tech") || dbUrl.includes("production")) {
   throw new Error(
     `FATAL: Integration tests are pointing at a production database!\nDATABASE_URL: ${dbUrl}`,
+  )
+}
+
+// Final safeguard: verify at the connection level that we're actually talking
+// to the Docker container. This catches any env leak the static checks miss.
+const [{ current_database }] = await db.execute<{ current_database: string }>(
+  sql`SELECT current_database()`,
+)
+if (current_database !== "unehaus_test") {
+  throw new Error(
+    `FATAL: Integration tests connected to "${current_database}", expected "unehaus_test".\n` +
+      `DATABASE_URL: ${process.env.DATABASE_URL}`,
   )
 }
 

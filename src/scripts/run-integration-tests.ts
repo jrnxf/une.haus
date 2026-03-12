@@ -52,6 +52,7 @@ const testEnv = {
   DATABASE_NAME: "unehaus_test",
   DATABASE_USER: "unehaus_test",
   DATABASE_PASSWORD: "unehaus_test",
+  INTEGRATION_TEST_DOCKER: "true",
 }
 
 async function runStreaming(cmd: string[], runEnv) {
