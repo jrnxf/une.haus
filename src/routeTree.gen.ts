@@ -32,6 +32,8 @@ import { Route as IntroSplatRouteImport } from './routes/intro.$'
 import { Route as GamesArcadeRouteImport } from './routes/games/arcade'
 import { Route as AuthVerifyRouteImport } from './routes/auth/verify'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
+import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
 import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as GamesSiusRouteRouteImport } from './routes/games/sius/route'
@@ -208,6 +210,16 @@ const AuthVerifyRoute = AuthVerifyRouteImport.update({
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUnsubscribeRoute = ApiUnsubscribeRouteImport.update({
+  id: '/api/unsubscribe',
+  path: '/api/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedFeedbackRoute = AuthedFeedbackRouteImport.update({
@@ -562,6 +574,8 @@ export interface FileRoutesByFullPath {
   '/games/sius': typeof GamesSiusBrowseRouteWithChildren
   '/admin': typeof AuthedAdminRouteWithChildren
   '/feedback': typeof AuthedFeedbackRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/games/arcade': typeof GamesArcadeRoute
@@ -645,6 +659,8 @@ export interface FileRoutesByTo {
   '/games/rius': typeof GamesRiusBrowseRouteWithChildren
   '/games/sius': typeof GamesSiusBrowseIndexRoute
   '/feedback': typeof AuthedFeedbackRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/games/arcade': typeof GamesArcadeRoute
@@ -728,6 +744,8 @@ export interface FileRoutesById {
   '/games/sius': typeof GamesSiusRouteRouteWithChildren
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
   '/_authed/feedback': typeof AuthedFeedbackRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/auth/register': typeof AuthRegisterRoute
   '/auth/verify': typeof AuthVerifyRoute
   '/games/arcade': typeof GamesArcadeRoute
@@ -817,6 +835,8 @@ export interface FileRouteTypes {
     | '/games/sius'
     | '/admin'
     | '/feedback'
+    | '/api/health'
+    | '/api/unsubscribe'
     | '/auth/register'
     | '/auth/verify'
     | '/games/arcade'
@@ -900,6 +920,8 @@ export interface FileRouteTypes {
     | '/games/rius'
     | '/games/sius'
     | '/feedback'
+    | '/api/health'
+    | '/api/unsubscribe'
     | '/auth/register'
     | '/auth/verify'
     | '/games/arcade'
@@ -982,6 +1004,8 @@ export interface FileRouteTypes {
     | '/games/sius'
     | '/_authed/admin'
     | '/_authed/feedback'
+    | '/api/health'
+    | '/api/unsubscribe'
     | '/auth/register'
     | '/auth/verify'
     | '/games/arcade'
@@ -1069,6 +1093,8 @@ export interface RootRouteChildren {
   GamesBiusRouteRoute: typeof GamesBiusRouteRouteWithChildren
   GamesRiusRouteRoute: typeof GamesRiusRouteRouteWithChildren
   GamesSiusRouteRoute: typeof GamesSiusRouteRouteWithChildren
+  ApiHealthRoute: typeof ApiHealthRoute
+  ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   AuthVerifyRoute: typeof AuthVerifyRoute
   GamesArcadeRoute: typeof GamesArcadeRoute
@@ -1257,6 +1283,20 @@ declare module '@tanstack/react-router' {
       path: '/auth/register'
       fullPath: '/auth/register'
       preLoaderRoute: typeof AuthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/unsubscribe': {
+      id: '/api/unsubscribe'
+      path: '/api/unsubscribe'
+      fullPath: '/api/unsubscribe'
+      preLoaderRoute: typeof ApiUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/feedback': {
@@ -1910,6 +1950,8 @@ const rootRouteChildren: RootRouteChildren = {
   GamesBiusRouteRoute: GamesBiusRouteRouteWithChildren,
   GamesRiusRouteRoute: GamesRiusRouteRouteWithChildren,
   GamesSiusRouteRoute: GamesSiusRouteRouteWithChildren,
+  ApiHealthRoute: ApiHealthRoute,
+  ApiUnsubscribeRoute: ApiUnsubscribeRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthVerifyRoute: AuthVerifyRoute,
   GamesArcadeRoute: GamesArcadeRoute,
@@ -1939,13 +1981,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

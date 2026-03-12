@@ -12,6 +12,8 @@ type AuthenticatedContext = {
   }
 }
 
+type UnsubscribeType = "all" | "digest" | "game_start"
+
 export async function getNotificationSettings({
   context,
 }: {
@@ -62,4 +64,38 @@ export async function updateNotificationSettings({
     .returning()
 
   return settings
+}
+
+export async function unsubscribe({
+  type,
+  userId,
+}: {
+  type: UnsubscribeType
+  userId: number
+}) {
+  const updates: Partial<{
+    emailDigestFrequency: "off" | "weekly" | "monthly"
+    emailUnsubscribedAll: boolean
+    gameStartReminderEnabled: boolean
+  }> = {}
+
+  switch (type) {
+    case "digest": {
+      updates.emailDigestFrequency = "off"
+      break
+    }
+    case "game_start": {
+      updates.gameStartReminderEnabled = false
+      break
+    }
+    case "all": {
+      updates.emailUnsubscribedAll = true
+      break
+    }
+  }
+
+  await db
+    .update(userNotificationSettings)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(userNotificationSettings.userId, userId))
 }
