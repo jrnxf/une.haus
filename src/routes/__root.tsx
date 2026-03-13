@@ -160,7 +160,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="overscroll-none font-mono antialiased">
         <ThemeProvider>
           <HapticsProvider>
-            <AblyProvider>
+            <AblyProvider key={sessionData.user?.id ?? "guest"}>
               <Toaster />
               <ConfirmDialog />
               {isChromeless ? (
