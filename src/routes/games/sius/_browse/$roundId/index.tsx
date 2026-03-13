@@ -3,8 +3,8 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { GhostIcon } from "lucide-react"
 import { z } from "zod"
 
+import { SetLineage } from "~/components/games/set-lineage"
 import { RoundStatusBanner } from "~/components/games/sius/round-status-banner"
-import { SetLineage } from "~/components/games/sius/set-lineage"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
@@ -87,7 +87,7 @@ function RouteComponent() {
         voteCount={voteCount}
       />
 
-      <SetLineage sets={sets} />
+      <SetLineage gameType="sius" sets={sets} />
     </div>
   )
 }

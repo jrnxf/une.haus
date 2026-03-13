@@ -1,4 +1,4 @@
-import { SiuSetCard } from "./set-card"
+import { ChainSetCard } from "./chain-set-card"
 import { cn } from "~/lib/utils"
 
 type Set = {
@@ -25,10 +25,11 @@ type Set = {
 }
 
 type SetLineageProps = {
+  gameType: "bius" | "sius"
   sets: Set[]
 }
 
-export function SetLineage({ sets }: SetLineageProps) {
+export function SetLineage({ gameType, sets }: SetLineageProps) {
   if (sets.length === 0) {
     return null
   }
@@ -67,7 +68,7 @@ export function SetLineage({ sets }: SetLineageProps) {
                 deleted
               </div>
             ) : (
-              <SiuSetCard set={set} className="w-full" />
+              <ChainSetCard gameType={gameType} set={set} className="w-full" />
             )}
           </div>
         ))}

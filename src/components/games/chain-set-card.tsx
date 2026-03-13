@@ -7,7 +7,8 @@ import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { StatBadge } from "~/components/ui/stat-badge"
 import { cn } from "~/lib/utils"
 
-type BiuSetCardProps = {
+type ChainSetCardProps = {
+  gameType: "bius" | "sius"
   set: {
     id: number
     name: string
@@ -32,18 +33,23 @@ type BiuSetCardProps = {
   className?: string
 }
 
-export function BiuSetCard({ set, className }: BiuSetCardProps) {
+const routes = {
+  bius: "/games/bius/sets/$setId",
+  sius: "/games/sius/sets/$setId",
+} as const
+
+export function ChainSetCard({ gameType, set, className }: ChainSetCardProps) {
   const likeCount = Array.isArray(set.likes) ? set.likes.length : 0
   const messageCount = Array.isArray(set.messages) ? set.messages.length : 0
 
   return (
-    <div className={cn("group relative z-20", className)}>
+    <div className={cn("group relative", className)}>
       <Button
         variant="card"
         asChild
         className="flex w-full overflow-hidden p-3"
       >
-        <Link to="/games/bius/sets/$setId" params={{ setId: set.id }}>
+        <Link to={routes[gameType]} params={{ setId: set.id }}>
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex min-w-0 items-center gap-2">
               <span className="truncate text-sm font-medium">{set.name}</span>

@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
-import { SetLineage } from "~/components/games/sius/set-lineage"
+import { SetLineage } from "~/components/games/set-lineage"
 import { games } from "~/lib/games"
 import { invariant } from "~/lib/invariant"
 
@@ -38,7 +38,7 @@ function RouteComponent() {
 
   return (
     <div className="space-y-6">
-      <SetLineage sets={sets} />
+      <SetLineage gameType="sius" sets={sets} />
     </div>
   )
 }

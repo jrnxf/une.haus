@@ -3,7 +3,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { GhostIcon } from "lucide-react"
 import { z } from "zod"
 
-import { SetLineage } from "~/components/games/bius/set-lineage"
+import { SetLineage } from "~/components/games/set-lineage"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
@@ -69,7 +69,7 @@ function RouteComponent() {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <SetLineage sets={sets} />
+        <SetLineage gameType="bius" sets={sets} />
       </div>
     </div>
   )
