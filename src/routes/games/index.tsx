@@ -8,6 +8,8 @@ import { Button } from "~/components/ui/button"
 import { games } from "~/lib/games"
 import { seo } from "~/lib/seo"
 
+import type { ComponentType } from "react"
+
 export const Route = createFileRoute("/games/")({
   component: RouteComponent,
   head: () =>
@@ -47,52 +49,51 @@ function RouteComponent() {
       </PageHeader>
       <div className="@container mx-auto w-full max-w-2xl p-4">
         <div className="flex flex-col gap-4">
-          <Button variant="card" className="flex p-4" asChild>
-            <Link to="/games/rius/active">
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <MergeIcon className="text-muted-foreground size-4" />
-                  <p className="font-semibold">rack it up</p>
-                </div>
-                <p className="text-muted-foreground min-w-0 flex-1 text-sm leading-relaxed">
-                  the original. post up to three creative sets weekly and submit
-                  for all other rider sets. rider with the most points wins.
-                </p>
-              </div>
-            </Link>
-          </Button>
-
-          <Button variant="card" className="flex p-4" asChild>
-            <Link to="/games/bius">
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <ArrowLeftRightIcon className="text-muted-foreground size-4" />
-                  <p className="font-semibold">back it up</p>
-                </div>
-                <p className="text-muted-foreground min-w-0 flex-1 text-sm leading-relaxed">
-                  back up the last trick then set a new one. the never-ending
-                  game.
-                </p>
-              </div>
-            </Link>
-          </Button>
-
-          <Button variant="card" className="flex p-4" asChild>
-            <Link to="/games/sius">
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <StackItUpIcon className="text-muted-foreground size-4" />
-                  <p className="font-semibold">stack it up</p>
-                </div>
-                <p className="text-muted-foreground min-w-0 flex-1 text-sm leading-relaxed">
-                  land every trick in an ever-growing stack then set your own an
-                  the end. consistency wins.
-                </p>
-              </div>
-            </Link>
-          </Button>
+          <GameCard
+            to="/games/rius/active"
+            icon={MergeIcon}
+            title="rack it up"
+            description="the original. post up to three creative sets weekly and submit for all other rider sets. rider with the most points wins."
+          />
+          <GameCard
+            to="/games/bius"
+            icon={ArrowLeftRightIcon}
+            title="back it up"
+            description="back up the last trick then set a new one. the never-ending game."
+          />
+          <GameCard
+            to="/games/sius"
+            icon={StackItUpIcon}
+            title="stack it up"
+            description="land every trick in an ever-growing stack then set your own an the end. consistency wins."
+          />
         </div>
       </div>
     </>
+  )
+}
+
+type GameCardProps = {
+  to: "/games/rius/active" | "/games/bius" | "/games/sius"
+  icon: ComponentType<{ className?: string }>
+  title: string
+  description: string
+}
+
+function GameCard({ to, icon: Icon, title, description }: GameCardProps) {
+  return (
+    <Button variant="card" className="flex p-4" asChild>
+      <Link to={to}>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <Icon className="text-muted-foreground size-3.5" />
+            <p className="font-semibold">{title}</p>
+          </div>
+          <p className="text-muted-foreground min-w-0 flex-1 text-sm leading-relaxed">
+            {description}
+          </p>
+        </div>
+      </Link>
+    </Button>
   )
 }
