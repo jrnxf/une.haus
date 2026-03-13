@@ -26,8 +26,8 @@ import {
 import { cn } from "~/lib/utils"
 
 // Layout constants
-export const NODE_WIDTH = 200
-export const NODE_HEIGHT = 64
+const NODE_WIDTH = 200
+const NODE_HEIGHT = 64
 const HORIZONTAL_GAP = 80
 const BASE_VERTICAL_GAP = 24
 
@@ -224,7 +224,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
 const nodeTypes = { match: MatchNode }
 const edgeTypes = { bracket: BracketEdge }
 
-export function buildBracketGraph(
+function buildBracketGraph(
   matches: Match[],
   stageTimes: { battle: number; finals: number },
   onSelectWinner: (matchId: string, winner: 1 | 2) => void,

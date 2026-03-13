@@ -57,7 +57,7 @@ const PROGRESSION_ORDER = [
   "sext",
 ]
 
-export function getTrickSortKey(name: string): {
+function getTrickSortKey(name: string): {
   leadingNumber: number
   baseWords: string
   progressionRank: number
@@ -95,7 +95,7 @@ export function getTrickSortKey(name: string): {
   return { leadingNumber, baseWords, progressionRank, suffix }
 }
 
-export function compareTrickNames(a: string, b: string): number {
+function compareTrickNames(a: string, b: string): number {
   const keyA = getTrickSortKey(a)
   const keyB = getTrickSortKey(b)
 

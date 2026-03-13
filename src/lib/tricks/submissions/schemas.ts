@@ -7,7 +7,7 @@ import {
 } from "~/db/schema"
 
 // Submission relationship schema
-export const submissionRelationshipSchema = z.object({
+const submissionRelationshipSchema = z.object({
   targetTrickId: z.number(),
   type: z.enum(TRICK_RELATIONSHIP_TYPES),
 })
@@ -60,7 +60,6 @@ export const listSubmissionsSchema = z
   })
   .optional()
 
-export type ListSubmissionsArgs = z.infer<typeof listSubmissionsSchema>
 export type ListSubmissionsInput = z.input<typeof listSubmissionsSchema>
 
 // Review submission (admin approves/rejects)
@@ -73,7 +72,7 @@ export const reviewSubmissionSchema = z.object({
 export type ReviewSubmissionArgs = z.infer<typeof reviewSubmissionSchema>
 
 // Suggestion schemas
-export const trickSuggestionDiffSchema = z.object({
+const trickSuggestionDiffSchema = z.object({
   name: z.string().optional(),
   alternateNames: z.array(z.string()).optional(),
   description: z.string().nullable().optional(),
@@ -101,15 +100,11 @@ export const trickSuggestionDiffSchema = z.object({
     .optional(),
 })
 
-export type TrickSuggestionDiffInput = z.infer<typeof trickSuggestionDiffSchema>
-
 export const createSuggestionSchema = z.object({
   trickId: z.number(),
   diff: trickSuggestionDiffSchema,
   reason: z.string().optional().nullable(),
 })
-
-export type CreateSuggestionArgs = z.infer<typeof createSuggestionSchema>
 
 export const getSuggestionSchema = z.object({
   id: z.number(),
@@ -124,7 +119,6 @@ export const listSuggestionsSchema = z
   })
   .optional()
 
-export type ListSuggestionsArgs = z.infer<typeof listSuggestionsSchema>
 export type ListSuggestionsInput = z.input<typeof listSuggestionsSchema>
 
 export const reviewSuggestionSchema = z.object({
@@ -132,5 +126,3 @@ export const reviewSuggestionSchema = z.object({
   status: z.enum(["approved", "rejected"]),
   reviewNotes: z.string().min(1),
 })
-
-export type ReviewSuggestionArgs = z.infer<typeof reviewSuggestionSchema>

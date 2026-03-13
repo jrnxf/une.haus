@@ -5,7 +5,7 @@ import { type RichToken, parseRichTokens } from "~/lib/mentions/parse"
 import { useUserMap } from "~/lib/users/use-user-map"
 import { preprocessText } from "~/lib/utils"
 
-export type MentionMode = "link" | "accentText" | "plainText"
+type MentionMode = "link" | "accentText" | "plainText"
 
 type RichTextProps = {
   content: string

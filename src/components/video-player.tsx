@@ -59,5 +59,3 @@ export function VideoPlayer({
     </div>
   )
 }
-
-export type { MuxPlayerRefAttributes } from "@mux/mux-player-react"

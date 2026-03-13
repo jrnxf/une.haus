@@ -1,27 +1,10 @@
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
-import { X } from "lucide-react"
 import * as React from "react"
 
 import { buttonVariants } from "~/components/ui/base-button"
 import { buttonVariants as uiButtonVariants } from "~/components/ui/button"
 import { useHaptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
-
-// Base UI Alert Dialog Root
-function AlertDialog({
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
-}
-
-// Base UI Alert Dialog Trigger
-function AlertDialogTrigger(
-  props: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>,
-) {
-  return (
-    <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />
-  )
-}
 
 // Base UI Alert Dialog Backdrop
 function AlertDialogBackdrop({
@@ -66,55 +49,6 @@ function AlertDialogPopup({
   )
 }
 
-// Base UI Alert Dialog Content
-function AlertDialogContent({
-  className,
-  children,
-  showDismissButton = false,
-  showBackdrop = true,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Popup> & {
-  showDismissButton?: boolean
-  showBackdrop?: boolean
-}) {
-  return (
-    <AlertDialogPortal>
-      {showBackdrop && <AlertDialogBackdrop />}
-      <AlertDialogPopup className={className} {...props}>
-        {children}
-        {showDismissButton && (
-          <AlertDialogPrimitive.Close
-            data-slot="alert-dialog-dismiss"
-            className={cn(
-              buttonVariants({ variant: "dim", size: "sm" }),
-              "absolute end-2.5 top-2.5",
-              className,
-            )}
-          >
-            <X />
-            <span className="sr-only">close</span>
-          </AlertDialogPrimitive.Close>
-        )}
-      </AlertDialogPopup>
-    </AlertDialogPortal>
-  )
-}
-
-// Alert Dialog Header (helper component)
-const AlertDialogHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    data-slot="alert-dialog-header"
-    className={cn(
-      "flex flex-col space-y-2 text-center sm:text-left",
-      className,
-    )}
-    {...props}
-  />
-)
-
 // Alert Dialog Footer (helper component)
 const AlertDialogFooter = ({
   className,
@@ -156,37 +90,6 @@ function AlertDialogDescription({
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
       className={cn("text-muted-foreground text-sm", className)}
-      {...props}
-    />
-  )
-}
-
-// Base UI Alert Dialog Action (generic) with asChild support
-function AlertDialogAction({
-  className,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Close>) {
-  return (
-    <AlertDialogPrimitive.Close
-      data-slot="alert-dialog-action"
-      className={cn(!props.render && buttonVariants(), className)}
-      {...props}
-    />
-  )
-}
-
-// Base UI Alert Dialog Close (generic close button)
-function AlertDialogClose({
-  className,
-  ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Close>) {
-  return (
-    <AlertDialogPrimitive.Close
-      data-slot="alert-dialog-close"
-      className={cn(
-        !props.render && buttonVariants({ variant: "outline" }),
-        className,
-      )}
       {...props}
     />
   )
@@ -266,19 +169,4 @@ function ConfirmDialog({
 }
 
 // Exports with proper naming to match Base UI pattern
-export {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogBackdrop,
-  AlertDialogClose,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogPortal,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-  ConfirmDialog,
-}
-
-export type { ConfirmDialogProps }
+export { ConfirmDialog }

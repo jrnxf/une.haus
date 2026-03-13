@@ -26,7 +26,7 @@ export function randomInt(min: number, max: number) {
 
 // --- High Score Persistence ---
 
-export function loadHighScore(): number {
+function loadHighScore(): number {
   try {
     return Number(localStorage.getItem(LS_HIGH_SCORE_KEY)) || 0
   } catch {

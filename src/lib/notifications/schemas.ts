@@ -8,8 +8,6 @@ export const listNotificationsSchema = z.object({
   unreadOnly: z.boolean().default(false),
 })
 
-export type ListNotificationsInput = z.infer<typeof listNotificationsSchema>
-
 export const markReadSchema = z.object({
   notificationId: z.number().positive().int(),
 })

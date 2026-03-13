@@ -12,13 +12,9 @@ export const createModifierSchema = z.object({
   description: z.string().nullable().optional(),
 })
 
-export type CreateModifierArgs = z.infer<typeof createModifierSchema>
-
 export const updateModifierSchema = createModifierSchema.extend({
   id: z.number(),
 })
-
-export type UpdateModifierArgs = z.infer<typeof updateModifierSchema>
 
 export const deleteModifierSchema = z.number()
 
@@ -34,20 +30,16 @@ export const createElementSchema = z.object({
   description: z.string().nullable().optional(),
 })
 
-export type CreateElementArgs = z.infer<typeof createElementSchema>
-
 export const updateElementSchema = createElementSchema.extend({
   id: z.number(),
 })
-
-export type UpdateElementArgs = z.infer<typeof updateElementSchema>
 
 export const deleteElementSchema = z.number()
 
 export const listElementsSchema = z.object({}).optional()
 
 // Trick relationship schema
-export const trickRelationshipSchema = z.object({
+const trickRelationshipSchema = z.object({
   targetTrickId: z.number(),
   type: z.enum(TRICK_RELATIONSHIP_TYPES),
 })
@@ -100,7 +92,6 @@ export const listTricksSchema = z
   })
   .optional()
 
-export type ListTricksArgs = z.infer<typeof listTricksSchema>
 export type ListTricksInput = z.input<typeof listTricksSchema>
 
 // search tricks for selector
@@ -109,20 +100,14 @@ export const searchTricksSchema = z.object({
   excludeIds: z.array(z.number()).default([]),
 })
 
-export type SearchTricksArgs = z.infer<typeof searchTricksSchema>
-
 // Form-specific relationship type (includes display info for selectors)
 // Only includes types that the form UI supports (not optional_prerequisite)
-export const trickRelationshipFormSchema = z.object({
+const trickRelationshipFormSchema = z.object({
   targetTrickId: z.number(),
   targetTrickSlug: z.string(),
   targetTrickName: z.string(),
   type: z.enum(["prerequisite", "related"]),
 })
-
-export type TrickRelationshipFormValue = z.infer<
-  typeof trickRelationshipFormSchema
->
 
 // Element form schema for tag selector
 export const elementFormSchema = z.object({

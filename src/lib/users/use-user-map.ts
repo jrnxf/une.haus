@@ -3,7 +3,7 @@ import { useMemo } from "react"
 
 import { users } from "~/lib/users"
 
-export type UserMapEntry = {
+type UserMapEntry = {
   id: number
   name: string
   avatarId: string | null

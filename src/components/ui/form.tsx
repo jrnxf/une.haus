@@ -634,7 +634,6 @@ export {
   FormField,
   FormItem,
   FormLabel,
-  FormMediaProvider,
   FormMessage,
   FormSubmitButton,
   useFormField,

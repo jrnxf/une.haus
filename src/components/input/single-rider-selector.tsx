@@ -16,7 +16,7 @@ import { users as usersApi } from "~/lib/users"
 import { cn } from "~/lib/utils"
 import { useFzf } from "~/lib/ux/hooks/use-fzf"
 
-export type RiderEntry = ResolvedRiderEntry
+type RiderEntry = ResolvedRiderEntry
 
 type User = {
   id: number

@@ -53,7 +53,7 @@ export function useLikeUnlikeRecord({
   return authUserLiked ? unlikeMutation : likeMutation
 }
 
-export function useLikeRecord({
+function useLikeRecord({
   record,
   optimisticUpdateQueryKey,
   refetchQueryKey,
@@ -135,7 +135,7 @@ export function useLikeRecord({
   }
 }
 
-export function useUnlikeRecord({
+function useUnlikeRecord({
   record,
   optimisticUpdateQueryKey,
   refetchQueryKey,

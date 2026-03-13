@@ -17,7 +17,6 @@ export const listVideosSchema = z.object({
   status: z.enum(TRICK_VIDEO_STATUSES).optional(),
 })
 
-export type ListVideosArgs = z.infer<typeof listVideosSchema>
 export type ListVideosInput = z.input<typeof listVideosSchema>
 
 // List all pending videos (admin)
@@ -28,7 +27,6 @@ export const listPendingVideosSchema = z
   })
   .optional()
 
-export type ListPendingVideosArgs = z.infer<typeof listPendingVideosSchema>
 export type ListPendingVideosInput = z.input<typeof listPendingVideosSchema>
 
 // Review video (admin approves/rejects)
@@ -59,5 +57,3 @@ export type DemoteVideoArgs = z.infer<typeof demoteVideoSchema>
 export const deleteVideoSchema = z.object({
   id: z.number(),
 })
-
-export type DeleteVideoArgs = z.infer<typeof deleteVideoSchema>

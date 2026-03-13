@@ -572,7 +572,7 @@ function getSegmentYs(
   return null
 }
 
-export function getStairsetSurfaceY(
+function getStairsetSurfaceY(
   worldX: number,
   baseGroundY: number,
   t: TerrainPiece & { type: "stairset" },

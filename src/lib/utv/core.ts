@@ -1,7 +1,7 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
 import { PAGE_SIZE } from "~/lib/constants"
-import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
+import { type ServerFnData } from "~/lib/types"
 import {
   addUtvClapsServerFn,
   adminUpdateUtvVideoServerFn,
@@ -139,11 +139,3 @@ export const utv = {
     },
   },
 }
-
-export type UtvVideosData = ServerFnReturn<typeof allUtvVideosServerFn>
-export type UtvVideosListData = ServerFnReturn<typeof listUtvVideosServerFn>
-export type UtvVideoData = ServerFnReturn<typeof getUtvVideoServerFn>
-export type UtvSuggestionData = ServerFnReturn<typeof getUtvSuggestionServerFn>
-export type UtvSuggestionsData = ServerFnReturn<
-  typeof listUtvSuggestionsServerFn
->

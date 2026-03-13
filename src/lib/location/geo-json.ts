@@ -16,7 +16,7 @@ type LocationFeatureProperties = {
   label: string
 }
 
-export type LocationGeoJSON = GeoJSON.FeatureCollection<
+type LocationGeoJSON = GeoJSON.FeatureCollection<
   GeoJSON.Point,
   LocationFeatureProperties
 >

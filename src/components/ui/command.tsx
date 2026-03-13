@@ -2,7 +2,6 @@ import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 import { Command as CommandPrimitive } from "cmdk"
 import { Loader2Icon, SearchIcon } from "lucide-react"
 import * as React from "react"
-import { createContext, useContext } from "react"
 
 import { Button } from "~/components/ui/button"
 import {
@@ -17,8 +16,6 @@ import { Kbd, KbdGroup } from "~/components/ui/kbd"
 import { ScrollBar } from "~/components/ui/scroll-area"
 import { useModifierKey } from "~/hooks/use-modifier-key"
 import { cn } from "~/lib/utils"
-
-const CommandLoading = CommandPrimitive.Loading
 
 function Command({
   className,
@@ -246,117 +243,15 @@ function CommandShortcut({
   )
 }
 
-// Action system types
-type CommandAction = {
-  id: string
-  label: string
-  shortcut?: {
-    key: string
-    meta?: boolean
-    shift?: boolean
-    ctrl?: boolean
-  }
-  onAction: () => void
-}
-
-type CommandActionsContextValue = {
-  actions: CommandAction[]
-  setActions: (actions: CommandAction[]) => void
-}
-
-const CommandActionsContext = createContext<CommandActionsContextValue | null>(
-  null,
-)
-
-function useCommandActions() {
-  const context = useContext(CommandActionsContext)
-  if (!context) {
-    throw new Error(
-      "useCommandActions must be used within CommandActionsProvider",
-    )
-  }
-  return context
-}
-
-function CommandActionsProvider({ children }: { children: React.ReactNode }) {
-  const [actions, setActions] = React.useState<CommandAction[]>([])
-
-  return (
-    <CommandActionsContext.Provider value={{ actions, setActions }}>
-      {children}
-    </CommandActionsContext.Provider>
-  )
-}
-
-function CommandFooter({ className }: { className?: string }) {
-  const { actions } = useCommandActions()
-  const metaKey = useModifierKey()
-
-  if (actions.length === 0) return null
-
-  const formatShortcut = (shortcut: CommandAction["shortcut"]) => {
-    if (!shortcut) return null
-    const parts: string[] = []
-    if (shortcut.meta) parts.push(metaKey)
-    if (shortcut.ctrl) parts.push("Ctrl")
-    if (shortcut.shift) parts.push("⇧")
-    parts.push(shortcut.key.toUpperCase())
-    return parts
-  }
-
-  return (
-    <div
-      data-slot="command-footer"
-      className={cn(
-        "bg-background flex items-center justify-end gap-3 border-t px-3 py-2",
-        className,
-      )}
-    >
-      {actions.map((action, index) => {
-        const shortcutParts = formatShortcut(action.shortcut)
-        const isPrimary = index === 0
-
-        return (
-          <button
-            key={action.id}
-            type="button"
-            onClick={action.onAction}
-            className={cn(
-              "flex items-center gap-1.5 text-xs transition-colors",
-              isPrimary
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <span>{action.label}</span>
-            {shortcutParts && (
-              <span className="flex items-center gap-0.5">
-                {shortcutParts.map((part, i) => (
-                  <Kbd key={i}>{part}</Kbd>
-                ))}
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
 export { Kbd, KbdGroup } from "~/components/ui/kbd"
 export {
   Command,
-  CommandActionsProvider,
   CommandDialog,
   CommandEmpty,
-  CommandFooter,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandLoading,
   CommandSeparator,
   CommandShortcut,
-  useCommandActions,
 }
-export type { CommandAction }

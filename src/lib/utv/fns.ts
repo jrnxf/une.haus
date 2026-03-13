@@ -1,4 +1,4 @@
-import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
+import { createServerFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
 import { asc, count, eq, sql } from "drizzle-orm"
 import { z } from "zod"
@@ -152,38 +152,6 @@ export const listUtvVideosServerFn = createServerFn({
   .inputValidator(zodValidator(listUtvVideosSchema))
   .handler(async ({ data }) => {
     return listUtvVideosOp({ data })
-  })
-
-const saveScalesSchema = z.object({
-  scales: z.record(z.string(), z.number()),
-})
-
-const saveVaultScales = createServerOnlyFn(
-  async (scales: Record<string, number>) => {
-    const entries = Object.entries(scales).map(([id, scale]) => ({
-      id: Number(id),
-      scale,
-    }))
-
-    await Promise.all(
-      entries.map(({ id, scale }) =>
-        db
-          .update(utvVideos)
-          .set({ thumbnailScale: scale })
-          .where(eq(utvVideos.id, id)),
-      ),
-    )
-
-    return { success: true, count: entries.length }
-  },
-)
-
-export const saveUtvScalesServerFn = createServerFn({
-  method: "POST",
-})
-  .inputValidator(zodValidator(saveScalesSchema))
-  .handler(async ({ data }) => {
-    return saveVaultScales(data.scales)
   })
 
 const updateScaleSchema = z.object({

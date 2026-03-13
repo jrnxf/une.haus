@@ -30,7 +30,7 @@ const videoSubmitSchema = z.object({
 
 type VideoSubmitFormValues = z.infer<typeof videoSubmitSchema>
 
-export type VideoSubmitFormProps = {
+type VideoSubmitFormProps = {
   trickName: string
   onSubmit: (data: { muxAssetId: string; notes?: string }) => void
   onCancel?: () => void

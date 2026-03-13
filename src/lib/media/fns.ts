@@ -58,18 +58,3 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
     const { pollMuxVideoUploadStatus } = await loadMediaOps()
     return pollMuxVideoUploadStatus(ctx)
   })
-
-export const getMuxVideoServerFn = createServerFn({
-  method: "POST",
-})
-  .inputValidator(
-    zodValidator(
-      z.object({
-        assetId: z.string(),
-      }),
-    ),
-  )
-  .handler(async (ctx) => {
-    const { getMuxVideo } = await loadMediaOps()
-    return getMuxVideo(ctx)
-  })

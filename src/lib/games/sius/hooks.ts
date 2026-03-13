@@ -80,26 +80,6 @@ export function useRemoveArchiveVote() {
   })
 }
 
-export function useArchiveRound() {
-  const navigate = useNavigate()
-  const qc = useQueryClient()
-
-  return useMutation({
-    mutationFn: games.sius.admin.archiveRound.fn,
-    onSuccess: () => {
-      toast.success("round archived")
-      qc.removeQueries({ queryKey: activeRoundsKey })
-      qc.removeQueries({
-        queryKey: games.sius.rounds.archived.list.queryOptions().queryKey,
-      })
-      navigate({ to: "/games/sius" })
-    },
-    onError: (error) => {
-      toast.error(error.message || "failed to archive round")
-    },
-  })
-}
-
 export function useDeleteSet() {
   const navigate = useNavigate()
   const qc = useQueryClient()

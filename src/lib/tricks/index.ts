@@ -93,7 +93,7 @@ import {
 } from "./videos/schemas"
 import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
 
-export type { NeighborLink, Trick, TrickModifiers, TricksData } from "./types"
+export type { Trick } from "./types"
 
 export const tricks = {
   // Modifiers
@@ -360,20 +360,4 @@ export const tricks = {
 }
 
 // Type exports
-export type TrickData = ServerFnReturn<typeof getTrickServerFn>
-export type TrickByIdData = ServerFnReturn<typeof getTrickByIdServerFn>
-export type TricksListData = ServerFnReturn<typeof listTricksServerFn>
-export type TrickSearchData = ServerFnReturn<typeof searchTricksServerFn>
-export type TrickGraphData = ServerFnReturn<typeof getAllTricksForGraphServerFn>
-export type ModifierData = ServerFnReturn<typeof listModifiersServerFn>
-export type ElementData = ServerFnReturn<typeof listElementsServerFn>
-export type SubmissionData = ServerFnReturn<typeof getSubmissionServerFn>
-export type SuggestionData = ServerFnReturn<typeof getSuggestionServerFn>
 export type PendingVideosData = ServerFnReturn<typeof listPendingVideosServerFn>
-export type TrickVideosData = ServerFnReturn<typeof listVideosServerFn>
-export type GlossaryProposalData = ServerFnReturn<
-  typeof getGlossaryProposalServerFn
->
-export type GlossaryProposalsListData = ServerFnReturn<
-  typeof listGlossaryProposalsServerFn
->

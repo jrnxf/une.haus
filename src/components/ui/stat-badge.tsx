@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils"
 
 import type { ComponentType } from "react"
 
-export type StatBadgeProps = {
+type StatBadgeProps = {
   icon: ComponentType<{ className?: string }>
   count: number
   label: string

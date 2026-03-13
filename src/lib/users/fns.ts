@@ -43,15 +43,6 @@ export const listUsersServerFn = createServerFn({
     return listUsers(ctx)
   })
 
-export const getUserServerFn = createServerFn({
-  method: "GET",
-})
-  .inputValidator(zodValidator(getUserSchema))
-  .handler(async ({ data }) => {
-    const { getUser } = await loadUserOps()
-    return getUser(data.userId)
-  })
-
 export const getUserWithFollowsServerFn = createServerFn({
   method: "GET",
 })

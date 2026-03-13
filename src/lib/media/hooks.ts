@@ -5,18 +5,18 @@ import { toast } from "sonner"
 
 import { media } from "~/lib/media"
 
-export type VideoUploadOptions = {
+type VideoUploadOptions = {
   onSuccess?: (data: { assetId: string; playbackId: string }) => void
   onError?: (error: unknown) => void
   onProgress?: (progress: number) => void
 }
 
 const CHUNK_SIZE = 5120
-export const MAX_VIDEO_FILE_SIZE_MB = 50
+const MAX_VIDEO_FILE_SIZE_MB = 50
 export const MAX_VIDEO_FILE_SIZE_BYTES = MAX_VIDEO_FILE_SIZE_MB * 1024 * 1024
-export const VIDEO_INVALID_TYPE_MESSAGE =
+const VIDEO_INVALID_TYPE_MESSAGE =
   "invalid file type. please upload a video file."
-export const VIDEO_TOO_LARGE_MESSAGE = `file too large. maximum size is ${MAX_VIDEO_FILE_SIZE_MB}MB.`
+const VIDEO_TOO_LARGE_MESSAGE = `file too large. maximum size is ${MAX_VIDEO_FILE_SIZE_MB}MB.`
 const ALLOWED_VIDEO_TYPES = new Set([
   "video/mp4",
   "video/quicktime",

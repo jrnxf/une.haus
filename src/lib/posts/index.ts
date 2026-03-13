@@ -15,7 +15,7 @@ import {
   listPostsSchema,
   updatePostSchema,
 } from "~/lib/posts/schemas"
-import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
+import { type ServerFnData } from "~/lib/types"
 
 export const posts = {
   list: {
@@ -67,6 +67,3 @@ export const posts = {
     schema: deletePostSchema,
   },
 }
-
-export type PostsGetData = ServerFnReturn<typeof getPostServerFn>
-export type PostsUpdateData = ServerFnReturn<typeof updatePostServerFn>

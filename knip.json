@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "src/start.ts",
+    "src/server.ts",
+    "src/router.tsx",
+    "src/routes/**/*.tsx",
+    "server/routes/**/*.ts",
+    "server/tasks/**/*.ts",
+    "emails/**/*.tsx",
+    "src/scripts/**/*.ts",
+    "src/testing/**/*.ts",
+    "src/styles.css",
+    "**/*.unit.test.{ts,tsx}",
+    "**/*.integration.test.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
+  "ignore": [],
+  "drizzle": false,
+  "ignoreDependencies": [
+    "@tailwindcss/postcss",
+    "@tailwindcss/container-queries",
+    "autoprefixer",
+    "postcss",
+    "geist",
+    "focus-visible",
+    "@tanstack/router-plugin",
+    "@tanstack/nitro-v2-vite-plugin",
+    "@testing-library/dom",
+    "@testing-library/react",
+    "jsdom",
+    "react-email",
+    "@react-email/preview-server",
+    "web-vitals"
+  ]
+}

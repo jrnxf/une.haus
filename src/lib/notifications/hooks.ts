@@ -14,15 +14,6 @@ function invalidateAllNotifications(qc: QueryClient) {
   qc.invalidateQueries({ queryKey: unreadCountKey })
 }
 
-export function useMarkNotificationRead() {
-  const qc = useQueryClient()
-
-  return useMutation({
-    mutationFn: notifications.markRead.fn,
-    onSuccess: () => invalidateAllNotifications(qc),
-  })
-}
-
 export function useMarkGroupRead() {
   const qc = useQueryClient()
 
@@ -50,14 +41,5 @@ export function useMarkAllNotificationsRead() {
       }
     },
     onSettled: () => invalidateAllNotifications(qc),
-  })
-}
-
-export function useDeleteNotification() {
-  const qc = useQueryClient()
-
-  return useMutation({
-    mutationFn: notifications.delete.fn,
-    onSuccess: () => invalidateAllNotifications(qc),
   })
 }

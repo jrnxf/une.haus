@@ -34,7 +34,7 @@ export const listUtvVideosSchema = z.object({
 })
 
 // Suggestion schemas
-export const utvVideoSuggestionDiffSchema = z.object({
+const utvVideoSuggestionDiffSchema = z.object({
   title: z.string().optional(),
   disciplines: z.array(z.enum(USER_DISCIPLINES)).nullable().optional(),
   riders: z
@@ -46,10 +46,6 @@ export const utvVideoSuggestionDiffSchema = z.object({
     )
     .optional(),
 })
-
-export type UtvVideoSuggestionDiffInput = z.infer<
-  typeof utvVideoSuggestionDiffSchema
->
 
 export const createUtvSuggestionSchema = z.object({
   utvVideoId: z.number(),

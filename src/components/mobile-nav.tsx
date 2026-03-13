@@ -6,7 +6,6 @@ import {
   Joystick,
   LockIcon,
   type LucideIcon,
-  MenuIcon,
   MessagesSquareIcon,
   PowerIcon,
   ShoppingBagIcon,
@@ -18,7 +17,7 @@ import { type ReactNode } from "react"
 
 import { BracketIcon } from "~/components/icons/bracket-icon"
 import { PodiumIcon } from "~/components/icons/podium-icon"
-import { MobileNavContext, useMobileNav } from "~/components/mobile-nav-context"
+import { MobileNavContext } from "~/components/mobile-nav-context"
 import {
   AuthedUserMenuItems,
   UnauthedUserMenuItems,
@@ -135,21 +134,6 @@ export function MobileNavIndent({
     >
       {children}
     </DrawerPrimitive.Indent>
-  )
-}
-
-export function MobileNavTrigger({ className }: { className?: string }) {
-  const openNav = useMobileNav()
-  return (
-    <Button
-      variant="secondary"
-      size="icon"
-      aria-label="open navigation menu"
-      onClick={openNav}
-      className={cn("md:hidden", className)}
-    >
-      <MenuIcon />
-    </Button>
   )
 }
 

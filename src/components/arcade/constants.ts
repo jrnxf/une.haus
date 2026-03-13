@@ -1,5 +1,4 @@
 // --- Physics ---
-export const GROUND_Y_RATIO = 0.78
 export const GRAVITY = 0.25
 export const JUMP_FORCE = -9
 export const DOUBLE_JUMP_FORCE = -7
@@ -25,8 +24,6 @@ export const RAIL_GAP_BOB_SPEED = 0.04
 export const RAIL_GAP_BOB_AMPLITUDE = 4
 
 // --- Scoring ---
-export const GRIND_SCORE_MULTIPLIER = 3
-export const COMBO_BONUS = 1
 export const MILESTONE_INTERVAL = 500
 export const MILESTONE_DISPLAY_FRAMES = 60
 
@@ -40,7 +37,7 @@ export const DUST_LIFE = 16
 export const SPEED_LINE_THRESHOLD = 5
 
 // --- Animations ---
-export const SEAT_SPIN_FRAMES = 45
+const SEAT_SPIN_FRAMES = 45
 export const SEAT_SPIN_SPEED = (Math.PI * 2) / SEAT_SPIN_FRAMES
 export const BACKFLIP_FRAMES = 105
 
@@ -67,7 +64,6 @@ export const SCOOTER_KID_H = 36
 export const SCOOTER_KID_SPEED = 2.5
 
 // --- Terrain geometry ---
-export const STEP_W = 24
 export const STEP_H = 8
 export const RAMP_SLOPE = 2.5
 export const MELLOW_RAMP_SLOPE = 4

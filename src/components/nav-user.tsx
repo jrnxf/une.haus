@@ -45,7 +45,7 @@ import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { useTheme } from "~/lib/theme/context"
 import { cn } from "~/lib/utils"
 
-export function ThemeSubmenu() {
+function ThemeSubmenu() {
   const { theme, setTheme } = useTheme()
 
   return (

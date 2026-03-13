@@ -36,26 +36,6 @@ export function useCreateSet() {
   })
 }
 
-export function useAdminRotateRius() {
-  const qc = useQueryClient()
-
-  return useMutation({
-    mutationFn: games.rius.admin.rotate.fn,
-    onSuccess: () => {
-      toast.success("rius rotated")
-      qc.invalidateQueries({
-        queryKey: games.rius.active.list.queryOptions().queryKey,
-      })
-      qc.invalidateQueries({
-        queryKey: games.rius.upcoming.roster.queryOptions().queryKey,
-      })
-      qc.invalidateQueries({
-        queryKey: games.rius.archived.list.queryOptions().queryKey,
-      })
-    },
-  })
-}
-
 export function useCreateSubmission() {
   const navigate = useNavigate()
 

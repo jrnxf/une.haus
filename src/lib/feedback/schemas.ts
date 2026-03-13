@@ -20,5 +20,3 @@ export const submitFeedbackSchema = z.object({
     .optional()
     .nullable(),
 })
-
-export type SubmitFeedbackArgs = z.infer<typeof submitFeedbackSchema>

@@ -762,11 +762,9 @@ function Filters({
 export {
   addFilterByField,
   countSelected,
-  createFilter,
   Filters,
-  FiltersTrigger,
   getFieldsSortedByActive,
   toggleFilterByField,
   toggleFilterValue,
 }
-export type { ActiveFilter, FilterField, FilterOperator, FilterOption }
+export type { ActiveFilter, FilterField, FilterOption }

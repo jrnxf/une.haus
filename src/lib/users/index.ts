@@ -9,7 +9,6 @@ import {
   getShopWaitlistUsersServerFn,
   getUserActivityServerFn,
   getUserFollowsServerFn,
-  type getUserServerFn,
   getUserWithFollowsServerFn,
   listUsersServerFn,
   setShopNotifyServerFn,
@@ -153,12 +152,9 @@ export const users = {
   },
 }
 
-export type UsersGetData = ServerFnReturn<typeof getUserServerFn>
 export type UsersWithFollowsData = ServerFnReturn<
   typeof getUserWithFollowsServerFn
 >
-export type UsersFollowsData = ServerFnReturn<typeof getUserFollowsServerFn>
-export type UsersUpdateData = ServerFnReturn<typeof updateUserServerFn>
 export type UsersWithLocationsData = ServerFnReturn<
   typeof usersWithLocationsServerFn
 >

@@ -22,7 +22,7 @@ import { type SelectLocation } from "~/db/schema"
 import { location } from "~/lib/location"
 import { cn } from "~/lib/utils"
 
-export type LocationSelectorLocation = Omit<SelectLocation, "userId">
+type LocationSelectorLocation = Omit<SelectLocation, "userId">
 
 type SelectOption = { label: string; value: string }
 

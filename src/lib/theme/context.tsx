@@ -21,15 +21,15 @@ const DISABLE_ANIMATION_CSS = dedent`
   }
 `
 
-export const themeSchema = z.enum(["light", "dark", "system"])
+const themeSchema = z.enum(["light", "dark", "system"])
 
-export type Theme = z.infer<typeof themeSchema>
+type Theme = z.infer<typeof themeSchema>
 
-export const resolvedThemeSchema = z.enum(["light", "dark"])
+const resolvedThemeSchema = z.enum(["light", "dark"])
 
-export type ResolvedTheme = z.infer<typeof resolvedThemeSchema>
+type ResolvedTheme = z.infer<typeof resolvedThemeSchema>
 
-export type UseThemeProps = {
+type UseThemeProps = {
   /** Active theme name */
   theme: Theme
   /** Resolved theme name */

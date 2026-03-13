@@ -18,19 +18,6 @@ export function useIsTablet() {
   return Boolean(isTablet)
 }
 
-export function useIsIOSSafari() {
-  const [isIOSSafari, setIsIOSSafari] = React.useState(false)
-
-  React.useEffect(() => {
-    const ua = navigator.userAgent
-    const isIOS = /iPad|iPhone|iPod/.test(ua)
-    const isSafari = /^((?!chrome|android).)*safari/i.test(ua)
-    setIsIOSSafari(isIOS && isSafari)
-  }, [])
-
-  return isIOSSafari
-}
-
 const MOBILE_BREAKPOINT = 640
 
 export function useIsMobile() {

@@ -39,7 +39,7 @@ const SortableItemContext = React.createContext<{
 })
 
 // Multipurpose Sortable Component
-export interface SortableRootProps<T> {
+interface SortableRootProps<T> {
   value: T[]
   onValueChange: (value: T[]) => void
   getItemValue: (item: T) => string
@@ -176,7 +176,7 @@ function Sortable<T>({
   )
 }
 
-export interface SortableItemProps {
+interface SortableItemProps {
   value: string
   asChild?: boolean
   className?: string
@@ -234,7 +234,7 @@ function SortableItem({
   )
 }
 
-export interface SortableItemHandleProps {
+interface SortableItemHandleProps {
   asChild?: boolean
   className?: string
   children?: React.ReactNode

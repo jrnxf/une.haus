@@ -25,10 +25,6 @@ export const createGlossaryProposalSchema = z.object({
   reason: z.string().nullable().optional(),
 })
 
-export type CreateGlossaryProposalArgs = z.infer<
-  typeof createGlossaryProposalSchema
->
-
 export const listGlossaryProposalsSchema = z
   .object({
     status: z.enum(TRICK_SUBMISSION_STATUSES).optional(),
@@ -50,7 +46,3 @@ export const reviewGlossaryProposalSchema = z.object({
   status: z.enum(["approved", "rejected"]),
   reviewNotes: z.string().min(1),
 })
-
-export type ReviewGlossaryProposalArgs = z.infer<
-  typeof reviewGlossaryProposalSchema
->

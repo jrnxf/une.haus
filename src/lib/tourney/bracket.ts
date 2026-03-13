@@ -1,10 +1,8 @@
-import { z } from "zod"
-
 /**
  * Base rider entry from URL - userId XOR name, never both, never neither.
  * This is the canonical format for URL serialization.
  */
-export type RiderEntry =
+type RiderEntry =
   | {
       userId: number
       name: null
@@ -134,36 +132,6 @@ export function riderKey(rider: RiderEntry | ResolvedRiderEntry): string {
   if (rider.name !== null) return `~${rider.name}`
   return ""
 }
-
-/** Shared search schema for bracket setup + prelims + ranking */
-export const bracketSearchSchema = z.object({
-  name: z.string().optional(),
-  riders: z.string().optional(),
-  prelimTime: z.coerce.number().min(1).max(3600).optional().default(60),
-  battleTime: z.coerce.number().min(1).max(3600).optional().default(60),
-  finalsTime: z.coerce.number().min(1).max(3600).optional().default(120),
-  bracketSize: z.coerce.number().optional().default(8),
-})
-
-/** Search schema for prelims page */
-export const prelimsSearchSchema = bracketSearchSchema.extend({
-  done: z.string().optional(),
-  dq: z.string().optional(),
-  current: z.coerce.number().optional(),
-})
-
-/** Search schema for ranking page */
-export const rankingSearchSchema = bracketSearchSchema.extend({
-  ranked: z.string().optional(),
-})
-
-/** Extended schema for main bracket page (includes fullscreen) */
-export const bracketPageSearchSchema = bracketSearchSchema.extend({
-  fullscreen: z.coerce.boolean().optional(),
-  // Winners string managed by nuqs, but declared here so TanStack Router doesn't strip it
-  // Use coerce because numeric-looking strings like "12" may be parsed as numbers
-  w: z.coerce.string().optional(),
-})
 
 /**
  * Encode winners to compact string.
