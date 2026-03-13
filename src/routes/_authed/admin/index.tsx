@@ -75,11 +75,9 @@ function RouteComponent() {
           <Button
             variant="destructive"
             onClick={() => {
-              const eventId = Sentry.captureException(
-                new Error("sentry test error"),
-              )
-              const url = `https://jrnxf.sentry.io/issues/?query=${eventId}`
-              toast("sentry error sent", {
+              const id = Sentry.captureException(new Error("sentry test error"))
+              const url = `https://jrnxf.sentry.io/issues?query=id:${id}`
+              toast(`sentry id (${id})`, {
                 action: {
                   label: "view",
                   onClick: () => window.open(url, "_blank"),
