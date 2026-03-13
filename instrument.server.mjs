@@ -9,4 +9,5 @@ Sentry.init({
   enableLogs: true,
   environment: process.env.VITE_ENVIRONMENT || "development",
   tracesSampleRate: isProduction ? 0.2 : 1.0,
+  ignoreErrors: [/not found/i],
 })
