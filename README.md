@@ -45,20 +45,21 @@ bun dev
 
 ### scripts
 
-| command                    | description                       |
-| -------------------------- | --------------------------------- |
-| `bun dev`                  | start dev server                  |
-| `bun run build`            | build for production              |
-| `bun start`                | run production server             |
-| `bun run lint`             | lint                              |
-| `bun run format`           | format with oxfmt                 |
-| `bun run check`            | lint with auto-fix and format     |
-| `bun run typecheck`        | type check                        |
-| `bun preflight`            | lint, format, typecheck, and test |
-| `bun run test:unit`        | run unit tests                    |
-| `bun run test:integration` | run integration tests             |
-| `bun run db:migrate`       | push database migrations          |
-| `bun run db:seed`          | wipe, migrate, and seed database  |
+| command                    | description                        |
+| -------------------------- | ---------------------------------- |
+| `bun dev`                  | start dev server                   |
+| `bun run build`            | build for production               |
+| `bun start`                | run production server              |
+| `bun run lint`             | lint                               |
+| `bun run format`           | format with oxfmt                  |
+| `bun run check`            | lint with auto-fix and format      |
+| `bun run typecheck`        | type check                         |
+| `bun preflight`            | lint, format, typecheck, and test  |
+| `bun run test:unit`        | run unit tests                     |
+| `bun run test:integration` | run integration tests              |
+| `bun run db:migrate`       | push database migrations           |
+| `bun run db:seed`          | wipe, migrate, and seed database   |
+| `bun run clean`            | find and fix unused code with knip |
 
 ### contributing
 
