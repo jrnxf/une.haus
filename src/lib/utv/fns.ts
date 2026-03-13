@@ -160,34 +160,21 @@ const saveScalesSchema = z.object({
 
 const saveVaultScales = createServerOnlyFn(
   async (scales: Record<string, number>) => {
-    const fs = await import("node:fs/promises")
-    const { default: path } = await import("node:path")
+    const entries = Object.entries(scales).map(([id, scale]) => ({
+      id: Number(id),
+      scale,
+    }))
 
-    const filePath = path.join(
-      process.cwd(),
-      "src/db/scripts/vault-scales.bak.ts",
+    await Promise.all(
+      entries.map(({ id, scale }) =>
+        db
+          .update(utvVideos)
+          .set({ thumbnailScale: scale })
+          .where(eq(utvVideos.id, id)),
+      ),
     )
 
-    let existingScales: Record<number, number> = {}
-    try {
-      const content = await fs.readFile(filePath, "utf8")
-      const match = content.match(
-        /export const vaultScales[^=]*=\s*(\{[\s\S]*\})\s*(?:as const)?;?/,
-      )
-      if (match) {
-        existingScales = new Function(`return ${match[1]}`)()
-      }
-    } catch {
-      // File doesn't exist yet, start fresh.
-    }
-
-    const mergedScales = { ...existingScales, ...scales }
-    const tsContent = `export const vaultScales: Record<number, number> = ${JSON.stringify(mergedScales, null, 2)};
-`
-
-    await fs.writeFile(filePath, tsContent)
-
-    return { success: true, count: Object.keys(scales).length }
+    return { success: true, count: entries.length }
   },
 )
 
