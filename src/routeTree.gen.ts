@@ -56,8 +56,6 @@ import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/
 import { Route as AuthedTourneyCreateRouteImport } from './routes/_authed/tourney/create'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
-import { Route as AuthedAdminReviewRouteImport } from './routes/_authed/admin/review'
-import { Route as AuthedAdminGamesRouteImport } from './routes/_authed/admin/games'
 import { Route as GamesSiusBrowseIndexRouteImport } from './routes/games/sius/_browse/index'
 import { Route as GamesRiusSetsIndexRouteImport } from './routes/games/rius/sets/index'
 import { Route as GamesBiusBrowseIndexRouteImport } from './routes/games/bius/_browse/index'
@@ -331,16 +329,6 @@ const AuthedNotificationsSettingsRoute =
     path: '/notifications/settings',
     getParentRoute: () => AuthedRoute,
   } as any)
-const AuthedAdminReviewRoute = AuthedAdminReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
-  getParentRoute: () => AuthedAdminRoute,
-} as any)
-const AuthedAdminGamesRoute = AuthedAdminGamesRouteImport.update({
-  id: '/games',
-  path: '/games',
-  getParentRoute: () => AuthedAdminRoute,
-} as any)
 const GamesSiusBrowseIndexRoute = GamesSiusBrowseIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -593,8 +581,6 @@ export interface FileRoutesByFullPath {
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
-  '/admin/games': typeof AuthedAdminGamesRoute
-  '/admin/review': typeof AuthedAdminReviewRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
@@ -678,8 +664,6 @@ export interface FileRoutesByTo {
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
-  '/admin/games': typeof AuthedAdminGamesRoute
-  '/admin/review': typeof AuthedAdminReviewRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
@@ -763,8 +747,6 @@ export interface FileRoutesById {
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
-  '/_authed/admin/games': typeof AuthedAdminGamesRoute
-  '/_authed/admin/review': typeof AuthedAdminReviewRoute
   '/_authed/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
   '/_authed/tourney/create': typeof AuthedTourneyCreateRoute
@@ -854,8 +836,6 @@ export interface FileRouteTypes {
     | '/tricks/'
     | '/users/'
     | '/vault/'
-    | '/admin/games'
-    | '/admin/review'
     | '/notifications/settings'
     | '/posts/create'
     | '/tourney/create'
@@ -939,8 +919,6 @@ export interface FileRouteTypes {
     | '/tricks'
     | '/users'
     | '/vault'
-    | '/admin/games'
-    | '/admin/review'
     | '/notifications/settings'
     | '/posts/create'
     | '/tourney/create'
@@ -1023,8 +1001,6 @@ export interface FileRouteTypes {
     | '/tricks/'
     | '/users/'
     | '/vault/'
-    | '/_authed/admin/games'
-    | '/_authed/admin/review'
     | '/_authed/notifications/settings'
     | '/_authed/posts/create'
     | '/_authed/tourney/create'
@@ -1453,20 +1429,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotificationsSettingsRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/admin/review': {
-      id: '/_authed/admin/review'
-      path: '/review'
-      fullPath: '/admin/review'
-      preLoaderRoute: typeof AuthedAdminReviewRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/admin/games': {
-      id: '/_authed/admin/games'
-      path: '/games'
-      fullPath: '/admin/games'
-      preLoaderRoute: typeof AuthedAdminGamesRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
     '/games/sius/_browse/': {
       id: '/games/sius/_browse/'
       path: '/'
@@ -1744,16 +1706,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedAdminRouteChildren {
-  AuthedAdminGamesRoute: typeof AuthedAdminGamesRoute
-  AuthedAdminReviewRoute: typeof AuthedAdminReviewRoute
   AuthedAdminIndexRoute: typeof AuthedAdminIndexRoute
   AuthedAdminTricksTrickIdEditRoute: typeof AuthedAdminTricksTrickIdEditRoute
   AuthedAdminTricksTrickIdVideosRoute: typeof AuthedAdminTricksTrickIdVideosRoute
 }
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
-  AuthedAdminGamesRoute: AuthedAdminGamesRoute,
-  AuthedAdminReviewRoute: AuthedAdminReviewRoute,
   AuthedAdminIndexRoute: AuthedAdminIndexRoute,
   AuthedAdminTricksTrickIdEditRoute: AuthedAdminTricksTrickIdEditRoute,
   AuthedAdminTricksTrickIdVideosRoute: AuthedAdminTricksTrickIdVideosRoute,
