@@ -268,15 +268,6 @@ export function CommandPalette() {
               onAction: () => closeAndNavigate("/notifications"),
             },
           },
-          {
-            id: "profile",
-            label: "profile",
-            value: "/auth/me",
-            primaryAction: {
-              label: "open",
-              onAction: () => closeAndNavigate("/auth/me"),
-            },
-          },
         ]
       : []),
     {
@@ -535,6 +526,15 @@ export function CommandPalette() {
                 {isAuthenticated ? (
                   <>
                     <CommandItem
+                      value="profile"
+                      onSelect={() => closeAndNavigate("/auth/me")}
+                      asChild
+                    >
+                      <Link replace to="/auth/me">
+                        profile
+                      </Link>
+                    </CommandItem>
+                    <CommandItem
                       onSelect={() => {
                         logout({})
                         closeMenu()
@@ -561,7 +561,7 @@ export function CommandPalette() {
                   </>
                 ) : (
                   <CommandItem
-                    value="/auth"
+                    value="login"
                     onSelect={() => closeAndNavigate("/auth")}
                     asChild
                   >
