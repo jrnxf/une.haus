@@ -8,6 +8,7 @@ import { CatchBoundary } from "./components/catch-boundary"
 import { NotFound } from "./components/not-found"
 import { stringifySearch } from "./lib/url"
 import { routeTree } from "./routeTree.gen"
+import { isProduction } from "~/lib/env"
 
 export function getRouter() {
   const queryClient = new QueryClient({
@@ -48,7 +49,7 @@ export function getRouter() {
   if (!router.isServer) {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
-      enabled: import.meta.env.VITE_ENVIRONMENT === "production",
+      // enabled: isProduction,
       sendDefaultPii: true,
       integrations: [
         Sentry.tanstackRouterBrowserTracingIntegration(router),
@@ -56,8 +57,7 @@ export function getRouter() {
       ],
       enableLogs: true,
       environment: import.meta.env.VITE_ENVIRONMENT || "development",
-      tracesSampleRate:
-        import.meta.env.VITE_ENVIRONMENT === "production" ? 0.2 : 1.0,
+      tracesSampleRate: isProduction ? 0.2 : 1.0,
       replaysSessionSampleRate: 0.1,
       replaysOnErrorSampleRate: 1.0,
     })
