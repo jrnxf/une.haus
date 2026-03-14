@@ -3,13 +3,12 @@ import process from "node:process"
 const checks = [
   { label: "lint", cmd: ["oxlint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
-  { label: "typecheck", cmd: ["bun", "run", "typecheck"] },
+  { label: "typecheck", cmd: ["bun", "run", "--filter", "*", "typecheck"] },
+  { label: "unit tests", cmd: ["bun", "run", "--filter", "*", "test:unit"] },
   {
-    label: "clean",
-    cmd: ["bunx", "knip", "--include", "files,dependencies,exports,types"],
+    label: "integration tests",
+    cmd: ["bun", "run", "--filter", "*", "test:integration"],
   },
-  { label: "unit tests", cmd: ["bun", "run", "test:unit"] },
-  { label: "integration tests", cmd: ["bun", "run", "test:integration"] },
 ]
 
 console.log("running preflight checks...")

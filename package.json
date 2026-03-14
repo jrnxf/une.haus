@@ -5,15 +5,25 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "bun run --filter web dev",
-    "build": "bun run --filter web build",
+    "dev": "bun run --filter '*' dev",
+    "dev:web": "bun run --filter web dev",
+    "dev:docs": "bun run --filter docs dev",
+    "build": "bun run --filter '*' build",
+    "build:web": "bun run --filter web build",
+    "build:docs": "bun run --filter docs build",
     "start": "bun run --filter web start",
-    "preflight": "bun run --filter web preflight",
+    "preflight": "bun run scripts/preflight.ts",
+    "typecheck": "bun run --filter '*' typecheck",
     "lint": "oxlint",
     "format": "oxfmt --write",
+    "format:check": "oxfmt --check",
     "check": "oxlint --fix && oxfmt --write",
-    "docs:dev": "bun run --filter docs dev",
-    "docs:build": "bun run --filter docs build"
+    "clean": "bun run --filter '*' clean",
+    "db:migrate": "bun run --filter web db:migrate",
+    "db:seed": "bun run --filter web db:seed",
+    "db:reset-dev": "bun run --filter web db:reset-dev",
+    "test": "bun run --filter '*' test:unit",
+    "test:integration": "bun run --filter '*' test:integration"
   },
   "devDependencies": {
     "oxfmt": "^0.35.0",

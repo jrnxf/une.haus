@@ -17,8 +17,7 @@
     "typecheck": "tsgo --noEmit",
     "test:unit": "bun test unit.test",
     "test:integration": "bun run src/scripts/run-integration-tests.ts",
-    "clean": "bunx knip --include files,dependencies,exports,types --fix --allow-remove-files",
-    "preflight": "bun run src/scripts/preflight.ts"
+    "clean": "bunx knip --include files,dependencies,exports,types --fix --allow-remove-files"
   },
   "dependencies": {
     "@base-ui/react": "1.2.0",
