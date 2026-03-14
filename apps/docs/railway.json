@@ -3,7 +3,8 @@
   "build": {
     "builder": "RAILPACK",
     "watchPatterns": ["/apps/docs/**"],
-    "buildEnvironment": "V3"
+    "buildEnvironment": "V3",
+    "buildCommand": "bun run build"
   },
   "deploy": {
     "runtime": "V2",

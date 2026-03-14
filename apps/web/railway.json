@@ -3,7 +3,10 @@
   "build": {
     "builder": "NIXPACKS",
     "watchPatterns": ["/apps/web/**"],
-    "buildEnvironment": "V3"
+    "buildEnvironment": "V3",
+    "nixpacksPlan": {
+      "providers": ["bun"]
+    }
   },
   "deploy": {
     "runtime": "V2",
