@@ -1,12 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { ChannelProvider } from "ably/react"
 import { useCallback, useMemo } from "react"
 
 import { BracketContainer, FitText } from "~/components/tourney/bracket-graph"
 import { CountdownDisplay } from "~/components/tourney/countdown-display"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
-import { useAblyAvailable } from "~/lib/ably-context"
 import { seo } from "~/lib/seo"
 import { tourney } from "~/lib/tourney"
 import { decodeWinners } from "~/lib/tourney/bracket"
@@ -20,7 +18,7 @@ import { useSyncedTimer } from "~/lib/tourney/hooks"
 import { findNextPending } from "~/lib/tourney/machine"
 import { type TournamentState } from "~/lib/tourney/types"
 import { useChampionCelebration } from "~/lib/tourney/use-champion-celebration"
-import { useTourneyLive } from "~/lib/tourney/use-tourney-ably"
+import { useTourneySSE } from "~/lib/tourney/use-tourney-sse"
 import { users as usersApi } from "~/lib/users"
 import { cn } from "~/lib/utils"
 
@@ -49,23 +47,7 @@ export const Route = createFileRoute("/tourney/$code/live")({
 
 function RouteComponent() {
   const { code } = Route.useParams()
-  const available = useAblyAvailable()
-
-  if (!available) return <RouteComponentSSR />
-
-  return (
-    <ChannelProvider channelName={`tourney-${code}`}>
-      <RouteComponentLive code={code} />
-    </ChannelProvider>
-  )
-}
-
-function RouteComponentSSR() {
-  return <div className="bg-background fixed inset-0 z-50" />
-}
-
-function RouteComponentLive({ code }: { code: string }) {
-  const { adminConnected } = useTourneyLive(code)
+  const { adminConnected } = useTourneySSE(code)
   const { data: tournament } = useSuspenseQuery(
     tourney.get.queryOptions({ code }),
   )

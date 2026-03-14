@@ -61,6 +61,7 @@ import { Route as GamesRiusSetsIndexRouteImport } from './routes/games/rius/sets
 import { Route as GamesBiusBrowseIndexRouteImport } from './routes/games/bius/_browse/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as GamesRiusBrowseActiveRouteImport } from './routes/games/rius/_browse/active'
+import { Route as ApiTourneySseCodeRouteImport } from './routes/api/tourney/sse.$code'
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
@@ -354,6 +355,11 @@ const GamesRiusBrowseActiveRoute = GamesRiusBrowseActiveRouteImport.update({
   path: '/active',
   getParentRoute: () => GamesRiusBrowseRoute,
 } as any)
+const ApiTourneySseCodeRoute = ApiTourneySseCodeRouteImport.update({
+  id: '/api/tourney/sse/$code',
+  path: '/api/tourney/sse/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedVaultVideoIdSuggestRoute =
   AuthedVaultVideoIdSuggestRouteImport.update({
     id: '/vault/$videoId/suggest',
@@ -606,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/active': typeof GamesRiusBrowseActiveRoute
   '/auth/me/': typeof AuthedAuthMeIndexRoute
   '/games/bius/': typeof GamesBiusBrowseIndexRoute
@@ -688,6 +695,7 @@ export interface FileRoutesByTo {
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/active': typeof GamesRiusBrowseActiveRoute
   '/auth/me': typeof AuthedAuthMeIndexRoute
   '/games/rius/sets': typeof GamesRiusSetsIndexRoute
@@ -775,6 +783,7 @@ export interface FileRoutesById {
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
+  '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/_browse/active': typeof GamesRiusBrowseActiveRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
   '/games/bius/_browse/': typeof GamesBiusBrowseIndexRoute
@@ -861,6 +870,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
+    | '/api/tourney/sse/$code'
     | '/games/rius/active'
     | '/auth/me/'
     | '/games/bius/'
@@ -943,6 +953,7 @@ export interface FileRouteTypes {
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
+    | '/api/tourney/sse/$code'
     | '/games/rius/active'
     | '/auth/me'
     | '/games/rius/sets'
@@ -1029,6 +1040,7 @@ export interface FileRouteTypes {
     | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/vault/$videoId/suggest'
+    | '/api/tourney/sse/$code'
     | '/games/rius/_browse/active'
     | '/_authed/auth/me/'
     | '/games/bius/_browse/'
@@ -1096,6 +1108,7 @@ export interface RootRouteChildren {
   UsersUserIdIndexRoute: typeof UsersUserIdIndexRoute
   UsersMapIndexRoute: typeof UsersMapIndexRoute
   VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
+  ApiTourneySseCodeRoute: typeof ApiTourneySseCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1463,6 +1476,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/rius/active'
       preLoaderRoute: typeof GamesRiusBrowseActiveRouteImport
       parentRoute: typeof GamesRiusBrowseRoute
+    }
+    '/api/tourney/sse/$code': {
+      id: '/api/tourney/sse/$code'
+      path: '/api/tourney/sse/$code'
+      fullPath: '/api/tourney/sse/$code'
+      preLoaderRoute: typeof ApiTourneySseCodeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authed/vault/$videoId/suggest': {
       id: '/_authed/vault/$videoId/suggest'
@@ -1935,6 +1955,7 @@ const rootRouteChildren: RootRouteChildren = {
   UsersUserIdIndexRoute: UsersUserIdIndexRoute,
   UsersMapIndexRoute: UsersMapIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
+  ApiTourneySseCodeRoute: ApiTourneySseCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

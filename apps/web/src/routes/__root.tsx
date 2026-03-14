@@ -28,8 +28,8 @@ import {
 import { MobileFooter } from "~/components/site-header"
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
 import { Toaster } from "~/components/ui/sonner"
-import { AblyProvider } from "~/lib/ably-provider"
 import { HapticsProvider } from "~/lib/haptics-provider"
+import { presence } from "~/lib/presence"
 import { useRootRouteContext } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type HausSession } from "~/lib/session/schema"
@@ -55,7 +55,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       session.get.queryOptions(),
     )
 
-    await context.queryClient.ensureQueryData(users.all.queryOptions())
+    await Promise.all([
+      context.queryClient.ensureQueryData(users.all.queryOptions()),
+      context.queryClient.ensureQueryData(presence.online.queryOptions()),
+    ])
 
     return { session: sessionData }
   },
@@ -160,45 +163,43 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="overscroll-none font-mono antialiased">
         <ThemeProvider>
           <HapticsProvider>
-            <AblyProvider key={sessionData.user?.id ?? "guest"}>
-              <Toaster />
-              <ConfirmDialog />
-              {isChromeless ? (
-                <div className="relative h-dvh overflow-y-auto">{children}</div>
-              ) : (
-                <MobileNavProvider>
-                  <div ref={setPortalContainer} className="relative h-dvh">
-                    <MobileNavIndentBackground />
-                    <MobileNavIndent>
-                      <MobileBreadcrumbsProvider>
-                        <SidebarProvider
-                          defaultOpen={sessionData.sidebarOpen}
-                          style={
-                            {
-                              "--sidebar-width": "calc(var(--spacing) * 62)",
-                              "--header-height": "calc(var(--spacing) * 12)",
-                            } as React.CSSProperties
-                          }
-                        >
-                          <GlobalShortcuts />
-                          <AppSidebar variant="inset" />
-                          <SidebarInset>
-                            <div
-                              className="flex flex-1 flex-col overflow-y-auto overscroll-none"
-                              id="main-content"
-                            >
-                              {children}
-                            </div>
-                            <MobileFooter />
-                          </SidebarInset>
-                        </SidebarProvider>
-                      </MobileBreadcrumbsProvider>
-                    </MobileNavIndent>
-                    <MobileNavPopup portalContainer={portalContainer} />
-                  </div>
-                </MobileNavProvider>
-              )}
-            </AblyProvider>
+            <Toaster />
+            <ConfirmDialog />
+            {isChromeless ? (
+              <div className="relative h-dvh overflow-y-auto">{children}</div>
+            ) : (
+              <MobileNavProvider>
+                <div ref={setPortalContainer} className="relative h-dvh">
+                  <MobileNavIndentBackground />
+                  <MobileNavIndent>
+                    <MobileBreadcrumbsProvider>
+                      <SidebarProvider
+                        defaultOpen={sessionData.sidebarOpen}
+                        style={
+                          {
+                            "--sidebar-width": "calc(var(--spacing) * 62)",
+                            "--header-height": "calc(var(--spacing) * 12)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        <GlobalShortcuts />
+                        <AppSidebar variant="inset" />
+                        <SidebarInset>
+                          <div
+                            className="flex flex-1 flex-col overflow-y-auto overscroll-none"
+                            id="main-content"
+                          >
+                            {children}
+                          </div>
+                          <MobileFooter />
+                        </SidebarInset>
+                      </SidebarProvider>
+                    </MobileBreadcrumbsProvider>
+                  </MobileNavIndent>
+                  <MobileNavPopup portalContainer={portalContainer} />
+                </div>
+              </MobileNavProvider>
+            )}
           </HapticsProvider>
         </ThemeProvider>
         <TanStackDevtools

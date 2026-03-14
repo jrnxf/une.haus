@@ -1,25 +1,20 @@
-import { ChannelProvider, usePresence } from "ably/react"
+import { useEffect } from "react"
 
-import { useAblyAvailable } from "~/lib/ably-context"
+import { adminHeartbeatServerFn } from "~/lib/tourney/fns"
+
+const HEARTBEAT_INTERVAL_MS = 5000
 
 /**
- * Enters the tournament's presence channel as the admin.
- * Spectators see admin enter/leave events in real-time.
- * Mount in every admin tournament route. No-op during SSR.
+ * Sends periodic heartbeats so spectators know the admin is connected.
+ * Mount in every admin tournament route.
  */
 export function AdminPresence({ code }: { code: string }) {
-  const available = useAblyAvailable()
+  useEffect(() => {
+    const send = () => void adminHeartbeatServerFn({ data: { code } })
+    send()
+    const interval = setInterval(send, HEARTBEAT_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [code])
 
-  if (!available) return null
-
-  return (
-    <ChannelProvider channelName={`tourney-${code}`}>
-      <AdminPresenceInner code={code} />
-    </ChannelProvider>
-  )
-}
-
-function AdminPresenceInner({ code }: { code: string }) {
-  usePresence({ channelName: `tourney-${code}` }, "admin")
   return null
 }

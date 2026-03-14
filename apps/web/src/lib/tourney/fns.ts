@@ -106,3 +106,13 @@ export const advancePhaseServerFn = createServerFn({
     const { advancePhase } = await loadTourneyOps()
     return advancePhase(ctx)
   })
+
+export const adminHeartbeatServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(getTournamentSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { adminHeartbeat } = await loadTourneyOps()
+    return adminHeartbeat(ctx)
+  })

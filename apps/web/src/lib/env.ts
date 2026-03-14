@@ -60,7 +60,6 @@ export const env = createEnv({
     MUX_WEBHOOK_SECRET: z.string(),
     RESEND_API_KEY: z.string(),
     SESSION_SECRET: z.string(),
-    ABLY_API_KEY: z.string(),
     SENTRY_DSN: z.string().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
   },

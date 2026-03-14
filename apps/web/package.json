@@ -68,7 +68,6 @@
     "@uiw/react-codemirror": "^4.25.4",
     "@vitejs/plugin-react": "^4.4.1",
     "@xyflow/react": "^12.10.0",
-    "ably": "^2.19.0",
     "autoprefixer": "^10.4.20",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
@@ -115,10 +114,14 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@floating-ui/dom": "^1.7.5",
     "@react-email/preview-server": "5.2.5",
+    "@tanstack/devtools-client": "^0.0.5",
     "@tanstack/devtools-vite": "^0.4.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
+    "@tiptap/core": "^3.20.0",
+    "@tiptap/suggestion": "^3.20.1",
     "@types/bun": "^1.2.23",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
@@ -129,14 +132,16 @@
     "@typescript/native-preview": "^7.0.0-dev.20251228.1",
     "bun-types": "latest",
     "drizzle-kit": "^0.31.1",
+    "h3": "^2.0.1-rc.11",
     "jsdom": "^26.0.0",
     "pg": "^8.14.1",
     "react-email": "^5.2.5",
+    "rollup": "^4.57.1",
     "typescript": "~5.8.3",
     "vite": "^7.1.7",
     "web-vitals": "^4.2.4"
   },
   "patchedDependencies": {
-    "cmdk@1.1.1": "patches/cmdk@1.1.1.patch"
+    "cmdk@1.1.1": "apps/web/patches/cmdk@1.1.1.patch"
   }
 }

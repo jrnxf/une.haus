@@ -1,5 +1,5 @@
 import { StatusIndicator } from "~/components/ui/status"
-import { useIsUserOnline } from "~/lib/ably-context"
+import { useIsUserOnline } from "~/lib/presence/hooks"
 
 export function UserOnlineStatus({ userId }: { userId: number }) {
   const online = useIsUserOnline(userId)

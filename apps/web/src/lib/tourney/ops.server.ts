@@ -3,9 +3,12 @@ import { desc, eq } from "drizzle-orm"
 
 import { db } from "~/db"
 import { tournaments } from "~/db/schema"
-import { ably } from "~/lib/ably.server"
 import { invariant } from "~/lib/invariant"
 import { applyMachineEvent, type TournamentEvent } from "~/lib/tourney/machine"
+import {
+  publishAdminHeartbeat,
+  publishTourneyUpdate,
+} from "~/lib/tourney/realtime"
 import {
   type AdvancePhaseInput,
   type BracketActionInput,
@@ -89,13 +92,9 @@ async function updateTournamentState(
   }
   if (newPhase) updates.phase = newPhase
 
-  // Publish to Ably subscribers immediately for minimal latency,
+  // Publish to SSE subscribers immediately for minimal latency,
   // then persist to DB.
-  ably.channels.get(`tourney-${code}`).publish("state-update", {
-    phase,
-    state,
-    updatedAt: Date.now(),
-  })
+  publishTourneyUpdate(code, { phase, state, updatedAt: Date.now() })
 
   await db.update(tournaments).set(updates).where(eq(tournaments.id, id))
 }
@@ -279,6 +278,14 @@ export async function advancePhase({
     result.phase,
   )
   return { phase: result.phase, state: result.state }
+}
+
+export async function adminHeartbeat({
+  data: input,
+}: {
+  data: { code: string }
+}) {
+  publishAdminHeartbeat(input.code.toUpperCase())
 }
 
 // ---------------------------------------------------------------------------

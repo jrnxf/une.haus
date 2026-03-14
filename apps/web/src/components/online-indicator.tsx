@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import pluralize from "pluralize"
 import { Suspense, useEffect, useRef, useState } from "react"
@@ -12,8 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { StatusIndicator } from "~/components/ui/status"
-import { useAblyAvailable } from "~/lib/ably-context"
-import { useOnlineUsers } from "~/lib/presence"
+import { presence } from "~/lib/presence"
 import { cn } from "~/lib/utils"
 
 function OnlineUserList({
@@ -50,7 +50,6 @@ function OnlineUserList({
 }
 
 export function OnlineIndicator({ className }: { className?: string }) {
-  const available = useAblyAvailable()
   const [open, setOpen] = useState(false)
 
   return (
@@ -68,15 +67,13 @@ export function OnlineIndicator({ className }: { className?: string }) {
             <StatusIndicator className="bg-green-500" />
           </span>
           <Suspense fallback={<span>0</span>}>
-            {available ? <OnlineCount /> : <span>0</span>}
+            <OnlineCount />
           </Suspense>
           <span>online</span>
         </Button>
       </DropdownMenuTrigger>
       <Suspense>
-        {available && (
-          <OnlineDropdownContent onNavigate={() => setOpen(false)} />
-        )}
+        <OnlineDropdownContent onNavigate={() => setOpen(false)} />
       </Suspense>
     </DropdownMenu>
   )
@@ -109,12 +106,12 @@ function AnimatedCount({ value }: { value: number }) {
 }
 
 function OnlineCount() {
-  const data = useOnlineUsers()
+  const { data } = useSuspenseQuery(presence.online.queryOptions())
   return <AnimatedCount value={data.total} />
 }
 
 function OnlineDropdownContent({ onNavigate }: { onNavigate: () => void }) {
-  const data = useOnlineUsers()
+  const { data } = useSuspenseQuery(presence.online.queryOptions())
 
   if (data.total === 0) return null
 
