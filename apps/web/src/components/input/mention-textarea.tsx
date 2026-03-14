@@ -87,7 +87,6 @@ export function MentionTextarea({
 
   const editor = useEditor({
     extensions: [
-      // @ts-expect-error - tiptap/starter-kit bundles its own @tiptap/core causing type mismatch
       StarterKit.configure({
         blockquote: false,
         bulletList: false,

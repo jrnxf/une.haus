@@ -1,7 +1,7 @@
 import process from "node:process"
 
 const checks = [
-  { label: "lint", cmd: ["bun", "run", "lint"] },
+  { label: "lint", cmd: ["oxlint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
   { label: "typecheck", cmd: ["bun", "run", "typecheck"] },
   {

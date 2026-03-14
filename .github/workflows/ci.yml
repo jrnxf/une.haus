@@ -41,9 +41,9 @@ jobs:
       - name: format
         run: bunx oxfmt --check
       - name: typecheck
-        run: bun run typecheck
+        run: bun run --filter web typecheck
       - name: unit tests
-        run: bun run test:unit
+        run: bun run --filter web test:unit
       - name: integration tests
         if: github.event_name == 'push' || github.event.pull_request.draft == false
-        run: bun run test:integration
+        run: bun run --filter web test:integration

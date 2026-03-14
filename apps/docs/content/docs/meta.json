@@ -1,0 +1,20 @@
+{
+  "root": true,
+  "pages": [
+    "---getting started---",
+    "getting-started",
+    "---features---",
+    "games",
+    "tricks",
+    "vault",
+    "posts",
+    "chat",
+    "tournaments",
+    "---social---",
+    "community",
+    "---contributing---",
+    "contributing",
+    "---reference---",
+    "reference"
+  ]
+}
