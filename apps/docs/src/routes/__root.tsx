@@ -13,7 +13,7 @@ export const Route = createRootRoute({
   head: () => ({
     links: [{ href: appCss, rel: "stylesheet" }],
     meta: [
-      { title: "une.haus docs" },
+      { title: "une.haus" },
       { charSet: "utf8" },
       {
         name: "viewport",

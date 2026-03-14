@@ -11,7 +11,7 @@ function Layout() {
   return (
     <DocsLayout
       tree={source.getPageTree()}
-      nav={{ title: "une.haus docs", url: "/" }}
+      nav={{ title: "une.haus", url: "/" }}
     >
       <Outlet />
     </DocsLayout>
