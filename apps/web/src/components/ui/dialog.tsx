@@ -89,7 +89,7 @@ function DialogContent({
             "data-closed:animate-out data-open:animate-in",
             "data-closed:fade-out-0 data-open:fade-in-0",
             "data-closed:zoom-out-95 data-open:zoom-in-95",
-            "relative z-10 grid w-full max-w-[calc(100%-2rem)] gap-4 rounded-lg border p-6 shadow-lg",
+            "relative z-10 grid max-h-[85vh] w-full max-w-[calc(100%-2rem)] gap-4 overflow-y-auto rounded-lg border p-6 shadow-lg",
             "duration-200 sm:max-w-lg",
             className,
           )}
