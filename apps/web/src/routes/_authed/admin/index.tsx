@@ -4,29 +4,26 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { GhostIcon } from "lucide-react"
-import { useState } from "react"
+import { type ReactNode } from "react"
 import { toast } from "sonner"
-import { z } from "zod"
 
+import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent } from "~/components/ui/card"
 import { CodeViewer } from "~/components/ui/code-viewer"
 import { CountChip } from "~/components/ui/count-chip"
 import { DiffViewer } from "~/components/ui/diff-viewer"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty"
+import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
-import { Textarea } from "~/components/ui/textarea"
 import { VideoPlayer } from "~/components/video-player"
 import {
   type FlagEntityType,
@@ -49,15 +46,7 @@ function buildJsonDiff(
   }
 }
 
-const searchSchema = z.object({
-  outer: z.enum(["tricks", "vault", "flags"]).optional(),
-  inner: z
-    .enum(["submissions", "suggestions", "videos", "glossary"])
-    .optional(),
-})
-
 export const Route = createFileRoute("/_authed/admin/")({
-  validateSearch: searchSchema,
   loader: async ({ context }) => {
     if (context.user.id !== 1) {
       throw new Error("Not authorized")
@@ -88,80 +77,110 @@ export const Route = createFileRoute("/_authed/admin/")({
 })
 
 function RouteComponent() {
-  const search = Route.useSearch()
-  const outerTab = search.outer ?? "tricks"
-  const innerTab = search.inner ?? "submissions"
-
   return (
     <>
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>admin</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <PageHeader.Actions>
-            {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
-              <Button variant="secondary" size="sm" asChild>
-                <a
-                  href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {__COMMIT_SHA__}
-                </a>
-              </Button>
-            )}
-          </PageHeader.Actions>
-        </PageHeader.Right>
       </PageHeader>
-      <div className="mx-auto w-full max-w-4xl space-y-4 p-4">
-        <Tabs defaultValue={outerTab}>
-          <TabsList>
-            <TricksOuterTab />
-            <VaultOuterTab />
-            <FlagsOuterTab />
-          </TabsList>
+      <div className="mx-auto w-full max-w-4xl space-y-4 p-4 md:p-6">
+        <Accordion multiple>
+          <div className="space-y-2">
+            <AccordionItem value="tricks" className="bg-card rounded-lg border">
+              <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                <TricksLabel />
+              </AccordionTrigger>
+              <AccordionContent className="p-4 pt-0.5">
+                <Accordion multiple>
+                  <div className="space-y-2">
+                    <AccordionItem
+                      value="submissions"
+                      className="bg-card rounded-lg border"
+                    >
+                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                        <SubmissionsLabel />
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 pt-0.5">
+                        <SubmissionsSection />
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem
+                      value="suggestions"
+                      className="bg-card rounded-lg border"
+                    >
+                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                        <SuggestionsLabel />
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 pt-0.5">
+                        <SuggestionsSection />
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem
+                      value="videos"
+                      className="bg-card rounded-lg border"
+                    >
+                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                        <VideosLabel />
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 pt-0.5">
+                        <VideosSection />
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem
+                      value="glossary"
+                      className="bg-card rounded-lg border"
+                    >
+                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                        <GlossaryLabel />
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 pt-0.5">
+                        <GlossarySection />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </div>
+                </Accordion>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="vault" className="bg-card rounded-lg border">
+              <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                <VaultLabel />
+              </AccordionTrigger>
+              <AccordionContent className="p-4 pt-0.5">
+                <VaultSection />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="flags" className="bg-card rounded-lg border">
+              <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
+                <FlagsLabel />
+              </AccordionTrigger>
+              <AccordionContent className="p-4 pt-0.5">
+                <FlagsSection />
+              </AccordionContent>
+            </AccordionItem>
+          </div>
+        </Accordion>
 
-          <TabsContent value="tricks" className="mt-4">
-            <Tabs defaultValue={innerTab}>
-              <TabsList>
-                <SubmissionsInnerTab />
-                <SuggestionsInnerTab />
-                <VideosInnerTab />
-                <GlossaryInnerTab />
-              </TabsList>
-
-              <TabsContent value="submissions" className="mt-4">
-                <SubmissionsPanel />
-              </TabsContent>
-              <TabsContent value="suggestions" className="mt-4">
-                <SuggestionsPanel />
-              </TabsContent>
-              <TabsContent value="videos" className="mt-4">
-                <VideosPanel />
-              </TabsContent>
-              <TabsContent value="glossary" className="mt-4">
-                <GlossaryPanel />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-
-          <TabsContent value="vault" className="mt-4">
-            <VaultPanel />
-          </TabsContent>
-
-          <TabsContent value="flags" className="mt-4">
-            <FlagsPanel />
-          </TabsContent>
-        </Tabs>
+        {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
+          <p className="text-muted-foreground mt-6 text-xs tabular-nums">
+            <a
+              href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              {__COMMIT_SHA__}
+            </a>
+          </p>
+        )}
       </div>
     </>
   )
 }
 
-// ==================== Tab Triggers ====================
+// ==================== Accordion Labels ====================
 
-function TricksOuterTab() {
+function TricksLabel() {
   const { data: submissions } = useSuspenseQuery(
     tricks.submissions.list.queryOptions({ status: "pending" }),
   )
@@ -178,106 +197,90 @@ function TricksOuterTab() {
     submissions.length + suggestions.length + videos.length + proposals.length
 
   return (
-    <TabsTrigger value="tricks">
+    <span className="flex items-center gap-2">
       tricks
       {count > 0 && <CountChip>{count}</CountChip>}
-    </TabsTrigger>
+    </span>
   )
 }
 
-function VaultOuterTab() {
-  const { data: suggestions } = useSuspenseQuery(
-    utv.suggestions.list.queryOptions({ status: "pending" }),
-  )
-
-  return (
-    <TabsTrigger value="vault">
-      vault
-      {suggestions.length > 0 && <CountChip>{suggestions.length}</CountChip>}
-    </TabsTrigger>
-  )
-}
-
-function SubmissionsInnerTab() {
+function SubmissionsLabel() {
   const { data } = useSuspenseQuery(
     tricks.submissions.list.queryOptions({ status: "pending" }),
   )
   return (
-    <TabsTrigger value="submissions">
+    <span className="flex items-center gap-2">
       submissions
       {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </TabsTrigger>
+    </span>
   )
 }
 
-function SuggestionsInnerTab() {
+function SuggestionsLabel() {
   const { data } = useSuspenseQuery(
     tricks.suggestions.list.queryOptions({ status: "pending" }),
   )
   return (
-    <TabsTrigger value="suggestions">
+    <span className="flex items-center gap-2">
       suggestions
       {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </TabsTrigger>
+    </span>
   )
 }
 
-function VideosInnerTab() {
+function VideosLabel() {
   const { data } = useSuspenseQuery(tricks.videos.listPending.queryOptions())
   return (
-    <TabsTrigger value="videos">
+    <span className="flex items-center gap-2">
       videos
       {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </TabsTrigger>
+    </span>
   )
 }
 
-function GlossaryInnerTab() {
+function GlossaryLabel() {
   const { data } = useSuspenseQuery(
     tricks.glossary.proposals.list.queryOptions({ status: "pending" }),
   )
   return (
-    <TabsTrigger value="glossary">
+    <span className="flex items-center gap-2">
       glossary
       {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </TabsTrigger>
+    </span>
   )
 }
 
-function FlagsOuterTab() {
-  const { data: flags } = useSuspenseQuery(flagsDomain.list.queryOptions())
-
+function VaultLabel() {
+  const { data } = useSuspenseQuery(
+    utv.suggestions.list.queryOptions({ status: "pending" }),
+  )
   return (
-    <TabsTrigger value="flags">
+    <span className="flex items-center gap-2">
+      vault
+      {data.length > 0 && <CountChip>{data.length}</CountChip>}
+    </span>
+  )
+}
+
+function FlagsLabel() {
+  const { data } = useSuspenseQuery(flagsDomain.list.queryOptions())
+  return (
+    <span className="flex items-center gap-2">
       flags
-      {flags.length > 0 && <CountChip>{flags.length}</CountChip>}
-    </TabsTrigger>
+      {data.length > 0 && <CountChip>{data.length}</CountChip>}
+    </span>
   )
 }
 
-// ==================== Panels ====================
+// ==================== Layout ====================
 
-function EmptyState({
-  message = "no results",
-  description = "try again later",
-}: {
-  message?: string
-  description?: string
-}) {
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <GhostIcon />
-        </EmptyMedia>
-        <EmptyTitle>{message.toLowerCase()}</EmptyTitle>
-        <EmptyDescription>{description}</EmptyDescription>
-      </EmptyHeader>
-    </Empty>
-  )
+function SectionEmpty({ children }: { children: ReactNode }) {
+  return <p className="text-muted-foreground text-sm">{children}</p>
 }
 
-function SubmissionsPanel() {
+// ==================== Tricks: Submissions ====================
+
+function SubmissionsSection() {
   const qc = useQueryClient()
   const submissionsQueryKey = tricks.submissions.list.queryOptions({
     status: "pending",
@@ -315,14 +318,15 @@ function SubmissionsPanel() {
     },
   })
 
-  if (submissions.length === 0) return <EmptyState />
+  if (submissions.length === 0) {
+    return <SectionEmpty>no pending submissions</SectionEmpty>
+  }
 
   return (
     <div className="space-y-2">
       {submissions.map((s) => {
         const proposed = {
           name: s.name,
-          slug: s.slug,
           alternateNames: s.alternateNames ?? [],
           description: s.description ?? null,
           inventedBy: s.inventedBy ?? null,
@@ -330,9 +334,9 @@ function SubmissionsPanel() {
           notes: s.notes ?? null,
           videoUrl: s.videoUrl ?? null,
           videoTimestamp: s.videoTimestamp ?? null,
-          elements: s.elementAssignments.map((a) => a.element.slug),
+          elements: s.elementAssignments.map((a) => a.element.name),
           relationships: s.relationships.map((r) => ({
-            targetSlug: r.targetTrick.slug,
+            targetId: r.targetTrick.id,
             type: r.type,
           })),
         }
@@ -340,25 +344,31 @@ function SubmissionsPanel() {
         return (
           <Card key={s.id} className="rounded-md py-3">
             <CardContent className="space-y-4 px-4">
-              <div className="flex items-start justify-between gap-2">
-                <SubmitterBadge
-                  userId={s.submittedBy.id}
-                  name={s.submittedBy.name}
-                  createdAt={s.createdAt}
-                />
-              </div>
+              <SubmitterBadge
+                userId={s.submittedBy.id}
+                name={s.submittedBy.name}
+                createdAt={s.createdAt}
+              />
 
               <CodeViewer value={JSON.stringify(proposed, null, 2)} />
 
-              <ReviewButtons
-                onApprove={(notes) =>
+              <ReviewActions
+                onApprove={() =>
                   review.mutate({
-                    data: { id: s.id, status: "approved", reviewNotes: notes },
+                    data: { id: s.id, status: "approved", reviewNotes: "" },
                   })
                 }
-                onReject={(notes) =>
-                  review.mutate({
-                    data: { id: s.id, status: "rejected", reviewNotes: notes },
+                onReject={() =>
+                  confirm.open({
+                    title: "reject submission?",
+                    description:
+                      "this will reject the submission. this action cannot be undone.",
+                    confirmText: "reject",
+                    variant: "destructive",
+                    onConfirm: () =>
+                      review.mutate({
+                        data: { id: s.id, status: "rejected", reviewNotes: "" },
+                      }),
                   })
                 }
                 isPending={review.isPending}
@@ -371,7 +381,9 @@ function SubmissionsPanel() {
   )
 }
 
-function SuggestionsPanel() {
+// ==================== Tricks: Suggestions ====================
+
+function SuggestionsSection() {
   const qc = useQueryClient()
   const suggestionsQueryKey = tricks.suggestions.list.queryOptions({
     status: "pending",
@@ -409,7 +421,9 @@ function SuggestionsPanel() {
     },
   })
 
-  if (suggestions.length === 0) return <EmptyState />
+  if (suggestions.length === 0) {
+    return <SectionEmpty>no pending suggestions</SectionEmpty>
+  }
 
   return (
     <div className="space-y-2">
@@ -418,7 +432,7 @@ function SuggestionsPanel() {
 
         const currentRelationships = (s.trick.outgoingRelationships ?? []).map(
           (r) => ({
-            targetSlug: r.targetTrick.slug,
+            targetId: r.targetTrick.id,
             type: r.type,
           }),
         )
@@ -427,8 +441,7 @@ function SuggestionsPanel() {
               ...currentRelationships.filter(
                 (r) =>
                   !diff.relationships!.removed.some(
-                    (rem) =>
-                      rem.targetSlug === r.targetSlug && rem.type === r.type,
+                    (rem) => rem.targetId === r.targetId && rem.type === r.type,
                   ),
               ),
               ...diff.relationships.added,
@@ -443,7 +456,7 @@ function SuggestionsPanel() {
           yearLanded: s.trick.yearLanded ?? null,
           notes: s.trick.notes ?? null,
           elements: (s.trick.elementAssignments ?? []).map(
-            (a) => a.element.slug,
+            (a) => a.element.name,
           ),
           relationships: currentRelationships,
         }
@@ -469,10 +482,14 @@ function SuggestionsPanel() {
         return (
           <Card key={s.id} className="rounded-md py-3">
             <CardContent className="space-y-4 px-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{s.trick.name}</p>
-                </div>
+              <div className="flex w-full items-center justify-between gap-2">
+                <Link
+                  to="/tricks/$trickId"
+                  params={{ trickId: String(s.trick.id) }}
+                  className="truncate text-sm font-medium hover:underline"
+                >
+                  {s.trick.name}
+                </Link>
                 <SubmitterBadge
                   userId={s.submittedBy.id}
                   name={s.submittedBy.name}
@@ -483,20 +500,28 @@ function SuggestionsPanel() {
               <DiffViewer original={original} modified={modified} />
 
               {s.reason && (
-                <p className="text-muted-foreground text-xs italic">
+                <p className="text-muted-foreground text-xs text-pretty italic">
                   &quot;{s.reason}&quot;
                 </p>
               )}
 
-              <ReviewButtons
-                onApprove={(notes) =>
+              <ReviewActions
+                onApprove={() =>
                   review.mutate({
-                    data: { id: s.id, status: "approved", reviewNotes: notes },
+                    data: { id: s.id, status: "approved", reviewNotes: "" },
                   })
                 }
-                onReject={(notes) =>
-                  review.mutate({
-                    data: { id: s.id, status: "rejected", reviewNotes: notes },
+                onReject={() =>
+                  confirm.open({
+                    title: "reject suggestion?",
+                    description:
+                      "this will reject the suggestion. this action cannot be undone.",
+                    confirmText: "reject",
+                    variant: "destructive",
+                    onConfirm: () =>
+                      review.mutate({
+                        data: { id: s.id, status: "rejected", reviewNotes: "" },
+                      }),
                   })
                 }
                 isPending={review.isPending}
@@ -509,12 +534,16 @@ function SuggestionsPanel() {
   )
 }
 
-function VideosPanel() {
+// ==================== Tricks: Videos ====================
+
+function VideosSection() {
   const { data: videos } = useSuspenseQuery(
     tricks.videos.listPending.queryOptions(),
   )
 
-  if (videos.length === 0) return <EmptyState />
+  if (videos.length === 0) {
+    return <SectionEmpty>no pending videos</SectionEmpty>
+  }
 
   return (
     <div className="space-y-2">
@@ -560,9 +589,9 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
 
   return (
     <Card className="rounded-md py-3">
-      <CardContent className="space-y-2 px-4">
+      <CardContent className="space-y-4 px-4">
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium">{video.trick.name}</p>
+          <p className="truncate text-sm font-medium">{video.trick.name}</p>
           <SubmitterBadge
             userId={video.submittedBy.id}
             name={video.submittedBy.name}
@@ -573,17 +602,27 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
           <VideoPlayer playbackId={video.video.playbackId} />
         )}
         {video.notes && (
-          <p className="text-muted-foreground text-sm">{video.notes}</p>
+          <p className="text-muted-foreground text-sm text-pretty">
+            {video.notes}
+          </p>
         )}
-        <ReviewButtons
-          onApprove={(notes) =>
+        <ReviewActions
+          onApprove={() =>
             review.mutate({
-              data: { id: video.id, status: "active", reviewNotes: notes },
+              data: { id: video.id, status: "active", reviewNotes: "" },
             })
           }
-          onReject={(notes) =>
-            review.mutate({
-              data: { id: video.id, status: "rejected", reviewNotes: notes },
+          onReject={() =>
+            confirm.open({
+              title: "reject video?",
+              description:
+                "this will reject the video. this action cannot be undone.",
+              confirmText: "reject",
+              variant: "destructive",
+              onConfirm: () =>
+                review.mutate({
+                  data: { id: video.id, status: "rejected", reviewNotes: "" },
+                }),
             })
           }
           isPending={review.isPending}
@@ -593,7 +632,9 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
   )
 }
 
-function GlossaryPanel() {
+// ==================== Tricks: Glossary ====================
+
+function GlossarySection() {
   const qc = useQueryClient()
   const proposalsQueryKey = tricks.glossary.proposals.list.queryOptions({
     status: "pending",
@@ -641,7 +682,9 @@ function GlossaryPanel() {
     },
   })
 
-  if (proposals.length === 0) return <EmptyState />
+  if (proposals.length === 0) {
+    return <SectionEmpty>no pending proposals</SectionEmpty>
+  }
 
   return (
     <div className="space-y-2">
@@ -671,7 +714,7 @@ function GlossaryPanel() {
 
         return (
           <Card key={p.id} className="rounded-md py-3">
-            <CardContent className="space-y-2 px-4">
+            <CardContent className="space-y-4 px-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs">
@@ -680,7 +723,7 @@ function GlossaryPanel() {
                   <Badge variant="secondary" className="text-xs">
                     {p.action}
                   </Badge>
-                  <p className="text-sm font-medium">{p.name}</p>
+                  <p className="truncate text-sm font-medium">{p.name}</p>
                 </div>
                 <SubmitterBadge
                   userId={p.submittedBy.id}
@@ -689,32 +732,35 @@ function GlossaryPanel() {
                 />
               </div>
 
-              {p.action === "create" && (
-                <>
-                  <p className="text-muted-foreground text-xs">
-                    slug: {p.slug}
-                  </p>
-                  {p.description && <p className="text-sm">{p.description}</p>}
-                </>
+              {p.action === "create" && p.description && (
+                <p className="text-sm text-pretty">{p.description}</p>
               )}
 
               {diffViewer}
 
               {p.reason && (
-                <p className="text-muted-foreground text-xs italic">
+                <p className="text-muted-foreground text-xs text-pretty italic">
                   &quot;{p.reason}&quot;
                 </p>
               )}
 
-              <ReviewButtons
-                onApprove={(notes) =>
+              <ReviewActions
+                onApprove={() =>
                   review.mutate({
-                    data: { id: p.id, status: "approved", reviewNotes: notes },
+                    data: { id: p.id, status: "approved", reviewNotes: "" },
                   })
                 }
-                onReject={(notes) =>
-                  review.mutate({
-                    data: { id: p.id, status: "rejected", reviewNotes: notes },
+                onReject={() =>
+                  confirm.open({
+                    title: "reject proposal?",
+                    description:
+                      "this will reject the glossary proposal. this action cannot be undone.",
+                    confirmText: "reject",
+                    variant: "destructive",
+                    onConfirm: () =>
+                      review.mutate({
+                        data: { id: p.id, status: "rejected", reviewNotes: "" },
+                      }),
                   })
                 }
                 isPending={review.isPending}
@@ -727,7 +773,9 @@ function GlossaryPanel() {
   )
 }
 
-function VaultPanel() {
+// ==================== Vault ====================
+
+function VaultSection() {
   const qc = useQueryClient()
   const suggestionsQueryKey = utv.suggestions.list.queryOptions({
     status: "pending",
@@ -763,7 +811,9 @@ function VaultPanel() {
     },
   })
 
-  if (suggestions.length === 0) return <EmptyState />
+  if (suggestions.length === 0) {
+    return <SectionEmpty>no pending suggestions</SectionEmpty>
+  }
 
   return (
     <div className="space-y-2">
@@ -790,9 +840,9 @@ function VaultPanel() {
 
         return (
           <Card key={s.id} className="rounded-md py-3">
-            <CardContent className="space-y-2 px-4">
+            <CardContent className="space-y-4 px-4">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-medium">
+                <p className="truncate text-sm font-medium">
                   {s.utvVideo.title || s.utvVideo.legacyTitle}
                 </p>
                 <SubmitterBadge
@@ -805,20 +855,28 @@ function VaultPanel() {
               <DiffViewer original={original} modified={modified} />
 
               {s.reason && (
-                <p className="text-muted-foreground text-xs italic">
+                <p className="text-muted-foreground text-xs text-pretty italic">
                   &quot;{s.reason}&quot;
                 </p>
               )}
 
-              <ReviewButtons
-                onApprove={(notes) =>
+              <ReviewActions
+                onApprove={() =>
                   review.mutate({
-                    data: { id: s.id, status: "approved", reviewNotes: notes },
+                    data: { id: s.id, status: "approved", reviewNotes: "" },
                   })
                 }
-                onReject={(notes) =>
-                  review.mutate({
-                    data: { id: s.id, status: "rejected", reviewNotes: notes },
+                onReject={() =>
+                  confirm.open({
+                    title: "reject suggestion?",
+                    description:
+                      "this will reject the vault suggestion. this action cannot be undone.",
+                    confirmText: "reject",
+                    variant: "destructive",
+                    onConfirm: () =>
+                      review.mutate({
+                        data: { id: s.id, status: "rejected", reviewNotes: "" },
+                      }),
                   })
                 }
                 isPending={review.isPending}
@@ -831,7 +889,7 @@ function VaultPanel() {
   )
 }
 
-// ==================== Game Flag Panels ====================
+// ==================== Flags ====================
 
 const ENTITY_TYPE_LABELS: Record<FlagEntityType, string> = {
   post: "post",
@@ -850,7 +908,7 @@ const ENTITY_TYPE_LABELS: Record<FlagEntityType, string> = {
 
 type FlagItem = ServerFnReturn<typeof flagsDomain.list.fn>[number]
 
-function FlagsPanel() {
+function FlagsSection() {
   const qc = useQueryClient()
   const flagsKey = flagsDomain.list.queryOptions().queryKey
 
@@ -882,17 +940,32 @@ function FlagsPanel() {
     },
   })
 
-  if (flags.length === 0) return <EmptyState />
+  if (flags.length === 0) {
+    return <SectionEmpty>no pending flags</SectionEmpty>
+  }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {flags.map((flag) => (
         <FlagCard
           key={flag.id}
           flag={flag}
-          onResolve={(resolution) =>
+          onDismiss={() =>
             resolveFlag.mutate({
-              data: { flagId: flag.id, resolution },
+              data: { flagId: flag.id, resolution: "dismissed" },
+            })
+          }
+          onRemove={() =>
+            confirm.open({
+              title: "remove content?",
+              description:
+                "this will remove the flagged content. this action cannot be undone.",
+              confirmText: "remove",
+              variant: "destructive",
+              onConfirm: () =>
+                resolveFlag.mutate({
+                  data: { flagId: flag.id, resolution: "removed" },
+                }),
             })
           }
           isPending={resolveFlag.isPending}
@@ -904,16 +977,18 @@ function FlagsPanel() {
 
 function FlagCard({
   flag,
-  onResolve,
+  onDismiss,
+  onRemove,
   isPending,
 }: {
   flag: FlagItem
-  onResolve: (resolution: "dismissed" | "removed") => void
+  onDismiss: () => void
+  onRemove: () => void
   isPending: boolean
 }) {
   return (
     <Card className="rounded-md py-3">
-      <CardContent className="space-y-2 px-4">
+      <CardContent className="space-y-4 px-4">
         <div className="flex items-start justify-between gap-2">
           <Badge variant="outline" className="text-xs">
             {ENTITY_TYPE_LABELS[flag.entityType]}
@@ -926,7 +1001,7 @@ function FlagCard({
             >
               {flag.user.name}
             </Link>
-            <span>•</span>
+            <span>·</span>
             <RelativeTimeCard date={flag.createdAt} variant="muted" />
           </p>
         </div>
@@ -934,11 +1009,11 @@ function FlagCard({
           content={flag.reason}
           className="text-muted-foreground text-xs italic"
         />
-        <div className="flex justify-end gap-2 pt-1">
+        <div className="flex justify-end gap-2">
           <Button
             size="sm"
             variant="destructive"
-            onClick={() => onResolve("removed")}
+            onClick={onRemove}
             disabled={isPending}
           >
             remove
@@ -946,7 +1021,7 @@ function FlagCard({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => onResolve("dismissed")}
+            onClick={onDismiss}
             disabled={isPending}
           >
             dismiss
@@ -957,7 +1032,7 @@ function FlagCard({
   )
 }
 
-// ==================== Shared Components ====================
+// ==================== Shared ====================
 
 function SubmitterBadge({
   userId,
@@ -969,60 +1044,50 @@ function SubmitterBadge({
   createdAt: Date
 }) {
   return (
-    <div className="flex shrink-0 items-center gap-1.5 text-xs">
-      <Link
-        to="/users/$userId"
-        params={{ userId }}
-        className="text-muted-foreground hover:text-foreground transition-colors"
-      >
-        {name}
-      </Link>
-      <span className="text-muted-foreground">&middot;</span>
-      <span className="text-muted-foreground">
-        <RelativeTimeCard date={createdAt} variant="muted" />
-      </span>
-    </div>
+    <Metaline
+      className="shrink-0 text-xs"
+      parts={[
+        <Link
+          key="name"
+          to="/users/$userId"
+          params={{ userId }}
+          className="hover:text-foreground transition-colors"
+        >
+          {name}
+        </Link>,
+        <RelativeTimeCard key="time" date={createdAt} variant="muted" />,
+      ]}
+    />
   )
 }
 
-function ReviewButtons({
+function ReviewActions({
   onApprove,
   onReject,
   isPending,
 }: {
-  onApprove: (notes: string) => void
-  onReject: (notes: string) => void
+  onApprove: () => void
+  onReject: () => void
   isPending: boolean
 }) {
-  const [notes, setNotes] = useState("")
-  const trimmed = notes.trim()
-
   return (
-    <div className="space-y-2 pt-1">
-      <Textarea
-        placeholder="review notes..."
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        rows={2}
-      />
-      <div className="flex justify-end gap-2">
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => onReject(trimmed)}
-          disabled={isPending || !trimmed}
-        >
-          reject
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => onApprove(trimmed)}
-          disabled={isPending || !trimmed}
-        >
-          approve
-        </Button>
-      </div>
+    <div className="flex justify-end gap-2">
+      <Button
+        size="sm"
+        variant="destructive"
+        onClick={onReject}
+        disabled={isPending}
+      >
+        reject
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={onApprove}
+        disabled={isPending}
+      >
+        approve
+      </Button>
     </div>
   )
 }
