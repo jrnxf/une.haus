@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="public/icons/logo-full-white.svg">
-    <source media="(prefers-color-scheme: light)" srcset="public/icons/logo-full-black.svg">
-    <img src="public/icons/logo-full-black.svg" width="260" alt="une.haus">
+    <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/icons/logo-full-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="apps/web/public/icons/logo-full-black.svg">
+    <img src="apps/web/public/icons/logo-full-black.svg" width="260" alt="une.haus">
   </picture>
 </p>
 
