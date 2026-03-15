@@ -15,6 +15,23 @@ filter tricks by name or by elements. filters are debounced and reflected in the
 
 each trick has its own page with full details, linked videos, and prerequisites.
 
+## how tricks connect
+
+tricks form a web of relationships. each trick connects to others that differ by just one change -- a bit more spin, an added flip, a modifier.
+
+```mermaid
+graph TD
+    UNI[180 unispin] --> HICK[hickflip]
+    HICK --> TREY[treyflip]
+    TREY --> FIFTH[fifthflip]
+    HICK --> HICKDOUBLE[hickdoubleflip]
+    HICK --> HICKBACK[hickbackflip]
+    HICK --> HICKSIDE[hicksideflip]
+    CRANK[crankflip] --> HICK
+```
+
+there's also a prerequisite chain -- a learning path that tells you what to work on before attempting harder tricks.
+
 ## alternate names
 
 tricks can have multiple names and all of them are searchable.

@@ -7,9 +7,16 @@ description: back up the last trick, set a new one -- the never-ending game
 
 a rider sets a trick. the next rider backs up that trick (lands it) and sets a new one. back it up (BIU) is one continuous chain.
 
+```mermaid
+flowchart LR
+    A[rider A sets a trick] --> B[rider B backs it up + sets new trick]
+    B --> C[rider C backs it up + sets new trick]
+    C --> D[...and so on]
+```
+
 ## the chain
 
-only the most recent trick carries forward. each set includes the backup of the previous trick plus your new trick, all in one video.
+only the most recent trick carries forward. each set includes the backup of the previous trick plus your new trick, all in one video. the chain is displayed as a visual timeline showing each trick in order, who landed it, and when.
 
 ## when does it end
 

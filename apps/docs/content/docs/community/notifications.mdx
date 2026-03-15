@@ -7,6 +7,20 @@ description: stay in the loop with in-app notifications, email digests, and game
 
 you get notified when someone likes your content, comments on your posts, follows you, mentions you, or when someone you follow posts something new. notifications are grouped and browsable from your notifications page.
 
+## what triggers a notification
+
+```mermaid
+flowchart TD
+    LIKE[someone likes your content] --> NOTIFY[notification appears]
+    COMMENT[someone comments] --> NOTIFY
+    FOLLOW[someone follows you] --> NOTIFY
+    MENTION["someone @mentions you"] --> NOTIFY
+    CONTENT[followed rider posts something] --> NOTIFY
+    REVIEW[your submission is reviewed] --> NOTIFY
+    NOTIFY --> INBOX[in-app inbox]
+    NOTIFY --> EMAIL[email digest]
+```
+
 ## notification types
 
 each type can be toggled individually:

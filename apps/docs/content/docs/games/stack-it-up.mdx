@@ -7,9 +7,23 @@ description: land every trick in a growing stack, then add your own
 
 a rider sets a trick. the next rider must land every trick before it plus a new one, all in a single line. stack it up (SIU) grows with each rider.
 
+```mermaid
+flowchart TD
+    S1["rider 1: lands trick A"] --> S2["rider 2: lands A + B"]
+    S2 --> S3["rider 3: lands A + B + C"]
+    S3 --> S4["rider 4: lands A + B + C + D"]
+    S4 --> VOTE{riders vote to archive?}
+    VOTE --> |yes| DONE[stack archived]
+    VOTE --> |no| S5["rider 5: lands A + B + C + D + E"]
+```
+
 ## consistency wins
 
 as more riders add tricks, the line gets longer. every trick from the history must be performed in order. it's a test of consistency and memory.
+
+## how it's different from back it up
+
+in **back it up**, you only need to land the _last_ trick before adding a new one. in **stack it up**, you land the _entire stack_ -- every trick from the beginning -- before adding yours.
 
 ## when does it end
 
@@ -17,11 +31,11 @@ when riders find the stack too difficult, they vote to archive the round. after 
 
 ## archive votes
 
-any signed-in rider can cast one archive vote per round.
+any signed-in rider can cast one archive vote per round. when the community is ready to move on, the round gets archived and a new stack can begin.
 
 ## active vs archived
 
-browse current active games or past archived rounds to see how far the stack got.
+browse current active games or past archived rounds to see how far the stack got. multiple stacks can be active at the same time.
 
 ## rules
 

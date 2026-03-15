@@ -7,6 +7,24 @@ description: une.haus documentation
 
 une.haus is a community platform for unicyclists. it brings together competitive games, a full trick database, the unicycle.tv video archive, and social features -- all in one place. rebuilt from the ground up after skrrrt.io.
 
+```mermaid
+graph TD
+    HOME[une.haus] --> GAMES[games]
+    HOME --> TRICKS[tricks]
+    HOME --> VAULT[vault]
+    HOME --> POSTS[posts]
+    HOME --> COMMUNITY[community]
+    HOME --> TOURNEY[tournaments]
+
+    GAMES --> RIU[rack it up]
+    GAMES --> BIU[back it up]
+    GAMES --> SIU[stack it up]
+
+    COMMUNITY --> CHAT[chat]
+    COMMUNITY --> USERS[rider profiles]
+    COMMUNITY --> MAP[world map]
+```
+
 ## explore the docs
 
 - [getting started](/docs/getting-started) -- create your account and find your way around
