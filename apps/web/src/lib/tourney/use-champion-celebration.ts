@@ -47,7 +47,7 @@ export function useChampionCelebration(champion: string | null) {
   }
 
   const showCelebration =
-    !!champion && champion !== "BYE" && !celebrationDismissed
+    Boolean(champion) && champion !== "BYE" && !celebrationDismissed
 
   useEffect(() => {
     const fireConfetti = confettiRef.current

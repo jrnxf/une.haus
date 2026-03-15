@@ -9,6 +9,7 @@ Always run `bun preflight` before committing. It runs lint, format check, typech
 - Always use `type` instead of `interface` for type definitions
 - Avoid `useEffect` - prefer derived state, event handlers, or keying components
 - Never use non-null assertions (`!.`) - use safe alternatives like optional chaining with fallbacks, type narrowing, or early returns
+- Use `Boolean(value)` instead of `!!value` for type coercion
 
 ## Library Organization (`src/lib/`)
 

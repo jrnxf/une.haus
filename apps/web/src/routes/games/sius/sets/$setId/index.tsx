@@ -118,7 +118,7 @@ function SetView({ setId }: { setId: number }) {
   const deleteSet = useDeleteSet()
   const sessionUser = useSessionUser()
   const isOwner = set.user.id === sessionUser?.id
-  const isDeleted = !!set.deletedAt
+  const isDeleted = Boolean(set.deletedAt)
 
   // Deleted set: show minimal placeholder
   if (isDeleted) {

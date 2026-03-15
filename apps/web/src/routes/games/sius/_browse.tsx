@@ -172,7 +172,7 @@ function RouteComponent() {
                   <ArchiveVoteButton
                     roundId={selectedRound.id}
                     voteCount={voteCount}
-                    hasVoted={!!hasVoted}
+                    hasVoted={Boolean(hasVoted)}
                   />
                 </>
               )}

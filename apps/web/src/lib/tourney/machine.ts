@@ -200,7 +200,7 @@ function hasChampionAfterSelect(
       : finalMatch.winner === 2
         ? finalMatch.player2?.name
         : null
-  return !!championName && championName !== "bye"
+  return Boolean(championName) && championName !== "bye"
 }
 
 // ---------------------------------------------------------------------------

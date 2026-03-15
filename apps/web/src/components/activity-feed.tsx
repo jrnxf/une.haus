@@ -329,7 +329,7 @@ function ActivityGroupRow({
   const groupedSummaryLabel = getGroupedSummaryLabel(group.items)
   const groupedHeaderLabel = groupedSummaryLabel ?? label
   const showGroupedDescription =
-    !!description &&
+    Boolean(description) &&
     !groupedItems.some(({ display }) => display.description === description)
 
   if (!isGrouped) {
@@ -412,7 +412,7 @@ function ActivityGroupRow({
                 </span>
               )}
             </TimelineTitle>
-            {showGroupedDescription && (
+            {description && showGroupedDescription && (
               <p className="text-muted-foreground truncate text-xs">
                 <RichText content={description} />
               </p>
