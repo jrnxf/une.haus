@@ -32,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
 import { usePeripherals } from "~/hooks/use-peripherals"
+import { admin } from "~/lib/admin"
 import { useHaptics } from "~/lib/haptics"
 import { notifications } from "~/lib/notifications"
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
@@ -144,8 +145,15 @@ function MobileNavFooter() {
 
   const { data: unreadCount = 0 } = useQuery({
     ...notifications.unreadCount.queryOptions(),
-    enabled: !!sessionUser,
+    enabled: Boolean(sessionUser),
   })
+
+  const { data: adminPendingCount = 0 } = useQuery({
+    ...admin.pendingCount.queryOptions(),
+    enabled: Boolean(isAdmin),
+  })
+
+  const triggerCount = unreadCount + adminPendingCount
 
   return (
     <div className="mt-2 flex items-center border-t pt-3">
@@ -169,9 +177,9 @@ function MobileNavFooter() {
                 <span className="truncate text-sm font-medium">
                   {sessionUser.name}
                 </span>
-                {unreadCount > 0 && (
+                {triggerCount > 0 && (
                   <CountChip className="absolute -top-0.5 -right-0.5">
-                    {unreadCount > 9 ? "9+" : unreadCount}
+                    {triggerCount > 9 ? "9+" : triggerCount}
                   </CountChip>
                 )}
               </button>
@@ -187,6 +195,7 @@ function MobileNavFooter() {
                 isAdmin={isAdmin}
                 logout={logout}
                 unreadCount={unreadCount}
+                adminPendingCount={adminPendingCount}
               />
             </DropdownMenuContent>
           </DropdownMenu>

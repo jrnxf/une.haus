@@ -40,6 +40,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar"
+import { admin } from "~/lib/admin"
 import { notifications } from "~/lib/notifications"
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { useTheme } from "~/lib/theme/context"
@@ -85,45 +86,17 @@ export function AuthedUserMenuItems({
   isAdmin,
   logout,
   unreadCount,
+  adminPendingCount,
 }: {
   sessionUser: { id: number; name: string }
   isAdmin?: boolean
   logout: (opts: Record<string, never>) => void
   unreadCount: number
+  adminPendingCount: number
 }) {
+  const isDev = import.meta.env.DEV
   return (
     <>
-      {(isAdmin || import.meta.env.DEV) && (
-        <>
-          <DropdownMenuGroup>
-            {isAdmin && (
-              <DropdownMenuItem asChild>
-                <Link to="/admin">
-                  <ShieldIcon className="size-3.5" />
-                  admin
-                </Link>
-              </DropdownMenuItem>
-            )}
-            {import.meta.env.DEV && (
-              <DropdownMenuItem
-                onClick={() => {
-                  import("@tanstack/devtools-client").then(
-                    ({ devtoolsEventClient }) => {
-                      devtoolsEventClient.emit("trigger-toggled", {
-                        isOpen: true,
-                      })
-                    },
-                  )
-                }}
-              >
-                <BugIcon className="size-3.5" />
-                devtools
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-        </>
-      )}
       <DropdownMenuGroup>
         <DropdownMenuItem asChild>
           <Link to="/feedback">
@@ -155,6 +128,43 @@ export function AuthedUserMenuItems({
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
+
+      {(isAdmin || isDev) && (
+        <>
+          <DropdownMenuGroup>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/admin">
+                  <ShieldIcon className="size-3.5" />
+                  admin
+                  {adminPendingCount > 0 && (
+                    <CountChip className="ml-auto">
+                      {adminPendingCount > 99 ? "99+" : adminPendingCount}
+                    </CountChip>
+                  )}
+                </Link>
+              </DropdownMenuItem>
+            )}
+            {isDev && (
+              <DropdownMenuItem
+                onClick={() => {
+                  import("@tanstack/devtools-client").then(
+                    ({ devtoolsEventClient }) => {
+                      devtoolsEventClient.emit("trigger-toggled", {
+                        isOpen: true,
+                      })
+                    },
+                  )
+                }}
+              >
+                <BugIcon className="size-3.5" />
+                devtools
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+        </>
+      )}
       <DropdownMenuGroup>
         <DropdownMenuItem asChild>
           <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
@@ -233,7 +243,12 @@ export function NavUser() {
 
   const { data: unreadCount = 0 } = useQuery({
     ...notifications.unreadCount.queryOptions(),
-    enabled: !!sessionUser,
+    enabled: Boolean(sessionUser),
+  })
+
+  const { data: adminPendingCount = 0 } = useQuery({
+    ...admin.pendingCount.queryOptions(),
+    enabled: Boolean(isAdmin),
   })
 
   if (!sessionUser) {
@@ -295,9 +310,11 @@ export function NavUser() {
                 <span className="truncate text-xs">{sessionUser.email}</span>
               </div>
               <ChevronsUpDown aria-hidden="true" className="ml-auto size-4" />
-              {unreadCount > 0 && (
+              {unreadCount + adminPendingCount > 0 && (
                 <CountChip className="absolute -top-1 -right-1">
-                  {unreadCount > 9 ? "9+" : unreadCount}
+                  {unreadCount + adminPendingCount > 9
+                    ? "9+"
+                    : unreadCount + adminPendingCount}
                 </CountChip>
               )}
             </SidebarMenuButton>
@@ -316,6 +333,7 @@ export function NavUser() {
               isAdmin={isAdmin}
               logout={logout}
               unreadCount={unreadCount}
+              adminPendingCount={adminPendingCount}
             />
           </DropdownMenuContent>
         </DropdownMenu>
