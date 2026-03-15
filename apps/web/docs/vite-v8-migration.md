@@ -1,6 +1,8 @@
-# Vite 8 Migration
+# Vite 8 + Vite+ Migration
 
-Attempted 2026-03-14, reverted. Vite 8.0.0 released 2026-03-12.
+Vite 8 attempted 2026-03-14, reverted. Vite 8.0.0 released 2026-03-12.
+
+Vite+ bundles Vite 8 internally, so the Vite+ migration is blocked by the same issue.
 
 ## Status: blocked
 
@@ -138,3 +140,109 @@ The override forces all transitive `vite` dependencies (nitro, @tailwindcss/vite
 - `build.rollupOptions` deprecated → `build.rolldownOptions` (auto-converted)
 - `onwarn` removed from rolldownOptions type
 - Migration guide: https://vite.dev/guide/migration
+
+---
+
+## Phase 2: Vite+ migration (after Vite 8 is unblocked)
+
+Vite+ is a unified toolchain that combines Vite, Vitest, Oxlint, Oxfmt, Rolldown, and tsdown under a single `vp` CLI. It bundles Vite 8 internally — `vite-plus` replaces the `vite` package.
+
+Migration guide: https://viteplus.dev/guide/migrate
+
+### 1. Install the `vp` CLI
+
+```bash
+curl -fsSL https://vite.plus | bash
+```
+
+### 2. Run `vp migrate`
+
+From the `apps/web` directory:
+
+```bash
+vp migrate
+```
+
+This will:
+
+- Update dependencies (`vite` → `vite-plus`)
+- Rewrite imports
+- Merge tool configs into `vite.config.ts`
+- Update scripts to `vp` commands
+
+Most projects need manual adjustments after — see steps below.
+
+### 3. Import rewrites
+
+```diff
+ // apps/web/vite.config.ts
+-import { defineConfig, type PluginOption } from "vite"
++import { defineConfig, type PluginOption } from "vite-plus"
+```
+
+Any other files importing from `vite` need the same rewrite.
+
+### 4. Script updates
+
+Update `apps/web/package.json` scripts:
+
+| Old            | New          |
+| -------------- | ------------ |
+| `vite dev`     | `vp dev`     |
+| `vite build`   | `vp build`   |
+| `vite preview` | `vp preview` |
+| `oxlint`       | `vp lint`    |
+| `oxfmt`        | `vp fmt`     |
+
+The root `preflight` script should continue to work — it calls workspace scripts which will now use `vp` internally.
+
+### 5. Config consolidation (optional)
+
+Oxlint and Oxfmt configs can optionally be merged into `vite.config.ts`:
+
+```ts
+// apps/web/vite.config.ts
+import { defineConfig } from "vite-plus"
+
+export default defineConfig({
+  // existing config...
+  lint: {
+    // oxlint rules — replaces .oxlintrc.json
+  },
+  fmt: {
+    // oxfmt options — replaces .oxfmtrc.json
+  },
+})
+```
+
+### 6. Decisions for this project
+
+- **Keep Bun test** — `vp test` (Vitest) is optional, our tests use Bun's test runner
+- **Keep Bun as package manager** — run `vp env off` to prevent Vite+ from managing the runtime/package manager
+- **Keep standalone `.oxlintrc.json` / `.oxfmtrc.json` at monorepo root** — there's no root `vite.config.ts` to consolidate into, and the root configs apply to both `apps/web` and `apps/docs`
+- **Skip pre-commit hooks** — keep manual `bun preflight` workflow
+
+### 7. Remove old dependencies
+
+After confirming everything works:
+
+```diff
+ // apps/web/package.json
+ devDependencies:
+-  "vite": "^8.0.0",
+   // vite-plus replaces vite
+```
+
+Also remove the root `overrides` for vite if no longer needed — `vite-plus` bundles its own Vite 8.
+
+### 8. Docs app
+
+`apps/docs` also needs migration. Same pattern — `vite` → `vite-plus` import rewrite and script updates. Run `vp migrate` from `apps/docs` separately.
+
+### Verification
+
+```bash
+bun run preflight   # lint, format, typecheck, tests
+bun dev             # test client-side navigation to /posts, /users
+bun run build       # production build
+```
