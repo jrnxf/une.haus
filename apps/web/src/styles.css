@@ -119,6 +119,8 @@
   --color-rank-silver-foreground: var(--rank-silver-foreground);
   --color-rank-bronze: var(--rank-bronze);
   --color-rank-bronze-foreground: var(--rank-bronze-foreground);
+  --color-invert-foreground: var(--invert-foreground);
+  --color-invert: var(--invert);
 }
 
 :root {
@@ -179,6 +181,8 @@
   --sidebar-accent-foreground: oklch(17% 0 0);
   --sidebar-border: oklch(0.92 0 0);
   --sidebar-ring: oklch(0.705 0.015 285);
+  --invert: var(--color-zinc-900);
+  --invert-foreground: var(--color-zinc-50);
 }
 
 .dark {
@@ -239,6 +243,8 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285);
+  --invert: var(--color-zinc-700);
+  --invert-foreground: var(--color-zinc-50);
 }
 
 @layer base {

@@ -333,7 +333,7 @@ export function CommandPalette() {
     const parts: string[] = []
     if (shortcut.meta) parts.push(metaSymbol)
     if (shortcut.shift) parts.push("⇧")
-    parts.push(shortcut.key.toUpperCase())
+    parts.push(shortcut.key)
     return parts
   }
 

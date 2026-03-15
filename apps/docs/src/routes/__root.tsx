@@ -10,6 +10,11 @@ import appCss from "~/styles.css?url"
 
 export const Route = createRootRoute({
   component: RootComponent,
+  notFoundComponent: () => (
+    <div className="flex flex-1 items-center justify-center">
+      <p className="text-fd-muted-foreground">not found</p>
+    </div>
+  ),
   head: () => ({
     links: [{ href: appCss, rel: "stylesheet" }],
     meta: [
