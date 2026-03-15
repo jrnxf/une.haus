@@ -1,17 +1,16 @@
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
+import {
+  createColumnHelper,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+import { useCallback } from "react"
 
 import { ArrowLabel } from "~/components/arrow-label"
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { DataGrid } from "~/components/reui/data-grid/data-grid"
+import { DataGridTable } from "~/components/reui/data-grid/data-grid-table"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table"
 import {
   Tooltip,
   TooltipContent,
@@ -57,7 +56,92 @@ type TopContributorsProps = {
   data: Contributor[]
 }
 
+const columnHelper = createColumnHelper<Contributor>()
+
+const columns = [
+  columnHelper.display({
+    id: "rank",
+    header: "#",
+    meta: {
+      headerClassName: "w-[40px] min-w-[40px] max-w-[40px]",
+      cellClassName: "w-[40px] min-w-[40px] max-w-[40px]",
+    },
+    enableSorting: false,
+    cell: (info) => (
+      <span className="text-muted-foreground tabular-nums">
+        {info.row.index + 1}
+      </span>
+    ),
+  }),
+  columnHelper.accessor("name", {
+    header: "user",
+    meta: {
+      headerClassName: "w-[140px] min-w-[140px] max-w-[140px]",
+      cellClassName: "w-[140px] min-w-[140px] max-w-[140px]",
+    },
+    enableSorting: false,
+    cell: (info) => (
+      <span className="truncate font-medium">{info.getValue()}</span>
+    ),
+  }),
+  ...STAT_COLS.map((col) =>
+    columnHelper.accessor(col.key, {
+      header: () => (
+        <span className="flex items-center justify-end gap-1.5">
+          <span className={cn("size-2 shrink-0 rounded-full", col.dot)} />
+          {col.label}
+          <span className="text-muted-foreground">&times;{col.points}</span>
+        </span>
+      ),
+      meta: {
+        headerClassName: "text-right",
+        cellClassName: "text-right",
+      },
+      enableSorting: false,
+      cell: (info) => {
+        const val = info.getValue()
+        return (
+          <span
+            className={cn(
+              "tabular-nums",
+              val > 0
+                ? cn("font-medium", col.text)
+                : "text-muted-foreground/30",
+            )}
+          >
+            {val}
+          </span>
+        )
+      },
+    }),
+  ),
+  columnHelper.accessor("totalPoints", {
+    header: "points",
+    meta: {
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+    },
+    enableSorting: false,
+    cell: (info) => <span className="tabular-nums">{info.getValue()}</span>,
+  }),
+]
+
 export function TopContributors({ data }: TopContributorsProps) {
+  const navigate = useNavigate()
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  const handleRowClick = useCallback(
+    (contributor: Contributor) => {
+      navigate({ to: "/users/$userId", params: { userId: contributor.id } })
+    },
+    [navigate],
+  )
+
   if (data.length === 0) {
     return (
       <Card className="py-4">
@@ -91,90 +175,19 @@ export function TopContributors({ data }: TopContributorsProps) {
         </Button>
       </CardHeader>
       <CardContent className="overflow-auto p-0 text-xs">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="h-7 w-[40px] max-w-[40px] min-w-[40px]">
-                #
-              </TableHead>
-              <TableHead className="h-7 w-[140px] max-w-[140px] min-w-[140px]">
-                user
-              </TableHead>
-              {STAT_COLS.map((col) => (
-                <TableHead key={col.key} className="h-7 text-right">
-                  <span className="flex items-center justify-end gap-1.5">
-                    <span
-                      className={cn("size-2 shrink-0 rounded-full", col.dot)}
-                    />
-                    {col.label}
-                    <span className="text-muted-foreground">
-                      &times;{col.points}
-                    </span>
-                  </span>
-                </TableHead>
-              ))}
-              <TableHead className="h-7 text-right">points</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((contributor, index) => (
-              <TableRow key={contributor.id} className="cursor-pointer">
-                <TableCell className="relative py-1.5">
-                  <span className="text-muted-foreground tabular-nums">
-                    {index + 1}
-                  </span>
-                </TableCell>
-                <TableCell className="relative py-1.5">
-                  <Link
-                    to="/users/$userId"
-                    params={{ userId: contributor.id }}
-                    className="flex items-center gap-2 after:absolute after:inset-0 after:content-['']"
-                  >
-                    <Avatar
-                      className="size-5"
-                      cloudflareId={contributor.avatarId}
-                      alt={contributor.name}
-                    >
-                      <AvatarImage width={40} quality={80} />
-                      <AvatarFallback
-                        name={contributor.name}
-                        className="text-[9px]"
-                      />
-                    </Avatar>
-                    <span className="truncate font-medium">
-                      {contributor.name}
-                    </span>
-                  </Link>
-                </TableCell>
-                {STAT_COLS.map((col) => {
-                  const val = contributor[col.key]
-                  return (
-                    <TableCell
-                      key={col.key}
-                      className="relative py-1.5 text-right"
-                    >
-                      <span
-                        className={cn(
-                          "tabular-nums",
-                          val > 0
-                            ? cn("font-medium", col.text)
-                            : "text-muted-foreground/30",
-                        )}
-                      >
-                        {val}
-                      </span>
-                    </TableCell>
-                  )
-                })}
-                <TableCell className="relative py-1.5 text-right">
-                  <span className="tabular-nums">
-                    {contributor.totalPoints}
-                  </span>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataGrid
+          table={table}
+          recordCount={data.length}
+          onRowClick={handleRowClick}
+          tableLayout={{
+            dense: true,
+            headerBackground: true,
+            headerBorder: true,
+            rowBorder: true,
+          }}
+        >
+          <DataGridTable />
+        </DataGrid>
       </CardContent>
     </Card>
   )

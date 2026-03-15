@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import {
   createColumnHelper,
   flexRender,
@@ -9,19 +9,23 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 
 import { PageHeader } from "~/components/page-header"
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table"
+  DataGrid,
+  DataGridContainer,
+} from "~/components/reui/data-grid/data-grid"
+import { DataGridColumnHeader } from "~/components/reui/data-grid/data-grid-column-header"
+import {
+  DataGridTableBase,
+  DataGridTableBody,
+  DataGridTableBodyRow,
+  DataGridTableBodyRowCell,
+  DataGridTableHead,
+  DataGridTableHeadRow,
+  DataGridTableHeadRowCell,
+} from "~/components/reui/data-grid/data-grid-table"
 import { stats } from "~/lib/stats"
 import { cn } from "~/lib/utils"
 
@@ -34,8 +38,6 @@ type Contributor = {
   likesCount: number
   totalPoints: number
 }
-
-const columnHelper = createColumnHelper<Contributor>()
 
 const STAT_COLS = [
   {
@@ -61,11 +63,16 @@ const STAT_COLS = [
   },
 ]
 
+const columnHelper = createColumnHelper<Contributor>()
+
 const columns = [
   columnHelper.display({
     id: "rank",
     header: "#",
-    meta: { className: "w-[48px] min-w-[48px] max-w-[48px]" },
+    meta: {
+      headerClassName: "w-[48px] min-w-[48px] max-w-[48px]",
+      cellClassName: "w-[48px] min-w-[48px] max-w-[48px]",
+    },
     enableSorting: false,
     cell: (info) => (
       <span className="text-muted-foreground tabular-nums">
@@ -74,36 +81,37 @@ const columns = [
     ),
   }),
   columnHelper.accessor("name", {
-    header: "user",
-    meta: { className: "w-[200px] min-w-[200px] max-w-[200px]" },
+    header: ({ column }) => (
+      <DataGridColumnHeader column={column} title="user" />
+    ),
+    meta: {
+      headerClassName: "w-[200px] min-w-[200px] max-w-[200px]",
+      cellClassName: "w-[200px] min-w-[200px] max-w-[200px]",
+    },
     cell: (info) => (
-      <Link
-        to="/users/$userId"
-        params={{ userId: info.row.original.id }}
-        className="flex items-center gap-2 after:absolute after:inset-0 after:content-['']"
-      >
-        <Avatar
-          className="size-5"
-          cloudflareId={info.row.original.avatarId}
-          alt={info.getValue()}
-        >
-          <AvatarImage width={40} quality={80} />
-          <AvatarFallback name={info.getValue()} />
-        </Avatar>
-        <span className="truncate font-medium">{info.getValue()}</span>
-      </Link>
+      <span className="truncate font-medium">{info.getValue()}</span>
     ),
   }),
   ...STAT_COLS.map((col) =>
     columnHelper.accessor(col.key, {
-      header: () => (
-        <span className="flex items-center justify-end gap-1.5">
-          <span className={cn("size-2 shrink-0 rounded-full", col.dot)} />
-          {col.label}
-          <span className="text-muted-foreground">&times;{col.points}</span>
-        </span>
+      header: ({ column }) => (
+        <DataGridColumnHeader
+          column={column}
+          title=""
+          className="justify-end"
+          icon={
+            <span className="flex items-center gap-1.5">
+              <span className={cn("size-2 shrink-0 rounded-full", col.dot)} />
+              {col.label}
+              <span className="text-muted-foreground">&times;{col.points}</span>
+            </span>
+          }
+        />
       ),
-      meta: { className: "text-right" },
+      meta: {
+        headerClassName: "text-right",
+        cellClassName: "text-right",
+      },
       cell: (info) => {
         const val = info.getValue()
         return (
@@ -122,8 +130,17 @@ const columns = [
     }),
   ),
   columnHelper.accessor("totalPoints", {
-    header: "points",
-    meta: { className: "text-right" },
+    header: ({ column }) => (
+      <DataGridColumnHeader
+        column={column}
+        title="points"
+        className="justify-end"
+      />
+    ),
+    meta: {
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+    },
     cell: (info) => (
       <span className="font-bold tabular-nums">{info.getValue()}</span>
     ),
@@ -141,6 +158,7 @@ function RouteComponent() {
   const { data: contributors } = useSuspenseQuery(
     stats.contributors.queryOptions(),
   )
+  const navigate = useNavigate()
 
   const [sorting, setSorting] = useState<SortingState>([
     { id: "totalPoints", desc: true },
@@ -171,6 +189,13 @@ function RouteComponent() {
   const paddingBottom =
     virtualRows.length > 0 ? totalSize - (virtualRows.at(-1)?.end ?? 0) : 0
 
+  const handleRowClick = useCallback(
+    (contributor: Contributor) => {
+      navigate({ to: "/users/$userId", params: { userId: contributor.id } })
+    },
+    [navigate],
+  )
+
   return (
     <>
       <PageHeader maxWidth="max-w-5xl">
@@ -181,89 +206,77 @@ function RouteComponent() {
       </PageHeader>
 
       <div className="mx-auto flex min-h-0 w-full flex-1 flex-col p-4">
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-lg border">
-          <div
-            ref={scrollRef}
-            className="min-h-0 flex-1 overflow-auto overscroll-none text-xs"
-          >
-            <Table containerClassName="overflow-visible">
-              <TableHeader className="bg-table-header sticky top-0 z-10">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      const meta = header.column.columnDef.meta as
-                        | { className?: string }
-                        | undefined
-                      return (
-                        <TableHead
+        <DataGrid
+          table={table}
+          recordCount={contributors.length}
+          onRowClick={handleRowClick}
+          tableLayout={{
+            dense: true,
+            headerSticky: true,
+            headerBackground: true,
+            headerBorder: true,
+            rowBorder: true,
+          }}
+        >
+          <DataGridContainer className="flex min-h-0 flex-1 flex-col">
+            <div
+              ref={scrollRef}
+              className="min-h-0 flex-1 overflow-auto overscroll-none"
+            >
+              <DataGridTableBase>
+                <DataGridTableHead>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <DataGridTableHeadRow
+                      key={headerGroup.id}
+                      headerGroup={headerGroup}
+                    >
+                      {headerGroup.headers.map((header) => (
+                        <DataGridTableHeadRowCell
                           key={header.id}
-                          className={cn(
-                            header.column.getCanSort() &&
-                              "cursor-pointer select-none",
-                            meta?.className,
-                          )}
-                          onClick={header.column.getToggleSortingHandler()}
+                          header={header}
                         >
-                          <span
-                            className={cn(
-                              "flex items-center gap-1",
-                              meta?.className?.includes("text-right") &&
-                                "justify-end",
-                            )}
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                            {{
-                              asc: <ArrowUpIcon className="size-3.5" />,
-                              desc: <ArrowDownIcon className="size-3.5" />,
-                            }[header.column.getIsSorted() as string] ?? null}
-                          </span>
-                        </TableHead>
-                      )
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {paddingTop > 0 && (
-                  <tr>
-                    <td style={{ height: paddingTop }} />
-                  </tr>
-                )}
-                {virtualRows.map((virtualRow) => {
-                  const row = rows[virtualRow.index]!
-                  return (
-                    <TableRow key={row.id} className="cursor-pointer">
-                      {row.getVisibleCells().map((cell) => {
-                        const meta = cell.column.columnDef.meta as
-                          | { className?: string }
-                          | undefined
-                        return (
-                          <TableCell
-                            key={cell.id}
-                            className={cn("relative py-1.5", meta?.className)}
-                          >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </DataGridTableHeadRowCell>
+                      ))}
+                    </DataGridTableHeadRow>
+                  ))}
+                </DataGridTableHead>
+                <DataGridTableBody>
+                  {paddingTop > 0 && (
+                    <tr>
+                      <td style={{ height: paddingTop }} />
+                    </tr>
+                  )}
+                  {virtualRows.map((virtualRow) => {
+                    const row = rows[virtualRow.index]!
+                    return (
+                      <DataGridTableBodyRow key={row.id} row={row}>
+                        {row.getVisibleCells().map((cell) => (
+                          <DataGridTableBodyRowCell key={cell.id} cell={cell}>
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext(),
                             )}
-                          </TableCell>
-                        )
-                      })}
-                    </TableRow>
-                  )
-                })}
-                {paddingBottom > 0 && (
-                  <tr>
-                    <td style={{ height: paddingBottom }} />
-                  </tr>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+                          </DataGridTableBodyRowCell>
+                        ))}
+                      </DataGridTableBodyRow>
+                    )
+                  })}
+                  {paddingBottom > 0 && (
+                    <tr>
+                      <td style={{ height: paddingBottom }} />
+                    </tr>
+                  )}
+                </DataGridTableBody>
+              </DataGridTableBase>
+            </div>
+          </DataGridContainer>
+        </DataGrid>
       </div>
     </>
   )
