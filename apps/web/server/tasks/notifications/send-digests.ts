@@ -10,10 +10,6 @@ import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
-const BASE_URL = env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VITE_APP_URL
-
 export default defineTask({
   meta: {
     name: TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
@@ -168,9 +164,9 @@ export default defineTask({
             userName: user.name,
             frequency: user.frequency === "monthly" ? "monthly" : "weekly",
             groups,
-            unsubscribeDigestUrl: `${BASE_URL}/api/unsubscribe?type=digest&userId=${user.userId}`,
-            unsubscribeAllUrl: `${BASE_URL}/api/unsubscribe?type=all&userId=${user.userId}`,
-            viewNotificationsUrl: `${BASE_URL}/notifications`,
+            unsubscribeDigestUrl: `https://une.haus/api/unsubscribe?type=digest&userId=${user.userId}`,
+            unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}`,
+            viewNotificationsUrl: `https://une.haus/notifications`,
           }),
         })
 

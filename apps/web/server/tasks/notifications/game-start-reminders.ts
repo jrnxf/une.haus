@@ -16,10 +16,6 @@ import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
-const BASE_URL = env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VITE_APP_URL
-
 // Calculate hours until next Monday 00:00 UTC
 function getHoursUntilNextRotation(): number {
   const now = new Date()
@@ -135,10 +131,10 @@ export default defineTask({
             hoursUntilStart,
             riderCount: Number(riderCount),
             setCount: Number(setCount),
-            viewRoundUrl: `${BASE_URL}/games/rius/upcoming`,
-            addSetUrl: `${BASE_URL}/games/rius/upcoming/sets/create`,
-            unsubscribeReminderUrl: `${BASE_URL}/api/unsubscribe?type=game_start&userId=${user.userId}`,
-            unsubscribeAllUrl: `${BASE_URL}/api/unsubscribe?type=all&userId=${user.userId}`,
+            viewRoundUrl: `https://une.haus/games/rius/upcoming`,
+            addSetUrl: `https://une.haus/games/rius/upcoming/sets/create`,
+            unsubscribeReminderUrl: `https://une.haus/api/unsubscribe?type=game_start&userId=${user.userId}`,
+            unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}`,
           }),
         })
 

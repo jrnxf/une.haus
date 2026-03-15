@@ -1,11 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { env } from "~/lib/env"
 import { unsubscribe } from "~/lib/notification-settings/ops.server"
-
-const BASE_URL = env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : env.VITE_APP_URL
 
 const VALID_TYPES = new Set(["all", "digest", "game_start"])
 
@@ -37,7 +32,7 @@ export const Route = createFileRoute("/api/unsubscribe")({
           })
 
           return Response.redirect(
-            `${BASE_URL}/notifications/settings?unsubscribed=${type}`,
+            `https://une.haus/notifications/settings?unsubscribed=${type}`,
             302,
           )
         } catch (error) {
