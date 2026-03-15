@@ -7,6 +7,7 @@ import {
   DocsTitle,
 } from "fumadocs-ui/page"
 
+import { Mermaid } from "~/components/mermaid"
 import { source } from "~/lib/source"
 
 export const Route = createFileRoute("/docs/$")({
@@ -29,7 +30,7 @@ function Page() {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents }} />
+        <MDX components={{ ...defaultMdxComponents, Mermaid }} />
       </DocsBody>
     </DocsPage>
   )

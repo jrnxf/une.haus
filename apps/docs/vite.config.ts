@@ -20,11 +20,14 @@ function aliasNodePath(): Plugin {
 
 export default defineConfig({
   server: { port: 3001 },
+  optimizeDeps: {
+    exclude: ["fumadocs-mdx"],
+  },
   resolve: {
     dedupe: ["fumadocs-core"],
   },
   ssr: {
-    noExternal: ["fumadocs-core", "fumadocs-ui"],
+    noExternal: ["fumadocs-core", "fumadocs-ui", "fumadocs-mdx"],
   },
   plugins: [
     aliasNodePath(),
