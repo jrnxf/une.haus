@@ -54,7 +54,6 @@ export async function createRiuSet({
     type: "new_content",
     entityType: "riuSet",
     entityId: riuSet.id,
-    entityTitle: riuSet.name,
   }).catch(console.error)
 
   return riuSet

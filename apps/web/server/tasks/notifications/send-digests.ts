@@ -111,14 +111,19 @@ export default defineTask({
           groups.push({
             type: "likes",
             count: likesNotifications.length,
-            items: likesNotifications.map((n) => ({
-              title:
-                n.type === "message_like"
-                  ? `Your comment on ${n.entityType} got a like`
-                  : n.entityTitle
-                    ? `Your ${n.entityType} "${n.entityTitle}" got a like`
-                    : `Your ${n.entityType} got a like`,
-            })),
+            items: likesNotifications.map((n) => {
+              // Never show riuSet titles in digests — sets are secret until the game goes active
+              const title =
+                n.entityType === "riuSet" ? undefined : n.entityTitle
+              return {
+                title:
+                  n.type === "message_like"
+                    ? `Your comment on ${n.entityType} got a like`
+                    : title
+                      ? `Your ${n.entityType} "${title}" got a like`
+                      : `Your ${n.entityType} got a like`,
+              }
+            }),
           })
         }
 

@@ -127,6 +127,22 @@ describe("getNotificationMessage", () => {
       expect(msg).toBe("Alice posted post")
     })
 
+    it("formats single new content with title", () => {
+      const msg = getNotificationMessage(
+        "new_content",
+        "post",
+        1,
+        ["Alice"],
+        "My Post",
+      )
+      expect(msg).toBe('Alice posted post: "My Post"')
+    })
+
+    it("formats riuSet new content without title (upcoming game)", () => {
+      const msg = getNotificationMessage("new_content", "riuSet", 1, ["Alice"])
+      expect(msg).toBe("Alice posted RIU set")
+    })
+
     it("formats multiple new content", () => {
       const msg = getNotificationMessage("new_content", "post", 5, ["Alice"])
       expect(msg).toBe("Alice and 4 others created new content")

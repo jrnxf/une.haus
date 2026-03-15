@@ -1,11 +1,12 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, desc, eq, gt, ilike, isNull, lt, sql } from "drizzle-orm"
+import { and, asc, desc, eq, gt, ilike, isNull, lt, ne, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import {
   biuSets,
   postMessages,
   posts,
+  rius,
   riuSets,
   riuSubmissions,
   siuSets,
@@ -412,13 +413,15 @@ export async function getUserActivity({
             riuId: riuSets.riuId,
           })
           .from(riuSets)
+          .innerJoin(rius, eq(rius.id, riuSets.riuId))
           .where(
             cursorDate
               ? and(
                   eq(riuSets.userId, userId),
+                  ne(rius.status, "upcoming"),
                   lt(riuSets.createdAt, cursorDate),
                 )
-              : eq(riuSets.userId, userId),
+              : and(eq(riuSets.userId, userId), ne(rius.status, "upcoming")),
           )
           .orderBy(desc(riuSets.createdAt))
           .limit(limit + 1)
