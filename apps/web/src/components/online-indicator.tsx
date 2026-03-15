@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import pluralize from "pluralize"
-import { Suspense, useEffect, useRef, useState } from "react"
+import { Suspense, useState } from "react"
 
 import { Button } from "~/components/ui/button"
 import {
@@ -77,35 +77,9 @@ export function OnlineIndicator({ className }: { className?: string }) {
   )
 }
 
-function AnimatedCount({ value }: { value: number }) {
-  const [display, setDisplay] = useState(0)
-  const ref = useRef(0)
-
-  useEffect(() => {
-    const from = ref.current
-    if (from === value) return
-    const step = from < value ? 1 : -1
-    let current = from
-    const interval = setInterval(() => {
-      current += step
-      setDisplay(current)
-      if (current === value) {
-        clearInterval(interval)
-        ref.current = value
-      }
-    }, 100)
-    return () => {
-      ref.current = current
-      clearInterval(interval)
-    }
-  }, [value])
-
-  return <span>{display}</span>
-}
-
 function OnlineCount() {
   const { data } = useSuspenseQuery(presence.online.queryOptions())
-  return <AnimatedCount value={data.total} />
+  return <span>{data.total}</span>
 }
 
 function OnlineDropdownContent({ onNavigate }: { onNavigate: () => void }) {
