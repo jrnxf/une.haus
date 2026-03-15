@@ -532,14 +532,14 @@ function getActivityDisplay(item: ActivityItem): {
       return {
         icon: <EditIcon className="size-2.5" />,
         label: `suggested edit to ${item.trickName ?? "a trick"}`,
-        url: item.trickSlug ? `/tricks/${item.trickSlug}` : "/tricks",
+        url: item.trickId ? `/tricks/${item.trickId}` : "/tricks",
       }
     }
     case "trickVideo": {
       return {
         icon: <VideoIcon className="size-2.5" />,
         label: `submitted video for ${item.trickName ?? "a trick"}`,
-        url: item.trickSlug ? `/tricks/${item.trickSlug}` : "/tricks",
+        url: item.trickId ? `/tricks/${item.trickId}` : "/tricks",
       }
     }
     case "utvVideoSuggestion": {

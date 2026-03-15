@@ -14,10 +14,6 @@ const submissionRelationshipSchema = z.object({
 
 // Create submission (user submits new trick for review)
 export const createSubmissionSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   alternateNames: z.array(z.string()).default([]),
   description: z.string().optional().nullable(),
@@ -86,13 +82,13 @@ const trickSuggestionDiffSchema = z.object({
     .object({
       added: z.array(
         z.object({
-          targetSlug: z.string(),
+          targetId: z.number(),
           type: z.string(),
         }),
       ),
       removed: z.array(
         z.object({
-          targetSlug: z.string(),
+          targetId: z.number(),
           type: z.string(),
         }),
       ),

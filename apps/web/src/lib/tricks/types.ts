@@ -18,14 +18,13 @@ export type TrickModifiers = {
 }
 
 export type NeighborLink = {
-  id: string
+  id: number
   label: string
   direction: "adds" | "removes"
 }
 
 export type Trick = {
-  id: string
-  dbId: number
+  id: number
   name: string
   alternateNames: string[]
   elements: string[]
@@ -34,21 +33,21 @@ export type Trick = {
   inventedByUserId?: number | null
   yearLanded?: number | null
   videos: TrickVideo[]
-  prerequisite: string | null
-  optionalPrerequisite: string | null
+  prerequisite: number | null
+  optionalPrerequisite: number | null
   notes: string | null
   referenceVideoUrl: string | null
   referenceVideoTimestamp: string | null
-  relatedTricks?: string[]
+  relatedTricks?: number[]
   modifiers: TrickModifiers
   neighbors: NeighborLink[]
   depth: number
-  dependents: string[]
+  dependents: number[]
 }
 
 export type TricksData = {
   tricks: Trick[]
-  byId: Record<string, Trick>
+  byId: Record<number, Trick>
   byElement: Record<string, Trick[]>
   elements: string[]
 }

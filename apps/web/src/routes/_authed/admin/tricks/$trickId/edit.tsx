@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        tricks.get.queryOptions({ slug: params.trickId }),
+        tricks.get.queryOptions({ id: Number(params.trickId) }),
       ),
       context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
       context.queryClient.ensureQueryData(users.all.queryOptions()),
@@ -30,9 +30,10 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
 function RouteComponent() {
   const router = useRouter()
   const qc = useQueryClient()
-  const { trickId: slug } = Route.useParams()
+  const { trickId } = Route.useParams()
+  const id = Number(trickId)
 
-  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }))
+  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ id }))
 
   const updateTrick = useMutation({
     mutationFn: tricks.update.fn,
@@ -40,7 +41,7 @@ function RouteComponent() {
       toast.success("trick updated")
       qc.removeQueries({ queryKey: tricks.graph.queryOptions().queryKey })
       qc.removeQueries({
-        queryKey: tricks.get.queryOptions({ slug }).queryKey,
+        queryKey: tricks.get.queryOptions({ id }).queryKey,
       })
       if (trick) {
         qc.removeQueries({
@@ -65,7 +66,6 @@ function RouteComponent() {
 
   // Transform trick data to form values
   const defaultValues: TrickFormDefaultValues = {
-    slug: trick.slug,
     name: trick.name,
     alternateNames: trick.alternateNames ?? [],
     description: trick.description,
@@ -78,7 +78,6 @@ function RouteComponent() {
       .filter((r) => r.type === "prerequisite")
       .map((r) => ({
         targetTrickId: r.targetTrick.id,
-        targetTrickSlug: r.targetTrick.slug,
         targetTrickName: r.targetTrick.name,
         type: "prerequisite" as const,
       })),
@@ -86,13 +85,11 @@ function RouteComponent() {
       .filter((r) => r.type === "related")
       .map((r) => ({
         targetTrickId: r.targetTrick.id,
-        targetTrickSlug: r.targetTrick.slug,
         targetTrickName: r.targetTrick.name,
         type: "related" as const,
       })),
     elements: trick.elementAssignments.map((a) => ({
       id: a.element.id,
-      slug: a.element.slug,
       name: a.element.name,
     })),
   }

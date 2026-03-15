@@ -22,7 +22,6 @@ async function seedTrick(overrides: Partial<typeof tricks.$inferInsert> = {}) {
     .insert(tricks)
     .values({
       name: overrides.name ?? "Base Trick",
-      slug: overrides.slug ?? `base-trick-${Date.now()}`,
       ...overrides,
     })
     .returning()
@@ -35,7 +34,6 @@ describe("trick suggestions integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const trick = await seedTrick({
       name: "Target Trick",
-      slug: "target-trick",
     })
 
     const suggestion = await createSuggestion({
@@ -92,23 +90,17 @@ describe("trick suggestions integration", () => {
       inventedBy: "Old Inventor",
       name: "Original Trick",
       notes: "old notes",
-      slug: "original-trick",
       yearLanded: 2001,
     })
     const oldTarget = await seedTrick({
       name: "Old Target",
-      slug: "old-target",
     })
     const newTarget = await seedTrick({
       name: "New Target",
-      slug: "new-target",
     })
     const [oldElement, newElement] = await db
       .insert(trickElements)
-      .values([
-        { name: "Old Element", slug: "old-element" },
-        { name: "New Element", slug: "new-element" },
-      ])
+      .values([{ name: "Old Element" }, { name: "New Element" }])
       .returning()
 
     await db.insert(trickElementAssignments).values({
@@ -127,13 +119,13 @@ describe("trick suggestions integration", () => {
         diff: {
           alternateNames: ["new alt"],
           description: "new description",
-          elements: ["new-element", "missing-element"],
+          elements: ["New Element", "missing-element"],
           inventedBy: "New Inventor",
           name: "Updated Trick",
           notes: "new notes",
           relationships: {
-            added: [{ targetSlug: newTarget.slug, type: "prerequisite" }],
-            removed: [{ targetSlug: oldTarget.slug, type: "related" }],
+            added: [{ targetId: newTarget.id, type: "prerequisite" }],
+            removed: [{ targetId: oldTarget.id, type: "related" }],
           },
           yearLanded: 2024,
         },
@@ -210,7 +202,6 @@ describe("trick suggestions integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const trick = await seedTrick({
       name: "Target Trick",
-      slug: "target-trick",
     })
 
     const suggestion = await createSuggestion({

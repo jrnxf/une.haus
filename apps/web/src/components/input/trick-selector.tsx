@@ -21,14 +21,12 @@ import { useFzf } from "~/lib/ux/hooks/use-fzf"
 
 type TrickOption = {
   id: number
-  slug: string
   name: string
 }
 
 // Variant for selecting tricks with relationship types
 type TrickRelationship = {
   targetTrickId: number
-  targetTrickSlug: string
   targetTrickName: string
   type: "prerequisite" | "related"
 }
@@ -67,7 +65,7 @@ export function TrickRelationshipSelector({
     () =>
       availableTricks.map((trick) => ({
         ...trick,
-        searchKey: `${trick.name.toLowerCase()} ${trick.slug.toLowerCase()}`,
+        searchKey: trick.name.toLowerCase(),
       })),
     [availableTricks],
   )
@@ -93,7 +91,6 @@ export function TrickRelationshipSelector({
         ...value,
         {
           targetTrickId: trick.id,
-          targetTrickSlug: trick.slug,
           targetTrickName: trick.name,
           type: relationshipType,
         },
@@ -218,7 +215,7 @@ export function ElementSelector({
     () =>
       availableElements.map((element) => ({
         ...element,
-        searchKey: `${element.name.toLowerCase()} ${element.slug.toLowerCase()}`,
+        searchKey: element.name.toLowerCase(),
       })),
     [availableElements],
   )
@@ -235,11 +232,7 @@ export function ElementSelector({
     overscan: 5,
   })
 
-  const handleSelect = (element: {
-    id: number
-    slug: string
-    name: string
-  }) => {
+  const handleSelect = (element: { id: number; name: string }) => {
     const isSelected = selectedIds.includes(element.id)
     if (isSelected) {
       onChange(value.filter((v) => v.id !== element.id))
@@ -248,7 +241,6 @@ export function ElementSelector({
         ...value,
         {
           id: element.id,
-          slug: element.slug,
           name: element.name,
         },
       ])

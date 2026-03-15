@@ -50,7 +50,6 @@ export const listSubmissionsServerFn = createServerFn({
             targetTrick: {
               columns: {
                 id: true,
-                slug: true,
                 name: true,
               },
             },
@@ -96,7 +95,6 @@ export const getSubmissionServerFn = createServerFn({
             targetTrick: {
               columns: {
                 id: true,
-                slug: true,
                 name: true,
               },
             },
@@ -149,7 +147,6 @@ export const listSuggestionsServerFn = createServerFn({
         trick: {
           columns: {
             id: true,
-            slug: true,
             name: true,
             alternateNames: true,
             description: true,
@@ -160,13 +157,13 @@ export const listSuggestionsServerFn = createServerFn({
           with: {
             elementAssignments: {
               with: {
-                element: { columns: { slug: true } },
+                element: { columns: { name: true } },
               },
             },
             outgoingRelationships: {
               columns: { type: true },
               with: {
-                targetTrick: { columns: { slug: true } },
+                targetTrick: { columns: { id: true } },
               },
             },
           },

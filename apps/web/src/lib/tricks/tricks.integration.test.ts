@@ -24,7 +24,6 @@ async function seedTrick(overrides: Partial<typeof tricks.$inferInsert> = {}) {
     .insert(tricks)
     .values({
       name: overrides.name ?? "Base Trick",
-      slug: overrides.slug ?? `base-trick-${Date.now()}`,
       ...overrides,
     })
     .returning()
@@ -37,14 +36,10 @@ describe("tricks integration", () => {
     const admin = await seedUser({ name: "Admin", type: "admin" })
     const target = await seedTrick({
       name: "Target",
-      slug: "target",
     })
     const [elementA, elementB] = await db
       .insert(trickElements)
-      .values([
-        { name: "Spin", slug: "spin" },
-        { name: "Flip", slug: "flip" },
-      ])
+      .values([{ name: "Spin" }, { name: "Flip" }])
       .returning()
     const videoA = await seedMuxVideo("trick-create-a")
     const videoB = await seedMuxVideo("trick-create-b")
@@ -61,7 +56,6 @@ describe("tricks integration", () => {
         name: "New Trick",
         notes: "notes",
         relationships: [{ targetTrickId: target.id, type: "prerequisite" }],
-        slug: "new-trick",
         yearLanded: 2024,
       },
     })
@@ -69,7 +63,6 @@ describe("tricks integration", () => {
     expect(trick).toEqual(
       expect.objectContaining({
         name: "New Trick",
-        slug: "new-trick",
       }),
     )
     expect(await db.query.trickRelationships.findMany()).toEqual([
@@ -107,18 +100,13 @@ describe("tricks integration", () => {
     const admin = await seedUser({ name: "Admin", type: "admin" })
     const targetOld = await seedTrick({
       name: "Target Old",
-      slug: "target-old",
     })
     const targetNew = await seedTrick({
       name: "Target New",
-      slug: "target-new",
     })
     const [elementOld, elementNew] = await db
       .insert(trickElements)
-      .values([
-        { name: "Old Element", slug: "old-element" },
-        { name: "New Element", slug: "new-element" },
-      ])
+      .values([{ name: "Old Element" }, { name: "New Element" }])
       .returning()
     const oldVideo = await seedMuxVideo("trick-update-old")
     const newVideoA = await seedMuxVideo("trick-update-new-a")
@@ -136,7 +124,6 @@ describe("tricks integration", () => {
         name: "Update Me",
         notes: null,
         relationships: [{ targetTrickId: targetOld.id, type: "related" }],
-        slug: "update-me",
         yearLanded: null,
       },
     })
@@ -154,7 +141,6 @@ describe("tricks integration", () => {
         name: "Updated Trick",
         notes: "updated notes",
         relationships: [{ targetTrickId: targetNew.id, type: "prerequisite" }],
-        slug: "update-me",
         yearLanded: 2025,
       },
     })
@@ -205,13 +191,11 @@ describe("tricks integration", () => {
     const admin = await seedUser({ name: "Admin", type: "admin" })
     const target = await seedTrick({
       name: "Target",
-      slug: "delete-target",
     })
     const [element] = await db
       .insert(trickElements)
       .values({
         name: "Delete Element",
-        slug: "delete-element",
       })
       .returning()
     const video = await seedMuxVideo("trick-delete-video")
@@ -228,7 +212,6 @@ describe("tricks integration", () => {
         name: "Delete Trick",
         notes: null,
         relationships: [{ targetTrickId: target.id, type: "related" }],
-        slug: "delete-trick",
         yearLanded: null,
       },
     })
@@ -252,11 +235,7 @@ describe("tricks integration", () => {
   it("moves past the cursor instead of re-fetching the cursor row", async () => {
     const [alpha, beta, gamma] = await db
       .insert(tricks)
-      .values([
-        { name: "Alpha", slug: "alpha" },
-        { name: "Beta", slug: "beta" },
-        { name: "Gamma", slug: "gamma" },
-      ])
+      .values([{ name: "Alpha" }, { name: "Beta" }, { name: "Gamma" }])
       .returning()
 
     const firstPage = await listTricks({

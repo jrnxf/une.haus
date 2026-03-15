@@ -4,10 +4,6 @@ import { TRICK_RELATIONSHIP_TYPES } from "~/db/schema"
 
 // Modifier schemas
 export const createModifierSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable().optional(),
 })
@@ -22,10 +18,6 @@ export const listModifiersSchema = z.object({}).optional()
 
 // Element schemas
 export const createElementSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable().optional(),
 })
@@ -46,10 +38,6 @@ const trickRelationshipSchema = z.object({
 
 // Core trick schemas
 export const createTrickSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   alternateNames: z.array(z.string()).default([]),
   description: z.string().optional().nullable(),
@@ -76,7 +64,7 @@ export type UpdateTrickArgs = z.infer<typeof updateTrickSchema>
 export const deleteTrickSchema = z.number()
 
 export const getTrickSchema = z.object({
-  slug: z.string(),
+  id: z.number(),
 })
 
 export const getTrickByIdSchema = z.object({
@@ -104,7 +92,6 @@ export const searchTricksSchema = z.object({
 // Only includes types that the form UI supports (not optional_prerequisite)
 const trickRelationshipFormSchema = z.object({
   targetTrickId: z.number(),
-  targetTrickSlug: z.string(),
   targetTrickName: z.string(),
   type: z.enum(["prerequisite", "related"]),
 })
@@ -112,7 +99,6 @@ const trickRelationshipFormSchema = z.object({
 // Element form schema for tag selector
 export const elementFormSchema = z.object({
   id: z.number(),
-  slug: z.string(),
   name: z.string(),
 })
 
@@ -120,10 +106,6 @@ export type ElementFormValue = z.infer<typeof elementFormSchema>
 
 // Form schema - extends createTrickSchema with separate relationship arrays for UI
 export const trickFormSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   alternateNames: z.array(z.string()),
   description: z.string().nullable(),

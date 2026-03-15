@@ -34,7 +34,6 @@ import {
   type TrickFormValues,
   trickFormSchema,
 } from "~/lib/tricks/schemas"
-import { generateSlug } from "~/lib/utils"
 
 export type TrickFormDefaultValues = Partial<TrickFormValues>
 
@@ -55,7 +54,6 @@ export function TrickForm({
 }) {
   const rhf = useForm<TrickFormValues>({
     defaultValues: {
-      slug: defaultValues?.slug ?? "",
       name: defaultValues?.name ?? "",
       alternateNames: defaultValues?.alternateNames ?? [],
       description: defaultValues?.description ?? null,
@@ -73,10 +71,6 @@ export function TrickForm({
 
   const { control, handleSubmit, setValue, formState } = rhf
 
-  const handleNameChange = (value: string) => {
-    setValue("slug", generateSlug(value))
-  }
-
   const handleFormSubmit = (data: TrickFormValues) => {
     const relationships = [
       ...data.prerequisites.map((r) => ({
@@ -90,7 +84,6 @@ export function TrickForm({
     ]
 
     onSubmit({
-      slug: data.slug,
       name: data.name,
       alternateNames: data.alternateNames,
       description: data.description,
@@ -115,12 +108,6 @@ export function TrickForm({
           <FieldDescription>core details about the trick</FieldDescription>
           <FieldGroup>
             <Controller
-              name="slug"
-              control={control}
-              render={({ field }) => <input type="hidden" {...field} />}
-            />
-
-            <Controller
               name="name"
               control={control}
               render={({ field, fieldState }) => (
@@ -130,10 +117,6 @@ export function TrickForm({
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      handleNameChange(e.target.value)
-                    }}
                     placeholder="treyflip"
                   />
                   {fieldState.invalid && (

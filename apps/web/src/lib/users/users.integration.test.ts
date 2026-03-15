@@ -54,7 +54,6 @@ async function seedTrick(overrides: Partial<typeof tricks.$inferInsert> = {}) {
     .insert(tricks)
     .values({
       name: overrides.name ?? "Base Trick",
-      slug: overrides.slug ?? `base-trick-${Date.now()}`,
       ...overrides,
     })
     .returning()
@@ -275,7 +274,6 @@ describe("users integration", () => {
       const user = await seedUser({ name: "Activity User" })
       const trick = await seedTrick({
         name: "Activity Trick",
-        slug: "activity-trick",
       })
       const [biu] = await db.insert(bius).values({}).returning()
       const [riu] = await db
@@ -380,7 +378,6 @@ describe("users integration", () => {
       await db.insert(trickSubmissions).values({
         createdAt: new Date("2024-01-01T12:08:00Z"),
         name: "Trick Submission",
-        slug: "trick-submission",
         submittedByUserId: user.id,
       })
 

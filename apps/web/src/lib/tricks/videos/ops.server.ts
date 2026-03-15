@@ -97,12 +97,6 @@ export async function reviewVideo({
       .where(eq(trickVideos.id, id))
       .returning()
 
-    // Get the trick for navigation
-    const trick = await db.query.tricks.findFirst({
-      where: eq(tricks.id, video.trickId),
-      columns: { slug: true },
-    })
-
     // Notify the user who submitted the video
     if (video.submittedByUserId) {
       await createNotification({
@@ -116,7 +110,7 @@ export async function reviewVideo({
           actorAvatarId: context.user.avatarId,
           entityTitle: "approved",
           entityPreview: reviewNotes,
-          trickSlug: trick?.slug,
+          trickId: video.trickId,
         },
       })
     }
@@ -135,12 +129,6 @@ export async function reviewVideo({
     .where(eq(trickVideos.id, id))
     .returning()
 
-  // Get the trick for navigation
-  const trick = await db.query.tricks.findFirst({
-    where: eq(tricks.id, video.trickId),
-    columns: { slug: true },
-  })
-
   // Notify the user who submitted the video
   if (video.submittedByUserId) {
     await createNotification({
@@ -154,7 +142,7 @@ export async function reviewVideo({
         actorAvatarId: context.user.avatarId,
         entityTitle: "rejected",
         entityPreview: reviewNotes,
-        trickSlug: trick?.slug,
+        trickId: video.trickId,
       },
     })
   }

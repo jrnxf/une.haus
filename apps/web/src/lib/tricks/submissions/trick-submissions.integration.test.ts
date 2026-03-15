@@ -21,7 +21,6 @@ async function seedTrick(overrides: Partial<typeof tricks.$inferInsert> = {}) {
     .insert(tricks)
     .values({
       name: overrides.name ?? "Base Trick",
-      slug: overrides.slug ?? `base-trick-${Date.now()}`,
       ...overrides,
     })
     .returning()
@@ -34,7 +33,6 @@ describe("trick submissions integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const targetTrick = await seedTrick({
       name: "Target Trick",
-      slug: "target-trick",
     })
 
     const submission = await createSubmission({
@@ -52,7 +50,6 @@ describe("trick submissions integration", () => {
             type: "related",
           },
         ],
-        slug: "new-trick",
         videoTimestamp: null,
         videoUrl: null,
         yearLanded: 2020,
@@ -64,7 +61,6 @@ describe("trick submissions integration", () => {
     expect(submission).toEqual(
       expect.objectContaining({
         name: "New Trick",
-        slug: "new-trick",
         status: "pending",
         submittedByUserId: submitter.id,
       }),
@@ -83,13 +79,11 @@ describe("trick submissions integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const targetTrick = await seedTrick({
       name: "Prerequisite",
-      slug: "prerequisite",
     })
     const [element] = await db
       .insert(trickElements)
       .values({
         name: "Spin",
-        slug: "spin",
       })
       .returning()
 
@@ -108,7 +102,6 @@ describe("trick submissions integration", () => {
             type: "prerequisite",
           },
         ],
-        slug: "approved-trick",
         videoTimestamp: null,
         videoUrl: null,
         yearLanded: 2021,
@@ -130,7 +123,7 @@ describe("trick submissions integration", () => {
     })
 
     const createdTrick = await db.query.tricks.findFirst({
-      where: (table, { eq }) => eq(table.slug, submission.slug),
+      where: (table, { eq }) => eq(table.name, submission.name),
     })
     const assignments = await db.query.trickElementAssignments.findMany({
       where: (table, { eq }) => eq(table.trickId, createdTrick!.id),
@@ -154,7 +147,6 @@ describe("trick submissions integration", () => {
         description: "description",
         name: "Approved Trick",
         notes: "notes",
-        slug: "approved-trick",
       }),
     )
     expect(assignments).toEqual([

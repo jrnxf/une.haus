@@ -313,7 +313,7 @@ export function computeAllNeighbors(tricks: Trick[]): void {
 
   for (const trick of tricks) {
     const neighborMap = new Map<
-      string,
+      number,
       { label: string; direction: "adds" | "removes" }
     >()
 
@@ -337,11 +337,11 @@ export function computeAllNeighbors(tricks: Trick[]): void {
 // ==================== INDEXES ====================
 
 export function buildIndexes(tricks: Trick[]): {
-  byId: Record<string, Trick>
+  byId: Record<number, Trick>
   byElement: Record<string, Trick[]>
   elements: string[]
 } {
-  const byId: Record<string, Trick> = {}
+  const byId: Record<number, Trick> = {}
   const byElement: Record<string, Trick[]> = {}
   const elementSet = new Set<string>()
 
@@ -403,7 +403,6 @@ export type DbTrickVideo = {
 // Type for database trick with relations
 export type DbTrickWithRelations = {
   id: number
-  slug: string
   name: string
   alternateNames: string[] | null
   description: string | null
@@ -422,13 +421,12 @@ export type DbTrickWithRelations = {
   switchStance: boolean
   late: boolean
   depth: number
-  dependentSlugs: string[]
+  dependentIds: number[]
   neighborLinks: NeighborLink[]
   videos: DbTrickVideo[]
   elementAssignments: {
     element: {
       id: number
-      slug: string
       name: string
     }
   }[]
@@ -436,7 +434,6 @@ export type DbTrickWithRelations = {
     type: "prerequisite" | "optional_prerequisite" | "related"
     targetTrick: {
       id: number
-      slug: string
       name: string
     }
   }[]
@@ -446,7 +443,6 @@ export type DbTrickWithRelations = {
 export function transformDbTricksToTricksData(
   dbTricks: DbTrickWithRelations[],
 ): TricksData {
-  // First pass: create basic trick objects with slug as id
   const tricks: Trick[] = dbTricks.map((dbTrick) => {
     // Find prerequisite relationship
     const prerequisiteRel = dbTrick.outgoingRelationships.find(
@@ -459,7 +455,7 @@ export function transformDbTricksToTricksData(
     // Get related tricks (just the related type) — kept for admin forms
     const relatedTricks = dbTrick.outgoingRelationships
       .filter((r) => r.type === "related")
-      .map((r) => r.targetTrick.slug)
+      .map((r) => r.targetTrick.id)
 
     // Transform videos - only include active ones, sorted by sortOrder
     const videos = dbTrick.videos
@@ -474,14 +470,13 @@ export function transformDbTricksToTricksData(
       }))
 
     return {
-      id: dbTrick.slug, // Use slug as id for compatibility
-      dbId: dbTrick.id,
+      id: dbTrick.id,
       name: dbTrick.name,
       alternateNames: dbTrick.alternateNames ?? [],
-      elements: dbTrick.elementAssignments.map((a) => a.element.slug),
+      elements: dbTrick.elementAssignments.map((a) => a.element.name),
       description: dbTrick.description ?? "",
-      prerequisite: prerequisiteRel?.targetTrick.slug ?? null,
-      optionalPrerequisite: optionalPrerequisiteRel?.targetTrick.slug ?? null,
+      prerequisite: prerequisiteRel?.targetTrick.id ?? null,
+      optionalPrerequisite: optionalPrerequisiteRel?.targetTrick.id ?? null,
       notes: dbTrick.notes,
       referenceVideoUrl: dbTrick.referenceVideoUrl ?? null,
       referenceVideoTimestamp: dbTrick.referenceVideoTimestamp ?? null,
@@ -502,7 +497,7 @@ export function transformDbTricksToTricksData(
       yearLanded: dbTrick.yearLanded,
       videos,
       depth: dbTrick.depth ?? 0,
-      dependents: dbTrick.dependentSlugs ?? [],
+      dependents: dbTrick.dependentIds ?? [],
     }
   })
 

@@ -33,7 +33,7 @@ export const Route = createFileRoute("/tricks/$trickId")({
     }
   },
   head: ({ loaderData, params }) => {
-    const trick = loaderData?.graph?.byId[params.trickId]
+    const trick = loaderData?.graph?.byId[Number(params.trickId)]
     if (!trick) return {}
 
     const image = getMuxPoster({
@@ -57,7 +57,7 @@ function TrickDetailPage() {
   const { trickId } = Route.useParams()
   const { data } = useSuspenseQuery(tricks.graph.queryOptions())
   const { data: allUsers = [] } = useSuspenseQuery(users.all.queryOptions())
-  const trick = data.byId[trickId]
+  const trick = data.byId[Number(trickId)]
 
   if (!trick) {
     return (
@@ -109,7 +109,7 @@ function TrickDetailPage() {
                     ? "/admin/tricks/$trickId/edit"
                     : "/tricks/$trickId/suggest"
                 }
-                params={{ trickId: trick.id }}
+                params={{ trickId: String(trick.id) }}
               >
                 edit
               </Link>
@@ -166,7 +166,7 @@ function TrickDetailPage() {
                 {prerequisiteTrick && (
                   <Link
                     to="/tricks/$trickId"
-                    params={{ trickId: prerequisiteTrick.id }}
+                    params={{ trickId: String(prerequisiteTrick.id) }}
                     className={badgeVariants({ variant: "secondary" })}
                   >
                     {prerequisiteTrick.name}
@@ -175,7 +175,7 @@ function TrickDetailPage() {
                 {optionalPrerequisiteTrick && (
                   <Link
                     to="/tricks/$trickId"
-                    params={{ trickId: optionalPrerequisiteTrick.id }}
+                    params={{ trickId: String(optionalPrerequisiteTrick.id) }}
                     className={badgeVariants({ variant: "secondary" })}
                   >
                     {optionalPrerequisiteTrick.name}

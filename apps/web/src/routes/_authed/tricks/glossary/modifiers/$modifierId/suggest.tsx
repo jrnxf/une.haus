@@ -119,7 +119,6 @@ function RouteComponent() {
       updateDirect.mutate({
         data: {
           id: modifierId,
-          slug: modifier.slug,
           name: data.name,
           description: data.description,
         },
@@ -142,7 +141,6 @@ function RouteComponent() {
         data: {
           action: "edit",
           type: "modifier",
-          slug: modifier.slug,
           name: data.name,
           description: data.description,
           targetId: modifierId,

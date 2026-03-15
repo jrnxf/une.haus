@@ -8,9 +8,8 @@ import { tricks } from "~/lib/tricks"
 
 export const Route = createFileRoute("/_authed/tricks/$trickId/submit-video")({
   loader: async ({ context, params }) => {
-    // trickId is actually the slug in this route
     await context.queryClient.ensureQueryData(
-      tricks.get.queryOptions({ slug: params.trickId }),
+      tricks.get.queryOptions({ id: Number(params.trickId) }),
     )
   },
   component: RouteComponent,
@@ -18,15 +17,16 @@ export const Route = createFileRoute("/_authed/tricks/$trickId/submit-video")({
 
 function RouteComponent() {
   const router = useRouter()
-  const { trickId: slug } = Route.useParams()
+  const { trickId } = Route.useParams()
+  const id = Number(trickId)
 
-  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }))
+  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ id }))
 
   const submitVideo = useMutation({
     mutationFn: tricks.videos.submit.fn,
     onSuccess: () => {
       toast.success("video submitted for review")
-      router.navigate({ to: "/tricks/$trickId", params: { trickId: slug } })
+      router.navigate({ to: "/tricks/$trickId", params: { trickId } })
     },
     onError: (error) => {
       toast.error(error.message)

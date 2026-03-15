@@ -44,9 +44,8 @@ export const Route = createFileRoute("/_authed/tricks/$trickId/suggest")({
     }
   },
   loader: async ({ context, params }) => {
-    // trickId is actually the slug in this route
     await context.queryClient.ensureQueryData(
-      tricks.get.queryOptions({ slug: params.trickId }),
+      tricks.get.queryOptions({ id: Number(params.trickId) }),
     )
   },
   component: RouteComponent,
@@ -66,9 +65,10 @@ type SuggestionFormValues = z.infer<typeof suggestionFormSchema>
 
 function RouteComponent() {
   const router = useRouter()
-  const { trickId: slug } = Route.useParams()
+  const { trickId } = Route.useParams()
+  const id = Number(trickId)
 
-  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ slug }))
+  const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ id }))
 
   const rhf = useForm<SuggestionFormValues>({
     defaultValues: {
@@ -89,7 +89,7 @@ function RouteComponent() {
     mutationFn: tricks.suggestions.create.fn,
     onSuccess: () => {
       toast.success("suggestion submitted for review")
-      router.navigate({ to: "/tricks/$trickId", params: { trickId: slug } })
+      router.navigate({ to: "/tricks/$trickId", params: { trickId } })
     },
     onError: (error) => {
       toast.error(error.message)
@@ -153,7 +153,7 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-5xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb to={`/tricks/${slug}`}>
+          <PageHeader.Crumb to={`/tricks/${trickId}`}>
             {trick.name}
           </PageHeader.Crumb>
           <PageHeader.Crumb>suggest</PageHeader.Crumb>
@@ -162,13 +162,13 @@ function RouteComponent() {
       <div className="mx-auto w-full max-w-5xl space-y-6 p-6">
         <div className="mb-6 flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild>
-            <Link to="/tricks/$trickId" params={{ trickId: slug }}>
+            <Link to="/tricks/$trickId" params={{ trickId }}>
               <ArrowLeft className="size-4" />
               back
             </Link>
           </Button>
           <Button variant="secondary" size="sm" asChild>
-            <Link to="/tricks/$trickId/submit-video" params={{ trickId: slug }}>
+            <Link to="/tricks/$trickId/submit-video" params={{ trickId }}>
               submit
             </Link>
           </Button>

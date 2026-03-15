@@ -79,7 +79,6 @@ export const listPendingVideosServerFn = createServerFn({
         trick: {
           columns: {
             id: true,
-            slug: true,
             name: true,
           },
         },

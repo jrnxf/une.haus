@@ -497,7 +497,6 @@ export async function getUserActivity({
             id: trickSuggestions.id,
             createdAt: trickSuggestions.createdAt,
             trickId: trickSuggestions.trickId,
-            trickSlug: tricks.slug,
             trickName: tricks.name,
           })
           .from(trickSuggestions)
@@ -521,7 +520,6 @@ export async function getUserActivity({
             id: trickVideos.id,
             createdAt: trickVideos.createdAt,
             trickId: trickVideos.trickId,
-            trickSlug: tricks.slug,
             trickName: tricks.name,
           })
           .from(trickVideos)
@@ -644,7 +642,6 @@ export async function getUserActivity({
       id: row.id,
       createdAt: row.createdAt,
       trickId: row.trickId,
-      trickSlug: row.trickSlug,
       trickName: row.trickName,
       _ts: getTime(row.createdAt),
     })),
@@ -653,7 +650,6 @@ export async function getUserActivity({
       id: row.id,
       createdAt: row.createdAt,
       trickId: row.trickId,
-      trickSlug: row.trickSlug,
       trickName: row.trickName,
       _ts: getTime(row.createdAt),
     })),

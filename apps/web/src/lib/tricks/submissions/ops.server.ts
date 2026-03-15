@@ -81,12 +81,12 @@ export async function reviewSubmission({
   invariant(submission.status === "pending", "Submission already reviewed")
 
   // If approved, create the trick
+  let createdTrickId: number | undefined
   if (status === "approved") {
     // Insert trick
     const [trick] = await db
       .insert(tricks)
       .values({
-        slug: submission.slug,
         name: submission.name,
         alternateNames: submission.alternateNames,
         description: submission.description,
@@ -97,6 +97,7 @@ export async function reviewSubmission({
       .returning()
 
     invariant(trick, "Failed to create trick from submission")
+    createdTrickId = trick.id
 
     // Copy element assignments
     if (submission.elementAssignments.length > 0) {
@@ -144,7 +145,7 @@ export async function reviewSubmission({
       actorAvatarId: context.user.avatarId,
       entityTitle: status,
       entityPreview: reviewNotes,
-      trickSlug: status === "approved" ? submission.slug : undefined,
+      trickId: createdTrickId,
     },
   })
 
@@ -236,13 +237,13 @@ export async function reviewSuggestion({
 
       if (diff.elements.length > 0) {
         const elementResults = await db
-          .select({ id: trickElements.id, slug: trickElements.slug })
+          .select({ id: trickElements.id, name: trickElements.name })
           .from(trickElements)
 
-        const elementMap = new Map(elementResults.map((e) => [e.slug, e.id]))
+        const elementMap = new Map(elementResults.map((e) => [e.name, e.id]))
 
         const validElementIds = diff.elements
-          .map((slug) => elementMap.get(slug))
+          .map((name) => elementMap.get(name))
           .filter((id): id is number => id !== undefined)
 
         if (validElementIds.length > 0) {
@@ -261,40 +262,28 @@ export async function reviewSuggestion({
       // Remove relationships
       if (diff.relationships.removed.length > 0) {
         for (const rel of diff.relationships.removed) {
-          const targetTrick = await db.query.tricks.findFirst({
-            where: eq(tricks.slug, rel.targetSlug),
-          })
-
-          if (targetTrick) {
-            await db
-              .delete(trickRelationships)
-              .where(
-                and(
-                  eq(trickRelationships.sourceTrickId, suggestion.trickId),
-                  eq(trickRelationships.targetTrickId, targetTrick.id),
-                ),
-              )
-          }
+          await db
+            .delete(trickRelationships)
+            .where(
+              and(
+                eq(trickRelationships.sourceTrickId, suggestion.trickId),
+                eq(trickRelationships.targetTrickId, rel.targetId),
+              ),
+            )
         }
       }
 
       // Add relationships
       if (diff.relationships.added.length > 0) {
         for (const rel of diff.relationships.added) {
-          const targetTrick = await db.query.tricks.findFirst({
-            where: eq(tricks.slug, rel.targetSlug),
+          await db.insert(trickRelationships).values({
+            sourceTrickId: suggestion.trickId,
+            targetTrickId: rel.targetId,
+            type: rel.type as
+              | "prerequisite"
+              | "optional_prerequisite"
+              | "related",
           })
-
-          if (targetTrick) {
-            await db.insert(trickRelationships).values({
-              sourceTrickId: suggestion.trickId,
-              targetTrickId: targetTrick.id,
-              type: rel.type as
-                | "prerequisite"
-                | "optional_prerequisite"
-                | "related",
-            })
-          }
         }
       }
     }
@@ -312,12 +301,6 @@ export async function reviewSuggestion({
     .where(eq(trickSuggestions.id, id))
     .returning()
 
-  // Get the trick for navigation
-  const trick = await db.query.tricks.findFirst({
-    where: eq(tricks.id, suggestion.trickId),
-    columns: { slug: true },
-  })
-
   // Notify the user who suggested
   await createNotification({
     userId: suggestion.submittedByUserId,
@@ -330,7 +313,7 @@ export async function reviewSuggestion({
       actorAvatarId: context.user.avatarId,
       entityTitle: status,
       entityPreview: reviewNotes,
-      trickSlug: trick?.slug,
+      trickId: suggestion.trickId,
     },
   })
 

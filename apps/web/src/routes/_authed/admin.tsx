@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authed/admin")({
     if (!sessionData.user || sessionData.user.id !== 1) {
       const p = location.pathname
 
-      // /admin/tricks/{slug}/edit → suggest
+      // /admin/tricks/{id}/edit → suggest
       const match = p.match(/^\/admin\/tricks\/([^/]+)\/edit$/)
       if (match) {
         throw redirect({

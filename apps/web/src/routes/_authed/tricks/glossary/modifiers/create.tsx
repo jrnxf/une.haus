@@ -21,7 +21,6 @@ import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
 import { useIsAdmin } from "~/lib/session/hooks"
 import { tricks } from "~/lib/tricks"
-import { generateSlug } from "~/lib/utils"
 
 export const Route = createFileRoute(
   "/_authed/tricks/glossary/modifiers/create",
@@ -31,7 +30,6 @@ export const Route = createFileRoute(
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1),
   description: z.string().nullable(),
   reason: z.string().nullable(),
 })
@@ -76,20 +74,18 @@ function RouteComponent() {
   const rhf = useForm<FormValues>({
     defaultValues: {
       name: "",
-      slug: "",
       description: "",
       reason: "",
     },
     resolver: zodResolver(formSchema),
   })
 
-  const { control, handleSubmit, setValue } = rhf
+  const { control, handleSubmit } = rhf
 
   const handleFormSubmit = (data: FormValues) => {
     if (isAdmin) {
       createDirect.mutate({
         data: {
-          slug: data.slug,
           name: data.name,
           description: data.description,
         },
@@ -99,7 +95,6 @@ function RouteComponent() {
         data: {
           action: "create",
           type: "modifier",
-          slug: data.slug,
           name: data.name,
           description: data.description,
           reason: data.reason,
@@ -137,27 +132,7 @@ function RouteComponent() {
               <FormItem>
                 <FormLabel>name</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e)
-                      setValue("slug", generateSlug(e.target.value))
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>slug</FormLabel>
-                <FormControl>
-                  <Input {...field} disabled />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

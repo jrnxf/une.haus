@@ -139,7 +139,6 @@ export type ActivityItem = {
   muxAssetId?: string | null
   // Trick fields
   trickId?: number | null
-  trickSlug?: string | null
   trickName?: string | null
   // UTV Video fields
   videoId?: number | null

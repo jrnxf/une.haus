@@ -629,7 +629,7 @@ export type NotificationData = {
   actorAvatarId?: string | null
   entityTitle?: string
   entityPreview?: string
-  trickSlug?: string
+  trickId?: number
   messageId?: number
 }
 
@@ -1289,7 +1289,6 @@ export const trickVideoStatusEnum = pgEnum(
 // Trick Modifiers (global, apply to any trick)
 export const trickModifiers = pgTable("trick_modifiers", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -1298,35 +1297,26 @@ export const trickModifiers = pgTable("trick_modifiers", {
 // Trick Elements (components that make up a trick: spin, flip, twist, etc.)
 export const trickElements = pgTable("trick_elements", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
 // Core Tricks Table
-export const tricks = pgTable(
-  "tricks",
-  {
-    id: serial("id").primaryKey(),
-    slug: text("slug").notNull().unique(),
-    name: text("name").notNull(),
-    alternateNames: json("alternate_names").$type<string[]>().default([]),
-    description: text("description"),
-    inventedBy: text("invented_by"),
-    inventedByUserId: integer("invented_by_user_id").references(
-      () => users.id,
-      {
-        onDelete: "set null",
-      },
-    ),
-    yearLanded: integer("year_landed"),
-    notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (t) => [index("tricks_slug_idx").on(t.slug)],
-)
+export const tricks = pgTable("tricks", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  alternateNames: json("alternate_names").$type<string[]>().default([]),
+  description: text("description"),
+  inventedBy: text("invented_by"),
+  inventedByUserId: integer("invented_by_user_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  yearLanded: integer("year_landed"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
 
 // Trick Videos (multiple per trick)
 export const trickVideos = pgTable(
@@ -1396,7 +1386,6 @@ export const trickRelationships = pgTable(
 // Trick Submissions (user-submitted for review)
 export const trickSubmissions = pgTable("trick_submissions", {
   id: serial("id").primaryKey(),
-  slug: text("slug").notNull(),
   name: text("name").notNull(),
   alternateNames: json("alternate_names").$type<string[]>().default([]),
   description: text("description"),
@@ -1461,8 +1450,8 @@ export type TrickSuggestionDiff = {
   notes?: string | null
   elements?: string[]
   relationships?: {
-    added: { targetSlug: string; type: string }[]
-    removed: { targetSlug: string; type: string }[]
+    added: { targetId: number; type: string }[]
+    removed: { targetId: number; type: string }[]
   }
 }
 
@@ -1507,7 +1496,6 @@ export const glossaryProposals = pgTable("glossary_proposals", {
   id: serial("id").primaryKey(),
   action: glossaryProposalActionEnum("action").notNull(),
   type: glossaryProposalTypeEnum("type").notNull(),
-  slug: text("slug").notNull(),
   name: text("name").notNull(),
   description: text("description"),
   targetId: integer("target_id"),

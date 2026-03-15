@@ -57,7 +57,7 @@ export function getNotificationUrl(
     case "trickSubmission":
     case "trickSuggestion":
     case "trickVideo": {
-      url = data?.trickSlug ? `/tricks/${data.trickSlug}` : "/tricks"
+      url = data?.trickId ? `/tricks/${data.trickId}` : "/tricks"
       break
     }
     case "glossaryProposal": {

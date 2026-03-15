@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, eq, gt, ilike, or } from "drizzle-orm"
+import { and, asc, eq, gt, ilike } from "drizzle-orm"
 
 import { type CreateTrickArgs, type UpdateTrickArgs } from "./schemas"
 import { db } from "~/db"
@@ -31,12 +31,7 @@ export async function listTricks({
 
   const tricksData = await db.query.tricks.findMany({
     where: and(
-      input?.q
-        ? or(
-            ilike(tricks.name, `%${input.q}%`),
-            ilike(tricks.slug, `%${input.q}%`),
-          )
-        : undefined,
+      input?.q ? ilike(tricks.name, `%${input.q}%`) : undefined,
       input?.cursor ? gt(tricks.id, input.cursor) : undefined,
     ),
     with: {
@@ -50,7 +45,6 @@ export async function listTricks({
           targetTrick: {
             columns: {
               id: true,
-              slug: true,
               name: true,
             },
           },

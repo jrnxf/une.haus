@@ -1,6 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, asc, desc, eq, ilike, notInArray, or } from "drizzle-orm"
+import { and, asc, desc, eq, ilike, notInArray } from "drizzle-orm"
 
 import {
   createElementSchema,
@@ -162,9 +162,9 @@ export const getTrickServerFn = createServerFn({
   method: "GET",
 })
   .inputValidator(zodValidator(getTrickSchema))
-  .handler(async ({ data: { slug } }) => {
+  .handler(async ({ data: { id } }) => {
     const trick = await db.query.tricks.findFirst({
-      where: eq(tricks.slug, slug),
+      where: eq(tricks.id, id),
       with: {
         elementAssignments: {
           with: {
@@ -176,7 +176,6 @@ export const getTrickServerFn = createServerFn({
             targetTrick: {
               columns: {
                 id: true,
-                slug: true,
                 name: true,
               },
             },
@@ -187,7 +186,6 @@ export const getTrickServerFn = createServerFn({
             sourceTrick: {
               columns: {
                 id: true,
-                slug: true,
                 name: true,
               },
             },
@@ -255,7 +253,6 @@ export const getTrickByIdServerFn = createServerFn({
             targetTrick: {
               columns: {
                 id: true,
-                slug: true,
                 name: true,
               },
             },
@@ -275,18 +272,12 @@ export const searchTricksServerFn = createServerFn({
     const tricksData = await db
       .select({
         id: tricks.id,
-        slug: tricks.slug,
         name: tricks.name,
       })
       .from(tricks)
       .where(
         and(
-          data.q
-            ? or(
-                ilike(tricks.name, `%${data.q}%`),
-                ilike(tricks.slug, `%${data.q}%`),
-              )
-            : undefined,
+          data.q ? ilike(tricks.name, `%${data.q}%`) : undefined,
           data.excludeIds.length > 0
             ? notInArray(tricks.id, data.excludeIds)
             : undefined,
@@ -355,7 +346,6 @@ export const getAllTricksForGraphServerFn = createServerFn({
           targetTrick: {
             columns: {
               id: true,
-              slug: true,
               name: true,
             },
           },

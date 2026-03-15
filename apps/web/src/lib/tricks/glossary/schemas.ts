@@ -9,10 +9,6 @@ import {
 export const createGlossaryProposalSchema = z.object({
   action: z.enum(GLOSSARY_PROPOSAL_ACTIONS),
   type: z.enum(GLOSSARY_PROPOSAL_TYPES),
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase with hyphens only"),
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable().optional(),
   targetId: z.number().optional(),

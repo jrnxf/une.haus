@@ -24,7 +24,6 @@ async function seedTrick(overrides: Partial<typeof tricks.$inferInsert> = {}) {
     .insert(tricks)
     .values({
       name: overrides.name ?? "Base Trick",
-      slug: overrides.slug ?? `base-trick-${Date.now()}`,
       ...overrides,
     })
     .returning()
@@ -37,7 +36,6 @@ describe("trick videos integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const trick = await seedTrick({
       name: "Video Trick",
-      slug: "video-trick",
     })
     const video = await seedMuxVideo("video-submit")
 
@@ -80,7 +78,6 @@ describe("trick videos integration", () => {
     const activeVideoB = await seedMuxVideo("video-approve-active-b")
     const trick = await seedTrick({
       name: "Approve Trick",
-      slug: "approve-trick",
     })
 
     await db.insert(trickVideos).values([
@@ -148,7 +145,6 @@ describe("trick videos integration", () => {
     const muxVideo = await seedMuxVideo("video-reject")
     const trick = await seedTrick({
       name: "Reject Trick",
-      slug: "reject-trick",
     })
 
     const [pendingVideo] = await db
@@ -196,7 +192,6 @@ describe("trick videos integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const trick = await seedTrick({
       name: "Capped Trick",
-      slug: "capped-trick",
     })
 
     for (const [index, assetId] of [
@@ -245,7 +240,6 @@ describe("trick videos integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const trick = await seedTrick({
       name: "Reorder Trick",
-      slug: "reorder-trick",
     })
     const videoA = await seedMuxVideo("video-reorder-a")
     const videoB = await seedMuxVideo("video-reorder-b")
@@ -305,7 +299,6 @@ describe("trick videos integration", () => {
     const submitter = await seedUser({ name: "Submitter" })
     const trick = await seedTrick({
       name: "Validation Trick",
-      slug: "validation-trick",
     })
     const activeMux = await seedMuxVideo("video-validation-active")
     const pendingMux = await seedMuxVideo("video-validation-pending")
@@ -344,7 +337,6 @@ describe("trick videos integration", () => {
     const muxVideo = await seedMuxVideo("video-demote")
     const trick = await seedTrick({
       name: "Demote Trick",
-      slug: "demote-trick",
     })
 
     const [video] = await db

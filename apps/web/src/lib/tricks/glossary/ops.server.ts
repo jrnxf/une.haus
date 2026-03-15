@@ -85,7 +85,6 @@ export async function createGlossaryProposal({
     diff?: Record<string, unknown> | null
     name: string
     reason?: null | string
-    slug: string
     targetId?: null | number
     type: "element" | "modifier"
   }
@@ -95,7 +94,6 @@ export async function createGlossaryProposal({
     .values({
       action: data.action,
       type: data.type,
-      slug: data.slug,
       name: data.name,
       description: data.description,
       targetId: data.targetId,
@@ -133,13 +131,11 @@ export async function reviewGlossaryProposal({
     if (proposal.action === "create") {
       if (proposal.type === "element") {
         await db.insert(trickElements).values({
-          slug: proposal.slug,
           name: proposal.name,
           description: proposal.description,
         })
       } else {
         await db.insert(trickModifiers).values({
-          slug: proposal.slug,
           name: proposal.name,
           description: proposal.description,
         })

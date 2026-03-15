@@ -326,25 +326,25 @@ describe("getNotificationUrl for chat with focus", () => {
 })
 
 describe("getNotificationUrl with data", () => {
-  it("returns trick URL with slug for trickSubmission", () => {
-    expect(
-      getNotificationUrl("trickSubmission", 123, { trickSlug: "kickflip" }),
-    ).toBe("/tricks/kickflip")
+  it("returns trick URL with id for trickSubmission", () => {
+    expect(getNotificationUrl("trickSubmission", 123, { trickId: 42 })).toBe(
+      "/tricks/42",
+    )
   })
 
-  it("returns trick URL with slug for trickSuggestion", () => {
-    expect(
-      getNotificationUrl("trickSuggestion", 456, { trickSlug: "heelflip" }),
-    ).toBe("/tricks/heelflip")
+  it("returns trick URL with id for trickSuggestion", () => {
+    expect(getNotificationUrl("trickSuggestion", 456, { trickId: 43 })).toBe(
+      "/tricks/43",
+    )
   })
 
-  it("returns trick URL with slug for trickVideo", () => {
-    expect(
-      getNotificationUrl("trickVideo", 789, { trickSlug: "tre-flip" }),
-    ).toBe("/tricks/tre-flip")
+  it("returns trick URL with id for trickVideo", () => {
+    expect(getNotificationUrl("trickVideo", 789, { trickId: 44 })).toBe(
+      "/tricks/44",
+    )
   })
 
-  it("returns fallback /tricks when no slug provided", () => {
+  it("returns fallback /tricks when no trickId provided", () => {
     expect(getNotificationUrl("trickSubmission", 123, {})).toBe("/tricks")
     expect(getNotificationUrl("trickVideo", 456, null)).toBe("/tricks")
     expect(getNotificationUrl("trickSuggestion", 789)).toBe("/tricks")
