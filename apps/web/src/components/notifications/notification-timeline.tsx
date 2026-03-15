@@ -4,13 +4,14 @@ import { type ReactNode } from "react"
 
 import { NotificationIcon } from "./notification-item"
 import { Button } from "~/components/ui/button"
-import { type NotificationType } from "~/db/schema"
+import { type NotificationEntityType, type NotificationType } from "~/db/schema"
 import { cn } from "~/lib/utils"
 
 type NotificationTimelineItemProps = {
   isLast: boolean
   isRead: boolean
   type: NotificationType
+  entityType?: NotificationEntityType
   entityTitle?: string
   avatar: ReactNode
   names: string
@@ -30,6 +31,7 @@ export function NotificationTimelineItem({
   isLast,
   isRead,
   type,
+  entityType,
   entityTitle,
   avatar,
   names,
@@ -93,7 +95,11 @@ export function NotificationTimelineItem({
           isRead ? "bg-background" : "bg-accent",
         )}
       >
-        <NotificationIcon type={type} entityTitle={entityTitle} />
+        <NotificationIcon
+          type={type}
+          entityType={entityType}
+          entityTitle={entityTitle}
+        />
       </div>
       {href ? (
         <Link to={href} onClick={onNavigate} className={contentClassName}>

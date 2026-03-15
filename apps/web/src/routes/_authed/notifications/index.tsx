@@ -187,6 +187,7 @@ function NotificationList({ filter }: { filter: "all" | "unread" }) {
             isLast={isLast}
             isRead={notification.isRead}
             type={notification.type}
+            entityType={notification.entityType}
             entityTitle={notification.data?.entityTitle}
             avatar={
               primaryActor && (

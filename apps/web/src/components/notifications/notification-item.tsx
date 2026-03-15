@@ -1,21 +1,59 @@
 import {
+  ArrowLeftRightIcon,
   AtSignIcon,
   Check,
+  EditIcon,
+  FileTextIcon,
   Flag,
   Heart,
+  MergeIcon,
   MessageCircle,
-  Sparkles,
+  StickyNoteIcon,
   UserPlus,
+  VideoIcon,
   X,
 } from "lucide-react"
 
-import { type NotificationType } from "~/db/schema"
+import { StackItUpIcon } from "~/components/icons/stack-it-up-icon"
+import { type NotificationEntityType, type NotificationType } from "~/db/schema"
+
+function ContentIcon({ entityType }: { entityType?: NotificationEntityType }) {
+  switch (entityType) {
+    case "post": {
+      return <StickyNoteIcon className="size-3" />
+    }
+    case "riuSet":
+    case "riuSubmission": {
+      return <MergeIcon className="size-3" />
+    }
+    case "biuSet": {
+      return <ArrowLeftRightIcon className="size-3" />
+    }
+    case "siuSet": {
+      return <StackItUpIcon className="size-3" />
+    }
+    case "trickSubmission": {
+      return <FileTextIcon className="size-3" />
+    }
+    case "trickVideo": {
+      return <VideoIcon className="size-3" />
+    }
+    case "utvVideoSuggestion": {
+      return <EditIcon className="size-3" />
+    }
+    default: {
+      return <StickyNoteIcon className="size-3" />
+    }
+  }
+}
 
 export function NotificationIcon({
   type,
+  entityType,
   entityTitle,
 }: {
   type: NotificationType
+  entityType?: NotificationEntityType
   entityTitle?: string
 }) {
   switch (type) {
@@ -29,7 +67,7 @@ export function NotificationIcon({
       return <UserPlus className="size-3" />
     }
     case "new_content": {
-      return <Sparkles className="size-3" />
+      return <ContentIcon entityType={entityType} />
     }
     case "review": {
       if (entityTitle === "rejected") {
@@ -44,7 +82,7 @@ export function NotificationIcon({
       return <AtSignIcon className="size-3" />
     }
     default: {
-      return <Sparkles className="size-3" />
+      return <ContentIcon entityType={entityType} />
     }
   }
 }

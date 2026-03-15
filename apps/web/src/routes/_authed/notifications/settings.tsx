@@ -9,7 +9,7 @@ import {
   CalendarClock,
   Heart,
   MessageCircle,
-  Sparkles,
+  StickyNoteIcon,
   UserPlus,
 } from "lucide-react"
 import { useEffect } from "react"
@@ -134,7 +134,7 @@ function RouteComponent() {
       key: "newContentEnabled" as const,
       label: "new content from followed users",
       description: "when someone you follow creates a new post or set",
-      icon: Sparkles,
+      icon: StickyNoteIcon,
       enabled: settings.newContentEnabled,
     },
     {
