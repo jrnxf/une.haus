@@ -60,7 +60,7 @@ export function getRouter() {
       tracesSampleRate: isProduction ? 0.2 : 1.0,
       replaysSessionSampleRate: 0.1,
       replaysOnErrorSampleRate: 1.0,
-      ignoreErrors: [/not found/i],
+      ignoreErrors: [/not found/i, /access denied/i],
     })
   }
 
