@@ -49,17 +49,12 @@ export function getRouter() {
   if (!router.isServer) {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
-      // enabled: isProduction,
+      enabled: isProduction,
       sendDefaultPii: true,
-      integrations: [
-        Sentry.tanstackRouterBrowserTracingIntegration(router),
-        Sentry.replayIntegration(),
-      ],
+      integrations: [Sentry.tanstackRouterBrowserTracingIntegration(router)],
       enableLogs: true,
       environment: import.meta.env.VITE_ENVIRONMENT || "development",
       tracesSampleRate: isProduction ? 0.2 : 1.0,
-      replaysSessionSampleRate: 0.1,
-      replaysOnErrorSampleRate: 1.0,
       ignoreErrors: [/not found/i, /access denied/i],
     })
   }
