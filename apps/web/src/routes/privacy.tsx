@@ -93,23 +93,11 @@ function RouteComponent() {
 
           <h2>Online Presence</h2>
           <p>
-            We display a count of who's currently active on the site using{" "}
-            <a
-              href="https://ably.com/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Ably
-            </a>
-            , a real-time messaging service. For logged-in users, your name and
-            avatar are visible to other users in the "online" indicator.
-          </p>
-          <p>
-            For anonymous visitors (not logged in), we derive a one-way hash
-            from your IP address to count unique visitors. The raw IP address is
-            not stored — only the hash is sent to Ably as an anonymous
-            identifier. This hash cannot be reversed to recover your IP address
-            and is discarded when you disconnect.
+            We display a count of who's currently active on the site using a
+            server-side polling system. No third-party service is involved. For
+            logged-in users, your name and avatar are visible to other users in
+            the "online" indicator. Presence data is held in server memory and
+            discarded shortly after you leave the site.
           </p>
 
           <h2>Error Monitoring</h2>
@@ -179,9 +167,6 @@ function RouteComponent() {
             <li>
               <strong>Google Maps API</strong> — location search (your search
               queries are sent to Google when you set your location)
-            </li>
-            <li>
-              <strong>Ably</strong> — real-time presence and live updates
             </li>
             <li>
               <strong>Sentry</strong> — error monitoring and performance

@@ -66,9 +66,7 @@ export function OnlineIndicator({ className }: { className?: string }) {
           <span className="pr-1">
             <StatusIndicator className="bg-green-500" />
           </span>
-          <Suspense fallback={<span>0</span>}>
-            <OnlineCount />
-          </Suspense>
+          <OnlineCount />
           <span>online</span>
         </Button>
       </DropdownMenuTrigger>

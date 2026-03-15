@@ -20,9 +20,10 @@
     "clean": "bunx knip --include files,dependencies,exports,types --fix --allow-remove-files"
   },
   "dependencies": {
-    "@base-ui/react": "1.2.0",
+    "@base-ui/react": "^1.3.0",
     "@codemirror/lang-json": "^6.0.2",
     "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@floating-ui/react": "^0.27.18",

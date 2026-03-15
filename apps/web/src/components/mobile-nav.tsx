@@ -1,4 +1,4 @@
-import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer"
+import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 import { useQuery } from "@tanstack/react-query"
 import { Link, useMatches } from "@tanstack/react-router"
 import {
@@ -92,7 +92,7 @@ export function MobileNavProvider({ children }: { children: ReactNode }) {
       <DrawerPrimitive.Provider>
         <DrawerPrimitive.Root
           open={open}
-          onOpenChange={(next) => {
+          onOpenChange={(next: boolean) => {
             if (!next) haptics.selection()
             setOpen(next)
           }}
