@@ -123,7 +123,7 @@ function RouteComponent() {
         right={
           currentSection === "upcoming" ? (
             isUpcomingUploadLimitReached ? (
-              <Button disabled className="relative gap-0 pr-7">
+              <Button disabled className="relative">
                 upload
                 <CountChip className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2">
                   {upcomingSetCount}/3
