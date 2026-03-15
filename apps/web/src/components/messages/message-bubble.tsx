@@ -37,6 +37,7 @@ import {
 } from "~/components/ui/hover-card"
 import { Label } from "~/components/ui/label"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { ScrollArea } from "~/components/ui/scroll-area"
 import { Textarea } from "~/components/ui/textarea"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
@@ -177,7 +178,7 @@ export function MessageBubble({
               </button>
             </TrayTrigger>
             <TrayContent
-              dialogClassName="max-w-2xl"
+              dialogClassName="sm:max-w-2xl"
               drawerClassName="pb-[calc(env(safe-area-inset-bottom)+1rem)]"
               showCloseButton={false}
             >
@@ -283,12 +284,14 @@ export function MessageBubble({
                 </div>
               </div>
 
-              <div className="text-sm leading-relaxed">
-                <RichText
-                  content={message.content}
-                  className="text-pretty whitespace-pre-wrap"
-                />
-              </div>
+              <ScrollArea className="max-h-[50vh]">
+                <div className="text-sm leading-relaxed">
+                  <RichText
+                    content={message.content}
+                    className="text-pretty whitespace-pre-wrap"
+                  />
+                </div>
+              </ScrollArea>
 
               <div className="flex items-center justify-end">
                 <RelativeTimeCard

@@ -16,7 +16,6 @@ import { LikesButtonGroup } from "~/components/likes-button-group"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
-import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
@@ -197,11 +196,6 @@ function SetView({ setId }: { setId: number }) {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{set.name}</h1>
-            {isLatest && (
-              <Badge variant="outline" className="text-xs">
-                latest
-              </Badge>
-            )}
           </div>
           <Metaline
             parts={[

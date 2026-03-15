@@ -19,7 +19,6 @@ import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
-import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent } from "~/components/ui/card"
 import { Metaline } from "~/components/ui/metaline"
@@ -216,11 +215,6 @@ function SetView({ setId }: { setId: number }) {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold">{set.name}</h1>
-            {isLatest && (
-              <Badge variant="outline" className="text-xs">
-                latest
-              </Badge>
-            )}
           </div>
           <Metaline
             parts={[
