@@ -7,6 +7,7 @@ import {
   deleteSetSchema,
   getSetSchema,
   startRoundSchema,
+  updateSetSchema,
 } from "./schemas"
 import {
   adminOnlyMiddleware,
@@ -57,6 +58,15 @@ export const backUpSetServerFn = createServerFn({ method: "POST" })
   .handler(async (ctx) => {
     const { backUpBiuSet } = await loadBiuOps()
     return backUpBiuSet(ctx)
+  })
+
+// Update set (owner only)
+export const updateSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(updateSetSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { updateBiuSet } = await loadBiuOps()
+    return updateBiuSet(ctx)
   })
 
 // Delete set (owner only)

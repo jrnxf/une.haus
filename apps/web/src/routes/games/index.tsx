@@ -47,27 +47,26 @@ function RouteComponent() {
           <PageHeader.Crumb>games</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="@container mx-auto w-full max-w-2xl p-4">
-        <div className="flex flex-col gap-4">
-          <GameCard
-            to="/games/rius/active"
-            icon={MergeIcon}
-            title="rack it up"
-            description="the original. post up to three creative sets weekly and submit for all other rider sets. rider with the most points wins."
-          />
-          <GameCard
-            to="/games/bius"
-            icon={ArrowLeftRightIcon}
-            title="back it up"
-            description="back up the last trick then set a new one. the never-ending game."
-          />
-          <GameCard
-            to="/games/sius"
-            icon={StackItUpIcon}
-            title="stack it up"
-            description="land every trick in an ever-growing stack then set your own an the end. consistency wins."
-          />
-        </div>
+
+      <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 p-4">
+        <GameCard
+          to="/games/rius/active"
+          icon={MergeIcon}
+          title="rack it up"
+          description="the original. post up to three creative sets weekly and submit for all other rider sets. rider with the most points wins."
+        />
+        <GameCard
+          to="/games/bius"
+          icon={ArrowLeftRightIcon}
+          title="back it up"
+          description="back up the last trick then set a new one. the never-ending game."
+        />
+        <GameCard
+          to="/games/sius"
+          icon={StackItUpIcon}
+          title="stack it up"
+          description="land every trick in an ever-growing stack then set your own an the end. consistency wins."
+        />
       </div>
     </>
   )

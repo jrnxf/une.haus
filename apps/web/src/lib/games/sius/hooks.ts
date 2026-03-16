@@ -80,6 +80,26 @@ export function useRemoveArchiveVote() {
   })
 }
 
+export function useUpdateSet({ setId }: { setId: number }) {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.sius.sets.update.fn,
+    onSuccess: () => {
+      toast.success("set updated")
+      qc.invalidateQueries({
+        queryKey: games.sius.sets.get.queryOptions({ setId }).queryKey,
+      })
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
+      navigate({ to: "/games/sius/sets/$setId", params: { setId } })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to update set")
+    },
+  })
+}
+
 export function useDeleteSet() {
   const navigate = useNavigate()
   const qc = useQueryClient()

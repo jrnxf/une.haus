@@ -95,7 +95,9 @@ import { Route as AuthedAdminTricksTrickIdVideosRouteImport } from './routes/_au
 import { Route as AuthedAdminTricksTrickIdEditRouteImport } from './routes/_authed/admin/tricks/$trickId/edit'
 import { Route as AuthedTricksGlossaryModifiersModifierIdSuggestRouteImport } from './routes/_authed/tricks/glossary/modifiers/$modifierId/suggest'
 import { Route as AuthedTricksGlossaryElementsElementIdSuggestRouteImport } from './routes/_authed/tricks/glossary/elements/$elementId/suggest'
+import { Route as AuthedGamesSiusSetsSetIdEditRouteImport } from './routes/_authed/games/sius/sets/$setId/edit'
 import { Route as AuthedGamesRiusSetsSetIdEditRouteImport } from './routes/_authed/games/rius/sets/$setId/edit'
+import { Route as AuthedGamesBiusSetsSetIdEditRouteImport } from './routes/_authed/games/bius/sets/$setId/edit'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -550,10 +552,22 @@ const AuthedTricksGlossaryElementsElementIdSuggestRoute =
     path: '/tricks/glossary/elements/$elementId/suggest',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedGamesSiusSetsSetIdEditRoute =
+  AuthedGamesSiusSetsSetIdEditRouteImport.update({
+    id: '/games/sius/sets/$setId/edit',
+    path: '/games/sius/sets/$setId/edit',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedGamesRiusSetsSetIdEditRoute =
   AuthedGamesRiusSetsSetIdEditRouteImport.update({
     id: '/games/rius/sets/$setId/edit',
     path: '/games/rius/sets/$setId/edit',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedGamesBiusSetsSetIdEditRoute =
+  AuthedGamesBiusSetsSetIdEditRouteImport.update({
+    id: '/games/bius/sets/$setId/edit',
+    path: '/games/bius/sets/$setId/edit',
     getParentRoute: () => AuthedRoute,
   } as any)
 
@@ -638,7 +652,9 @@ export interface FileRoutesByFullPath {
   '/games/sius/sets/$setId/': typeof GamesSiusSetsSetIdIndexRoute
   '/tricks/glossary/elements/': typeof TricksGlossaryListElementsIndexRoute
   '/tricks/glossary/modifiers/': typeof TricksGlossaryListModifiersIndexRoute
+  '/games/bius/sets/$setId/edit': typeof AuthedGamesBiusSetsSetIdEditRoute
   '/games/rius/sets/$setId/edit': typeof AuthedGamesRiusSetsSetIdEditRoute
+  '/games/sius/sets/$setId/edit': typeof AuthedGamesSiusSetsSetIdEditRoute
   '/tricks/glossary/elements/$elementId/suggest': typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   '/tricks/glossary/modifiers/$modifierId/suggest': typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -719,7 +735,9 @@ export interface FileRoutesByTo {
   '/games/sius/sets/$setId': typeof GamesSiusSetsSetIdIndexRoute
   '/tricks/glossary/elements': typeof TricksGlossaryListElementsIndexRoute
   '/tricks/glossary/modifiers': typeof TricksGlossaryListModifiersIndexRoute
+  '/games/bius/sets/$setId/edit': typeof AuthedGamesBiusSetsSetIdEditRoute
   '/games/rius/sets/$setId/edit': typeof AuthedGamesRiusSetsSetIdEditRoute
+  '/games/sius/sets/$setId/edit': typeof AuthedGamesSiusSetsSetIdEditRoute
   '/tricks/glossary/elements/$elementId/suggest': typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   '/tricks/glossary/modifiers/$modifierId/suggest': typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -809,7 +827,9 @@ export interface FileRoutesById {
   '/games/sius/sets/$setId/': typeof GamesSiusSetsSetIdIndexRoute
   '/tricks/glossary/_list/elements/': typeof TricksGlossaryListElementsIndexRoute
   '/tricks/glossary/_list/modifiers/': typeof TricksGlossaryListModifiersIndexRoute
+  '/_authed/games/bius/sets/$setId/edit': typeof AuthedGamesBiusSetsSetIdEditRoute
   '/_authed/games/rius/sets/$setId/edit': typeof AuthedGamesRiusSetsSetIdEditRoute
+  '/_authed/games/sius/sets/$setId/edit': typeof AuthedGamesSiusSetsSetIdEditRoute
   '/_authed/tricks/glossary/elements/$elementId/suggest': typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   '/_authed/tricks/glossary/modifiers/$modifierId/suggest': typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -896,7 +916,9 @@ export interface FileRouteTypes {
     | '/games/sius/sets/$setId/'
     | '/tricks/glossary/elements/'
     | '/tricks/glossary/modifiers/'
+    | '/games/bius/sets/$setId/edit'
     | '/games/rius/sets/$setId/edit'
+    | '/games/sius/sets/$setId/edit'
     | '/tricks/glossary/elements/$elementId/suggest'
     | '/tricks/glossary/modifiers/$modifierId/suggest'
   fileRoutesByTo: FileRoutesByTo
@@ -977,7 +999,9 @@ export interface FileRouteTypes {
     | '/games/sius/sets/$setId'
     | '/tricks/glossary/elements'
     | '/tricks/glossary/modifiers'
+    | '/games/bius/sets/$setId/edit'
     | '/games/rius/sets/$setId/edit'
+    | '/games/sius/sets/$setId/edit'
     | '/tricks/glossary/elements/$elementId/suggest'
     | '/tricks/glossary/modifiers/$modifierId/suggest'
   id:
@@ -1066,7 +1090,9 @@ export interface FileRouteTypes {
     | '/games/sius/sets/$setId/'
     | '/tricks/glossary/_list/elements/'
     | '/tricks/glossary/_list/modifiers/'
+    | '/_authed/games/bius/sets/$setId/edit'
     | '/_authed/games/rius/sets/$setId/edit'
+    | '/_authed/games/sius/sets/$setId/edit'
     | '/_authed/tricks/glossary/elements/$elementId/suggest'
     | '/_authed/tricks/glossary/modifiers/$modifierId/suggest'
   fileRoutesById: FileRoutesById
@@ -1715,11 +1741,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTricksGlossaryElementsElementIdSuggestRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/games/sius/sets/$setId/edit': {
+      id: '/_authed/games/sius/sets/$setId/edit'
+      path: '/games/sius/sets/$setId/edit'
+      fullPath: '/games/sius/sets/$setId/edit'
+      preLoaderRoute: typeof AuthedGamesSiusSetsSetIdEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/games/rius/sets/$setId/edit': {
       id: '/_authed/games/rius/sets/$setId/edit'
       path: '/games/rius/sets/$setId/edit'
       fullPath: '/games/rius/sets/$setId/edit'
       preLoaderRoute: typeof AuthedGamesRiusSetsSetIdEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/games/bius/sets/$setId/edit': {
+      id: '/_authed/games/bius/sets/$setId/edit'
+      path: '/games/bius/sets/$setId/edit'
+      fullPath: '/games/bius/sets/$setId/edit'
+      preLoaderRoute: typeof AuthedGamesBiusSetsSetIdEditRouteImport
       parentRoute: typeof AuthedRoute
     }
   }
@@ -1766,7 +1806,9 @@ interface AuthedRouteChildren {
   AuthedGamesSiusSiuIdUploadRoute: typeof AuthedGamesSiusSiuIdUploadRoute
   AuthedTricksGlossaryElementsCreateRoute: typeof AuthedTricksGlossaryElementsCreateRoute
   AuthedTricksGlossaryModifiersCreateRoute: typeof AuthedTricksGlossaryModifiersCreateRoute
+  AuthedGamesBiusSetsSetIdEditRoute: typeof AuthedGamesBiusSetsSetIdEditRoute
   AuthedGamesRiusSetsSetIdEditRoute: typeof AuthedGamesRiusSetsSetIdEditRoute
+  AuthedGamesSiusSetsSetIdEditRoute: typeof AuthedGamesSiusSetsSetIdEditRoute
   AuthedTricksGlossaryElementsElementIdSuggestRoute: typeof AuthedTricksGlossaryElementsElementIdSuggestRoute
   AuthedTricksGlossaryModifiersModifierIdSuggestRoute: typeof AuthedTricksGlossaryModifiersModifierIdSuggestRoute
 }
@@ -1798,7 +1840,9 @@ const AuthedRouteChildren: AuthedRouteChildren = {
     AuthedTricksGlossaryElementsCreateRoute,
   AuthedTricksGlossaryModifiersCreateRoute:
     AuthedTricksGlossaryModifiersCreateRoute,
+  AuthedGamesBiusSetsSetIdEditRoute: AuthedGamesBiusSetsSetIdEditRoute,
   AuthedGamesRiusSetsSetIdEditRoute: AuthedGamesRiusSetsSetIdEditRoute,
+  AuthedGamesSiusSetsSetIdEditRoute: AuthedGamesSiusSetsSetIdEditRoute,
   AuthedTricksGlossaryElementsElementIdSuggestRoute:
     AuthedTricksGlossaryElementsElementIdSuggestRoute,
   AuthedTricksGlossaryModifiersModifierIdSuggestRoute:

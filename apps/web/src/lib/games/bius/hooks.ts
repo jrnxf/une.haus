@@ -46,6 +46,26 @@ export function useBackUpSet() {
   })
 }
 
+export function useUpdateSet({ setId }: { setId: number }) {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.bius.sets.update.fn,
+    onSuccess: () => {
+      toast.success("set updated")
+      qc.invalidateQueries({
+        queryKey: games.bius.sets.get.queryOptions({ setId }).queryKey,
+      })
+      qc.invalidateQueries({ queryKey: roundsKey })
+      navigate({ to: "/games/bius/sets/$setId", params: { setId } })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to update set")
+    },
+  })
+}
+
 export function useDeleteSet(roundId?: number) {
   const navigate = useNavigate()
   const qc = useQueryClient()

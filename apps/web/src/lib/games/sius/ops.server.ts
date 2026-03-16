@@ -327,6 +327,35 @@ export async function archiveSiuRound({
   return { success: true }
 }
 
+export async function updateSiuSet({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    name: string
+    setId: number
+  }
+}) {
+  const userId = context.user.id
+
+  const set = await db.query.siuSets.findFirst({
+    where: eq(siuSets.id, input.setId),
+    columns: { userId: true },
+  })
+
+  invariant(set, "Set not found")
+  invariant(set.userId === userId, "Access denied")
+
+  const [updated] = await db
+    .update(siuSets)
+    .set({ name: input.name })
+    .where(and(eq(siuSets.id, input.setId), eq(siuSets.userId, userId)))
+    .returning()
+
+  return updated
+}
+
 export async function deleteSiuSet({
   data: input,
   context,

@@ -1,15 +1,32 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { ArrowDownIcon, ArrowUpIcon, InfoIcon, TrashIcon } from "lucide-react"
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  EllipsisVerticalIcon,
+  FlagIcon,
+  InfoIcon,
+  PencilIcon,
+  ShareIcon,
+  TrashIcon,
+} from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
+import { FlagTray } from "~/components/flag-tray"
 import { TrickLine } from "~/components/games/sius/trick-line"
 import { LikesButtonGroup } from "~/components/likes-button-group"
-import { ShareFlagMenu } from "~/components/share-flag-menu"
-import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
+import { Tray, TrayContent, TrayTitle } from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent } from "~/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import {
@@ -20,6 +37,7 @@ import {
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
 import { useDeleteSet } from "~/lib/games/sius/hooks"
+import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -185,7 +203,6 @@ function SetView({ setId }: { setId: number }) {
         <DetailHeader.Actions>
           {set.childSet && <NextSetButton setId={set.childSet.id} />}
           {set.parentSet && <PreviousSetButton setId={set.parentSet.id} />}
-          {landedTricks.length > 0 && <StackInfoButton tricks={landedTricks} />}
           <LikesButtonGroup
             users={set.likes.map(
               (l: {
@@ -195,16 +212,14 @@ function SetView({ setId }: { setId: number }) {
             authUserLiked={authUserLiked}
             onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
           />
-          <ShareFlagMenu
-            entityType="siuSet"
-            entityId={set.id}
+          <SetActionsMenu
+            set={set}
+            isOwner={isOwner}
             canFlag={Boolean(sessionUser && !isOwner)}
+            canDelete={canDelete}
+            landedTricks={landedTricks}
+            onDelete={() => deleteSet.mutate({ data: { setId: set.id } })}
           />
-          {canDelete && (
-            <DeleteSetButton
-              onDelete={() => deleteSet.mutate({ data: { setId: set.id } })}
-            />
-          )}
         </DetailHeader.Actions>
       </DetailHeader>
 
@@ -269,62 +284,114 @@ function PreviousSetButton({ setId }: { setId: number }) {
   )
 }
 
-function StackInfoButton({
-  tricks,
+function SetActionsMenu({
+  set,
+  isOwner,
+  canFlag,
+  canDelete,
+  landedTricks,
+  onDelete,
 }: {
-  tricks: {
+  set: { id: number }
+  isOwner: boolean
+  canFlag: boolean
+  canDelete: boolean
+  landedTricks: {
     id: number
     name: string
     position: number
     user: { id: number; name: string }
   }[]
+  onDelete: () => void
 }) {
-  return (
-    <Tray>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <TrayTrigger asChild>
-            <Button size="icon-sm" variant="outline" aria-label="stack info">
-              <InfoIcon className="size-4" />
-            </Button>
-          </TrayTrigger>
-        </TooltipTrigger>
-        <TooltipContent>stack info</TooltipContent>
-      </Tooltip>
-      <TrayContent className="space-y-3" dialogClassName="max-w-2xl">
-        <TrayTitle>stack info</TrayTitle>
-        <Card>
-          <CardContent>
-            <TrickLine tricks={tricks} />
-          </CardContent>
-        </Card>
-      </TrayContent>
-    </Tray>
-  )
-}
+  const haptics = useHaptics()
+  const [flagOpen, setFlagOpen] = useState(false)
+  const [stackInfoOpen, setStackInfoOpen] = useState(false)
 
-function DeleteSetButton({ onDelete }: { onDelete: () => void }) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon-sm"
-          variant="outline"
-          aria-label="delete set"
-          onClick={() =>
-            confirm.open({
-              title: "delete set",
-              description:
-                "are you sure you want to delete this set? this action cannot be undone.",
-              confirmText: "delete",
-              onConfirm: onDelete,
-            })
-          }
-        >
-          <TrashIcon className="size-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>delete</TooltipContent>
-    </Tooltip>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon-sm" variant="outline" aria-label="actions">
+            <EllipsisVerticalIcon className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {landedTricks.length > 0 && (
+            <DropdownMenuItem onClick={() => setStackInfoOpen(true)}>
+              <InfoIcon />
+              info
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem
+            onClick={() => {
+              navigator.clipboard.writeText(globalThis.location.href)
+              haptics.success()
+              toast.success("link copied")
+            }}
+          >
+            <ShareIcon />
+            share
+          </DropdownMenuItem>
+          {canFlag && (
+            <DropdownMenuItem onClick={() => setFlagOpen(true)}>
+              <FlagIcon />
+              flag
+            </DropdownMenuItem>
+          )}
+          {isOwner && (
+            <DropdownMenuItem asChild>
+              <Link
+                to="/games/sius/sets/$setId/edit"
+                params={{ setId: set.id }}
+              >
+                <PencilIcon />
+                edit
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {canDelete && (
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() =>
+                confirm.open({
+                  title: "delete set",
+                  description:
+                    "are you sure you want to delete this set? this action cannot be undone.",
+                  confirmText: "delete",
+                  onConfirm: onDelete,
+                })
+              }
+            >
+              <TrashIcon />
+              delete
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {canFlag && (
+        <FlagTray
+          entityType="siuSet"
+          entityId={set.id}
+          hideTrigger
+          open={flagOpen}
+          onOpenChange={setFlagOpen}
+        />
+      )}
+
+      {landedTricks.length > 0 && (
+        <Tray open={stackInfoOpen} onOpenChange={setStackInfoOpen}>
+          <TrayContent className="space-y-3" dialogClassName="max-w-2xl">
+            <TrayTitle>stack info</TrayTitle>
+            <Card>
+              <CardContent>
+                <TrickLine tricks={landedTricks} />
+              </CardContent>
+            </Card>
+          </TrayContent>
+        </Tray>
+      )}
+    </>
   )
 }

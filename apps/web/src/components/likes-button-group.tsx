@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { HeartIcon } from "lucide-react"
 
 import { Button } from "~/components/ui/button"
+import { ButtonGroup } from "~/components/ui/button-group"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,7 +45,7 @@ export function LikesButtonGroup({
     users.length > 0 ? (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="rounded-r-md!">
             {users.length} {users.length === 1 ? "like" : "likes"}
           </Button>
         </DropdownMenuTrigger>
@@ -101,9 +102,9 @@ export function LikesButtonGroup({
     ) : null
 
   return (
-    <div className="flex items-center gap-1">
-      {likesDropdown}
+    <ButtonGroup>
       {likeButton}
-    </div>
+      {likesDropdown}
+    </ButtonGroup>
   )
 }

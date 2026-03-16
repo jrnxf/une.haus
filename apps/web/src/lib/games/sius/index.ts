@@ -12,6 +12,7 @@ import {
   listArchivedRoundsServerFn,
   removeArchiveVoteServerFn,
   startRoundServerFn,
+  updateSetServerFn,
   voteToArchiveServerFn,
 } from "./fns"
 import {
@@ -23,6 +24,7 @@ import {
   getSetSchema,
   removeArchiveVoteSchema,
   startRoundSchema,
+  updateSetSchema,
   voteToArchiveSchema,
 } from "./schemas"
 import { type ServerFnData } from "~/lib/types"
@@ -86,6 +88,10 @@ export const sius = {
     createFirst: {
       fn: createFirstSetServerFn,
       schema: createFirstSetSchema,
+    },
+    update: {
+      fn: updateSetServerFn,
+      schema: updateSetSchema,
     },
     delete: {
       fn: deleteSetServerFn,

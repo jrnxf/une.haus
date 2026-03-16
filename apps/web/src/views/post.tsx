@@ -3,8 +3,8 @@ import { Link } from "@tanstack/react-router"
 import {
   EllipsisVerticalIcon,
   FlagIcon,
-  LinkIcon,
   PencilIcon,
+  ShareIcon,
   TrashIcon,
 } from "lucide-react"
 import { useState } from "react"
@@ -72,12 +72,12 @@ function PostActions({
               toast.success("link copied")
             }}
           >
-            <LinkIcon className="size-4" />
+            <ShareIcon />
             share
           </DropdownMenuItem>
           {sessionUser && !isOwner && (
             <DropdownMenuItem onClick={() => setFlagOpen(true)}>
-              <FlagIcon className="size-4" />
+              <FlagIcon />
               flag
             </DropdownMenuItem>
           )}
@@ -85,7 +85,7 @@ function PostActions({
             <>
               <DropdownMenuItem asChild>
                 <Link params={{ postId }} to="/posts/$postId/edit">
-                  <PencilIcon className="size-4" />
+                  <PencilIcon />
                   edit
                 </Link>
               </DropdownMenuItem>
@@ -103,7 +103,7 @@ function PostActions({
                   })
                 }
               >
-                <TrashIcon className="size-4" />
+                <TrashIcon />
                 delete
               </DropdownMenuItem>
             </>

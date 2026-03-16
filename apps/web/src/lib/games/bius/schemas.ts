@@ -24,6 +24,12 @@ export const backUpSetSchema = z.object({
   muxAssetId: z.string().min(1, { message: "required" }),
 })
 
+// Update set (owner only)
+export const updateSetSchema = z.object({
+  setId: z.number().positive({ message: "Required" }),
+  name: z.string().trim().min(1, { message: "required" }),
+})
+
 // Delete set (owner only)
 export const deleteSetSchema = z.object({
   setId: z.number().positive({ message: "Required" }),

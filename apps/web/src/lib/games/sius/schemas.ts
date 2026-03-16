@@ -42,6 +42,12 @@ export const archiveRoundSchema = z.object({
   roundId: z.number().positive({ message: "Required" }),
 })
 
+// Update set (owner only)
+export const updateSetSchema = z.object({
+  setId: z.number().positive({ message: "Required" }),
+  name: z.string().trim().min(1, { message: "required" }),
+})
+
 // Delete set (owner only)
 export const deleteSetSchema = z.object({
   setId: z.number().positive({ message: "Required" }),

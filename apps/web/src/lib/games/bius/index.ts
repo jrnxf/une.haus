@@ -7,6 +7,7 @@ import {
   getChainsServerFn,
   getSetServerFn,
   startRoundServerFn,
+  updateSetServerFn,
 } from "./fns"
 import {
   backUpSetSchema,
@@ -14,6 +15,7 @@ import {
   deleteSetSchema,
   getSetSchema,
   startRoundSchema,
+  updateSetSchema,
 } from "./schemas"
 import { type ServerFnData } from "~/lib/types"
 
@@ -47,6 +49,10 @@ export const bius = {
     createFirst: {
       fn: createFirstSetServerFn,
       schema: createFirstSetSchema,
+    },
+    update: {
+      fn: updateSetServerFn,
+      schema: updateSetSchema,
     },
     delete: {
       fn: deleteSetServerFn,

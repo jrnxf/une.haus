@@ -11,6 +11,7 @@ import {
   getSetSchema,
   removeArchiveVoteSchema,
   startRoundSchema,
+  updateSetSchema,
   voteToArchiveSchema,
 } from "./schemas"
 import { db } from "~/db"
@@ -217,6 +218,15 @@ export const archiveRoundServerFn = createServerFn({ method: "POST" })
   .handler(async (ctx) => {
     const { archiveSiuRound } = await loadSiuOps()
     return archiveSiuRound(ctx)
+  })
+
+// Update set (owner only)
+export const updateSetServerFn = createServerFn({ method: "POST" })
+  .inputValidator(zodValidator(updateSetSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { updateSiuSet } = await loadSiuOps()
+    return updateSiuSet(ctx)
   })
 
 // Delete set (owner only)

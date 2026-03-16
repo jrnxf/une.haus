@@ -272,6 +272,35 @@ export async function backUpBiuSet({
   })
 }
 
+export async function updateBiuSet({
+  data: input,
+  context,
+}: {
+  context: AuthenticatedContext
+  data: {
+    name: string
+    setId: number
+  }
+}) {
+  const userId = context.user.id
+
+  const set = await db.query.biuSets.findFirst({
+    where: eq(biuSets.id, input.setId),
+    columns: { userId: true },
+  })
+
+  invariant(set, "Set not found")
+  invariant(set.userId === userId, "Access denied")
+
+  const [updated] = await db
+    .update(biuSets)
+    .set({ name: input.name })
+    .where(and(eq(biuSets.id, input.setId), eq(biuSets.userId, userId)))
+    .returning()
+
+  return updated
+}
+
 export async function deleteBiuSet({
   data: input,
   context,

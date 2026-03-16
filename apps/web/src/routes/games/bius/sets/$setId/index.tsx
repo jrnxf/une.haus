@@ -1,12 +1,28 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { ArrowDownIcon, ArrowUpIcon, TrashIcon } from "lucide-react"
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  EllipsisVerticalIcon,
+  FlagIcon,
+  PencilIcon,
+  ShareIcon,
+  TrashIcon,
+} from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
+import { FlagTray } from "~/components/flag-tray"
 import { LikesButtonGroup } from "~/components/likes-button-group"
-import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import {
   Tooltip,
@@ -16,6 +32,7 @@ import {
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
 import { useDeleteSet } from "~/lib/games/bius/hooks"
+import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -202,48 +219,8 @@ function SetView({ setId }: { setId: number }) {
           {set.name}
         </DetailHeader.Title>
         <DetailHeader.Actions>
-          {/* Chain navigation */}
-          {set.childSet && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  asChild
-                  aria-label="next set"
-                >
-                  <Link
-                    to="/games/bius/sets/$setId"
-                    params={{ setId: set.childSet.id }}
-                  >
-                    <ArrowUpIcon className="size-4" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>next</TooltipContent>
-            </Tooltip>
-          )}
-          {set.parentSet && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  asChild
-                  aria-label="previous set"
-                >
-                  <Link
-                    to="/games/bius/sets/$setId"
-                    params={{ setId: set.parentSet.id }}
-                  >
-                    <ArrowDownIcon className="size-4" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>previous</TooltipContent>
-            </Tooltip>
-          )}
-
+          {set.childSet && <NextSetButton setId={set.childSet.id} />}
+          {set.parentSet && <PreviousSetButton setId={set.parentSet.id} />}
           <LikesButtonGroup
             users={set.likes.map(
               (l: {
@@ -253,36 +230,13 @@ function SetView({ setId }: { setId: number }) {
             authUserLiked={authUserLiked}
             onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
           />
-          <ShareFlagMenu
-            entityType="biuSet"
-            entityId={set.id}
+          <SetActionsMenu
+            setId={set.id}
+            isOwner={isOwner}
             canFlag={Boolean(sessionUser && !isOwner)}
+            canDelete={canDelete}
+            onDelete={() => deleteSet.mutate({ data: { setId: set.id } })}
           />
-          {canDelete && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  aria-label="delete set"
-                  onClick={() =>
-                    confirm.open({
-                      title: "delete set",
-                      description:
-                        "are you sure you want to delete this set? this action cannot be undone.",
-                      confirmText: "delete",
-                      onConfirm: () => {
-                        deleteSet.mutate({ data: { setId: set.id } })
-                      },
-                    })
-                  }
-                >
-                  <TrashIcon className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>delete</TooltipContent>
-            </Tooltip>
-          )}
         </DetailHeader.Actions>
       </DetailHeader>
 
@@ -335,5 +289,122 @@ function SetView({ setId }: { setId: number }) {
         onCreateMessage={(content) => createMessage.mutate(content)}
       />
     </div>
+  )
+}
+
+function NextSetButton({ setId }: { setId: number }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button size="icon-sm" variant="outline" asChild aria-label="next set">
+          <Link to="/games/bius/sets/$setId" params={{ setId }}>
+            <ArrowUpIcon className="size-4" />
+          </Link>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>next</TooltipContent>
+    </Tooltip>
+  )
+}
+
+function PreviousSetButton({ setId }: { setId: number }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          asChild
+          aria-label="previous set"
+        >
+          <Link to="/games/bius/sets/$setId" params={{ setId }}>
+            <ArrowDownIcon className="size-4" />
+          </Link>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>previous</TooltipContent>
+    </Tooltip>
+  )
+}
+
+function SetActionsMenu({
+  setId,
+  isOwner,
+  canFlag,
+  canDelete,
+  onDelete,
+}: {
+  setId: number
+  isOwner: boolean
+  canFlag: boolean
+  canDelete: boolean
+  onDelete: () => void
+}) {
+  const haptics = useHaptics()
+  const [flagOpen, setFlagOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon-sm" variant="outline" aria-label="actions">
+            <EllipsisVerticalIcon className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => {
+              navigator.clipboard.writeText(globalThis.location.href)
+              haptics.success()
+              toast.success("link copied")
+            }}
+          >
+            <ShareIcon />
+            share
+          </DropdownMenuItem>
+          {canFlag && (
+            <DropdownMenuItem onClick={() => setFlagOpen(true)}>
+              <FlagIcon />
+              flag
+            </DropdownMenuItem>
+          )}
+          {isOwner && (
+            <DropdownMenuItem asChild>
+              <Link to="/games/bius/sets/$setId/edit" params={{ setId }}>
+                <PencilIcon />
+                edit
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {canDelete && (
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() =>
+                confirm.open({
+                  title: "delete set",
+                  description:
+                    "are you sure you want to delete this set? this action cannot be undone.",
+                  confirmText: "delete",
+                  onConfirm: onDelete,
+                })
+              }
+            >
+              <TrashIcon />
+              delete
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {canFlag && (
+        <FlagTray
+          entityType="biuSet"
+          entityId={setId}
+          hideTrigger
+          open={flagOpen}
+          onOpenChange={setFlagOpen}
+        />
+      )}
+    </>
   )
 }

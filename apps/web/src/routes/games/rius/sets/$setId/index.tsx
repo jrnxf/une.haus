@@ -1,26 +1,36 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { PencilIcon, TrashIcon } from "lucide-react"
+import {
+  EllipsisVerticalIcon,
+  FlagIcon,
+  PencilIcon,
+  ShareIcon,
+  TrashIcon,
+} from "lucide-react"
+import { useState } from "react"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
+import { FlagTray } from "~/components/flag-tray"
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius"
 import { RiuSubmissionCard } from "~/components/games/riu-submission-card"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { RichText } from "~/components/rich-text"
-import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { SectionDivider } from "~/components/ui/section-divider"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
 import { useDeleteSet } from "~/lib/games/rius/hooks"
+import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -158,59 +168,11 @@ function SetView({ setId }: { setId: number }) {
             authUserLiked={authUserLiked}
             onLikeUnlike={() => authGate(() => likeUnlike.mutate())}
           />
-          {canManageUpcomingSet && (
-            <>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon-sm"
-                    variant="outline"
-                    aria-label="edit"
-                    asChild
-                  >
-                    <Link
-                      to="/games/rius/sets/$setId/edit"
-                      params={{ setId: set.id }}
-                    >
-                      <PencilIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>edit</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() =>
-                      confirm.open({
-                        title: "delete set",
-                        description:
-                          "are you sure you want to delete this set? this action cannot be undone.",
-                        confirmText: "delete",
-                        onConfirm: () => {
-                          deleteSet.mutate({
-                            data: {
-                              riuSetId: set.id,
-                            },
-                          })
-                        },
-                      })
-                    }
-                    size="icon-sm"
-                    variant="outline"
-                    aria-label="delete"
-                  >
-                    <TrashIcon className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>delete</TooltipContent>
-              </Tooltip>
-            </>
-          )}
-          <ShareFlagMenu
-            entityType="riuSet"
-            entityId={set.id}
+          <RiuSetActionsMenu
+            set={set}
             canFlag={Boolean(sessionUser && !isOwner)}
+            canManageUpcomingSet={canManageUpcomingSet}
+            onDelete={() => deleteSet.mutate({ data: { riuSetId: set.id } })}
           />
         </DetailHeader.Actions>
       </DetailHeader>
@@ -335,5 +297,88 @@ function AuthGateUploadButton() {
         upload video
       </span>
     </Button>
+  )
+}
+
+function RiuSetActionsMenu({
+  set,
+  canFlag,
+  canManageUpcomingSet,
+  onDelete,
+}: {
+  set: { id: number }
+  canFlag: boolean
+  canManageUpcomingSet: boolean
+  onDelete: () => void
+}) {
+  const haptics = useHaptics()
+  const [flagOpen, setFlagOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon-sm" variant="outline" aria-label="actions">
+            <EllipsisVerticalIcon className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => {
+              navigator.clipboard.writeText(globalThis.location.href)
+              haptics.success()
+              toast.success("link copied")
+            }}
+          >
+            <ShareIcon />
+            share
+          </DropdownMenuItem>
+          {canFlag && (
+            <DropdownMenuItem onClick={() => setFlagOpen(true)}>
+              <FlagIcon />
+              flag
+            </DropdownMenuItem>
+          )}
+          {canManageUpcomingSet && (
+            <>
+              <DropdownMenuItem asChild>
+                <Link
+                  to="/games/rius/sets/$setId/edit"
+                  params={{ setId: set.id }}
+                >
+                  <PencilIcon />
+                  edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() =>
+                  confirm.open({
+                    title: "delete set",
+                    description:
+                      "are you sure you want to delete this set? this action cannot be undone.",
+                    confirmText: "delete",
+                    onConfirm: onDelete,
+                  })
+                }
+              >
+                <TrashIcon />
+                delete
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {canFlag && (
+        <FlagTray
+          entityType="riuSet"
+          entityId={set.id}
+          hideTrigger
+          open={flagOpen}
+          onOpenChange={setFlagOpen}
+        />
+      )}
+    </>
   )
 }
