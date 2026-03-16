@@ -4,9 +4,10 @@
     "builder": "RAILPACK",
     "watchPatterns": ["/apps/docs/**"],
     "buildEnvironment": "V3",
-    "buildCommand": "bun run build"
+    "buildCommand": "bun run build:docs"
   },
   "deploy": {
+    "startCommand": "bun run start:docs",
     "runtime": "V2",
     "numReplicas": 1,
     "sleepApplication": false,

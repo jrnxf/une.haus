@@ -12,6 +12,8 @@
     "build:web": "bun run --filter web build",
     "build:docs": "bun run --filter docs build",
     "start": "bun run --filter web start",
+    "start:web": "bun run --filter web start",
+    "start:docs": "bun run --filter docs start",
     "preflight": "bun run scripts/preflight.ts",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "oxlint",
