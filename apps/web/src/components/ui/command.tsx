@@ -48,6 +48,7 @@ function CommandDialog({
   onValueChange,
   value,
   shouldFilter = true,
+  viewportClassName,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
   children?: React.ReactNode
@@ -61,6 +62,7 @@ function CommandDialog({
   onValueChange?: (value: string) => void
   value?: string
   shouldFilter?: boolean
+  viewportClassName?: string
 }) {
   const modifierKey = useModifierKey()
 
@@ -83,6 +85,7 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
         overlay={overlay}
+        viewportClassName={viewportClassName}
       >
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>

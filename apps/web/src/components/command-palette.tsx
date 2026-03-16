@@ -438,6 +438,7 @@ export function CommandPalette() {
         shouldFilter={
           activePage !== "search-users" && activePage !== "search-vault"
         }
+        viewportClassName="items-start pt-[15vh] sm:pt-[15vh]"
       >
         <CommandInput
           ref={inputRef}
