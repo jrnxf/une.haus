@@ -12,6 +12,7 @@ import {
   backUpBiuSet,
   createFirstBiuSet,
   deleteBiuSet,
+  updateBiuSet,
 } from "~/lib/games/bius/ops.server"
 import {
   asUser,
@@ -230,6 +231,45 @@ describe("bius integration", () => {
         },
       }),
     ).rejects.toThrow("This set has already been backed up")
+  })
+
+  it("updateBiuSet is owner-only", async () => {
+    const owner = await seedUser({ name: "Owner" })
+    const otherUser = await seedUser({ name: "Other User" })
+    const round = await seedRound()
+
+    const set = await seedBiuSet({
+      assetId: "biu-update",
+      name: "Original Name",
+      position: 1,
+      roundId: round.id,
+      userId: owner.id,
+    })
+
+    await expect(
+      updateBiuSet({
+        ...asUser(otherUser),
+        data: {
+          name: "Nope",
+          setId: set.id,
+        },
+      }),
+    ).rejects.toThrow("Access denied")
+
+    const updated = await updateBiuSet({
+      ...asUser(owner),
+      data: {
+        name: "Updated Name",
+        setId: set.id,
+      },
+    })
+
+    expect(updated).toEqual(
+      expect.objectContaining({
+        id: set.id,
+        name: "Updated Name",
+      }),
+    )
   })
 
   it("deleteBiuSet soft-deletes a parent with children and removes engagement rows", async () => {

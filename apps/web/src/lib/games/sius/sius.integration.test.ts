@@ -18,6 +18,7 @@ import {
   getArchivedRound,
   listArchivedRounds,
   removeArchiveVote,
+  updateSiuSet,
   voteToArchive,
 } from "~/lib/games/sius/ops.server"
 import {
@@ -529,6 +530,45 @@ describe("sius integration", () => {
         },
       }),
     ).rejects.toThrow("This set has already been continued")
+  })
+
+  it("updateSiuSet is owner-only", async () => {
+    const owner = await seedUser({ name: "Owner" })
+    const otherUser = await seedUser({ name: "Other User" })
+    const round = await seedActiveRound()
+
+    const set = await seedSiuSet({
+      assetId: "asset-update",
+      name: "Original Name",
+      position: 1,
+      roundId: round.id,
+      userId: owner.id,
+    })
+
+    await expect(
+      updateSiuSet({
+        ...asUser(otherUser),
+        data: {
+          name: "Nope",
+          setId: set.id,
+        },
+      }),
+    ).rejects.toThrow("Access denied")
+
+    const updated = await updateSiuSet({
+      ...asUser(owner),
+      data: {
+        name: "Updated Name",
+        setId: set.id,
+      },
+    })
+
+    expect(updated).toEqual(
+      expect.objectContaining({
+        id: set.id,
+        name: "Updated Name",
+      }),
+    )
   })
 
   it("soft-deletes a continued set and removes engagement data", async () => {
