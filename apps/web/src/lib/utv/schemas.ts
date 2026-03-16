@@ -71,10 +71,17 @@ export const listUtvSuggestionsSchema = z
 export type ListUtvSuggestionsArgs = z.infer<typeof listUtvSuggestionsSchema>
 export type ListUtvSuggestionsInput = z.input<typeof listUtvSuggestionsSchema>
 
-export const reviewUtvSuggestionSchema = z.object({
-  id: z.number(),
-  status: z.enum(["approved", "rejected"]),
-  reviewNotes: z.string().min(1),
-})
+export const reviewUtvSuggestionSchema = z.discriminatedUnion("status", [
+  z.object({
+    id: z.number(),
+    status: z.literal("approved"),
+    reviewNotes: z.string().optional().default(""),
+  }),
+  z.object({
+    id: z.number(),
+    status: z.literal("rejected"),
+    reviewNotes: z.string().min(1),
+  }),
+])
 
 export type ReviewUtvSuggestionArgs = z.infer<typeof reviewUtvSuggestionSchema>

@@ -30,11 +30,18 @@ export const listPendingVideosSchema = z
 export type ListPendingVideosInput = z.input<typeof listPendingVideosSchema>
 
 // Review video (admin approves/rejects)
-export const reviewVideoSchema = z.object({
-  id: z.number(),
-  status: z.enum(["active", "rejected"]),
-  reviewNotes: z.string().min(1),
-})
+export const reviewVideoSchema = z.discriminatedUnion("status", [
+  z.object({
+    id: z.number(),
+    status: z.literal("active"),
+    reviewNotes: z.string().optional().default(""),
+  }),
+  z.object({
+    id: z.number(),
+    status: z.literal("rejected"),
+    reviewNotes: z.string().min(1),
+  }),
+])
 
 export type ReviewVideoArgs = z.infer<typeof reviewVideoSchema>
 

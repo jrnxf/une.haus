@@ -59,11 +59,18 @@ export const listSubmissionsSchema = z
 export type ListSubmissionsInput = z.input<typeof listSubmissionsSchema>
 
 // Review submission (admin approves/rejects)
-export const reviewSubmissionSchema = z.object({
-  id: z.number(),
-  status: z.enum(["approved", "rejected"]),
-  reviewNotes: z.string().min(1),
-})
+export const reviewSubmissionSchema = z.discriminatedUnion("status", [
+  z.object({
+    id: z.number(),
+    status: z.literal("approved"),
+    reviewNotes: z.string().optional().default(""),
+  }),
+  z.object({
+    id: z.number(),
+    status: z.literal("rejected"),
+    reviewNotes: z.string().min(1),
+  }),
+])
 
 export type ReviewSubmissionArgs = z.infer<typeof reviewSubmissionSchema>
 
@@ -117,8 +124,15 @@ export const listSuggestionsSchema = z
 
 export type ListSuggestionsInput = z.input<typeof listSuggestionsSchema>
 
-export const reviewSuggestionSchema = z.object({
-  id: z.number(),
-  status: z.enum(["approved", "rejected"]),
-  reviewNotes: z.string().min(1),
-})
+export const reviewSuggestionSchema = z.discriminatedUnion("status", [
+  z.object({
+    id: z.number(),
+    status: z.literal("approved"),
+    reviewNotes: z.string().optional().default(""),
+  }),
+  z.object({
+    id: z.number(),
+    status: z.literal("rejected"),
+    reviewNotes: z.string().min(1),
+  }),
+])
