@@ -145,7 +145,8 @@ export function computeLean(gs: GameState): number {
 
 // --- State Factories ---
 
-export function createInitialState(): GameState {
+export function createInitialState(serverHighScore?: number): GameState {
+  const localHighScore = loadHighScore()
   return {
     status: "idle",
     playerY: 0,
@@ -155,7 +156,7 @@ export function createInitialState(): GameState {
     hasDoubleJump: true,
     speed: INITIAL_SPEED,
     score: 0,
-    highScore: loadHighScore(),
+    highScore: Math.max(localHighScore, serverHighScore ?? 0),
     comboCount: 0,
     terrain: [],
     clouds: [],

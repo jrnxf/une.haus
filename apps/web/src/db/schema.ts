@@ -121,6 +121,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   lastSeenAt: timestamp("last_seen_at"),
   name: text("name").notNull(),
+  arcadeHighScore: integer("arcade_high_score").notNull().default(0),
   notifyWhenShop: boolean("notify_when_shop").notNull().default(false),
   type: userTypeEnum("type").default("user"),
 })

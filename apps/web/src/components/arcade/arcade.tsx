@@ -25,12 +25,20 @@ const GROUND_BOTTOM_OFFSET = 120
 // Fixed timestep: physics always runs at 60fps regardless of display refresh rate
 const FIXED_DT = 1000 / 120
 
-export function UnicycleGame() {
+export function UnicycleGame({
+  initialHighScore,
+  onHighScore,
+}: {
+  initialHighScore?: number
+  onHighScore?: (score: number) => void
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDead, setIsDead] = useState(false)
   const isDeadRef = useRef(false)
-  const stateRef = useRef<GameState>(createInitialState())
+  const onHighScoreRef = useRef(onHighScore)
+  onHighScoreRef.current = onHighScore
+  const stateRef = useRef<GameState>(createInitialState(initialHighScore))
   const animRef = useRef<number>(0)
   const colorsRef = useRef({
     fg: "#000",
@@ -43,6 +51,10 @@ export function UnicycleGame() {
     if (isDeadRef.current === nextIsDead) return
     isDeadRef.current = nextIsDead
     setIsDead(nextIsDead)
+    if (nextIsDead) {
+      const gs = stateRef.current
+      onHighScoreRef.current?.(gs.highScore)
+    }
   }, [])
 
   const getGroundY = useCallback((canvas: HTMLCanvasElement) => {
