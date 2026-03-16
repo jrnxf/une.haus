@@ -12,38 +12,6 @@ import { useScroll } from "~/lib/ux/hooks/use-scroll"
 
 type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number]
 
-function formatDayLabel(date: Date): string {
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  const diff = today.getTime() - target.getTime()
-  const days = Math.round(diff / 86_400_000)
-
-  if (days === 0) return "today"
-  if (days === 1) return "yesterday"
-  if (days < 7)
-    return date.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase()
-  return date
-    .toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    .toLowerCase()
-}
-
-function isDifferentDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() !== b.getFullYear() ||
-    a.getMonth() !== b.getMonth() ||
-    a.getDate() !== b.getDate()
-  )
-}
-
-function DayDivider({ date }: { date: Date }) {
-  return (
-    <p className="text-muted-foreground/50 py-2 text-xs">
-      {formatDayLabel(date)}
-    </p>
-  )
-}
-
 export function MessagesView({
   record,
   messages,
@@ -162,12 +130,6 @@ export function MessagesView({
               const isAuthUserMessage = Boolean(
                 sessionUser && sessionUser.id === message.user.id,
               )
-              const showDayDivider =
-                prev &&
-                isDifferentDay(
-                  new Date(prev.createdAt),
-                  new Date(message.createdAt),
-                )
               const isNewSection = prev?.user.id !== message.user.id
               return (
                 <div
@@ -179,15 +141,12 @@ export function MessagesView({
                   )}
                   key={message.id}
                 >
-                  {showDayDivider && (
-                    <DayDivider date={new Date(message.createdAt)} />
-                  )}
                   {isNewSection && (
                     <div
                       className={cn(
                         "mb-1",
                         isAuthUserMessage ? "mr-1" : "ml-1",
-                        index !== 0 && !showDayDivider && "mt-4",
+                        index !== 0 && "mt-4",
                       )}
                     >
                       <MessageAuthor message={message} />
@@ -230,9 +189,6 @@ export function MessagesView({
         const isAuthUserMessage = Boolean(
           sessionUser && sessionUser.id === message.user.id,
         )
-        const showDayDivider =
-          prev &&
-          isDifferentDay(new Date(prev.createdAt), new Date(message.createdAt))
         const isNewSection = prev?.user.id !== message.user.id
         return (
           <div
@@ -244,13 +200,8 @@ export function MessagesView({
             )}
             key={message.id}
           >
-            {showDayDivider && (
-              <DayDivider date={new Date(message.createdAt)} />
-            )}
             {isNewSection && (
-              <div
-                className={cn("mb-1", index !== 0 && !showDayDivider && "mt-4")}
-              >
+              <div className={cn("mb-1", index !== 0 && "mt-4")}>
                 <MessageAuthor message={message} />
               </div>
             )}
