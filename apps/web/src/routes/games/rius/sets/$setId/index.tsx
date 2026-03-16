@@ -143,11 +143,12 @@ function SetView({ setId }: { setId: number }) {
       <div className="flex items-start gap-3">
         <div className="w-full min-w-0 space-y-1">
           <div className="flex">
-            <span className="items-center gap-2 truncate text-xl leading-none font-semibold tracking-tight">
+            <span className="items-center gap-2 truncate text-base leading-none font-semibold tracking-tight sm:text-xl">
               {set.name}
             </span>
           </div>
           <Metaline
+            className="text-xs sm:text-sm"
             parts={[
               <Link
                 key="author"

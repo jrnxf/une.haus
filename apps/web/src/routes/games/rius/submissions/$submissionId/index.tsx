@@ -128,10 +128,11 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
     <>
       <div className="flex items-start gap-3">
         <div className="w-full space-y-1">
-          <div className="flex items-center gap-2 text-2xl leading-none font-semibold tracking-tight">
+          <div className="flex items-center gap-2 text-base leading-none font-semibold tracking-tight sm:text-xl">
             {submission.riuSet.name}
           </div>
           <Metaline
+            className="text-xs sm:text-sm"
             parts={[
               <Link
                 key="author"

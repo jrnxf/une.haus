@@ -162,10 +162,11 @@ export function PostView({ postId }: { postId: number }) {
     <div className="mx-auto flex h-auto w-full max-w-3xl flex-col justify-start gap-6 p-4">
       <div className="flex items-start gap-2">
         <div className="min-w-0 space-y-1">
-          <h1 className="text-2xl leading-none font-semibold tracking-tight">
+          <h1 className="text-base leading-none font-semibold tracking-tight sm:text-xl">
             {post.title}
           </h1>
           <Metaline
+            className="text-xs sm:text-sm"
             parts={[
               <Link
                 key="author"
@@ -205,7 +206,7 @@ export function PostView({ postId }: { postId: number }) {
         </div>
       </div>
 
-      <div className="overflow-hidden wrap-break-word whitespace-pre-wrap">
+      <div className="overflow-hidden text-sm wrap-break-word whitespace-pre-wrap sm:text-base">
         {post.imageId && (
           <img
             alt=""

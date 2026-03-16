@@ -41,27 +41,27 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
               className={cn(
                 "shrink-0",
                 user.location
-                  ? "size-26"
+                  ? "size-24 sm:size-26"
                   : user.followers.count > 0 || user.following.count > 0
-                    ? "size-18"
-                    : "size-10",
+                    ? "size-16 sm:size-18"
+                    : "size-8 sm:size-10",
               )}
               cloudflareId={user.avatarId}
               alt={user.name}
             >
               <AvatarImage
                 width={320}
-                quality={60}
+                quality={80}
                 fetchPriority="high"
                 loading="eager"
               />
               <AvatarFallback name={user.name} />
             </Avatar>
 
-            <div className="min-w-0 flex-1 space-y-2">
+            <div className="min-w-0 flex-1 space-y-0.5">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h1 className="flex items-center gap-2 truncate text-2xl font-semibold tracking-tight">
+                <div className="space-y-0.y min-w-0">
+                  <h1 className="flex items-center gap-2 truncate text-xl font-semibold tracking-tight sm:text-2xl">
                     {user.name}
                     <UserOnlineStatus userId={user.id} />
                   </h1>
@@ -102,7 +102,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 
           {/* Bio */}
           {user.bio && (
-            <div className="leading-relaxed wrap-break-word whitespace-pre-wrap">
+            <div className="text-sm leading-relaxed wrap-break-word whitespace-pre-wrap sm:text-base">
               <RichText content={user.bio} />
             </div>
           )}

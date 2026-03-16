@@ -287,7 +287,7 @@ function PostsList({
                     )}
                     <span className="truncate font-semibold">{post.title}</span>
                   </div>
-                  <div className="line-clamp-3 text-sm">
+                  <div className="text-muted-foreground line-clamp-3 text-sm">
                     <RichText content={post.content} mentionMode="plainText" />
                   </div>
                   <Badges content={post.tags} active={deferredTags ?? []} />
