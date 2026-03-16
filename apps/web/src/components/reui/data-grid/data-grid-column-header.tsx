@@ -351,4 +351,4 @@ const DataGridColumnHeader = memo(
   DataGridColumnHeaderInner,
 ) as typeof DataGridColumnHeaderInner
 
-export { DataGridColumnHeader, type DataGridColumnHeaderProps }
+export { DataGridColumnHeader }

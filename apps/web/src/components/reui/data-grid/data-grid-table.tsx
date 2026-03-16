@@ -10,7 +10,6 @@ import { cva } from "class-variance-authority"
 import { type CSSProperties, Fragment, type ReactNode } from "react"
 
 import { useDataGrid } from "~/components/reui/data-grid/data-grid"
-import { Checkbox } from "~/components/ui/checkbox"
 import { cn } from "~/lib/utils"
 
 const headerCellSpacingVariants = cva("", {
@@ -420,77 +419,6 @@ function DataGridTableEmpty() {
   )
 }
 
-function DataGridTableLoader() {
-  const { props } = useDataGrid()
-
-  return (
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-      <div className="text-muted-foreground bg-card flex items-center gap-2 rounded-md border px-4 py-2 text-sm leading-none font-medium shadow-xs">
-        <svg
-          className="text-muted-foreground -ml-1 h-5 w-5 animate-spin"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="3"
-          ></circle>
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-        {props.loadingMessage || "Loading..."}
-      </div>
-    </div>
-  )
-}
-
-function DataGridTableRowSelect<TData>({ row }: { row: Row<TData> }) {
-  return (
-    <>
-      <div
-        className={cn(
-          "bg-primary absolute start-0 top-0 bottom-0 hidden w-[2px]",
-          row.getIsSelected() && "block",
-        )}
-      ></div>
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(Boolean(value))}
-        aria-label="Select row"
-        className="align-[inherit]"
-      />
-    </>
-  )
-}
-
-function DataGridTableRowSelectAll() {
-  const { table, recordCount, isLoading } = useDataGrid()
-
-  const isAllSelected = table.getIsAllPageRowsSelected()
-  const isSomeSelected = table.getIsSomePageRowsSelected()
-
-  return (
-    <Checkbox
-      checked={isAllSelected}
-      indeterminate={isSomeSelected && !isAllSelected}
-      disabled={isLoading || recordCount === 0}
-      onCheckedChange={(value) =>
-        table.toggleAllPageRowsSelected(Boolean(value))
-      }
-      aria-label="Select all"
-      className="align-[inherit]"
-    />
-  )
-}
-
 function DataGridTable<TData>() {
   const { table, isLoading, props } = useDataGrid()
   const pagination = table.getState().pagination
@@ -617,16 +545,7 @@ export {
   DataGridTableBody,
   DataGridTableBodyRow,
   DataGridTableBodyRowCell,
-  DataGridTableBodyRowExpandded,
-  DataGridTableBodyRowSkeleton,
-  DataGridTableBodyRowSkeletonCell,
-  DataGridTableEmpty,
   DataGridTableHead,
   DataGridTableHeadRow,
   DataGridTableHeadRowCell,
-  DataGridTableHeadRowCellResize,
-  DataGridTableLoader,
-  DataGridTableRowSelect,
-  DataGridTableRowSelectAll,
-  DataGridTableRowSpacer,
 }
