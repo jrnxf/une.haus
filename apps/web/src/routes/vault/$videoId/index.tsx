@@ -8,7 +8,7 @@ import { LikesButtonGroup } from "~/components/likes-button-group"
 import { PageHeader } from "~/components/page-header"
 import { ShareButton } from "~/components/share-button"
 import { Button } from "~/components/ui/button"
-import { Separator } from "~/components/ui/separator"
+import { SectionDivider } from "~/components/ui/section-divider"
 import {
   Tooltip,
   TooltipContent,
@@ -208,14 +208,10 @@ function RouteComponent() {
           )}
 
           <div className="shrink-0 space-y-3">
-            <div className="flex items-center justify-between">
-              <Separator className="flex-1" />
-              <span className="text-muted-foreground px-2 text-xs italic">
-                {messagesData.messages.length}{" "}
-                {messagesData.messages.length === 1 ? "message" : "messages"}
-              </span>
-              <Separator className="flex-1" />
-            </div>
+            <SectionDivider>
+              {messagesData.messages.length}{" "}
+              {messagesData.messages.length === 1 ? "message" : "messages"}
+            </SectionDivider>
             <MessagesView
               record={{ id: videoId, type: "utvVideo" }}
               messages={messagesData.messages}

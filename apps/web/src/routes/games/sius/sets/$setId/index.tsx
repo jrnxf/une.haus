@@ -1,29 +1,17 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  InfoIcon,
-  TrashIcon,
-} from "lucide-react"
-import { useState } from "react"
+import { ArrowDownIcon, ArrowUpIcon, InfoIcon, TrashIcon } from "lucide-react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
-import { BaseMessageForm } from "~/components/forms/message"
 import { TrickLine } from "~/components/games/sius/trick-line"
 import { LikesButtonGroup } from "~/components/likes-button-group"
-import { MessageAuthor } from "~/components/messages/message-author"
-import { MessageBubble } from "~/components/messages/message-bubble"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent } from "~/components/ui/card"
 import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
-import { Separator } from "~/components/ui/separator"
 import {
   Tooltip,
   TooltipContent,
@@ -39,8 +27,8 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
-import { type ServerFnReturn } from "~/lib/types"
-import { cn } from "~/lib/utils"
+import { CollapsibleMessages } from "~/views/collapsible-messages"
+import { DetailHeader } from "~/views/detail-header"
 
 const pathParametersSchema = z.object({
   setId: z.coerce.number(),
@@ -141,46 +129,8 @@ function SetView({ setId }: { setId: number }) {
             />
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            {set.childSet && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon-sm"
-                    variant="outline"
-                    asChild
-                    aria-label="next set"
-                  >
-                    <Link
-                      to="/games/sius/sets/$setId"
-                      params={{ setId: set.childSet.id }}
-                    >
-                      <ArrowUpIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>next</TooltipContent>
-              </Tooltip>
-            )}
-            {set.parentSet && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon-sm"
-                    variant="outline"
-                    asChild
-                    aria-label="previous set"
-                  >
-                    <Link
-                      to="/games/sius/sets/$setId"
-                      params={{ setId: set.parentSet.id }}
-                    >
-                      <ArrowDownIcon className="size-4" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>previous</TooltipContent>
-              </Tooltip>
-            )}
+            {set.childSet && <NextSetButton setId={set.childSet.id} />}
+            {set.parentSet && <PreviousSetButton setId={set.parentSet.id} />}
           </div>
         </div>
       </div>
@@ -211,98 +161,31 @@ function SetView({ setId }: { setId: number }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold">{set.name}</h1>
-          </div>
-          <Metaline
-            parts={[
-              <Link
-                key="author"
-                to="/users/$userId"
-                params={{ userId: set.user.id }}
-                className="hover:underline"
-              >
-                {set.user.name}
-              </Link>,
-              `#${set.position}`,
-              <RelativeTimeCard
-                key="created-at"
-                date={set.createdAt}
-                variant="muted"
-              />,
-            ]}
-          />
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1">
-          {set.childSet && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  asChild
-                  aria-label="next set"
-                >
-                  <Link
-                    to="/games/sius/sets/$setId"
-                    params={{ setId: set.childSet.id }}
-                  >
-                    <ArrowUpIcon className="size-4" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>next</TooltipContent>
-            </Tooltip>
-          )}
-          {set.parentSet && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  asChild
-                  aria-label="previous set"
-                >
-                  <Link
-                    to="/games/sius/sets/$setId"
-                    params={{ setId: set.parentSet.id }}
-                  >
-                    <ArrowDownIcon className="size-4" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>previous</TooltipContent>
-            </Tooltip>
-          )}
-          {landedTricks.length > 0 && (
-            <Tray>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <TrayTrigger asChild>
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="stack info"
-                    >
-                      <InfoIcon className="size-4" />
-                    </Button>
-                  </TrayTrigger>
-                </TooltipTrigger>
-                <TooltipContent>stack info</TooltipContent>
-              </Tooltip>
-              <TrayContent className="space-y-3" dialogClassName="max-w-2xl">
-                <TrayTitle>stack info</TrayTitle>
-                <Card>
-                  <CardContent>
-                    <TrickLine tricks={landedTricks} />
-                  </CardContent>
-                </Card>
-              </TrayContent>
-            </Tray>
-          )}
+      <DetailHeader>
+        <DetailHeader.Title
+          meta={[
+            <Link
+              key="author"
+              to="/users/$userId"
+              params={{ userId: set.user.id }}
+              className="hover:underline"
+            >
+              {set.user.name}
+            </Link>,
+            `#${set.position}`,
+            <RelativeTimeCard
+              key="created-at"
+              date={set.createdAt}
+              variant="muted"
+            />,
+          ]}
+        >
+          {set.name}
+        </DetailHeader.Title>
+        <DetailHeader.Actions>
+          {set.childSet && <NextSetButton setId={set.childSet.id} />}
+          {set.parentSet && <PreviousSetButton setId={set.parentSet.id} />}
+          {landedTricks.length > 0 && <StackInfoButton tricks={landedTricks} />}
           <LikesButtonGroup
             users={set.likes.map(
               (l: {
@@ -318,32 +201,12 @@ function SetView({ setId }: { setId: number }) {
             canFlag={Boolean(sessionUser && !isOwner)}
           />
           {canDelete && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  aria-label="delete set"
-                  onClick={() =>
-                    confirm.open({
-                      title: "delete set",
-                      description:
-                        "are you sure you want to delete this set? this action cannot be undone.",
-                      confirmText: "delete",
-                      onConfirm: () => {
-                        deleteSet.mutate({ data: { setId: set.id } })
-                      },
-                    })
-                  }
-                >
-                  <TrashIcon className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>delete</TooltipContent>
-            </Tooltip>
+            <DeleteSetButton
+              onDelete={() => deleteSet.mutate({ data: { setId: set.id } })}
+            />
           )}
-        </div>
-      </div>
+        </DetailHeader.Actions>
+      </DetailHeader>
 
       {/* Video */}
       {set.video?.playbackId && (
@@ -371,93 +234,97 @@ function SetView({ setId }: { setId: number }) {
   )
 }
 
-type MessageType = ServerFnReturn<typeof messages.list.fn>["messages"][number]
-
-const INITIAL_VISIBLE_COUNT = 3
-
-function CollapsibleMessages({
-  record,
-  messages: messageList,
-  onCreateMessage,
-}: {
-  record: { type: "siuSet"; id: number }
-  messages: MessageType[]
-  onCreateMessage: (content: string) => void
-}) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const sessionUser = useSessionUser()
-
-  const hasMoreMessages = messageList.length > INITIAL_VISIBLE_COUNT
-  const visibleMessages = isExpanded
-    ? messageList
-    : messageList.slice(-INITIAL_VISIBLE_COUNT)
-  const hiddenCount = messageList.length - INITIAL_VISIBLE_COUNT
-
+function NextSetButton({ setId }: { setId: number }) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Separator className="flex-1" />
-        <span className="text-muted-foreground px-2 text-xs italic">
-          {messageList.length}{" "}
-          {messageList.length === 1 ? "message" : "messages"}
-        </span>
-        <Separator className="flex-1" />
-      </div>
-      {messageList.length > 0 ? (
-        <>
-          <div className="flex items-center justify-end">
-            {hasMoreMessages && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground gap-1 text-xs"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? (
-                  <>
-                    Show less
-                    <ChevronUpIcon className="size-3" />
-                  </>
-                ) : (
-                  <>
-                    Show {hiddenCount} more
-                    <ChevronDownIcon className="size-3" />
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button size="icon-sm" variant="outline" asChild aria-label="next set">
+          <Link to="/games/sius/sets/$setId" params={{ setId }}>
+            <ArrowUpIcon className="size-4" />
+          </Link>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>next</TooltipContent>
+    </Tooltip>
+  )
+}
 
-          <div className="space-y-2">
-            {visibleMessages.map((message, index) => {
-              const isAuthUserMessage = Boolean(
-                sessionUser && sessionUser.id === message.user.id,
-              )
-              const prevMessage = visibleMessages[index - 1]
-              const isNewSection = prevMessage?.user.id !== message.user.id
+function PreviousSetButton({ setId }: { setId: number }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          asChild
+          aria-label="previous set"
+        >
+          <Link to="/games/sius/sets/$setId" params={{ setId }}>
+            <ArrowDownIcon className="size-4" />
+          </Link>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>previous</TooltipContent>
+    </Tooltip>
+  )
+}
 
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex max-w-full flex-col",
-                    isAuthUserMessage && "items-end",
-                  )}
-                >
-                  {isNewSection && (
-                    <div className={cn("mb-1", index !== 0 && "mt-4")}>
-                      <MessageAuthor message={message} />
-                    </div>
-                  )}
-                  <MessageBubble parent={record} message={message} />
-                </div>
-              )
-            })}
-          </div>
-        </>
-      ) : null}
+function StackInfoButton({
+  tricks,
+}: {
+  tricks: {
+    id: number
+    name: string
+    position: number
+    user: { id: number; name: string }
+  }[]
+}) {
+  return (
+    <Tray>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <TrayTrigger asChild>
+            <Button size="icon-sm" variant="outline" aria-label="stack info">
+              <InfoIcon className="size-4" />
+            </Button>
+          </TrayTrigger>
+        </TooltipTrigger>
+        <TooltipContent>stack info</TooltipContent>
+      </Tooltip>
+      <TrayContent className="space-y-3" dialogClassName="max-w-2xl">
+        <TrayTitle>stack info</TrayTitle>
+        <Card>
+          <CardContent>
+            <TrickLine tricks={tricks} />
+          </CardContent>
+        </Card>
+      </TrayContent>
+    </Tray>
+  )
+}
 
-      <BaseMessageForm onSubmit={onCreateMessage} />
-    </div>
+function DeleteSetButton({ onDelete }: { onDelete: () => void }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          aria-label="delete set"
+          onClick={() =>
+            confirm.open({
+              title: "delete set",
+              description:
+                "are you sure you want to delete this set? this action cannot be undone.",
+              confirmText: "delete",
+              onConfirm: onDelete,
+            })
+          }
+        >
+          <TrashIcon className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>delete</TooltipContent>
+    </Tooltip>
   )
 }

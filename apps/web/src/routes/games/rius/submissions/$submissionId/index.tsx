@@ -8,8 +8,8 @@ import { SetCard } from "~/components/games/set-card"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
-import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { SectionDivider } from "~/components/ui/section-divider"
 import { Separator } from "~/components/ui/separator"
 import {
   Tooltip,
@@ -26,6 +26,7 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
+import { DetailHeader } from "~/views/detail-header"
 import { MessagesView } from "~/views/messages"
 
 const pathParametersSchema = z.object({
@@ -126,32 +127,27 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
 
   return (
     <>
-      <div className="flex items-start gap-3">
-        <div className="w-full space-y-1">
-          <div className="flex items-center gap-2 text-base leading-none font-semibold tracking-tight sm:text-xl">
-            {submission.riuSet.name}
-          </div>
-          <Metaline
-            className="text-xs sm:text-sm"
-            parts={[
-              <Link
-                key="author"
-                to="/users/$userId"
-                params={{ userId: submission.user.id }}
-                className="hover:underline"
-              >
-                {submission.user.name}
-              </Link>,
-              <RelativeTimeCard
-                key="time"
-                date={submission.createdAt}
-                variant="muted"
-              />,
-            ]}
-          />
-        </div>
-
-        <div className="flex shrink-0 grow items-center justify-end gap-1">
+      <DetailHeader>
+        <DetailHeader.Title
+          meta={[
+            <Link
+              key="author"
+              to="/users/$userId"
+              params={{ userId: submission.user.id }}
+              className="hover:underline"
+            >
+              {submission.user.name}
+            </Link>,
+            <RelativeTimeCard
+              key="time"
+              date={submission.createdAt}
+              variant="muted"
+            />,
+          ]}
+        >
+          {submission.riuSet.name}
+        </DetailHeader.Title>
+        <DetailHeader.Actions>
           {isOwner && (
             <>
               <Tooltip>
@@ -192,8 +188,8 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
             entityId={submission.id}
             canFlag={Boolean(sessionUser && !isOwner)}
           />
-        </div>
-      </div>
+        </DetailHeader.Actions>
+      </DetailHeader>
 
       {submission.video?.playbackId && (
         <VideoPlayer playbackId={submission.video.playbackId} />
@@ -207,11 +203,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
       />
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Separator className="flex-1" />
-          <span className="text-muted-foreground px-2 text-xs italic">set</span>
-          <Separator className="flex-1" />
-        </div>
+        <SectionDivider>set</SectionDivider>
         <SetCard set={submission.riuSet} />
       </div>
     </>

@@ -1,27 +1,17 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  PencilIcon,
-  TrashIcon,
-} from "lucide-react"
-import { useState } from "react"
+import { PencilIcon, TrashIcon } from "lucide-react"
 import { z } from "zod"
 
 import { confirm } from "~/components/confirm-dialog"
 import { CreateRiuSubmissionForm } from "~/components/forms/games/rius"
-import { BaseMessageForm } from "~/components/forms/message"
 import { RiuSubmissionCard } from "~/components/games/riu-submission-card"
 import { LikesButtonGroup } from "~/components/likes-button-group"
-import { MessageAuthor } from "~/components/messages/message-author"
-import { MessageBubble } from "~/components/messages/message-bubble"
 import { RichText } from "~/components/rich-text"
 import { ShareFlagMenu } from "~/components/share-flag-menu"
 import { Button } from "~/components/ui/button"
-import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
-import { Separator } from "~/components/ui/separator"
+import { SectionDivider } from "~/components/ui/section-divider"
 import {
   Tooltip,
   TooltipContent,
@@ -36,10 +26,12 @@ import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
-import { useSessionUser } from "~/lib/session/hooks"
+import { type useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type ServerFnReturn } from "~/lib/types"
-import { cn, errorFmt } from "~/lib/utils"
+import { errorFmt } from "~/lib/utils"
+import { CollapsibleMessages } from "~/views/collapsible-messages"
+import { DetailHeader } from "~/views/detail-header"
 
 const pathParametersSchema = z.object({
   setId: z.coerce.number(),
@@ -140,34 +132,27 @@ function SetView({ setId }: { setId: number }) {
 
   return (
     <>
-      <div className="flex items-start gap-3">
-        <div className="w-full min-w-0 space-y-1">
-          <div className="flex">
-            <span className="items-center gap-2 truncate text-base leading-none font-semibold tracking-tight sm:text-xl">
-              {set.name}
-            </span>
-          </div>
-          <Metaline
-            className="text-xs sm:text-sm"
-            parts={[
-              <Link
-                key="author"
-                to="/users/$userId"
-                params={{ userId: set.user.id }}
-                className="hover:underline"
-              >
-                {set.user.name}
-              </Link>,
-              <RelativeTimeCard
-                key="created-at"
-                date={set.createdAt}
-                variant="muted"
-              />,
-            ]}
-          />
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1">
+      <DetailHeader>
+        <DetailHeader.Title
+          meta={[
+            <Link
+              key="author"
+              to="/users/$userId"
+              params={{ userId: set.user.id }}
+              className="hover:underline"
+            >
+              {set.user.name}
+            </Link>,
+            <RelativeTimeCard
+              key="created-at"
+              date={set.createdAt}
+              variant="muted"
+            />,
+          ]}
+        >
+          {set.name}
+        </DetailHeader.Title>
+        <DetailHeader.Actions>
           <LikesButtonGroup
             users={set.likes?.map((l) => l.user) ?? []}
             authUserLiked={authUserLiked}
@@ -227,11 +212,11 @@ function SetView({ setId }: { setId: number }) {
             entityId={set.id}
             canFlag={Boolean(sessionUser && !isOwner)}
           />
-        </div>
-      </div>
+        </DetailHeader.Actions>
+      </DetailHeader>
 
       {set.instructions && (
-        <div className="wrap-break-word whitespace-pre-wrap">
+        <div className="text-sm wrap-break-word whitespace-pre-wrap sm:text-base">
           <RichText content={set.instructions} />
         </div>
       )}
@@ -244,6 +229,7 @@ function SetView({ setId }: { setId: number }) {
         record={record}
         messages={messagesQuery.data.messages}
         onCreateMessage={(content) => createMessage.mutate(content)}
+        initialVisibleCount={2}
       />
 
       <SubmissionsTab
@@ -272,14 +258,10 @@ function SubmissionsTab({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Separator className="flex-1" />
-        <span className="text-muted-foreground px-2 text-xs italic">
-          {set.submissions.length}{" "}
-          {set.submissions.length === 1 ? "submission" : "submissions"}
-        </span>
-        <Separator className="flex-1" />
-      </div>
+      <SectionDivider>
+        {set.submissions.length}{" "}
+        {set.submissions.length === 1 ? "submission" : "submissions"}
+      </SectionDivider>
 
       {hasSubmissions ? (
         <SubmissionsList submissions={set.submissions} set={set} />
@@ -339,10 +321,6 @@ function SubmissionsList({
   )
 }
 
-type MessageType = ServerFnReturn<typeof messages.list.fn>["messages"][number]
-
-const INITIAL_VISIBLE_COUNT = 2
-
 function AuthGateUploadButton() {
   const { authGate } = useAuthGate()
   return (
@@ -357,92 +335,5 @@ function AuthGateUploadButton() {
         upload video
       </span>
     </Button>
-  )
-}
-
-function CollapsibleMessages({
-  record,
-  messages: messageList,
-  onCreateMessage,
-}: {
-  record: { type: "riuSet"; id: number }
-  messages: MessageType[]
-  onCreateMessage: (content: string) => void
-}) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const sessionUser = useSessionUser()
-
-  const hasMoreMessages = messageList.length > INITIAL_VISIBLE_COUNT
-  const visibleMessages = isExpanded
-    ? messageList
-    : messageList.slice(-INITIAL_VISIBLE_COUNT)
-  const hiddenCount = messageList.length - INITIAL_VISIBLE_COUNT
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Separator className="flex-1" />
-        <span className="text-muted-foreground px-2 text-xs italic">
-          {messageList.length}{" "}
-          {messageList.length === 1 ? "message" : "messages"}
-        </span>
-        <Separator className="flex-1" />
-      </div>
-      {messageList.length > 0 ? (
-        <>
-          <div className="flex items-center justify-end">
-            {hasMoreMessages && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground gap-1 text-xs"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? (
-                  <>
-                    Show less
-                    <ChevronUpIcon className="size-3" />
-                  </>
-                ) : (
-                  <>
-                    Show {hiddenCount} more
-                    <ChevronDownIcon className="size-3" />
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            {visibleMessages.map((message, index) => {
-              const isAuthUserMessage = Boolean(
-                sessionUser && sessionUser.id === message.user.id,
-              )
-              const prevMessage = visibleMessages[index - 1]
-              const isNewSection = prevMessage?.user.id !== message.user.id
-
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex max-w-full flex-col",
-                    isAuthUserMessage && "items-end",
-                  )}
-                >
-                  {isNewSection && (
-                    <div className={cn("mb-1", index !== 0 && "mt-4")}>
-                      <MessageAuthor message={message} />
-                    </div>
-                  )}
-                  <MessageBubble parent={record} message={message} />
-                </div>
-              )
-            })}
-          </div>
-        </>
-      ) : null}
-
-      <BaseMessageForm onSubmit={onCreateMessage} />
-    </div>
   )
 }

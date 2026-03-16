@@ -23,9 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
-import { Separator } from "~/components/ui/separator"
+import { SectionDivider } from "~/components/ui/section-divider"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { VideoPlayer } from "~/components/video-player"
 import { YoutubeIframe } from "~/components/youtube-iframe"
@@ -38,6 +37,7 @@ import { useDeletePost } from "~/lib/posts/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { useSessionUser } from "~/lib/session/hooks"
 import { getCloudflareImageUrl } from "~/lib/utils"
+import { DetailHeader } from "~/views/detail-header"
 import { MessagesView } from "~/views/messages"
 
 function PostActions({
@@ -160,33 +160,28 @@ export function PostView({ postId }: { postId: number }) {
 
   return (
     <div className="mx-auto flex h-auto w-full max-w-3xl flex-col justify-start gap-6 p-4">
-      <div className="flex items-start gap-2">
-        <div className="min-w-0 space-y-1">
-          <h1 className="text-base leading-none font-semibold tracking-tight sm:text-xl">
-            {post.title}
-          </h1>
-          <Metaline
-            className="text-xs sm:text-sm"
-            parts={[
-              <Link
-                key="author"
-                to="/users/$userId"
-                params={{ userId: post.user.id }}
-                className="inline-flex items-center gap-1.5 hover:underline"
-              >
-                {post.user.name}
-                <UserOnlineStatus userId={post.user.id} />
-              </Link>,
-              <RelativeTimeCard
-                key="created-at"
-                date={post.createdAt}
-                variant="muted"
-              />,
-            ]}
-          />
-        </div>
-
-        <div className="flex shrink-0 grow items-center justify-end gap-1">
+      <DetailHeader>
+        <DetailHeader.Title
+          meta={[
+            <Link
+              key="author"
+              to="/users/$userId"
+              params={{ userId: post.user.id }}
+              className="inline-flex items-center gap-1.5 hover:underline"
+            >
+              {post.user.name}
+              <UserOnlineStatus userId={post.user.id} />
+            </Link>,
+            <RelativeTimeCard
+              key="created-at"
+              date={post.createdAt}
+              variant="muted"
+            />,
+          ]}
+        >
+          {post.title}
+        </DetailHeader.Title>
+        <DetailHeader.Actions>
           <LikesButtonGroup
             users={post.likes.map((like) => like.user)}
             authUserLiked={authUserLiked}
@@ -203,8 +198,8 @@ export function PostView({ postId }: { postId: number }) {
           ) : (
             <ShareButton />
           )}
-        </div>
-      </div>
+        </DetailHeader.Actions>
+      </DetailHeader>
 
       <div className="overflow-hidden text-sm wrap-break-word whitespace-pre-wrap sm:text-base">
         {post.imageId && (
@@ -231,14 +226,10 @@ export function PostView({ postId }: { postId: number }) {
       <Badges content={post.tags} />
 
       <div className="shrink-0 space-y-3">
-        <div className="flex items-center justify-between">
-          <Separator className="flex-1" />
-          <span className="text-muted-foreground p-4 text-xs italic">
-            {messagesData.messages.length}{" "}
-            {messagesData.messages.length === 1 ? "message" : "messages"}
-          </span>
-          <Separator className="flex-1" />
-        </div>
+        <SectionDivider>
+          {messagesData.messages.length}{" "}
+          {messagesData.messages.length === 1 ? "message" : "messages"}
+        </SectionDivider>
         <MessagesView
           record={{ id: postId, type: "post" }}
           messages={messagesData.messages}

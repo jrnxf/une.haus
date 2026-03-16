@@ -19,6 +19,7 @@ import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
 import { tricks } from "~/lib/tricks"
 import { users } from "~/lib/users"
+import { DetailHeader } from "~/views/detail-header"
 
 export const Route = createFileRoute("/tricks/$trickId")({
   loader: async ({ context }) => {
@@ -95,26 +96,23 @@ function TrickDetailPage() {
 
       <div className="mx-auto w-full max-w-3xl p-4">
         <div className="space-y-6">
-          {/* Hero: Name */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="text-3xl font-bold tracking-tight">
-                {trick.name}
-              </h1>
-            </div>
-            <Button asChild size="sm">
-              <Link
-                to={
-                  isAdmin
-                    ? "/admin/tricks/$trickId/edit"
-                    : "/tricks/$trickId/suggest"
-                }
-                params={{ trickId: String(trick.id) }}
-              >
-                edit
-              </Link>
-            </Button>
-          </div>
+          <DetailHeader>
+            <DetailHeader.Title>{trick.name}</DetailHeader.Title>
+            <DetailHeader.Actions>
+              <Button asChild size="sm">
+                <Link
+                  to={
+                    isAdmin
+                      ? "/admin/tricks/$trickId/edit"
+                      : "/tricks/$trickId/suggest"
+                  }
+                  params={{ trickId: String(trick.id) }}
+                >
+                  edit
+                </Link>
+              </Button>
+            </DetailHeader.Actions>
+          </DetailHeader>
 
           {/* Definition */}
           {trick.description && (
