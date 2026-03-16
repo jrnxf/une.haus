@@ -4,6 +4,10 @@ const checks = [
   { label: "lint", cmd: ["oxlint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
   { label: "typecheck", cmd: ["bun", "run", "--filter", "*", "typecheck"] },
+  {
+    label: "clean",
+    cmd: ["bun", "run", "--filter", "*", "clean:check"],
+  },
   { label: "unit tests", cmd: ["bun", "run", "--filter", "*", "test:unit"] },
   {
     label: "integration tests",
