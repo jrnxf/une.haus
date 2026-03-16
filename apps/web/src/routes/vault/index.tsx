@@ -359,7 +359,7 @@ function VideoGrid({
 
   return (
     <div className="flex-1 overflow-y-auto" ref={setScrollRoot}>
-      <div className="@container mx-auto flex max-w-5xl flex-col px-4">
+      <div className="@container mx-auto flex max-w-3xl flex-col px-4">
         {displayedVideos.length === 0 && <NoResultsEmpty />}
         <div className="grid grid-cols-2 gap-4 @2xl:grid-cols-3">
           {displayedVideos.map((video) => (

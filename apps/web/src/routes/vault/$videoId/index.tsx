@@ -126,14 +126,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
           <PageHeader.Crumb>{displayTitle}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
-        <div className="mx-auto flex h-auto w-full max-w-5xl flex-col justify-start gap-6 p-4">
+        <div className="mx-auto flex h-auto w-full max-w-3xl flex-col justify-start gap-6 p-4">
           <div className="flex items-center gap-2">
             <h1 className="flex-1 text-2xl leading-none font-semibold tracking-tight">
               {displayTitle}

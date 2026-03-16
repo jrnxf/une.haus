@@ -18,7 +18,7 @@ export function ContentHeaderRow({
   const content = (
     <div
       className={cn(
-        "mx-auto flex w-full max-w-5xl items-center justify-between gap-2",
+        "mx-auto flex w-full max-w-3xl items-center justify-between gap-2",
         className,
       )}
     >

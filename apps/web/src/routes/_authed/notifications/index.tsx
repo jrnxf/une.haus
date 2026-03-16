@@ -57,14 +57,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>notifications</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
 
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto max-w-5xl p-4">
+        <div className="mx-auto max-w-3xl p-4">
           <ContentHeaderRow
             className="max-w-none pb-4"
             left={

@@ -86,14 +86,14 @@ function TrickDetailPage() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-5xl p-4">
+      <div className="mx-auto w-full max-w-3xl p-4">
         <div className="space-y-6">
           {/* Hero: Name */}
           <div className="flex items-start justify-between gap-3">

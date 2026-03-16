@@ -31,7 +31,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>profile</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>

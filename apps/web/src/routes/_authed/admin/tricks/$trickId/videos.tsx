@@ -156,13 +156,13 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-5xl space-y-6 p-4">
+      <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
         <p className="text-muted-foreground text-sm">
           {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active{" "}
           {pluralize("video", activeVideos.length)}

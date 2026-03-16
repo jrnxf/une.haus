@@ -205,7 +205,7 @@ function RouteComponent() {
       </PageHeader>
 
       <div className="overflow-y-auto">
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 p-4">
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 p-4">
           <div className="flex items-center justify-between">
             <Filters
               fields={filterFields}

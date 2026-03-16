@@ -150,14 +150,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/notifications">notifications</PageHeader.Crumb>
           <PageHeader.Crumb>settings</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto max-w-5xl p-6">
+        <div className="mx-auto max-w-3xl p-6">
           <div className="space-y-6">
             {/* In-App Notifications */}
             <Card>

@@ -78,14 +78,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
           <PageHeader.Crumb>{post.title}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">
-        <div className="mx-auto h-full w-full max-w-5xl">
+        <div className="mx-auto h-full w-full max-w-3xl">
           <PostView postId={postId} />
         </div>
       </div>

@@ -116,7 +116,7 @@ function RouteComponent() {
   return (
     <>
       <AdminPresence code={code} />
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
           <PageHeader.Crumb>ranking</PageHeader.Crumb>
@@ -145,7 +145,7 @@ function RouteComponent() {
           </PageHeader.Actions>
         </PageHeader.Right>
       </PageHeader>
-      <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
+      <div className="mx-auto w-full max-w-3xl space-y-4 p-4">
         <div>
           <h2 className="text-lg font-semibold">ranking</h2>
           <p className="text-muted-foreground text-sm">

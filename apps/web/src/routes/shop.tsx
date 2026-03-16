@@ -94,12 +94,12 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>shop</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-5xl p-4">
+      <div className="mx-auto w-full max-w-3xl p-4">
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">

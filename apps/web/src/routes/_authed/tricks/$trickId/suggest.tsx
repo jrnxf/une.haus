@@ -150,7 +150,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb to={`/tricks/${trickId}`}>
@@ -159,7 +159,7 @@ function RouteComponent() {
           <PageHeader.Crumb>suggest</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-5xl space-y-6 p-6">
+      <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
         <div className="mb-6 flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/tricks/$trickId" params={{ trickId }}>

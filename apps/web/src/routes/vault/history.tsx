@@ -32,7 +32,7 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
+      <div className="mx-auto w-full max-w-3xl p-4 md:p-6">
         <div className="bg-card space-y-4 rounded-lg border p-4">
           <div className="text-muted-foreground space-y-3 text-sm leading-relaxed lowercase">
             <p>

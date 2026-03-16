@@ -30,13 +30,13 @@ function GlossaryListLayout() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
           <PageHeader.Crumb>glossary</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4">
         <ContentHeaderRow
           className="max-w-none"
           left={

@@ -42,7 +42,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>games</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>

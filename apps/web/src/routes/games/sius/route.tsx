@@ -9,7 +9,7 @@ export const Route = createFileRoute("/games/sius")({
 function RouteComponent() {
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
           <PageHeader.Crumb>stack it up</PageHeader.Crumb>

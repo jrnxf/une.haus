@@ -89,7 +89,7 @@ function RouteComponent() {
   const { setId } = Route.useParams()
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 p-4">
+    <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
       <SetView setId={setId} />
     </div>
   )

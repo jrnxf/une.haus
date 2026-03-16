@@ -115,7 +115,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
           <PageHeader.Crumb to={`/vault/${videoId}`}>
@@ -125,7 +125,7 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4">
           <div className="space-y-2">
             <Label htmlFor="title">name</Label>
             <Input

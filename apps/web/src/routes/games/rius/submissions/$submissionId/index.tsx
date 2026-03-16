@@ -88,7 +88,7 @@ function RouteComponent() {
 
   return (
     <div className="h-full min-h-0 overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4">
         <SubmissionView submissionId={submissionId} />
       </div>
     </div>

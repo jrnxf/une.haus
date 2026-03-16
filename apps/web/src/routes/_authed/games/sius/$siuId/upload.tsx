@@ -57,7 +57,7 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
           <PageHeader.Crumb to="/games/sius">stack it up</PageHeader.Crumb>

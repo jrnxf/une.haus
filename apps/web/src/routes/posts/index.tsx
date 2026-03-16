@@ -188,14 +188,14 @@ function RouteComponent() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>posts</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
 
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 p-4">
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 p-4">
           <ContentHeaderRow
             className="max-w-none"
             left={

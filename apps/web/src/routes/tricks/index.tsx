@@ -416,7 +416,7 @@ function TricksListPage() {
 
   return (
     <>
-      <PageHeader maxWidth="max-w-5xl">
+      <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>tricks</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
