@@ -40,6 +40,7 @@ describe("RiuSubmissionCard", () => {
     expect(markup).toContain("Target Set")
     expect(markup).toContain("3 likes")
     expect(markup).toContain("2 messages")
-    expect(markup).toContain("Jane")
+    // User name is no longer rendered in the card
+    expect(markup).not.toContain("Jane")
   })
 })

@@ -137,9 +137,9 @@ export function RankedRiders({
 
             <AccordionItem
               value={user.id.toString()}
-              className="bg-card w-full overflow-hidden rounded-lg border last:border-b"
+              className="bg-card border-border w-full rounded-lg border"
             >
-              <AccordionTrigger className="[&[data-state=open]]:border-border items-center border-b border-transparent px-4 py-3 hover:no-underline [&[data-state=open]]:rounded-b-none">
+              <AccordionTrigger className="-m-px items-center px-4 py-3 hover:no-underline data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
                 <div className="space-y-1">
                   <h3 className="text-sm font-medium">{user.name}</h3>
                   <RiderStats ranking={ranking} />
@@ -161,7 +161,6 @@ export function RankedRiders({
                                 key={set.id}
                                 set={set}
                                 className="w-full"
-                                showAuthor={false}
                               />
                             ))}
                           </div>

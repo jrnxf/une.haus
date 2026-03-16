@@ -63,7 +63,7 @@ function RouteComponent() {
       <ContentHeaderRow
         className="max-w-none pb-4"
         left={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
             <ContentHeaderDropdown
               value={currentSection}
               triggerLabel={currentSection}
