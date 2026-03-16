@@ -45,9 +45,6 @@ export const BACKFLIP_FRAMES = 105
 export const TRAMPOLINE_W = 120
 export const TRAMPOLINE_H = 6
 
-// --- Persistence ---
-export const LS_HIGH_SCORE_KEY = "unicycle-high-score"
-
 // --- Letter Collectibles ---
 export const LETTER_WORD = "unehaus"
 export const LETTER_SIZE = 16

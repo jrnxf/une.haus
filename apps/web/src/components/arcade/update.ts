@@ -34,7 +34,6 @@ import {
 import {
   createCloud,
   randomBetween,
-  saveHighScore,
   spawnDust,
   spawnLightning,
 } from "./helpers"
@@ -373,7 +372,6 @@ function checkCollisions(gs: GameState, baseGroundY: number): void {
           gs.deathTimer = 0
           gs.deathSpeed = gs.speed
           gs.highScore = Math.max(gs.highScore, Math.floor(gs.score / 10))
-          saveHighScore(gs.highScore)
           break
         }
       }
@@ -466,7 +464,6 @@ function triggerDeath(
   gs.deathTimer = 0
   gs.deathSpeed = gs.speed
   gs.highScore = Math.max(gs.highScore, Math.floor(gs.score / 10))
-  saveHighScore(gs.highScore)
 }
 
 // ============================================================

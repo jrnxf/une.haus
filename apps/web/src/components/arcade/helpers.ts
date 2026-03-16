@@ -4,7 +4,6 @@ import {
   INITIAL_SPEED,
   LETTER_SPAWN_INTERVAL,
   LETTER_WORD,
-  LS_HIGH_SCORE_KEY,
   WHEEL_R,
 } from "./constants"
 import {
@@ -22,24 +21,6 @@ export function randomBetween(min: number, max: number) {
 
 export function randomInt(min: number, max: number) {
   return Math.floor(randomBetween(min, max + 1))
-}
-
-// --- High Score Persistence ---
-
-function loadHighScore(): number {
-  try {
-    return Number(localStorage.getItem(LS_HIGH_SCORE_KEY)) || 0
-  } catch {
-    return 0
-  }
-}
-
-export function saveHighScore(score: number) {
-  try {
-    localStorage.setItem(LS_HIGH_SCORE_KEY, String(score))
-  } catch {
-    /* ignore */
-  }
 }
 
 // --- Particle Spawning ---
@@ -146,7 +127,6 @@ export function computeLean(gs: GameState): number {
 // --- State Factories ---
 
 export function createInitialState(serverHighScore?: number): GameState {
-  const localHighScore = loadHighScore()
   return {
     status: "idle",
     playerY: 0,
@@ -156,7 +136,7 @@ export function createInitialState(serverHighScore?: number): GameState {
     hasDoubleJump: true,
     speed: INITIAL_SPEED,
     score: 0,
-    highScore: Math.max(localHighScore, serverHighScore ?? 0),
+    highScore: serverHighScore ?? 0,
     comboCount: 0,
     terrain: [],
     clouds: [],
