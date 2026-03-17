@@ -1,9 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { PencilIcon } from "lucide-react"
+import { EllipsisVerticalIcon, PencilIcon } from "lucide-react"
 
 import { RichText } from "~/components/rich-text"
 import { Button } from "~/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import { useSessionUser } from "~/lib/session/hooks"
 import { tricks } from "~/lib/tricks"
 
@@ -39,15 +45,24 @@ function GlossaryModifiersPage() {
             )}
           </div>
           {user && (
-            <Button variant="ghost" size="icon-xs" asChild>
-              <Link
-                to="/tricks/glossary/modifiers/$modifierId/suggest"
-                params={{ modifierId: modifier.id }}
-                aria-label={`suggest edit for ${modifier.name}`}
-              >
-                <PencilIcon className="size-3.5" />
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon-xs" aria-label="actions">
+                  <EllipsisVerticalIcon className="size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/tricks/glossary/modifiers/$modifierId/suggest"
+                    params={{ modifierId: modifier.id }}
+                  >
+                    <PencilIcon />
+                    suggest edit
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       ))}

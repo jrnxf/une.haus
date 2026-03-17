@@ -15,7 +15,6 @@ import { confirm } from "~/components/confirm-dialog"
 import { FlagTray } from "~/components/flag-tray"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { RichText } from "~/components/rich-text"
-import { ShareButton } from "~/components/share-button"
 import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
@@ -187,17 +186,13 @@ export function PostView({ postId }: { postId: number }) {
             authUserLiked={authUserLiked}
             onLikeUnlike={sessionUser ? likeUnlikePost : undefined}
           />
-          {sessionUser ? (
-            <PostActions
-              postId={postId}
-              post={post}
-              isOwner={isOwner}
-              sessionUser={sessionUser}
-              deletePost={deletePost}
-            />
-          ) : (
-            <ShareButton />
-          )}
+          <PostActions
+            postId={postId}
+            post={post}
+            isOwner={isOwner}
+            sessionUser={sessionUser}
+            deletePost={deletePost}
+          />
         </DetailHeader.Actions>
       </DetailHeader>
 

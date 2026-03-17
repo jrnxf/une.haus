@@ -1,22 +1,24 @@
 import { useSuspenseQueries } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { PencilIcon } from "lucide-react"
+import { EllipsisVerticalIcon, PencilIcon, ShareIcon } from "lucide-react"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { DisciplineBadge } from "~/components/badges"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { PageHeader } from "~/components/page-header"
-import { ShareButton } from "~/components/share-button"
 import { Button } from "~/components/ui/button"
-import { SectionDivider } from "~/components/ui/section-divider"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import { SectionDivider } from "~/components/ui/section-divider"
 import { UserChip } from "~/components/user-chip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { type UserDiscipline } from "~/db/schema"
+import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -106,6 +108,7 @@ function RouteComponent() {
 
   const sessionUser = useSessionUser()
   const isAdmin = useIsAdmin()
+  const haptics = useHaptics()
 
   const { mutate: createMessage } = useCreateMessage({
     id: videoId,
@@ -144,16 +147,25 @@ function RouteComponent() {
                 authUserLiked={authUserLiked}
                 onLikeUnlike={sessionUser ? likeUnlikeVideo : undefined}
               />
-              <ShareButton />
-              {sessionUser && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon-sm"
-                      asChild
-                      aria-label="edit video"
-                    >
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon-sm" variant="outline" aria-label="actions">
+                    <EllipsisVerticalIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      navigator.clipboard.writeText(globalThis.location.href)
+                      haptics.success()
+                      toast.success("link copied")
+                    }}
+                  >
+                    <ShareIcon />
+                    share
+                  </DropdownMenuItem>
+                  {sessionUser && (
+                    <DropdownMenuItem asChild>
                       <Link
                         to={
                           isAdmin
@@ -162,13 +174,13 @@ function RouteComponent() {
                         }
                         params={{ videoId }}
                       >
-                        <PencilIcon className="size-4" />
+                        <PencilIcon />
+                        edit
                       </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>edit</TooltipContent>
-                </Tooltip>
-              )}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
