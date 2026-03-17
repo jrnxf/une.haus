@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { X } from "lucide-react"
 import { useMemo, useRef, useState } from "react"
 
@@ -36,7 +36,7 @@ export function SingleRiderSelector({
   const [query, setQuery] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { data: users = [] } = useQuery(usersApi.all.queryOptions())
+  const { data: users } = useSuspenseQuery(usersApi.all.queryOptions())
 
   const searchReadyUsers = useMemo(
     () =>

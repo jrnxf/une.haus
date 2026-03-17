@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router"
+import { Suspense } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -25,6 +26,7 @@ import { Textarea } from "~/components/ui/textarea"
 import { USER_DISCIPLINES, type UtvVideoSuggestionDiff } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
 import { session } from "~/lib/session"
+import { users } from "~/lib/users"
 import { utv } from "~/lib/utv/core"
 
 const pathParametersSchema = z.object({
@@ -47,7 +49,10 @@ export const Route = createFileRoute("/_authed/vault/$videoId/suggest")({
     }
   },
   loader: async ({ context, params: { videoId } }) => {
-    await context.queryClient.ensureQueryData(utv.get.queryOptions(videoId))
+    await Promise.all([
+      context.queryClient.ensureQueryData(utv.get.queryOptions(videoId)),
+      context.queryClient.ensureQueryData(users.all.queryOptions()),
+    ])
   },
   component: RouteComponent,
 })
@@ -227,10 +232,14 @@ function RouteComponent() {
                 <FormItem>
                   <FormLabel>riders</FormLabel>
                   <FormControl>
-                    <RiderSelector
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <Suspense
+                      fallback={<Input disabled placeholder="search..." />}
+                    >
+                      <RiderSelector
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </Suspense>
                   </FormControl>
                   <FormDescription>
                     add riders featured in this video

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import { GhostIcon } from "lucide-react"
@@ -127,7 +127,7 @@ function UnauthenticatedView() {
 }
 
 function AuthenticatedView() {
-  const { data: tournaments = [] } = useQuery(tourney.list.queryOptions())
+  const { data: tournaments } = useSuspenseQuery(tourney.list.queryOptions())
 
   return (
     <>

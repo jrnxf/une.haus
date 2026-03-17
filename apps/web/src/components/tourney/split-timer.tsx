@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { ArrowLeftRightIcon } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
@@ -49,7 +49,7 @@ export function SplitTimer({
   })
 
   // Fetch user data to get avatars
-  const { data: allUsers = [] } = useQuery(usersApi.all.queryOptions())
+  const { data: allUsers } = useSuspenseQuery(usersApi.all.queryOptions())
 
   // Create a map for quick user lookup
   const usersMap = useMemo(() => {

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createFileRoute } from "@tanstack/react-router"
 import { ShieldIcon } from "lucide-react"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useForm } from "react-hook-form"
 import { type z } from "zod"
 
@@ -51,6 +51,9 @@ const timePresets = [
 const bracketSizeOptions = [4, 8, 16, 32] as const
 
 export const Route = createFileRoute("/_authed/tourney/create")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(users.all.queryOptions())
+  },
   component: RouteComponent,
 })
 
@@ -188,18 +191,22 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>riders</FormLabel>
                     <FormControl>
-                      <RiderSelector
-                        value={orderedRiders}
-                        onChange={(newRiders) => {
-                          setOrderedRiders(newRiders)
-                          field.onChange(
-                            newRiders.map((r) => ({
-                              userId: r.userId,
-                              name: r.name,
-                            })),
-                          )
-                        }}
-                      />
+                      <Suspense
+                        fallback={<Input disabled placeholder="search..." />}
+                      >
+                        <RiderSelector
+                          value={orderedRiders}
+                          onChange={(newRiders) => {
+                            setOrderedRiders(newRiders)
+                            field.onChange(
+                              newRiders.map((r) => ({
+                                userId: r.userId,
+                                name: r.name,
+                              })),
+                            )
+                          }}
+                        />
+                      </Suspense>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

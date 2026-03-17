@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import confetti from "canvas-confetti"
 import { motion } from "framer-motion"
@@ -65,7 +65,7 @@ function RouteComponent() {
 
 function ClapButton() {
   const qc = useQueryClient()
-  const { data: serverCount } = useQuery(utv.claps.get.queryOptions())
+  const { data: serverCount } = useSuspenseQuery(utv.claps.get.queryOptions())
   const [localClicks, setLocalClicks] = useState(0)
   const pendingClicksRef = useRef(0)
   const isMutatingRef = useRef(false)

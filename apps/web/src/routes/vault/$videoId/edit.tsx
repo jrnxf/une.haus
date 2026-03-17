@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query"
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router"
 import { ShieldIcon } from "lucide-react"
-import { useRef, useState } from "react"
+import { Suspense, useRef, useState } from "react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -21,6 +21,7 @@ import { type UserDiscipline } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
 import { session } from "~/lib/session"
 import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket"
+import { users } from "~/lib/users"
 import { utv } from "~/lib/utv/core"
 
 const pathParametersSchema = z.object({
@@ -47,7 +48,10 @@ export const Route = createFileRoute("/vault/$videoId/edit")({
     }
   },
   loader: async ({ context, params: { videoId } }) => {
-    await context.queryClient.ensureQueryData(utv.get.queryOptions(videoId))
+    await Promise.all([
+      context.queryClient.ensureQueryData(utv.get.queryOptions(videoId)),
+      context.queryClient.ensureQueryData(users.all.queryOptions()),
+    ])
   },
   component: RouteComponent,
 })
@@ -144,7 +148,9 @@ function RouteComponent() {
 
           <div className="space-y-2">
             <Label>riders</Label>
-            <RiderSelector value={riders} onChange={setRiders} />
+            <Suspense fallback={<Input disabled placeholder="search..." />}>
+              <RiderSelector value={riders} onChange={setRiders} />
+            </Suspense>
           </div>
 
           <div className="space-y-2">

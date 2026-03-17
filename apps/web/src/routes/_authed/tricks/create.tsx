@@ -18,6 +18,9 @@ export const Route = createFileRoute("/_authed/tricks/create")({
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
+      context.queryClient.ensureQueryData(
+        tricks.search.queryOptions({ excludeIds: [] }),
+      ),
       context.queryClient.ensureQueryData(users.all.queryOptions()),
     ])
   },

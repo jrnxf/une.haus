@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Suspense } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { MentionTextarea } from "~/components/input/mention-textarea"
@@ -173,10 +174,22 @@ export function TrickForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>elements</FieldLabel>
-                  <ElementSelector
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <Suspense
+                    fallback={
+                      <Button
+                        variant="secondary"
+                        className="h-auto rounded-full py-0.5 text-xs"
+                        disabled
+                      >
+                        add
+                      </Button>
+                    }
+                  >
+                    <ElementSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </Suspense>
                   <FieldDescription>
                     the components that make up this trick (e.g., spins, flips)
                   </FieldDescription>
@@ -204,12 +217,24 @@ export function TrickForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>prerequisites</FieldLabel>
-                  <TrickRelationshipSelector
-                    value={field.value}
-                    onChange={field.onChange}
-                    excludeIds={excludeIds}
-                    relationshipType="prerequisite"
-                  />
+                  <Suspense
+                    fallback={
+                      <Button
+                        variant="secondary"
+                        className="h-auto rounded-full py-0.5 text-xs"
+                        disabled
+                      >
+                        add
+                      </Button>
+                    }
+                  >
+                    <TrickRelationshipSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                      excludeIds={excludeIds}
+                      relationshipType="prerequisite"
+                    />
+                  </Suspense>
                   <FieldDescription>
                     tricks that should be (or usually are) learned first
                   </FieldDescription>
@@ -226,12 +251,24 @@ export function TrickForm({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>related tricks</FieldLabel>
-                  <TrickRelationshipSelector
-                    value={field.value}
-                    onChange={field.onChange}
-                    excludeIds={excludeIds}
-                    relationshipType="related"
-                  />
+                  <Suspense
+                    fallback={
+                      <Button
+                        variant="secondary"
+                        className="h-auto rounded-full py-0.5 text-xs"
+                        disabled
+                      >
+                        add
+                      </Button>
+                    }
+                  >
+                    <TrickRelationshipSelector
+                      value={field.value}
+                      onChange={field.onChange}
+                      excludeIds={excludeIds}
+                      relationshipType="related"
+                    />
+                  </Suspense>
                   <FieldDescription>
                     tricks that are closely related but not necessarily
                     prerequisites
@@ -257,21 +294,27 @@ export function TrickForm({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Field>
                 <FieldLabel>invented by</FieldLabel>
-                <SingleRiderSelector
-                  value={
-                    rhf.watch("inventedBy") || rhf.watch("inventedByUserId")
-                      ? {
-                          userId: rhf.watch("inventedByUserId"),
-                          name: rhf.watch("inventedBy"),
-                        }
-                      : null
+                <Suspense
+                  fallback={
+                    <Input disabled placeholder="who invented this trick?" />
                   }
-                  onChange={(rider) => {
-                    setValue("inventedBy", rider?.name ?? null)
-                    setValue("inventedByUserId", rider?.userId ?? null)
-                  }}
-                  placeholder="who invented this trick?"
-                />
+                >
+                  <SingleRiderSelector
+                    value={
+                      rhf.watch("inventedBy") || rhf.watch("inventedByUserId")
+                        ? {
+                            userId: rhf.watch("inventedByUserId"),
+                            name: rhf.watch("inventedBy"),
+                          }
+                        : null
+                    }
+                    onChange={(rider) => {
+                      setValue("inventedBy", rider?.name ?? null)
+                      setValue("inventedByUserId", rider?.userId ?? null)
+                    }}
+                    placeholder="who invented this trick?"
+                  />
+                </Suspense>
               </Field>
 
               <Controller

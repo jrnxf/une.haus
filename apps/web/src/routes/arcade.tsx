@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
 import { UnicycleGame } from "~/components/arcade/arcade"
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/arcade")({
 })
 
 function RouteComponent() {
-  const { data: serverHighScore } = useQuery(
+  const { data: serverHighScore } = useSuspenseQuery(
     arcade.highScore.get.queryOptions(),
   )
 

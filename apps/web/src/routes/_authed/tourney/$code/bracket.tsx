@@ -1,7 +1,14 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { GhostIcon } from "lucide-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 
 import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
@@ -302,14 +309,16 @@ function RouteComponent() {
       </PageHeader>
       <div ref={containerRef} className="bg-background flex h-full flex-col">
         {activeTimer ? (
-          <SplitTimer
-            key={activeTimer.match.id}
-            rider1={activeTimer.match.player1 ?? undefined}
-            rider2={activeTimer.match.player2 ?? undefined}
-            time={activeTimer.duration}
-            onSync={syncTimer}
-            onClose={closeTimer}
-          />
+          <Suspense>
+            <SplitTimer
+              key={activeTimer.match.id}
+              rider1={activeTimer.match.player1 ?? undefined}
+              rider2={activeTimer.match.player2 ?? undefined}
+              time={activeTimer.duration}
+              onSync={syncTimer}
+              onClose={closeTimer}
+            />
+          </Suspense>
         ) : showCelebration && champion ? (
           <div className="flex flex-1 items-center justify-center overflow-hidden px-8">
             <FitText text={champion} />

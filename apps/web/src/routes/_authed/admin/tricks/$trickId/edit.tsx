@@ -21,6 +21,9 @@ export const Route = createFileRoute("/_authed/admin/tricks/$trickId/edit")({
         tricks.get.queryOptions({ id: Number(params.trickId) }),
       ),
       context.queryClient.ensureQueryData(tricks.elements.list.queryOptions()),
+      context.queryClient.ensureQueryData(
+        tricks.search.queryOptions({ excludeIds: [Number(params.trickId)] }),
+      ),
       context.queryClient.ensureQueryData(users.all.queryOptions()),
     ])
   },

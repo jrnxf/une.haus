@@ -1,4 +1,4 @@
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { Check, X } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -46,7 +46,7 @@ export function TrickRelationshipSelector({
   const [query, setQuery] = useState("")
   const [listElement, setListElement] = useState<HTMLDivElement | null>(null)
 
-  const { data: allTricks = [] } = useQuery(
+  const { data: allTricks } = useSuspenseQuery(
     tricks.search.queryOptions({ excludeIds }),
   )
 
