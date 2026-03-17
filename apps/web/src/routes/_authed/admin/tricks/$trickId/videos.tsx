@@ -75,53 +75,129 @@ function RouteComponent() {
 
   const reviewVideo = useMutation({
     mutationFn: tricks.videos.review.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: videosQueryKey })
+      const prev = qc.getQueryData(videosQueryKey)
+
+      qc.setQueryData(videosQueryKey, (old) => {
+        if (!old) return old
+        return old.map((v) =>
+          v.id === variables.data.id
+            ? { ...v, status: variables.data.status }
+            : v,
+        )
+      })
+
+      return { prev }
+    },
     onSuccess: (_, variables) => {
       qc.removeQueries({ queryKey: graphQueryKey })
-      qc.invalidateQueries({ queryKey: videosQueryKey })
       toast.success(
         variables.data.status === "active"
           ? "video approved"
           : "video rejected",
       )
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(videosQueryKey, context.prev)
+      }
       toast.error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: videosQueryKey })
     },
   })
 
   const demoteVideo = useMutation({
     mutationFn: tricks.videos.demote.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: videosQueryKey })
+      const prev = qc.getQueryData(videosQueryKey)
+
+      qc.setQueryData(videosQueryKey, (old) => {
+        if (!old) return old
+        return old.map((v) =>
+          v.id === variables.data.id ? { ...v, status: "pending" as const } : v,
+        )
+      })
+
+      return { prev }
+    },
     onSuccess: () => {
       qc.removeQueries({ queryKey: graphQueryKey })
-      qc.invalidateQueries({ queryKey: videosQueryKey })
       toast.success("video demoted to pending")
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(videosQueryKey, context.prev)
+      }
       toast.error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: videosQueryKey })
     },
   })
 
   const deleteVideo = useMutation({
     mutationFn: tricks.videos.delete.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: videosQueryKey })
+      const prev = qc.getQueryData(videosQueryKey)
+
+      qc.setQueryData(videosQueryKey, (old) => {
+        if (!old) return old
+        return old.filter((v) => v.id !== variables.data.id)
+      })
+
+      return { prev }
+    },
     onSuccess: () => {
       qc.removeQueries({ queryKey: graphQueryKey })
-      qc.invalidateQueries({ queryKey: videosQueryKey })
       toast.success("video deleted")
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(videosQueryKey, context.prev)
+      }
       toast.error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: videosQueryKey })
     },
   })
 
   const reorderVideos = useMutation({
     mutationFn: tricks.videos.reorder.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: videosQueryKey })
+      const prev = qc.getQueryData(videosQueryKey)
+
+      qc.setQueryData(videosQueryKey, (old) => {
+        if (!old) return old
+        const idOrder = variables.data.videoIds
+        return old.toSorted((a, b) => {
+          const aIdx = idOrder.indexOf(a.id)
+          const bIdx = idOrder.indexOf(b.id)
+          if (aIdx === -1 || bIdx === -1) return 0
+          return aIdx - bIdx
+        })
+      })
+
+      return { prev }
+    },
     onSuccess: () => {
       qc.removeQueries({ queryKey: graphQueryKey })
-      qc.invalidateQueries({ queryKey: videosQueryKey })
       toast.success("videos reordered")
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(videosQueryKey, context.prev)
+      }
       toast.error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: videosQueryKey })
     },
   })
 

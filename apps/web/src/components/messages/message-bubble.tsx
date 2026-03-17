@@ -90,19 +90,38 @@ export function MessageBubble({
   })
 
   const queryClient = useQueryClient()
+  const listQueryKey = messages.list.queryOptions(parent).queryKey
+
   const { mutate: deleteMessage } = useMutation({
     mutationFn: messages.delete.fn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: messages.list.queryOptions(parent).queryKey,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: listQueryKey })
+      const prev = queryClient.getQueryData(listQueryKey)
+
+      queryClient.setQueryData(listQueryKey, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          messages: old.messages.filter((m) => m.id !== message.id),
+        }
       })
+
+      return { prev }
+    },
+    onSuccess: () => {
       haptics.success()
       toast.success("message deleted")
       setDetailsOpen(false)
     },
-    onError: () => {
+    onError: (_, __, context) => {
+      if (context?.prev) {
+        queryClient.setQueryData(listQueryKey, context.prev)
+      }
       haptics.error()
       toast.error("failed to delete message")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: listQueryKey })
     },
   })
 
@@ -381,6 +400,7 @@ function EditMessageDrawer({
   const queryClient = useQueryClient()
   const [content, setContent] = React.useState(message.content)
   const wasOpenRef = React.useRef(open)
+  const listQueryKey = messages.list.queryOptions(parent).queryKey
 
   // Re-seed edit content each time the drawer opens.
   if (open && !wasOpenRef.current && content !== message.content) {
@@ -392,33 +412,69 @@ function EditMessageDrawer({
 
   const { mutate: updateMessage, isPending: isUpdating } = useMutation({
     mutationFn: messages.update.fn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: messages.list.queryOptions(parent).queryKey,
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: listQueryKey })
+      const prev = queryClient.getQueryData(listQueryKey)
+
+      queryClient.setQueryData(listQueryKey, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          messages: old.messages.map((m) =>
+            m.id === message.id ? { ...m, content: variables.data.content } : m,
+          ),
+        }
       })
+
+      return { prev }
+    },
+    onSuccess: () => {
       haptics.success()
       toast.success("message updated")
       onOpenChange(false)
     },
-    onError: () => {
+    onError: (_, __, context) => {
+      if (context?.prev) {
+        queryClient.setQueryData(listQueryKey, context.prev)
+      }
       haptics.error()
       toast.error("failed to update message")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: listQueryKey })
     },
   })
 
   const { mutate: deleteMessage, isPending: isDeleting } = useMutation({
     mutationFn: messages.delete.fn,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: messages.list.queryOptions(parent).queryKey,
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: listQueryKey })
+      const prev = queryClient.getQueryData(listQueryKey)
+
+      queryClient.setQueryData(listQueryKey, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          messages: old.messages.filter((m) => m.id !== message.id),
+        }
       })
+
+      return { prev }
+    },
+    onSuccess: () => {
       haptics.success()
       toast.success("message deleted")
       onOpenChange(false)
     },
-    onError: () => {
+    onError: (_, __, context) => {
+      if (context?.prev) {
+        queryClient.setQueryData(listQueryKey, context.prev)
+      }
       haptics.error()
       toast.error("failed to delete message")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: listQueryKey })
     },
   })
 

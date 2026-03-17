@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 
 import { games } from "~/lib/games"
+import { useSessionUser } from "~/lib/session/hooks"
 
 const activeRoundsKey = games.sius.rounds.active.queryOptions().queryKey
 
@@ -48,34 +49,98 @@ export function useAddSet() {
 
 export function useVoteToArchive() {
   const qc = useQueryClient()
+  const sessionUser = useSessionUser()
 
   return useMutation({
     mutationFn: games.sius.rounds.voteToArchive.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: activeRoundsKey })
+      const prev = qc.getQueryData(activeRoundsKey)
+
+      if (sessionUser) {
+        qc.setQueryData(activeRoundsKey, (old) => {
+          if (!old) return old
+          return old.map((round) => {
+            if (round.id !== variables.data.roundId) return round
+            return {
+              ...round,
+              archiveVotes: [
+                ...round.archiveVotes,
+                {
+                  userId: sessionUser.id,
+                  siuId: round.id,
+                  createdAt: new Date(),
+                  user: {
+                    id: sessionUser.id,
+                    name: sessionUser.name,
+                    avatarId: sessionUser.avatarId,
+                  },
+                },
+              ],
+            }
+          })
+        })
+      }
+
+      return { prev }
+    },
     onSuccess: (data) => {
       if (data.thresholdReached) {
         toast.success("vote threshold reached! admin has been notified.")
       } else {
         toast.success(`voted to archive (${data.voteCount}/5)`)
       }
-      qc.invalidateQueries({ queryKey: activeRoundsKey })
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(activeRoundsKey, context.prev)
+      }
       toast.error(error.message || "failed to vote")
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
     },
   })
 }
 
 export function useRemoveArchiveVote() {
   const qc = useQueryClient()
+  const sessionUser = useSessionUser()
 
   return useMutation({
     mutationFn: games.sius.rounds.removeArchiveVote.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: activeRoundsKey })
+      const prev = qc.getQueryData(activeRoundsKey)
+
+      if (sessionUser) {
+        qc.setQueryData(activeRoundsKey, (old) => {
+          if (!old) return old
+          return old.map((round) => {
+            if (round.id !== variables.data.roundId) return round
+            return {
+              ...round,
+              archiveVotes: round.archiveVotes.filter(
+                (v) => v.user.id !== sessionUser.id,
+              ),
+            }
+          })
+        })
+      }
+
+      return { prev }
+    },
     onSuccess: (data) => {
       toast.success(`vote removed (${data.voteCount}/5)`)
-      qc.invalidateQueries({ queryKey: activeRoundsKey })
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(activeRoundsKey, context.prev)
+      }
       toast.error(error.message || "failed to remove vote")
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: activeRoundsKey })
     },
   })
 }
@@ -106,13 +171,9 @@ export function useDeleteSet() {
 
   return useMutation({
     mutationFn: games.sius.sets.delete.fn,
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("set deleted")
       qc.removeQueries({ queryKey: activeRoundsKey })
-      if (data.type === "soft") {
-        // Soft delete: invalidate to refresh the round view
-        qc.invalidateQueries({ queryKey: activeRoundsKey })
-      }
       navigate({ to: "/games/sius" })
     },
     onError: (error) => {

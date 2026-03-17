@@ -97,10 +97,28 @@ function RouteComponent() {
     }
   }, [unsubscribed])
 
+  const settingsQueryKey = notificationSettings.get.queryOptions().queryKey
+
   const updateSettings = useMutation({
     mutationFn: notificationSettings.update.fn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["notification-settings.get"] })
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: settingsQueryKey })
+      const prev = qc.getQueryData(settingsQueryKey)
+
+      qc.setQueryData(settingsQueryKey, (old) => {
+        if (!old) return old
+        return { ...old, ...variables.data }
+      })
+
+      return { prev }
+    },
+    onError: (_, __, context) => {
+      if (context?.prev) {
+        qc.setQueryData(settingsQueryKey, context.prev)
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: settingsQueryKey })
     },
   })
 
