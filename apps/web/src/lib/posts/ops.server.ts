@@ -96,8 +96,8 @@ export async function listPosts({
     .select({
       content: posts.content,
       counts: {
-        likes: countDistinct(postLikes.postId),
-        messages: countDistinct(postMessages.postId),
+        likes: countDistinct(postLikes.userId),
+        messages: countDistinct(postMessages.id),
       },
       createdAt: posts.createdAt,
       id: posts.id,
