@@ -37,6 +37,7 @@ import {
 } from "~/components/reui/data-grid/data-grid-table"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
+import { normalizeMultiOperator } from "~/hooks/use-filtered-list"
 import { seo } from "~/lib/seo"
 import { type Trick, tricks } from "~/lib/tricks"
 
@@ -69,16 +70,6 @@ export const Route = createFileRoute("/tricks/")({
 })
 
 const strip = (s: string) => s.toLowerCase().replaceAll(/[^a-z0-9]/g, "")
-const normalizeElementOperator = (operator?: string): "contain" | "equal" => {
-  if (
-    operator === "equal" ||
-    operator === "is" ||
-    operator === "includes_all"
-  ) {
-    return "equal"
-  }
-  return "contain"
-}
 
 const columnHelper = createColumnHelper<Trick>()
 
@@ -175,7 +166,7 @@ function TricksListPage() {
   )
   const [name_op, setName_op] = useState(searchParams.name_op ?? "contains")
   const [elements_op, setElements_op] = useState<"contain" | "equal">(
-    normalizeElementOperator(searchParams.elements_op),
+    normalizeMultiOperator(searchParams.elements_op),
   )
 
   // Debounced navigate — updates URL after wait period
@@ -291,7 +282,7 @@ function TricksListPage() {
         elementsFilter && elementsFilter.values.length > 0
           ? elementsFilter.values
           : []
-      const newElementsOp = normalizeElementOperator(elementsFilter?.operator)
+      const newElementsOp = normalizeMultiOperator(elementsFilter?.operator)
 
       // Update local state immediately for instant feedback
       setNameInput(newName)
@@ -352,7 +343,7 @@ function TricksListPage() {
     }
 
     if (searchParams.elements && searchParams.elements.length > 0) {
-      const op = normalizeElementOperator(searchParams.elements_op)
+      const op = normalizeMultiOperator(searchParams.elements_op)
       if (op === "contain") {
         result = result.filter((t: Trick) =>
           searchParams.elements!.some((v) => t.elements.includes(v)),

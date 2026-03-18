@@ -1,22 +1,11 @@
-import { useDebouncedCallback } from "@tanstack/react-pacer"
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import {
-  Suspense,
-  useCallback,
-  useDeferredValue,
-  useMemo,
-  useState,
-} from "react"
+import { Suspense, useMemo } from "react"
 import { preload } from "react-dom"
-import { InView } from "react-intersection-observer"
 
 import { Badges } from "~/components/badges"
-import {
-  Filters,
-  type ActiveFilter,
-  type FilterField,
-} from "~/components/filters/filters"
+import { Filters, type FilterField } from "~/components/filters/filters"
+import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
@@ -24,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { USER_DISCIPLINES } from "~/db/schema"
+import { useFilteredList } from "~/hooks/use-filtered-list"
 import { seo } from "~/lib/seo"
 import { users } from "~/lib/users"
 import { getCloudflareImageUrl } from "~/lib/utils"
@@ -49,152 +39,38 @@ export const Route = createFileRoute("/users/")({
   component: RouteComponent,
 })
 
-const normalizeMultiOperator = (operator?: string): "contain" | "equal" => {
-  if (
-    operator === "equal" ||
-    operator === "includes_all" ||
-    operator === "is"
-  ) {
-    return "equal"
-  }
-  return "contain"
-}
+const filterFields: FilterField[] = [
+  {
+    key: "name",
+    label: "name",
+    type: "text" as const,
+    placeholder: "search...",
+    operators: [{ value: "contains", label: "contains" }],
+    defaultOperator: "contains",
+  },
+  {
+    key: "disciplines",
+    label: "disciplines",
+    type: "multiselect" as const,
+    operators: [
+      { value: "contain", label: "contain" },
+      { value: "equal", label: "equal" },
+    ],
+    defaultOperator: "contain",
+    options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
+  },
+]
 
 function RouteComponent() {
   const searchParams = Route.useSearch()
   const navigate = Route.useNavigate()
 
-  // Local state for immediate input feedback
-  const [nameInput, setNameInput] = useState(searchParams.name ?? "")
-  const [disciplines, setDisciplines] = useState<string[]>(
-    searchParams.disciplines ?? [],
-  )
-  const [disciplineOp, setDisciplineOp] = useState<"contain" | "equal">(
-    "contain",
-  )
-
-  // Debounced navigate — updates URL (and loaderDeps) after wait period
-  const debouncedNavigate = useDebouncedCallback(
-    (updates: { name?: string; disciplines?: string[] }) => {
-      navigate({
-        search: {
-          name: updates.name || undefined,
-          disciplines:
-            updates.disciplines && updates.disciplines.length > 0
-              ? updates.disciplines
-              : undefined,
-        },
-        replace: true,
-      })
-    },
-    { wait: 200 },
-  )
-
-  // useDeferredValue on URL search params — prevents suspense flash
-  const deferredName = useDeferredValue(searchParams.name)
-  const deferredDisciplines = useDeferredValue(searchParams.disciplines)
-
-  // Track which filter fields are open (text filters can be open with empty value)
-  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
-    const initial = new Set<string>()
-    if (nameInput) initial.add("name")
-    if (disciplines.length > 0) initial.add("disciplines")
-    return initial
-  })
-
-  const filterFields: FilterField[] = useMemo(
-    () => [
-      {
-        key: "name",
-        label: "name",
-        type: "text" as const,
-        placeholder: "search...",
-        operators: [{ value: "contains", label: "contains" }],
-        defaultOperator: "contains",
-      },
-      {
-        key: "disciplines",
-        label: "disciplines",
-        type: "multiselect" as const,
-        operators: [
-          { value: "contain", label: "contain" },
-          { value: "equal", label: "equal" },
-        ],
-        defaultOperator: "contain",
-        options: USER_DISCIPLINES.map((d) => ({ value: d, label: d })),
-      },
-    ],
-    [],
-  )
-
-  // Derive filters from LOCAL state (immediate feedback, not URL)
-  const filters = useMemo<ActiveFilter[]>(() => {
-    const result: ActiveFilter[] = []
-    if (activeFields.has("name")) {
-      result.push({
-        id: "name",
-        field: "name",
-        operator: "contains",
-        values: nameInput ? [nameInput] : [],
-      })
-    }
-    if (activeFields.has("disciplines") || disciplines.length > 0) {
-      result.push({
-        id: "disciplines",
-        field: "disciplines",
-        operator: disciplineOp,
-        values: disciplines,
-      })
-    }
-    return result
-  }, [nameInput, disciplines, activeFields, disciplineOp])
-
-  const handleFiltersChange = useCallback(
-    (next: ActiveFilter[]) => {
-      const nameFilter = next.find((f) => f.field === "name")
-      const discFilter = next.find((f) => f.field === "disciplines")
-
-      setActiveFields((prev) => {
-        const wantName = Boolean(nameFilter)
-        const wantDisc = Boolean(discFilter)
-        if (
-          prev.has("name") === wantName &&
-          prev.has("disciplines") === wantDisc
-        ) {
-          return prev
-        }
-        const s = new Set<string>()
-        if (wantName) s.add("name")
-        if (wantDisc) s.add("disciplines")
-        return s
-      })
-
-      const newName = nameFilter?.values[0] || ""
-      const newDisciplines =
-        discFilter && discFilter.values.length > 0 ? discFilter.values : []
-      const newDisciplineOp = normalizeMultiOperator(discFilter?.operator)
-
-      // Update local state immediately for instant feedback
-      setNameInput(newName)
-      setDisciplines(newDisciplines)
-      if (discFilter) setDisciplineOp(newDisciplineOp)
-
-      // Debounced URL update via router
-      debouncedNavigate({ name: newName, disciplines: newDisciplines })
-    },
-    [debouncedNavigate],
-  )
-
-  const queryParams = useMemo(
-    () => ({
-      name: deferredName || undefined,
-      disciplines:
-        deferredDisciplines && deferredDisciplines.length > 0
-          ? deferredDisciplines
-          : undefined,
-    }),
-    [deferredName, deferredDisciplines],
-  )
+  const { filters, handleFiltersChange, queryParams, operators } =
+    useFilteredList({
+      fields: filterFields,
+      searchParams,
+      navigate,
+    })
 
   return (
     <>
@@ -219,9 +95,10 @@ function RouteComponent() {
 
           <Suspense>
             <UsersList
-              queryParams={queryParams}
-              deferredDisciplines={deferredDisciplines}
-              deferredDisciplinesOperator={disciplineOp}
+              queryParams={
+                queryParams as { name?: string; disciplines?: string[] }
+              }
+              disciplinesOperator={operators.disciplines ?? "contain"}
             />
           </Suspense>
         </div>
@@ -232,12 +109,10 @@ function RouteComponent() {
 
 function UsersList({
   queryParams,
-  deferredDisciplines,
-  deferredDisciplinesOperator,
+  disciplinesOperator,
 }: {
   queryParams: { name?: string; disciplines?: string[] }
-  deferredDisciplines: string[] | undefined
-  deferredDisciplinesOperator: "contain" | "equal"
+  disciplinesOperator: "contain" | "equal"
 }) {
   const {
     data: usersPages,
@@ -249,14 +124,14 @@ function UsersList({
   const displayedUsers = useMemo(() => {
     const allUsers = usersPages.pages.flat()
     if (
-      deferredDisciplinesOperator !== "equal" ||
-      !deferredDisciplines ||
-      deferredDisciplines.length === 0
+      disciplinesOperator !== "equal" ||
+      !queryParams.disciplines ||
+      queryParams.disciplines.length === 0
     ) {
       return allUsers
     }
 
-    const filterSet = new Set(deferredDisciplines.map(String))
+    const filterSet = new Set(queryParams.disciplines.map(String))
     return allUsers.filter((user) => {
       const userSet = new Set((user.disciplines ?? []).map(String))
       if (userSet.size !== filterSet.size) return false
@@ -265,7 +140,7 @@ function UsersList({
       }
       return true
     })
-  }, [usersPages, deferredDisciplines, deferredDisciplinesOperator])
+  }, [usersPages, queryParams.disciplines, disciplinesOperator])
 
   return (
     <>
@@ -323,7 +198,7 @@ function UsersList({
                   )}
                   <Badges
                     content={user.disciplines}
-                    active={deferredDisciplines ?? []}
+                    active={queryParams.disciplines ?? []}
                   />
                 </div>
               </Link>
@@ -331,12 +206,11 @@ function UsersList({
           </div>
         )
       })}
-      {hasNextPage && !isFetchingNextPage && (
-        <InView
-          rootMargin="1000px"
-          onChange={(inView) => inView && fetchNextPage()}
-        />
-      )}
+      <InfiniteScrollTrigger
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+      />
     </>
   )
 }

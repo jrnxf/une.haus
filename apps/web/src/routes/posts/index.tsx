@@ -1,23 +1,12 @@
-import { useDebouncedCallback } from "@tanstack/react-pacer"
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { HeartIcon, MessageCircleIcon, PaperclipIcon } from "lucide-react"
-import {
-  Suspense,
-  useCallback,
-  useDeferredValue,
-  useMemo,
-  useState,
-} from "react"
-import { InView } from "react-intersection-observer"
+import { Suspense, useMemo } from "react"
 
 import { Badges } from "~/components/badges"
 import { ContentHeaderRow } from "~/components/content-header-row"
-import {
-  Filters,
-  type ActiveFilter,
-  type FilterField,
-} from "~/components/filters/filters"
+import { Filters, type FilterField } from "~/components/filters/filters"
+import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
@@ -27,6 +16,7 @@ import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { StatBadge } from "~/components/ui/stat-badge"
 import { getMuxPoster } from "~/components/video-player"
 import { POST_TAGS } from "~/db/schema"
+import { useFilteredList } from "~/hooks/use-filtered-list"
 import { posts } from "~/lib/posts"
 import { seo } from "~/lib/seo"
 
@@ -51,140 +41,38 @@ export const Route = createFileRoute("/posts/")({
   component: RouteComponent,
 })
 
-const normalizeMultiOperator = (operator?: string): "contain" | "equal" => {
-  if (
-    operator === "equal" ||
-    operator === "includes_all" ||
-    operator === "is"
-  ) {
-    return "equal"
-  }
-  return "contain"
-}
+const filterFields: FilterField[] = [
+  {
+    key: "q",
+    label: "search",
+    type: "text" as const,
+    placeholder: "search...",
+    operators: [{ value: "contains", label: "contains" }],
+    defaultOperator: "contains",
+  },
+  {
+    key: "tags",
+    label: "tags",
+    type: "multiselect" as const,
+    operators: [
+      { value: "contain", label: "contain" },
+      { value: "equal", label: "equal" },
+    ],
+    defaultOperator: "contain",
+    options: POST_TAGS.map((t) => ({ value: t, label: t })),
+  },
+]
 
 function RouteComponent() {
   const searchParams = Route.useSearch()
   const navigate = Route.useNavigate()
 
-  // Local state for immediate input feedback
-  const [queryInput, setQueryInput] = useState(searchParams.q ?? "")
-  const [tags, setTags] = useState<string[]>(searchParams.tags ?? [])
-  const [tagOp, setTagOp] = useState<"contain" | "equal">("contain")
-
-  // Debounced navigate — updates URL (and loaderDeps) after wait period
-  const debouncedNavigate = useDebouncedCallback(
-    (updates: { q?: string; tags?: string[] }) => {
-      navigate({
-        search: {
-          q: updates.q || undefined,
-          tags:
-            updates.tags && updates.tags.length > 0 ? updates.tags : undefined,
-        },
-        replace: true,
-      })
-    },
-    { wait: 200 },
-  )
-
-  // useDeferredValue on URL search params — prevents suspense flash
-  const deferredQ = useDeferredValue(searchParams.q)
-  const deferredTags = useDeferredValue(searchParams.tags)
-
-  // Track which filter fields are open (text filters can be open with empty value)
-  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
-    const initial = new Set<string>()
-    if (queryInput) initial.add("q")
-    if (tags.length > 0) initial.add("tags")
-    return initial
-  })
-
-  const filterFields: FilterField[] = useMemo(
-    () => [
-      {
-        key: "q",
-        label: "search",
-        type: "text" as const,
-        placeholder: "search...",
-        operators: [{ value: "contains", label: "contains" }],
-        defaultOperator: "contains",
-      },
-      {
-        key: "tags",
-        label: "tags",
-        type: "multiselect" as const,
-        operators: [
-          { value: "contain", label: "contain" },
-          { value: "equal", label: "equal" },
-        ],
-        defaultOperator: "contain",
-        options: POST_TAGS.map((t) => ({ value: t, label: t })),
-      },
-    ],
-    [],
-  )
-
-  // Derive filters from LOCAL state (immediate feedback, not URL)
-  const filters = useMemo<ActiveFilter[]>(() => {
-    const result: ActiveFilter[] = []
-    if (activeFields.has("q")) {
-      result.push({
-        id: "q",
-        field: "q",
-        operator: "contains",
-        values: queryInput ? [queryInput] : [],
-      })
-    }
-    if (activeFields.has("tags") || tags.length > 0) {
-      result.push({
-        id: "tags",
-        field: "tags",
-        operator: tagOp,
-        values: tags,
-      })
-    }
-    return result
-  }, [queryInput, tags, activeFields, tagOp])
-
-  const handleFiltersChange = useCallback(
-    (next: ActiveFilter[]) => {
-      const qFilter = next.find((f) => f.field === "q")
-      const tagsFilter = next.find((f) => f.field === "tags")
-
-      setActiveFields((prev) => {
-        const wantQ = Boolean(qFilter)
-        const wantTags = Boolean(tagsFilter)
-        if (prev.has("q") === wantQ && prev.has("tags") === wantTags) {
-          return prev
-        }
-        const s = new Set<string>()
-        if (wantQ) s.add("q")
-        if (wantTags) s.add("tags")
-        return s
-      })
-
-      const newQ = qFilter?.values[0] || ""
-      const newTags =
-        tagsFilter && tagsFilter.values.length > 0 ? tagsFilter.values : []
-      const newTagOp = normalizeMultiOperator(tagsFilter?.operator)
-
-      // Update local state immediately for instant feedback
-      setQueryInput(newQ)
-      setTags(newTags)
-      if (tagsFilter) setTagOp(newTagOp)
-
-      // Debounced URL update via router
-      debouncedNavigate({ q: newQ, tags: newTags })
-    },
-    [debouncedNavigate],
-  )
-
-  const queryParams = useMemo(
-    () => ({
-      q: deferredQ || undefined,
-      tags: deferredTags && deferredTags.length > 0 ? deferredTags : undefined,
-    }),
-    [deferredQ, deferredTags],
-  )
+  const { filters, handleFiltersChange, queryParams, operators } =
+    useFilteredList({
+      fields: filterFields,
+      searchParams,
+      navigate,
+    })
 
   return (
     <>
@@ -213,9 +101,8 @@ function RouteComponent() {
           />
           <Suspense>
             <PostsList
-              queryParams={queryParams}
-              deferredTags={deferredTags}
-              deferredTagsOperator={tagOp}
+              queryParams={queryParams as { q?: string; tags?: string[] }}
+              tagsOperator={operators.tags ?? "contain"}
             />
           </Suspense>
         </div>
@@ -226,12 +113,10 @@ function RouteComponent() {
 
 function PostsList({
   queryParams,
-  deferredTags,
-  deferredTagsOperator,
+  tagsOperator,
 }: {
   queryParams: { q?: string; tags?: string[] }
-  deferredTags: string[] | undefined
-  deferredTagsOperator: "contain" | "equal"
+  tagsOperator: "contain" | "equal"
 }) {
   const {
     data: postsPages,
@@ -243,14 +128,14 @@ function PostsList({
   const displayedPosts = useMemo(() => {
     const allPosts = postsPages.pages.flat()
     if (
-      deferredTagsOperator !== "equal" ||
-      !deferredTags ||
-      deferredTags.length === 0
+      tagsOperator !== "equal" ||
+      !queryParams.tags ||
+      queryParams.tags.length === 0
     ) {
       return allPosts
     }
 
-    const filterSet = new Set(deferredTags.map(String))
+    const filterSet = new Set(queryParams.tags.map(String))
 
     return allPosts.filter((post) => {
       const postSet = new Set((post.tags ?? []).map(String))
@@ -260,7 +145,7 @@ function PostsList({
       }
       return true
     })
-  }, [postsPages, deferredTags, deferredTagsOperator])
+  }, [postsPages, queryParams.tags, tagsOperator])
 
   return (
     <>
@@ -290,7 +175,7 @@ function PostsList({
                   <div className="text-muted-foreground line-clamp-3 text-sm">
                     <RichText content={post.content} mentionMode="plainText" />
                   </div>
-                  <Badges content={post.tags} active={deferredTags ?? []} />
+                  <Badges content={post.tags} active={queryParams.tags ?? []} />
                   <div className="flex w-full justify-between gap-4">
                     <Metaline
                       className="inline-flex items-center gap-1.5 text-xs"
@@ -324,12 +209,11 @@ function PostsList({
           </div>
         )
       })}
-      {hasNextPage && !isFetchingNextPage && (
-        <InView
-          rootMargin="1000px"
-          onChange={(inView) => inView && fetchNextPage()}
-        />
-      )}
+      <InfiniteScrollTrigger
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+      />
     </>
   )
 }

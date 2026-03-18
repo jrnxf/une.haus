@@ -1,31 +1,21 @@
-import { useDebouncedCallback } from "@tanstack/react-pacer"
 import {
   useSuspenseInfiniteQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { HeartIcon, MessageCircleIcon } from "lucide-react"
-import {
-  Suspense,
-  useCallback,
-  useDeferredValue,
-  useMemo,
-  useState,
-} from "react"
-import { InView } from "react-intersection-observer"
+import { Suspense, useMemo, useState } from "react"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
-import {
-  Filters,
-  type ActiveFilter,
-  type FilterField,
-} from "~/components/filters/filters"
+import { Filters, type FilterField } from "~/components/filters/filters"
+import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { Button } from "~/components/ui/button"
 import { StatBadge } from "~/components/ui/stat-badge"
 import { getMuxPoster } from "~/components/video-player"
 import { USER_DISCIPLINES } from "~/db/schema"
+import { useFilteredList } from "~/hooks/use-filtered-list"
 import { seo } from "~/lib/seo"
 import { utv } from "~/lib/utv/core"
 
@@ -53,70 +43,13 @@ export const Route = createFileRoute("/vault/")({
   component: RouteComponent,
 })
 
-const normalizeMultiOperator = (operator?: string): "contain" | "equal" => {
-  if (
-    operator === "equal" ||
-    operator === "includes_all" ||
-    operator === "is"
-  ) {
-    return "equal"
-  }
-  return "contain"
-}
-
 function RouteComponent() {
   const searchParams = Route.useSearch()
   const navigate = Route.useNavigate()
 
   const { data: riderNames } = useSuspenseQuery(utv.riders.queryOptions())
 
-  // Local state for immediate input feedback
-  const [queryInput, setQueryInput] = useState(searchParams.q ?? "")
-  const [disciplines, setDisciplines] = useState<string[]>(
-    searchParams.disciplines ?? [],
-  )
-  const [riders, setRiders] = useState<string[]>(searchParams.riders ?? [])
-  const [disciplineOp, setDisciplineOp] = useState<"contain" | "equal">(
-    "contain",
-  )
-  const [riderOp, setRiderOp] = useState<"contain" | "equal">("contain")
-
-  // Debounced navigate — updates URL (and loaderDeps) after wait period
-  const debouncedNavigate = useDebouncedCallback(
-    (updates: { q?: string; disciplines?: string[]; riders?: string[] }) => {
-      navigate({
-        search: {
-          q: updates.q || undefined,
-          disciplines:
-            updates.disciplines && updates.disciplines.length > 0
-              ? updates.disciplines
-              : undefined,
-          riders:
-            updates.riders && updates.riders.length > 0
-              ? updates.riders
-              : undefined,
-        },
-        replace: true,
-      })
-    },
-    { wait: 200 },
-  )
-
-  // useDeferredValue on URL search params — prevents suspense flash
-  const deferredQ = useDeferredValue(searchParams.q)
-  const deferredDisciplines = useDeferredValue(searchParams.disciplines)
-  const deferredRiders = useDeferredValue(searchParams.riders)
-
-  // Track which filter fields are open
-  const [activeFields, setActiveFields] = useState<Set<string>>(() => {
-    const initial = new Set<string>()
-    if (queryInput) initial.add("q")
-    if (disciplines.length > 0) initial.add("disciplines")
-    if (riders.length > 0) initial.add("riders")
-    return initial
-  })
-
-  const filterFields: FilterField[] = useMemo(
+  const vaultFilterFields: FilterField[] = useMemo(
     () => [
       {
         key: "q",
@@ -152,105 +85,12 @@ function RouteComponent() {
     [riderNames],
   )
 
-  // Derive filters from LOCAL state
-  const filters = useMemo<ActiveFilter[]>(() => {
-    const result: ActiveFilter[] = []
-    if (activeFields.has("q")) {
-      result.push({
-        id: "q",
-        field: "q",
-        operator: "contains",
-        values: queryInput ? [queryInput] : [],
-      })
-    }
-    if (activeFields.has("disciplines") || disciplines.length > 0) {
-      result.push({
-        id: "disciplines",
-        field: "disciplines",
-        operator: disciplineOp,
-        values: disciplines,
-      })
-    }
-    if (activeFields.has("riders") || riders.length > 0) {
-      result.push({
-        id: "riders",
-        field: "riders",
-        operator: riderOp,
-        values: riders,
-      })
-    }
-    return result
-  }, [queryInput, disciplines, riders, activeFields, disciplineOp, riderOp])
-
-  const handleFiltersChange = useCallback(
-    (next: ActiveFilter[]) => {
-      const qFilter = next.find((f) => f.field === "q")
-      const disciplinesFilter = next.find((f) => f.field === "disciplines")
-      const ridersFilter = next.find((f) => f.field === "riders")
-
-      setActiveFields((prev) => {
-        const wantQ = Boolean(qFilter)
-        const wantDisciplines = Boolean(disciplinesFilter)
-        const wantRiders = Boolean(ridersFilter)
-        if (
-          prev.has("q") === wantQ &&
-          prev.has("disciplines") === wantDisciplines &&
-          prev.has("riders") === wantRiders
-        ) {
-          return prev
-        }
-        const s = new Set<string>()
-        if (wantQ) s.add("q")
-        if (wantDisciplines) s.add("disciplines")
-        if (wantRiders) s.add("riders")
-        return s
-      })
-
-      const newQ = qFilter?.values[0] || ""
-      const newDisciplines =
-        disciplinesFilter && disciplinesFilter.values.length > 0
-          ? disciplinesFilter.values
-          : []
-      const newRiders =
-        ridersFilter && ridersFilter.values.length > 0
-          ? ridersFilter.values
-          : []
-      const newDisciplineOp = normalizeMultiOperator(
-        disciplinesFilter?.operator,
-      )
-      const newRiderOp = normalizeMultiOperator(ridersFilter?.operator)
-
-      // Update local state immediately for instant feedback
-      setQueryInput(newQ)
-      setDisciplines(newDisciplines)
-      setRiders(newRiders)
-      if (disciplinesFilter) setDisciplineOp(newDisciplineOp)
-      if (ridersFilter) setRiderOp(newRiderOp)
-
-      // Debounced URL update via router
-      debouncedNavigate({
-        q: newQ,
-        disciplines: newDisciplines,
-        riders: newRiders,
-      })
-    },
-    [debouncedNavigate],
-  )
-
-  const queryParams = useMemo(
-    () => ({
-      q: deferredQ || undefined,
-      disciplines:
-        deferredDisciplines && deferredDisciplines.length > 0
-          ? deferredDisciplines
-          : undefined,
-      riders:
-        deferredRiders && deferredRiders.length > 0
-          ? deferredRiders
-          : undefined,
-    }),
-    [deferredQ, deferredDisciplines, deferredRiders],
-  )
+  const { filters, filterFields, handleFiltersChange, queryParams, operators } =
+    useFilteredList({
+      fields: vaultFilterFields,
+      searchParams,
+      navigate,
+    })
 
   return (
     <>
@@ -280,11 +120,15 @@ function RouteComponent() {
 
         <Suspense>
           <VideoGrid
-            queryParams={queryParams}
-            deferredDisciplines={deferredDisciplines}
-            deferredDisciplinesOperator={disciplineOp}
-            deferredRiders={deferredRiders}
-            deferredRidersOperator={riderOp}
+            queryParams={
+              queryParams as {
+                q?: string
+                disciplines?: string[]
+                riders?: string[]
+              }
+            }
+            disciplinesOperator={operators.disciplines ?? "contain"}
+            ridersOperator={operators.riders ?? "contain"}
           />
         </Suspense>
       </div>
@@ -294,16 +138,12 @@ function RouteComponent() {
 
 function VideoGrid({
   queryParams,
-  deferredDisciplines,
-  deferredDisciplinesOperator,
-  deferredRiders,
-  deferredRidersOperator,
+  disciplinesOperator,
+  ridersOperator,
 }: {
   queryParams: { q?: string; disciplines?: string[]; riders?: string[] }
-  deferredDisciplines: string[] | undefined
-  deferredDisciplinesOperator: "contain" | "equal"
-  deferredRiders: string[] | undefined
-  deferredRidersOperator: "contain" | "equal"
+  disciplinesOperator: "contain" | "equal"
+  ridersOperator: "contain" | "equal"
 }) {
   const {
     data: videosPages,
@@ -316,11 +156,11 @@ function VideoGrid({
     let videos = videosPages.pages.flat()
 
     if (
-      deferredDisciplinesOperator === "equal" &&
-      deferredDisciplines &&
-      deferredDisciplines.length > 0
+      disciplinesOperator === "equal" &&
+      queryParams.disciplines &&
+      queryParams.disciplines.length > 0
     ) {
-      const filterSet = new Set(deferredDisciplines.map(String))
+      const filterSet = new Set(queryParams.disciplines.map(String))
       videos = videos.filter((video) => {
         const videoSet = new Set((video.disciplines ?? []).map(String))
         if (videoSet.size !== filterSet.size) return false
@@ -332,11 +172,11 @@ function VideoGrid({
     }
 
     if (
-      deferredRidersOperator === "equal" &&
-      deferredRiders &&
-      deferredRiders.length > 0
+      ridersOperator === "equal" &&
+      queryParams.riders &&
+      queryParams.riders.length > 0
     ) {
-      const filterSet = new Set(deferredRiders)
+      const filterSet = new Set(queryParams.riders)
       videos = videos.filter((video) => {
         const videoSet = new Set(video.riders ?? [])
         if (videoSet.size !== filterSet.size) return false
@@ -350,10 +190,10 @@ function VideoGrid({
     return videos
   }, [
     videosPages,
-    deferredDisciplines,
-    deferredDisciplinesOperator,
-    deferredRiders,
-    deferredRidersOperator,
+    queryParams.disciplines,
+    disciplinesOperator,
+    queryParams.riders,
+    ridersOperator,
   ])
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null)
 
@@ -401,13 +241,12 @@ function VideoGrid({
             </Link>
           ))}
         </div>
-        {hasNextPage && !isFetchingNextPage && (
-          <InView
-            root={scrollRoot}
-            rootMargin="1000px"
-            onChange={(inView) => inView && fetchNextPage()}
-          />
-        )}
+        <InfiniteScrollTrigger
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+          root={scrollRoot}
+        />
       </div>
     </div>
   )
