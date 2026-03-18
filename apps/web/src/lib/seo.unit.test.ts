@@ -56,6 +56,16 @@ describe("seo", () => {
     expect(ogImage).toBeUndefined()
   })
 
+  it("does not duplicate site name in title when title matches site name", () => {
+    const result = seo({
+      title: SITE_NAME,
+      description: "home page",
+      path: "/",
+    })
+    const title = result.meta.find((m) => "title" in m)
+    expect(title).toEqual({ title: SITE_NAME })
+  })
+
   it("allows custom og:type and twitter:card", () => {
     const result = seo({
       ...base,

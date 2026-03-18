@@ -11,7 +11,7 @@ type SeoInput = {
 }
 
 export function seo({ title, description, path, image, type, card }: SeoInput) {
-  const pageTitle = `${title} — ${SITE_NAME}`
+  const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} — ${SITE_NAME}`
   const url = `${SITE_URL}${path}`
 
   return {
