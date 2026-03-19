@@ -314,6 +314,7 @@ describe("rius integration", () => {
   it("listArchivedRius returns real aggregate set and submission counts", async () => {
     const owner = await seedUser({ name: "Owner" })
     const submitter = await seedUser({ name: "Submitter" })
+    const submitter2 = await seedUser({ name: "Submitter2" })
     const archivedA = await seedRiu("archived")
     const archivedB = await seedRiu("archived")
 
@@ -345,7 +346,7 @@ describe("rius integration", () => {
       {
         muxAssetId: video2.assetId,
         riuSetId: setA1.id,
-        userId: submitter.id,
+        userId: submitter2.id,
       },
       {
         muxAssetId: video3.assetId,

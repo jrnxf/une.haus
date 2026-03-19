@@ -207,6 +207,20 @@ export async function createRiuSubmission({
     throw new Error("You cannot submit to your own set")
   }
 
+  const [existing] = await db
+    .select({ id: riuSubmissions.id })
+    .from(riuSubmissions)
+    .where(
+      and(
+        eq(riuSubmissions.riuSetId, riuSet.id),
+        eq(riuSubmissions.userId, userId),
+      ),
+    )
+
+  if (existing) {
+    throw new Error("You have already submitted to this set")
+  }
+
   const [riuSubmission] = await db
     .insert(riuSubmissions)
     .values({

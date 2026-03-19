@@ -7,6 +7,7 @@ import {
   pgTable,
   primaryKey,
   real,
+  unique,
   serial,
   text,
   timestamp,
@@ -447,23 +448,27 @@ export const riuSets = pgTable("riu_sets", {
     .notNull(),
 })
 
-export const riuSubmissions = pgTable("riu_submissions", {
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  id: serial("id").primaryKey(),
+export const riuSubmissions = pgTable(
+  "riu_submissions",
+  {
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    id: serial("id").primaryKey(),
 
-  riuSetId: integer("riu_set_id")
-    .notNull()
-    .references(() => riuSets.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    riuSetId: integer("riu_set_id")
+      .notNull()
+      .references(() => riuSets.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
 
-  muxAssetId: text("mux_asset_id")
-    .references(() => muxVideos.assetId, {
-      onDelete: "set null",
-    })
-    .notNull(),
-})
+    muxAssetId: text("mux_asset_id")
+      .references(() => muxVideos.assetId, {
+        onDelete: "set null",
+      })
+      .notNull(),
+  },
+  (t) => [unique().on(t.riuSetId, t.userId)],
+)
 
 // BIU (Back It Up) Game Tables
 export const bius = pgTable("bius", {
