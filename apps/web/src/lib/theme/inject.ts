@@ -8,14 +8,6 @@ export function injectThemeScript() {
     document.documentElement.classList.remove("light", "dark")
     document.documentElement.classList.add(theme)
     document.documentElement.style.colorScheme = theme
-    // Set background color early to prevent white flash in PWA standalone mode
-    document.documentElement.style.backgroundColor =
-      theme === "dark" ? "#000" : "#fff"
-    // Update theme-color meta tag to match
-    const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) {
-      meta.setAttribute("content", theme === "dark" ? "#000000" : "#ffffff")
-    }
   }
 
   // oxlint-disable-next-line unicorn/consistent-function-scoping -- must be inside for inline script injection

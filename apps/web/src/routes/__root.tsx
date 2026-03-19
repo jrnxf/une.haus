@@ -104,7 +104,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
       {
         name: "viewport",
-        content: "width=device-width, initial-scale=1, viewport-fit=cover",
+        content: "width=device-width, initial-scale=1",
       },
       {
         name: "apple-mobile-web-app-capable",
@@ -117,10 +117,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       {
         name: "apple-mobile-web-app-status-bar-style",
         content: "black-translucent",
-      },
-      {
-        name: "theme-color",
-        content: "#000000",
       },
     ],
   }),
