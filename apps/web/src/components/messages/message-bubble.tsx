@@ -198,7 +198,7 @@ export function MessageBubble({
             </TrayTrigger>
             <TrayContent
               dialogClassName="sm:max-w-2xl"
-              drawerClassName="pb-[calc(env(safe-area-inset-bottom)+1rem)]"
+              drawerClassName="pb-4"
               showCloseButton={false}
             >
               <TrayTitle className="sr-only">message details</TrayTitle>
@@ -585,7 +585,7 @@ function MessageFlagTray({
 
   return (
     <Tray open={open} onOpenChange={onOpenChange}>
-      <TrayContent drawerClassName="pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+      <TrayContent drawerClassName="pb-4">
         <TrayTitle className="sr-only">flag message</TrayTitle>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">
