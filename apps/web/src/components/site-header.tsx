@@ -9,7 +9,7 @@ export function MobileFooter() {
   const breadcrumbs = useMobileBreadcrumbs()
 
   return (
-    <footer className="shrink-0 border-t md:hidden">
+    <footer className="shrink-0 border-t pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="flex h-14 items-center justify-between px-4">
         <div className="min-w-0 flex-1">{breadcrumbs}</div>
         <Button
