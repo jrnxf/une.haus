@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
   Bell,
+  BookIcon,
   BugIcon,
   ChevronsUpDown,
   EyeOff,
@@ -118,6 +119,16 @@ export function AuthedUserMenuItems({
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <a
+            href="https://docs.une.haus"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <BookIcon className="size-3.5" />
+            docs
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
             href="https://github.com/jrnxf/une.haus"
             target="_blank"
             rel="noopener noreferrer"
@@ -210,6 +221,16 @@ export function UnauthedUserMenuItems() {
             <ScrollText className="size-3.5" />
             terms
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a
+            href="https://docs.une.haus"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <BookIcon className="size-3.5" />
+            docs
+          </a>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <a
