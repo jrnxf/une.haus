@@ -16,7 +16,7 @@
     "**/*.integration.test.ts"
   ],
   "project": ["src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
-  "ignore": [],
+  "ignore": ["src/db/schema.ts"],
   "drizzle": false,
   "ignoreDependencies": [
     "@tailwindcss/postcss",
