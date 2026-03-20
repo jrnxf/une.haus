@@ -277,7 +277,6 @@ function RouteComponent() {
                               })
                             }
                             disabled={updateSettings.isPending}
-                            items={DAYS_OF_WEEK}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -306,7 +305,6 @@ function RouteComponent() {
                               })
                             }
                             disabled={updateSettings.isPending}
-                            items={DAYS_OF_MONTH}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -332,7 +330,6 @@ function RouteComponent() {
                             handleUpdate({ emailDigestHourUtc: Number(value) })
                           }
                           disabled={updateSettings.isPending}
-                          items={HOURS_OF_DAY}
                         >
                           <SelectTrigger className="w-32">
                             <SelectValue />
@@ -410,7 +407,6 @@ function RouteComponent() {
                           })
                         }
                         disabled={updateSettings.isPending}
-                        items={HOURS_BEFORE_OPTIONS}
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue />

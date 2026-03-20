@@ -4,8 +4,8 @@ import {
   Select,
   SelectContent,
   SelectGroup,
-  SelectGroupLabel,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
 } from "~/components/ui/select"
 import { cn } from "~/lib/utils"
@@ -28,14 +28,12 @@ export function ContentHeaderDropdown({
   options,
   groups,
   onValueChange,
-  align = "start",
   contentClassName,
   triggerClassName,
 }: {
   value: string
   triggerLabel: ReactNode
-  onValueChange: (value: string | null) => void
-  align?: "start" | "center" | "end"
+  onValueChange: (value: string) => void
   contentClassName?: string
   triggerClassName?: string
 } & (
@@ -47,11 +45,11 @@ export function ContentHeaderDropdown({
       <SelectTrigger className={cn("w-fit text-xs", triggerClassName)}>
         <span className="min-w-0 truncate">{triggerLabel}</span>
       </SelectTrigger>
-      <SelectContent align={align} className={contentClassName}>
+      <SelectContent className={contentClassName}>
         {groups
           ? groups.map((group) => (
               <SelectGroup key={group.label}>
-                <SelectGroupLabel>{group.label}</SelectGroupLabel>
+                <SelectLabel>{group.label}</SelectLabel>
                 {group.options.map((option) => (
                   <DropdownItem key={option.value} option={option} />
                 ))}

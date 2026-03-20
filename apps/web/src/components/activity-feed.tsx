@@ -59,11 +59,6 @@ const TYPE_LABELS: Record<ActivityTypeFilter, string> = {
   siuSet: "siu sets",
 }
 
-const ACTIVITY_ITEMS: Record<string, string> = {
-  all: "all activity",
-  ...TYPE_LABELS,
-}
-
 type ActivityGroup = {
   key: string
   items: ActivityItem[]
@@ -216,7 +211,6 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
     <Select
       value={typeFilter}
       onValueChange={(v) => setTypeFilter(v as ActivityTypeFilter | "all")}
-      items={ACTIVITY_ITEMS}
     >
       <SelectTrigger className="h-7 w-fit text-xs">
         <SelectValue />
