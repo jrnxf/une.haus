@@ -37,34 +37,33 @@ function RouteComponent() {
   const latestSet = round?.sets?.[0]
   const canBackUp =
     sessionUser && latestSet && latestSet.user.id !== sessionUser.id
-  const selectedGameIndex = rounds.findIndex(
-    (c) => c.id === Number(selectedRoundId),
-  )
+  const activeOptions = [...rounds]
+    .toSorted((a, b) => b.id - a.id)
+    .map((round) => ({
+      value: String(round.id),
+      label: `round ${round.id}`,
+    }))
 
   return (
     <div className="mx-auto w-full max-w-3xl p-4">
       <ContentHeaderRow
         className="max-w-none pb-4"
         left={
-          <div className="flex items-center gap-2">
-            {rounds.length > 1 && selectedRoundId !== undefined && (
-              <ContentHeaderDropdown
-                value={String(selectedRoundId)}
-                triggerLabel={`game ${selectedGameIndex + 1}`}
-                options={rounds.map((round, index) => ({
-                  value: String(round.id),
-                  label: `game ${index + 1}`,
-                }))}
-                onValueChange={(value) =>
-                  navigate({
-                    to: "/games/bius/$roundId",
-                    params: { roundId: Number(value) },
-                    replace: true,
-                  })
-                }
-              />
-            )}
-          </div>
+          selectedRoundId !== undefined ? (
+            <ContentHeaderDropdown
+              value={String(selectedRoundId)}
+              triggerLabel={`round ${selectedRoundId}`}
+              groups={[{ label: "active", options: activeOptions }]}
+              onValueChange={(value) => {
+                if (!value) return
+                navigate({
+                  to: "/games/bius/$roundId",
+                  params: { roundId: Number(value) },
+                  replace: true,
+                })
+              }}
+            />
+          ) : undefined
         }
         right={
           <div className="flex items-center gap-2">

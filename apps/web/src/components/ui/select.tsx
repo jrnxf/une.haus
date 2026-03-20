@@ -150,4 +150,41 @@ function SelectScrollDownButton({
   )
 }
 
-export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue }
+function SelectGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.Group>) {
+  return (
+    <SelectPrimitive.Group
+      data-slot="select-group"
+      className={cn("py-1", className)}
+      {...props}
+    />
+  )
+}
+
+function SelectGroupLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof SelectPrimitive.GroupLabel>) {
+  return (
+    <SelectPrimitive.GroupLabel
+      data-slot="select-group-label"
+      className={cn(
+        "text-muted-foreground px-2 py-1.5 text-xs font-medium",
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectGroupLabel,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+}

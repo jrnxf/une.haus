@@ -490,6 +490,11 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
 })
   .middleware([authOptionalMiddleware])
   .handler(async ({ context }) => {
+    const upcomingRound = await db.query.rius.findFirst({
+      where: eq(rius.status, "upcoming"),
+      columns: { id: true, createdAt: true },
+    })
+
     const sets = await db
       .select({
         createdAt: riuSets.createdAt,
@@ -547,6 +552,7 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
     return {
       authUserSets: context.user ? sets.filter(isAuthUsersSet) : undefined,
       roster: Object.fromEntries(map),
+      round: upcomingRound,
     }
   })
 

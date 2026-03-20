@@ -113,6 +113,7 @@ export function useDeleteSet({
         return {
           authUserSets: nextAuthUserSets,
           roster: nextRoster,
+          round: previous?.round,
         }
       })
 

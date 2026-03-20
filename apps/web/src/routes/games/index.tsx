@@ -65,7 +65,7 @@ function RouteComponent() {
           to="/games/sius"
           icon={StackItUpIcon}
           title="stack it up"
-          description="land every trick in an ever-growing stack then set your own an the end. consistency wins."
+          description="land every trick in an ever-growing stack then set your own at the end. consistency wins."
         />
       </div>
     </>

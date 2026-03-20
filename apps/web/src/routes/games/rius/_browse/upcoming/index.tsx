@@ -15,13 +15,14 @@ import {
 import { UserChip } from "~/components/user-chip"
 import { games } from "~/lib/games"
 
-function getNextMidnightUtcDate(nowMs = Date.now()) {
+function getNextMondayMidnightUtc(nowMs = Date.now()) {
   const now = new Date(nowMs)
+  const daysUntilMonday = (8 - now.getUTCDay()) % 7 || 7
   return new Date(
     Date.UTC(
       now.getUTCFullYear(),
       now.getUTCMonth(),
-      now.getUTCDate() + 1,
+      now.getUTCDate() + daysUntilMonday,
       0,
       0,
       0,
@@ -31,12 +32,12 @@ function getNextMidnightUtcDate(nowMs = Date.now()) {
 }
 
 function NextGameCountdown() {
-  const [targetDate, setTargetDate] = useState(() => getNextMidnightUtcDate())
+  const [targetDate, setTargetDate] = useState(() => getNextMondayMidnightUtc())
 
   useEffect(() => {
     const timer = setInterval(() => {
       if (Date.now() >= targetDate.getTime()) {
-        setTargetDate(getNextMidnightUtcDate())
+        setTargetDate(getNextMondayMidnightUtc())
       }
     }, 1000)
     return () => clearInterval(timer)

@@ -25,38 +25,23 @@ import { games } from "~/lib/games"
 export const Route = createFileRoute("/games/sius/_browse")({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      games.sius.rounds.active.queryOptions(),
-    )
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        games.sius.rounds.active.queryOptions(),
+      ),
+      context.queryClient.ensureQueryData(
+        games.sius.rounds.archived.list.queryOptions(),
+      ),
+    ])
   },
 })
 
-const sections = [
-  { value: "archived", route: "/games/sius/archived" },
-  { value: "active", route: "/games/sius" },
-] as const
-
-const fmt = (d: Date | string) => {
-  const date = typeof d === "string" ? new Date(d) : d
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
-}
-
-const formatRoundDates = (
-  createdAt: Date | string,
-  endedAt: Date | string | null,
-) => {
-  const start = fmt(createdAt)
-  const end = endedAt ? fmt(endedAt) : "present"
-  return `${start} – ${end}`
-}
-
 function RouteComponent() {
-  const { data: rounds } = useSuspenseQuery(
+  const { data: activeRounds } = useSuspenseQuery(
     games.sius.rounds.active.queryOptions(),
+  )
+  const { data: archivedRounds } = useSuspenseQuery(
+    games.sius.rounds.archived.list.queryOptions(),
   )
   const { sessionUser, authGate } = useAuthGate()
   const navigate = useNavigate()
@@ -65,8 +50,9 @@ function RouteComponent() {
   const selectedRoundId = params.roundId
   const isArchived = pathname.startsWith("/games/sius/archived")
   const isActive = !isArchived && selectedRoundId !== undefined
-  const currentSection = isArchived ? "archived" : "active"
-  const selectedRound = rounds.find((c) => c.id === Number(selectedRoundId))
+  const selectedRound = activeRounds.find(
+    (c) => c.id === Number(selectedRoundId),
+  )
   const activeSets = (selectedRound?.sets ?? []).filter((set) => !set.deletedAt)
   const latestSet = activeSets[0]
   const voteCount = selectedRound?.archiveVotes?.length ?? 0
@@ -78,57 +64,71 @@ function RouteComponent() {
     latestSet &&
     latestSet.user.id !== sessionUser.id &&
     selectedRound?.status === "active"
-  const selectedGameIndex = rounds.findIndex(
-    (c) => c.id === Number(selectedRoundId),
-  )
+
+  const activeOptions = [...activeRounds]
+    .toSorted((a, b) => b.id - a.id)
+    .map((round) => ({
+      value: String(round.id),
+      label: `round ${round.id}`,
+    }))
+
+  const archivedOptions = [...archivedRounds]
+    .toSorted((a, b) => b.id - a.id)
+    .map((round) => ({
+      value: `archived-${round.id}`,
+      label: `round ${round.id}`,
+    }))
+
+  const dropdownValue = isArchived
+    ? `archived-${selectedRoundId}`
+    : String(selectedRoundId)
 
   return (
     <div className="mx-auto w-full max-w-3xl p-4">
       <ContentHeaderRow
         className="max-w-none pb-4"
         left={
-          <div className="flex items-center gap-2">
+          selectedRoundId !== undefined ? (
             <ContentHeaderDropdown
-              value={currentSection}
-              triggerLabel={currentSection}
-              options={sections.map((section) => ({
-                value: section.value,
-                label: section.value,
-              }))}
+              value={dropdownValue}
+              triggerLabel={`round ${selectedRoundId}`}
+              groups={[
+                ...(activeOptions.length > 0
+                  ? [{ label: "active", options: activeOptions }]
+                  : []),
+                ...(archivedOptions.length > 0
+                  ? [{ label: "previous", options: archivedOptions }]
+                  : []),
+              ]}
               onValueChange={(value) => {
-                const section = sections.find((s) => s.value === value)
-                if (section) navigate({ to: section.route })
-              }}
-              triggerClassName="w-full sm:w-auto"
-            />
-
-            {isActive && rounds.length > 1 && selectedRoundId !== undefined && (
-              <ContentHeaderDropdown
-                value={String(selectedRoundId)}
-                triggerLabel={`game ${selectedGameIndex + 1}`}
-                options={rounds.map((round, index) => ({
-                  value: String(round.id),
-                  label: `game ${index + 1}`,
-                }))}
-                onValueChange={(value) =>
+                if (!value) return
+                if (value.startsWith("archived-")) {
+                  const roundId = value.replace("archived-", "")
+                  navigate({
+                    to: "/games/sius/archived/$roundId",
+                    params: { roundId },
+                  })
+                } else {
                   navigate({
                     to: "/games/sius/$roundId",
                     params: { roundId: Number(value) },
                     replace: true,
                   })
                 }
-              />
-            )}
-
-            {isArchived && selectedRoundId !== undefined && (
-              <ArchivedRoundSelector
-                selectedRoundId={Number(selectedRoundId)}
-              />
-            )}
-          </div>
+              }}
+              contentClassName="max-h-[300px]"
+            />
+          ) : undefined
         }
         right={
           <div className="flex items-center gap-2">
+            {isActive && selectedRound && (
+              <ArchiveVoteButton
+                roundId={selectedRound.id}
+                voteCount={voteCount}
+                hasVoted={Boolean(hasVoted)}
+              />
+            )}
             {isActive &&
               selectedRound &&
               latestSet &&
@@ -168,12 +168,6 @@ function RouteComponent() {
                       upload
                     </Button>
                   ) : null}
-
-                  <ArchiveVoteButton
-                    roundId={selectedRound.id}
-                    voteCount={voteCount}
-                    hasVoted={Boolean(hasVoted)}
-                  />
                 </>
               )}
             {isActive && <SiuInfoTray />}
@@ -221,55 +215,5 @@ function SiuInfoTray() {
         </div>
       </TrayContent>
     </Tray>
-  )
-}
-
-function ArchivedRoundSelector({
-  selectedRoundId,
-}: {
-  selectedRoundId: number
-}) {
-  const navigate = useNavigate()
-  const { data: archivedRounds } = useSuspenseQuery(
-    games.sius.rounds.archived.list.queryOptions(),
-  )
-
-  if (archivedRounds.length <= 1) return null
-
-  const selected = archivedRounds.find((s) => s.id === selectedRoundId)
-
-  return (
-    <ContentHeaderDropdown
-      value={String(selectedRoundId)}
-      triggerLabel={`round ${selected?.id ?? selectedRoundId}`}
-      options={[...archivedRounds]
-        .toSorted((a, b) => {
-          const aEnd = a.endedAt ? new Date(a.endedAt).getTime() : Date.now()
-          const bEnd = b.endedAt ? new Date(b.endedAt).getTime() : Date.now()
-          return bEnd - aEnd
-        })
-        .map((round) => ({
-          value: String(round.id),
-          label: (
-            <span className="leading-tight font-medium lowercase">
-              round {round.id}
-            </span>
-          ),
-          description: (
-            <span className="lowercase">
-              {formatRoundDates(round.createdAt, round.endedAt)}
-            </span>
-          ),
-        }))}
-      onValueChange={(value) => {
-        if (!value) return
-        navigate({
-          to: "/games/sius/archived/$roundId",
-          params: { roundId: value },
-        })
-      }}
-      align="end"
-      contentClassName="max-h-[300px]"
-    />
   )
 }
