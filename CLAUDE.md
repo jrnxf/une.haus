@@ -551,9 +551,8 @@ import { ShieldIcon } from "lucide-react";
 
 Canonical examples:
 
-- `src/routes/vault/index.tsx` - Admin mode toggle
-- `src/routes/games/rius/_browse.tsx` - Browse-only game navigation
-- `src/routes/tricks/index.tsx` - Admin dropdown menu
+- `src/routes/_authed/tourney/create.tsx` - Admin dropdown menu
+- `src/routes/vault/$videoId/edit.tsx` - Admin label with ShieldIcon
 
 ## Spacing Guidelines
 

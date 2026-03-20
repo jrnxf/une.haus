@@ -26,11 +26,12 @@ A unified content moderation system that lets any authenticated user flag any pi
 │   GAME ENTITIES  │    POSTS         │    MESSAGES               │
 │                  │                  │                           │
 │  • BIU sets      │  • Posts         │  • Post messages          │
-│  • SIU stacks    │                  │  • BIU set messages       │
-│  • RIU sets      │                  │  • SIU stack messages     │
+│  • SIU sets      │                  │  • BIU set messages       │
+│  • RIU sets      │                  │  • SIU set messages       │
 │  • RIU submits   │                  │  • RIU set messages       │
 │                  │                  │  • RIU submission msgs    │
 │                  │                  │  • Vault video messages   │
+│                  │                  │  • Chat messages          │
 └──────────────────┴──────────────────┴───────────────────────────┘
                               │
                               ▼
@@ -112,15 +113,16 @@ CREATE TABLE flags (
 CREATE TYPE flag_entity_type AS ENUM (
   'post',
   'biuSet',
-  'siuStack',
+  'siuSet',
   'riuSet',
   'riuSubmission',
   'postMessage',
   'biuSetMessage',
-  'siuStackMessage',
+  'siuSetMessage',
   'riuSetMessage',
   'riuSubmissionMessage',
-  'utvVideoMessage'
+  'utvVideoMessage',
+  'chatMessage'
 );
 ```
 
@@ -177,20 +179,21 @@ export const flagsRelations = relations(flags, ({ one }) => ({
 | --------------- | ----------------- | ----------------------------------------------------------- |
 | `post`          | `posts`           | `src/views/post.tsx`                                        |
 | `biuSet`        | `biu_sets`        | `src/routes/games/bius/sets/$setId/index.tsx`               |
-| `siuStack`      | `siu_stacks`      | `src/routes/games/sius/stacks/$stackId/index.tsx`           |
+| `siuSet`        | `siu_sets`        | `src/routes/games/sius/sets/$setId/index.tsx`               |
 | `riuSet`        | `riu_sets`        | `src/routes/games/rius/sets/$setId/index.tsx`               |
 | `riuSubmission` | `riu_submissions` | `src/routes/games/rius/submissions/$submissionId/index.tsx` |
 
-### Message Entities (6)
+### Message Entities (7)
 
 | Entity Type            | Parent Entity   | Flag Button Location                         |
 | ---------------------- | --------------- | -------------------------------------------- |
 | `postMessage`          | `post`          | `src/components/messages/message-bubble.tsx` |
 | `biuSetMessage`        | `biuSet`        | same                                         |
-| `siuStackMessage`      | `siuStack`      | same                                         |
+| `siuSetMessage`        | `siuSet`        | same                                         |
 | `riuSetMessage`        | `riuSet`        | same                                         |
 | `riuSubmissionMessage` | `riuSubmission` | same                                         |
 | `utvVideoMessage`      | `utvVideo`      | same                                         |
+| `chatMessage`          | `chat`          | same                                         |
 
 Message flags store `parentEntityId` so the admin can navigate to the page where the message lives.
 
@@ -205,16 +208,17 @@ const FLAG_TO_NOTIFICATION_ENTITY: Record<
 > = {
   post: "post",
   biuSet: "biuSet",
-  siuStack: "siuStack",
+  siuSet: "siuSet",
   riuSet: "riuSet",
   riuSubmission: "riuSubmission",
   // Message flags → parent entity type
   postMessage: "post",
   biuSetMessage: "biuSet",
-  siuStackMessage: "siuStack",
+  siuSetMessage: "siuSet",
   riuSetMessage: "riuSet",
   riuSubmissionMessage: "riuSubmission",
   utvVideoMessage: "utvVideo",
+  chatMessage: "chat",
 }
 ```
 
@@ -395,7 +399,7 @@ Props:
 
 | Prop             | Type             | Required | Description                           |
 | ---------------- | ---------------- | -------- | ------------------------------------- |
-| `entityType`     | `FlagEntityType` | Yes      | One of the 11 entity types            |
+| `entityType`     | `FlagEntityType` | Yes      | One of the 12 entity types            |
 | `entityId`       | `number`         | Yes      | ID of the entity being flagged        |
 | `parentEntityId` | `number`         | No       | Parent entity ID (message types only) |
 | `placeholder`    | `string`         | No       | Custom placeholder text               |
@@ -411,7 +415,7 @@ Game detail pages and the post view render `<FlagTray>` inline (visible to logge
 }
 ```
 
-Game entity pages use the same pattern with their respective entity types (`biuSet`, `siuStack`, `riuSet`, `riuSubmission`).
+Game entity pages use the same pattern with their respective entity types (`biuSet`, `siuSet`, `riuSet`, `riuSubmission`).
 
 ### Message Flag Menu Item
 
@@ -419,7 +423,7 @@ Game entity pages use the same pattern with their respective entity types (`biuS
 
 Messages show a "flag" option in the long-press context menu. Clicking it opens a `MessageFlagTray` (internal component) instead of navigating. The message type is derived from the parent type.
 
-**Note:** Chat messages (`parent.type === "chat"`) are excluded because `"chatMessage"` is not a valid `FlagEntityType`.
+**Note:** The message type is derived from the parent type (e.g., `post` → `postMessage`, `chat` → `chatMessage`).
 
 ---
 
@@ -529,10 +533,10 @@ Notifies **the original flagger** with `type: "review"`:
 │                                                                 │
 │  ENTITY TYPES                                                   │
 │  ────────────                                                   │
-│  Content (5): post, biuSet, siuStack, riuSet, riuSubmission     │
-│  Messages (6): postMessage, biuSetMessage, siuStackMessage,     │
+│  Content (5): post, biuSet, siuSet, riuSet, riuSubmission     │
+│  Messages (7): postMessage, biuSetMessage, siuSetMessage,     │
 │                riuSetMessage, riuSubmissionMessage,              │
-│                utvVideoMessage                                  │
+│                utvVideoMessage, chatMessage                     │
 │                                                                 │
 │  FILES                                                          │
 │  ─────                                                          │
@@ -551,7 +555,7 @@ Notifies **the original flagger** with `type: "review"`:
 │  • Resolution doesn't auto-delete (admin decides externally)    │
 │  • Duplicate prevention per user per entity                     │
 │  • Message flags store parentEntityId for navigation            │
-│  • Chat messages excluded (no chatMessage flag type)            │
+│  • Chat messages included (chatMessage flag type)               │
 │  • Admins notified on flag, flagger notified on resolution      │
 └────────────────────────────────────────────────────────────────┘
 ```

@@ -149,6 +149,53 @@ const filteredItems = useMemo(() => {
 }, [data.items, searchParams.q])
 ```
 
+## `useFilteredList` hook
+
+**File:** `src/hooks/use-filtered-list.ts`
+
+The `useFilteredList` hook encapsulates the full filtering pattern (local state, debounced navigate, deferred values) into a reusable abstraction. Server-side filtered list routes should use this hook instead of inlining the pattern.
+
+```tsx
+import { useFilteredList } from "~/hooks/use-filtered-list"
+
+function RouteComponent() {
+  const searchParams = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  const { filters, handleFiltersChange, queryParams } = useFilteredList({
+    searchParams,
+    navigate,
+    filterFields: [
+      { key: "q", type: "text", label: "search", placeholder: "search..." },
+      { key: "tags", type: "multiselect", label: "tags", options: tagOptions },
+    ],
+  })
+
+  return (
+    <>
+      <Filters
+        filterFields={filterFields}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+      />
+      <Suspense>
+        <ItemsList queryParams={queryParams} />
+      </Suspense>
+    </>
+  )
+}
+```
+
+The hook returns:
+
+| Value                 | Type                                              | Description                                       |
+| --------------------- | ------------------------------------------------- | ------------------------------------------------- |
+| `filterFields`        | `FilterField[]`                                   | Filter field definitions (passed through)         |
+| `filters`             | `ActiveFilter[]`                                  | Current filter state for the `<Filters>` UI       |
+| `handleFiltersChange` | `(next: ActiveFilter[]) => void`                  | Updates local state + triggers debounced navigate |
+| `queryParams`         | `Record<string, string \| string[] \| undefined>` | Deferred params for the suspense query            |
+| `operators`           | `Record<string, "contain" \| "equal">`            | Filter operator metadata                          |
+
 ## Canonical examples
 
 | Route     | Type                       | File                          |

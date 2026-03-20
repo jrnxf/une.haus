@@ -24,14 +24,17 @@ The notification system provides real-time awareness of activity relevant to eac
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    NOTIFICATION TRIGGERS                        │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│   ENGAGEMENT    │    SOCIAL       │      CONTENT                │
-│                 │                 │                             │
-│  • Like post    │  • Follow user  │  • New post from followed   │
-│  • Like set     │                 │  • New RIU set from followed│
-│  • Like submit  │                 │  • New BIU set from followed│
-│  • Comment      │                 │                             │
-└─────────────────┴─────────────────┴─────────────────────────────┘
+├──────────────────┬──────────────────┬───────────────────────────┤
+│   ENGAGEMENT     │    SOCIAL        │      CONTENT              │
+│                  │                  │                           │
+│  • Like content  │  • Follow user   │  • New post from followed │
+│  • Like message  │  • @mention      │  • New RIU set            │
+│  • Comment       │                  │  • New BIU set            │
+├──────────────────┴──────────────────┴───────────────────────────┤
+│   MODERATION / SYSTEM                                          │
+│                                                                │
+│  • Flag content  • Archive request  • Chain archived  • Review │
+└─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -68,7 +71,7 @@ src/
 │   ├── notifications/                # Core notification logic
 │   │   ├── schemas.ts               # Zod validation
 │   │   ├── fns.ts                   # Server functions (list, mark read, etc.)
-│   │   ├── helpers.ts               # createNotification(), notifyFollowers()
+│   │   ├── helpers.server.ts        # createNotification(), notifyFollowers()
 │   │   ├── hooks.ts                 # React Query mutations
 │   │   ├── utils.ts                 # URL routing, message formatting
 │   │   └── index.ts                 # Facade object
@@ -79,9 +82,8 @@ src/
 │       └── index.ts
 │
 ├── components/notifications/         # UI components
-│   ├── notification-bell.tsx        # Bell icon with popover
-│   ├── notification-item.tsx        # Single notification row
-│   └── index.ts
+│   ├── notification-timeline.tsx    # Container and item layout
+│   └── notification-item.tsx        # Icon rendering and actor formatting
 │
 └── routes/_authed/notifications/     # Pages
     ├── index.tsx                    # Full notifications list
@@ -175,18 +177,20 @@ CREATE INDEX idx_notifications_created_at ON notifications(created_at);
 
 ```sql
 CREATE TABLE user_notification_settings (
-  user_id                      INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  likes_enabled                BOOLEAN NOT NULL DEFAULT TRUE,
-  comments_enabled             BOOLEAN NOT NULL DEFAULT TRUE,
-  follows_enabled              BOOLEAN NOT NULL DEFAULT TRUE,
-  new_content_enabled          BOOLEAN NOT NULL DEFAULT TRUE,
-  mentions_enabled             BOOLEAN NOT NULL DEFAULT TRUE,
-  email_digest_frequency       TEXT NOT NULL DEFAULT 'off',  -- 'off' | 'weekly' | 'monthly'
-  email_digest_day_of_week     INTEGER DEFAULT 0,            -- 0=Sunday
-  email_digest_day_of_month    INTEGER DEFAULT 1,            -- 1-28
-  email_digest_hour_utc        INTEGER DEFAULT 9,
-  email_unsubscribed_all       BOOLEAN NOT NULL DEFAULT FALSE,
-  updated_at                   TIMESTAMP NOT NULL DEFAULT NOW()
+  user_id                        INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  likes_enabled                  BOOLEAN NOT NULL DEFAULT TRUE,
+  comments_enabled               BOOLEAN NOT NULL DEFAULT TRUE,
+  follows_enabled                BOOLEAN NOT NULL DEFAULT TRUE,
+  new_content_enabled            BOOLEAN NOT NULL DEFAULT TRUE,
+  mentions_enabled               BOOLEAN NOT NULL DEFAULT TRUE,
+  game_start_reminder_enabled    BOOLEAN NOT NULL DEFAULT TRUE,
+  game_start_reminder_hours_before INTEGER NOT NULL DEFAULT 24,
+  email_digest_frequency         TEXT NOT NULL DEFAULT 'off',  -- 'off' | 'weekly' | 'monthly'
+  email_digest_day_of_week       INTEGER DEFAULT 0,            -- 0=Sunday
+  email_digest_day_of_month      INTEGER DEFAULT 1,            -- 1-28
+  email_digest_hour_utc          INTEGER DEFAULT 9,
+  email_unsubscribed_all         BOOLEAN NOT NULL DEFAULT FALSE,
+  updated_at                     TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ```
 
@@ -194,16 +198,34 @@ CREATE TABLE user_notification_settings (
 
 ```typescript
 // Notification types (what happened)
-type NotificationType = "like" | "comment" | "follow" | "new_content"
+type NotificationType =
+  | "like" // Someone liked your content
+  | "message_like" // Someone liked your message/comment
+  | "comment" // Someone commented on your content
+  | "follow" // Someone followed you
+  | "new_content" // Someone you follow created content
+  | "mention" // Someone @mentioned you
+  | "archive_request" // SIU archive vote on your stack
+  | "chain_archived" // A BIU chain you participated in was archived
+  | "review" // Admin resolved your flag
+  | "flag" // Someone flagged content (sent to admins)
 
 // Entity types (what it happened to)
 type NotificationEntityType =
+  | "chat"
   | "post"
   | "riuSet"
   | "riuSubmission"
   | "biuSet"
+  | "siuSet"
+  | "siu"
   | "utvVideo"
+  | "utvVideoSuggestion"
   | "user"
+  | "trickSubmission"
+  | "trickSuggestion"
+  | "trickVideo"
+  | "glossaryProposal"
 ```
 
 ### Entity Relationship Diagram
@@ -224,11 +246,13 @@ type NotificationEntityType =
 │ actor_id (FK)     │  │ comments_enabled            │
 │ type              │  │ follows_enabled             │
 │ entity_type       │  │ new_content_enabled         │
-│ entity_id         │  │ updated_at                  │
-│ data (JSONB)      │  └─────────────────────────────┘
-│ created_at        │
-│ read_at           │
-│ emailed_at        │
+│ entity_id         │  │ mentions_enabled            │
+│ data (JSONB)      │  │ game_start_reminder_enabled │
+│ created_at        │  │ game_start_reminder_hours…  │
+│ read_at           │  │ email_digest_frequency      │
+│ emailed_at        │  │ email_unsubscribed_all      │
+│                   │  │ updated_at                  │
+│                   │  └─────────────────────────────┘
 └───────────────────┘
 ```
 
@@ -236,7 +260,9 @@ type NotificationEntityType =
 
 ## Notification Types
 
-### 1. Like Notifications (`type: "like"`)
+### User-Facing Types (respect preferences)
+
+#### 1. Like Notifications (`type: "like"`)
 
 Triggered when someone likes your content.
 
@@ -248,9 +274,11 @@ Triggered when someone likes your content.
 | `biuSet`        | `src/lib/reactions/fns.ts` | "Dan liked your BIU set"      |
 | `utvVideo`      | `src/lib/reactions/fns.ts` | "Eve liked your video"        |
 
-**Note:** Message likes (postMessage, riuSetMessage, etc.) do NOT trigger notifications to reduce noise.
+#### 2. Message Like Notifications (`type: "message_like"`)
 
-### 2. Comment Notifications (`type: "comment"`)
+Triggered when someone likes your comment/message on any entity.
+
+#### 3. Comment Notifications (`type: "comment"`)
 
 Triggered when someone comments on your content.
 
@@ -262,9 +290,9 @@ Triggered when someone comments on your content.
 | `biuSet`        | `src/lib/messages/fns.ts` | "Dan commented on your BIU set"      |
 | `utvVideo`      | `src/lib/messages/fns.ts` | "Eve commented on your video"        |
 
-**Note:** Chat messages do NOT trigger notifications (no owner to notify).
+**Note:** Chat messages do NOT trigger comment notifications (no owner to notify).
 
-### 3. Follow Notifications (`type: "follow"`)
+#### 4. Follow Notifications (`type: "follow"`)
 
 Triggered when someone follows you.
 
@@ -272,7 +300,7 @@ Triggered when someone follows you.
 | ----------- | ---------------------- | ----------------------------- |
 | `user`      | `src/lib/users/fns.ts` | "Alice started following you" |
 
-### 4. New Content Notifications (`type: "new_content"`)
+#### 5. New Content Notifications (`type: "new_content"`)
 
 Triggered when someone you follow creates new content.
 
@@ -281,6 +309,30 @@ Triggered when someone you follow creates new content.
 | `post`      | `src/lib/posts/fns.ts`      | "Alice posted: 'My new trick'"      |
 | `riuSet`    | `src/lib/games/rius/fns.ts` | "Bob created RIU set: 'Hard combo'" |
 | `biuSet`    | `src/lib/games/bius/fns.ts` | "Carol backed up: 'Unispin'"        |
+
+#### 6. Mention Notifications (`type: "mention"`)
+
+Triggered when someone @mentions you in a message.
+
+### System Types (bypass preferences)
+
+These notification types are always delivered regardless of user settings.
+
+#### 7. Archive Request (`type: "archive_request"`)
+
+Triggered when someone votes to archive a SIU stack you own.
+
+#### 8. Chain Archived (`type: "chain_archived"`)
+
+Triggered when a BIU chain you participated in is archived.
+
+#### 9. Review (`type: "review"`)
+
+Triggered when an admin resolves a flag you submitted (dismissed or acted upon).
+
+#### 10. Flag (`type: "flag"`)
+
+Triggered when a user flags content. Sent to all admin users.
 
 ---
 
@@ -451,6 +503,12 @@ Users can disable specific notification types via `/notifications/settings`.
 │  [spark] New content from followed users              [ ]   │
 │  When someone you follow creates a new post or set          │
 │                                                             │
+│  [@]     Mentions                                     [✓]   │
+│  When someone @mentions you                                 │
+│                                                             │
+│  [bell]  Game start reminders                         [✓]   │
+│  Remind me before a game round starts (hours before: 24)    │
+│                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -536,8 +594,11 @@ deleteNotificationServerFn({ data: { notificationId: number } })
 
 ### Helper Functions
 
+**File:** `src/lib/notifications/helpers.server.ts`
+
 ```typescript
-// Create a single notification (respects preferences)
+// Create a single notification (respects preferences for user-facing types,
+// bypasses for system types: archive_request, chain_archived, review, flag)
 async function createNotification(input: {
   userId: number // Recipient
   actorId?: number // Who triggered it
@@ -568,6 +629,24 @@ async function getContentOwner(
   entityType: NotificationEntityType,
   entityId: number,
 ): Promise<number | null>
+
+// Get message owner info (for message_like notifications)
+async function getMessageOwner(
+  type: string,
+  messageId: number,
+): Promise<MessageOwnerInfo | null>
+
+// Delete all notifications for an entity (used when content is removed)
+async function deleteNotificationsForEntity(
+  entityType: NotificationEntityType,
+  entityId: number,
+): Promise<void>
+
+// Delete all notifications for a message
+async function deleteNotificationsForMessage(
+  entityType: string,
+  messageId: number,
+): Promise<void>
 ```
 
 ### Query Options (React Query)
@@ -589,55 +668,39 @@ notifications.list.infiniteQueryOptions({ unreadOnly: false })
 
 ## UI Components
 
-### NotificationBell
+### NotificationTimeline
 
-Bell icon with unread badge and popover dropdown.
+Container component that renders a list of notification items. Used on the full `/notifications` page.
 
-```tsx
-import { NotificationBell } from "~/components/notifications/notification-bell"
-;<NotificationBell className="..." />
-```
+**File:** `src/components/notifications/notification-timeline.tsx`
 
-**Features:**
+### NotificationIcon
 
-- Shows unread count badge (capped at 99+)
-- Popover with recent grouped notifications
-- Mark all read button
-- Settings link
-- "View all" link to full page
-
-### NotificationItem
-
-Renders a single grouped notification.
+Renders a type-specific icon for a notification.
 
 ```tsx
-import { NotificationItem } from "~/components/notifications/notification-item";
-
-<NotificationItem
-  type="like"
-  entityType="post"
-  entityId={42}
-  count={3}
-  actors={[{ id: 1, name: "Alice", avatarId: "..." }, ...]}
-  data={{ entityTitle: "My cool post" }}
-  latestAt={new Date()}
-  isRead={false}
-  onMarkRead={() => {...}}
-  onDelete={() => {...}}
-/>
+import { NotificationIcon } from "~/components/notifications/notification-item"
+;<NotificationIcon type="like" entityType="post" />
 ```
 
-**Features:**
+### formatActorNames
 
-- Type-specific icon with color (size-10)
-- Stacked avatars (up to 3 unique actors, size-7)
-- "+N" badge showing additional notifications beyond displayed actors
-- Human-readable message with actor deduplication
-- Relative timestamp
-- Unread indicator dot (left side)
-- Click to navigate to entity and mark as read
-- Mark as read button on hover (check icon)
-- Delete button on hover (x icon)
+Formats actor names for display (e.g., "Alice and 2 others").
+
+```tsx
+import { formatActorNames } from "~/components/notifications/notification-item"
+
+formatActorNames(["Alice", "Bob", "Carol"], 3) // "Alice, Bob, and Carol"
+formatActorNames(["Alice"], 5) // "Alice and 4 others"
+```
+
+### Unread Count
+
+The unread count is available via the notification facade's query options, which polls every 30 seconds. The user menu in the sidebar displays the badge count.
+
+```tsx
+const { data: count } = useQuery(notifications.unreadCount.queryOptions())
+```
 
 ### Pages
 
@@ -679,18 +742,20 @@ A Nitro scheduled task runs every hour (`0 * * * *`). It queries users whose `em
 ┌────────────────────────────────────────────────────────────────┐
 │                   NOTIFICATION SYSTEM                          │
 │                                                                │
-│  TRIGGERS          PROCESSING           DELIVERY               │
-│  ─────────         ──────────           ────────               │
-│  • Likes      ───► • Helpers       ───► • User menu badge      │
-│  • Comments        • Preferences        • Dropdown popover     │
-│  • Follows         • Grouping           • Full page list       │
-│  • New content     • Deduplication      • Email digests        │
+│  USER-FACING TYPES    SYSTEM TYPES (bypass prefs)              │
+│  ────────────────     ───────────────────────────              │
+│  • like               • archive_request                       │
+│  • message_like       • chain_archived                        │
+│  • comment            • review                                │
+│  • follow             • flag                                  │
+│  • new_content                                                │
+│  • mention                                                    │
 │                                                                │
 │  FILES                                                         │
 │  ─────                                                         │
-│  lib/notifications/     - Core logic                           │
-│  lib/notification-settings/ - Preferences                      │
-│  components/notifications/  - UI components                    │
+│  lib/notifications/          - Core logic + helpers.server.ts  │
+│  lib/notification-settings/  - Preferences                     │
+│  components/notifications/   - UI components                   │
 │  routes/_authed/notifications/ - Pages                         │
 │                                                                │
 │  KEY DESIGN DECISIONS                                          │
@@ -698,9 +763,8 @@ A Nitro scheduled task runs every hour (`0 * * * *`). It queries users whose `em
 │  • Store individually, group on display                        │
 │  • Deduplicate actors (same person = 1 avatar, not 3)          │
 │  • Fire-and-forget creation (non-blocking)                     │
-│  • Respect preferences at creation time                        │
+│  • User-facing types respect preferences; system types don't   │
 │  • Skip self-notifications automatically                       │
-│  • Skip message likes (too noisy)                              │
 │  • 30-second polling for near-realtime badge updates           │
 └────────────────────────────────────────────────────────────────┘
 ```

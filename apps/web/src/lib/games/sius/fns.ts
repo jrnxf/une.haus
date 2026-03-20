@@ -1,6 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, desc, eq, isNull, lte } from "drizzle-orm"
+import { and, asc, desc, eq, isNull, lte } from "drizzle-orm"
 
 import {
   addSetSchema,
@@ -34,7 +34,7 @@ export const getActiveRoundsServerFn = createServerFn({ method: "GET" })
   .handler(async () => {
     const activeRounds = await db.query.sius.findMany({
       where: eq(sius.status, "active"),
-      orderBy: desc(sius.createdAt),
+      orderBy: asc(sius.createdAt),
       with: {
         sets: {
           orderBy: desc(siuSets.position),

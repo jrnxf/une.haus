@@ -62,16 +62,14 @@ function padTime(value: number) {
 function formatTimeText(timeLeft: TimeLeft) {
   if (timeLeft.totalSeconds <= 0) return "refresh"
 
-  if (timeLeft.days > 0) {
-    return `${timeLeft.days}d ${padTime(timeLeft.hours)}:${padTime(timeLeft.minutes)}:${padTime(timeLeft.seconds)}`
-  }
+  const parts: string[] = []
+  if (timeLeft.days > 0) parts.push(`${timeLeft.days}d`)
+  if (timeLeft.hours > 0 || timeLeft.days > 0)
+    parts.push(`${padTime(timeLeft.hours)}h`)
+  parts.push(`${padTime(timeLeft.minutes)}m`)
+  parts.push(`${padTime(timeLeft.seconds)}s`)
 
-  if (timeLeft.totalSeconds >= 60 * 60) {
-    const totalHours = Math.floor(timeLeft.totalSeconds / (60 * 60))
-    return `${padTime(totalHours)}:${padTime(timeLeft.minutes)}:${padTime(timeLeft.seconds)}`
-  }
-
-  return `${padTime(timeLeft.minutes)}:${padTime(timeLeft.seconds)}`
+  return parts.join(" ")
 }
 
 export function CountdownClock({

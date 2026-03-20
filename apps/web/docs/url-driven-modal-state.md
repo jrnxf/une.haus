@@ -11,7 +11,7 @@ iOS Safari caches page snapshots for the swipe-back gesture preview. If a modal/
 
 ## The Solution
 
-Make modal state live in the **URL** (e.g., `?sidebar=1`, `?search=1`), not just React state. This way, the history entry you're swiping back to never had the modal open in the first place because whatever link you click will replace the current history entry (the one with the modal open).
+Make modal state live in the **URL** via the `?p=` param, not just React state. The `usePeripherals(key)` hook manages this. State is stored as a pipe-delimited array (e.g., `?p=sidebar|search`), so multiple peripherals can be open simultaneously.
 
 ---
 
@@ -20,24 +20,20 @@ Make modal state live in the **URL** (e.g., `?sidebar=1`, `?search=1`), not just
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         URL (Source of Truth)                   │
-│                     /games?sidebar=1  →  sidebar open           │
-│                     /games?search=1   →  command menu open      │
-│                     /games            →  all modals closed      │
+│                     /games?p=sidebar       →  sidebar open      │
+│                     /games?p=sidebar|search →  both open        │
+│                     /games                  →  all closed        │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Modal Component (self-contained)             │
+│                    usePeripherals(key) Hook                     │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │ // Read URL directly                                    │    │
-│  │ const { myParam } = useSearch({ from: "__root__" })     │    │
-│  │ const open = myParam === 1                              │    │
+│  │ const [open, setOpen, dismiss] = usePeripherals("sidebar") │ │
 │  │                                                         │    │
-│  │ // Handle navigation internally                         │    │
-│  │ const setOpen = (nextOpen) => {                         │    │
-│  │   if (nextOpen) navigate({ search: { myParam: 1 } })    │    │
-│  │   else router.history.back()                            │    │
-│  │ }                                                       │    │
+│  │ // open:    boolean — is this key in the ?p= array?     │    │
+│  │ // setOpen: (bool) => push history / history.back()     │    │
+│  │ // dismiss: () => replace URL (no history.back)         │    │
 │  └─────────────────────────────────────────────────────────┘    │
 │                                │                                │
 │                                ▼                                │
@@ -50,118 +46,76 @@ Make modal state live in the **URL** (e.g., `?sidebar=1`, `?search=1`), not just
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-Each modal component is fully self-contained—it reads from URL and handles navigation internally. No props needed from parent routes.
+Each modal component is fully self-contained. No props needed from parent routes.
 
 ---
 
-## The Core Pattern
+## The `usePeripherals` Hook
 
-### The `setOpen` Function
+**File:** `src/hooks/use-peripherals.ts`
 
 ```tsx
-const setOpen = React.useCallback(
-  (nextOpen: boolean) => {
-    if (nextOpen) {
-      // OPENING: Push new history entry with ?param=1
-      navigate({
-        to: ".",
-        search: (prev) => ({ ...prev, myParam: 1 }),
-      })
-    } else {
-      // CLOSING: Go back in history (removes the entry)
-      router.history.back()
-    }
-  },
-  [navigate, router],
-)
+import { usePeripherals } from "~/hooks/use-peripherals"
+
+const [open, setOpen, dismiss] = usePeripherals("sidebar")
 ```
 
-**This handles:**
+Returns a tuple:
 
-- Opening the modal (via trigger button, keyboard shortcut, etc.)
-- Closing via overlay click
-- Closing via close button
-- Closing via escape key
+| Value     | Type                          | Description                                                  |
+| --------- | ----------------------------- | ------------------------------------------------------------ |
+| `open`    | `boolean`                     | Whether this key is in the `?p=` array                       |
+| `setOpen` | `(nextOpen: boolean) => void` | Opens (push history) or closes (history.back)                |
+| `dismiss` | `() => void`                  | Programmatic close via URL replace (no history.back, no pop) |
 
-**Why `history.back()` for closing?**
-Because we PUSHED a new entry when opening. Going back pops it cleanly.
+### How it works
+
+- Uses `nuqs` with `parseAsArrayOf(parseAsString, "|")` to store a pipe-delimited array in the `p` search param
+- **Opening:** Appends the key to the array, pushes a new history entry
+- **Closing via setOpen(false):** Calls `router.history.back()` to pop the entry
+- **Closing via dismiss:** Removes the key from the array with `history: "replace"` (useful for programmatic close without affecting history)
+
+### Usage with dialog/drawer components
+
+```tsx
+function Sidebar() {
+  const [open, setOpen] = usePeripherals("sidebar")
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetContent>
+        {/* Navigation links — use plain <Link>, NOT SheetClose wrappers */}
+        <Link to="/users">users</Link>
+        <Link to="/posts">posts</Link>
+      </SheetContent>
+    </Sheet>
+  )
+}
+```
 
 ---
 
-### Navigation Links with `replace`
+## Navigation Links Inside Peripherals
 
-When you have navigation links inside the modal that should close it:
+When a peripheral contains navigation links, do **NOT** wrap them in a close trigger (e.g., `DrawerPrimitive.Close`, `SheetClose`). The close trigger calls `history.back()`, which undoes the navigation.
 
-```tsx
-<Link to={item.url} replace>
-```
-
-Or if you need to explicitly remove the search param:
+Instead, use plain `Link` components. When the link navigates to a new URL, the `?p=` param is gone, so `usePeripherals` returns `open=false` and the peripheral closes naturally.
 
 ```tsx
-<Link
-  to={item.url}
-  search={(prev) => {
-    const { myParam: _, ...rest } = prev
-    return rest
-  }}
-  replace
-/>
-```
+// Good - Link navigates, URL change closes the drawer
+<Link to={url}>go somewhere</Link>
 
-**Why `replace` instead of normal navigation?**
-This is the key insight! When user clicks a nav link:
-
-1. Current URL: `/games?sidebar=1`
-2. Without `replace`: Would push `/users`, leaving `/games?sidebar=1` in history
-3. With `replace`: REPLACES `/games?sidebar=1` with `/users`
-
-The `?sidebar=1` entry is gone! Swipe-back now shows the previous page (closed).
-
----
-
-## Examples in This Codebase
-
-### Sidebar (`SidebarProvider`)
-
-Uses `?sidebar=1` in the URL. The `SidebarProvider` reads this and controls a Sheet component.
-
-### Command Menu (`CommandMenu`)
-
-Uses `?search=1` in the URL:
-
-```tsx
-const { search } = useSearch({ from: rootRouteId })
-const open = search === 1
-
-const setOpen = React.useCallback(
-  (nextOpen: boolean) => {
-    if (nextOpen) {
-      navigate({
-        to: ".",
-        search: (prev) => ({ ...prev, search: nextOpen ? 1 : undefined }),
-      })
-    } else {
-      router.history.back()
-    }
-  },
-  [navigate, router],
-)
-```
-
-Navigation links inside the command menu use `replace`:
-
-```tsx
-<Link to="/users" replace>
-  Users
-</Link>
+// Bad - close trigger calls history.back(), undoing the navigation
+<DrawerPrimitive.Close render={<Link to={url} />}>
+  go somewhere
+</DrawerPrimitive.Close>
 ```
 
 ---
 
 ## Complete Flow Diagrams
 
-### Flow 1: Open Modal
+### Flow 1: Open Peripheral
 
 ```
 User Action: Clicks trigger or presses ⌘K
@@ -170,27 +124,24 @@ User Action: Clicks trigger or presses ⌘K
 setOpen(true) called
     │
     ▼
-navigate({ to: ".", search: { ...prev, myParam: 1 } })
+nuqs appends key to ?p= array (history: "push")
     │
     ▼
-URL changes: /games → /games?myParam=1
+URL changes: /games → /games?p=sidebar
     │
     ▼
-useSearch() returns { myParam: 1 }
-    │
-    ▼
-open = true
+open = peripherals.includes("sidebar") = true
     │
     ▼
 Modal opens with animation
 
 History Stack:
   BEFORE: [/home] → [/games]
-  AFTER:  [/home] → [/games] → [/games?myParam=1]
+  AFTER:  [/home] → [/games] → [/games?p=sidebar]
                                     ▲ you are here
 ```
 
-### Flow 2: Close Modal (Overlay/Button/Escape)
+### Flow 2: Close Peripheral (Overlay/Button/Escape)
 
 ```
 User Action: Clicks overlay, close button, or presses Escape
@@ -205,10 +156,7 @@ setOpen(false) called
 router.history.back()
     │
     ▼
-URL changes: /games?myParam=1 → /games
-    │
-    ▼
-useSearch() returns { myParam: undefined }
+URL changes: /games?p=sidebar → /games
     │
     ▼
 open = false
@@ -217,44 +165,41 @@ open = false
 Modal closes with animation
 
 History Stack:
-  BEFORE: [/home] → [/games] → [/games?myParam=1]
+  BEFORE: [/home] → [/games] → [/games?p=sidebar]
                                     ▲ you are here
   AFTER:  [/home] → [/games]
                         ▲ you are here (went back)
 ```
 
-### Flow 3: Close Modal via Navigation
+### Flow 3: Close Peripheral via Navigation
 
 ```
-User Action: Clicks a link inside the modal
+User Action: Clicks a <Link> inside the modal
     │
     ▼
-<Link to="/users" replace> clicked
+<Link to="/users"> navigates
     │
     ▼
-URL changes: /games?myParam=1 → /users (REPLACES, doesn't push)
+URL changes: /games?p=sidebar → /users
     │
     ▼
-useSearch() returns { myParam: undefined }
+?p= param is gone, open = false
     │
     ▼
-open = false
-    │
-    ▼
-Modal closes with animation
+Modal closes naturally
 
 History Stack:
-  BEFORE: [/home] → [/games] → [/games?myParam=1]
+  BEFORE: [/home] → [/games] → [/games?p=sidebar]
                                     ▲ you are here
-  AFTER:  [/home] → [/games] → [/users]
-                                  ▲ replaced the modal entry!
+  AFTER:  [/home] → [/games] → [/games?p=sidebar] → [/users]
+                                                        ▲ pushed
 ```
 
 ### Flow 4: iOS Swipe-Back (The Whole Point!)
 
 ```
 Current state: User is on /users, modal is closed
-History Stack: [/home] → [/games] → [/users]
+History Stack: [/home] → [/games] → [/games?p=sidebar] → [/users]
 
 User Action: Swipes back from left edge
     │
@@ -262,99 +207,53 @@ User Action: Swipes back from left edge
 iOS shows preview of previous history entry
     │
     ▼
-Previous entry is /games (NOT /games?myParam=1!)
+Previous entry is /games?p=sidebar
     │
     ▼
-Preview shows /games with modal CLOSED ✓
+BUT: the page renders with sidebar open — and that's
+what was showing when we left, so the snapshot matches!
     │
     ▼
-User completes swipe
-    │
-    ▼
-Page loads /games, modal is closed
-    │
-    ▼
-No jarring state mismatch! 🎉
+No jarring state mismatch.
 ```
 
 ---
 
-## Why Both Pieces Are Necessary
+## `dismiss` vs `setOpen(false)`
 
-| Scenario           | Which piece handles it? | Why?                               |
-| ------------------ | ----------------------- | ---------------------------------- |
-| Open modal         | `setOpen(true)`         | Need to PUSH new history entry     |
-| Close via overlay  | `setOpen(false)`        | Need to go BACK to pop the entry   |
-| Close via escape   | `setOpen(false)`        | Same as overlay                    |
-| Close via nav link | `Link` with `replace`   | Need to REPLACE entry, not go back |
+| Method           | History Effect       | Use Case                                     |
+| ---------------- | -------------------- | -------------------------------------------- |
+| `setOpen(false)` | `history.back()`     | User-initiated close (overlay, escape, X)    |
+| `dismiss()`      | `history: "replace"` | Programmatic close (e.g., after form submit) |
 
-**What if we only had `setOpen`?**
-
-If nav links just navigated normally without `replace`:
-
-```
-History: [/home] → [/games] → [/games?myParam=1] → [/users]
-```
-
-Swipe-back from `/users` would show `/games?myParam=1` (modal OPEN) 💥
-
-**What if we only had the `Link` approach?**
-
-Opening the modal wouldn't add a history entry, so:
-
-- Swipe-back wouldn't close the modal
-- Browser back button wouldn't close the modal
-- You'd need a separate close mechanism
+Use `dismiss()` when you want to close a peripheral without popping a history entry — for example, after a mutation succeeds and you want to close a form drawer.
 
 ---
 
-## Schema Configuration
+## Adding a New Peripheral
 
-In your root route, validate the search params:
-
-```tsx
-const rootSearchSchema = z.object({
-  sidebar: z
-    .any()
-    .optional()
-    .transform((v) => (v === "1" || v === 1 ? ("1" as const) : undefined)),
-  search: z
-    .any()
-    .optional()
-    .transform((v) => (v === 1 ? 1 : undefined)),
-})
-```
-
-**Why `z.any()`?**
-
-TanStack Router auto-coerces `"1"` to `1` (number). We accept anything and normalize it.
-
-**Why transform to `undefined`?**
-
-Clean URLs. Invalid values become undefined, treated as "closed".
-
----
-
-## Adding a New URL-Driven Modal
-
-1. **Add the search param to your schema** in `__root.tsx`
-2. **Read from URL** in your component:
+1. **Call the hook** in your component:
    ```tsx
-   const { myParam } = useSearch({ from: rootRouteId })
-   const open = myParam === 1
+   const [open, setOpen] = usePeripherals("my-panel")
    ```
-3. **Implement `setOpen`** with navigate/back pattern
-4. **Use `replace` on navigation links** inside the modal
+2. **Pass to your dialog/drawer:**
+   ```tsx
+   <Dialog open={open} onOpenChange={setOpen}>
+     ...
+   </Dialog>
+   ```
+3. **Use plain `Link` for navigation links** inside the peripheral (no close wrappers)
+
+No schema changes needed — `usePeripherals` manages the `?p=` param via `nuqs` independently of TanStack Router's search schema.
 
 ---
 
 ## Summary
 
-The Instagram-like swipe-back behavior works because:
+The swipe-back behavior works because:
 
-1. **Modal open state = URL state** (not React state)
-2. **Opening PUSHES** a new history entry (`?myParam=1`)
-3. **Closing via overlay GOES BACK** (pops the entry)
-4. **Closing via navigation REPLACES** the entry (removes it from history)
-
-The history stack never contains a stale "modal open" entry that iOS could show during swipe-back preview.
+1. **Modal open state = URL state** (stored in `?p=` param via `usePeripherals`)
+2. **Opening PUSHES** a new history entry (key added to `?p=` array)
+3. **Closing via overlay/escape GOES BACK** (pops the entry via `history.back()`)
+4. **Closing programmatically REPLACES** the entry (via `dismiss()`)
+5. **Navigation links** just navigate — the `?p=` param disappears naturally
