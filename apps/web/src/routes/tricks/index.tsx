@@ -425,11 +425,11 @@ function TricksListPage() {
           }
           right={
             <>
-              <Button asChild>
-                <Link to="/tricks/create">create</Link>
-              </Button>
               <Button asChild variant="secondary">
                 <Link to="/tricks/glossary/elements">glossary</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/tricks/create">create</Link>
               </Button>
             </>
           }
