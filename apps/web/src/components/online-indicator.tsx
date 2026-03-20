@@ -64,7 +64,7 @@ export function OnlineIndicator({ className }: { className?: string }) {
           )}
         >
           <span className="pr-1">
-            <StatusIndicator className="bg-green-500" />
+            <StatusIndicator className="bg-green-600" />
           </span>
           <OnlineCount />
           <span>online</span>
