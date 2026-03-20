@@ -240,7 +240,7 @@ function DataGridColumnHeaderInner<TData, TValue>({
             <Settings2Icon className="size-3.5!" />
             <span>Columns</span>
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent side="right">
+          <DropdownMenuSubContent>
             {table
               .getAllColumns()
               .filter(
@@ -289,19 +289,17 @@ function DataGridColumnHeaderInner<TData, TValue>({
     return (
       <div className="flex h-full items-center justify-between gap-1.5">
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                className={headerButtonClassName}
-                disabled={isLoading || recordCount === 0}
-              >
-                {icon && icon}
-                {title}
-                {sortIcon}
-              </Button>
-            }
-          />
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={headerButtonClassName}
+              disabled={isLoading || recordCount === 0}
+            >
+              {icon && icon}
+              {title}
+              {sortIcon}
+            </Button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="start">
             {menuItems}
           </DropdownMenuContent>

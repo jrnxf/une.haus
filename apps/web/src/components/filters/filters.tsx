@@ -478,17 +478,15 @@ function FilterOperatorDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="outline"
-            size={size}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {operatorLabel}
-          </Button>
-        }
-      />
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size={size}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          {operatorLabel}
+        </Button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-fit min-w-fit">
         {operators.map((op) => (
           <DropdownMenuItem

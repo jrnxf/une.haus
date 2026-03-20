@@ -63,7 +63,10 @@ function ThemeSubmenu() {
         theme
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent>
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+        <DropdownMenuRadioGroup
+          value={theme}
+          onValueChange={setTheme as (value: string) => void}
+        >
           <DropdownMenuRadioItem value="system">
             <MonitorIcon className="size-3.5" />
             system
