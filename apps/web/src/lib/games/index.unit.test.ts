@@ -1,6 +1,7 @@
 import { describe, expect, it, mock } from "bun:test"
 
 mock.module("@tanstack/react-query", () => ({
+  infiniteQueryOptions: (options: unknown) => options,
   queryOptions: (options: unknown) => options,
 }))
 
@@ -22,12 +23,14 @@ mock.module("~/lib/games/rius/fns", () => ({
   getRiuSetServerFn: () => null,
   getRiuSubmissionServerFn: () => null,
   listActiveRiusServerFn: () => null,
+  listArchivedRiuRoundsServerFn: () => null,
   listArchivedRiusServerFn: () => null,
   listUpcomingRiuRosterServerFn: () => null,
   updateRiuSetServerFn: () => null,
 }))
 
 mock.module("~/lib/games/rius/schemas", () => ({
+  ARCHIVED_ROUNDS_PAGE_SIZE: 12,
   createRiuSetSchema: {},
   createRiuSubmissionSchema: {},
   deleteRiuSetSchema: {},
@@ -35,6 +38,7 @@ mock.module("~/lib/games/rius/schemas", () => ({
   getArchivedRiusSchema: {},
   getRiuSetSchema: {},
   getRiuSubmissionSchema: {},
+  listArchivedRiuRoundsSchema: {},
   updateRiuSetSchema: {},
 }))
 

@@ -19,6 +19,7 @@ import {
   getArchivedRiusSchema,
   getRiuSetSchema,
   getRiuSubmissionSchema,
+  listArchivedRiuRoundsSchema,
   updateRiuSetSchema,
 } from "~/lib/games/rius/schemas"
 import { invariant } from "~/lib/invariant"
@@ -554,6 +555,15 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
       roster: Object.fromEntries(map),
       round: upcomingRound,
     }
+  })
+
+export const listArchivedRiuRoundsServerFn = createServerFn({
+  method: "GET",
+})
+  .inputValidator(zodValidator(listArchivedRiuRoundsSchema))
+  .handler(async ({ data }) => {
+    const { listArchivedRiuRounds } = await loadRiuOps()
+    return listArchivedRiuRounds(data)
   })
 
 export const adminOnlyRotateRiusServerFn = createServerFn({

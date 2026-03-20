@@ -8,6 +8,22 @@ export const Route = createFileRoute("/games/rius")({
 
 function RouteComponent() {
   const pathname = useLocation({ select: (location) => location.pathname })
+  const isIndex = pathname === "/games/rius" || pathname === "/games/rius/"
+
+  if (isIndex) {
+    return (
+      <>
+        <PageHeader maxWidth="max-w-4xl">
+          <PageHeader.Breadcrumbs>
+            <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
+            <PageHeader.Crumb>rack it up</PageHeader.Crumb>
+          </PageHeader.Breadcrumbs>
+        </PageHeader>
+        <Outlet />
+      </>
+    )
+  }
+
   const status = pathname.startsWith("/games/rius/archived")
     ? "archived"
     : pathname.startsWith("/games/rius/upcoming")
@@ -19,9 +35,7 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <PageHeader.Crumb to="/games/rius/active">
-            rack it up
-          </PageHeader.Crumb>
+          <PageHeader.Crumb to="/games/rius">rack it up</PageHeader.Crumb>
           <PageHeader.Crumb>{status}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>

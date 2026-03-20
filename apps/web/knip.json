@@ -9,6 +9,7 @@
     "server/tasks/**/*.ts",
     "emails/**/*.tsx",
     "src/scripts/**/*.ts",
+    "src/db/scripts/**/*.ts",
     "src/testing/**/*.ts",
     "src/styles.css",
     "**/*.unit.test.{ts,tsx}",

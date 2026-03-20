@@ -22,19 +22,19 @@ export const TRICK_SUBMISSION_STATUSES = [
   "rejected",
 ] as const
 
-export const trickSubmissionStatusEnum = pgEnum(
+const trickSubmissionStatusEnum = pgEnum(
   "trick_submission_status",
   TRICK_SUBMISSION_STATUSES,
 )
-export const RIU_STATUSES = ["archived", "active", "upcoming"] as const
+const RIU_STATUSES = ["archived", "active", "upcoming"] as const
 // enums
-export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
+const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
 
-export const SIU_STATUSES = ["active", "archived"] as const
-export const siuStatusEnum = pgEnum("siu_status", SIU_STATUSES)
+const SIU_STATUSES = ["active", "archived"] as const
+const siuStatusEnum = pgEnum("siu_status", SIU_STATUSES)
 
-export const USER_TYPES = ["user", "admin", "test"] as const
-export const userTypeEnum = pgEnum("user_type", USER_TYPES)
+const USER_TYPES = ["user", "admin", "test"] as const
+const userTypeEnum = pgEnum("user_type", USER_TYPES)
 
 export const USER_DISCIPLINES = [
   "street",
@@ -66,7 +66,7 @@ export const POST_TAGS = [
 
 type PostTag = (typeof POST_TAGS)[number]
 
-export const postTagEnum = pgEnum("post_tag", POST_TAGS)
+const postTagEnum = pgEnum("post_tag", POST_TAGS)
 
 // Notification enums
 export const NOTIFICATION_TYPES = [
@@ -84,10 +84,7 @@ export const NOTIFICATION_TYPES = [
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 
-export const notificationTypeEnum = pgEnum(
-  "notification_type",
-  NOTIFICATION_TYPES,
-)
+const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES)
 
 export const NOTIFICATION_ENTITY_TYPES = [
   "chat",
@@ -108,7 +105,7 @@ export const NOTIFICATION_ENTITY_TYPES = [
 
 export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number]
 
-export const notificationEntityTypeEnum = pgEnum(
+const notificationEntityTypeEnum = pgEnum(
   "notification_entity_type",
   NOTIFICATION_ENTITY_TYPES,
 )
@@ -470,6 +467,20 @@ export const riuSubmissions = pgTable(
   (t) => [unique().on(t.riuSetId, t.userId)],
 )
 
+export const riuPodium = pgTable(
+  "riu_podium",
+  {
+    riuId: integer("riu_id")
+      .notNull()
+      .references(() => rius.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    rank: integer("rank").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.riuId, t.userId] })],
+)
+
 // BIU (Back It Up) Game Tables
 export const bius = pgTable("bius", {
   id: serial("id").primaryKey(),
@@ -665,11 +676,11 @@ export const notifications = pgTable(
   ],
 )
 
-export const EMAIL_DIGEST_FREQUENCIES = ["off", "weekly", "monthly"] as const
-export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
+const EMAIL_DIGEST_FREQUENCIES = ["off", "weekly", "monthly"] as const
+type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
 
-export const EMAIL_REMINDER_TYPES = ["digest", "game_start"] as const
-export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
+const EMAIL_REMINDER_TYPES = ["digest", "game_start"] as const
+type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
 
 export const userNotificationSettings = pgTable("user_notification_settings", {
   userId: integer("user_id")
@@ -742,7 +753,7 @@ export const FLAG_ENTITY_TYPES = [
 
 export type FlagEntityType = (typeof FLAG_ENTITY_TYPES)[number]
 
-export const flagEntityTypeEnum = pgEnum("flag_entity_type", FLAG_ENTITY_TYPES)
+const flagEntityTypeEnum = pgEnum("flag_entity_type", FLAG_ENTITY_TYPES)
 
 export const flags = pgTable("flags", {
   id: serial("id").primaryKey(),
@@ -889,6 +900,7 @@ export const utvVideoSuggestionsRelations = relations(
 export const riusRelations = relations(rius, ({ many }) => ({
   // likes: many(postLikes),
   sets: many(riuSets),
+  podium: many(riuPodium),
 }))
 
 export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
@@ -903,92 +915,74 @@ export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
   }),
 }))
 
-export const riuSubmissionsRelations = relations(
-  riuSubmissions,
-  ({ one, many }) => ({
-    likes: many(riuSubmissionLikes),
-    messages: many(riuSubmissionMessages),
-    riuSet: one(riuSets, {
-      fields: [riuSubmissions.riuSetId],
-      references: [riuSets.id],
-    }),
-    user: one(users, {
-      fields: [riuSubmissions.userId],
-      references: [users.id],
-    }),
-    video: one(muxVideos, {
-      fields: [riuSubmissions.muxAssetId],
-      references: [muxVideos.assetId],
-    }),
+export const riuSubmissionsRelations = relations(riuSubmissions, ({ one, many }) => ({
+  likes: many(riuSubmissionLikes),
+  messages: many(riuSubmissionMessages),
+  riuSet: one(riuSets, {
+    fields: [riuSubmissions.riuSetId],
+    references: [riuSets.id],
   }),
-)
+  user: one(users, {
+    fields: [riuSubmissions.userId],
+    references: [users.id],
+  }),
+  video: one(muxVideos, {
+    fields: [riuSubmissions.muxAssetId],
+    references: [muxVideos.assetId],
+  }),
+}))
 
 export const postLikesRelations = relations(postLikes, ({ one }) => ({
   post: one(posts, { fields: [postLikes.postId], references: [posts.id] }),
   user: one(users, { fields: [postLikes.userId], references: [users.id] }),
 }))
 
-export const postMessagesRelations = relations(
-  postMessages,
-  ({ many, one }) => ({
-    likes: many(postMessageLikes),
-    post: one(posts, { fields: [postMessages.postId], references: [posts.id] }),
-    user: one(users, { fields: [postMessages.userId], references: [users.id] }),
-  }),
-)
+export const postMessagesRelations = relations(postMessages, ({ many, one }) => ({
+  likes: many(postMessageLikes),
+  post: one(posts, { fields: [postMessages.postId], references: [posts.id] }),
+  user: one(users, { fields: [postMessages.userId], references: [users.id] }),
+}))
 
-export const postMessageLikesRelations = relations(
-  postMessageLikes,
-  ({ one }) => ({
-    postMessage: one(postMessages, {
-      fields: [postMessageLikes.postMessageId],
-      references: [postMessages.id],
-    }),
-    user: one(users, {
-      fields: [postMessageLikes.userId],
-      references: [users.id],
-    }),
+export const postMessageLikesRelations = relations(postMessageLikes, ({ one }) => ({
+  postMessage: one(postMessages, {
+    fields: [postMessageLikes.postMessageId],
+    references: [postMessages.id],
   }),
-)
+  user: one(users, {
+    fields: [postMessageLikes.userId],
+    references: [users.id],
+  }),
+}))
 
 // CHAT
-export const chatMessagesRelations = relations(
-  chatMessages,
-  ({ many, one }) => ({
-    likes: many(chatMessageLikes),
-    user: one(users, { fields: [chatMessages.userId], references: [users.id] }),
-  }),
-)
+export const chatMessagesRelations = relations(chatMessages, ({ many, one }) => ({
+  likes: many(chatMessageLikes),
+  user: one(users, { fields: [chatMessages.userId], references: [users.id] }),
+}))
 
-export const chatMessageLikesRelations = relations(
-  chatMessageLikes,
-  ({ one }) => ({
-    chatMessage: one(chatMessages, {
-      fields: [chatMessageLikes.chatMessageId],
-      references: [chatMessages.id],
-    }),
-    user: one(users, {
-      fields: [chatMessageLikes.userId],
-      references: [users.id],
-    }),
+export const chatMessageLikesRelations = relations(chatMessageLikes, ({ one }) => ({
+  chatMessage: one(chatMessages, {
+    fields: [chatMessageLikes.chatMessageId],
+    references: [chatMessages.id],
   }),
-)
+  user: one(users, {
+    fields: [chatMessageLikes.userId],
+    references: [users.id],
+  }),
+}))
 
 // RIU SET MESSAGES
-export const riuSetMessagesRelations = relations(
-  riuSetMessages,
-  ({ many, one }) => ({
-    likes: many(riuSetMessageLikes),
-    riuSet: one(riuSets, {
-      fields: [riuSetMessages.riuSetId],
-      references: [riuSets.id],
-    }),
-    user: one(users, {
-      fields: [riuSetMessages.userId],
-      references: [users.id],
-    }),
+export const riuSetMessagesRelations = relations(riuSetMessages, ({ many, one }) => ({
+  likes: many(riuSetMessageLikes),
+  riuSet: one(riuSets, {
+    fields: [riuSetMessages.riuSetId],
+    references: [riuSets.id],
   }),
-)
+  user: one(users, {
+    fields: [riuSetMessages.userId],
+    references: [users.id],
+  }),
+}))
 
 export const riuSetLikesRelations = relations(riuSetLikes, ({ one }) => ({
   riuSet: one(riuSets, {
@@ -1059,6 +1053,17 @@ export const riuSubmissionLikesRelations = relations(
   }),
 )
 
+export const riuPodiumRelations = relations(riuPodium, ({ one }) => ({
+  riu: one(rius, {
+    fields: [riuPodium.riuId],
+    references: [rius.id],
+  }),
+  user: one(users, {
+    fields: [riuPodium.userId],
+    references: [users.id],
+  }),
+}))
+
 // BIU Relations
 export const biusRelations = relations(bius, ({ many }) => ({
   sets: many(biuSets),
@@ -1098,20 +1103,17 @@ export const biuSetLikesRelations = relations(biuSetLikes, ({ one }) => ({
   }),
 }))
 
-export const biuSetMessagesRelations = relations(
-  biuSetMessages,
-  ({ one, many }) => ({
-    biuSet: one(biuSets, {
-      fields: [biuSetMessages.biuSetId],
-      references: [biuSets.id],
-    }),
-    user: one(users, {
-      fields: [biuSetMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(biuSetMessageLikes),
+export const biuSetMessagesRelations = relations(biuSetMessages, ({ one, many }) => ({
+  biuSet: one(biuSets, {
+    fields: [biuSetMessages.biuSetId],
+    references: [biuSets.id],
   }),
-)
+  user: one(users, {
+    fields: [biuSetMessages.userId],
+    references: [users.id],
+  }),
+  likes: many(biuSetMessageLikes),
+}))
 
 export const biuSetMessageLikesRelations = relations(
   biuSetMessageLikes,
@@ -1156,19 +1158,16 @@ export const siuSetsRelations = relations(siuSets, ({ one, many }) => ({
   messages: many(siuSetMessages),
 }))
 
-export const siuArchiveVotesRelations = relations(
-  siuArchiveVotes,
-  ({ one }) => ({
-    siu: one(sius, {
-      fields: [siuArchiveVotes.siuId],
-      references: [sius.id],
-    }),
-    user: one(users, {
-      fields: [siuArchiveVotes.userId],
-      references: [users.id],
-    }),
+export const siuArchiveVotesRelations = relations(siuArchiveVotes, ({ one }) => ({
+  siu: one(sius, {
+    fields: [siuArchiveVotes.siuId],
+    references: [sius.id],
   }),
-)
+  user: one(users, {
+    fields: [siuArchiveVotes.userId],
+    references: [users.id],
+  }),
+}))
 
 export const siuSetLikesRelations = relations(siuSetLikes, ({ one }) => ({
   siuSet: one(siuSets, {
@@ -1181,20 +1180,17 @@ export const siuSetLikesRelations = relations(siuSetLikes, ({ one }) => ({
   }),
 }))
 
-export const siuSetMessagesRelations = relations(
-  siuSetMessages,
-  ({ one, many }) => ({
-    siuSet: one(siuSets, {
-      fields: [siuSetMessages.siuSetId],
-      references: [siuSets.id],
-    }),
-    user: one(users, {
-      fields: [siuSetMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(siuSetMessageLikes),
+export const siuSetMessagesRelations = relations(siuSetMessages, ({ one, many }) => ({
+  siuSet: one(siuSets, {
+    fields: [siuSetMessages.siuSetId],
+    references: [siuSets.id],
   }),
-)
+  user: one(users, {
+    fields: [siuSetMessages.userId],
+    references: [users.id],
+  }),
+  likes: many(siuSetMessageLikes),
+}))
 
 export const siuSetMessageLikesRelations = relations(
   siuSetMessageLikes,
@@ -1260,37 +1256,34 @@ export const emailRemindersSentRelations = relations(
   }),
 )
 
-export type InsertChatMessage = typeof chatMessages.$inferInsert
-export type InsertLocation = typeof userLocations.$inferInsert
+type InsertChatMessage = typeof chatMessages.$inferInsert
+type InsertLocation = typeof userLocations.$inferInsert
 
-export type InsertPost = typeof posts.$inferInsert
-export type InsertUser = typeof users.$inferInsert
+type InsertPost = typeof posts.$inferInsert
+type InsertUser = typeof users.$inferInsert
 
-export type SelectChatMessage = typeof chatMessages.$inferSelect
+type SelectChatMessage = typeof chatMessages.$inferSelect
 export type SelectLocation = typeof userLocations.$inferSelect
 
-export type SelectPost = typeof posts.$inferSelect
-export type SelectUser = typeof users.$inferSelect
+type SelectPost = typeof posts.$inferSelect
+type SelectUser = typeof users.$inferSelect
 
 // Trick Enums
-export const CATCH_TYPES = ["one-foot", "two-foot"] as const
-export const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES)
+const CATCH_TYPES = ["one-foot", "two-foot"] as const
+const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES)
 
 export const TRICK_RELATIONSHIP_TYPES = [
   "prerequisite",
   "optional_prerequisite",
   "related",
 ] as const
-export const trickRelationshipTypeEnum = pgEnum(
+const trickRelationshipTypeEnum = pgEnum(
   "trick_relationship_type",
   TRICK_RELATIONSHIP_TYPES,
 )
 
 export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const
-export const trickVideoStatusEnum = pgEnum(
-  "trick_video_status",
-  TRICK_VIDEO_STATUSES,
-)
+const trickVideoStatusEnum = pgEnum("trick_video_status", TRICK_VIDEO_STATUSES)
 
 // Trick Modifiers (global, apply to any trick)
 export const trickModifiers = pgTable("trick_modifiers", {
@@ -1484,11 +1477,11 @@ export const trickSuggestions = pgTable("trick_suggestions", {
 export const GLOSSARY_PROPOSAL_ACTIONS = ["create", "edit"] as const
 export const GLOSSARY_PROPOSAL_TYPES = ["element", "modifier"] as const
 
-export const glossaryProposalActionEnum = pgEnum(
+const glossaryProposalActionEnum = pgEnum(
   "glossary_proposal_action",
   GLOSSARY_PROPOSAL_ACTIONS,
 )
-export const glossaryProposalTypeEnum = pgEnum(
+const glossaryProposalTypeEnum = pgEnum(
   "glossary_proposal_type",
   GLOSSARY_PROPOSAL_TYPES,
 )
@@ -1672,23 +1665,20 @@ export const trickSubmissionRelationshipsRelations = relations(
   }),
 )
 
-export const trickSuggestionsRelations = relations(
-  trickSuggestions,
-  ({ one }) => ({
-    trick: one(tricks, {
-      fields: [trickSuggestions.trickId],
-      references: [tricks.id],
-    }),
-    submittedBy: one(users, {
-      fields: [trickSuggestions.submittedByUserId],
-      references: [users.id],
-    }),
-    reviewedBy: one(users, {
-      fields: [trickSuggestions.reviewedByUserId],
-      references: [users.id],
-    }),
+export const trickSuggestionsRelations = relations(trickSuggestions, ({ one }) => ({
+  trick: one(tricks, {
+    fields: [trickSuggestions.trickId],
+    references: [tricks.id],
   }),
-)
+  submittedBy: one(users, {
+    fields: [trickSuggestions.submittedByUserId],
+    references: [users.id],
+  }),
+  reviewedBy: one(users, {
+    fields: [trickSuggestions.reviewedByUserId],
+    references: [users.id],
+  }),
+}))
 
 export const trickLikesRelations = relations(trickLikes, ({ one }) => ({
   trick: one(tricks, {
@@ -1701,55 +1691,46 @@ export const trickLikesRelations = relations(trickLikes, ({ one }) => ({
   }),
 }))
 
-export const trickMessagesRelations = relations(
-  trickMessages,
-  ({ one, many }) => ({
-    trick: one(tricks, {
-      fields: [trickMessages.trickId],
-      references: [tricks.id],
-    }),
-    user: one(users, {
-      fields: [trickMessages.userId],
-      references: [users.id],
-    }),
-    likes: many(trickMessageLikes),
+export const trickMessagesRelations = relations(trickMessages, ({ one, many }) => ({
+  trick: one(tricks, {
+    fields: [trickMessages.trickId],
+    references: [tricks.id],
   }),
-)
+  user: one(users, {
+    fields: [trickMessages.userId],
+    references: [users.id],
+  }),
+  likes: many(trickMessageLikes),
+}))
 
-export const trickMessageLikesRelations = relations(
-  trickMessageLikes,
-  ({ one }) => ({
-    message: one(trickMessages, {
-      fields: [trickMessageLikes.trickMessageId],
-      references: [trickMessages.id],
-    }),
-    user: one(users, {
-      fields: [trickMessageLikes.userId],
-      references: [users.id],
-    }),
+export const trickMessageLikesRelations = relations(trickMessageLikes, ({ one }) => ({
+  message: one(trickMessages, {
+    fields: [trickMessageLikes.trickMessageId],
+    references: [trickMessages.id],
   }),
-)
+  user: one(users, {
+    fields: [trickMessageLikes.userId],
+    references: [users.id],
+  }),
+}))
 
 // Glossary Proposal Relations
-export const glossaryProposalsRelations = relations(
-  glossaryProposals,
-  ({ one }) => ({
-    submittedBy: one(users, {
-      fields: [glossaryProposals.submittedByUserId],
-      references: [users.id],
-      relationName: "submittedByUser",
-    }),
-    reviewedBy: one(users, {
-      fields: [glossaryProposals.reviewedByUserId],
-      references: [users.id],
-      relationName: "reviewedByUser",
-    }),
+export const glossaryProposalsRelations = relations(glossaryProposals, ({ one }) => ({
+  submittedBy: one(users, {
+    fields: [glossaryProposals.submittedByUserId],
+    references: [users.id],
+    relationName: "submittedByUser",
   }),
-)
+  reviewedBy: one(users, {
+    fields: [glossaryProposals.reviewedByUserId],
+    references: [users.id],
+    relationName: "reviewedByUser",
+  }),
+}))
 
 // Tournaments
 
-export const TOURNEY_PHASES = [
+const TOURNEY_PHASES = [
   "setup",
   "prelims",
   "ranking",
@@ -1757,7 +1738,7 @@ export const TOURNEY_PHASES = [
   "complete",
 ] as const
 
-export const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES)
+const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES)
 
 export const tournaments = pgTable("tournaments", {
   id: serial("id").primaryKey(),

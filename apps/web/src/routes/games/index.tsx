@@ -50,7 +50,7 @@ function RouteComponent() {
 
       <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 p-4">
         <GameCard
-          to="/games/rius/active"
+          to="/games/rius"
           icon={MergeIcon}
           title="rack it up"
           description="the original. post up to three creative sets weekly and submit for all other rider sets. rider with the most points wins."
@@ -73,7 +73,7 @@ function RouteComponent() {
 }
 
 type GameCardProps = {
-  to: "/games/rius/active" | "/games/bius" | "/games/sius"
+  to: "/games/rius" | "/games/bius" | "/games/sius"
   icon: ComponentType<{ className?: string }>
   title: string
   description: string

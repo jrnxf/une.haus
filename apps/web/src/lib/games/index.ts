@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query"
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
 import { bius } from "./bius"
 import { calculateRiderRankings, type RiderScore } from "./rius/ranking"
@@ -13,10 +13,12 @@ import {
   getRiuSetServerFn,
   getRiuSubmissionServerFn,
   listActiveRiusServerFn,
+  listArchivedRiuRoundsServerFn,
   listArchivedRiusServerFn,
   listUpcomingRiuRosterServerFn,
   updateRiuSetServerFn,
 } from "~/lib/games/rius/fns"
+import { ARCHIVED_ROUNDS_PAGE_SIZE } from "~/lib/games/rius/schemas"
 import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
@@ -25,6 +27,7 @@ import {
   getArchivedRiusSchema,
   getRiuSetSchema,
   getRiuSubmissionSchema,
+  listArchivedRiuRoundsSchema,
   updateRiuSetSchema,
 } from "~/lib/games/rius/schemas"
 import { type ServerFnData } from "~/lib/types"
@@ -64,6 +67,22 @@ export const games = {
           return queryOptions({
             queryKey: ["games.rius.archived.list"],
             queryFn: listArchivedRiusServerFn,
+          })
+        },
+      },
+      rounds: {
+        fn: listArchivedRiuRoundsServerFn,
+        schema: listArchivedRiuRoundsSchema,
+        infiniteQueryOptions: () => {
+          return infiniteQueryOptions({
+            queryKey: ["games.rius.archived.rounds"],
+            queryFn: ({ pageParam: cursor }) =>
+              listArchivedRiuRoundsServerFn({ data: { cursor } }),
+            initialPageParam: 0,
+            getNextPageParam: (lastPage) => {
+              if (lastPage.length < ARCHIVED_ROUNDS_PAGE_SIZE) return undefined
+              return lastPage.at(-1)?.id
+            },
           })
         },
       },
