@@ -92,7 +92,7 @@ function RouteComponent() {
   return (
     <div className="@container mx-auto w-full max-w-4xl p-4">
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2">
           <section className="flex flex-col gap-2">
             <SectionLabel>active</SectionLabel>
             <ActiveRoundCard />
