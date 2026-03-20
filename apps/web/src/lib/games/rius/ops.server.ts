@@ -2,7 +2,7 @@ import "@tanstack/react-start/server-only"
 import { and, desc, eq, lt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
-import { riuPodium, riuSets, riuSubmissions, rius, users } from "~/db/schema"
+import { riuSets, riuSubmissions, rius } from "~/db/schema"
 import { ARCHIVED_ROUNDS_PAGE_SIZE } from "~/lib/games/rius/schemas"
 import { invariant } from "~/lib/invariant"
 import {
@@ -260,42 +260,6 @@ export async function listArchivedRius() {
 }
 
 export async function rotateRius() {
-  // Populate podium for the active round before archiving
-  const activeRound = await db.query.rius.findFirst({
-    where: eq(rius.status, "active"),
-    columns: { id: true },
-    with: {
-      sets: {
-        columns: { id: true, createdAt: true },
-        with: {
-          user: { columns: { id: true, name: true, avatarId: true } },
-          submissions: {
-            columns: { id: true, createdAt: true },
-            with: {
-              user: { columns: { id: true, name: true, avatarId: true } },
-            },
-          },
-        },
-      },
-    },
-  })
-
-  if (activeRound && activeRound.sets.length > 0) {
-    const { calculateRiderRankings } = await import("~/lib/games/rius/ranking")
-    const rankings = calculateRiderRankings(activeRound.sets)
-    const top3 = rankings.slice(0, 3)
-
-    if (top3.length > 0) {
-      await db.insert(riuPodium).values(
-        top3.map((r) => ({
-          riuId: activeRound.id,
-          userId: r.user.id,
-          rank: r.rank,
-        })),
-      )
-    }
-  }
-
   await db
     .update(rius)
     .set({ status: "archived" })
@@ -342,57 +306,11 @@ export async function listArchivedRiuRounds({
     .orderBy(desc(rius.id))
     .limit(ARCHIVED_ROUNDS_PAGE_SIZE)
 
-  const riuIds = archivedRounds.map((r) => r.id)
-
-  // Fetch podium entries for all rounds in one query
-  const podiumEntries =
-    riuIds.length > 0
-      ? await db
-          .select({
-            riuId: riuPodium.riuId,
-            rank: riuPodium.rank,
-            userId: users.id,
-            userName: users.name,
-            userAvatarId: users.avatarId,
-          })
-          .from(riuPodium)
-          .innerJoin(users, eq(riuPodium.userId, users.id))
-          .where(
-            sql`${riuPodium.riuId} IN (${sql.join(
-              riuIds.map((id) => sql`${id}`),
-              sql`, `,
-            )})`,
-          )
-          .orderBy(riuPodium.rank)
-      : []
-
-  // Group podium by riuId
-  const podiumByRiu = new Map<
-    number,
-    {
-      rank: number
-      user: { id: number; name: string; avatarId: string | null }
-    }[]
-  >()
-  for (const entry of podiumEntries) {
-    const list = podiumByRiu.get(entry.riuId) ?? []
-    list.push({
-      rank: entry.rank,
-      user: {
-        id: entry.userId,
-        name: entry.userName,
-        avatarId: entry.userAvatarId,
-      },
-    })
-    podiumByRiu.set(entry.riuId, list)
-  }
-
   return archivedRounds.map((riu) => ({
     id: riu.id,
     createdAt: riu.createdAt,
     ridersCount: Number(riu.ridersCount),
     setsCount: Number(riu.setsCount),
     submissionsCount: Number(riu.submissionsCount),
-    podium: podiumByRiu.get(riu.id) ?? [],
   }))
 }

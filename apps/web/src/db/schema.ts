@@ -7,10 +7,10 @@ import {
   pgTable,
   primaryKey,
   real,
-  unique,
   serial,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm/relations"
 
@@ -22,19 +22,19 @@ export const TRICK_SUBMISSION_STATUSES = [
   "rejected",
 ] as const
 
-const trickSubmissionStatusEnum = pgEnum(
+export const trickSubmissionStatusEnum = pgEnum(
   "trick_submission_status",
   TRICK_SUBMISSION_STATUSES,
 )
-const RIU_STATUSES = ["archived", "active", "upcoming"] as const
+export const RIU_STATUSES = ["archived", "active", "upcoming"] as const
 // enums
-const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
+export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
 
-const SIU_STATUSES = ["active", "archived"] as const
-const siuStatusEnum = pgEnum("siu_status", SIU_STATUSES)
+export const SIU_STATUSES = ["active", "archived"] as const
+export const siuStatusEnum = pgEnum("siu_status", SIU_STATUSES)
 
-const USER_TYPES = ["user", "admin", "test"] as const
-const userTypeEnum = pgEnum("user_type", USER_TYPES)
+export const USER_TYPES = ["user", "admin", "test"] as const
+export const userTypeEnum = pgEnum("user_type", USER_TYPES)
 
 export const USER_DISCIPLINES = [
   "street",
@@ -84,7 +84,10 @@ export const NOTIFICATION_TYPES = [
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 
-const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES)
+export const notificationTypeEnum = pgEnum(
+  "notification_type",
+  NOTIFICATION_TYPES,
+)
 
 export const NOTIFICATION_ENTITY_TYPES = [
   "chat",
@@ -105,7 +108,7 @@ export const NOTIFICATION_ENTITY_TYPES = [
 
 export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number]
 
-const notificationEntityTypeEnum = pgEnum(
+export const notificationEntityTypeEnum = pgEnum(
   "notification_entity_type",
   NOTIFICATION_ENTITY_TYPES,
 )
@@ -467,20 +470,6 @@ export const riuSubmissions = pgTable(
   (t) => [unique().on(t.riuSetId, t.userId)],
 )
 
-export const riuPodium = pgTable(
-  "riu_podium",
-  {
-    riuId: integer("riu_id")
-      .notNull()
-      .references(() => rius.id, { onDelete: "cascade" }),
-    userId: integer("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    rank: integer("rank").notNull(),
-  },
-  (t) => [primaryKey({ columns: [t.riuId, t.userId] })],
-)
-
 // BIU (Back It Up) Game Tables
 export const bius = pgTable("bius", {
   id: serial("id").primaryKey(),
@@ -676,11 +665,11 @@ export const notifications = pgTable(
   ],
 )
 
-const EMAIL_DIGEST_FREQUENCIES = ["off", "weekly", "monthly"] as const
-type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
+export const EMAIL_DIGEST_FREQUENCIES = ["off", "weekly", "monthly"] as const
+export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
 
-const EMAIL_REMINDER_TYPES = ["digest", "game_start"] as const
-type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
+export const EMAIL_REMINDER_TYPES = ["digest", "game_start"] as const
+export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
 
 export const userNotificationSettings = pgTable("user_notification_settings", {
   userId: integer("user_id")
@@ -753,7 +742,7 @@ export const FLAG_ENTITY_TYPES = [
 
 export type FlagEntityType = (typeof FLAG_ENTITY_TYPES)[number]
 
-const flagEntityTypeEnum = pgEnum("flag_entity_type", FLAG_ENTITY_TYPES)
+export const flagEntityTypeEnum = pgEnum("flag_entity_type", FLAG_ENTITY_TYPES)
 
 export const flags = pgTable("flags", {
   id: serial("id").primaryKey(),
@@ -900,7 +889,6 @@ export const utvVideoSuggestionsRelations = relations(
 export const riusRelations = relations(rius, ({ many }) => ({
   // likes: many(postLikes),
   sets: many(riuSets),
-  podium: many(riuPodium),
 }))
 
 export const riuSetsRelations = relations(riuSets, ({ many, one }) => ({
@@ -1070,17 +1058,6 @@ export const riuSubmissionLikesRelations = relations(
     }),
   }),
 )
-
-export const riuPodiumRelations = relations(riuPodium, ({ one }) => ({
-  riu: one(rius, {
-    fields: [riuPodium.riuId],
-    references: [rius.id],
-  }),
-  user: one(users, {
-    fields: [riuPodium.userId],
-    references: [users.id],
-  }),
-}))
 
 // BIU Relations
 export const biusRelations = relations(bius, ({ many }) => ({
@@ -1283,10 +1260,20 @@ export const emailRemindersSentRelations = relations(
   }),
 )
 
+export type InsertChatMessage = typeof chatMessages.$inferInsert
+export type InsertLocation = typeof userLocations.$inferInsert
+
+export type InsertPost = typeof posts.$inferInsert
+export type InsertUser = typeof users.$inferInsert
+
+export type SelectChatMessage = typeof chatMessages.$inferSelect
 export type SelectLocation = typeof userLocations.$inferSelect
 
+export type SelectPost = typeof posts.$inferSelect
+export type SelectUser = typeof users.$inferSelect
+
 // Trick Enums
-const CATCH_TYPES = ["one-foot", "two-foot"] as const
+export const CATCH_TYPES = ["one-foot", "two-foot"] as const
 export const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES)
 
 export const TRICK_RELATIONSHIP_TYPES = [
@@ -1294,13 +1281,16 @@ export const TRICK_RELATIONSHIP_TYPES = [
   "optional_prerequisite",
   "related",
 ] as const
-const trickRelationshipTypeEnum = pgEnum(
+export const trickRelationshipTypeEnum = pgEnum(
   "trick_relationship_type",
   TRICK_RELATIONSHIP_TYPES,
 )
 
 export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const
-const trickVideoStatusEnum = pgEnum("trick_video_status", TRICK_VIDEO_STATUSES)
+export const trickVideoStatusEnum = pgEnum(
+  "trick_video_status",
+  TRICK_VIDEO_STATUSES,
+)
 
 // Trick Modifiers (global, apply to any trick)
 export const trickModifiers = pgTable("trick_modifiers", {
@@ -1494,11 +1484,11 @@ export const trickSuggestions = pgTable("trick_suggestions", {
 export const GLOSSARY_PROPOSAL_ACTIONS = ["create", "edit"] as const
 export const GLOSSARY_PROPOSAL_TYPES = ["element", "modifier"] as const
 
-const glossaryProposalActionEnum = pgEnum(
+export const glossaryProposalActionEnum = pgEnum(
   "glossary_proposal_action",
   GLOSSARY_PROPOSAL_ACTIONS,
 )
-const glossaryProposalTypeEnum = pgEnum(
+export const glossaryProposalTypeEnum = pgEnum(
   "glossary_proposal_type",
   GLOSSARY_PROPOSAL_TYPES,
 )
@@ -1759,7 +1749,7 @@ export const glossaryProposalsRelations = relations(
 
 // Tournaments
 
-const TOURNEY_PHASES = [
+export const TOURNEY_PHASES = [
   "setup",
   "prelims",
   "ranking",
@@ -1767,7 +1757,7 @@ const TOURNEY_PHASES = [
   "complete",
 ] as const
 
-const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES)
+export const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES)
 
 export const tournaments = pgTable("tournaments", {
   id: serial("id").primaryKey(),
