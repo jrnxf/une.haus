@@ -1,4 +1,4 @@
 {
   "title": "community",
-  "pages": ["index", "following", "mentions", "notifications"]
+  "pages": ["index", "following", "mentions", "notifications", "reporting"]
 }
