@@ -66,12 +66,93 @@ async function runStreaming(cmd: string[], runEnv) {
   return await proc.exited
 }
 
-// Bootstrap schema
+// Bootstrap schema using generate + migrate to avoid drizzle-kit push enum bugs
 console.log(`Bootstrapping schema on ${testEnv.DATABASE_URL}`)
-const bootstrapExitCode = await runStreaming(
-  ["bunx", "drizzle-kit", "push", "--config=drizzle.config.ts"],
+
+// Use generate to create SQL, then prepend enum CREATE TYPE statements and
+// execute directly. drizzle-kit 0.31.x has a bug where it omits enum creation.
+const tmpMigrationDir = `./src/db/test-migrations-${process.pid}`
+const { readFileSync, writeFileSync, rmSync, readdirSync } =
+  await import("node:fs")
+
+const generateExitCode = await runStreaming(
+  [
+    "bunx",
+    "drizzle-kit",
+    "generate",
+    "--dialect=postgresql",
+    "--schema=./src/db/schema.ts",
+    `--out=${tmpMigrationDir}`,
+  ],
   testEnv,
 )
+if (generateExitCode !== 0) {
+  rmSync(tmpMigrationDir, { recursive: true, force: true })
+  process.exit(generateExitCode)
+}
+
+// Find the generated SQL file and prepend enum definitions
+const sqlFile = readdirSync(tmpMigrationDir).find((f) => f.endsWith(".sql"))
+if (!sqlFile) {
+  console.error("No SQL migration file generated")
+  rmSync(tmpMigrationDir, { recursive: true, force: true })
+  process.exit(1)
+}
+
+const generatedSql = readFileSync(`${tmpMigrationDir}/${sqlFile}`, "utf-8")
+
+// Extract enum definitions from the schema source. The pgEnum calls may span
+// multiple lines, so we use a multiline-aware regex.
+const schemaSource = readFileSync("./src/db/schema.ts", "utf-8")
+const enumStatements: string[] = []
+
+// Collect all const arrays (single and multi-line)
+const constArrays: Record<string, string[]> = {}
+const constRegex =
+  /(?:export\s+)?const\s+(\w+)\s*=\s*\[([\s\S]*?)\]\s*as\s*const/g
+for (const match of schemaSource.matchAll(constRegex)) {
+  const values = match[2]
+    .split(",")
+    .map((v) => v.trim().replace(/^["']|["']$/g, ""))
+    .filter(Boolean)
+  constArrays[match[1]] = values
+}
+
+// Match pgEnum calls (single and multi-line)
+const enumRegex = /pgEnum\(\s*"([^"]+)",\s*(\w+)\s*,?\s*\)/g
+for (const match of schemaSource.matchAll(enumRegex)) {
+  const enumName = match[1]
+  const arrayName = match[2]
+  const values = constArrays[arrayName]
+  if (values) {
+    const valuesList = values.map((v) => `'${v}'`).join(", ")
+    enumStatements.push(`CREATE TYPE "${enumName}" AS ENUM (${valuesList});`)
+  }
+}
+
+const fullSql = enumStatements.join("\n") + "\n" + generatedSql
+const fullSqlPath = `${tmpMigrationDir}/full.sql`
+writeFileSync(fullSqlPath, fullSql)
+
+// Copy SQL into container and execute via psql
+await $`docker cp ${fullSqlPath} ${containerName}:/tmp/schema.sql`.quiet()
+const bootstrapExitCode = await runStreaming(
+  [
+    "docker",
+    "exec",
+    containerName,
+    "psql",
+    "-U",
+    "unehaus_test",
+    "-d",
+    "unehaus_test",
+    "-f",
+    "/tmp/schema.sql",
+  ],
+  testEnv,
+)
+
+rmSync(tmpMigrationDir, { recursive: true, force: true })
 if (bootstrapExitCode !== 0) {
   process.exit(bootstrapExitCode)
 }
