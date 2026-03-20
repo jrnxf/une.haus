@@ -88,7 +88,7 @@ function OnlineDropdownContent({ onNavigate }: { onNavigate: () => void }) {
   if (data.total === 0) return null
 
   return (
-    <DropdownMenuContent align="start" className="min-w-0">
+    <DropdownMenuContent side="top" align="start" className="min-w-0">
       <OnlineUserList
         users={data.users}
         guests={data.guests}
