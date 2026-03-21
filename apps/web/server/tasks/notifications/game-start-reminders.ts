@@ -27,7 +27,10 @@ function getHoursUntilNextRotation(): number {
   nextMonday.setUTCHours(0, 0, 0, 0)
 
   const msUntil = nextMonday.getTime() - now.getTime()
-  return Math.floor(msUntil / (1000 * 60 * 60))
+  // Math.round (not Math.floor) so the cron tick closest to a UTC hour
+  // boundary wins. Math.floor caused emails to fire 1 hour early because
+  // the cron fires at :00:01, truncating e.g. 48.99h → 48.
+  return Math.round(msUntil / (1000 * 60 * 60))
 }
 
 export default defineTask({
@@ -125,7 +128,7 @@ export default defineTask({
         const { error } = await resendClient.emails.send({
           from: "une.haus <colby@jrnxf.co>",
           to: [user.email],
-          subject: "new RIU round starts tomorrow",
+          subject: `new RIU round starts in ${hoursUntilStart} ${hoursUntilStart === 1 ? "hour" : "hours"}`,
           react: GameStartReminderTemplate({
             userName: user.name,
             hoursUntilStart,

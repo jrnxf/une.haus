@@ -43,7 +43,10 @@ export default function GameStartReminderTemplate({
     <Tailwind>
       <div className="mx-auto max-w-lg font-sans">
         <h1 className="mb-1 text-2xl font-bold">une.haus</h1>
-        <p className="mb-6 text-gray-600">new RIU round starts tomorrow</p>
+        <p className="mb-6 text-gray-600">
+          new RIU round starts in {hoursUntilStart}{" "}
+          {hoursUntilStart === 1 ? "hour" : "hours"}
+        </p>
 
         <p className="mb-4">hey {userName},</p>
 
