@@ -4,7 +4,7 @@ export function YoutubeIframe({ videoId }: { videoId: string }) {
     <iframe
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
-      className="aspect-video w-full rounded-lg"
+      className="aspect-video w-full rounded-md"
       src={`https://www.youtube.com/embed/${videoId}`}
       title={`video player for ${videoId}`}
     />
