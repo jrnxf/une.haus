@@ -38,7 +38,7 @@ export const getArchivedRiusSchema = z.object({
   riuId: z.number().positive({ message: "Required" }).optional(),
 })
 
-export const ARCHIVED_ROUNDS_PAGE_SIZE = 12
+export const ARCHIVED_ROUNDS_PAGE_SIZE = 24
 
 export const listArchivedRiuRoundsSchema = z.object({
   cursor: z.number().nullish(),
