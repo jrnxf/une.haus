@@ -14,6 +14,7 @@ import { toast } from "sonner"
 
 import { confirm } from "~/components/confirm-dialog"
 import { MentionTextarea } from "~/components/input/mention-textarea"
+import { LikesButtonGroup } from "~/components/likes-button-group"
 import { RichText } from "~/components/rich-text"
 import {
   Tray,
@@ -23,7 +24,6 @@ import {
   TrayTrigger,
 } from "~/components/tray"
 import { Button } from "~/components/ui/button"
-import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +64,7 @@ export function MessageBubble({
   const haptics = useHaptics()
   const messageType = `${parent.type}Message` as const
   const flagType = `${parent.type}Message` as FlagEntityType
-  const { sessionUser, authGate } = useAuthGate()
+  const { sessionUser } = useAuthGate()
   const [detailsOpen, setDetailsOpen] = React.useState(false)
   const [editDrawerOpen, setEditDrawerOpen] = React.useState(false)
   const [flagTrayOpen, setFlagTrayOpen] = React.useState(false)
@@ -140,7 +140,6 @@ export function MessageBubble({
   }
 
   const handleEdit = () => {
-    setDetailsOpen(false)
     setEditDrawerOpen(true)
   }
 
@@ -212,44 +211,11 @@ export function MessageBubble({
                 </p>
 
                 <div className="flex shrink-0 flex-wrap justify-end gap-2">
-                  {message.likes.length > 0 ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          {message.likes.length}{" "}
-                          {message.likes.length === 1 ? "like" : "likes"}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="max-w-xs">
-                        {message.likes.map((like) => (
-                          <DropdownMenuItem key={like.user.id} asChild>
-                            <Link
-                              to="/users/$userId"
-                              params={{ userId: like.user.id }}
-                              className="flex items-center gap-2"
-                            >
-                              <span>{like.user.name}</span>
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : (
-                    <div />
-                  )}
-                  <Button
-                    size="icon-sm"
-                    variant="outline"
-                    onClick={() => authGate(handleLikeUnlike)}
-                    aria-label={authUserLiked ? "unlike" : "like"}
-                  >
-                    <HeartIcon
-                      className={cn(
-                        "size-4",
-                        authUserLiked && "fill-red-700/50 stroke-red-700",
-                      )}
-                    />
-                  </Button>
+                  <LikesButtonGroup
+                    users={message.likes.map((like) => like.user)}
+                    authUserLiked={authUserLiked}
+                    onLikeUnlike={sessionUser ? handleLikeUnlike : undefined}
+                  />
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -320,6 +286,16 @@ export function MessageBubble({
                 />
               </div>
             </TrayContent>
+
+            {/* Edit Drawer — nested inside details Tray for drawer stacking on mobile */}
+            {isOwnMessage && (
+              <EditMessageDrawer
+                message={message}
+                parent={parent}
+                open={editDrawerOpen}
+                onOpenChange={setEditDrawerOpen}
+              />
+            )}
           </Tray>
 
           {/* Like Count Badge - hover card shows who liked */}
@@ -362,16 +338,6 @@ export function MessageBubble({
           )}
         </div>
       </div>
-
-      {/* Edit Drawer */}
-      {isOwnMessage && (
-        <EditMessageDrawer
-          message={message}
-          parent={parent}
-          open={editDrawerOpen}
-          onOpenChange={setEditDrawerOpen}
-        />
-      )}
 
       {sessionUser && !isOwnMessage && (
         <MessageFlagTray
@@ -510,9 +476,14 @@ function EditMessageDrawer({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="gap-4 p-4">
-        <DialogTitle className="sr-only">edit message</DialogTitle>
+    <Tray open={open} onOpenChange={onOpenChange}>
+      <TrayContent
+        showCloseButton={false}
+        overlay={false}
+        drawerClassName="gap-4"
+        dialogClassName="sm:max-w-lg gap-4"
+      >
+        <TrayTitle className="sr-only">edit message</TrayTitle>
         <MentionTextarea
           value={content}
           onChange={setContent}
@@ -542,8 +513,8 @@ function EditMessageDrawer({
             save
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </TrayContent>
+    </Tray>
   )
 }
 

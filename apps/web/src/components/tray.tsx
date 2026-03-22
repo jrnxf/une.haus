@@ -73,6 +73,7 @@ export function TrayContent({
   drawerClassName,
   children,
   showCloseButton = true,
+  overlay = true,
   ...properties
 }: {
   dialogClassName?: string
@@ -80,12 +81,13 @@ export function TrayContent({
   children?: React.ReactNode
   className?: string
   showCloseButton?: boolean
+  overlay?: boolean
 }) {
   const { isMobile } = useTrayContext()
 
   return (
     <>
-      <TrayOverlay />
+      {overlay && <TrayOverlay />}
       {isMobile ? (
         <DrawerContent
           className={cn("p-4", className, drawerClassName)}
