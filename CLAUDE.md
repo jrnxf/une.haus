@@ -626,6 +626,10 @@ Use `gap-4` in flex containers instead of manual margins (`mt-3`, `mb-1`):
 | Horizontal padding | `px-2`, `px-4`, `px-6`                                          | `px-3`, `px-5`                                 |
 | Vertical padding   | `py-1`, `py-2`, `py-4`, `py-6`                                  | `py-3`, `py-5`                                 |
 
+## Base UI Components
+
+Never use `ring` for container outlines on Base UI popup/dropdown components (select, dropdown menu, popover, etc.). Use `border` instead. `ring` renders via `box-shadow` which behaves differently across browsers and doesn't match the rest of the design system's use of real borders.
+
 ## Documentation
 
 When modifying code that has associated documentation in `docs/`, always update the docs to reflect changes. Keep documentation in sync with implementation.

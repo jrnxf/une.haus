@@ -38,6 +38,7 @@ import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -225,11 +226,13 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {activityFilterItems.map((item) => (
-          <SelectItem key={item.value} value={item.value}>
-            {item.label}
-          </SelectItem>
-        ))}
+        <SelectGroup>
+          {activityFilterItems.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
       </SelectContent>
     </Select>
   )

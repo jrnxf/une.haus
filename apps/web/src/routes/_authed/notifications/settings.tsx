@@ -29,6 +29,7 @@ import { Label } from "~/components/ui/label"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -261,11 +262,13 @@ function RouteComponent() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {FREQUENCY_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
+                      <SelectGroup>
+                        {FREQUENCY_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
@@ -292,11 +295,13 @@ function RouteComponent() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {DAYS_OF_WEEK.map((day) => (
-                                <SelectItem key={day.value} value={day.value}>
-                                  {day.label}
-                                </SelectItem>
-                              ))}
+                              <SelectGroup>
+                                {DAYS_OF_WEEK.map((day) => (
+                                  <SelectItem key={day.value} value={day.value}>
+                                    {day.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
                             </SelectContent>
                           </Select>
                         </div>
@@ -321,11 +326,13 @@ function RouteComponent() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {DAYS_OF_MONTH.map((day) => (
-                                <SelectItem key={day.value} value={day.value}>
-                                  {day.label}
-                                </SelectItem>
-                              ))}
+                              <SelectGroup>
+                                {DAYS_OF_MONTH.map((day) => (
+                                  <SelectItem key={day.value} value={day.value}>
+                                    {day.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
                             </SelectContent>
                           </Select>
                         </div>
@@ -347,11 +354,13 @@ function RouteComponent() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {HOURS_OF_DAY.map((hour) => (
-                              <SelectItem key={hour.value} value={hour.value}>
-                                {hour.label}
-                              </SelectItem>
-                            ))}
+                            <SelectGroup>
+                              {HOURS_OF_DAY.map((hour) => (
+                                <SelectItem key={hour.value} value={hour.value}>
+                                  {hour.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
                           </SelectContent>
                         </Select>
                       </div>
@@ -367,7 +376,7 @@ function RouteComponent() {
                   game reminders
                 </CardTitle>
                 <CardDescription>
-                  get email notifications about rack-it-up rounds starting and
+                  get email notifications about rack it up rounds starting and
                   what
                 </CardDescription>
               </CardHeader>
@@ -387,7 +396,7 @@ function RouteComponent() {
                           round start reminder
                         </Label>
                         <p className="text-muted-foreground text-sm">
-                          get notified when a new rack-it-up round is about to
+                          get notified when a new rack it up round is about to
                           start
                         </p>
                       </div>
@@ -425,11 +434,13 @@ function RouteComponent() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {HOURS_BEFORE_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
+                          <SelectGroup>
+                            {HOURS_BEFORE_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
                       <span className="text-muted-foreground text-sm">
