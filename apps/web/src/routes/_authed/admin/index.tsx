@@ -85,6 +85,11 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-4 p-4 md:p-6">
+        <div className="flex items-center justify-end">
+          <Button variant="secondary" size="sm" asChild>
+            <Link to="/admin/sandbox">sandbox</Link>
+          </Button>
+        </div>
         <Accordion multiple>
           <div className="space-y-2">
             <AccordionItem value="tricks" className="bg-card rounded-lg border">
