@@ -141,7 +141,7 @@ function RouteComponent() {
       </PageHeader>
       <div className="@container w-full space-y-6 p-4 md:p-6">
         {/* 3 columns */}
-        <div className="grid grid-cols-1 gap-4 @xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 @4xl:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>input</CardTitle>
@@ -278,7 +278,7 @@ function RouteComponent() {
         </div>
 
         {/* 2 columns */}
-        <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @4xl:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>buttons</CardTitle>
@@ -383,7 +383,7 @@ function RouteComponent() {
         </div>
 
         {/* 4 columns */}
-        <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2 @5xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @4xl:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>dropdown menu</CardTitle>
@@ -605,7 +605,7 @@ function RouteComponent() {
         </div>
 
         {/* 2 columns */}
-        <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>avatar & status</CardTitle>
@@ -711,7 +711,7 @@ function RouteComponent() {
         </div>
 
         {/* 2 columns */}
-        <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>badges</CardTitle>
@@ -779,7 +779,7 @@ function RouteComponent() {
         </div>
 
         {/* 2 columns */}
-        <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>progress</CardTitle>
@@ -814,7 +814,7 @@ function RouteComponent() {
         </div>
 
         {/* 2 columns */}
-        <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>empty state</CardTitle>
@@ -858,18 +858,18 @@ function RouteComponent() {
             <CardTitle>separator & section divider</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between gap-8">
-              <div className="flex-1">
+            <div className="flex flex-col items-center justify-between gap-8 @2xl:flex-row">
+              <div className="w-full flex-1">
                 <SectionDivider>section divider</SectionDivider>
               </div>
-              <div className="flex-1">
+              <div className="w-full flex-1">
                 <div>
                   horizontal
                   <Separator />
                   horizontal
                 </div>
               </div>
-              <div className="flex flex-1 items-center gap-2">
+              <div className="flex w-full flex-1 items-center gap-2">
                 vertical
                 <Separator orientation="vertical" className="h-8" />
                 vertical
