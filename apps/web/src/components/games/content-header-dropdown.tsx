@@ -1,4 +1,4 @@
-import { type ReactNode } from "react"
+import { type ReactNode, useMemo } from "react"
 
 import {
   Select,
@@ -40,8 +40,23 @@ export function ContentHeaderDropdown({
   | { options: ContentHeaderDropdownOption[]; groups?: undefined }
   | { options?: undefined; groups: ContentHeaderDropdownGroup[] }
 )) {
+  const items = useMemo(() => {
+    if (groups) {
+      return groups.flatMap((g) =>
+        g.options.map((o) => ({ value: o.value, label: String(o.label) })),
+      )
+    }
+    return options.map((o) => ({ value: o.value, label: String(o.label) }))
+  }, [groups, options])
+
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select
+      items={items}
+      value={value}
+      onValueChange={(v) => {
+        if (v !== null) onValueChange(v)
+      }}
+    >
       <SelectTrigger className={cn("w-fit text-xs", triggerClassName)}>
         <span className="min-w-0 truncate">{triggerLabel}</span>
       </SelectTrigger>

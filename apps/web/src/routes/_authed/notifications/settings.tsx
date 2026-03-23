@@ -70,6 +70,12 @@ const DAYS_OF_MONTH = Array.from({ length: 28 }, (_, i) => ({
   label: `${i + 1}${i + 1 === 1 ? "st" : i + 1 === 2 ? "nd" : i + 1 === 3 ? "rd" : i + 1 === 21 ? "st" : i + 1 === 22 ? "nd" : i + 1 === 23 ? "rd" : "th"}`,
 }))
 
+const FREQUENCY_OPTIONS = [
+  { value: "off", label: "off" },
+  { value: "weekly", label: "weekly" },
+  { value: "monthly", label: "monthly" },
+]
+
 const HOURS_BEFORE_OPTIONS = [
   { value: "12", label: "12 hours" },
   { value: "24", label: "24 hours" },
@@ -239,6 +245,7 @@ function RouteComponent() {
                     frequency
                   </Label>
                   <Select
+                    items={FREQUENCY_OPTIONS}
                     value={settings.emailDigestFrequency ?? "off"}
                     onValueChange={(value) =>
                       handleUpdate({
@@ -254,9 +261,11 @@ function RouteComponent() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="off">off</SelectItem>
-                      <SelectItem value="weekly">weekly</SelectItem>
-                      <SelectItem value="monthly">monthly</SelectItem>
+                      {FREQUENCY_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -270,6 +279,7 @@ function RouteComponent() {
                             day
                           </Label>
                           <Select
+                            items={DAYS_OF_WEEK}
                             value={String(settings.emailDigestDayOfWeek ?? 0)}
                             onValueChange={(value) =>
                               handleUpdate({
@@ -298,6 +308,7 @@ function RouteComponent() {
                             day
                           </Label>
                           <Select
+                            items={DAYS_OF_MONTH}
                             value={String(settings.emailDigestDayOfMonth ?? 1)}
                             onValueChange={(value) =>
                               handleUpdate({
@@ -325,6 +336,7 @@ function RouteComponent() {
                           time
                         </Label>
                         <Select
+                          items={HOURS_OF_DAY}
                           value={String(settings.emailDigestHourUtc ?? 9)}
                           onValueChange={(value) =>
                             handleUpdate({ emailDigestHourUtc: Number(value) })
@@ -398,6 +410,7 @@ function RouteComponent() {
                         remind me
                       </Label>
                       <Select
+                        items={HOURS_BEFORE_OPTIONS}
                         value={String(
                           settings.gameStartReminderHoursBefore ?? 24,
                         )}

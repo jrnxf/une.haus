@@ -207,8 +207,17 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
 
   const totalSteps = groups.length + (hasNextPage ? 1 : 0)
 
+  const activityFilterItems = [
+    { value: "all", label: "all activity" },
+    ...ACTIVITY_TYPES.map((type) => ({
+      value: type,
+      label: TYPE_LABELS[type],
+    })),
+  ]
+
   const filterDropdown = (
     <Select
+      items={activityFilterItems}
       value={typeFilter}
       onValueChange={(v) => setTypeFilter(v as ActivityTypeFilter | "all")}
     >
@@ -216,10 +225,9 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">all activity</SelectItem>
-        {ACTIVITY_TYPES.map((type) => (
-          <SelectItem key={type} value={type}>
-            {TYPE_LABELS[type]}
+        {activityFilterItems.map((item) => (
+          <SelectItem key={item.value} value={item.value}>
+            {item.label}
           </SelectItem>
         ))}
       </SelectContent>
