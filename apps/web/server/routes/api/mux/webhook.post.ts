@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/tanstackstart-react"
 import { defineEventHandler, getRequestHeaders, readRawBody } from "h3"
 
 import { muxClient } from "~/lib/clients/mux"
@@ -18,6 +19,18 @@ export default defineEventHandler(async (event) => {
   const { data, type } = muxEvent
 
   console.log(`[MUX EVENT] --> ${type}`)
+
+  Sentry.addBreadcrumb({
+    category: "mux.webhook",
+    message: type,
+    level: "info",
+    data: { type, payload: data },
+  })
+
+  Sentry.captureMessage(`[mux webhook] ${type}`, {
+    level: "info",
+    extra: { type, payload: data },
+  })
 
   if (type === "video.upload.asset_created") {
     const assetId = data.asset_id
