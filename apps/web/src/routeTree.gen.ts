@@ -59,6 +59,7 @@ import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/
 import { Route as AuthedTourneyCreateRouteImport } from './routes/_authed/tourney/create'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
+import { Route as AuthedAdminSandboxRouteImport } from './routes/_authed/admin/sandbox'
 import { Route as GamesRiusSetsIndexRouteImport } from './routes/games/rius/sets/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as GamesRiusBrowseActiveRouteImport } from './routes/games/rius/_browse/active'
@@ -348,6 +349,11 @@ const AuthedNotificationsSettingsRoute =
     path: '/notifications/settings',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedAdminSandboxRoute = AuthedAdminSandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
+  getParentRoute: () => AuthedAdminRoute,
+} as any)
 const GamesRiusSetsIndexRoute = GamesRiusSetsIndexRouteImport.update({
   id: '/sets/',
   path: '/sets/',
@@ -607,6 +613,7 @@ export interface FileRoutesByFullPath {
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
+  '/admin/sandbox': typeof AuthedAdminSandboxRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
@@ -691,6 +698,7 @@ export interface FileRoutesByTo {
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
+  '/admin/sandbox': typeof AuthedAdminSandboxRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
@@ -780,6 +788,7 @@ export interface FileRoutesById {
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
+  '/_authed/admin/sandbox': typeof AuthedAdminSandboxRoute
   '/_authed/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
   '/_authed/tourney/create': typeof AuthedTourneyCreateRoute
@@ -873,6 +882,7 @@ export interface FileRouteTypes {
     | '/tricks/'
     | '/users/'
     | '/vault/'
+    | '/admin/sandbox'
     | '/notifications/settings'
     | '/posts/create'
     | '/tourney/create'
@@ -957,6 +967,7 @@ export interface FileRouteTypes {
     | '/tricks'
     | '/users'
     | '/vault'
+    | '/admin/sandbox'
     | '/notifications/settings'
     | '/posts/create'
     | '/tourney/create'
@@ -1045,6 +1056,7 @@ export interface FileRouteTypes {
     | '/tricks/'
     | '/users/'
     | '/vault/'
+    | '/_authed/admin/sandbox'
     | '/_authed/notifications/settings'
     | '/_authed/posts/create'
     | '/_authed/tourney/create'
@@ -1499,6 +1511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotificationsSettingsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/admin/sandbox': {
+      id: '/_authed/admin/sandbox'
+      path: '/sandbox'
+      fullPath: '/admin/sandbox'
+      preLoaderRoute: typeof AuthedAdminSandboxRouteImport
+      parentRoute: typeof AuthedAdminRoute
+    }
     '/games/rius/sets/': {
       id: '/games/rius/sets/'
       path: '/sets'
@@ -1783,12 +1802,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedAdminRouteChildren {
+  AuthedAdminSandboxRoute: typeof AuthedAdminSandboxRoute
   AuthedAdminIndexRoute: typeof AuthedAdminIndexRoute
   AuthedAdminTricksTrickIdEditRoute: typeof AuthedAdminTricksTrickIdEditRoute
   AuthedAdminTricksTrickIdVideosRoute: typeof AuthedAdminTricksTrickIdVideosRoute
 }
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
+  AuthedAdminSandboxRoute: AuthedAdminSandboxRoute,
   AuthedAdminIndexRoute: AuthedAdminIndexRoute,
   AuthedAdminTricksTrickIdEditRoute: AuthedAdminTricksTrickIdEditRoute,
   AuthedAdminTricksTrickIdVideosRoute: AuthedAdminTricksTrickIdVideosRoute,
