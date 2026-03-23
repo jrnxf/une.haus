@@ -46,20 +46,24 @@ function GlossaryElementsPage() {
           </div>
           {user && (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-xs" aria-label="actions">
-                  <EllipsisVerticalIcon className="size-3.5" />
-                </Button>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="ghost" size="icon-xs" aria-label="actions" />
+                }
+              >
+                <EllipsisVerticalIcon className="size-3.5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/tricks/glossary/elements/$elementId/suggest"
-                    params={{ elementId: element.id }}
-                  >
-                    <PencilIcon />
-                    suggest edit
-                  </Link>
+                <DropdownMenuItem
+                  render={
+                    <Link
+                      to="/tricks/glossary/elements/$elementId/suggest"
+                      params={{ elementId: element.id }}
+                    />
+                  }
+                >
+                  <PencilIcon />
+                  suggest edit
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

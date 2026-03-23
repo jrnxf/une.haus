@@ -346,10 +346,12 @@ function SetActionsMenu({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="outline" aria-label="actions">
-            <EllipsisVerticalIcon className="size-4" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-sm" variant="outline" aria-label="actions" />
+          }
+        >
+          <EllipsisVerticalIcon className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
@@ -369,11 +371,13 @@ function SetActionsMenu({
             </DropdownMenuItem>
           )}
           {isOwner && (
-            <DropdownMenuItem asChild>
-              <Link to="/games/bius/sets/$setId/edit" params={{ setId }}>
-                <PencilIcon />
-                edit
-              </Link>
+            <DropdownMenuItem
+              render={
+                <Link to="/games/bius/sets/$setId/edit" params={{ setId }} />
+              }
+            >
+              <PencilIcon />
+              edit
             </DropdownMenuItem>
           )}
           {canDelete && (

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import React, { type ReactNode } from "react"
+import React, { type ReactElement } from "react"
 
 import {
   DropdownMenu,
@@ -16,7 +16,7 @@ export function UsersCombobox({
   peripheralKey,
 }: {
   users: UsersWithFollowsData["followers"]["users"]
-  children: ReactNode
+  children: ReactElement
   peripheralKey: "followers" | "following"
 }) {
   const [open, setOpen] = usePeripherals(peripheralKey)
@@ -38,7 +38,7 @@ export function UsersCombobox({
         }
       }}
     >
-      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuTrigger render={children} />
       <DropdownMenuContent
         align="center"
         // modify the 6 below to be the number of users to show before overflow
@@ -47,18 +47,19 @@ export function UsersCombobox({
         {users.map((user) => (
           <DropdownMenuItem
             key={user.id}
-            asChild
+            render={
+              <Link
+                to="/users/$userId"
+                params={{ userId: user.id }}
+                replace
+                className="flex items-center gap-2"
+              />
+            }
             onClick={() => {
               isNavigatingRef.current = true
             }}
           >
-            <Link
-              to="/users/$userId"
-              params={{ userId: user.id }}
-              replace
-              className="flex items-center gap-2"
-            >
-              {/* <Avatar className="size-5">
+            {/* <Avatar className="size-5">
                 <AvatarImage
                   src={user.avatarId}
                   alt={user.name}
@@ -66,8 +67,7 @@ export function UsersCombobox({
                 />
                 <AvatarFallback name={user.name} />
               </Avatar> */}
-              <span>{user.name}</span>
-            </Link>
+            <span>{user.name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

@@ -44,17 +44,20 @@ export function LikesButtonGroup({
   const likesDropdown =
     users.length > 0 ? (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="rounded-r-md!">
-            {users.length} {users.length === 1 ? "like" : "likes"}
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button variant="outline" size="sm" className="rounded-r-md!" />
+          }
+        >
+          {users.length} {users.length === 1 ? "like" : "likes"}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="max-w-xs">
           {users.map((user) => (
-            <DropdownMenuItem key={user.id} asChild>
-              <Link to="/users/$userId" params={{ userId: user.id }}>
-                {user.name}
-              </Link>
+            <DropdownMenuItem
+              key={user.id}
+              render={<Link to="/users/$userId" params={{ userId: user.id }} />}
+            >
+              {user.name}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

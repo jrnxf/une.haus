@@ -317,10 +317,12 @@ function RiuSetActionsMenu({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="outline" aria-label="actions">
-            <EllipsisVerticalIcon className="size-4" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-sm" variant="outline" aria-label="actions" />
+          }
+        >
+          <EllipsisVerticalIcon className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
@@ -341,14 +343,16 @@ function RiuSetActionsMenu({
           )}
           {canManageUpcomingSet && (
             <>
-              <DropdownMenuItem asChild>
-                <Link
-                  to="/games/rius/sets/$setId/edit"
-                  params={{ setId: set.id }}
-                >
-                  <PencilIcon />
-                  edit
-                </Link>
+              <DropdownMenuItem
+                render={
+                  <Link
+                    to="/games/rius/sets/$setId/edit"
+                    params={{ setId: set.id }}
+                  />
+                }
+              >
+                <PencilIcon />
+                edit
               </DropdownMenuItem>
               <DropdownMenuItem
                 variant="destructive"

@@ -387,14 +387,14 @@ export function CommandPalette() {
       {/* Actions dropdown */}
       {activePage === "root" && hasSecondaryActions && (
         <DropdownMenu open={actionsOpen} onOpenChange={setActionsOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-1.5">
-              <span>actions</span>
-              <KbdGroup>
-                <Kbd>{metaSymbol}</Kbd>
-                <Kbd>a</Kbd>
-              </KbdGroup>
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button variant="ghost" size="sm" className="gap-1.5" />}
+          >
+            <span>actions</span>
+            <KbdGroup>
+              <Kbd>{metaSymbol}</Kbd>
+              <Kbd>a</Kbd>
+            </KbdGroup>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side="top" className="min-w-[200px]">
             {selectedItem?.secondaryActions?.map((action) => {

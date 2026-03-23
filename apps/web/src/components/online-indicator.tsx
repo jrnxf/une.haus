@@ -28,15 +28,18 @@ function OnlineUserList({
   return (
     <DropdownMenuGroup>
       {users.map((user) => (
-        <DropdownMenuItem key={user.id} asChild>
-          <Link
-            to="/users/$userId"
-            params={{ userId: user.id }}
-            replace
-            onClick={onNavigate}
-          >
-            <span className="text-xs font-medium">{user.name}</span>
-          </Link>
+        <DropdownMenuItem
+          key={user.id}
+          render={
+            <Link
+              to="/users/$userId"
+              params={{ userId: user.id }}
+              replace
+              onClick={onNavigate}
+            />
+          }
+        >
+          <span className="text-xs font-medium">{user.name}</span>
         </DropdownMenuItem>
       ))}
       {guests > 0 && (
@@ -54,21 +57,23 @@ export function OnlineIndicator({ className }: { className?: string }) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "w-fit text-xs leading-none in-data-[mobile=true]:hidden",
-            className,
-          )}
-        >
-          <span className="pr-1">
-            <StatusIndicator className="bg-green-600" />
-          </span>
-          <OnlineCount />
-          <span>online</span>
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "w-fit text-xs leading-none in-data-[mobile=true]:hidden",
+              className,
+            )}
+          />
+        }
+      >
+        <span className="pr-1">
+          <StatusIndicator className="bg-green-600" />
+        </span>
+        <OnlineCount />
+        <span>online</span>
       </DropdownMenuTrigger>
       <Suspense>
         <OnlineDropdownContent onNavigate={() => setOpen(false)} />

@@ -311,10 +311,12 @@ function SetActionsMenu({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="outline" aria-label="actions">
-            <EllipsisVerticalIcon className="size-4" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-sm" variant="outline" aria-label="actions" />
+          }
+        >
+          <EllipsisVerticalIcon className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           {landedTricks.length > 0 && (
@@ -340,14 +342,16 @@ function SetActionsMenu({
             </DropdownMenuItem>
           )}
           {isOwner && (
-            <DropdownMenuItem asChild>
-              <Link
-                to="/games/sius/sets/$setId/edit"
-                params={{ setId: set.id }}
-              >
-                <PencilIcon />
-                edit
-              </Link>
+            <DropdownMenuItem
+              render={
+                <Link
+                  to="/games/sius/sets/$setId/edit"
+                  params={{ setId: set.id }}
+                />
+              }
+            >
+              <PencilIcon />
+              edit
             </DropdownMenuItem>
           )}
           {canDelete && (

@@ -161,28 +161,30 @@ function MobileNavFooter() {
       <div className="ml-auto">
         {sessionUser ? (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="hover:bg-accent/50 relative flex items-center gap-2 rounded-md p-1 pr-2">
-                <Avatar
-                  className="size-7 rounded-lg"
-                  cloudflareId={sessionUser.avatarId}
-                  alt={sessionUser.name}
-                >
-                  <AvatarImage width={64} quality={85} />
-                  <AvatarFallback
-                    name={sessionUser.name}
-                    className="rounded-lg text-xs"
-                  />
-                </Avatar>
-                <span className="truncate text-sm font-medium">
-                  {sessionUser.name}
-                </span>
-                {triggerCount > 0 && (
-                  <CountChip className="absolute -top-0.5 -right-0.5">
-                    {triggerCount > 9 ? "9+" : triggerCount}
-                  </CountChip>
-                )}
-              </button>
+            <DropdownMenuTrigger
+              render={
+                <button className="hover:bg-accent/50 relative flex items-center gap-2 rounded-md p-1 pr-2" />
+              }
+            >
+              <Avatar
+                className="size-7 rounded-lg"
+                cloudflareId={sessionUser.avatarId}
+                alt={sessionUser.name}
+              >
+                <AvatarImage width={64} quality={85} />
+                <AvatarFallback
+                  name={sessionUser.name}
+                  className="rounded-lg text-xs"
+                />
+              </Avatar>
+              <span className="truncate text-sm font-medium">
+                {sessionUser.name}
+              </span>
+              {triggerCount > 0 && (
+                <CountChip className="absolute -top-0.5 -right-0.5">
+                  {triggerCount > 9 ? "9+" : triggerCount}
+                </CountChip>
+              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="z-(--z-overlay) min-w-48 rounded-lg"
@@ -201,14 +203,16 @@ function MobileNavFooter() {
           </DropdownMenu>
         ) : (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="open account menu"
-              >
-                <PowerIcon className="size-4" />
-              </Button>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="open account menu"
+                />
+              }
+            >
+              <PowerIcon className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="z-(--z-overlay) min-w-48 rounded-lg"

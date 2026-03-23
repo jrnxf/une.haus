@@ -1,43 +1,21 @@
-import {
-  autoUpdate,
-  flip,
-  offset,
-  shift,
-  useFloating,
-} from "@floating-ui/react"
-import { CheckIcon, ChevronRightIcon, FilterIcon, XIcon } from "lucide-react"
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
+import { CheckIcon, FilterIcon, XIcon } from "lucide-react"
+import { createContext, useCallback, useContext } from "react"
 
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { ButtonGroup, ButtonGroupText } from "~/components/ui/button-group"
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "~/components/ui/command"
-import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover"
 import { cn } from "~/lib/utils"
 
 // --- Types ---
@@ -191,11 +169,6 @@ function toggleFilterByField(
 
 // --- Context ---
 
-const compactItems = cn(
-  "[&_[data-slot=command-item]]:px-2 [&_[data-slot=command-item]]:py-1.5 [&_[data-slot=command-item]]:text-sm",
-  "[&_[data-slot=command-input-wrapper]]:h-8 [&_[data-slot=command-input-wrapper]]:min-h-8 [&_[data-slot=command-input]]:text-sm",
-)
-
 type FilterSizeContextValue = {
   size: "sm" | "default"
 }
@@ -204,89 +177,19 @@ const FilterSizeContext = createContext<FilterSizeContextValue>({
   size: "default",
 })
 
-// --- Sub-panel positioned via Floating UI ---
+// --- Recursive option items for dropdown menus ---
 
-function SubPanel({
-  anchorEl,
-  onClose,
-  children,
-}: {
-  anchorEl: HTMLElement | null
-  onClose: () => void
-  children: React.ReactNode
-}) {
-  const { refs, floatingStyles, update } = useFloating({
-    strategy: "absolute",
-    placement: "right-start",
-    middleware: [offset(2), flip(), shift({ padding: 8 })],
-    whileElementsMounted: autoUpdate,
-  })
-
-  useEffect(() => {
-    if (!anchorEl) return
-    refs.setReference(anchorEl)
-    void update()
-  }, [anchorEl, refs, update])
-
-  if (!anchorEl) return null
-
-  return (
-    <div
-      ref={refs.setFloating}
-      data-slot="filter-panel"
-      className="bg-popover text-popover-foreground border-border z-99 w-[200px] rounded-md border"
-      style={floatingStyles}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.preventDefault()
-          e.stopPropagation()
-          onClose()
-        }
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
-// --- Recursive options menu (handles branches + leaves at any depth) ---
-
-function OptionsMenu({
+function OptionItems({
   options,
   values,
   onToggle,
-  onClose,
-  onSelectSingle,
-  autoFocusInput = false,
+  isSelect,
 }: {
   options: FilterOption[]
   values: string[]
   onToggle: (value: string) => void
-  onClose: () => void
-  onSelectSingle?: (value: string) => void
-  autoFocusInput?: boolean
+  isSelect?: boolean
 }) {
-  const commandRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [search, setSearch] = useState("")
-  const [openSub, setOpenSub] = useState<string | null>(null)
-  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
-
-  const closeSub = useCallback(() => {
-    setOpenSub(null)
-  }, [])
-
-  const closeSubAndFocusInput = useCallback(() => {
-    setOpenSub(null)
-    inputRef.current?.focus()
-  }, [])
-
-  const openSubOption = openSub
-    ? options.find((o) => o.value === openSub)
-    : null
-  const anchorEl = openSub ? (itemRefs.current[openSub] ?? null) : null
-
-  // Separate branch items (children) from leaf items, then split leaves into selected/unselected
   const branchItems = options.filter((o) => o.children)
   const selectedLeaves = options.filter(
     (o) => !o.children && values.includes(o.value),
@@ -295,164 +198,89 @@ function OptionsMenu({
     (o) => !o.children && !values.includes(o.value),
   )
 
-  const handleToggle = useCallback(
-    (value: string) => {
-      if (onSelectSingle) {
-        onSelectSingle(value)
-        return
-      }
-      const isSelected = values.includes(value)
-      if (isSelected) {
-        // Let cmdk manage active row; we only manage selected values.
-      } else {
-        // Let cmdk manage active row; we only manage selected values.
-      }
-      onToggle(value)
-      setSearch("")
-    },
-    [values, onToggle, onSelectSingle],
-  )
-
-  useEffect(() => {
-    if (!autoFocusInput) return
-    const id = window.requestAnimationFrame(() => {
-      inputRef.current?.focus()
-      inputRef.current?.select()
-    })
-    return () => window.cancelAnimationFrame(id)
-  }, [autoFocusInput])
-
   return (
     <>
-      <Command
-        ref={commandRef}
-        className={cn("bg-popover dark:bg-popover", compactItems)}
-      >
-        <CommandInput
-          ref={inputRef}
-          placeholder="search..."
-          value={search}
-          onValueChange={setSearch}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowRight") {
-              const selectedItem =
-                commandRef.current?.querySelector<HTMLElement>(
-                  '[data-slot="command-item"][data-selected="true"]',
-                )
-              const selectedLabel = selectedItem?.dataset.value
-              const selectedOption = options.find(
-                (o) => o.label.toLowerCase() === selectedLabel?.toLowerCase(),
-              )
-              if (selectedOption?.children) {
-                e.preventDefault()
-                setOpenSub(selectedOption.value)
-              }
-            } else if (e.key === "ArrowLeft") {
-              if (openSub) {
-                e.preventDefault()
-                closeSubAndFocusInput()
-              } else if (
-                inputRef.current?.selectionStart === 0 &&
-                inputRef.current?.selectionEnd === 0
-              ) {
-                e.preventDefault()
-                onClose()
-              }
-            } else if (e.key === "Escape") {
-              e.preventDefault()
-              e.stopPropagation()
-              if (openSub) closeSubAndFocusInput()
-              else onClose()
-            }
-          }}
-        />
-        <CommandList className="max-h-[min(var(--available-height,24rem),24rem)]">
-          <CommandEmpty>no results</CommandEmpty>
+      {branchItems.map((option) => {
+        const count = countSelected(option.children!, values)
+        return (
+          <DropdownMenuSub key={option.value}>
+            <DropdownMenuSubTrigger>
+              <span className="flex-1">{option.label}</span>
+              {count > 0 && (
+                <Badge variant="secondary" className="mr-1 px-1 text-xs">
+                  {count}
+                </Badge>
+              )}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-[200px]">
+              <OptionItems
+                options={option.children!}
+                values={values}
+                onToggle={onToggle}
+                isSelect={isSelect}
+              />
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        )
+      })}
 
-          {branchItems.length > 0 && (
-            <CommandGroup>
-              {branchItems.map((option) => {
-                const count = countSelected(option.children!, values)
-                return (
-                  <div
-                    key={option.value}
-                    ref={(el) => {
-                      itemRefs.current[option.value] = el
-                    }}
-                  >
-                    <CommandItem
-                      value={option.label}
-                      onPointerEnter={() => {
-                        setOpenSub(option.value)
-                      }}
-                      onSelect={() =>
-                        setOpenSub(
-                          openSub === option.value ? null : option.value,
-                        )
-                      }
-                    >
-                      <span className="flex-1">{option.label}</span>
-                      {count > 0 && (
-                        <Badge variant="secondary" className="px-1 text-xs">
-                          {count}
-                        </Badge>
-                      )}
-                      <ChevronRightIcon className="text-muted-foreground size-3.5" />
-                    </CommandItem>
-                  </div>
-                )
-              })}
-            </CommandGroup>
+      {branchItems.length > 0 &&
+        (selectedLeaves.length > 0 || unselectedLeaves.length > 0) && (
+          <DropdownMenuSeparator />
+        )}
+
+      {selectedLeaves.length > 0 && (
+        <DropdownMenuGroup>
+          {selectedLeaves.map((option) =>
+            isSelect ? (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => onToggle(option.value)}
+              >
+                <CheckIcon className="text-primary size-4" />
+                <span className="truncate">{option.label}</span>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked
+                onCheckedChange={() => onToggle(option.value)}
+              >
+                <CheckIcon className="text-primary size-4" />
+                <span className="truncate">{option.label}</span>
+              </DropdownMenuCheckboxItem>
+            ),
           )}
+        </DropdownMenuGroup>
+      )}
 
-          {selectedLeaves.length > 0 && (
-            <CommandGroup>
-              {selectedLeaves.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.label}
-                  onPointerEnter={() => setOpenSub(null)}
-                  onSelect={() => handleToggle(option.value)}
-                >
-                  <CheckIcon className="text-primary size-4" />
-                  <span className="truncate">{option.label}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+      {selectedLeaves.length > 0 && unselectedLeaves.length > 0 && (
+        <DropdownMenuSeparator />
+      )}
+
+      {unselectedLeaves.length > 0 && (
+        <DropdownMenuGroup>
+          {unselectedLeaves.map((option) =>
+            isSelect ? (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => onToggle(option.value)}
+              >
+                <CheckIcon className="size-4 opacity-0" />
+                <span className="truncate">{option.label}</span>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={false}
+                onCheckedChange={() => onToggle(option.value)}
+              >
+                <CheckIcon className="size-4 opacity-0" />
+                <span className="truncate">{option.label}</span>
+              </DropdownMenuCheckboxItem>
+            ),
           )}
-
-          {selectedLeaves.length > 0 && unselectedLeaves.length > 0 && (
-            <CommandSeparator />
-          )}
-
-          {unselectedLeaves.length > 0 && (
-            <CommandGroup>
-              {unselectedLeaves.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.label}
-                  onPointerEnter={() => setOpenSub(null)}
-                  onSelect={() => handleToggle(option.value)}
-                >
-                  <CheckIcon className="size-4 opacity-0" />
-                  <span className="truncate">{option.label}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          )}
-        </CommandList>
-      </Command>
-
-      {openSub && openSubOption?.children && (
-        <SubPanel anchorEl={anchorEl} onClose={closeSubAndFocusInput}>
-          <OptionsMenu
-            options={openSubOption.children}
-            values={values}
-            onToggle={onToggle}
-            onSelectSingle={onSelectSingle}
-            onClose={closeSub}
-          />
-        </SubPanel>
+        </DropdownMenuGroup>
       )}
     </>
   )
@@ -478,14 +306,16 @@ function FilterOperatorDropdown({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size={size}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          {operatorLabel}
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="outline"
+            size={size}
+            className="text-muted-foreground hover:text-foreground"
+          />
+        }
+      >
+        {operatorLabel}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-fit min-w-fit">
         {operators.map((op) => (
@@ -508,7 +338,7 @@ function FilterOperatorDropdown({
   )
 }
 
-function FilterValuePopover({
+function FilterValueDropdown({
   field,
   values,
   onToggle,
@@ -520,7 +350,7 @@ function FilterValuePopover({
   onSelectSingle?: (value: string) => void
 }) {
   const { size } = useContext(FilterSizeContext)
-  const [open, setOpen] = useState(false)
+  const isSelect = field.type === "select"
 
   const options = field.options ?? []
   const selectedOptions = findSelectedLeaves(options, values)
@@ -532,29 +362,19 @@ function FilterValuePopover({
         : "select..."
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size={size}>
-          {displayLabel}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] gap-0 p-0" align="start">
-        <OptionsMenu
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="outline" size={size} />}>
+        {displayLabel}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[200px]">
+        <OptionItems
           options={options}
           values={values}
-          onToggle={onToggle}
-          onSelectSingle={
-            field.type === "select"
-              ? (value) => {
-                  onSelectSingle?.(value)
-                  setOpen(false)
-                }
-              : undefined
-          }
-          onClose={() => setOpen(false)}
+          onToggle={isSelect ? (value) => onSelectSingle?.(value) : onToggle}
+          isSelect={isSelect}
         />
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -597,7 +417,7 @@ function FilterChip({
           )}
         />
       ) : (
-        <FilterValuePopover
+        <FilterValueDropdown
           field={field}
           values={active.values}
           onToggle={onToggleValue}
@@ -621,7 +441,7 @@ function FilterChip({
   )
 }
 
-// --- Add-filter popover (field picker with sub-menus) ---
+// --- Add-filter dropdown (field picker) ---
 
 function FiltersTrigger({
   fields,
@@ -634,7 +454,6 @@ function FiltersTrigger({
   onSelectField?: (fieldKey: string) => void
   size?: "sm" | "default"
 }) {
-  const [open, setOpen] = useState(false)
   const activeFieldKeys = new Set(filters.map((f) => f.field))
   const availableFields = getFieldsSortedByActive(fields, filters).filter(
     (field) => !activeFieldKeys.has(field.key),
@@ -643,41 +462,25 @@ function FiltersTrigger({
   if (availableFields.length === 0) return null
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size={size ?? "sm"}>
-          <FilterIcon className="size-3.5" />
-          filters
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="relative w-[220px] gap-0 p-0" align="start">
-        <Command className={cn("bg-popover dark:bg-popover", compactItems)}>
-          <CommandList>
-            {availableFields.length === 0 ? (
-              <CommandEmpty>no fields</CommandEmpty>
-            ) : (
-              <CommandGroup>
-                {availableFields.map((field) => {
-                  return (
-                    <CommandItem
-                      key={field.key}
-                      value={field.label}
-                      className="justify-between"
-                      onSelect={() => {
-                        onSelectField?.(field.key)
-                        setOpen(false)
-                      }}
-                    >
-                      <span>{field.label}</span>
-                    </CommandItem>
-                  )
-                })}
-              </CommandGroup>
-            )}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={<Button variant="outline" size={size ?? "sm"} />}
+      >
+        <FilterIcon className="size-3.5" />
+        filters
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[220px]">
+        {availableFields.map((field) => (
+          <DropdownMenuItem
+            key={field.key}
+            onClick={() => onSelectField?.(field.key)}
+            className="justify-between"
+          >
+            <span>{field.label}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

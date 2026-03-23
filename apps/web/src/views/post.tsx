@@ -58,10 +58,12 @@ function PostActions({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="outline" aria-label="actions">
-            <EllipsisVerticalIcon className="size-4" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button size="icon-sm" variant="outline" aria-label="actions" />
+          }
+        >
+          <EllipsisVerticalIcon className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
@@ -82,11 +84,11 @@ function PostActions({
           )}
           {isOwner && (
             <>
-              <DropdownMenuItem asChild>
-                <Link params={{ postId }} to="/posts/$postId/edit">
-                  <PencilIcon />
-                  edit
-                </Link>
+              <DropdownMenuItem
+                render={<Link params={{ postId }} to="/posts/$postId/edit" />}
+              >
+                <PencilIcon />
+                edit
               </DropdownMenuItem>
               <DropdownMenuItem
                 variant="destructive"

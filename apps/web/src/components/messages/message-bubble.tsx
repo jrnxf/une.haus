@@ -218,14 +218,16 @@ export function MessageBubble({
                   />
 
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="icon-sm"
-                        variant="outline"
-                        aria-label="more actions"
-                      >
-                        <MoreHorizontalIcon className="size-4" />
-                      </Button>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          size="icon-sm"
+                          variant="outline"
+                          aria-label="more actions"
+                        />
+                      }
+                    >
+                      <MoreHorizontalIcon className="size-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={handleCopy}>

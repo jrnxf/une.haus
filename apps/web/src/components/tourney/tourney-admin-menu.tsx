@@ -37,10 +37,8 @@ export function TourneyAdminMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon-sm">
-          <EllipsisVerticalIcon className="size-4" />
-        </Button>
+      <DropdownMenuTrigger render={<Button variant="outline" size="icon-sm" />}>
+        <EllipsisVerticalIcon className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {goTo && goTo.length > 0 && (
@@ -68,10 +66,10 @@ export function TourneyAdminMenu({
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem asChild>
-          <Link to="/tourney/$code/edit" params={{ code }}>
-            edit
-          </Link>
+        <DropdownMenuItem
+          render={<Link to="/tourney/$code/edit" params={{ code }} />}
+        >
+          edit
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"

@@ -102,43 +102,41 @@ export function AuthedUserMenuItems({
   return (
     <>
       <DropdownMenuGroup>
-        <DropdownMenuItem asChild>
-          <Link to="/feedback">
-            <Send className="size-3.5" />
-            feedback
-          </Link>
+        <DropdownMenuItem render={<Link to="/feedback" />}>
+          <Send className="size-3.5" />
+          feedback
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/privacy">
-            <EyeOff className="size-3.5" />
-            privacy
-          </Link>
+        <DropdownMenuItem render={<Link to="/privacy" />}>
+          <EyeOff className="size-3.5" />
+          privacy
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/terms">
-            <ScrollText className="size-3.5" />
-            terms
-          </Link>
+        <DropdownMenuItem render={<Link to="/terms" />}>
+          <ScrollText className="size-3.5" />
+          terms
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href="https://docs.une.haus"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <BookIcon className="size-3.5" />
-            docs
-          </a>
+        <DropdownMenuItem
+          render={
+            <a
+              href="https://docs.une.haus"
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+        >
+          <BookIcon className="size-3.5" />
+          docs
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href="https://github.com/jrnxf/une.haus"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <TerminalIcon className="size-3.5" />
-            source
-          </a>
+        <DropdownMenuItem
+          render={
+            <a
+              href="https://github.com/jrnxf/une.haus"
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+        >
+          <TerminalIcon className="size-3.5" />
+          source
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
@@ -147,16 +145,14 @@ export function AuthedUserMenuItems({
         <>
           <DropdownMenuGroup>
             {isAdmin && (
-              <DropdownMenuItem asChild>
-                <Link to="/admin">
-                  <ShieldIcon className="size-3.5" />
-                  admin
-                  {adminPendingCount > 0 && (
-                    <CountChip className="ml-auto">
-                      {adminPendingCount > 99 ? "99+" : adminPendingCount}
-                    </CountChip>
-                  )}
-                </Link>
+              <DropdownMenuItem render={<Link to="/admin" />}>
+                <ShieldIcon className="size-3.5" />
+                admin
+                {adminPendingCount > 0 && (
+                  <CountChip className="ml-auto">
+                    {adminPendingCount > 99 ? "99+" : adminPendingCount}
+                  </CountChip>
+                )}
               </DropdownMenuItem>
             )}
             {isDev && (
@@ -180,22 +176,22 @@ export function AuthedUserMenuItems({
         </>
       )}
       <DropdownMenuGroup>
-        <DropdownMenuItem asChild>
-          <Link to="/users/$userId" params={{ userId: sessionUser.id }}>
-            <UserIcon className="size-3.5" />
-            profile
-          </Link>
+        <DropdownMenuItem
+          render={
+            <Link to="/users/$userId" params={{ userId: sessionUser.id }} />
+          }
+        >
+          <UserIcon className="size-3.5" />
+          profile
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/notifications">
-            <Bell className="size-3.5" />
-            notifications
-            {unreadCount > 0 && (
-              <CountChip className="ml-auto">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </CountChip>
-            )}
-          </Link>
+        <DropdownMenuItem render={<Link to="/notifications" />}>
+          <Bell className="size-3.5" />
+          notifications
+          {unreadCount > 0 && (
+            <CountChip className="ml-auto">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </CountChip>
+          )}
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
@@ -213,47 +209,45 @@ export function UnauthedUserMenuItems() {
   return (
     <>
       <DropdownMenuGroup>
-        <DropdownMenuItem asChild>
-          <Link to="/privacy">
-            <EyeOff className="size-3.5" />
-            privacy
-          </Link>
+        <DropdownMenuItem render={<Link to="/privacy" />}>
+          <EyeOff className="size-3.5" />
+          privacy
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/terms">
-            <ScrollText className="size-3.5" />
-            terms
-          </Link>
+        <DropdownMenuItem render={<Link to="/terms" />}>
+          <ScrollText className="size-3.5" />
+          terms
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href="https://docs.une.haus"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <BookIcon className="size-3.5" />
-            docs
-          </a>
+        <DropdownMenuItem
+          render={
+            <a
+              href="https://docs.une.haus"
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+        >
+          <BookIcon className="size-3.5" />
+          docs
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a
-            href="https://github.com/jrnxf/une.haus"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <TerminalIcon className="size-3.5" />
-            source
-          </a>
+        <DropdownMenuItem
+          render={
+            <a
+              href="https://github.com/jrnxf/une.haus"
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          }
+        >
+          <TerminalIcon className="size-3.5" />
+          source
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <ThemeSubmenu />
       <DropdownMenuSeparator />
-      <DropdownMenuItem asChild>
-        <Link to="/auth">
-          <LogIn className="size-3.5" />
-          auth
-        </Link>
+      <DropdownMenuItem render={<Link to="/auth" />}>
+        <LogIn className="size-3.5" />
+        auth
       </DropdownMenuItem>
     </>
   )
@@ -283,14 +277,16 @@ export function NavUser() {
               authed DropdownMenu instance (same tree shape), preserving its
               open state and causing the menu to jump to (0,0). */}
           <DropdownMenu key="unauthed" modal={!isMobile}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="open account menu"
-              >
-                <PowerIcon className="size-3.5" />
-              </Button>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="open account menu"
+                />
+              }
+            >
+              <PowerIcon className="size-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
@@ -314,34 +310,34 @@ export function NavUser() {
       <SidebarMenuItem>
         {/* See "unauthed" key above */}
         <DropdownMenu key="authed" modal={!isMobile}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground relative overflow-visible"
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground relative overflow-visible"
+              />
+            }
+          >
+            <Avatar
+              className="h-8 w-8 rounded-lg"
+              cloudflareId={sessionUser.avatarId}
+              alt={sessionUser.name}
             >
-              <Avatar
-                className="h-8 w-8 rounded-lg"
-                cloudflareId={sessionUser.avatarId}
-                alt={sessionUser.name}
-              >
-                <AvatarImage width={64} quality={85} />
-                <AvatarFallback name={sessionUser.name} />
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {sessionUser.name}
-                </span>
-                <span className="truncate text-xs">{sessionUser.email}</span>
-              </div>
-              <ChevronsUpDown aria-hidden="true" className="ml-auto size-4" />
-              {unreadCount + adminPendingCount > 0 && (
-                <CountChip className="absolute -top-1 -right-1">
-                  {unreadCount + adminPendingCount > 9
-                    ? "9+"
-                    : unreadCount + adminPendingCount}
-                </CountChip>
-              )}
-            </SidebarMenuButton>
+              <AvatarImage width={64} quality={85} />
+              <AvatarFallback name={sessionUser.name} />
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{sessionUser.name}</span>
+              <span className="truncate text-xs">{sessionUser.email}</span>
+            </div>
+            <ChevronsUpDown aria-hidden="true" className="ml-auto size-4" />
+            {unreadCount + adminPendingCount > 0 && (
+              <CountChip className="absolute -top-1 -right-1">
+                {unreadCount + adminPendingCount > 9
+                  ? "9+"
+                  : unreadCount + adminPendingCount}
+              </CountChip>
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className={cn(

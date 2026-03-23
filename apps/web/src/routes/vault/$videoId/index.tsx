@@ -148,10 +148,16 @@ function RouteComponent() {
                 onLikeUnlike={sessionUser ? likeUnlikeVideo : undefined}
               />
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon-sm" variant="outline" aria-label="actions">
-                    <EllipsisVerticalIcon className="size-4" />
-                  </Button>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      size="icon-sm"
+                      variant="outline"
+                      aria-label="actions"
+                    />
+                  }
+                >
+                  <EllipsisVerticalIcon className="size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
@@ -165,18 +171,20 @@ function RouteComponent() {
                     share
                   </DropdownMenuItem>
                   {sessionUser && (
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to={
-                          isAdmin
-                            ? "/vault/$videoId/edit"
-                            : "/vault/$videoId/suggest"
-                        }
-                        params={{ videoId }}
-                      >
-                        <PencilIcon />
-                        edit
-                      </Link>
+                    <DropdownMenuItem
+                      render={
+                        <Link
+                          to={
+                            isAdmin
+                              ? "/vault/$videoId/edit"
+                              : "/vault/$videoId/suggest"
+                          }
+                          params={{ videoId }}
+                        />
+                      }
+                    >
+                      <PencilIcon />
+                      edit
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>

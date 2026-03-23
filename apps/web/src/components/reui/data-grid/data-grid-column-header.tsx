@@ -81,7 +81,7 @@ function DataGridColumnHeaderInner<TData, TValue>({
   )
 
   const headerButtonClassName = cn(
-    "text-secondary-foreground/80 hover:bg-secondary data-[state=open]:bg-secondary hover:text-foreground data-[state=open]:text-foreground -ms-2 h-7 rounded-md px-2 font-normal",
+    "text-secondary-foreground/80 hover:bg-secondary data-popup-open:bg-secondary hover:text-foreground data-popup-open:text-foreground -ms-2 h-7 rounded-md px-2 font-normal",
     className,
   )
 
@@ -289,16 +289,18 @@ function DataGridColumnHeaderInner<TData, TValue>({
     return (
       <div className="flex h-full items-center justify-between gap-1.5">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className={headerButtonClassName}
-              disabled={isLoading || recordCount === 0}
-            >
-              {icon && icon}
-              {title}
-              {sortIcon}
-            </Button>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                className={headerButtonClassName}
+                disabled={isLoading || recordCount === 0}
+              />
+            }
+          >
+            {icon && icon}
+            {title}
+            {sortIcon}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40" align="start">
             {menuItems}

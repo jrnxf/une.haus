@@ -129,14 +129,16 @@ function RouteComponent() {
               </div>
               {isAdmin && (
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      aria-label="admin menu"
-                    >
-                      <ShieldIcon className="size-4" />
-                    </Button>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        aria-label="admin menu"
+                      />
+                    }
+                  >
+                    <ShieldIcon className="size-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {seedPresets.map((count) => {
