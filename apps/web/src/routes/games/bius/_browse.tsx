@@ -9,7 +9,6 @@ import {
 import { InfoIcon } from "lucide-react"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
-import { ContentHeaderDropdown } from "~/components/games/content-header-dropdown"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
 import {
@@ -37,34 +36,11 @@ function RouteComponent() {
   const latestSet = round?.sets?.[0]
   const canBackUp =
     sessionUser && latestSet && latestSet.user.id !== sessionUser.id
-  const activeOptions = [...rounds]
-    .toSorted((a, b) => b.id - a.id)
-    .map((round) => ({
-      value: String(round.id),
-      label: `round ${round.id}`,
-    }))
 
   return (
     <div className="mx-auto w-full max-w-3xl p-4">
       <ContentHeaderRow
         className="max-w-none pb-4"
-        left={
-          selectedRoundId !== undefined ? (
-            <ContentHeaderDropdown
-              value={String(selectedRoundId)}
-              triggerLabel={`round ${selectedRoundId}`}
-              groups={[{ label: "active", options: activeOptions }]}
-              onValueChange={(value) => {
-                if (!value) return
-                navigate({
-                  to: "/games/bius/$roundId",
-                  params: { roundId: Number(value) },
-                  replace: true,
-                })
-              }}
-            />
-          ) : undefined
-        }
         right={
           <div className="flex items-center gap-2">
             <Tray>

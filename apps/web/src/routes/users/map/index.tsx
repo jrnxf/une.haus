@@ -1,9 +1,16 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { ChevronDownIcon } from "lucide-react"
 import { useCallback } from "react"
 import { z } from "zod"
 
 import { PageHeader } from "~/components/page-header"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import { seo } from "~/lib/seo"
 import { users } from "~/lib/users"
 import { MapView } from "~/views/map"
@@ -55,7 +62,7 @@ function RouteComponent() {
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/users">users</PageHeader.Crumb>
-          <PageHeader.Crumb>map</PageHeader.Crumb>
+          <ViewDropdown label="map" />
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="min-h-0 flex-1">
@@ -71,5 +78,24 @@ function RouteComponent() {
         />
       </div>
     </>
+  )
+}
+
+function ViewDropdown({ label }: { label: string }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="text-foreground flex items-center gap-1 text-sm font-medium outline-none">
+        {label}
+        <ChevronDownIcon className="size-3" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuItem render={<Link to="/users/globe" />}>
+          globe
+        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link to="/users/map" />}>
+          map
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

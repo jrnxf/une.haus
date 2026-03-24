@@ -10,7 +10,6 @@ import {
 import { InfoIcon } from "lucide-react"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
-import { ContentHeaderDropdown } from "~/components/games/content-header-dropdown"
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
@@ -40,9 +39,6 @@ function RouteComponent() {
   const { data: activeRounds } = useSuspenseQuery(
     games.sius.rounds.active.queryOptions(),
   )
-  const { data: archivedRounds } = useSuspenseQuery(
-    games.sius.rounds.archived.list.queryOptions(),
-  )
   const { sessionUser, authGate } = useAuthGate()
   const navigate = useNavigate()
   const pathname = useLocation({ select: (l) => l.pathname })
@@ -65,61 +61,10 @@ function RouteComponent() {
     latestSet.user.id !== sessionUser.id &&
     selectedRound?.status === "active"
 
-  const activeOptions = [...activeRounds]
-    .toSorted((a, b) => b.id - a.id)
-    .map((round) => ({
-      value: String(round.id),
-      label: `round ${round.id}`,
-    }))
-
-  const archivedOptions = [...archivedRounds]
-    .toSorted((a, b) => b.id - a.id)
-    .map((round) => ({
-      value: `archived-${round.id}`,
-      label: `round ${round.id}`,
-    }))
-
-  const dropdownValue = isArchived
-    ? `archived-${selectedRoundId}`
-    : String(selectedRoundId)
-
   return (
     <div className="mx-auto w-full max-w-3xl p-4">
       <ContentHeaderRow
         className="max-w-none pb-4"
-        left={
-          selectedRoundId !== undefined ? (
-            <ContentHeaderDropdown
-              value={dropdownValue}
-              triggerLabel={`round ${selectedRoundId}`}
-              groups={[
-                ...(activeOptions.length > 0
-                  ? [{ label: "active", options: activeOptions }]
-                  : []),
-                ...(archivedOptions.length > 0
-                  ? [{ label: "previous", options: archivedOptions }]
-                  : []),
-              ]}
-              onValueChange={(value) => {
-                if (!value) return
-                if (value.startsWith("archived-")) {
-                  const roundId = value.replace("archived-", "")
-                  navigate({
-                    to: "/games/sius/archived/$roundId",
-                    params: { roundId },
-                  })
-                } else {
-                  navigate({
-                    to: "/games/sius/$roundId",
-                    params: { roundId: Number(value) },
-                    replace: true,
-                  })
-                }
-              }}
-              contentClassName="max-h-[300px]"
-            />
-          ) : undefined
-        }
         right={
           <div className="flex items-center gap-2">
             {isActive && selectedRound && (
