@@ -88,9 +88,14 @@ function RouteComponent() {
               filters={filters}
               onFiltersChange={handleFiltersChange}
             />
-            <Button variant="secondary" asChild>
-              <Link to="/users/map">map</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" asChild>
+                <Link to="/users/map">map</Link>
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link to="/users/globe">globe</Link>
+              </Button>
+            </div>
           </div>
 
           <Suspense>

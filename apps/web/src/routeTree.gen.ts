@@ -41,6 +41,7 @@ import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
 import { Route as GamesBiusRouteRouteImport } from './routes/games/bius/route'
 import { Route as VaultVideoIdIndexRouteImport } from './routes/vault/$videoId/index'
 import { Route as UsersMapIndexRouteImport } from './routes/users/map/index'
+import { Route as UsersGlobeIndexRouteImport } from './routes/users/globe/index'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as TricksGlossaryIndexRouteImport } from './routes/tricks/glossary/index'
 import { Route as PostsPostIdIndexRouteImport } from './routes/posts/$postId/index'
@@ -258,6 +259,11 @@ const VaultVideoIdIndexRoute = VaultVideoIdIndexRouteImport.update({
 const UsersMapIndexRoute = UsersMapIndexRouteImport.update({
   id: '/users/map/',
   path: '/users/map/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersGlobeIndexRoute = UsersGlobeIndexRouteImport.update({
+  id: '/users/globe/',
+  path: '/users/globe/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersUserIdIndexRoute = UsersUserIdIndexRouteImport.update({
@@ -629,6 +635,7 @@ export interface FileRoutesByFullPath {
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
+  '/users/globe/': typeof UsersGlobeIndexRoute
   '/users/map/': typeof UsersMapIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -713,6 +720,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthedNotificationsIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
+  '/users/globe': typeof UsersGlobeIndexRoute
   '/users/map': typeof UsersMapIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -807,6 +815,7 @@ export interface FileRoutesById {
   '/posts/$postId/': typeof PostsPostIdIndexRoute
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
+  '/users/globe/': typeof UsersGlobeIndexRoute
   '/users/map/': typeof UsersMapIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -898,6 +907,7 @@ export interface FileRouteTypes {
     | '/posts/$postId/'
     | '/tricks/glossary/'
     | '/users/$userId/'
+    | '/users/globe/'
     | '/users/map/'
     | '/vault/$videoId/'
     | '/auth/me/edit'
@@ -982,6 +992,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/posts/$postId'
     | '/users/$userId'
+    | '/users/globe'
     | '/users/map'
     | '/vault/$videoId'
     | '/auth/me/edit'
@@ -1075,6 +1086,7 @@ export interface FileRouteTypes {
     | '/posts/$postId/'
     | '/tricks/glossary/'
     | '/users/$userId/'
+    | '/users/globe/'
     | '/users/map/'
     | '/vault/$videoId/'
     | '/_authed/auth/me/edit'
@@ -1154,6 +1166,7 @@ export interface RootRouteChildren {
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
   TricksGlossaryIndexRoute: typeof TricksGlossaryIndexRoute
   UsersUserIdIndexRoute: typeof UsersUserIdIndexRoute
+  UsersGlobeIndexRoute: typeof UsersGlobeIndexRoute
   UsersMapIndexRoute: typeof UsersMapIndexRoute
   VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
   ApiTourneySseCodeRoute: typeof ApiTourneySseCodeRoute
@@ -1383,6 +1396,13 @@ declare module '@tanstack/react-router' {
       path: '/users/map'
       fullPath: '/users/map/'
       preLoaderRoute: typeof UsersMapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/globe/': {
+      id: '/users/globe/'
+      path: '/users/globe'
+      fullPath: '/users/globe/'
+      preLoaderRoute: typeof UsersGlobeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/$userId/': {
@@ -2037,6 +2057,7 @@ const rootRouteChildren: RootRouteChildren = {
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
   TricksGlossaryIndexRoute: TricksGlossaryIndexRoute,
   UsersUserIdIndexRoute: UsersUserIdIndexRoute,
+  UsersGlobeIndexRoute: UsersGlobeIndexRoute,
   UsersMapIndexRoute: UsersMapIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
   ApiTourneySseCodeRoute: ApiTourneySseCodeRoute,
