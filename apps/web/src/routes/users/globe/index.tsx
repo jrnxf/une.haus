@@ -178,9 +178,9 @@ function UserGlobe({ users }: { users: UsersWithLocationsData }) {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col items-center p-6">
-      <div className="grid min-h-0 flex-1 place-items-center">
-        <div className="aspect-square max-h-full w-full max-w-full">
+    <div className="flex min-h-0 flex-1 flex-col items-center py-6">
+      <div className="flex min-h-0 flex-1 justify-center self-stretch overflow-hidden">
+        <div className="aspect-square h-full shrink-0">
           <CobeGlobe
             focusTarget={activeLocation}
             dotMarkers={dotMarkers}
@@ -189,21 +189,23 @@ function UserGlobe({ users }: { users: UsersWithLocationsData }) {
           />
         </div>
       </div>
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex max-w-full flex-col items-center gap-2 px-6">
         <Link
           to="/users/$userId"
           params={{ userId: current.id }}
-          className="hover:bg-muted flex flex-col items-center rounded-md px-4 py-2 transition-colors"
+          className="hover:bg-muted flex max-w-full flex-col items-center rounded-md px-4 py-2 transition-colors"
         >
-          <span className="font-medium">{current.name}</span>
-          <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+          <span className="max-w-full truncate font-medium">
+            {current.name}
+          </span>
+          <div className="text-muted-foreground flex max-w-full items-center gap-1.5 text-xs">
             {current.location.countryCode && (
               <FlagEmoji
-                className="text-sm"
+                className="shrink-0 text-sm"
                 location={{ countryCode: current.location.countryCode }}
               />
             )}
-            <span>{current.location.label}</span>
+            <span className="truncate">{current.location.label}</span>
           </div>
         </Link>
         <ButtonGroup>
