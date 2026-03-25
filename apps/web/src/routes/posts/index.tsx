@@ -192,14 +192,14 @@ function PostsList({
                     />
                     <div className="text-muted-foreground flex items-center gap-2 text-xs">
                       <StatBadge
-                        icon={MessageCircleIcon}
-                        count={post.counts.messages}
-                        label="message"
-                      />
-                      <StatBadge
                         icon={HeartIcon}
                         count={post.counts.likes}
                         label="like"
+                      />
+                      <StatBadge
+                        icon={MessageCircleIcon}
+                        count={post.counts.messages}
+                        label="message"
                       />
                     </div>
                   </div>
