@@ -44,6 +44,7 @@ export const getRiuSetServerFn = createServerFn({
       with: {
         riu: {
           columns: {
+            id: true,
             status: true,
           },
         },
@@ -197,8 +198,14 @@ export const getRiuSubmissionServerFn = createServerFn({
             name: true,
             instructions: true,
             createdAt: true,
+            riuId: true,
           },
           with: {
+            riu: {
+              columns: {
+                status: true,
+              },
+            },
             user: {
               columns: {
                 id: true,

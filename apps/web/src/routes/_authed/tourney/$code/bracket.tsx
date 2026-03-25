@@ -254,7 +254,7 @@ function RouteComponent() {
       <PageHeader>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
-          <PageHeader.Crumb>{tournament.name || "bracket"}</PageHeader.Crumb>
+          <PageHeader.Crumb>{code}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>
           <PageHeader.Actions>

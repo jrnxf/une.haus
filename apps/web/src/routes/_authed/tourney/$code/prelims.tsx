@@ -148,7 +148,6 @@ function RouteComponent() {
         nextRiderIndex={findNextPending(state)}
         state={state}
         prelimAction={prelimAction}
-        eventName={tournament.name}
       />
     )
   }
@@ -389,7 +388,6 @@ function TimerView({
   nextRiderIndex,
   state,
   prelimAction,
-  eventName,
 }: {
   code: string
   rider: TournamentRider
@@ -402,7 +400,6 @@ function TimerView({
   nextRiderIndex: number | null
   state: TournamentState
   prelimAction: ReturnType<typeof usePrelimAction>
-  eventName: string
 }) {
   const advancePhase = useAdvancePhase(code)
   const resolved = resolveRider(rider)
@@ -447,7 +444,7 @@ function TimerView({
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tourney">tourney</PageHeader.Crumb>
-          <PageHeader.Crumb>{eventName || "prelims"}</PageHeader.Crumb>
+          <PageHeader.Crumb>{code}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
         <PageHeader.Right>
           <PageHeader.Actions>

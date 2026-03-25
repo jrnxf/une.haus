@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query"
 import {
   createFileRoute,
   Link,
@@ -13,31 +14,93 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
+import { games } from "~/lib/games"
 import { cn } from "~/lib/utils"
 
 export const Route = createFileRoute("/games/rius")({
   component: RouteComponent,
 })
 
+function getRiuRoundLink(roundId: string, status: string | undefined): string {
+  if (status === "active") return "/games/rius/active"
+  if (status === "upcoming") return "/games/rius/upcoming"
+  return `/games/rius/archived/${roundId}`
+}
+
 function RouteComponent() {
   const pathname = useLocation({ select: (location) => location.pathname })
   const isIndex = pathname === "/games/rius" || pathname === "/games/rius/"
+  const isActive = pathname.startsWith("/games/rius/active")
+  const isUpcoming = pathname.startsWith("/games/rius/upcoming")
   const archivedId = pathname.match(/^\/games\/rius\/archived\/(\d+)/)?.[1]
-  const label = archivedId
-    ? archivedId
-    : pathname.startsWith("/games/rius/upcoming")
+  const setId = pathname.match(/^\/games\/rius\/sets\/(\d+)/)?.[1]
+  const submissionId = pathname.match(/^\/games\/rius\/submissions\/(\d+)/)?.[1]
+
+  const activeQuery = useQuery({
+    ...games.rius.active.list.queryOptions(),
+    enabled: isActive,
+  })
+  const upcomingQuery = useQuery({
+    ...games.rius.upcoming.roster.queryOptions(),
+    enabled: isUpcoming,
+  })
+  const setQuery = useQuery({
+    ...games.rius.sets.get.queryOptions({ setId: Number(setId) }),
+    enabled: Boolean(setId),
+  })
+  const submissionQuery = useQuery({
+    ...games.rius.submissions.get.queryOptions({
+      submissionId: Number(submissionId),
+    }),
+    enabled: Boolean(submissionId),
+  })
+
+  const roundId =
+    archivedId ??
+    (isActive ? activeQuery.data?.id?.toString() : undefined) ??
+    (isUpcoming ? upcomingQuery.data?.round?.id?.toString() : undefined) ??
+    setQuery.data?.riu.id?.toString() ??
+    submissionQuery.data?.riuSet.riuId?.toString()
+
+  const roundStatus = isActive
+    ? "active"
+    : isUpcoming
       ? "upcoming"
-      : pathname.startsWith("/games/rius/active")
-        ? "active"
-        : null
+      : archivedId
+        ? "archived"
+        : (setQuery.data?.riu.status ?? submissionQuery.data?.riuSet.riu.status)
+
+  const roundLink =
+    roundId && roundStatus ? getRiuRoundLink(roundId, roundStatus) : undefined
+
+  const isOnRoundPage = isActive || isUpcoming || Boolean(archivedId)
 
   return (
     <>
       <PageHeader maxWidth={isIndex ? "max-w-4xl" : "max-w-3xl"}>
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/games">games</PageHeader.Crumb>
-          <GameDropdown label="rack it up" isCurrentPage={isIndex} />
-          {label && <PageHeader.Crumb>{label}</PageHeader.Crumb>}
+          <GameDropdown label="rius" isCurrentPage={isIndex} />
+          {roundId &&
+            (isOnRoundPage ? (
+              <PageHeader.Crumb>{roundId}</PageHeader.Crumb>
+            ) : (
+              <PageHeader.Crumb to={roundLink}>{roundId}</PageHeader.Crumb>
+            ))}
+          {setId && [
+            <PageHeader.Crumb key="sets" inert>
+              sets
+            </PageHeader.Crumb>,
+            <PageHeader.Crumb key="set-id">{setId}</PageHeader.Crumb>,
+          ]}
+          {submissionId && [
+            <PageHeader.Crumb key="submissions" inert>
+              submissions
+            </PageHeader.Crumb>,
+            <PageHeader.Crumb key="submission-id">
+              {submissionId}
+            </PageHeader.Crumb>,
+          ]}
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <Outlet />

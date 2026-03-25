@@ -54,7 +54,7 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/users">users</PageHeader.Crumb>
-          <PageHeader.Crumb>{data.name}</PageHeader.Crumb>
+          <PageHeader.Crumb>{userId}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <UserView user={data} />

@@ -74,14 +74,14 @@ export const Route = createFileRoute("/posts/$postId/")({
 
 function RouteComponent() {
   const { postId } = Route.useParams()
-  const { data: post } = useSuspenseQuery(posts.get.queryOptions({ postId }))
+  useSuspenseQuery(posts.get.queryOptions({ postId }))
 
   return (
     <>
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/posts">posts</PageHeader.Crumb>
-          <PageHeader.Crumb>{post.title}</PageHeader.Crumb>
+          <PageHeader.Crumb>{postId}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">

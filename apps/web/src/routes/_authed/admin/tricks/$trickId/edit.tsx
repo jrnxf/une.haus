@@ -102,7 +102,7 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+          <PageHeader.Crumb>{trickId}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="mx-auto w-full max-w-3xl space-y-6 p-4">

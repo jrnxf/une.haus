@@ -90,7 +90,7 @@ function TrickDetailPage() {
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/tricks">tricks</PageHeader.Crumb>
-          <PageHeader.Crumb>{trick.name}</PageHeader.Crumb>
+          <PageHeader.Crumb>{trick.id}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
 

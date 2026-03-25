@@ -132,7 +132,7 @@ function RouteComponent() {
       <PageHeader maxWidth="max-w-3xl">
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb to="/vault">vault</PageHeader.Crumb>
-          <PageHeader.Crumb>{displayTitle}</PageHeader.Crumb>
+          <PageHeader.Crumb>{videoId}</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="h-full min-h-0 overflow-y-auto">

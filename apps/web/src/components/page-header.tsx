@@ -89,10 +89,12 @@ function Right({ children }: { children: ReactNode }) {
 function Crumb({
   to,
   icon: Icon,
+  inert,
   children,
 }: {
   to?: string
   icon?: React.ComponentType<{ className?: string }>
+  inert?: boolean
   children: ReactNode
 }) {
   if (to) {
@@ -102,6 +104,9 @@ function Crumb({
         {children}
       </BreadcrumbLink>
     )
+  }
+  if (inert) {
+    return <span className="text-muted-foreground text-sm">{children}</span>
   }
   return (
     <BreadcrumbPage className="flex min-w-0 items-center gap-1.5 font-medium">
