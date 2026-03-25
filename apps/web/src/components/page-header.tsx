@@ -49,12 +49,16 @@ function PageHeaderRoot({
 function BreadcrumbsContent({ children }: { children: ReactNode }) {
   const items = Children.toArray(children)
   return (
-    <Breadcrumb>
+    <Breadcrumb className="min-w-0">
       <BreadcrumbList>
         {items.map((child, i) => (
           <span key={i} className="contents">
-            {i > 0 && <BreadcrumbSeparator />}
-            <BreadcrumbItem>{child}</BreadcrumbItem>
+            {i > 0 && <BreadcrumbSeparator className="shrink-0" />}
+            <BreadcrumbItem
+              className={i < items.length - 1 ? "shrink-0" : "min-w-0 truncate"}
+            >
+              {child}
+            </BreadcrumbItem>
           </span>
         ))}
       </BreadcrumbList>

@@ -10,7 +10,7 @@ export function MobileFooter() {
 
   return (
     <footer className="shrink-0 border-t md:hidden">
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between gap-6 px-4">
         <div className="min-w-0 flex-1">{breadcrumbs}</div>
         <Button
           variant="secondary"

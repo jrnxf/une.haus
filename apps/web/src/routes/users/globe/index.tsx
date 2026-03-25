@@ -41,7 +41,7 @@ export const Route = createFileRoute("/users/globe/")({
 // Sort by hashed ID so the order looks shuffled but is deterministic.
 // Math.random() causes hydration mismatches (different results on server vs client).
 function deterministicShuffle<T extends { id: number }>(arr: T[]): T[] {
-  return [...arr].sort((a, b) => {
+  return [...arr].toSorted((a, b) => {
     const ha = (a.id * 2_654_435_761) >>> 0
     const hb = (b.id * 2_654_435_761) >>> 0
     return ha - hb
