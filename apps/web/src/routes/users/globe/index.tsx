@@ -38,20 +38,21 @@ export const Route = createFileRoute("/users/globe/")({
   component: RouteComponent,
 })
 
-function shuffle<T>(arr: T[]): T[] {
-  const out = [...arr]
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
+// Sort by hashed ID so the order looks shuffled but is deterministic.
+// Math.random() causes hydration mismatches (different results on server vs client).
+function deterministicShuffle<T extends { id: number }>(arr: T[]): T[] {
+  return [...arr].sort((a, b) => {
+    const ha = (a.id * 2_654_435_761) >>> 0
+    const hb = (b.id * 2_654_435_761) >>> 0
+    return ha - hb
+  })
 }
 
 const GREEN: [number, number, number] = [0.1, 0.6, 0.25]
 
 function RouteComponent() {
   const { data } = useSuspenseQuery(users.withLocations.queryOptions())
-  const shuffled = useMemo(() => shuffle(data), [data])
+  const shuffled = useMemo(() => deterministicShuffle(data), [data])
 
   if (shuffled.length === 0) {
     return (
@@ -178,8 +179,8 @@ function UserGlobe({ users }: { users: UsersWithLocationsData }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center p-6">
-      <div className="min-h-0 flex-1">
-        <div className="mx-auto aspect-square h-full max-h-full">
+      <div className="grid min-h-0 flex-1 place-items-center">
+        <div className="aspect-square max-h-full w-full max-w-full">
           <CobeGlobe
             focusTarget={activeLocation}
             dotMarkers={dotMarkers}

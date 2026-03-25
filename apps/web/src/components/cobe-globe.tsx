@@ -239,8 +239,21 @@ export function CobeGlobe({
 
     globeRef.current = globe
     let signaled = false
+    let lastTime = 0
 
-    function animate() {
+    // Lerp rate calibrated for 60fps: 1 - 0.06 = 0.94 retention per frame.
+    // For arbitrary dt: retention = 0.94^(dt/16.67) = e^(dt * ln(0.94)/16.67)
+    const lerpDecay = Math.log(1 - 0.06) / 16.67
+    const velocityDecay = Math.log(0.95) / 16.67
+    const idleSpeed = 0.001 / 16.67 // per-ms idle rotation
+
+    function animate(time: number) {
+      const dt = lastTime === 0 ? 16.67 : Math.min(time - lastTime, 100)
+      lastTime = time
+
+      const lerp = 1 - Math.exp(lerpDecay * dt)
+      const vDecay = Math.exp(velocityDecay * dt)
+
       const target = focusTargetRef.current
       if (target && !pointerInteracting.current) {
         const { phi: targetPhi, theta: targetTheta } = locationToAngles(
@@ -253,13 +266,13 @@ export function CobeGlobe({
         const distPositive = (targetPhi - phiRef.current + doublePi) % doublePi
         const distNegative = (phiRef.current - targetPhi + doublePi) % doublePi
         if (distPositive < distNegative) {
-          phiRef.current += distPositive * 0.06
+          phiRef.current += distPositive * lerp
         } else {
-          phiRef.current -= distNegative * 0.06
+          phiRef.current -= distNegative * lerp
         }
-        thetaRef.current = thetaRef.current * 0.94 + targetTheta * 0.06
+        thetaRef.current += (targetTheta - thetaRef.current) * lerp
       } else if (!pointerInteracting.current) {
-        phiRef.current += 0.001
+        phiRef.current += idleSpeed * dt
       }
 
       phiRef.current += velocityRef.current.phi
@@ -270,8 +283,8 @@ export function CobeGlobe({
         Math.min(Math.PI / 2, thetaRef.current),
       )
 
-      velocityRef.current.phi *= 0.95
-      velocityRef.current.theta *= 0.95
+      velocityRef.current.phi *= vDecay
+      velocityRef.current.theta *= vDecay
 
       if (Math.abs(velocityRef.current.phi) < 0.0001) {
         velocityRef.current.phi = 0
@@ -342,14 +355,14 @@ export function CobeGlobe({
 
       const sensitivity = 0.005
       phiRef.current += dx * sensitivity
-      thetaRef.current -= dy * sensitivity
+      thetaRef.current += dy * sensitivity
       thetaRef.current = Math.max(
         -Math.PI / 2,
         Math.min(Math.PI / 2, thetaRef.current),
       )
 
       velocityRef.current.phi = dx * sensitivity
-      velocityRef.current.theta = -dy * sensitivity
+      velocityRef.current.theta = dy * sensitivity
 
       pointerStart.current = { x: e.clientX, y: e.clientY }
     },
@@ -368,8 +381,8 @@ export function CobeGlobe({
     <div
       ref={containerRef}
       className={cn(
-        "relative h-full w-full transition-[opacity,scale] duration-500 ease-out",
-        ready ? "scale-100 opacity-100" : "scale-[0.92] opacity-0",
+        "will-change-opacity relative h-full w-full transition-opacity duration-500 ease-out",
+        ready ? "opacity-100" : "opacity-0",
       )}
     >
       <canvas
@@ -408,7 +421,10 @@ export function CobeGlobe({
         </div>
       )}
       {ready && overlayDots && overlayDots.length > 0 && (
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          style={{ contain: "layout style" }}
+        >
           {overlayDots.map((dot, i) => (
             <div
               key={`${dot.location[0]}-${dot.location[1]}`}
