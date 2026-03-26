@@ -1,9 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
-  Bell,
   BookIcon,
-  BugIcon,
   ChevronsUpDown,
   EyeOff,
   LogIn,
@@ -13,15 +10,12 @@ import {
   PowerIcon,
   ScrollText,
   Send,
-  ShieldIcon,
   SunIcon,
   TerminalIcon,
-  UserIcon,
 } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
-import { CountChip } from "~/components/ui/count-chip"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,9 +35,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar"
-import { admin } from "~/lib/admin"
-import { notifications } from "~/lib/notifications"
-import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
+import { useLogout, useSessionUser } from "~/lib/session/hooks"
 import { useTheme } from "~/lib/theme/context"
 import { cn } from "~/lib/utils"
 
@@ -86,19 +78,10 @@ function ThemeSubmenu() {
 }
 
 export function AuthedUserMenuItems({
-  sessionUser,
-  isAdmin,
   logout,
-  unreadCount,
-  adminPendingCount,
 }: {
-  sessionUser: { id: number; name: string }
-  isAdmin?: boolean
   logout: (opts: Record<string, never>) => void
-  unreadCount: number
-  adminPendingCount: number
 }) {
-  const isDev = import.meta.env.DEV
   return (
     <>
       <DropdownMenuGroup>
@@ -137,61 +120,6 @@ export function AuthedUserMenuItems({
         >
           <TerminalIcon className="size-3.5" />
           source
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
-      <DropdownMenuSeparator />
-
-      {(isAdmin || isDev) && (
-        <>
-          <DropdownMenuGroup>
-            {isAdmin && (
-              <DropdownMenuItem render={<Link to="/admin" />}>
-                <ShieldIcon className="size-3.5" />
-                admin
-                {adminPendingCount > 0 && (
-                  <CountChip className="ml-auto">
-                    {adminPendingCount > 99 ? "99+" : adminPendingCount}
-                  </CountChip>
-                )}
-              </DropdownMenuItem>
-            )}
-            {isDev && (
-              <DropdownMenuItem
-                onClick={() => {
-                  import("@tanstack/devtools-client").then(
-                    ({ devtoolsEventClient }) => {
-                      devtoolsEventClient.emit("trigger-toggled", {
-                        isOpen: true,
-                      })
-                    },
-                  )
-                }}
-              >
-                <BugIcon className="size-3.5" />
-                devtools
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-        </>
-      )}
-      <DropdownMenuGroup>
-        <DropdownMenuItem
-          render={
-            <Link to="/users/$userId" params={{ userId: sessionUser.id }} />
-          }
-        >
-          <UserIcon className="size-3.5" />
-          profile
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/notifications" />}>
-          <Bell className="size-3.5" />
-          notifications
-          {unreadCount > 0 && (
-            <CountChip className="ml-auto">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </CountChip>
-          )}
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
@@ -256,18 +184,7 @@ export function UnauthedUserMenuItems() {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const sessionUser = useSessionUser()
-  const isAdmin = useIsAdmin()
   const logout = useLogout()
-
-  const { data: unreadCount = 0 } = useQuery({
-    ...notifications.unreadCount.queryOptions(),
-    enabled: Boolean(sessionUser),
-  })
-
-  const { data: adminPendingCount = 0 } = useQuery({
-    ...admin.pendingCount.queryOptions(),
-    enabled: Boolean(isAdmin),
-  })
 
   if (!sessionUser) {
     return (
@@ -331,13 +248,6 @@ export function NavUser() {
               <span className="truncate text-xs">{sessionUser.email}</span>
             </div>
             <ChevronsUpDown aria-hidden="true" className="ml-auto size-4" />
-            {unreadCount + adminPendingCount > 0 && (
-              <CountChip className="absolute -top-1 -right-1">
-                {unreadCount + adminPendingCount > 9
-                  ? "9+"
-                  : unreadCount + adminPendingCount}
-              </CountChip>
-            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className={cn(
@@ -348,13 +258,7 @@ export function NavUser() {
             align="end"
             sideOffset={4}
           >
-            <AuthedUserMenuItems
-              sessionUser={sessionUser}
-              isAdmin={isAdmin}
-              logout={logout}
-              unreadCount={unreadCount}
-              adminPendingCount={adminPendingCount}
-            />
+            <AuthedUserMenuItems logout={logout} />
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

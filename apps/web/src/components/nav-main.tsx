@@ -18,20 +18,21 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar"
 
-export function NavMain({
-  items,
-}: {
-  items: {
+import type { ReactNode } from "react"
+
+export type NavMainItem = {
+  title: string
+  url: string
+  icon: LucideIcon
+  isActive?: boolean
+  trailing?: ReactNode
+  items?: {
     title: string
     url: string
-    icon: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
   }[]
-}) {
+}
+
+export function NavMain({ items }: { items: NavMainItem[] }) {
   const { isMobile } = useSidebar()
 
   return (
@@ -48,6 +49,7 @@ export function NavMain({
                 >
                   <item.icon />
                   <span className="pb-px">{item.title}</span>
+                  {item.trailing}
                 </Link>
               </SidebarMenuButton>
               {(item.items?.length ?? 0) > 0 ? (

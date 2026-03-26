@@ -85,7 +85,24 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-4 p-4 md:p-6">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          {import.meta.env.DEV && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                import("@tanstack/devtools-client").then(
+                  ({ devtoolsEventClient }) => {
+                    devtoolsEventClient.emit("trigger-toggled", {
+                      isOpen: true,
+                    })
+                  },
+                )
+              }}
+            >
+              devtools
+            </Button>
+          )}
           <Button variant="secondary" size="sm" asChild>
             <Link to="/admin/sandbox">sandbox</Link>
           </Button>

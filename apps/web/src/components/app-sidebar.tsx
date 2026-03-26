@@ -1,12 +1,16 @@
+import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
   ActivityIcon,
+  Bell,
   Joystick,
   LockIcon,
   MessagesSquareIcon,
+  ShieldIcon,
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
+  UserIcon,
   UsersIcon,
 } from "lucide-react"
 import * as React from "react"
@@ -14,10 +18,11 @@ import * as React from "react"
 import { BracketIcon } from "~/components/icons/bracket-icon"
 import { PodiumIcon } from "~/components/icons/podium-icon"
 import { Logo } from "~/components/logo"
-import { NavMain } from "~/components/nav-main"
+import { NavMain, type NavMainItem } from "~/components/nav-main"
 import { NavUser } from "~/components/nav-user"
 import { OnlineIndicator } from "~/components/online-indicator"
 import { SearchTrigger } from "~/components/search-trigger"
+import { CountChip } from "~/components/ui/count-chip"
 import {
   Sidebar,
   SidebarContent,
@@ -28,9 +33,11 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar"
-import { useSessionUser } from "~/lib/session/hooks"
+import { admin } from "~/lib/admin"
+import { notifications } from "~/lib/notifications"
+import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
 
-const navMain = [
+const baseItems: NavMainItem[] = [
   {
     title: "games",
     url: "/games",
@@ -84,8 +91,64 @@ const navMain = [
   },
 ]
 
+function useNavItems(): NavMainItem[] {
+  const sessionUser = useSessionUser()
+  const isAdmin = useIsAdmin()
+
+  const { data: unreadCount = 0 } = useQuery({
+    ...notifications.unreadCount.queryOptions(),
+    enabled: Boolean(sessionUser),
+  })
+
+  const { data: adminPendingCount = 0 } = useQuery({
+    ...admin.pendingCount.queryOptions(),
+    enabled: Boolean(isAdmin),
+  })
+
+  return React.useMemo(() => {
+    if (!sessionUser) return baseItems
+
+    const authedItems: NavMainItem[] = [
+      ...baseItems,
+      {
+        title: "notifications",
+        url: "/notifications",
+        icon: Bell,
+        trailing:
+          unreadCount > 0 ? (
+            <CountChip className="ml-auto">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </CountChip>
+          ) : undefined,
+      },
+      {
+        title: "profile",
+        url: `/users/${sessionUser.id}`,
+        icon: UserIcon,
+      },
+    ]
+
+    if (isAdmin) {
+      authedItems.push({
+        title: "admin",
+        url: "/admin",
+        icon: ShieldIcon,
+        trailing:
+          adminPendingCount > 0 ? (
+            <CountChip className="ml-auto">
+              {adminPendingCount > 99 ? "99+" : adminPendingCount}
+            </CountChip>
+          ) : undefined,
+      })
+    }
+
+    return authedItems
+  }, [sessionUser, unreadCount, isAdmin, adminPendingCount])
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const sessionUser = useSessionUser()
+  const navItems = useNavItems()
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -107,7 +170,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SearchTrigger />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
         {sessionUser ? (

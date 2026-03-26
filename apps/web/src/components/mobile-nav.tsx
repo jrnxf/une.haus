@@ -3,14 +3,17 @@ import { useQuery } from "@tanstack/react-query"
 import { Link, useMatches } from "@tanstack/react-router"
 import {
   ActivityIcon,
+  Bell,
   Joystick,
   LockIcon,
   type LucideIcon,
   MessagesSquareIcon,
   PowerIcon,
+  ShieldIcon,
   ShoppingBagIcon,
   StickyNoteIcon,
   TrafficConeIcon,
+  UserIcon,
   UsersIcon,
 } from "lucide-react"
 import { type ReactNode } from "react"
@@ -140,20 +143,7 @@ export function MobileNavIndent({
 
 function MobileNavFooter() {
   const sessionUser = useSessionUser()
-  const isAdmin = useIsAdmin()
   const logout = useLogout()
-
-  const { data: unreadCount = 0 } = useQuery({
-    ...notifications.unreadCount.queryOptions(),
-    enabled: Boolean(sessionUser),
-  })
-
-  const { data: adminPendingCount = 0 } = useQuery({
-    ...admin.pendingCount.queryOptions(),
-    enabled: Boolean(isAdmin),
-  })
-
-  const triggerCount = unreadCount + adminPendingCount
 
   return (
     <div className="mt-2 flex items-center border-t pt-3">
@@ -180,11 +170,6 @@ function MobileNavFooter() {
               <span className="truncate text-sm font-medium">
                 {sessionUser.name}
               </span>
-              {triggerCount > 0 && (
-                <CountChip className="absolute -top-0.5 -right-0.5">
-                  {triggerCount > 9 ? "9+" : triggerCount}
-                </CountChip>
-              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="z-(--z-overlay) min-w-48 rounded-lg"
@@ -192,13 +177,7 @@ function MobileNavFooter() {
               align="end"
               sideOffset={4}
             >
-              <AuthedUserMenuItems
-                sessionUser={sessionUser}
-                isAdmin={isAdmin}
-                logout={logout}
-                unreadCount={unreadCount}
-                adminPendingCount={adminPendingCount}
-              />
+              <AuthedUserMenuItems logout={logout} />
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
@@ -226,6 +205,81 @@ function MobileNavFooter() {
         )}
       </div>
     </div>
+  )
+}
+
+function MobileNavAccountItems() {
+  const sessionUser = useSessionUser()
+  const isAdmin = useIsAdmin()
+  const currentPath = useMatches().at(-1)?.pathname ?? "/"
+
+  const { data: unreadCount = 0 } = useQuery({
+    ...notifications.unreadCount.queryOptions(),
+    enabled: Boolean(sessionUser),
+  })
+
+  const { data: adminPendingCount = 0 } = useQuery({
+    ...admin.pendingCount.queryOptions(),
+    enabled: Boolean(isAdmin),
+  })
+
+  if (!sessionUser) return null
+
+  return (
+    <>
+      <Link
+        to="/notifications"
+        replace
+        className={cn(
+          "flex items-center gap-2 rounded-md px-2 py-2 text-sm",
+          currentPath.startsWith("/notifications")
+            ? "bg-accent text-accent-foreground font-medium"
+            : "text-foreground hover:bg-accent/50",
+        )}
+      >
+        <Bell className="size-4" />
+        <span>notifications</span>
+        {unreadCount > 0 && (
+          <CountChip className="ml-auto">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </CountChip>
+        )}
+      </Link>
+      <Link
+        to="/users/$userId"
+        params={{ userId: sessionUser.id }}
+        replace
+        className={cn(
+          "flex items-center gap-2 rounded-md px-2 py-2 text-sm",
+          currentPath.startsWith(`/users/${sessionUser.id}`)
+            ? "bg-accent text-accent-foreground font-medium"
+            : "text-foreground hover:bg-accent/50",
+        )}
+      >
+        <UserIcon className="size-4" />
+        <span>profile</span>
+      </Link>
+      {isAdmin && (
+        <Link
+          to="/admin"
+          replace
+          className={cn(
+            "flex items-center gap-2 rounded-md px-2 py-2 text-sm",
+            currentPath.startsWith("/admin")
+              ? "bg-accent text-accent-foreground font-medium"
+              : "text-foreground hover:bg-accent/50",
+          )}
+        >
+          <ShieldIcon className="size-4" />
+          <span>admin</span>
+          {adminPendingCount > 0 && (
+            <CountChip className="ml-auto">
+              {adminPendingCount > 99 ? "99+" : adminPendingCount}
+            </CountChip>
+          )}
+        </Link>
+      )}
+    </>
   )
 }
 
@@ -259,6 +313,7 @@ export function MobileNavPopup({
                     isActive={currentPath.startsWith(item.url)}
                   />
                 ))}
+                <MobileNavAccountItems />
               </div>
               <MobileNavFooter />
             </nav>
