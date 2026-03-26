@@ -56,7 +56,7 @@ export function BaseMessageForm({
     return (
       <button
         type="button"
-        className="bg-background text-muted-foreground dark:bg-input/30 w-full rounded-lg border px-4 py-3 text-left text-base"
+        className="bg-background text-muted-foreground dark:bg-input/30 w-full rounded-lg border px-4 py-3 text-left text-sm sm:text-base"
         onClick={() => {
           navigate({ to: "/auth", search: { redirect: location.href } })
         }}
@@ -94,7 +94,7 @@ export function BaseMessageForm({
             key={`mention-textarea-${resetVersion}`}
             value={content}
             onChange={setContent}
-            className="[field-sizing:content] min-h-11 w-full resize-none rounded-none border-0 border-transparent px-1.5 py-3 text-base shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent"
+            className="[field-sizing:content] min-h-11 w-full resize-none rounded-none border-0 border-transparent px-1.5 py-3 text-sm shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-base dark:bg-transparent"
             id="content"
             rows={1}
             placeholder="write a message..."
@@ -112,7 +112,7 @@ export function BaseMessageForm({
           type="submit"
           size="icon-sm"
           variant="secondary"
-          className="mb-2"
+          className="mb-1.5 sm:mb-2"
           aria-label="submit"
           onClick={() => {
             if (!content) {

@@ -164,11 +164,12 @@ export function MentionTextarea({
       data-mention-ready={isReady ? "true" : undefined}
       style={{ "--mention-rows": rows } as CSSProperties}
       className={cn(
-        "tiptap-wrapper [&_.tiptap]:min-h-[calc(var(--mention-rows)*1.5rem)] [&_.tiptap]:break-words [&_.tiptap]:outline-none [&_.tiptap_p]:m-0",
+        "tiptap-wrapper [&_.tiptap]:break-words [&_.tiptap]:outline-none [&_.tiptap_p]:m-0",
+        "[&_.tiptap]:min-h-[calc(var(--mention-rows)*1.25rem)] sm:[&_.tiptap]:min-h-[calc(var(--mention-rows)*1.5rem)]",
         "[&_.tiptap_.is-editor-empty:first-child::before]:text-muted-foreground [&_.tiptap_.is-editor-empty:first-child::before]:pointer-events-none [&_.tiptap_.is-editor-empty:first-child::before]:float-left [&_.tiptap_.is-editor-empty:first-child::before]:h-0 [&_.tiptap_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
 
         // standard textarea
-        "border-input ring-offset-background dark:bg-input/30 flex w-full flex-col rounded-md border bg-transparent px-3 py-2 text-base",
+        "border-input ring-offset-background dark:bg-input/30 flex w-full flex-col rounded-md border bg-transparent px-3 py-2 text-sm sm:text-base",
         "placeholder:text-muted-foreground",
         "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
         "disabled:cursor-not-allowed disabled:opacity-50",

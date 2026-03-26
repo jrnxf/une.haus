@@ -412,7 +412,7 @@ function FilterChip({
           onChange={(e) => onSetValues([e.target.value])}
           placeholder={field.placeholder}
           className={cn(
-            "border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 w-36 rounded-md border bg-clip-padding px-3 text-base shadow-xs outline-none focus-visible:ring-3",
+            "border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 w-36 rounded-md border bg-clip-padding px-3 text-sm shadow-xs outline-none focus-visible:ring-3 sm:text-base",
             size === "sm" ? "h-8" : "h-9",
           )}
         />

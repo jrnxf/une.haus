@@ -95,7 +95,7 @@ export function LocationSelector({
         <PopoverTrigger
           id={formItemId}
           aria-expanded={open}
-          className="border-input ring-offset-background focus-visible:ring-ring dark:bg-input/30 flex h-9 w-full items-center justify-between overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden"
+          className="border-input ring-offset-background focus-visible:ring-ring dark:bg-input/30 flex h-9 w-full items-center justify-between overflow-hidden rounded-md border bg-transparent px-3 py-1 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden sm:text-base"
           role="combobox"
         >
           <span className="truncate">{displayedValue}</span>
