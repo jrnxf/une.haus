@@ -40,7 +40,6 @@ import { Route as GamesSiusRouteRouteImport } from './routes/games/sius/route'
 import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
 import { Route as GamesBiusRouteRouteImport } from './routes/games/bius/route'
 import { Route as VaultVideoIdIndexRouteImport } from './routes/vault/$videoId/index'
-import { Route as UsersMapIndexRouteImport } from './routes/users/map/index'
 import { Route as UsersGlobeIndexRouteImport } from './routes/users/globe/index'
 import { Route as UsersUserIdIndexRouteImport } from './routes/users/$userId/index'
 import { Route as TricksGlossaryIndexRouteImport } from './routes/tricks/glossary/index'
@@ -254,11 +253,6 @@ const GamesBiusRouteRoute = GamesBiusRouteRouteImport.update({
 const VaultVideoIdIndexRoute = VaultVideoIdIndexRouteImport.update({
   id: '/vault/$videoId/',
   path: '/vault/$videoId/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UsersMapIndexRoute = UsersMapIndexRouteImport.update({
-  id: '/users/map/',
-  path: '/users/map/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersGlobeIndexRoute = UsersGlobeIndexRouteImport.update({
@@ -636,7 +630,6 @@ export interface FileRoutesByFullPath {
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
   '/users/globe/': typeof UsersGlobeIndexRoute
-  '/users/map/': typeof UsersMapIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/games/bius/upload': typeof AuthedGamesBiusUploadRoute
@@ -721,7 +714,6 @@ export interface FileRoutesByTo {
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/users/globe': typeof UsersGlobeIndexRoute
-  '/users/map': typeof UsersMapIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/games/bius/upload': typeof AuthedGamesBiusUploadRoute
@@ -816,7 +808,6 @@ export interface FileRoutesById {
   '/tricks/glossary/': typeof TricksGlossaryIndexRoute
   '/users/$userId/': typeof UsersUserIdIndexRoute
   '/users/globe/': typeof UsersGlobeIndexRoute
-  '/users/map/': typeof UsersMapIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
   '/_authed/games/bius/upload': typeof AuthedGamesBiusUploadRoute
@@ -908,7 +899,6 @@ export interface FileRouteTypes {
     | '/tricks/glossary/'
     | '/users/$userId/'
     | '/users/globe/'
-    | '/users/map/'
     | '/vault/$videoId/'
     | '/auth/me/edit'
     | '/games/bius/upload'
@@ -993,7 +983,6 @@ export interface FileRouteTypes {
     | '/posts/$postId'
     | '/users/$userId'
     | '/users/globe'
-    | '/users/map'
     | '/vault/$videoId'
     | '/auth/me/edit'
     | '/games/bius/upload'
@@ -1087,7 +1076,6 @@ export interface FileRouteTypes {
     | '/tricks/glossary/'
     | '/users/$userId/'
     | '/users/globe/'
-    | '/users/map/'
     | '/vault/$videoId/'
     | '/_authed/auth/me/edit'
     | '/_authed/games/bius/upload'
@@ -1167,7 +1155,6 @@ export interface RootRouteChildren {
   TricksGlossaryIndexRoute: typeof TricksGlossaryIndexRoute
   UsersUserIdIndexRoute: typeof UsersUserIdIndexRoute
   UsersGlobeIndexRoute: typeof UsersGlobeIndexRoute
-  UsersMapIndexRoute: typeof UsersMapIndexRoute
   VaultVideoIdIndexRoute: typeof VaultVideoIdIndexRoute
   ApiTourneySseCodeRoute: typeof ApiTourneySseCodeRoute
 }
@@ -1389,13 +1376,6 @@ declare module '@tanstack/react-router' {
       path: '/vault/$videoId'
       fullPath: '/vault/$videoId/'
       preLoaderRoute: typeof VaultVideoIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/users/map/': {
-      id: '/users/map/'
-      path: '/users/map'
-      fullPath: '/users/map/'
-      preLoaderRoute: typeof UsersMapIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/globe/': {
@@ -2058,7 +2038,6 @@ const rootRouteChildren: RootRouteChildren = {
   TricksGlossaryIndexRoute: TricksGlossaryIndexRoute,
   UsersUserIdIndexRoute: UsersUserIdIndexRoute,
   UsersGlobeIndexRoute: UsersGlobeIndexRoute,
-  UsersMapIndexRoute: UsersMapIndexRoute,
   VaultVideoIdIndexRoute: VaultVideoIdIndexRoute,
   ApiTourneySseCodeRoute: ApiTourneySseCodeRoute,
 }

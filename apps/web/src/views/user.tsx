@@ -31,6 +31,8 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 
   const hasSocials = socials && Object.values(socials).some(isDefined)
 
+  const followStatsVisible =
+    user.followers.count > 0 || user.following.count > 0
   return (
     <div className="h-full overflow-y-auto" key={user.id}>
       <div className="mx-auto w-full max-w-2xl px-4 py-6">
@@ -40,9 +42,9 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             <Avatar
               className={cn(
                 "shrink-0",
-                user.location
+                user.location && followStatsVisible
                   ? "size-24 sm:size-26"
-                  : user.followers.count > 0 || user.following.count > 0
+                  : user.location || followStatsVisible
                     ? "size-16 sm:size-18"
                     : "size-8 sm:size-10",
               )}
@@ -68,7 +70,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
                   {user.location && (
                     <Button asChild variant="ghost" size="sm" className="-ml-2">
                       <Link
-                        to="/users/map"
+                        to="/users/globe"
                         search={{
                           lat: user.location.lat,
                           lng: user.location.lng,
