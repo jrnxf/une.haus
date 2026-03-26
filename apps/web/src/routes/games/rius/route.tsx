@@ -95,7 +95,7 @@ function RouteComponent() {
           ]}
           {submissionId && [
             <PageHeader.Crumb key="submissions" inert>
-              submissions
+              subs
             </PageHeader.Crumb>,
             <PageHeader.Crumb key="submission-id">
               {submissionId}

@@ -84,7 +84,7 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
 
     return seo({
       title: submission.riuSet.name,
-      description: `Rack It Up submission for ${submission.riuSet.name}`,
+      description: `riu submission for ${submission.riuSet.name}`,
       path: `/games/rius/submissions/${submission.id}`,
       image,
       card: image ? "summary_large_image" : "summary",
