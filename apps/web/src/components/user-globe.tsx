@@ -1,3 +1,4 @@
+import { Loader2Icon } from "lucide-react"
 import { useCallback, useMemo, useState } from "react"
 
 import {
@@ -10,6 +11,7 @@ import { UserPinPopup } from "~/components/user-pin-popup"
 import { usersToGeoJSON } from "~/lib/location/geo-json"
 import { useTheme } from "~/lib/theme/context"
 import { type UsersWithLocationsData } from "~/lib/users"
+import { cn } from "~/lib/utils"
 
 import type MapLibreGL from "maplibre-gl"
 
@@ -42,8 +44,8 @@ const themeColors = {
     textHalo: "#ffffff", // white
   },
   dark: {
-    water: "#000000", // background: oklch(0 0 0)
-    land: "#0f0f0f", // sidebar: oklch(17% 0 0)
+    water: "#0f0f0f", // slightly lighter than background for globe visibility
+    land: "#1a1a1a", // slightly lighter than sidebar for globe visibility
     boundary: "#222222", // border: oklch(0.25 0 0)
     clusters: ["#737373", "#525252", "#404040"] as [string, string, string], // neutral-500, 600, 700
     point: "#a3a3a3", // neutral-400
@@ -111,8 +113,17 @@ function handleTransformStyle(
   }
 }
 
+const GLOBE_PROJECTION = { type: "globe" } as const
 const DEFAULT_CENTER: [number, number] = [0, 20]
-const DEFAULT_ZOOM = 1.2
+const MOBILE_ZOOM = 1.5
+const DESKTOP_ZOOM = 2
+
+function getGlobeZoom() {
+  if (typeof window === "undefined") return MOBILE_ZOOM
+  return window.matchMedia("(min-width: 768px)").matches
+    ? DESKTOP_ZOOM
+    : MOBILE_ZOOM
+}
 
 export function UserGlobe({
   users,
@@ -122,22 +133,45 @@ export function UserGlobe({
 }: UserGlobeProps) {
   const { resolvedTheme } = useTheme()
   const [selectedPoint, setSelectedPoint] = useState<SelectedPoint | null>(null)
+  const [ready, setReady] = useState(false)
 
   const geoJSON = useMemo(() => usersToGeoJSON(users), [users])
   const colors = resolvedTheme === "dark" ? themeColors.dark : themeColors.light
 
   const handleMapLoad = useCallback(
     (map: MapLibreGL.Map) => {
+      map.once("idle", () => {
+        // Reveal the map at zoom 0, then animate on the next frame
+        setReady(true)
+
+        // Double rAF ensures the browser has painted the visible zoom-0 frame
+        // before starting the animation
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const targetZoom = initialZoom ?? getGlobeZoom()
+            map.easeTo({
+              zoom: targetZoom,
+              duration: 1000,
+              easing: (t) => 1 - Math.pow(1 - t, 3),
+            })
+          })
+        })
+      })
+
       if (!onMapMove) return
 
-      // Skip the first moveend (initial load) to avoid replacing history entry
-      let isFirstMove = true
+      // Skip moveend events until the intro zoom animation completes
+      let introComplete = false
+      const markComplete = () => {
+        introComplete = true
+      }
+      // The second idle after the easeTo means the animation is done
+      map.once("idle", () => {
+        map.once("idle", markComplete)
+      })
 
       const handleMoveEnd = () => {
-        if (isFirstMove) {
-          isFirstMove = false
-          return
-        }
+        if (!introComplete) return
         const center = map.getCenter()
         const zoom = map.getZoom()
         onMapMove([center.lng, center.lat], zoom)
@@ -145,7 +179,7 @@ export function UserGlobe({
 
       map.on("moveend", handleMoveEnd)
     },
-    [onMapMove],
+    [onMapMove, initialZoom, initialCenter],
   )
 
   const handlePointClick = useCallback(
@@ -173,39 +207,53 @@ export function UserGlobe({
   }, [])
 
   return (
-    <Map
-      center={initialCenter ?? DEFAULT_CENTER}
-      zoom={initialZoom ?? DEFAULT_ZOOM}
-      maxZoom={12}
-      minZoom={1}
-      fadeDuration={0}
-      transformStyle={handleTransformStyle}
-      onLoad={handleMapLoad}
-    >
-      <MapClusterLayer
-        data={geoJSON}
-        clusterRadius={50}
-        clusterMaxZoom={10}
-        clusterColors={colors.clusters}
-        clusterSizes={[14, 20, 28]}
-        clusterThresholds={[10, 50]}
-        pointColor={colors.point}
-        onPointClick={handlePointClick}
-      />
-      <MapControls position="bottom-right" showZoom showCompass />
+    <div className="relative h-full w-full">
+      {/* Loading spinner */}
+      <div
+        className={cn(
+          "absolute inset-0 z-10 flex items-center justify-center",
+          ready && "hidden",
+        )}
+      >
+        <Loader2Icon className="text-muted-foreground size-6 animate-spin" />
+      </div>
 
-      {selectedPoint && (
-        <MapPopup
-          longitude={selectedPoint.coordinates[0]}
-          latitude={selectedPoint.coordinates[1]}
-          onClose={handlePopupClose}
-          closeButton
-          anchor="bottom"
-          offset={12}
-        >
-          <UserPinPopup users={selectedPoint.users} />
-        </MapPopup>
-      )}
-    </Map>
+      <Map
+        center={initialCenter ?? DEFAULT_CENTER}
+        zoom={initialZoom ?? 0}
+        maxZoom={12}
+        minZoom={0}
+        fadeDuration={0}
+        transformStyle={handleTransformStyle}
+        onLoad={handleMapLoad}
+        projection={GLOBE_PROJECTION}
+        className={ready ? "opacity-100" : "opacity-0"}
+      >
+        <MapClusterLayer
+          data={geoJSON}
+          clusterRadius={50}
+          clusterMaxZoom={10}
+          clusterColors={colors.clusters}
+          clusterSizes={[14, 20, 28]}
+          clusterThresholds={[10, 50]}
+          pointColor={colors.point}
+          onPointClick={handlePointClick}
+        />
+        <MapControls position="bottom-right" showZoom />
+
+        {selectedPoint && (
+          <MapPopup
+            longitude={selectedPoint.coordinates[0]}
+            latitude={selectedPoint.coordinates[1]}
+            onClose={handlePopupClose}
+            closeButton
+            anchor="bottom"
+            offset={12}
+          >
+            <UserPinPopup users={selectedPoint.users} />
+          </MapPopup>
+        )}
+      </Map>
+    </div>
   )
 }

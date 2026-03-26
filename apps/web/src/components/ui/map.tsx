@@ -44,6 +44,8 @@ type MapStyleOption = string | MapLibreGL.StyleSpecification
 
 type MapProps = {
   children?: ReactNode
+  /** Additional CSS classes for the outer wrapper */
+  className?: string
   /** Custom map styles for light and dark themes. Overrides the default Carto styles. */
   styles?: {
     light?: MapStyleOption
@@ -74,7 +76,7 @@ async function fetchAndTransformStyle(
 }
 
 const Map = forwardRef<MapRef, MapProps>(function Map(
-  { children, styles, transformStyle, projection, onLoad, ...props },
+  { children, className, styles, transformStyle, projection, onLoad, ...props },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -86,6 +88,14 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   const propsRef = useRef(props)
   propsRef.current = props
 
+  const onLoadRef = useRef(onLoad)
+  onLoadRef.current = onLoad
+
+  // Use a ref for resolved theme so the init effect doesn't re-run on theme change.
+  // Theme switches are handled by the separate style-swap effect below.
+  const resolvedThemeRef = useRef(resolvedTheme)
+  resolvedThemeRef.current = resolvedTheme
+
   const mapStyles = useMemo(
     () => ({
       dark: styles?.dark ?? defaultStyles.dark,
@@ -96,6 +106,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
 
   useImperativeHandle(ref, () => mapInstance as MapLibreGL.Map, [mapInstance])
 
+  const projectionRef = useRef(projection)
+  projectionRef.current = projection
+
   // Initialize map with potentially transformed style
   useEffect(() => {
     if (!containerRef.current) return
@@ -103,7 +116,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     let cancelled = false
     let map: MapLibreGL.Map | null = null
 
-    const theme = (resolvedTheme === "dark" ? "dark" : "light") as
+    const theme = (resolvedThemeRef.current === "dark" ? "dark" : "light") as
       | "light"
       | "dark"
     const styleOption = theme === "dark" ? mapStyles.dark : mapStyles.light
@@ -130,11 +143,11 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       })
 
       const loadHandler = () => {
-        if (projection) {
-          map?.setProjection(projection)
+        if (projectionRef.current) {
+          map?.setProjection(projectionRef.current)
         }
         setIsLoaded(true)
-        onLoad?.(map!)
+        onLoadRef.current?.(map!)
       }
 
       map.on("load", loadHandler)
@@ -151,14 +164,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
         setMapInstance(null)
       }
     }
-  }, [
-    mapStyles.dark,
-    mapStyles.light,
-    onLoad,
-    projection,
-    resolvedTheme,
-    transformStyle,
-  ])
+  }, [mapStyles.dark, mapStyles.light, transformStyle])
 
   // Handle theme changes
   useEffect(() => {
@@ -180,10 +186,10 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       }
 
       const handleStyleLoad = () => {
-        if (projection) {
-          mapInstance.setProjection(projection)
+        if (projectionRef.current) {
+          mapInstance.setProjection(projectionRef.current)
         }
-        onLoad?.(mapInstance)
+        onLoadRef.current?.(mapInstance)
       }
 
       mapInstance.once("style.load", handleStyleLoad)
@@ -191,14 +197,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     }
 
     applyStyle()
-  }, [
-    mapInstance,
-    resolvedTheme,
-    mapStyles,
-    transformStyle,
-    projection,
-    onLoad,
-  ])
+  }, [mapInstance, resolvedTheme, mapStyles, transformStyle])
 
   const contextValue = useMemo(
     () => ({
@@ -210,7 +209,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
 
   return (
     <MapContext.Provider value={contextValue}>
-      <div className="relative h-full w-full font-mono">
+      <div className={cn("relative h-full w-full font-mono", className)}>
         <div ref={containerRef} className="h-full w-full">
           {mapInstance && children}
         </div>
@@ -224,8 +223,6 @@ type MapControlsProps = {
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
   /** Show zoom in/out buttons (default: true) */
   showZoom?: boolean
-  /** Show compass button to reset bearing (default: false) */
-  showCompass?: boolean
   /** Show locate button to find user's location (default: false) */
   showLocate?: boolean
   /** Show fullscreen toggle button (default: false) */
@@ -281,7 +278,6 @@ function ControlButton({
 function MapControls({
   position = "bottom-right",
   showZoom = true,
-  showCompass = false,
   showLocate = false,
   showFullscreen = false,
   className,
@@ -296,10 +292,6 @@ function MapControls({
 
   const handleZoomOut = useCallback(() => {
     map?.zoomTo(map.getZoom() - 1, { duration: 300 })
-  }, [map])
-
-  const handleResetBearing = useCallback(() => {
-    map?.resetNorthPitch({ duration: 300 })
   }, [map])
 
   const handleLocate = useCallback(() => {
@@ -357,11 +349,6 @@ function MapControls({
           </ControlButton>
         </ControlGroup>
       )}
-      {showCompass && (
-        <ControlGroup>
-          <CompassButton onClick={handleResetBearing} />
-        </ControlGroup>
-      )}
       {showLocate && (
         <ControlGroup>
           <ControlButton
@@ -385,48 +372,6 @@ function MapControls({
         </ControlGroup>
       )}
     </div>
-  )
-}
-
-function CompassButton({ onClick }: { onClick: () => void }) {
-  const { isLoaded, map } = useMap()
-  const compassRef = useRef<SVGSVGElement>(null)
-
-  useEffect(() => {
-    if (!isLoaded || !map || !compassRef.current) return
-
-    const compass = compassRef.current
-
-    const updateRotation = () => {
-      const bearing = map.getBearing()
-      const pitch = map.getPitch()
-      compass.style.transform = `rotateX(${pitch}deg) rotateZ(${-bearing}deg)`
-    }
-
-    map.on("rotate", updateRotation)
-    map.on("pitch", updateRotation)
-    updateRotation()
-
-    return () => {
-      map.off("rotate", updateRotation)
-      map.off("pitch", updateRotation)
-    }
-  }, [isLoaded, map])
-
-  return (
-    <ControlButton onClick={onClick} label="Reset bearing to north">
-      <svg
-        ref={compassRef}
-        viewBox="0 0 24 24"
-        className="size-5 transition-transform duration-200"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        <path d="M12 2L16 12H12V2Z" className="fill-red-500" />
-        <path d="M12 2L8 12H12V2Z" className="fill-red-300" />
-        <path d="M12 22L16 12H12V22Z" className="fill-muted-foreground/60" />
-        <path d="M12 22L8 12H12V22Z" className="fill-muted-foreground/30" />
-      </svg>
-    </ControlButton>
   )
 }
 
@@ -741,7 +686,7 @@ function MapClusterLayer<
 
   // Update layer styles when props change
   useEffect(() => {
-    if (!isLoaded || !map) return
+    if (!isLoaded || !map || !map.getStyle()) return
 
     const prev = stylePropsRef.current
     const colorsChanged =
