@@ -1,3 +1,4 @@
+import { redirect } from "@tanstack/react-router"
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
 import { z } from "zod"
@@ -5,7 +6,6 @@ import { z } from "zod"
 import { muxClient } from "~/lib/clients/mux"
 import { client } from "~/lib/cloudflare"
 import { env } from "~/lib/env"
-import { invariant } from "~/lib/invariant"
 import { useServerSession } from "~/lib/session/hooks"
 
 const loadMediaOps = createServerOnlyFn(() => import("~/lib/media/ops.server"))
@@ -15,7 +15,7 @@ export const createCloudflareImagesDirectUploadServerFn = createServerFn({
 }).handler(async () => {
   const session = await useServerSession()
 
-  invariant(session.data.user, "Unauthorized")
+  if (!session.data.user) throw redirect({ to: "/auth" })
 
   return await client.images.v2.directUploads.create({
     account_id: env.CLOUDFLARE_ACCOUNT_ID,
@@ -27,7 +27,7 @@ export const createPresignedMuxUrlServerFn = createServerFn({
 }).handler(async () => {
   const session = await useServerSession()
 
-  invariant(session.data.user, "Unauthorized")
+  if (!session.data.user) throw redirect({ to: "/auth" })
 
   const upload = await muxClient.video.uploads.create({
     cors_origin: "https://une.haus",
@@ -53,7 +53,7 @@ export const pollMuxVideoUploadStatusServerFn = createServerFn({
   .handler(async (ctx) => {
     const session = await useServerSession()
 
-    invariant(session.data.user, "Unauthorized")
+    if (!session.data.user) throw redirect({ to: "/auth" })
 
     const { pollMuxVideoUploadStatus } = await loadMediaOps()
     return pollMuxVideoUploadStatus(ctx)

@@ -38,11 +38,6 @@ export default defineEventHandler(async (event) => {
     data: eventMeta,
   })
 
-  Sentry.captureMessage(`[mux webhook] ${type}`, {
-    level: "info",
-    extra: eventMeta,
-  })
-
   if (type === "video.upload.asset_created") {
     const { asset_id: assetId, id: uploadId } = data
 

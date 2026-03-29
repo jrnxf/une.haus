@@ -52,12 +52,15 @@ function RouteComponent() {
       } else if (data.status === "user_not_found") {
         await queryClient.resetQueries({ queryKey: ["session.get"] })
         navigate({ to: "/auth/register" })
+      } else if (data.status === "invalid_code") {
+        toast.error("invalid code")
+        setCode("")
+        requestAnimationFrame(() => inputRef.current?.focus())
+      } else if (data.status === "expired") {
+        toast.error("code has expired")
+        setCode("")
+        requestAnimationFrame(() => inputRef.current?.focus())
       }
-    },
-    onError: () => {
-      toast.error("invalid code")
-      setCode("")
-      requestAnimationFrame(() => inputRef.current?.focus())
     },
   })
 

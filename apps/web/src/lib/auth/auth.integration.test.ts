@@ -74,7 +74,7 @@ describe("auth integration", () => {
     expect(await db.query.authCodes.findMany()).toHaveLength(0)
   })
 
-  it("enterCode rejects an expired code and deletes it", async () => {
+  it("enterCode returns expired status and deletes the code", async () => {
     const user = await seedUser({
       email: "expired@example.com",
       name: "Expired User",
@@ -88,27 +88,25 @@ describe("auth integration", () => {
       id: "code-expired",
     })
 
-    await expect(
-      enterCode({
-        data: { code: "2222" },
-        session: fakeSession.session,
-      }),
-    ).rejects.toThrow("Code has expired")
+    const result = await enterCode({
+      data: { code: "2222" },
+      session: fakeSession.session,
+    })
 
+    expect(result).toEqual({ status: "expired" })
     expect(fakeSession.updates).toHaveLength(0)
     expect(await db.query.authCodes.findMany()).toHaveLength(0)
   })
 
-  it("enterCode rejects an invalid code without mutating session state", async () => {
+  it("enterCode returns invalid_code status without mutating session state", async () => {
     const fakeSession = createFakeSession()
 
-    await expect(
-      enterCode({
-        data: { code: "9999" },
-        session: fakeSession.session,
-      }),
-    ).rejects.toThrow("Invalid code")
+    const result = await enterCode({
+      data: { code: "9999" },
+      session: fakeSession.session,
+    })
 
+    expect(result).toEqual({ status: "invalid_code" })
     expect(fakeSession.updates).toHaveLength(0)
   })
 

@@ -19,7 +19,7 @@ export const createTournamentSchema = z.object({
 export type CreateTournamentInput = z.infer<typeof createTournamentSchema>
 
 export const getTournamentSchema = z.object({
-  code: z.string().min(4).max(4),
+  code: z.string().min(1),
 })
 
 export const listTournamentsSchema = z.object({})

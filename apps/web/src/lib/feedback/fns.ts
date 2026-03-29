@@ -1,3 +1,4 @@
+import { redirect } from "@tanstack/react-router"
 import { createServerFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
 import { Resend } from "resend"
@@ -5,7 +6,6 @@ import { Resend } from "resend"
 import FeedbackTemplate from "../../../emails/feedback"
 import { env } from "~/lib/env"
 import { submitFeedbackSchema } from "~/lib/feedback/schemas"
-import { invariant } from "~/lib/invariant"
 import { useServerSession } from "~/lib/session/hooks"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
@@ -16,7 +16,7 @@ export const submitFeedbackServerFn = createServerFn({
   .inputValidator(zodValidator(submitFeedbackSchema))
   .handler(async ({ data: input }) => {
     const session = await useServerSession()
-    invariant(session.data.user, "Unauthorized")
+    if (!session.data.user) throw redirect({ to: "/auth" })
 
     const { error } = await resendClient.emails.send({
       from: "une.haus feedback <colby@jrnxf.co>",

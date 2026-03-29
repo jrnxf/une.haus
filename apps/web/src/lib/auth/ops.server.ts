@@ -7,7 +7,6 @@ import AuthCodeTemplate from "../../../emails/auth-code"
 import { db } from "~/db"
 import { authCodes, users } from "~/db/schema"
 import { env } from "~/lib/env"
-import { invariant } from "~/lib/invariant"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
@@ -89,7 +88,7 @@ export async function enterCode({
     .limit(1)
 
   if (!authCode) {
-    throw new Error("Invalid code")
+    return { status: "invalid_code" as const }
   }
 
   const deleteCode = async () => {
@@ -98,14 +97,12 @@ export async function enterCode({
 
   if (!authCode.user) {
     await deleteCode()
-    return {
-      status: "user_not_found",
-    }
+    return { status: "user_not_found" as const }
   }
 
   if (authCode.expiresAt < new Date()) {
     await deleteCode()
-    invariant(false, "Code has expired")
+    return { status: "expired" as const }
   }
 
   await deleteCode()
