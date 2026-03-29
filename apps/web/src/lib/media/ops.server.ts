@@ -13,7 +13,10 @@ export async function handleUploadAssetCreated({
   assetId: string
   uploadId: string
 }) {
-  await db.insert(muxVideos).values({ assetId, uploadId }).onConflictDoNothing()
+  await db.insert(muxVideos).values({ assetId, uploadId }).onConflictDoUpdate({
+    target: muxVideos.assetId,
+    set: { uploadId },
+  })
 }
 
 export async function handleAssetReady({

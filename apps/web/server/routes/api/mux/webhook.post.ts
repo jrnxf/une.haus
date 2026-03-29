@@ -18,23 +18,33 @@ export default defineEventHandler(async (event) => {
   const muxEvent = muxClient.webhooks.unwrap(rawBody, headers)
   const { data, type } = muxEvent
 
-  console.log(`[MUX EVENT] --> ${type}`)
+  const d = data as Record<string, unknown>
+  const playbackIds = d.playback_ids as Array<{ id: string }> | undefined
+  const eventMeta = {
+    type,
+    assetId: d.asset_id ?? d.id,
+    uploadId:
+      d.upload_id ?? (type === "video.upload.asset_created" ? d.id : undefined),
+    playbackId: playbackIds?.[0]?.id,
+    status: d.status,
+  }
+
+  console.log("[MUX EVENT]", eventMeta)
 
   Sentry.addBreadcrumb({
     category: "mux.webhook",
     message: type,
     level: "info",
-    data: { type, payload: data },
+    data: eventMeta,
   })
 
   Sentry.captureMessage(`[mux webhook] ${type}`, {
     level: "info",
-    extra: { type, payload: data },
+    extra: eventMeta,
   })
 
   if (type === "video.upload.asset_created") {
-    const assetId = data.asset_id
-    const uploadId = data.id
+    const { asset_id: assetId, id: uploadId } = data
 
     if (assetId && uploadId) {
       await handleUploadAssetCreated({ assetId, uploadId })
