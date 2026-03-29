@@ -179,7 +179,7 @@ export function UserGlobe({
 
       map.on("moveend", handleMoveEnd)
     },
-    [onMapMove, initialZoom, initialCenter],
+    [onMapMove, initialZoom],
   )
 
   const handlePointClick = useCallback(
