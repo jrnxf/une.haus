@@ -19,7 +19,26 @@ export function useMarkGroupRead() {
 
   return useMutation({
     mutationFn: notifications.markGroupRead.fn,
-    onSuccess: () => invalidateAllNotifications(qc),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: unreadCountKey })
+      const prev = qc.getQueryData<number>(unreadCountKey)
+      if (prev !== undefined && prev > 0) {
+        qc.setQueryData(unreadCountKey, prev - 1)
+      }
+      return { prev }
+    },
+    onSuccess: () => {
+      qc.removeQueries({ queryKey: ["notifications.list"] })
+      qc.removeQueries({ queryKey: ["notifications.grouped"] })
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev !== undefined) {
+        qc.setQueryData(unreadCountKey, context.prev)
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: unreadCountKey })
+    },
   })
 }
 
