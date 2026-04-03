@@ -762,7 +762,7 @@ function SearchUsersPage({
 }
 
 const VIRTUALIZE_THRESHOLD = 10
-const ITEM_HEIGHT = 36 // Height of CommandItem in pixels
+const ITEM_HEIGHT = 40 // Height of CommandItem in pixels (p-2 = 8px * 2 + 24px line-height)
 
 function SearchVaultPage({
   query,
