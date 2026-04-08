@@ -48,12 +48,15 @@ describe("seo", () => {
     })
   })
 
-  it("omits image tags when no image", () => {
+  it("uses default og image when no image provided", () => {
     const result = seo(base)
     const ogImage = result.meta.find(
       (m) => "property" in m && m.property === "og:image",
     )
-    expect(ogImage).toBeUndefined()
+    expect(ogImage).toEqual({
+      property: "og:image",
+      content: `${SITE_URL}/og-image.png`,
+    })
   })
 
   it("does not duplicate site name in title when title matches site name", () => {

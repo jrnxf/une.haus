@@ -10,9 +10,12 @@ type SeoInput = {
   card?: "summary" | "summary_large_image"
 }
 
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`
+
 export function seo({ title, description, path, image, type, card }: SeoInput) {
   const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} — ${SITE_NAME}`
   const url = `${SITE_URL}${path}`
+  const ogImage = image ?? DEFAULT_OG_IMAGE
 
   return {
     meta: [
@@ -23,12 +26,12 @@ export function seo({ title, description, path, image, type, card }: SeoInput) {
       { property: "og:url", content: url },
       { property: "og:type", content: type ?? "website" },
       { property: "og:site_name", content: SITE_NAME },
-      ...(image ? [{ property: "og:image", content: image }] : []),
+      { property: "og:image", content: ogImage },
       { name: "twitter:card", content: card ?? "summary" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
       { name: "twitter:url", content: url },
-      ...(image ? [{ name: "twitter:image", content: image }] : []),
+      { name: "twitter:image", content: ogImage },
     ],
     links: [{ rel: "canonical", href: url }],
   }
