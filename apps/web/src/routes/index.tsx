@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
     seo({
       title: SITE_NAME,
       description:
-        "une.haus — a community hub for unicyclists. play games, share posts, chat, and connect with riders worldwide.",
+        "une.haus — all things une. play games, post, chat, and connect with riders worldwide.",
       path: "/",
     }),
   component: RouteComponent,
@@ -24,7 +24,7 @@ const jsonLd = {
       url: SITE_URL,
       name: SITE_NAME,
       description:
-        "a community hub for unicyclists. play games, share posts, chat, and connect with riders worldwide.",
+        "all things une. play games, post, chat, and connect with riders worldwide.",
       inLanguage: "en-US",
     },
     {
@@ -45,7 +45,7 @@ const jsonLd = {
       isPartOf: { "@id": `${SITE_URL}/#website` },
       about: { "@id": `${SITE_URL}/#organization` },
       description:
-        "a community hub for unicyclists. play games, share posts, chat, and connect with riders worldwide.",
+        "all things une. play games, post, chat, and connect with riders worldwide.",
       inLanguage: "en-US",
     },
     {
