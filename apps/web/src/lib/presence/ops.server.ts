@@ -1,30 +1,16 @@
-import { getRequestHeader } from "@tanstack/react-start/server"
-import { inArray, sql } from "drizzle-orm"
+import "@tanstack/react-start/server-only"
+import { gt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import { users } from "~/db/schema"
-import {
-  getOnlineUserIds,
-  guestCount,
-  registerAnonymous,
-  registerUser,
-  removeAnonymous,
-} from "~/lib/presence/state"
 import { useServerSession } from "~/lib/session/hooks"
+
+// Must be > poll interval (15s) to avoid flicker between polls.
+// 2x gives one missed poll of grace before a user drops off.
+const ONLINE_THRESHOLD_MS = 30 * 1000
 
 export async function getOnlineUsers() {
   const session = await useServerSession()
-  const ip =
-    getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ??
-    getRequestHeader("x-real-ip") ??
-    "unknown"
-
-  if (session.data.user) {
-    registerUser(session.data.user.id)
-    removeAnonymous(ip)
-  } else {
-    registerAnonymous(ip)
-  }
 
   if (session.data.user) {
     await db
@@ -33,24 +19,25 @@ export async function getOnlineUsers() {
       .where(sql`${users.id} = ${session.data.user.id}`)
   }
 
-  const onlineUserIds = getOnlineUserIds()
-  const onlineUserDetails =
-    onlineUserIds.length > 0
-      ? await db
-          .select({
-            id: users.id,
-            name: users.name,
-            avatarId: users.avatarId,
-          })
-          .from(users)
-          .where(inArray(users.id, onlineUserIds))
-      : []
-
-  const guests = guestCount()
+  const onlineUsers = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      avatarId: users.avatarId,
+    })
+    .from(users)
+    .where(
+      gt(
+        users.lastSeenAt,
+        sql`now() - interval '${sql.raw(String(ONLINE_THRESHOLD_MS / 1000))} seconds'`,
+      ),
+    )
 
   return {
-    users: onlineUserDetails,
-    guests,
-    total: onlineUserDetails.length + guests,
+    users: onlineUsers,
+    // Guest tracking required in-process state; not available on Workers.
+    // Re-introduce via Durable Object or KV when product needs it.
+    guests: 0,
+    total: onlineUsers.length,
   }
 }
