@@ -1,3 +1,5 @@
 .nitro
 .tanstack
 .output
+.wrangler
+dist

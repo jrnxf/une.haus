@@ -1,15 +1,12 @@
+import { cloudflare } from "@cloudflare/vite-plugin"
 import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
-import { nitro } from "nitro/vite"
 import { execSync } from "node:child_process"
-// import { beasties } from "vite-plugin-beasties";
 import { type LoggingFunction, type RollupLog } from "rollup"
 import { defineConfig, type PluginOption } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
-
-import { TASK_NAMES } from "./src/lib/tasks/constants"
 
 const devtoolsPlugin = async (): Promise<PluginOption> => {
   const { devtools } = await import("@tanstack/devtools-vite")
@@ -29,6 +26,10 @@ const devtoolsPlugin = async (): Promise<PluginOption> => {
 }
 
 const gitSha = (() => {
+  if (process.env.CF_PAGES_COMMIT_SHA)
+    return process.env.CF_PAGES_COMMIT_SHA.slice(0, 7)
+  if (process.env.WORKERS_CI_COMMIT_SHA)
+    return process.env.WORKERS_CI_COMMIT_SHA.slice(0, 7)
   if (process.env.RAILWAY_GIT_COMMIT_SHA)
     return process.env.RAILWAY_GIT_COMMIT_SHA.slice(0, 7)
   try {
@@ -59,45 +60,11 @@ const config = defineConfig(async () => {
     },
     plugins: [
       await devtoolsPlugin(),
-      // this is the plugin that enables path aliases - must come before nitro
       viteTsConfigPaths({
         projects: ["./tsconfig.json"],
       }),
-      nitro({
-        preset: "bun",
-        compatibilityDate: "latest",
-        serverDir: "./server",
-        experimental: {
-          tasks: true,
-          vite: {
-            serverReload: true,
-          },
-        },
-        scheduledTasks: {
-          // Run RIU rotation at midnight (00:00) every Monday (server timezone)
-          // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
-          "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
-          // Every hour at :00 — digest checks user's configured hour/day,
-          // game-start checks hours-until-rotation with 1h window
-          "0 * * * *": [
-            TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
-            TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
-          ],
-        },
-      } as any),
       tailwindcss(),
-      // beasties({
-      //   options: {
-      //     fonts: true,
-      //     logger: {
-      //       debug: (msg) => process.stdout.write(`[BEASTIES-DEBUG] ${msg}\n`),
-      //       error: (msg) => process.stderr.write(`[BEASTIES-ERROR] ${msg}\n`),
-      //       info: (msg) => process.stdout.write(`[BEASTIES-INFO] ${msg}\n`),
-      //       trace: (msg) => process.stdout.write(`[BEASTIES-TRACE] ${msg}\n`),
-      //       warn: (msg) => process.stderr.write(`[BEASTIES-WARN] ${msg}\n`),
-      //     },
-      //   },
-      // }),
+      cloudflare({ viteEnvironment: { name: "ssr" } }),
       tanstackStart({
         importProtection: {
           behavior: {
