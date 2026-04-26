@@ -1,8 +1,4 @@
-import * as Sentry from "@sentry/tanstackstart-react"
-import {
-  sentryGlobalFunctionMiddleware,
-  sentryGlobalRequestMiddleware,
-} from "@sentry/tanstackstart-react"
+import * as Sentry from "@sentry/cloudflare"
 import { createMiddleware, createStart } from "@tanstack/react-start"
 
 import { useServerSession } from "~/lib/session/hooks"
@@ -18,6 +14,5 @@ const sentryUserMiddleware = createMiddleware().server(async ({ next }) => {
 })
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [sentryUserMiddleware, sentryGlobalRequestMiddleware],
-  functionMiddleware: [sentryGlobalFunctionMiddleware],
+  requestMiddleware: [sentryUserMiddleware],
 }))
