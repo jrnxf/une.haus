@@ -244,15 +244,15 @@ export async function getStats() {
       videoUploads: videoUploadsResult[0]?.count ?? 0,
     },
     activeRiu: activeRiuResult[0] ?? null,
-    activityByMonth: activityByMonthResult.map((row) => ({
+    activityByMonth: activityByMonthResult.rows.map((row) => ({
       month: row.month,
       activityCount: Number(row.activityCount),
     })),
-    disciplineDistribution: disciplineDistributionResult.map((row) => ({
+    disciplineDistribution: disciplineDistributionResult.rows.map((row) => ({
       discipline: row.discipline,
       count: Number(row.count),
     })),
-    topContributors: topContributorsResult.map((row) => ({
+    topContributors: topContributorsResult.rows.map((row) => ({
       id: row.id,
       name: row.name,
       avatarId: row.avatarId,
@@ -332,7 +332,7 @@ export async function getContributors() {
     ORDER BY "totalPoints" DESC
   `)
 
-  return contributorsResult.map((row) => ({
+  return contributorsResult.rows.map((row) => ({
     id: row.id,
     name: row.name,
     avatarId: row.avatarId,

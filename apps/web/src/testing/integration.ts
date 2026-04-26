@@ -23,9 +23,10 @@ if (dbUrl.includes("neon.tech") || dbUrl.includes("production")) {
 
 // Final safeguard: verify at the connection level that we're actually talking
 // to the Docker container. This catches any env leak the static checks miss.
-const [{ current_database }] = await db.execute<{ current_database: string }>(
+const dbCheck = await db.execute<{ current_database: string }>(
   sql`SELECT current_database()`,
 )
+const current_database = dbCheck.rows[0]?.current_database
 if (current_database !== "unehaus_test") {
   throw new Error(
     `FATAL: Integration tests connected to "${current_database}", expected "unehaus_test".\n` +
@@ -34,15 +35,15 @@ if (current_database !== "unehaus_test") {
 }
 
 export async function truncatePublicTables() {
-  const rows = await db.execute(
-    sql<{ tablename: string }>`
+  const result = await db.execute<{ tablename: string }>(
+    sql`
       select tablename
       from pg_tables
       where schemaname = 'public'
     `,
   )
 
-  const tableNames = rows
+  const tableNames = result.rows
     .map((row) => row.tablename)
     .filter((name) => name !== "__drizzle_migrations")
 
