@@ -46,11 +46,7 @@ export const env = createEnv({
   server: {
     CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
     CLOUDFLARE_ACCOUNT_ID: z.string(),
-    DATABASE_HOST: z.string(),
-    DATABASE_NAME: z.string(),
-    DATABASE_PASSWORD: z.string(),
     DATABASE_URL: z.string(),
-    DATABASE_USER: z.string(),
     GOOGLE_API_KEY: z.string(),
     LOG_SQL: booleanEnvVar,
     MUX_TOKEN_ID: z.string(),

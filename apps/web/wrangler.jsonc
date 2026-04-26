@@ -14,10 +14,6 @@
 //   wrangler secret put CLOUDFLARE_ACCOUNT_ID
 //   wrangler secret put CLOUDFLARE_IMAGES_EDITOR_API_TOKEN
 //   wrangler secret put SENTRY_DSN
-//   wrangler secret put DATABASE_HOST
-//   wrangler secret put DATABASE_NAME
-//   wrangler secret put DATABASE_USER
-//   wrangler secret put DATABASE_PASSWORD
 //
 // Bulk: echo all to a JSON file and `wrangler secret bulk secrets.json`.
 //
