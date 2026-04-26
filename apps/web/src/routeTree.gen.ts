@@ -55,6 +55,7 @@ import { Route as TourneyCodeLiveRouteImport } from './routes/tourney/$code/live
 import { Route as GamesSiusBrowseRouteImport } from './routes/games/sius/_browse'
 import { Route as GamesRiusBrowseRouteImport } from './routes/games/rius/_browse'
 import { Route as GamesBiusBrowseRouteImport } from './routes/games/bius/_browse'
+import { Route as ApiMuxWebhookRouteImport } from './routes/api/mux/webhook'
 import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/create'
 import { Route as AuthedTourneyCreateRouteImport } from './routes/_authed/tourney/create'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
@@ -327,6 +328,11 @@ const GamesRiusBrowseRoute = GamesRiusBrowseRouteImport.update({
 const GamesBiusBrowseRoute = GamesBiusBrowseRouteImport.update({
   id: '/_browse',
   getParentRoute: () => GamesBiusRouteRoute,
+} as any)
+const ApiMuxWebhookRoute = ApiMuxWebhookRouteImport.update({
+  id: '/api/mux/webhook',
+  path: '/api/mux/webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedTricksCreateRoute = AuthedTricksCreateRouteImport.update({
   id: '/tricks/create',
@@ -618,6 +624,7 @@ export interface FileRoutesByFullPath {
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary': typeof TricksGlossaryListRouteWithChildren
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
@@ -703,6 +710,7 @@ export interface FileRoutesByTo {
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
   '/tricks/create': typeof AuthedTricksCreateRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/games/bius': typeof GamesBiusIndexRoute
   '/games/rius': typeof GamesRiusIndexRoute
   '/games/sius': typeof GamesSiusIndexRoute
@@ -793,6 +801,7 @@ export interface FileRoutesById {
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
   '/_authed/tourney/create': typeof AuthedTourneyCreateRoute
   '/_authed/tricks/create': typeof AuthedTricksCreateRoute
+  '/api/mux/webhook': typeof ApiMuxWebhookRoute
   '/games/bius/_browse': typeof GamesBiusBrowseRouteWithChildren
   '/games/rius/_browse': typeof GamesRiusBrowseRouteWithChildren
   '/games/sius/_browse': typeof GamesSiusBrowseRouteWithChildren
@@ -887,6 +896,7 @@ export interface FileRouteTypes {
     | '/posts/create'
     | '/tourney/create'
     | '/tricks/create'
+    | '/api/mux/webhook'
     | '/tourney/$code/live'
     | '/tricks/glossary'
     | '/vault/$videoId/edit'
@@ -972,6 +982,7 @@ export interface FileRouteTypes {
     | '/posts/create'
     | '/tourney/create'
     | '/tricks/create'
+    | '/api/mux/webhook'
     | '/games/bius'
     | '/games/rius'
     | '/games/sius'
@@ -1061,6 +1072,7 @@ export interface FileRouteTypes {
     | '/_authed/posts/create'
     | '/_authed/tourney/create'
     | '/_authed/tricks/create'
+    | '/api/mux/webhook'
     | '/games/bius/_browse'
     | '/games/rius/_browse'
     | '/games/sius/_browse'
@@ -1148,6 +1160,7 @@ export interface RootRouteChildren {
   TricksIndexRoute: typeof TricksIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
   VaultIndexRoute: typeof VaultIndexRoute
+  ApiMuxWebhookRoute: typeof ApiMuxWebhookRoute
   TourneyCodeLiveRoute: typeof TourneyCodeLiveRoute
   TricksGlossaryListRoute: typeof TricksGlossaryListRouteWithChildren
   VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
@@ -1482,6 +1495,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/games/bius'
       preLoaderRoute: typeof GamesBiusBrowseRouteImport
       parentRoute: typeof GamesBiusRouteRoute
+    }
+    '/api/mux/webhook': {
+      id: '/api/mux/webhook'
+      path: '/api/mux/webhook'
+      fullPath: '/api/mux/webhook'
+      preLoaderRoute: typeof ApiMuxWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authed/tricks/create': {
       id: '/_authed/tricks/create'
@@ -2031,6 +2051,7 @@ const rootRouteChildren: RootRouteChildren = {
   TricksIndexRoute: TricksIndexRoute,
   UsersIndexRoute: UsersIndexRoute,
   VaultIndexRoute: VaultIndexRoute,
+  ApiMuxWebhookRoute: ApiMuxWebhookRoute,
   TourneyCodeLiveRoute: TourneyCodeLiveRoute,
   TricksGlossaryListRoute: TricksGlossaryListRouteWithChildren,
   VaultVideoIdEditRoute: VaultVideoIdEditRoute,
