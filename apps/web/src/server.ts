@@ -1,9 +1,39 @@
 import { withSentry } from "@sentry/cloudflare"
-import handler, { createServerEntry } from "@tanstack/react-start/server-entry"
+import handler from "@tanstack/react-start/server-entry"
+
+import { rotateRius } from "~/lib/games/rius/scheduled"
+import {
+  sendDigests,
+  sendGameStartReminders,
+} from "~/lib/notifications/scheduled"
 
 type SentryEnv = {
   SENTRY_DSN?: string
   VITE_ENVIRONMENT?: string
+}
+
+// Minimal inline shapes to avoid pulling @cloudflare/workers-types globally,
+// which collides with DOM Response/Element.append in our React code.
+type ScheduledController = {
+  cron: string
+  scheduledTime: number
+}
+type ExecutionContext = {
+  waitUntil: (promise: Promise<unknown>) => void
+  passThroughOnException: () => void
+}
+
+async function dispatchCron(cron: string) {
+  switch (cron) {
+    case "0 0 * * 1":
+      await rotateRius()
+      return
+    case "0 * * * *":
+      await Promise.allSettled([sendDigests(), sendGameStartReminders()])
+      return
+    default:
+      console.warn(`[cron] no handler for cron expression "${cron}"`)
+  }
 }
 
 export default withSentry(
@@ -24,9 +54,16 @@ export default withSentry(
       },
     }
   },
-  createServerEntry({
+  {
     fetch(request: Request) {
       return handler.fetch(request)
     },
-  }),
+    scheduled(
+      controller: ScheduledController,
+      _env: SentryEnv,
+      ctx: ExecutionContext,
+    ) {
+      ctx.waitUntil(dispatchCron(controller.cron))
+    },
+  },
 )
