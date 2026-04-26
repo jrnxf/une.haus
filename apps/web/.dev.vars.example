@@ -1,0 +1,16 @@
+# Local dev secrets for `wrangler dev` and `vite dev` under the cloudflare
+# vite plugin. Copy to `.dev.vars` (gitignored). VITE_* vars stay in `.env`.
+DATABASE_URL=
+SESSION_SECRET=
+MUX_TOKEN_ID=
+MUX_TOKEN_SECRET=
+MUX_WEBHOOK_SECRET=
+RESEND_API_KEY=
+GOOGLE_API_KEY=
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_IMAGES_EDITOR_API_TOKEN=
+SENTRY_DSN=
+DATABASE_HOST=
+DATABASE_NAME=
+DATABASE_USER=
+DATABASE_PASSWORD=

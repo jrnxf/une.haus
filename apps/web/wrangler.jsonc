@@ -1,3 +1,29 @@
+// Wrangler config for unehaus-web on Cloudflare Workers.
+//
+// Bundle size at C9: 18.3 MB raw / 3.78 MB gzipped (limit 10 MB gzipped).
+// Verify drift on deploy: `bunx wrangler deploy --dry-run --outdir=/tmp/cf`.
+//
+// SECRETS to set before first deploy (not in this file — use wrangler secret):
+//   wrangler secret put DATABASE_URL
+//   wrangler secret put SESSION_SECRET
+//   wrangler secret put MUX_TOKEN_ID
+//   wrangler secret put MUX_TOKEN_SECRET
+//   wrangler secret put MUX_WEBHOOK_SECRET
+//   wrangler secret put RESEND_API_KEY
+//   wrangler secret put GOOGLE_API_KEY
+//   wrangler secret put CLOUDFLARE_ACCOUNT_ID
+//   wrangler secret put CLOUDFLARE_IMAGES_EDITOR_API_TOKEN
+//   wrangler secret put SENTRY_DSN
+//   wrangler secret put DATABASE_HOST
+//   wrangler secret put DATABASE_NAME
+//   wrangler secret put DATABASE_USER
+//   wrangler secret put DATABASE_PASSWORD
+//
+// Bulk: echo all to a JSON file and `wrangler secret bulk secrets.json`.
+//
+// VITE_ENVIRONMENT and VITE_SENTRY_DSN are NOT secrets — they're inlined at
+// build time. Set them in the build env before `bun run build`:
+//   VITE_ENVIRONMENT=production VITE_SENTRY_DSN=... bun run build
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "unehaus-web",
@@ -14,6 +40,13 @@
       // Hourly digests + game-start reminders
       "0 * * * *"
     ]
-  }
-  // env.production.routes added in C9 once cf.une.haus zone is wired up
+  },
+  "vars": {
+    "VITE_ENVIRONMENT": "production"
+  },
+  "routes": [
+    // Bind cf.une.haus once the une.haus zone is on Cloudflare. Until then,
+    // the worker is reachable via its workers.dev URL.
+    { "pattern": "cf.une.haus", "custom_domain": true }
+  ]
 }

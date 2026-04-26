@@ -2,4 +2,5 @@
 .tanstack
 .output
 .wrangler
+.dev.vars
 dist
