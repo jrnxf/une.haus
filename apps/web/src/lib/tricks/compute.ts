@@ -392,7 +392,7 @@ export function buildTricksData(tricks: Trick[]): TricksData {
 }
 
 // Type for database trick video
-export type DbTrickVideo = {
+type DbTrickVideo = {
   id: number
   status: "active" | "pending" | "rejected"
   sortOrder: number

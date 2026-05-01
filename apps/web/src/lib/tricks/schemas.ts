@@ -97,7 +97,7 @@ const trickRelationshipFormSchema = z.object({
 })
 
 // Element form schema for tag selector
-export const elementFormSchema = z.object({
+const elementFormSchema = z.object({
   id: z.number(),
   name: z.string(),
 })

@@ -170,7 +170,7 @@ type SetWithSubmissions = {
   }[]
 }
 
-export type GroupedRiuSubmission<
+type GroupedRiuSubmission<
   TSubmission extends NonNullable<SetWithSubmissions["submissions"]>[number] =
     NonNullable<SetWithSubmissions["submissions"]>[number],
 > = TSubmission & {

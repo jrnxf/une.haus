@@ -32,7 +32,7 @@ export const recordTypeToLabel: Record<RecordWithLikesType, string> = {
   siuSetMessage: "siuSetMessage",
 }
 
-export const baseSchema = z.object({
+const baseSchema = z.object({
   recordId: z.number(), // the id of the thing receiving the message (in the case of chat just pass in -1 since there is no id)
   type: z.enum(recordTypeWithLikes),
 })

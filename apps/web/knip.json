@@ -9,14 +9,12 @@
     "server/tasks/**/*.ts",
     "emails/**/*.tsx",
     "src/scripts/**/*.ts",
-    "src/db/scripts/**/*.ts",
     "src/testing/**/*.ts",
     "src/styles.css",
     "**/*.unit.test.{ts,tsx}",
     "**/*.integration.test.ts"
   ],
   "project": ["src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
-  "ignore": ["src/db/schema.ts"],
   "drizzle": false,
   "ignoreDependencies": [
     "@tailwindcss/postcss",

@@ -25,7 +25,7 @@ export const deleteNotificationSchema = z.object({
 })
 
 // Internal schema for creating notifications
-export const createNotificationSchema = z.object({
+const createNotificationSchema = z.object({
   userId: z.number().positive().int(),
   actorId: z.number().positive().int().optional(),
   type: z.enum(NOTIFICATION_TYPES),

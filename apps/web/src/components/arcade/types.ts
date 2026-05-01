@@ -6,7 +6,7 @@ export type StairSegment =
 
 export type RampSpike = { offset: number; width: number }
 
-export type StairsetInfo = {
+type StairsetInfo = {
   rampW: number
   platW: number
   segments: StairSegment[]

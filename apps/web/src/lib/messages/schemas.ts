@@ -24,7 +24,7 @@ const recordParentMessageSchema = z.object({
   type: z.enum(recordWithMessagesTypes),
 })
 
-export const messageParentSchema = z.discriminatedUnion("type", [
+const messageParentSchema = z.discriminatedUnion("type", [
   chatParentMessageSchema,
   recordParentMessageSchema,
 ])
