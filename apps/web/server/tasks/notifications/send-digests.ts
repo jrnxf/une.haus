@@ -1,4 +1,4 @@
-import { and, eq, isNull, ne, sql } from "drizzle-orm"
+import { and, eq, gte, isNull, ne, sql } from "drizzle-orm"
 import { defineTask } from "nitro/task"
 import { Resend } from "resend"
 
@@ -62,7 +62,14 @@ export default defineTask({
 
     for (const user of eligibleUsers) {
       try {
-        // Get unread, unemailed notifications for this user
+        const windowStart = new Date(now)
+        if (user.frequency === "monthly") {
+          windowStart.setUTCMonth(windowStart.getUTCMonth() - 1)
+        } else {
+          windowStart.setUTCDate(windowStart.getUTCDate() - 7)
+        }
+
+        // Get unemailed notifications from within the digest window
         const userNotifications = await db
           .select({
             id: notifications.id,
@@ -77,6 +84,7 @@ export default defineTask({
             and(
               eq(notifications.userId, user.userId),
               isNull(notifications.emailedAt),
+              gte(notifications.createdAt, windowStart),
             ),
           )
           .orderBy(notifications.createdAt)
