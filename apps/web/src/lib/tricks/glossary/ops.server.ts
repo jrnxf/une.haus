@@ -4,6 +4,7 @@ import { and, desc, eq, lt } from "drizzle-orm"
 import { db } from "~/db"
 import { glossaryProposals, trickElements, trickModifiers } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 
 type AuthenticatedContext = {
@@ -188,7 +189,7 @@ export async function reviewGlossaryProposal({
         entityTitle: status,
         entityPreview: reviewNotes ?? undefined,
       },
-    }).catch(console.error)
+    }).catch(logRejection("tricks.glossary.notify"))
   }
 
   return updatedProposal

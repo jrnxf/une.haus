@@ -35,6 +35,10 @@ une.haus is a platform for unicyclists to share tricks, compete in games, organi
 - [maplibre](https://maplibre.org) — maps
 - [bun](https://bun.sh) — package manager + runtime
 
+### hosting
+
+une.haus is self-hosted on a homelab server — bun running natively under systemd, postgres on the same box, fronted by a reverse proxy. no platform-as-a-service, no managed database. the repo itself is deploy-agnostic; any host that can run bun + postgres works. see [`DEPLOY.md`](./DEPLOY.md) for the build/run contract.
+
 ### getting started
 
 ```sh

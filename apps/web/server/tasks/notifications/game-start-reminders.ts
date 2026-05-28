@@ -12,6 +12,7 @@ import {
   users,
 } from "~/db/schema"
 import { env } from "~/lib/env"
+import { logger } from "~/lib/logger"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
@@ -39,7 +40,8 @@ export default defineTask({
     description: "Send game start reminder emails to opted-in users",
   },
   async run() {
-    console.log("[notifications:game-start-reminders] Starting...")
+    const task = TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS
+    logger.info("game-start-reminders started", { task })
 
     // Get the upcoming RIU
     const upcomingRiu = await db.query.rius.findFirst({
@@ -47,7 +49,7 @@ export default defineTask({
     })
 
     if (!upcomingRiu) {
-      console.log("[notifications:game-start-reminders] No upcoming RIU found")
+      logger.info("no upcoming riu", { task })
       return {
         result: {
           success: true,
@@ -100,9 +102,11 @@ export default defineTask({
       return hoursUntilStart <= targetHours && hoursUntilStart > targetHours - 1
     })
 
-    console.log(
-      `[notifications:game-start-reminders] ${hoursUntilStart}h until rotation, ${usersToNotify.length} potential users`,
-    )
+    logger.info("computed eligible users", {
+      task,
+      hoursUntilStart,
+      potentialUsers: usersToNotify.length,
+    })
 
     let sentCount = 0
     let skippedCount = 0
@@ -142,10 +146,11 @@ export default defineTask({
         })
 
         if (error) {
-          console.error(
-            `[notifications:game-start-reminders] Failed to send to user ${user.userId}:`,
-            error,
-          )
+          logger.error("reminder send failed", {
+            task,
+            userId: user.userId,
+            err: error,
+          })
           errorCount++
           continue
         }
@@ -158,21 +163,23 @@ export default defineTask({
         })
 
         sentCount++
-        console.log(
-          `[notifications:game-start-reminders] Sent to user ${user.userId}`,
-        )
+        logger.info("reminder sent", { task, userId: user.userId })
       } catch (error) {
-        console.error(
-          `[notifications:game-start-reminders] Error processing user ${user.userId}:`,
-          error,
-        )
+        logger.error("reminder processing error", {
+          task,
+          userId: user.userId,
+          err: error,
+        })
         errorCount++
       }
     }
 
-    console.log(
-      `[notifications:game-start-reminders] Complete. Sent: ${sentCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`,
-    )
+    logger.info("game-start-reminders complete", {
+      task,
+      sent: sentCount,
+      skipped: skippedCount,
+      errors: errorCount,
+    })
 
     return {
       result: {

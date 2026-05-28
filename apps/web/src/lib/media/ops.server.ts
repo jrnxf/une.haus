@@ -5,6 +5,7 @@ import { db } from "~/db"
 import { muxVideos } from "~/db/schema"
 import { sleep } from "~/lib/dx/utils"
 import { assertFound } from "~/lib/invariant"
+import { logger } from "~/lib/logger"
 
 export async function handleUploadAssetCreated({
   assetId,
@@ -58,9 +59,10 @@ export async function pollMuxVideoUploadStatus({
       }
     }
 
-    console.log(
-      `Polling DB for uploadId ${input.uploadId}: ${maxTries - tries - 1} tries left`,
-    )
+    logger.debug("polling for mux upload", {
+      uploadId: input.uploadId,
+      triesLeft: maxTries - tries - 1,
+    })
     await sleep(sleepIntervalMs)
     tries++
   }

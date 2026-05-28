@@ -50,6 +50,11 @@ In the homelab, these are rendered to `/etc/unehaus/.env` by the
 `unehaus` role from `ansible-vault`-encrypted secrets — they don't live
 in this repo.
 
+Two optional observability vars are injected directly by the systemd unit
+(not the `.env`): `SERVICE_NAME` and `GIT_COMMIT`. The structured logger and
+boot log stamp them onto every line so Loki can attribute logs to a service
+and release. Both are absent in local dev. See `apps/web/docs/logging.md`.
+
 ## Local dev
 
 ```bash

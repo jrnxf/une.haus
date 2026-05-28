@@ -4,6 +4,7 @@ import { and, desc, eq, isNull, sql } from "drizzle-orm"
 import { db } from "~/db"
 import { biuSetLikes, biuSetMessages, biuSets, bius } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import {
   deleteNotificationsForEntity,
   notifyFollowers,
@@ -266,7 +267,7 @@ export async function backUpBiuSet({
       entityType: "biuSet",
       entityId: set.id,
       entityTitle: set.name,
-    }).catch(console.error)
+    }).catch(logRejection("games.bius.notify"))
 
     return set
   })

@@ -7,6 +7,7 @@ import AuthCodeTemplate from "../../../emails/auth-code"
 import { db } from "~/db"
 import { authCodes, users } from "~/db/schema"
 import { env } from "~/lib/env"
+import { logger } from "~/lib/logger"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
@@ -49,7 +50,10 @@ export async function sendAuthCode({
   })
 
   if (error) {
-    console.error("❌ Email failed to send", error)
+    logger.error("auth code email send failed", {
+      email: input.email,
+      err: error,
+    })
     throw new Error(error.message)
   }
 

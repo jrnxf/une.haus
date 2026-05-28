@@ -6,6 +6,7 @@ import { Resend } from "resend"
 import FeedbackTemplate from "../../../emails/feedback"
 import { env } from "~/lib/env"
 import { submitFeedbackSchema } from "~/lib/feedback/schemas"
+import { logger } from "~/lib/logger"
 import { useServerSession } from "~/lib/session/hooks"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
@@ -31,7 +32,7 @@ export const submitFeedbackServerFn = createServerFn({
     })
 
     if (error) {
-      console.error("Failed to send feedback email", error)
+      logger.error("feedback email send failed", { err: error })
       throw new Error(error.message)
     }
 

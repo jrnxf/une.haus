@@ -6,6 +6,7 @@ import NotificationDigestTemplate from "../../../emails/notification-digest"
 import { db } from "~/db"
 import { notifications, userNotificationSettings, users } from "~/db/schema"
 import { env } from "~/lib/env"
+import { logger } from "~/lib/logger"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
@@ -16,7 +17,8 @@ export default defineTask({
     description: "Send notification digest emails to opted-in users",
   },
   async run() {
-    console.log("[notifications:send-digests] Starting digest send...")
+    const task = TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS
+    logger.info("send-digests started", { task })
 
     const now = new Date()
     const currentHour = now.getUTCHours()
@@ -53,9 +55,10 @@ export default defineTask({
         ),
       )
 
-    console.log(
-      `[notifications:send-digests] Found ${eligibleUsers.length} eligible users`,
-    )
+    logger.info("found eligible users", {
+      task,
+      eligibleUsers: eligibleUsers.length,
+    })
 
     let sentCount = 0
     let errorCount = 0
@@ -90,9 +93,10 @@ export default defineTask({
           .orderBy(notifications.createdAt)
 
         if (userNotifications.length === 0) {
-          console.log(
-            `[notifications:send-digests] No notifications for user ${user.userId}, skipping`,
-          )
+          logger.debug("no notifications for user, skipping", {
+            task,
+            userId: user.userId,
+          })
           continue
         }
 
@@ -184,10 +188,11 @@ export default defineTask({
         })
 
         if (error) {
-          console.error(
-            `[notifications:send-digests] Failed to send to user ${user.userId}:`,
-            error,
-          )
+          logger.error("digest send failed", {
+            task,
+            userId: user.userId,
+            err: error,
+          })
           errorCount++
           continue
         }
@@ -200,21 +205,26 @@ export default defineTask({
           .where(sql`${notifications.id} = ANY(${notificationIds})`)
 
         sentCount++
-        console.log(
-          `[notifications:send-digests] Sent digest to user ${user.userId} with ${userNotifications.length} notifications`,
-        )
+        logger.info("digest sent", {
+          task,
+          userId: user.userId,
+          notifications: userNotifications.length,
+        })
       } catch (error) {
-        console.error(
-          `[notifications:send-digests] Error processing user ${user.userId}:`,
-          error,
-        )
+        logger.error("digest processing error", {
+          task,
+          userId: user.userId,
+          err: error,
+        })
         errorCount++
       }
     }
 
-    console.log(
-      `[notifications:send-digests] Complete. Sent: ${sentCount}, Errors: ${errorCount}`,
-    )
+    logger.info("send-digests complete", {
+      task,
+      sent: sentCount,
+      errors: errorCount,
+    })
 
     return {
       result: {

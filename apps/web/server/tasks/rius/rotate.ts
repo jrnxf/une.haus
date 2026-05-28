@@ -3,6 +3,7 @@ import { defineTask } from "nitro/task"
 
 import { db } from "~/db"
 import { rius } from "~/db/schema"
+import { logger } from "~/lib/logger"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 export default defineTask({
@@ -12,7 +13,8 @@ export default defineTask({
       "Rotate RIUs: archive active, activate upcoming, create new upcoming",
   },
   async run() {
-    console.log("[rius:rotate] Starting RIU rotation...")
+    const task = TASK_NAMES.RIUS_ROTATE
+    logger.info("rius rotation started", { task })
 
     // Archive the currently active RIU
     const archivedResult = await db
@@ -21,7 +23,10 @@ export default defineTask({
       .where(eq(rius.status, "active"))
       .returning()
 
-    console.log(`[rius:rotate] Archived ${archivedResult.length} active RIU(s)`)
+    logger.info("archived active rius", {
+      task,
+      archived: archivedResult.length,
+    })
 
     // Promote upcoming RIU to active
     const activatedResult = await db
@@ -30,9 +35,10 @@ export default defineTask({
       .where(eq(rius.status, "upcoming"))
       .returning()
 
-    console.log(
-      `[rius:rotate] Activated ${activatedResult.length} upcoming RIU(s)`,
-    )
+    logger.info("activated upcoming rius", {
+      task,
+      activated: activatedResult.length,
+    })
 
     // Create a new upcoming RIU
     const [newRiu] = await db
@@ -40,7 +46,7 @@ export default defineTask({
       .values({ status: "upcoming" })
       .returning()
 
-    console.log(`[rius:rotate] Created new upcoming RIU with id: ${newRiu.id}`)
+    logger.info("created new upcoming riu", { task, newRiuId: newRiu.id })
 
     return {
       result: {

@@ -5,6 +5,7 @@ import { db } from "~/db"
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import { extractMentionedUserIds } from "~/lib/mentions/parse"
 import { resolvePreview } from "~/lib/mentions/resolve.server"
 import {
@@ -59,7 +60,7 @@ export async function createPost({
     entityType: "post",
     entityId: post.id,
     entityTitle: post.title,
-  }).catch(console.error)
+  }).catch(logRejection("posts.notify"))
 
   // Notify @mentioned users in the post content
   const mentionedUserIds = extractMentionedUserIds(input.content)
@@ -77,7 +78,7 @@ export async function createPost({
         actorAvatarId: context.user.avatarId,
         entityPreview: preview,
       },
-    }).catch(console.error)
+    }).catch(logRejection("posts.notify"))
   }
 
   return post
@@ -253,7 +254,7 @@ export async function updatePost({
             actorAvatarId: context.user.avatarId,
             entityPreview: preview,
           },
-        }).catch(console.error)
+        }).catch(logRejection("posts.notify"))
       }
     }
   }

@@ -23,6 +23,7 @@ import {
 } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
 import { assertFound } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 import { type ActivityItem, type ActivityType } from "~/lib/users/fns"
 import { type UpdateUserArgs } from "~/lib/users/schemas"
@@ -207,7 +208,7 @@ export async function followUser({
       actorName: context.user.name,
       actorAvatarId: context.user.avatarId,
     },
-  }).catch(console.error)
+  }).catch(logRejection("users.notify"))
 }
 
 export async function unfollowUser({

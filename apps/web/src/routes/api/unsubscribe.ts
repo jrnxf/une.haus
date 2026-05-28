@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
+import { logger } from "~/lib/logger"
 import { unsubscribe } from "~/lib/notification-settings/ops.server"
 
 const VALID_TYPES = new Set(["all", "digest", "game_start"])
@@ -36,7 +37,11 @@ export const Route = createFileRoute("/api/unsubscribe")({
             302,
           )
         } catch (error) {
-          console.error("[unsubscribe] Error:", error)
+          logger.error("unsubscribe failed", {
+            type,
+            userId: userIdNum,
+            err: error,
+          })
           return new Response("Failed to unsubscribe", { status: 500 })
         }
       },

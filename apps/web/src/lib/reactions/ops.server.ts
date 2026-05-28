@@ -19,6 +19,7 @@ import {
   utvVideoMessageLikes,
 } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import {
   createNotification,
   getContentOwner,
@@ -86,7 +87,7 @@ export async function likeRecord({
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
         },
-      }).catch(console.error)
+      }).catch(logRejection("reactions.notify"))
     }
   } else {
     // Message like — notify the message author
@@ -103,7 +104,7 @@ export async function likeRecord({
           actorAvatarId: context.user.avatarId,
           messageId: recordId,
         },
-      }).catch(console.error)
+      }).catch(logRejection("reactions.notify"))
     }
   }
 

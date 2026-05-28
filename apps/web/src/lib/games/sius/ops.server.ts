@@ -12,6 +12,7 @@ import {
   users,
 } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import {
   createNotification,
   deleteNotificationsForEntity,
@@ -158,7 +159,7 @@ export async function addSiuSet({
       entityType: "siuSet",
       entityId: set.id,
       entityTitle: set.name,
-    }).catch(console.error)
+    }).catch(logRejection("games.sius.notify"))
 
     return set
   })

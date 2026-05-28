@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/tanstackstart-react"
 import { defineEventHandler, getRequestHeaders, readRawBody } from "h3"
 
 import { muxClient } from "~/lib/clients/mux"
+import { logger } from "~/lib/logger"
 import {
   handleAssetReady,
   handleUploadAssetCreated,
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
     status: d.status,
   }
 
-  console.log("[MUX EVENT]", eventMeta)
+  logger.info("mux webhook", eventMeta)
 
   Sentry.addBreadcrumb({
     category: "mux.webhook",

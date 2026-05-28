@@ -13,6 +13,7 @@ import {
   utvVideoMessages,
 } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import { extractMentionedUserIds } from "~/lib/mentions/parse"
 import { resolvePreview } from "~/lib/mentions/resolve.server"
 import {
@@ -167,7 +168,7 @@ export async function createMessage({
           entityPreview: preview,
           messageId,
         },
-      }).catch(console.error)
+      }).catch(logRejection("messages.notify"))
     }
   }
 
@@ -191,7 +192,7 @@ export async function createMessage({
         entityPreview: preview,
         messageId,
       },
-    }).catch(console.error)
+    }).catch(logRejection("messages.notify"))
   }
 }
 
@@ -251,7 +252,7 @@ export async function updateMessage({
           entityPreview: preview,
           messageId: id,
         },
-      }).catch(console.error)
+      }).catch(logRejection("messages.notify"))
     }
   }
 }
@@ -273,9 +274,13 @@ export async function deleteMessage({
   // Clean up message_like notifications before deleting
   const entityType = MESSAGE_ENTITY_TYPES[input.type]
   if (entityType) {
-    deleteNotificationsForMessage(entityType, input.id).catch(console.error)
+    deleteNotificationsForMessage(entityType, input.id).catch(
+      logRejection("messages.notify"),
+    )
   } else if (input.type === "chat") {
-    deleteNotificationsForMessage("chat", input.id).catch(console.error)
+    deleteNotificationsForMessage("chat", input.id).catch(
+      logRejection("messages.notify"),
+    )
   }
 
   await db

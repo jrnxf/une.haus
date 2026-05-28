@@ -5,6 +5,7 @@ import { db } from "~/db"
 import { riuSets, riuSubmissions, rius } from "~/db/schema"
 import { ARCHIVED_ROUNDS_PAGE_SIZE } from "~/lib/games/rius/schemas"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import {
   deleteNotificationsForEntity,
   notifyFollowers,
@@ -55,7 +56,7 @@ export async function createRiuSet({
     type: "new_content",
     entityType: "riuSet",
     entityId: riuSet.id,
-  }).catch(console.error)
+  }).catch(logRejection("games.rius.notify"))
 
   return riuSet
 }

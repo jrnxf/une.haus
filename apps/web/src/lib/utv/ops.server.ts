@@ -15,6 +15,7 @@ import {
 } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
 import { invariant } from "~/lib/invariant"
+import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 
 import type {
@@ -305,7 +306,7 @@ export async function reviewUtvSuggestion({
         entityTitle: status === "approved" ? "approved" : "rejected",
         entityPreview: reviewNotes,
       },
-    }).catch(console.error)
+    }).catch(logRejection("utv.notify"))
   }
 
   return updatedSuggestion

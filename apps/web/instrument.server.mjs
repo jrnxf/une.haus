@@ -5,14 +5,29 @@ import * as Sentry from "@sentry/tanstackstart-react"
 const runtime =
   globalThis.navigator?.userAgent ?? `node@${process.versions.node}`
 
-console.log("[boot]", {
+const isProduction = process.env.VITE_ENVIRONMENT === "production"
+
+// Deploy-agnostic boot breadcrumb. SERVICE_NAME/GIT_COMMIT are injected by the
+// systemd unit in the homelab (roles/unehaus); both are absent in local dev.
+// Shape mirrors src/lib/logger.ts so Loki's `| json` parser treats it like any
+// other app log line.
+const boot = {
+  timestamp: new Date().toISOString(),
+  level: "info",
+  msg: "boot",
+  service: process.env.SERVICE_NAME ?? "unehaus-web",
+  env: process.env.VITE_ENVIRONMENT ?? "development",
+  commit: process.env.GIT_COMMIT,
   runtime,
   platform: `${process.platform}/${process.arch}`,
-  env: process.env.VITE_ENVIRONMENT,
   pid: process.pid,
-})
+}
 
-const isProduction = process.env.VITE_ENVIRONMENT === "production"
+if (isProduction) {
+  console.log(JSON.stringify(boot))
+} else {
+  console.log("[boot]", boot)
+}
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
