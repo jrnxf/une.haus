@@ -34,7 +34,6 @@
     "@mux/mux-node": "^8.8.0",
     "@mux/mux-player-react": "^3.6.0",
     "@mux/upchunk": "^3.4.0",
-    "@neondatabase/serverless": "^0.10.0",
     "@react-email/components": "^1.0.6",
     "@sentry/tanstackstart-react": "^10.43.0",
     "@t3-oss/env-core": "^0.13.0",

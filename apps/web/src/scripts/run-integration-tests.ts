@@ -48,10 +48,6 @@ if (!port) {
 const testEnv = {
   ...process.env,
   DATABASE_URL: `postgresql://unehaus_test:unehaus_test@127.0.0.1:${port}/unehaus_test`,
-  DATABASE_HOST: "127.0.0.1",
-  DATABASE_NAME: "unehaus_test",
-  DATABASE_USER: "unehaus_test",
-  DATABASE_PASSWORD: "unehaus_test",
   INTEGRATION_TEST_DOCKER: "true",
 }
 
