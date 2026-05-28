@@ -116,11 +116,13 @@ export const notificationEntityTypeEnum = pgEnum(
 export const users = pgTable("users", {
   avatarId: text("avatar_id"),
   bio: text("bio"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   disciplines: json("disciplines").$type<UserDiscipline[]>(),
   email: text("email").unique().notNull(),
   id: serial("id").primaryKey(),
-  lastSeenAt: timestamp("last_seen_at"),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
   name: text("name").notNull(),
   arcadeHighScore: integer("arcade_high_score").notNull().default(0),
   notifyWhenShop: boolean("notify_when_shop").notNull().default(false),
@@ -157,12 +159,14 @@ export const authCodes = pgTable("auth_codes", {
   id: text("id").primaryKey(),
   email: text("email"),
   code: text("code").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 })
 
 export const posts = pgTable("posts", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   id: serial("id").primaryKey(),
   imageId: text("image_id"),
   tags: json("tags").$type<PostTag[]>().default([]),
@@ -181,7 +185,9 @@ export const posts = pgTable("posts", {
 
 export const chatMessages = pgTable("chat_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -204,7 +210,9 @@ export const chatMessageLikes = pgTable(
 
 export const postMessages = pgTable("post_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
   id: serial("id").primaryKey(),
   postId: integer("post_id")
@@ -243,7 +251,9 @@ export const postMessageLikes = pgTable(
 
 export const riuSetMessages = pgTable("riu_set_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
   id: serial("id").primaryKey(),
   riuSetId: integer("riu_set_id")
@@ -282,7 +292,9 @@ export const riuSetMessageLikes = pgTable(
 
 export const riuSubmissionMessages = pgTable("riu_submission_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
   id: serial("id").primaryKey(),
   riuSubmissionId: integer("riu_submission_id")
@@ -361,7 +373,9 @@ export const utvVideoLikes = pgTable(
 export const utvVideoMessages = pgTable("utv_video_messages", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   utvVideoId: integer("utv_video_id")
     .notNull()
     .references(() => utvVideos.id, { onDelete: "cascade" }),
@@ -404,9 +418,11 @@ export const utvVideoSuggestions = pgTable("utv_video_suggestions", {
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 export const utvClaps = pgTable("utv_claps", {
@@ -418,18 +434,24 @@ export const muxVideos = pgTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
   uploadId: text("upload_id").unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 export const rius = pgTable("rius", {
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   id: serial("id").primaryKey(),
-  startedAt: timestamp("started_at"),
+  startedAt: timestamp("started_at", { withTimezone: true }),
   status: riuStatusEnum("status").default("upcoming"),
 })
 
 export const riuSets = pgTable("riu_sets", {
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   instructions: text("instructions"),
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -451,7 +473,9 @@ export const riuSets = pgTable("riu_sets", {
 export const riuSubmissions = pgTable(
   "riu_submissions",
   {
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     id: serial("id").primaryKey(),
 
     riuSetId: integer("riu_set_id")
@@ -473,12 +497,16 @@ export const riuSubmissions = pgTable(
 // BIU (Back It Up) Game Tables
 export const bius = pgTable("bius", {
   id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 export const biuSets = pgTable("biu_sets", {
   id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
   biuId: integer("biu_id")
     .notNull()
@@ -494,7 +522,7 @@ export const biuSets = pgTable("biu_sets", {
   name: text("name").notNull(),
   position: integer("position").notNull(),
   parentSetId: integer("parent_set_id"),
-  deletedAt: timestamp("deleted_at"),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 })
 
 export const biuSetLikes = pgTable(
@@ -513,7 +541,9 @@ export const biuSetLikes = pgTable(
 export const biuSetMessages = pgTable("biu_set_messages", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   biuSetId: integer("biu_set_id")
     .notNull()
     .references(() => biuSets.id, { onDelete: "cascade" }),
@@ -539,13 +569,17 @@ export const biuSetMessageLikes = pgTable(
 export const sius = pgTable("sius", {
   id: serial("id").primaryKey(),
   status: siuStatusEnum("status").default("active"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  endedAt: timestamp("ended_at"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
 })
 
 export const siuSets = pgTable("siu_sets", {
   id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
   siuId: integer("siu_id")
     .notNull()
@@ -561,7 +595,7 @@ export const siuSets = pgTable("siu_sets", {
   name: text("name").notNull(),
   position: integer("position").notNull(),
   parentSetId: integer("parent_set_id"),
-  deletedAt: timestamp("deleted_at"),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 })
 
 export const siuArchiveVotes = pgTable(
@@ -573,7 +607,9 @@ export const siuArchiveVotes = pgTable(
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.siuId, t.userId] })],
 )
@@ -594,7 +630,9 @@ export const siuSetLikes = pgTable(
 export const siuSetMessages = pgTable("siu_set_messages", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   siuSetId: integer("siu_set_id")
     .notNull()
     .references(() => siuSets.id, { onDelete: "cascade" }),
@@ -653,9 +691,11 @@ export const notifications = pgTable(
     entityType: notificationEntityTypeEnum("entity_type").notNull(),
     entityId: integer("entity_id").notNull(),
     data: json("data").$type<NotificationData>(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    readAt: timestamp("read_at"),
-    emailedAt: timestamp("emailed_at"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    emailedAt: timestamp("emailed_at", { withTimezone: true }),
   },
   (t) => [
     index("notifications_user_id_idx").on(t.userId),
@@ -700,7 +740,9 @@ export const userNotificationSettings = pgTable("user_notification_settings", {
   emailUnsubscribedAll: boolean("email_unsubscribed_all")
     .notNull()
     .default(false),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Track sent email reminders to avoid duplicates
@@ -713,7 +755,7 @@ export const emailRemindersSent = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     reminderType: text("reminder_type").$type<EmailReminderType>().notNull(),
     riuId: integer("riu_id").references(() => rius.id, { onDelete: "cascade" }),
-    sentAt: timestamp("sent_at").notNull().defaultNow(),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("email_reminders_sent_user_type_riu_idx").on(
@@ -752,8 +794,10 @@ export const flags = pgTable("flags", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   resolvedByUserId: integer("resolved_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
@@ -1297,7 +1341,9 @@ export const trickModifiers = pgTable("trick_modifiers", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Trick Elements (components that make up a trick: spin, flip, twist, etc.)
@@ -1305,7 +1351,9 @@ export const trickElements = pgTable("trick_elements", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Core Tricks Table
@@ -1320,8 +1368,12 @@ export const tricks = pgTable("tricks", {
   }),
   yearLanded: integer("year_landed"),
   notes: text("notes"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Trick Videos (multiple per trick)
@@ -1346,9 +1398,11 @@ export const trickVideos = pgTable(
         onDelete: "set null",
       },
     ),
-    reviewedAt: timestamp("reviewed_at"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
     notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index("trick_videos_trick_id_idx").on(t.trickId),
@@ -1410,9 +1464,11 @@ export const trickSubmissions = pgTable("trick_submissions", {
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Trick Submission Element Assignments
@@ -1475,9 +1531,11 @@ export const trickSuggestions = pgTable("trick_suggestions", {
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Glossary Proposals (community-submitted element/modifier create or edit proposals)
@@ -1514,9 +1572,11 @@ export const glossaryProposals = pgTable("glossary_proposals", {
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 // Trick Engagement Tables
@@ -1536,7 +1596,9 @@ export const trickLikes = pgTable(
 export const trickMessages = pgTable("trick_messages", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   trickId: integer("trick_id")
     .notNull()
     .references(() => tricks.id, { onDelete: "cascade" }),
@@ -1768,8 +1830,12 @@ export const tournaments = pgTable("tournaments", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   state: json("state").$type<TournamentState>().notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 export const tournamentsRelations = relations(tournaments, ({ one }) => ({

@@ -103,6 +103,30 @@ const config = defineConfig(async () => {
             dev: "error",
           },
         },
+        serverFns: {
+          // Readable, URL-safe, stable ids for production builds. The RPC URL
+          // (and our request access log's `path` field) reads e.g.
+          // `/_serverFn/lib_feedback_fns_submitFeedbackServerFn` instead of an
+          // opaque hash, so logs in Loki name the actual function.
+          //
+          // Normalize to the path below `src/`, handling absolute and relative
+          // filenames identically — so the id a fn gets is the same in the
+          // client and server compilation passes (a mismatch would break RPC).
+          // TanStack appends `_createServerFn_handler` to the export name; drop
+          // it. Returns undefined (→ default hash) for the rare nameless fn.
+          generateFunctionId: ({ filename, functionName }) => {
+            const unix = filename.replace(/\\/g, "/")
+            const afterSrc = unix.includes("/src/")
+              ? unix.slice(unix.lastIndexOf("/src/") + 5)
+              : unix.replace(/^src\//, "")
+            const path = afterSrc.replace(/\.[tj]sx?$/, "")
+            const name = functionName.replace(/_createServerFn_handler$/, "")
+            if (!name) return undefined
+            return `${path}_${name}`
+              .replace(/[^a-zA-Z0-9]+/g, "_")
+              .replace(/^_+|_+$/g, "")
+          },
+        },
       }),
       // react's vite plugin must come after start's vite plugin
       viteReact(),
