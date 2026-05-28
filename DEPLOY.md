@@ -34,17 +34,17 @@ In production, each is its own systemd unit
 See `apps/web/.env.example` for the authoritative list; the validator
 lives in `apps/web/src/lib/env.ts`.
 
-| Var | Notes |
-|---|---|
-| `DATABASE_URL` | Postgres connection string |
-| `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_IMAGES_EDITOR_API_TOKEN` | |
-| `GOOGLE_API_KEY` | Maps |
-| `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET` / `MUX_WEBHOOK_SECRET` | Video |
-| `RESEND_API_KEY` | Email |
-| `SESSION_SECRET` | Cookie signing |
-| `VITE_ENVIRONMENT` | `production` in prod |
-| `SENTRY_*` | Optional |
-| `LOG_SQL` | Optional |
+| Var                                                            | Notes                      |
+| -------------------------------------------------------------- | -------------------------- |
+| `DATABASE_URL`                                                 | Postgres connection string |
+| `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_IMAGES_EDITOR_API_TOKEN` |                            |
+| `GOOGLE_API_KEY`                                               | Maps                       |
+| `MUX_TOKEN_ID` / `MUX_TOKEN_SECRET` / `MUX_WEBHOOK_SECRET`     | Video                      |
+| `RESEND_API_KEY`                                               | Email                      |
+| `SESSION_SECRET`                                               | Cookie signing             |
+| `VITE_ENVIRONMENT`                                             | `production` in prod       |
+| `SENTRY_*`                                                     | Optional                   |
+| `LOG_SQL`                                                      | Optional                   |
 
 In the homelab, these are rendered to `/etc/unehaus/.env` by the
 `unehaus` role from `ansible-vault`-encrypted secrets — they don't live

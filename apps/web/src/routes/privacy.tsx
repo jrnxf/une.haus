@@ -148,9 +148,6 @@ function RouteComponent() {
           </p>
           <ul>
             <li>
-              <strong>Neon</strong> — database hosting
-            </li>
-            <li>
               <strong>Mux</strong> — video processing and streaming
             </li>
             <li>

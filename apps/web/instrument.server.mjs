@@ -10,12 +10,6 @@ console.log("[boot]", {
   platform: `${process.platform}/${process.arch}`,
   env: process.env.VITE_ENVIRONMENT,
   pid: process.pid,
-  commit: process.env.RAILWAY_GIT_COMMIT_SHA?.slice(0, 7),
-  branch: process.env.RAILWAY_GIT_BRANCH,
-  service: process.env.RAILWAY_SERVICE_NAME,
-  deployment: process.env.RAILWAY_DEPLOYMENT_ID?.slice(0, 8),
-  replica: process.env.RAILWAY_REPLICA_ID?.slice(0, 8),
-  region: process.env.RAILWAY_REPLICA_REGION,
 })
 
 const isProduction = process.env.VITE_ENVIRONMENT === "production"

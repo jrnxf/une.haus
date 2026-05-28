@@ -15,7 +15,7 @@ if (process.env.INTEGRATION_TEST_DOCKER !== "true") {
 }
 
 const dbUrl = process.env.DATABASE_URL ?? ""
-if (dbUrl.includes("neon.tech") || dbUrl.includes("production")) {
+if (dbUrl.includes("production")) {
   throw new Error(
     `FATAL: Integration tests are pointing at a production database!\nDATABASE_URL: ${dbUrl}`,
   )

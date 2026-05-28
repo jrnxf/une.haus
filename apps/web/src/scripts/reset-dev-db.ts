@@ -9,16 +9,18 @@ if (!databaseUrl) {
 
 const url = new URL(databaseUrl)
 
-if (url.hostname.endsWith(".neon.tech")) {
+if (url.hostname !== "localhost" && url.hostname !== "127.0.0.1") {
   console.error(
-    `Refusing to run against a Neon host (${url.hostname}). This script` +
-      ` drops the entire public schema — point DATABASE_URL at a local or` +
-      ` homelab database before running.`,
+    `Refusing to run against a non-local host (${url.hostname}). This script` +
+      ` drops the entire public schema — point DATABASE_URL at a local database` +
+      ` before running.`,
   )
   process.exit(1)
 }
 
-console.log(`Resetting ${url.hostname}${url.pathname} — dropping public schema and re-pushing.`)
+console.log(
+  `Resetting ${url.hostname}${url.pathname} — dropping public schema and re-pushing.`,
+)
 
 const dropSql = "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
 await $`psql ${databaseUrl} -v ON_ERROR_STOP=1 -c ${dropSql}`

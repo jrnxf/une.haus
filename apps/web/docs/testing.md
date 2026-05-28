@@ -83,7 +83,7 @@ It does four things:
 3. Applies the current schema with `drizzle-kit push`.
 4. Runs the integration suites and destroys the container on exit.
 
-This keeps integration tests isolated from the checked-in Neon `DATABASE_URL` and avoids polluting local development data.
+This keeps integration tests isolated from your dev `DATABASE_URL` and avoids polluting local development data.
 
 ### Per-test isolation
 
