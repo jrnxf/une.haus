@@ -154,7 +154,11 @@ function SiuAdminMenu({
   const startRound = useStartRound()
   const archiveRound = useArchiveRound()
 
-  if (!isAdmin) return null
+  // Archiving auto-spins replacements, so starting a round manually is only
+  // ever needed below the cap (fresh db, manual cleanup) — hide it otherwise.
+  const canStart = activeRoundCount < maxActiveRounds
+
+  if (!isAdmin || (!canStart && !archivableRound)) return null
 
   return (
     <DropdownMenu>
@@ -166,12 +170,14 @@ function SiuAdminMenu({
         <ShieldIcon className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          disabled={activeRoundCount >= maxActiveRounds || startRound.isPending}
-          onClick={() => startRound.mutate({ data: {} })}
-        >
-          start new round
-        </DropdownMenuItem>
+        {canStart && (
+          <DropdownMenuItem
+            disabled={startRound.isPending}
+            onClick={() => startRound.mutate({ data: {} })}
+          >
+            start new round
+          </DropdownMenuItem>
+        )}
         {archivableRound && (
           <DropdownMenuItem
             disabled={archiveRound.isPending}

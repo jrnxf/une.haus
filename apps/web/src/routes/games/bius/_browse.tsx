@@ -136,7 +136,9 @@ function BiuAdminMenu({ roundCount }: { roundCount: number }) {
   const isAdmin = useIsAdmin()
   const startRound = useStartRound()
 
-  if (!isAdmin) return null
+  // Starting a round is the menu's only action — hide the shield entirely
+  // once the cap is reached (BIU rounds never archive, so this is one-way).
+  if (!isAdmin || roundCount >= maxActiveRounds) return null
 
   return (
     <DropdownMenu>
@@ -149,7 +151,7 @@ function BiuAdminMenu({ roundCount }: { roundCount: number }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          disabled={roundCount >= maxActiveRounds || startRound.isPending}
+          disabled={startRound.isPending}
           onClick={() => startRound.mutate({ data: {} })}
         >
           start new round
