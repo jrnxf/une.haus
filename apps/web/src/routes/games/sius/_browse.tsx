@@ -7,12 +7,19 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router"
-import { InfoIcon } from "lucide-react"
+import { InfoIcon, ShieldIcon } from "lucide-react"
 
+import { confirm } from "~/components/confirm-dialog"
 import { ContentHeaderRow } from "~/components/content-header-row"
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +27,10 @@ import {
 } from "~/components/ui/tooltip"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
+import { useArchiveRound, useStartRound } from "~/lib/games/sius/hooks"
+import { useIsAdmin } from "~/lib/session/hooks"
+
+const maxActiveRounds = 3
 
 export const Route = createFileRoute("/games/sius/_browse")({
   component: RouteComponent,
@@ -116,11 +127,71 @@ function RouteComponent() {
                 </>
               )}
             {isActive && <SiuInfoTray />}
+            <SiuAdminMenu
+              activeRoundCount={activeRounds.length}
+              archivableRound={
+                isActive && selectedRound?.status === "active"
+                  ? selectedRound
+                  : undefined
+              }
+            />
           </div>
         }
       />
       <Outlet />
     </div>
+  )
+}
+
+function SiuAdminMenu({
+  activeRoundCount,
+  archivableRound,
+}: {
+  activeRoundCount: number
+  archivableRound?: { id: number }
+}) {
+  const isAdmin = useIsAdmin()
+  const startRound = useStartRound()
+  const archiveRound = useArchiveRound()
+
+  if (!isAdmin) return null
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="secondary" size="icon" aria-label="admin menu" />
+        }
+      >
+        <ShieldIcon className="size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          disabled={activeRoundCount >= maxActiveRounds || startRound.isPending}
+          onClick={() => startRound.mutate({ data: {} })}
+        >
+          start new round
+        </DropdownMenuItem>
+        {archivableRound && (
+          <DropdownMenuItem
+            disabled={archiveRound.isPending}
+            onClick={() => {
+              confirm.open({
+                title: `archive round ${archivableRound.id}?`,
+                onConfirm: () =>
+                  archiveRound.mutate({
+                    data: { roundId: archivableRound.id },
+                  }),
+                confirmText: "archive",
+                variant: "destructive",
+              })
+            }}
+          >
+            archive round
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 

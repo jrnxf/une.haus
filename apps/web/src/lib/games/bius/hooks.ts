@@ -6,6 +6,26 @@ import { games } from "~/lib/games"
 
 const roundsKey = games.bius.rounds.queryOptions().queryKey
 
+export function useStartRound() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.bius.rounds.start.fn,
+    onSuccess: (data) => {
+      toast.success("started new round")
+      qc.removeQueries({ queryKey: roundsKey })
+      navigate({
+        to: "/games/bius/$roundId",
+        params: { roundId: data.round.id },
+      })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to start round")
+    },
+  })
+}
+
 export function useCreateFirstSet() {
   const navigate = useNavigate()
   const qc = useQueryClient()

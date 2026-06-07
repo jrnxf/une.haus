@@ -6,11 +6,17 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router"
-import { InfoIcon } from "lucide-react"
+import { InfoIcon, ShieldIcon } from "lucide-react"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import { Button } from "~/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
 import {
   Tooltip,
   TooltipContent,
@@ -18,6 +24,10 @@ import {
 } from "~/components/ui/tooltip"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { games } from "~/lib/games"
+import { useStartRound } from "~/lib/games/bius/hooks"
+import { useIsAdmin } from "~/lib/session/hooks"
+
+const maxActiveRounds = 3
 
 export const Route = createFileRoute("/games/bius/_browse")({
   component: RouteComponent,
@@ -113,10 +123,38 @@ function RouteComponent() {
                 </Button>
               ) : null
             ) : null}
+            <BiuAdminMenu roundCount={rounds.length} />
           </div>
         }
       />
       <Outlet />
     </div>
+  )
+}
+
+function BiuAdminMenu({ roundCount }: { roundCount: number }) {
+  const isAdmin = useIsAdmin()
+  const startRound = useStartRound()
+
+  if (!isAdmin) return null
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="secondary" size="icon" aria-label="admin menu" />
+        }
+      >
+        <ShieldIcon className="size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          disabled={roundCount >= maxActiveRounds || startRound.isPending}
+          onClick={() => startRound.mutate({ data: {} })}
+        >
+          start new round
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

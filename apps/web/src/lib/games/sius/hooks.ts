@@ -7,6 +7,49 @@ import { useSessionUser } from "~/lib/session/hooks"
 
 const activeRoundsKey = games.sius.rounds.active.queryOptions().queryKey
 
+export function useStartRound() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.sius.rounds.start.fn,
+    onSuccess: (data) => {
+      toast.success("started new round")
+      qc.removeQueries({ queryKey: activeRoundsKey })
+      navigate({
+        to: "/games/sius/$roundId",
+        params: { roundId: data.round.id },
+      })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to start round")
+    },
+  })
+}
+
+export function useArchiveRound() {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: games.sius.admin.archiveRound.fn,
+    onSuccess: (_data, variables) => {
+      toast.success("round archived")
+      qc.removeQueries({ queryKey: activeRoundsKey })
+      qc.removeQueries({
+        queryKey: games.sius.rounds.archived.list.queryOptions().queryKey,
+      })
+      navigate({
+        to: "/games/sius/archived/$roundId",
+        params: { roundId: variables.data.roundId.toString() },
+      })
+    },
+    onError: (error) => {
+      toast.error(error.message || "failed to archive round")
+    },
+  })
+}
+
 export function useCreateFirstSet() {
   const navigate = useNavigate()
   const qc = useQueryClient()
