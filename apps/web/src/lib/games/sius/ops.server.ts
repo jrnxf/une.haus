@@ -20,6 +20,42 @@ import {
 } from "~/lib/notifications/helpers.server"
 
 const ARCHIVE_VOTE_THRESHOLD = 5
+const MAX_ACTIVE_ROUNDS = 3
+
+// There should always be MAX_ACTIVE_ROUNDS rounds open for play — call this
+// after any path that archives a round to spin up replacements.
+async function topUpActiveRounds() {
+  const activeRounds = await db.query.sius.findMany({
+    where: eq(sius.status, "active"),
+    columns: { id: true },
+  })
+
+  const deficit = MAX_ACTIVE_ROUNDS - activeRounds.length
+  if (deficit <= 0) return []
+
+  return db
+    .insert(sius)
+    .values(
+      Array.from({ length: deficit }, () => ({ status: "active" as const })),
+    )
+    .returning()
+}
+
+export async function startSiuRound() {
+  const activeRounds = await db.query.sius.findMany({
+    where: eq(sius.status, "active"),
+    columns: { id: true },
+  })
+
+  invariant(
+    activeRounds.length < MAX_ACTIVE_ROUNDS,
+    `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+  )
+
+  const [round] = await db.insert(sius).values({ status: "active" }).returning()
+
+  return { round }
+}
 
 type AuthenticatedContext = {
   user: {
@@ -325,6 +361,8 @@ export async function archiveSiuRound({
     })
   }
 
+  await topUpActiveRounds()
+
   return { success: true }
 }
 
@@ -410,6 +448,8 @@ export async function deleteSiuSet({
       .update(sius)
       .set({ status: "archived", endedAt: new Date() })
       .where(eq(sius.id, set.siuId))
+
+    await topUpActiveRounds()
   }
 
   return { type: "hard" as const }

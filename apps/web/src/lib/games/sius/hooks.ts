@@ -34,7 +34,7 @@ export function useArchiveRound() {
   return useMutation({
     mutationFn: games.sius.admin.archiveRound.fn,
     onSuccess: (_data, variables) => {
-      toast.success("round archived")
+      toast.success("round archived, new round started")
       qc.removeQueries({ queryKey: activeRoundsKey })
       qc.removeQueries({
         queryKey: games.sius.rounds.archived.list.queryOptions().queryKey,

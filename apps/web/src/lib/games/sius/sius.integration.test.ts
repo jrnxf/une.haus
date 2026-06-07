@@ -18,6 +18,7 @@ import {
   getArchivedRound,
   listArchivedRounds,
   removeArchiveVote,
+  startSiuRound,
   updateSiuSet,
   voteToArchive,
 } from "~/lib/games/sius/ops.server"
@@ -248,7 +249,7 @@ describe("sius integration", () => {
     ])
   })
 
-  it("archives an active round, sets endedAt, and notifies unique participants", async () => {
+  it("archives an active round, notifies unique participants, and tops active rounds back up to three", async () => {
     const admin = await seedUser({ name: "Admin", type: "admin" })
     const participantA = await seedUser({ name: "Participant A" })
     const participantB = await seedUser({ name: "Participant B" })
@@ -296,6 +297,13 @@ describe("sius integration", () => {
       participantB.id,
     ])
     expect(rows.every((row) => row.type === "chain_archived")).toBe(true)
+
+    // Archiving auto-spins replacements so there are always three active rounds
+    const activeRounds = await db.query.sius.findMany({
+      where: (table, { eq: eqOp }) => eqOp(table.status, "active"),
+      columns: { id: true },
+    })
+    expect(activeRounds).toHaveLength(3)
   })
 
   it("rejects archiving a round that is already archived", async () => {
@@ -695,6 +703,25 @@ describe("sius integration", () => {
     expect(rereadSet).toBeUndefined()
     expect(rereadRound?.status).toBe("archived")
     expect(rereadRound?.endedAt).toBeInstanceOf(Date)
+
+    // Archiving auto-spins replacements so there are always three active rounds
+    const activeRounds = await db.query.sius.findMany({
+      where: (table, { eq: eqOp }) => eqOp(table.status, "active"),
+      columns: { id: true },
+    })
+    expect(activeRounds).toHaveLength(3)
+  })
+
+  it("startSiuRound creates a round and rejects when three are already active", async () => {
+    const first = await startSiuRound()
+    expect(first.round.status).toBe("active")
+
+    await startSiuRound()
+    await startSiuRound()
+
+    await expect(startSiuRound()).rejects.toThrow(
+      "Maximum of 3 active rounds reached",
+    )
   })
 
   it("listArchivedRounds orders by endedAt and excludes deleted sets from setsCount", async () => {

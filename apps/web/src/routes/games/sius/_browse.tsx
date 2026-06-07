@@ -226,7 +226,7 @@ function SiuInfoTray() {
           <p>
             when enough riders find the stack too difficult to continue, they
             vote to archive. after five archive votes, an admin is notified and
-            the round ends.
+            the round ends. a fresh round starts automatically in its place.
           </p>
         </div>
       </TrayContent>

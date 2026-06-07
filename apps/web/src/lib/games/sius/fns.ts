@@ -16,14 +16,12 @@ import {
 } from "./schemas"
 import { db } from "~/db"
 import { siuSets, sius } from "~/db/schema"
-import { invariant } from "~/lib/invariant"
 import {
   adminOnlyMiddleware,
   authMiddleware,
   authOptionalMiddleware,
 } from "~/lib/middleware"
 
-const MAX_ACTIVE_ROUNDS = 3
 const loadSiuOps = createServerOnlyFn(
   () => import("~/lib/games/sius/ops.server"),
 )
@@ -155,24 +153,8 @@ export const startRoundServerFn = createServerFn({ method: "POST" })
   .inputValidator(zodValidator(startRoundSchema))
   .middleware([adminOnlyMiddleware])
   .handler(async () => {
-    // Check if max active rounds reached
-    const activeRounds = await db.query.sius.findMany({
-      where: eq(sius.status, "active"),
-      columns: { id: true },
-    })
-
-    invariant(
-      activeRounds.length < MAX_ACTIVE_ROUNDS,
-      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
-    )
-
-    // Create new round
-    const [round] = await db
-      .insert(sius)
-      .values({ status: "active" })
-      .returning()
-
-    return { round }
+    const { startSiuRound } = await loadSiuOps()
+    return startSiuRound()
   })
 
 // Create first set in an existing empty round
