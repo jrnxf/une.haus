@@ -44,8 +44,15 @@ une.haus is self-hosted on a homelab server — bun running natively under syste
 ```sh
 bun install
 cp .env.example .env
+git config core.hooksPath .git-hooks
 bun dev
 ```
+
+> `git config core.hooksPath .git-hooks` enables a `post-checkout` hook that
+> symlinks the gitignored `.env` files into any new git worktree (see
+> `.git-hooks/post-checkout`). worktrees don't inherit gitignored files, so
+> without it integration tests and `bun dev` fail env validation inside a fresh
+> worktree. it's a local git setting, so each clone runs it once.
 
 ### scripts
 

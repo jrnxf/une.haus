@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+# post-checkout — link gitignored env files into new git worktrees.
+#
+# Worktrees don't receive gitignored files like .env, so anything that boots
+# the app (integration tests, `bun dev`) fails env validation inside a fresh
+# worktree. This symlinks the real env files from the main worktree so a linked
+# worktree behaves identically to main. Secrets stay shared (rotate once, applies
+# everywhere); DB isolation is handled separately by the integration harness.
+#
+# Hook args: $1 = prev HEAD, $2 = new HEAD, $3 = 1 for a branch/worktree
+# checkout, 0 for a file checkout. Only act on branch/worktree checkouts.
+[ "$3" = "1" ] || exit 0
+
+# Resolve the main worktree root (parent of the shared .git dir).
+main_root=$(cd "$(dirname "$(git rev-parse --git-common-dir)")" && pwd) || exit 0
+here=$(pwd)
+
+# No-op in the main worktree itself — only populate linked worktrees.
+[ "$here" = "$main_root" ] && exit 0
+
+for f in .env apps/web/.env; do
+  if [ -f "$main_root/$f" ] && [ ! -e "$here/$f" ]; then
+    mkdir -p "$here/$(dirname "$f")"
+    ln -s "$main_root/$f" "$here/$f"
+  fi
+done
+
+exit 0
