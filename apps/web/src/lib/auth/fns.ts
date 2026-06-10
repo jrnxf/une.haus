@@ -1,4 +1,5 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
+import { getRequestHeader } from "@tanstack/react-start/server"
 import { zodValidator } from "@tanstack/zod-adapter"
 
 import {
@@ -8,6 +9,14 @@ import {
 } from "~/lib/auth/schemas"
 import { useServerSession } from "~/lib/session/hooks"
 
+function clientIp(): string {
+  return (
+    getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ??
+    getRequestHeader("x-real-ip") ??
+    "unknown"
+  )
+}
+
 const loadAuthOps = createServerOnlyFn(() => import("~/lib/auth/ops.server"))
 
 export const sendAuthCodeServerFn = createServerFn({
@@ -16,7 +25,7 @@ export const sendAuthCodeServerFn = createServerFn({
   .inputValidator(zodValidator(sendCodeSchema))
   .handler(async (ctx) => {
     const { sendAuthCode } = await loadAuthOps()
-    return sendAuthCode(ctx)
+    return sendAuthCode({ ...ctx, ip: clientIp() })
   })
 
 export const enterCodeServerFn = createServerFn({
@@ -26,7 +35,7 @@ export const enterCodeServerFn = createServerFn({
   .handler(async ({ data: input }) => {
     const session = await useServerSession()
     const { enterCode } = await loadAuthOps()
-    return enterCode({ data: input, session })
+    return enterCode({ data: input, session, ip: clientIp() })
   })
 
 export const registerServerFn = createServerFn({

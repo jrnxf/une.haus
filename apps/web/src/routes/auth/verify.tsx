@@ -77,10 +77,10 @@ function RouteComponent() {
           <Field>
             <FieldLabel>verify</FieldLabel>
             <FieldDescription>
-              enter the 4-digit code sent to your email
+              enter the 6-digit code sent to your email
             </FieldDescription>
             <InputOTP
-              maxLength={4}
+              maxLength={6}
               pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
               value={code}
               onChange={setCode}
@@ -97,6 +97,8 @@ function RouteComponent() {
                 <InputOTPSlot index={1} />
                 <InputOTPSlot index={2} />
                 <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
               </InputOTPGroup>
             </InputOTP>
           </Field>

@@ -6,6 +6,7 @@ import { Resend } from "resend"
 import AuthCodeTemplate from "../../../emails/auth-code"
 import { db } from "~/db"
 import { authCodes, users } from "~/db/schema"
+import { rateLimit } from "~/lib/auth/rate-limit"
 import { env } from "~/lib/env"
 import { logger } from "~/lib/logger"
 
@@ -24,13 +25,24 @@ type SessionStore = {
 
 export async function sendAuthCode({
   data: input,
+  ip = "unknown",
 }: {
-  data: {
-    email: string
-  }
+  data: { email: string }
+  ip?: string
 }) {
+  // Max 3 codes per email per 15 min, and 10 sends per IP per 15 min.
+  const FIFTEEN_MIN = 15 * 60 * 1000
+  if (!rateLimit(`send:email:${input.email}`, 3, FIFTEEN_MIN)) {
+    throw new Error("Too many code requests. Please wait a few minutes.")
+  }
+  if (!rateLimit(`send:ip:${ip}`, 10, FIFTEEN_MIN)) {
+    throw new Error("Too many code requests. Please wait a few minutes.")
+  }
+
   const inFiveMinutes = new Date(Date.now() + 1000 * 60 * 5)
-  const code = String(Math.floor(Math.random() * 10_000)).padStart(4, "0")
+  const code = String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0")
+
+  await db.delete(authCodes).where(eq(authCodes.email, input.email))
 
   const [authCode] = await db
     .insert(authCodes)
@@ -65,12 +77,17 @@ export async function sendAuthCode({
 export async function enterCode({
   data: input,
   session,
+  ip = "unknown",
 }: {
-  data: {
-    code: string
-  }
+  data: { code: string }
   session: SessionStore
+  ip?: string
 }) {
+  // Max 10 code-entry attempts per IP per 15 min.
+  if (!rateLimit(`enter:ip:${ip}`, 10, 15 * 60 * 1000)) {
+    throw new Error("Too many attempts. Please wait a few minutes.")
+  }
+
   const { code } = input
 
   const [authCode] = await db

@@ -1,14 +1,17 @@
 import { beforeEach, describe, expect, it } from "bun:test"
+import { nanoid } from "nanoid"
 
 import { db } from "~/db"
 import { authCodes } from "~/db/schema"
-import { enterCode, register } from "~/lib/auth/ops.server"
+import { enterCode, register, sendAuthCode } from "~/lib/auth/ops.server"
+import { __resetRateLimits } from "~/lib/auth/rate-limit"
 import { clearSession, getSession } from "~/lib/session/ops"
 import { type HausSession } from "~/lib/session/schema"
 import { seedUser, truncatePublicTables } from "~/testing/integration"
 
 beforeEach(async () => {
   await truncatePublicTables()
+  __resetRateLimits()
 })
 
 function createFakeSession(initialData: Partial<HausSession> = {}) {
@@ -204,5 +207,45 @@ describe("auth integration", () => {
 
     expect(fakeSession.cleared).toBe(true)
     expect(fakeSession.data).toEqual({})
+  })
+
+  it("sendAuthCode throws after 3 requests for the same email within the window", async () => {
+    const email = "ratelimit@example.com"
+    // First 3 may throw because Resend is unavailable in test env — that's fine;
+    // the rate-limit and DELETE run before the Resend call.
+    for (let i = 0; i < 3; i++) {
+      try {
+        await sendAuthCode({ data: { email } })
+      } catch {
+        // Resend errors are expected; not a rate-limit error
+      }
+    }
+    // The 4th must throw our rate-limit message
+    await expect(sendAuthCode({ data: { email } })).rejects.toThrow(
+      "Too many code requests. Please wait a few minutes.",
+    )
+  })
+
+  it("sendAuthCode deletes an existing auth_code for the email before inserting a new one", async () => {
+    const email = "dedup@example.com"
+    const seededCode = "old-code"
+    await db.insert(authCodes).values({
+      code: seededCode,
+      email,
+      expiresAt: new Date(Date.now() + 60_000),
+      id: nanoid(),
+    })
+
+    try {
+      await sendAuthCode({ data: { email } })
+    } catch {
+      // Resend error expected
+    }
+
+    const remaining = await db.query.authCodes.findMany({
+      where: (t, { eq }) => eq(t.email, email),
+    })
+    expect(remaining).toHaveLength(1)
+    expect(remaining[0]?.code).not.toBe(seededCode)
   })
 })
