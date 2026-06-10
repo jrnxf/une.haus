@@ -162,26 +162,30 @@ export const authCodes = pgTable("auth_codes", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 })
 
-export const posts = pgTable("posts", {
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  id: serial("id").primaryKey(),
-  imageId: text("image_id"),
-  tags: json("tags").$type<PostTag[]>().default([]),
+export const posts = pgTable(
+  "posts",
+  {
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    id: serial("id").primaryKey(),
+    imageId: text("image_id"),
+    tags: json("tags").$type<PostTag[]>().default([]),
 
-  title: text("title").notNull(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
 
-  muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
-    onDelete: "set null",
-  }),
+    muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
+      onDelete: "set null",
+    }),
 
-  youtubeVideoId: text("youtube_video_id"),
-})
+    youtubeVideoId: text("youtube_video_id"),
+  },
+  (t) => [index("posts_user_created_idx").on(t.userId, t.createdAt)],
+)
 
 export const chatMessages = pgTable("chat_messages", {
   content: text("content").notNull(),
@@ -208,20 +212,24 @@ export const chatMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.chatMessageId, t.userId] })],
 )
 
-export const postMessages = pgTable("post_messages", {
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+export const postMessages = pgTable(
+  "post_messages",
+  {
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
 
-  id: serial("id").primaryKey(),
-  postId: integer("post_id")
-    .notNull()
-    .references(() => posts.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-})
+    id: serial("id").primaryKey(),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [index("post_messages_user_created_idx").on(t.userId, t.createdAt)],
+)
 
 export const postLikes = pgTable(
   "post_likes",
@@ -448,27 +456,34 @@ export const rius = pgTable("rius", {
   status: riuStatusEnum("status").default("upcoming"),
 })
 
-export const riuSets = pgTable("riu_sets", {
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  instructions: text("instructions"),
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+export const riuSets = pgTable(
+  "riu_sets",
+  {
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    instructions: text("instructions"),
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
 
-  riuId: integer("riu_id")
-    .notNull()
-    .references(() => rius.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    riuId: integer("riu_id")
+      .notNull()
+      .references(() => rius.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
 
-  muxAssetId: text("mux_asset_id")
-    .references(() => muxVideos.assetId, {
-      onDelete: "set null",
-    })
-    .notNull(),
-})
+    muxAssetId: text("mux_asset_id")
+      .references(() => muxVideos.assetId, {
+        onDelete: "set null",
+      })
+      .notNull(),
+  },
+  (t) => [
+    index("riu_sets_user_created_idx").on(t.userId, t.createdAt),
+    index("riu_sets_riu_id_idx").on(t.riuId),
+  ],
+)
 
 export const riuSubmissions = pgTable(
   "riu_submissions",
@@ -491,7 +506,10 @@ export const riuSubmissions = pgTable(
       })
       .notNull(),
   },
-  (t) => [unique().on(t.riuSetId, t.userId)],
+  (t) => [
+    unique().on(t.riuSetId, t.userId),
+    index("riu_submissions_user_created_idx").on(t.userId, t.createdAt),
+  ],
 )
 
 // BIU (Back It Up) Game Tables
@@ -502,28 +520,35 @@ export const bius = pgTable("bius", {
     .defaultNow(),
 })
 
-export const biuSets = pgTable("biu_sets", {
-  id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+export const biuSets = pgTable(
+  "biu_sets",
+  {
+    id: serial("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
 
-  biuId: integer("biu_id")
-    .notNull()
-    .references(() => bius.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    biuId: integer("biu_id")
+      .notNull()
+      .references(() => bius.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
 
-  muxAssetId: text("mux_asset_id")
-    .references(() => muxVideos.assetId, { onDelete: "set null" })
-    .notNull(),
+    muxAssetId: text("mux_asset_id")
+      .references(() => muxVideos.assetId, { onDelete: "set null" })
+      .notNull(),
 
-  name: text("name").notNull(),
-  position: integer("position").notNull(),
-  parentSetId: integer("parent_set_id"),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-})
+    name: text("name").notNull(),
+    position: integer("position").notNull(),
+    parentSetId: integer("parent_set_id"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("biu_sets_user_created_idx").on(t.userId, t.createdAt),
+    index("biu_sets_biu_id_idx").on(t.biuId),
+  ],
+)
 
 export const biuSetLikes = pgTable(
   "biu_set_likes",
@@ -575,28 +600,35 @@ export const sius = pgTable("sius", {
   endedAt: timestamp("ended_at", { withTimezone: true }),
 })
 
-export const siuSets = pgTable("siu_sets", {
-  id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+export const siuSets = pgTable(
+  "siu_sets",
+  {
+    id: serial("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
 
-  siuId: integer("siu_id")
-    .notNull()
-    .references(() => sius.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    siuId: integer("siu_id")
+      .notNull()
+      .references(() => sius.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
 
-  muxAssetId: text("mux_asset_id")
-    .references(() => muxVideos.assetId, { onDelete: "set null" })
-    .notNull(),
+    muxAssetId: text("mux_asset_id")
+      .references(() => muxVideos.assetId, { onDelete: "set null" })
+      .notNull(),
 
-  name: text("name").notNull(),
-  position: integer("position").notNull(),
-  parentSetId: integer("parent_set_id"),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-})
+    name: text("name").notNull(),
+    position: integer("position").notNull(),
+    parentSetId: integer("parent_set_id"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("siu_sets_user_created_idx").on(t.userId, t.createdAt),
+    index("siu_sets_siu_id_idx").on(t.siuId),
+  ],
+)
 
 export const siuArchiveVotes = pgTable(
   "siu_archive_votes",
@@ -702,6 +734,11 @@ export const notifications = pgTable(
     index("notifications_user_unread_idx").on(t.userId, t.readAt),
     index("notifications_grouping_idx").on(t.userId, t.entityType, t.entityId),
     index("notifications_created_at_idx").on(t.createdAt),
+    index("notifications_user_emailed_created_idx").on(
+      t.userId,
+      t.emailedAt,
+      t.createdAt,
+    ),
   ],
 )
 
