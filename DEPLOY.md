@@ -69,6 +69,40 @@ The compose file is **dev-only** — it brings up a single postgres
 container for `bun dev` to talk to. There is no app container; the app
 runs natively on your machine.
 
+## Schema migrations
+
+Prod migrations use **`drizzle-kit migrate`** (versioned SQL files in
+`apps/web/drizzle/`), not `push`. Migration files are generated locally,
+reviewed, and committed before deploying.
+
+### one-time baseline (run once before the next deploy)
+
+The existing prod schema must be stamped as baseline 0000 so the migrator
+doesn't try to recreate it. On the prod box as the `unehaus` user:
+
+```bash
+set -a; . /etc/unehaus/.env; set +a
+cd /opt/unehaus && bun run --filter web db:baseline
+```
+
+This marks `0000_baseline.sql` as applied without executing it, so the next
+`db:migrate` run only applies `0001_add_engagement_indexes.sql` onward.
+
+### every deploy
+
+The deploy already runs `bun run db:migrate` (= `drizzle-kit migrate`),
+which applies any migration files not yet recorded in
+`drizzle.__drizzle_migrations`. No manual steps needed after baselining.
+
+### adding future schema changes
+
+1. Edit `apps/web/src/db/schema.ts`.
+2. `cd apps/web && DATABASE_URL=postgres://dummy bunx drizzle-kit generate --name <description>`
+3. Review the generated SQL carefully — especially enums: confirm `ALTER TYPE … ADD VALUE`, never `DROP TYPE`.
+4. Commit the `.sql` file alongside the schema change.
+
+**`drizzle-kit push` must never be used against prod again.**
+
 ## Production deploy
 
 Provisioned and operated from the `homelab` repo. See

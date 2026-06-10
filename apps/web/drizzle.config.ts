@@ -9,6 +9,6 @@ export default {
     url: process.env.DATABASE_URL,
   },
   dialect: "postgresql",
-  out: "./src/db",
+  out: "./drizzle",
   schema: "./src/db/schema.ts",
 } satisfies Config
