@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 
 import { logger } from "~/lib/logger"
 import { unsubscribe } from "~/lib/notification-settings/ops.server"
+import { verifyUnsubscribe } from "~/lib/notification-settings/unsubscribe-token"
 
 const VALID_TYPES = new Set(["all", "digest", "game_start"])
 
@@ -24,6 +25,20 @@ export const Route = createFileRoute("/api/unsubscribe")({
         const userIdNum = Number(userId)
         if (Number.isNaN(userIdNum)) {
           return new Response("Invalid userId", { status: 400 })
+        }
+
+        const token = url.searchParams.get("token")
+        if (
+          !token ||
+          !verifyUnsubscribe(
+            userIdNum,
+            type as "all" | "digest" | "game_start",
+            token,
+          )
+        ) {
+          return new Response("Invalid or missing unsubscribe token", {
+            status: 403,
+          })
         }
 
         try {

@@ -7,6 +7,7 @@ import { db } from "~/db"
 import { notifications, userNotificationSettings, users } from "~/db/schema"
 import { env } from "~/lib/env"
 import { logger } from "~/lib/logger"
+import { signUnsubscribe } from "~/lib/notification-settings/unsubscribe-token"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
@@ -181,8 +182,8 @@ export default defineTask({
             userName: user.name,
             frequency: user.frequency === "monthly" ? "monthly" : "weekly",
             groups,
-            unsubscribeDigestUrl: `https://une.haus/api/unsubscribe?type=digest&userId=${user.userId}`,
-            unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}`,
+            unsubscribeDigestUrl: `https://une.haus/api/unsubscribe?type=digest&userId=${user.userId}&token=${signUnsubscribe(user.userId, "digest")}`,
+            unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}&token=${signUnsubscribe(user.userId, "all")}`,
             viewNotificationsUrl: `https://une.haus/notifications`,
           }),
         })

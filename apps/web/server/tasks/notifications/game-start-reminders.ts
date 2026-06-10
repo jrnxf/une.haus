@@ -13,6 +13,7 @@ import {
 } from "~/db/schema"
 import { env } from "~/lib/env"
 import { logger } from "~/lib/logger"
+import { signUnsubscribe } from "~/lib/notification-settings/unsubscribe-token"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
@@ -140,8 +141,8 @@ export default defineTask({
             setCount: Number(setCount),
             viewRoundUrl: `https://une.haus/games/rius/upcoming`,
             addSetUrl: `https://une.haus/games/rius/upcoming/sets/create`,
-            unsubscribeReminderUrl: `https://une.haus/api/unsubscribe?type=game_start&userId=${user.userId}`,
-            unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}`,
+            unsubscribeReminderUrl: `https://une.haus/api/unsubscribe?type=game_start&userId=${user.userId}&token=${signUnsubscribe(user.userId, "game_start")}`,
+            unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}&token=${signUnsubscribe(user.userId, "all")}`,
           }),
         })
 
