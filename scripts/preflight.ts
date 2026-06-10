@@ -4,6 +4,7 @@ const checks = [
   { label: "lint", cmd: ["oxlint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
   { label: "typecheck", cmd: ["bun", "run", "--filter", "*", "typecheck"] },
+  { label: "db schema", cmd: ["bun", "run", "--filter", "web", "db:check"] },
   {
     label: "clean",
     cmd: ["bun", "run", "--filter", "*", "clean:check"],

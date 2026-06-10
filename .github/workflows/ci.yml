@@ -37,6 +37,8 @@ jobs:
         run: bunx oxfmt --check
       - name: typecheck
         run: bun run --filter web typecheck
+      - name: db schema
+        run: bun run --filter web db:check
       - name: unit tests
         run: bun run --filter web test:unit
       - name: integration tests

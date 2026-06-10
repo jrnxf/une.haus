@@ -9,6 +9,8 @@
     "bundle:info": "bun run src/scripts/bundle/info.ts",
     "bundle:analyze": "bunx vite-bundle-visualizer",
     "start": "bun --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:check": "bun src/scripts/check-schema-migrations.ts",
     "db:seed": "bun src/db/scripts/wipe.ts && bunx drizzle-kit migrate && bun src/db/scripts/seed.ts",
     "db:migrate": "bunx drizzle-kit migrate",
     "db:baseline": "bun src/db/scripts/baseline.ts",
