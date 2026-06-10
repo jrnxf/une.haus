@@ -25,36 +25,47 @@ const MAX_ACTIVE_ROUNDS = 3
 // There should always be MAX_ACTIVE_ROUNDS rounds open for play — call this
 // after any path that archives a round to spin up replacements.
 async function topUpActiveRounds() {
-  const activeRounds = await db.query.sius.findMany({
-    where: eq(sius.status, "active"),
-    columns: { id: true },
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(7110)`)
+
+    const activeRounds = await tx.query.sius.findMany({
+      where: eq(sius.status, "active"),
+      columns: { id: true },
+    })
+
+    const deficit = MAX_ACTIVE_ROUNDS - activeRounds.length
+    if (deficit <= 0) return []
+
+    return tx
+      .insert(sius)
+      .values(
+        Array.from({ length: deficit }, () => ({ status: "active" as const })),
+      )
+      .returning()
   })
-
-  const deficit = MAX_ACTIVE_ROUNDS - activeRounds.length
-  if (deficit <= 0) return []
-
-  return db
-    .insert(sius)
-    .values(
-      Array.from({ length: deficit }, () => ({ status: "active" as const })),
-    )
-    .returning()
 }
 
 export async function startSiuRound() {
-  const activeRounds = await db.query.sius.findMany({
-    where: eq(sius.status, "active"),
-    columns: { id: true },
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(7110)`)
+
+    const activeRounds = await tx.query.sius.findMany({
+      where: eq(sius.status, "active"),
+      columns: { id: true },
+    })
+
+    invariant(
+      activeRounds.length < MAX_ACTIVE_ROUNDS,
+      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+    )
+
+    const [round] = await tx
+      .insert(sius)
+      .values({ status: "active" })
+      .returning()
+
+    return { round }
   })
-
-  invariant(
-    activeRounds.length < MAX_ACTIVE_ROUNDS,
-    `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
-  )
-
-  const [round] = await db.insert(sius).values({ status: "active" }).returning()
-
-  return { round }
 }
 
 type AuthenticatedContext = {

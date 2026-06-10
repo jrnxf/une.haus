@@ -942,4 +942,30 @@ describe("sius integration", () => {
       }),
     ])
   })
+
+  it("startSiuRound serializes concurrent attempts so active rounds never exceed MAX_ACTIVE_ROUNDS", async () => {
+    // Fire 5 concurrent startSiuRound() calls from a clean slate.
+    // The lock should ensure at most 3 succeed (MAX_ACTIVE_ROUNDS = 3);
+    // the rest must reject with the cap invariant.
+    const results = await Promise.allSettled([
+      startSiuRound(),
+      startSiuRound(),
+      startSiuRound(),
+      startSiuRound(),
+      startSiuRound(),
+    ])
+
+    const activeRounds = await db.query.sius.findMany({
+      where: (table, { eq: eqOp }) => eqOp(table.status, "active"),
+      columns: { id: true },
+    })
+
+    expect(activeRounds.length).toBeLessThanOrEqual(3)
+    expect(results.filter((r) => r.status === "fulfilled").length).toBe(
+      activeRounds.length,
+    )
+    expect(results.filter((r) => r.status === "rejected").length).toBe(
+      5 - activeRounds.length,
+    )
+  })
 })

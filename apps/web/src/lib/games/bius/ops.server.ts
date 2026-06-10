@@ -114,18 +114,22 @@ export async function getChains() {
 }
 
 export async function startRound() {
-  const activeRounds = await db.query.bius.findMany({
-    columns: { id: true },
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(7210)`)
+
+    const activeRounds = await tx.query.bius.findMany({
+      columns: { id: true },
+    })
+
+    invariant(
+      activeRounds.length < MAX_ACTIVE_ROUNDS,
+      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+    )
+
+    const [round] = await tx.insert(bius).values({}).returning()
+
+    return { round }
   })
-
-  invariant(
-    activeRounds.length < MAX_ACTIVE_ROUNDS,
-    `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
-  )
-
-  const [round] = await db.insert(bius).values({}).returning()
-
-  return { round }
 }
 
 export async function getSet({
