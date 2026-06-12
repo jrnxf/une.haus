@@ -23,7 +23,7 @@ const commaArray = z
   })
 
 export const listUtvVideosSchema = z.object({
-  cursor: z.number().nullish(),
+  cursor: z.string().nullish(),
   q: z.string().optional(),
   disciplines: commaArrayOf(USER_DISCIPLINES),
   riders: commaArray,

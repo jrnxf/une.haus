@@ -1,6 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query"
 
-import { PAGE_SIZE } from "~/lib/constants"
 import { type ServerFnData } from "~/lib/types"
 import {
   addUtvClapsServerFn,
@@ -53,13 +52,8 @@ export const utv = {
             },
           })
         },
-        initialPageParam: 0 as number | undefined,
-        getNextPageParam: (lastPage, allPages) => {
-          if (lastPage.length < PAGE_SIZE) {
-            return
-          }
-          return allPages.reduce((sum, page) => sum + page.length, 0)
-        },
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
       })
     },
   },

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
-import { utvVideoRiders, utvVideos } from "~/db/schema"
+import { utvVideoLikes, utvVideoRiders, utvVideos } from "~/db/schema"
 import {
   adminUpdateUtvVideo,
   createUtvSuggestion,
@@ -416,38 +416,19 @@ describe("utv admin ops", () => {
 // ==================== LIST FILTERING ====================
 
 describe("utv list filtering", () => {
-  it("listUtvVideos paginates by offset", async () => {
-    await seedUtvVideo({ title: "Video 1" })
-    await seedUtvVideo({ title: "Video 2" })
-    await seedUtvVideo({ title: "Video 3" })
-
-    const page1 = await listUtvVideos({
-      data: { sort: "oldest" },
-    })
-    expect(page1.length).toBeGreaterThanOrEqual(3)
-
-    const page2 = await listUtvVideos({
-      data: { cursor: 2, sort: "oldest" },
-    })
-    // Offset 2 skips the first 2
-    expect(page2.every((v) => !["Video 1", "Video 2"].includes(v.title))).toBe(
-      page2.length > 0,
-    )
-  })
-
   it("listUtvVideos filters by text query", async () => {
     await seedUtvVideo({ title: "Kickflip Tutorial" })
     await seedUtvVideo({ title: "Unispin Guide" })
     await seedUtvVideo({ title: "Kickflip Compilation" })
 
-    const results = await listUtvVideos({
+    const { items } = await listUtvVideos({
       data: { q: "kickflip", sort: "oldest" },
     })
 
-    expect(results).toHaveLength(2)
-    expect(
-      results.every((v) => v.title.toLowerCase().includes("kickflip")),
-    ).toBe(true)
+    expect(items).toHaveLength(2)
+    expect(items.every((v) => v.title.toLowerCase().includes("kickflip"))).toBe(
+      true,
+    )
   })
 
   it("listUtvVideos filters by disciplines", async () => {
@@ -461,12 +442,12 @@ describe("utv list filtering", () => {
       disciplines: ["street", "flatland"],
     })
 
-    const results = await listUtvVideos({
+    const { items } = await listUtvVideos({
       data: { disciplines: ["flatland"], sort: "oldest" },
     })
 
-    expect(results).toHaveLength(2)
-    const titles = results.map((v) => v.title)
+    expect(items).toHaveLength(2)
+    const titles = items.map((v) => v.title)
     expect(titles).toContain("Flat Vid")
     expect(titles).toContain("Both")
   })
@@ -486,14 +467,156 @@ describe("utv list filtering", () => {
     const proResults = await listUtvVideos({
       data: { riders: ["Pro Rider"], sort: "oldest" },
     })
-    expect(proResults).toHaveLength(1)
-    expect(proResults[0].title).toBe("With Pro")
+    expect(proResults.items).toHaveLength(1)
+    expect(proResults.items[0].title).toBe("With Pro")
 
     // Filter by name-only rider
     const guestResults = await listUtvVideos({
       data: { riders: ["Guest Star"], sort: "oldest" },
     })
-    expect(guestResults).toHaveLength(1)
-    expect(guestResults[0].title).toBe("With Guest")
+    expect(guestResults.items).toHaveLength(1)
+    expect(guestResults.items[0].title).toBe("With Guest")
+  })
+})
+
+// ==================== LIST PAGINATION ====================
+
+const PAGE_SIZE = 25
+
+// Seed N videos with deterministic titles "vid-000".."vid-NNN".
+// Returns the seeded videos in insertion order (ascending id).
+async function seedManyUtvVideos(count: number) {
+  const videos: { id: number; title: string }[] = []
+  for (let i = 0; i < count; i++) {
+    const title = `vid-${String(i).padStart(3, "0")}`
+    const video = await seedUtvVideo({ title })
+    videos.push({ id: video.id, title: video.title })
+  }
+  return videos
+}
+
+async function seedLikes(utvVideoId: number, n: number) {
+  for (let i = 0; i < n; i++) {
+    const user = await seedUser({ name: `liker-${utvVideoId}-${i}` })
+    await db.insert(utvVideoLikes).values({ utvVideoId, userId: user.id })
+  }
+}
+
+describe("utv list pagination", () => {
+  // Helper: request page 1 (no cursor) and page 2 (page 1's nextCursor).
+  // Keyset pagination — page 2 is requested via the opaque cursor the server
+  // returns, NOT a numeric offset. Row-content assertions below stay sort-only.
+  async function getPages(sort: "engagement" | "newest" | "oldest") {
+    const page1 = await listUtvVideos({ data: { sort } })
+    const page2 = await listUtvVideos({
+      data: { sort, cursor: page1.nextCursor },
+    })
+    return {
+      page1Items: page1.items,
+      page2Items: page2.items,
+      page1HasNext: page1.nextCursor !== undefined,
+      page2HasNext: page2.nextCursor !== undefined,
+    }
+  }
+
+  it.each(["newest", "oldest", "engagement"] as const)(
+    "paginates all rows across pages with no overlap or gaps (sort=%s)",
+    async (sort) => {
+      const total = PAGE_SIZE + 5
+      await seedManyUtvVideos(total)
+
+      const { page1Items, page2Items, page1HasNext, page2HasNext } =
+        await getPages(sort)
+      expect(page1Items).toHaveLength(PAGE_SIZE)
+      expect(page1HasNext).toBe(true)
+      expect(page2Items).toHaveLength(total - PAGE_SIZE)
+      // Final page → no further cursor.
+      expect(page2HasNext).toBe(false)
+
+      const ids1 = page1Items.map((v) => v.id)
+      const ids2 = page2Items.map((v) => v.id)
+
+      // No overlap across the page boundary.
+      const overlap = ids1.filter((id) => ids2.includes(id))
+      expect(overlap).toEqual([])
+
+      // No gaps: union covers every seeded id exactly once.
+      const allIds = [...ids1, ...ids2].toSorted((a, b) => a - b)
+      expect(allIds).toHaveLength(total)
+      expect(new Set(allIds).size).toBe(total)
+
+      // Order within each page matches the sort's expectation.
+      if (sort === "oldest") {
+        const asc = [...ids1, ...ids2]
+        expect(asc).toEqual([...asc].toSorted((a, b) => a - b))
+      } else if (sort === "newest") {
+        const desc = [...ids1, ...ids2]
+        expect(desc).toEqual([...desc].toSorted((a, b) => b - a))
+      } else {
+        // engagement: no likes seeded → all tie at 0, falls back to id DESC.
+        const desc = [...ids1, ...ids2]
+        expect(desc).toEqual([...desc].toSorted((a, b) => b - a))
+      }
+    },
+  )
+
+  it("engagement sort orders by like count desc, id desc tiebreaker", async () => {
+    const videos = await seedManyUtvVideos(3)
+    const [a, b, c] = videos
+    // a: 5 likes, b: 5 likes (tie with a), c: 1 like
+    await seedLikes(a.id, 5)
+    await seedLikes(b.id, 5)
+    await seedLikes(c.id, 1)
+
+    const page = await listUtvVideos({ data: { sort: "engagement" } })
+    const ids = page.items.map((v) => v.id)
+    // a & b tie at 5 likes → higher id first (b before a). c last with 1 like.
+    const higher = Math.max(a.id, b.id)
+    const lower = Math.min(a.id, b.id)
+    expect(ids).toEqual([higher, lower, c.id])
+  })
+
+  it("engagement sort paginates equal-like-count videos across a page boundary without duplication", async () => {
+    // PAGE_SIZE + 1 videos all with the SAME like count (1). The id tiebreaker
+    // must split them cleanly across the boundary with no overlap.
+    const total = PAGE_SIZE + 1
+    const videos = await seedManyUtvVideos(total)
+    for (const v of videos) {
+      await seedLikes(v.id, 1)
+    }
+
+    const page1 = await listUtvVideos({ data: { sort: "engagement" } })
+    expect(page1.items).toHaveLength(PAGE_SIZE)
+    expect(page1.nextCursor).toBeDefined()
+
+    const page2 = await listUtvVideos({
+      data: { sort: "engagement", cursor: page1.nextCursor },
+    })
+    expect(page2.items).toHaveLength(1)
+    expect(page2.nextCursor).toBeUndefined()
+
+    const ids1 = page1.items.map((v) => v.id)
+    const ids2 = page2.items.map((v) => v.id)
+    expect(ids1.filter((id) => ids2.includes(id))).toEqual([])
+    expect(new Set([...ids1, ...ids2]).size).toBe(total)
+    // All equal likes → pure id DESC across both pages.
+    const combined = [...ids1, ...ids2]
+    expect(combined).toEqual([...combined].toSorted((x, y) => y - x))
+  })
+
+  it("a malformed cursor behaves like no cursor (returns page 1)", async () => {
+    const total = PAGE_SIZE + 5
+    await seedManyUtvVideos(total)
+
+    const clean = await listUtvVideos({ data: { sort: "newest" } })
+
+    for (const bad of ["not-a-number", "12|34|56", "", "abc|def"]) {
+      const result = await listUtvVideos({
+        data: { sort: "newest", cursor: bad },
+      })
+      expect(result.items.map((v) => v.id)).toEqual(
+        clean.items.map((v) => v.id),
+      )
+    }
   })
 })

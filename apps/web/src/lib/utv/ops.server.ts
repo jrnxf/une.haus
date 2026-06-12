@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, count, desc, eq, ilike, lt, sql } from "drizzle-orm"
+import { and, asc, count, desc, eq, gt, ilike, lt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import {
@@ -36,13 +36,36 @@ export async function listUtvVideos({
   data: input,
 }: {
   data: {
-    cursor?: null | number
+    cursor?: null | string
     disciplines?: string[]
     q?: string
     riders?: string[]
     sort?: "engagement" | "newest" | "oldest"
   }
 }) {
+  // Parse the opaque keyset cursor. Engagement sort uses "<likes>|<id>";
+  // newest/oldest use "<id>". A malformed cursor (any NaN part) is treated
+  // as no cursor, returning the first page.
+  let cursorLikes: number | undefined
+  let cursorId: number | undefined
+  if (input.cursor) {
+    const parts = input.cursor.split("|")
+    if (input.sort === "engagement" || input.sort === undefined) {
+      const [likesPart, idPart] = parts
+      const likes = Number(likesPart)
+      const id = Number(idPart)
+      if (!Number.isNaN(likes) && !Number.isNaN(id) && parts.length === 2) {
+        cursorLikes = likes
+        cursorId = id
+      }
+    } else {
+      const id = Number(parts[0])
+      if (!Number.isNaN(id) && parts.length === 1) {
+        cursorId = id
+      }
+    }
+  }
+
   const likesSubquery = db
     .select({
       utvVideoId: utvVideoLikes.utvVideoId,
@@ -61,7 +84,19 @@ export async function listUtvVideos({
     .groupBy(utvVideoMessages.utvVideoId)
     .as("messages_sq")
 
-  return await db
+  // Keyset condition for the requested page. Composes (AND) with filters.
+  const keysetCondition =
+    cursorId === undefined
+      ? undefined
+      : input.sort === "newest"
+        ? lt(utvVideos.id, cursorId)
+        : input.sort === "oldest"
+          ? gt(utvVideos.id, cursorId)
+          : // engagement (default): row-value comparison matching the
+            // ORDER BY likes DESC, id DESC ordering.
+            sql`(COALESCE(${likesSubquery.count}, 0), ${utvVideos.id}) < (${cursorLikes}, ${cursorId})`
+
+  const rows = await db
     .select({
       id: utvVideos.id,
       title: utvVideos.title,
@@ -112,6 +147,7 @@ export async function listUtvVideos({
             )
           `
           : undefined,
+        keysetCondition,
       ),
     )
     .orderBy(
@@ -122,8 +158,21 @@ export async function listUtvVideos({
           : sql`COALESCE(${likesSubquery.count}, 0) DESC`,
       desc(utvVideos.id),
     )
-    .limit(PAGE_SIZE)
-    .offset(input.cursor ?? 0)
+    // Fetch one extra row to detect whether another page exists.
+    .limit(PAGE_SIZE + 1)
+
+  const hasMore = rows.length > PAGE_SIZE
+  const items = hasMore ? rows.slice(0, PAGE_SIZE) : rows
+  const lastRow = items.at(-1)
+
+  const nextCursor =
+    hasMore && lastRow
+      ? input.sort === "newest" || input.sort === "oldest"
+        ? String(lastRow.id)
+        : `${lastRow.likesCount}|${lastRow.id}`
+      : undefined
+
+  return { items, nextCursor }
 }
 
 export async function adminUpdateUtvVideo({

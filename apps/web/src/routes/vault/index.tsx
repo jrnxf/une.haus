@@ -153,7 +153,7 @@ function VideoGrid({
   } = useSuspenseInfiniteQuery(utv.list.infiniteQueryOptions(queryParams))
 
   const displayedVideos = useMemo(() => {
-    let videos = videosPages.pages.flat()
+    let videos = videosPages.pages.flatMap((p) => p.items)
 
     if (
       disciplinesOperator === "equal" &&
