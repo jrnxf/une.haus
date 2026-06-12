@@ -80,6 +80,7 @@ export const NOTIFICATION_TYPES = [
   "review",
   "flag",
   "mention",
+  "game_activity",
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
@@ -758,6 +759,7 @@ export const userNotificationSettings = pgTable("user_notification_settings", {
   followsEnabled: boolean("follows_enabled").notNull().default(true),
   newContentEnabled: boolean("new_content_enabled").notNull().default(true),
   mentionsEnabled: boolean("mentions_enabled").notNull().default(true),
+  gameActivityEnabled: boolean("game_activity_enabled").notNull().default(true),
   // Email digest preferences (opt-in, default off)
   emailDigestFrequency: text("email_digest_frequency")
     .$type<EmailDigestFrequency>()

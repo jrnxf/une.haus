@@ -15,6 +15,13 @@
       "when": 1781130134095,
       "tag": "0001_add_engagement_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781269999113,
+      "tag": "0002_typical_nemesis",
+      "breakpoints": true
     }
   ]
 }
