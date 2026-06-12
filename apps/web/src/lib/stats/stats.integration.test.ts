@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
 import { chatMessages, postLikes, posts } from "~/db/schema"
-import { getContributors, getStats } from "~/lib/stats/ops.server"
+import {
+  clearStatsCaches,
+  getContributors,
+  getStats,
+} from "~/lib/stats/ops.server"
 import {
   seedMuxVideo,
   seedUser,
@@ -11,6 +15,7 @@ import {
 
 beforeEach(async () => {
   await truncatePublicTables()
+  clearStatsCaches()
 })
 
 describe("stats integration", () => {

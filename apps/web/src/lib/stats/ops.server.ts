@@ -34,8 +34,9 @@ import {
   utvVideoMessageLikes,
   utvVideoMessages,
 } from "~/db/schema"
+import { ttlCache } from "~/lib/ttl-cache"
 
-export async function getStats() {
+async function computeStats() {
   const [
     usersResult,
     postsResult,
@@ -265,7 +266,7 @@ export async function getStats() {
   }
 }
 
-export async function getContributors() {
+async function computeContributors() {
   const contributorsResult = await db.execute<{
     id: number
     name: string
@@ -341,4 +342,23 @@ export async function getContributors() {
     likesCount: Number(row.likesCount),
     totalPoints: Number(row.totalPoints),
   }))
+}
+
+const STATS_TTL_MS = 5 * 60 * 1000
+
+const statsCache = ttlCache(computeStats, STATS_TTL_MS)
+const contributorsCache = ttlCache(computeContributors, STATS_TTL_MS)
+
+export async function getStats() {
+  return statsCache.get()
+}
+
+export async function getContributors() {
+  return contributorsCache.get()
+}
+
+/** test-only: reset both caches */
+export function clearStatsCaches() {
+  statsCache.clear()
+  contributorsCache.clear()
 }
