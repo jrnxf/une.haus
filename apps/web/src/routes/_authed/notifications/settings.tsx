@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query"
 import { createFileRoute, useSearch } from "@tanstack/react-router"
 import {
+  ArrowLeftRightIcon,
   AtSignIcon,
   CalendarClock,
   Heart,
@@ -147,6 +148,13 @@ function RouteComponent() {
       description: "when someone comments on your content",
       icon: MessageCircle,
       enabled: settings.commentsEnabled,
+    },
+    {
+      key: "gameActivityEnabled" as const,
+      label: "game activity",
+      description: "when someone submits to or builds on one of your sets",
+      icon: ArrowLeftRightIcon,
+      enabled: settings.gameActivityEnabled,
     },
     {
       key: "followsEnabled" as const,
