@@ -6,6 +6,7 @@ import { biuSetLikes, biuSetMessages, biuSets, bius } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
 import {
+  createNotification,
   deleteNotificationsForEntity,
   notifyFollowers,
 } from "~/lib/notifications/helpers.server"
@@ -271,6 +272,20 @@ export async function backUpBiuSet({
       entityType: "biuSet",
       entityId: set.id,
       entityTitle: set.name,
+    }).catch(logRejection("games.bius.notify"))
+
+    // Notify the owner of the set that was just continued
+    createNotification({
+      userId: parentSet.userId,
+      actorId: userId,
+      type: "game_activity",
+      entityType: "biuSet",
+      entityId: set.id,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: set.name,
+      },
     }).catch(logRejection("games.bius.notify"))
 
     return set

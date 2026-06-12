@@ -208,6 +208,20 @@ export async function addSiuSet({
       entityTitle: set.name,
     }).catch(logRejection("games.sius.notify"))
 
+    // Notify the owner of the set that was just continued
+    createNotification({
+      userId: parentSet.userId,
+      actorId: userId,
+      type: "game_activity",
+      entityType: "siuSet",
+      entityId: set.id,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: set.name,
+      },
+    }).catch(logRejection("games.sius.notify"))
+
     return set
   })
 }
