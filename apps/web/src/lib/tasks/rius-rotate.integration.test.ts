@@ -1,9 +1,22 @@
 import { beforeEach, describe, expect, it } from "bun:test"
+import type { TaskEvent } from "nitro/types"
 
 import rotateTask from "../../../server/tasks/rius/rotate"
 import { db } from "~/db"
 import { rius } from "~/db/schema"
 import { truncatePublicTables } from "~/testing/integration"
+
+const taskEvent: TaskEvent = {
+  name: "rius:rotate",
+  payload: {},
+  context: {},
+}
+
+async function runRotate() {
+  const { result } = await rotateTask.run(taskEvent)
+  if (!result) throw new Error("rotate task returned no result")
+  return result
+}
 
 beforeEach(async () => {
   await truncatePublicTables()
@@ -19,7 +32,7 @@ describe("rius rotate task", () => {
     const active = await seedRiu("active")
     const upcoming = await seedRiu("upcoming")
 
-    const { result } = await rotateTask.run()
+    const result = await runRotate()
 
     expect(result.archived).toBe(1)
     expect(result.activated).toBe(1)
@@ -40,7 +53,7 @@ describe("rius rotate task", () => {
   })
 
   it("cold start: empty table archives/activates nothing and creates one upcoming", async () => {
-    const { result } = await rotateTask.run()
+    const result = await runRotate()
 
     expect(result.archived).toBe(0)
     expect(result.activated).toBe(0)
@@ -57,7 +70,7 @@ describe("rius rotate task", () => {
     const firstUpcoming = await seedRiu("upcoming")
 
     // run 1: firstUpcoming becomes active, a new upcoming is created
-    await rotateTask.run()
+    await runRotate()
 
     const afterFirst = await db.query.rius.findMany()
     expect(afterFirst.find((row) => row.id === firstUpcoming.id)?.status).toBe(
@@ -70,7 +83,7 @@ describe("rius rotate task", () => {
     const secondUpcoming = upcomingAfterFirst[0]
 
     // run 2: firstUpcoming (now active) archives, secondUpcoming becomes active
-    await rotateTask.run()
+    await runRotate()
 
     const afterSecond = await db.query.rius.findMany()
     expect(afterSecond.find((row) => row.id === firstUpcoming.id)?.status).toBe(
