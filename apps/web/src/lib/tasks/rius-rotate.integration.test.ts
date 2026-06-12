@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it } from "bun:test"
-import type { TaskEvent } from "nitro/types"
 
 import rotateTask from "../../../server/tasks/rius/rotate"
 import { db } from "~/db"
 import { rius } from "~/db/schema"
 import { truncatePublicTables } from "~/testing/integration"
+
+import type { TaskEvent } from "nitro/types"
 
 const taskEvent: TaskEvent = {
   name: "rius:rotate",
