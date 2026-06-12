@@ -7,6 +7,7 @@ export const updateNotificationSettingsSchema = z.object({
   followsEnabled: z.boolean().optional(),
   newContentEnabled: z.boolean().optional(),
   mentionsEnabled: z.boolean().optional(),
+  gameActivityEnabled: z.boolean().optional(),
   // Email digest preferences
   emailDigestFrequency: z.enum(["off", "weekly", "monthly"]).optional(),
   emailDigestDayOfWeek: z.number().min(0).max(6).optional(),

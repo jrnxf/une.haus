@@ -24,6 +24,7 @@ export type NotificationPreferences = {
   followsEnabled: boolean
   newContentEnabled: boolean
   mentionsEnabled: boolean
+  gameActivityEnabled: boolean
 }
 
 const SYSTEM_TYPES: ReadonlySet<NotificationType> = new Set([
@@ -42,6 +43,7 @@ const TYPE_TO_SETTING: Partial<
   follow: "followsEnabled",
   new_content: "newContentEnabled",
   mention: "mentionsEnabled",
+  game_activity: "gameActivityEnabled",
 }
 
 /**
