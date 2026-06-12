@@ -131,6 +131,125 @@ describe("notifications integration", () => {
     )
   })
 
+  it("listGrouped caps actors at 3 by most-recent and counts all rows for large groups", async () => {
+    const user = await seedUser({ name: "Receiver" })
+    const actorA = await seedUser({ name: "Actor A" })
+    const actorB = await seedUser({ name: "Actor B" })
+    const actorC = await seedUser({ name: "Actor C" })
+    const actorD = await seedUser({ name: "Actor D" })
+    const actorE = await seedUser({ name: "Actor E" })
+
+    // 5 distinct actors, oldest-to-newest by created_at: E, D, C, B, A
+    await db.insert(notifications).values([
+      {
+        actorId: actorE.id,
+        createdAt: new Date("2024-02-01T09:00:00Z"),
+        entityId: 30,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+      {
+        actorId: actorD.id,
+        createdAt: new Date("2024-02-01T10:00:00Z"),
+        entityId: 30,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+      {
+        actorId: actorC.id,
+        createdAt: new Date("2024-02-01T11:00:00Z"),
+        entityId: 30,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+      {
+        actorId: actorB.id,
+        createdAt: new Date("2024-02-01T12:00:00Z"),
+        entityId: 30,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+      {
+        actorId: actorA.id,
+        createdAt: new Date("2024-02-01T13:00:00Z"),
+        entityId: 30,
+        entityType: "post",
+        type: "like",
+        userId: user.id,
+      },
+    ])
+
+    const groups = await listGroupedNotifications({
+      ...asUser(user),
+      data: {
+        limit: 10,
+        unreadOnly: false,
+      },
+    })
+
+    expect(groups).toHaveLength(1)
+    expect(groups[0]).toEqual(
+      expect.objectContaining({
+        count: 5,
+        entityId: 30,
+        entityType: "post",
+        type: "like",
+      }),
+    )
+    // exactly 3 actors, ordered by each actor's most-recent notification desc
+    expect(groups[0]?.actors.map((actor) => actor.id)).toEqual([
+      actorA.id,
+      actorB.id,
+      actorC.id,
+    ])
+  })
+
+  it("listGrouped returns empty actors for a group with no actor ids", async () => {
+    const user = await seedUser({ name: "Receiver" })
+
+    await db.insert(notifications).values([
+      {
+        actorId: null,
+        createdAt: new Date("2024-03-01T10:00:00Z"),
+        entityId: 40,
+        entityType: "post",
+        type: "review",
+        userId: user.id,
+      },
+      {
+        actorId: null,
+        createdAt: new Date("2024-03-01T11:00:00Z"),
+        entityId: 40,
+        entityType: "post",
+        type: "review",
+        userId: user.id,
+      },
+    ])
+
+    const groups = await listGroupedNotifications({
+      ...asUser(user),
+      data: {
+        limit: 10,
+        unreadOnly: false,
+      },
+    })
+
+    expect(groups).toHaveLength(1)
+    expect(groups[0]).toEqual(
+      expect.objectContaining({
+        count: 2,
+        entityId: 40,
+        entityType: "post",
+        type: "review",
+      }),
+    )
+    expect(groups[0]?.actors).toEqual([])
+  })
+
   it("listGrouped unreadOnly filters out read groups and counts only unread rows", async () => {
     const user = await seedUser({ name: "Receiver" })
     const actorA = await seedUser({ name: "Actor A" })
