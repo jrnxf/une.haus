@@ -29,12 +29,10 @@ import { MobileFooter } from "~/components/site-header"
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
 import { Toaster } from "~/components/ui/sonner"
 import { HapticsProvider } from "~/lib/haptics-provider"
-import { presence } from "~/lib/presence"
 import { useRootRouteContext } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type HausSession } from "~/lib/session/schema"
 import { ThemeProvider } from "~/lib/theme/context"
-import { users } from "~/lib/users"
 import appCss from "~/styles.css?url"
 
 export interface RouterAppContext {
@@ -54,11 +52,6 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     const sessionData = await context.queryClient.ensureQueryData(
       session.get.queryOptions(),
     )
-
-    await Promise.all([
-      context.queryClient.ensureQueryData(users.all.queryOptions()),
-      context.queryClient.ensureQueryData(presence.online.queryOptions()),
-    ])
 
     return { session: sessionData }
   },

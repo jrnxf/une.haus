@@ -1,7 +1,7 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import pluralize from "pluralize"
-import { Suspense, useState } from "react"
+import { useState } from "react"
 
 import { Button } from "~/components/ui/button"
 import {
@@ -75,22 +75,20 @@ export function OnlineIndicator({ className }: { className?: string }) {
         <OnlineCount />
         <span>online</span>
       </DropdownMenuTrigger>
-      <Suspense>
-        <OnlineDropdownContent onNavigate={() => setOpen(false)} />
-      </Suspense>
+      <OnlineDropdownContent onNavigate={() => setOpen(false)} />
     </DropdownMenu>
   )
 }
 
 function OnlineCount() {
-  const { data } = useSuspenseQuery(presence.online.queryOptions())
-  return <span>{data.total}</span>
+  const { data } = useQuery(presence.online.queryOptions())
+  return <span>{data?.total ?? 0}</span>
 }
 
 function OnlineDropdownContent({ onNavigate }: { onNavigate: () => void }) {
-  const { data } = useSuspenseQuery(presence.online.queryOptions())
+  const { data } = useQuery(presence.online.queryOptions())
 
-  if (data.total === 0) return null
+  if (!data || data.total === 0) return null
 
   return (
     <DropdownMenuContent side="top" align="start" className="min-w-0">
