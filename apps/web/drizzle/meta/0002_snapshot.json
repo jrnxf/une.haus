@@ -64,12 +64,8 @@
           "name": "biu_set_likes_biu_set_id_biu_sets_id_fk",
           "tableFrom": "biu_set_likes",
           "tableTo": "biu_sets",
-          "columnsFrom": [
-            "biu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["biu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -77,12 +73,8 @@
           "name": "biu_set_likes_user_id_users_id_fk",
           "tableFrom": "biu_set_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -90,10 +82,7 @@
       "compositePrimaryKeys": {
         "biu_set_likes_biu_set_id_user_id_pk": {
           "name": "biu_set_likes_biu_set_id_user_id_pk",
-          "columns": [
-            "biu_set_id",
-            "user_id"
-          ]
+          "columns": ["biu_set_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -124,12 +113,8 @@
           "name": "biu_set_message_likes_biu_set_message_id_biu_set_messages_id_fk",
           "tableFrom": "biu_set_message_likes",
           "tableTo": "biu_set_messages",
-          "columnsFrom": [
-            "biu_set_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["biu_set_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -137,12 +122,8 @@
           "name": "biu_set_message_likes_user_id_users_id_fk",
           "tableFrom": "biu_set_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -150,10 +131,7 @@
       "compositePrimaryKeys": {
         "biu_set_message_likes_biu_set_message_id_user_id_pk": {
           "name": "biu_set_message_likes_biu_set_message_id_user_id_pk",
-          "columns": [
-            "biu_set_message_id",
-            "user_id"
-          ]
+          "columns": ["biu_set_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -203,12 +181,8 @@
           "name": "biu_set_messages_biu_set_id_biu_sets_id_fk",
           "tableFrom": "biu_set_messages",
           "tableTo": "biu_sets",
-          "columnsFrom": [
-            "biu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["biu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -216,12 +190,8 @@
           "name": "biu_set_messages_user_id_users_id_fk",
           "tableFrom": "biu_set_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -335,12 +305,8 @@
           "name": "biu_sets_biu_id_bius_id_fk",
           "tableFrom": "biu_sets",
           "tableTo": "bius",
-          "columnsFrom": [
-            "biu_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["biu_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -348,12 +314,8 @@
           "name": "biu_sets_user_id_users_id_fk",
           "tableFrom": "biu_sets",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -361,12 +323,8 @@
           "name": "biu_sets_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "biu_sets",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -426,12 +384,8 @@
           "name": "chat_message_likes_chat_message_id_chat_messages_id_fk",
           "tableFrom": "chat_message_likes",
           "tableTo": "chat_messages",
-          "columnsFrom": [
-            "chat_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -439,12 +393,8 @@
           "name": "chat_message_likes_user_id_users_id_fk",
           "tableFrom": "chat_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -452,10 +402,7 @@
       "compositePrimaryKeys": {
         "chat_message_likes_chat_message_id_user_id_pk": {
           "name": "chat_message_likes_chat_message_id_user_id_pk",
-          "columns": [
-            "chat_message_id",
-            "user_id"
-          ]
+          "columns": ["chat_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -499,12 +446,8 @@
           "name": "chat_messages_user_id_users_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -585,12 +528,8 @@
           "name": "email_reminders_sent_user_id_users_id_fk",
           "tableFrom": "email_reminders_sent",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -598,12 +537,8 @@
           "name": "email_reminders_sent_riu_id_rius_id_fk",
           "tableFrom": "email_reminders_sent",
           "tableTo": "rius",
-          "columnsFrom": [
-            "riu_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -687,12 +622,8 @@
           "name": "flags_user_id_users_id_fk",
           "tableFrom": "flags",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -700,12 +631,8 @@
           "name": "flags_resolved_by_user_id_users_id_fk",
           "tableFrom": "flags",
           "tableTo": "users",
-          "columnsFrom": [
-            "resolved_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["resolved_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -816,12 +743,8 @@
           "name": "glossary_proposals_submitted_by_user_id_users_id_fk",
           "tableFrom": "glossary_proposals",
           "tableTo": "users",
-          "columnsFrom": [
-            "submitted_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -829,12 +752,8 @@
           "name": "glossary_proposals_reviewed_by_user_id_users_id_fk",
           "tableFrom": "glossary_proposals",
           "tableTo": "users",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -882,16 +801,12 @@
         "mux_videos_playback_id_unique": {
           "name": "mux_videos_playback_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "playback_id"
-          ]
+          "columns": ["playback_id"]
         },
         "mux_videos_upload_id_unique": {
           "name": "mux_videos_upload_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "upload_id"
-          ]
+          "columns": ["upload_id"]
         }
       },
       "policies": {},
@@ -1078,12 +993,8 @@
           "name": "notifications_user_id_users_id_fk",
           "tableFrom": "notifications",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1091,12 +1002,8 @@
           "name": "notifications_actor_id_users_id_fk",
           "tableFrom": "notifications",
           "tableTo": "users",
-          "columnsFrom": [
-            "actor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1130,12 +1037,8 @@
           "name": "post_likes_post_id_posts_id_fk",
           "tableFrom": "post_likes",
           "tableTo": "posts",
-          "columnsFrom": [
-            "post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["post_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1143,12 +1046,8 @@
           "name": "post_likes_user_id_users_id_fk",
           "tableFrom": "post_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1156,10 +1055,7 @@
       "compositePrimaryKeys": {
         "post_likes_post_id_user_id_pk": {
           "name": "post_likes_post_id_user_id_pk",
-          "columns": [
-            "post_id",
-            "user_id"
-          ]
+          "columns": ["post_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1190,12 +1086,8 @@
           "name": "post_message_likes_post_message_id_post_messages_id_fk",
           "tableFrom": "post_message_likes",
           "tableTo": "post_messages",
-          "columnsFrom": [
-            "post_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["post_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1203,12 +1095,8 @@
           "name": "post_message_likes_user_id_users_id_fk",
           "tableFrom": "post_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1216,10 +1104,7 @@
       "compositePrimaryKeys": {
         "post_message_likes_post_message_id_user_id_pk": {
           "name": "post_message_likes_post_message_id_user_id_pk",
-          "columns": [
-            "post_message_id",
-            "user_id"
-          ]
+          "columns": ["post_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1291,12 +1176,8 @@
           "name": "post_messages_post_id_posts_id_fk",
           "tableFrom": "post_messages",
           "tableTo": "posts",
-          "columnsFrom": [
-            "post_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["post_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1304,12 +1185,8 @@
           "name": "post_messages_user_id_users_id_fk",
           "tableFrom": "post_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1409,12 +1286,8 @@
           "name": "posts_user_id_users_id_fk",
           "tableFrom": "posts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1422,12 +1295,8 @@
           "name": "posts_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "posts",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1461,12 +1330,8 @@
           "name": "riu_set_likes_riu_set_id_riu_sets_id_fk",
           "tableFrom": "riu_set_likes",
           "tableTo": "riu_sets",
-          "columnsFrom": [
-            "riu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1474,12 +1339,8 @@
           "name": "riu_set_likes_user_id_users_id_fk",
           "tableFrom": "riu_set_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1487,10 +1348,7 @@
       "compositePrimaryKeys": {
         "riu_set_likes_riu_set_id_user_id_pk": {
           "name": "riu_set_likes_riu_set_id_user_id_pk",
-          "columns": [
-            "riu_set_id",
-            "user_id"
-          ]
+          "columns": ["riu_set_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1521,12 +1379,8 @@
           "name": "riu_set_message_likes_riu_set_message_id_riu_set_messages_id_fk",
           "tableFrom": "riu_set_message_likes",
           "tableTo": "riu_set_messages",
-          "columnsFrom": [
-            "riu_set_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_set_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1534,12 +1388,8 @@
           "name": "riu_set_message_likes_user_id_users_id_fk",
           "tableFrom": "riu_set_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1547,10 +1397,7 @@
       "compositePrimaryKeys": {
         "riu_set_message_likes_riu_set_message_id_user_id_pk": {
           "name": "riu_set_message_likes_riu_set_message_id_user_id_pk",
-          "columns": [
-            "riu_set_message_id",
-            "user_id"
-          ]
+          "columns": ["riu_set_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1600,12 +1447,8 @@
           "name": "riu_set_messages_riu_set_id_riu_sets_id_fk",
           "tableFrom": "riu_set_messages",
           "tableTo": "riu_sets",
-          "columnsFrom": [
-            "riu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1613,12 +1456,8 @@
           "name": "riu_set_messages_user_id_users_id_fk",
           "tableFrom": "riu_set_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1720,12 +1559,8 @@
           "name": "riu_sets_riu_id_rius_id_fk",
           "tableFrom": "riu_sets",
           "tableTo": "rius",
-          "columnsFrom": [
-            "riu_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1733,12 +1568,8 @@
           "name": "riu_sets_user_id_users_id_fk",
           "tableFrom": "riu_sets",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1746,12 +1577,8 @@
           "name": "riu_sets_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "riu_sets",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1785,12 +1612,8 @@
           "name": "riu_submission_likes_riu_submission_id_riu_submissions_id_fk",
           "tableFrom": "riu_submission_likes",
           "tableTo": "riu_submissions",
-          "columnsFrom": [
-            "riu_submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1798,12 +1621,8 @@
           "name": "riu_submission_likes_user_id_users_id_fk",
           "tableFrom": "riu_submission_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1811,10 +1630,7 @@
       "compositePrimaryKeys": {
         "riu_submission_likes_riu_submission_id_user_id_pk": {
           "name": "riu_submission_likes_riu_submission_id_user_id_pk",
-          "columns": [
-            "riu_submission_id",
-            "user_id"
-          ]
+          "columns": ["riu_submission_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1845,12 +1661,8 @@
           "name": "riu_submission_message_likes_riu_submission_message_id_riu_submission_messages_id_fk",
           "tableFrom": "riu_submission_message_likes",
           "tableTo": "riu_submission_messages",
-          "columnsFrom": [
-            "riu_submission_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_submission_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1858,12 +1670,8 @@
           "name": "riu_submission_message_likes_user_id_users_id_fk",
           "tableFrom": "riu_submission_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1871,10 +1679,7 @@
       "compositePrimaryKeys": {
         "riu_submission_message_likes_riu_submission_message_id_user_id_pk": {
           "name": "riu_submission_message_likes_riu_submission_message_id_user_id_pk",
-          "columns": [
-            "riu_submission_message_id",
-            "user_id"
-          ]
+          "columns": ["riu_submission_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1924,12 +1729,8 @@
           "name": "riu_submission_messages_riu_submission_id_riu_submissions_id_fk",
           "tableFrom": "riu_submission_messages",
           "tableTo": "riu_submissions",
-          "columnsFrom": [
-            "riu_submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1937,12 +1738,8 @@
           "name": "riu_submission_messages_user_id_users_id_fk",
           "tableFrom": "riu_submission_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2017,12 +1814,8 @@
           "name": "riu_submissions_riu_set_id_riu_sets_id_fk",
           "tableFrom": "riu_submissions",
           "tableTo": "riu_sets",
-          "columnsFrom": [
-            "riu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["riu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2030,12 +1823,8 @@
           "name": "riu_submissions_user_id_users_id_fk",
           "tableFrom": "riu_submissions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2043,12 +1832,8 @@
           "name": "riu_submissions_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "riu_submissions",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2058,10 +1843,7 @@
         "riu_submissions_riu_set_id_user_id_unique": {
           "name": "riu_submissions_riu_set_id_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "riu_set_id",
-            "user_id"
-          ]
+          "columns": ["riu_set_id", "user_id"]
         }
       },
       "policies": {},
@@ -2138,12 +1920,8 @@
           "name": "siu_archive_votes_siu_id_sius_id_fk",
           "tableFrom": "siu_archive_votes",
           "tableTo": "sius",
-          "columnsFrom": [
-            "siu_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["siu_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2151,12 +1929,8 @@
           "name": "siu_archive_votes_user_id_users_id_fk",
           "tableFrom": "siu_archive_votes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2164,10 +1938,7 @@
       "compositePrimaryKeys": {
         "siu_archive_votes_siu_id_user_id_pk": {
           "name": "siu_archive_votes_siu_id_user_id_pk",
-          "columns": [
-            "siu_id",
-            "user_id"
-          ]
+          "columns": ["siu_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -2198,12 +1969,8 @@
           "name": "siu_set_likes_siu_set_id_siu_sets_id_fk",
           "tableFrom": "siu_set_likes",
           "tableTo": "siu_sets",
-          "columnsFrom": [
-            "siu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["siu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2211,12 +1978,8 @@
           "name": "siu_set_likes_user_id_users_id_fk",
           "tableFrom": "siu_set_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2224,10 +1987,7 @@
       "compositePrimaryKeys": {
         "siu_set_likes_siu_set_id_user_id_pk": {
           "name": "siu_set_likes_siu_set_id_user_id_pk",
-          "columns": [
-            "siu_set_id",
-            "user_id"
-          ]
+          "columns": ["siu_set_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -2258,12 +2018,8 @@
           "name": "siu_set_message_likes_siu_set_message_id_siu_set_messages_id_fk",
           "tableFrom": "siu_set_message_likes",
           "tableTo": "siu_set_messages",
-          "columnsFrom": [
-            "siu_set_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["siu_set_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2271,12 +2027,8 @@
           "name": "siu_set_message_likes_user_id_users_id_fk",
           "tableFrom": "siu_set_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2284,10 +2036,7 @@
       "compositePrimaryKeys": {
         "siu_set_message_likes_siu_set_message_id_user_id_pk": {
           "name": "siu_set_message_likes_siu_set_message_id_user_id_pk",
-          "columns": [
-            "siu_set_message_id",
-            "user_id"
-          ]
+          "columns": ["siu_set_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -2337,12 +2086,8 @@
           "name": "siu_set_messages_siu_set_id_siu_sets_id_fk",
           "tableFrom": "siu_set_messages",
           "tableTo": "siu_sets",
-          "columnsFrom": [
-            "siu_set_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["siu_set_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2350,12 +2095,8 @@
           "name": "siu_set_messages_user_id_users_id_fk",
           "tableFrom": "siu_set_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2469,12 +2210,8 @@
           "name": "siu_sets_siu_id_sius_id_fk",
           "tableFrom": "siu_sets",
           "tableTo": "sius",
-          "columnsFrom": [
-            "siu_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["siu_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2482,12 +2219,8 @@
           "name": "siu_sets_user_id_users_id_fk",
           "tableFrom": "siu_sets",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2495,12 +2228,8 @@
           "name": "siu_sets_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "siu_sets",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2614,12 +2343,8 @@
           "name": "tournaments_created_by_user_id_users_id_fk",
           "tableFrom": "tournaments",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2629,9 +2354,7 @@
         "tournaments_code_unique": {
           "name": "tournaments_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       },
       "policies": {},
@@ -2661,12 +2384,8 @@
           "name": "trick_element_assignments_trick_id_tricks_id_fk",
           "tableFrom": "trick_element_assignments",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2674,12 +2393,8 @@
           "name": "trick_element_assignments_element_id_trick_elements_id_fk",
           "tableFrom": "trick_element_assignments",
           "tableTo": "trick_elements",
-          "columnsFrom": [
-            "element_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["element_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2687,10 +2402,7 @@
       "compositePrimaryKeys": {
         "trick_element_assignments_trick_id_element_id_pk": {
           "name": "trick_element_assignments_trick_id_element_id_pk",
-          "columns": [
-            "trick_id",
-            "element_id"
-          ]
+          "columns": ["trick_id", "element_id"]
         }
       },
       "uniqueConstraints": {},
@@ -2759,12 +2471,8 @@
           "name": "trick_likes_trick_id_tricks_id_fk",
           "tableFrom": "trick_likes",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2772,12 +2480,8 @@
           "name": "trick_likes_user_id_users_id_fk",
           "tableFrom": "trick_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2785,10 +2489,7 @@
       "compositePrimaryKeys": {
         "trick_likes_trick_id_user_id_pk": {
           "name": "trick_likes_trick_id_user_id_pk",
-          "columns": [
-            "trick_id",
-            "user_id"
-          ]
+          "columns": ["trick_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -2819,12 +2520,8 @@
           "name": "trick_message_likes_trick_message_id_trick_messages_id_fk",
           "tableFrom": "trick_message_likes",
           "tableTo": "trick_messages",
-          "columnsFrom": [
-            "trick_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trick_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2832,12 +2529,8 @@
           "name": "trick_message_likes_user_id_users_id_fk",
           "tableFrom": "trick_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2845,10 +2538,7 @@
       "compositePrimaryKeys": {
         "trick_message_likes_trick_message_id_user_id_pk": {
           "name": "trick_message_likes_trick_message_id_user_id_pk",
-          "columns": [
-            "trick_message_id",
-            "user_id"
-          ]
+          "columns": ["trick_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -2898,12 +2588,8 @@
           "name": "trick_messages_trick_id_tricks_id_fk",
           "tableFrom": "trick_messages",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2911,12 +2597,8 @@
           "name": "trick_messages_user_id_users_id_fk",
           "tableFrom": "trick_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3032,12 +2714,8 @@
           "name": "trick_relationships_source_trick_id_tricks_id_fk",
           "tableFrom": "trick_relationships",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "source_trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source_trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3045,12 +2723,8 @@
           "name": "trick_relationships_target_trick_id_tricks_id_fk",
           "tableFrom": "trick_relationships",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "target_trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target_trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3084,12 +2758,8 @@
           "name": "trick_submission_element_assignments_submission_id_trick_submissions_id_fk",
           "tableFrom": "trick_submission_element_assignments",
           "tableTo": "trick_submissions",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3097,12 +2767,8 @@
           "name": "trick_submission_element_assignments_element_id_trick_elements_id_fk",
           "tableFrom": "trick_submission_element_assignments",
           "tableTo": "trick_elements",
-          "columnsFrom": [
-            "element_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["element_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3110,10 +2776,7 @@
       "compositePrimaryKeys": {
         "trick_submission_element_assignments_submission_id_element_id_pk": {
           "name": "trick_submission_element_assignments_submission_id_element_id_pk",
-          "columns": [
-            "submission_id",
-            "element_id"
-          ]
+          "columns": ["submission_id", "element_id"]
         }
       },
       "uniqueConstraints": {},
@@ -3157,12 +2820,8 @@
           "name": "trick_submission_relationships_submission_id_trick_submissions_id_fk",
           "tableFrom": "trick_submission_relationships",
           "tableTo": "trick_submissions",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3170,12 +2829,8 @@
           "name": "trick_submission_relationships_target_trick_id_tricks_id_fk",
           "tableFrom": "trick_submission_relationships",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "target_trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target_trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3297,12 +2952,8 @@
           "name": "trick_submissions_invented_by_user_id_users_id_fk",
           "tableFrom": "trick_submissions",
           "tableTo": "users",
-          "columnsFrom": [
-            "invented_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invented_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3310,12 +2961,8 @@
           "name": "trick_submissions_submitted_by_user_id_users_id_fk",
           "tableFrom": "trick_submissions",
           "tableTo": "users",
-          "columnsFrom": [
-            "submitted_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3323,12 +2970,8 @@
           "name": "trick_submissions_reviewed_by_user_id_users_id_fk",
           "tableFrom": "trick_submissions",
           "tableTo": "users",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3413,12 +3056,8 @@
           "name": "trick_suggestions_trick_id_tricks_id_fk",
           "tableFrom": "trick_suggestions",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3426,12 +3065,8 @@
           "name": "trick_suggestions_submitted_by_user_id_users_id_fk",
           "tableFrom": "trick_suggestions",
           "tableTo": "users",
-          "columnsFrom": [
-            "submitted_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3439,12 +3074,8 @@
           "name": "trick_suggestions_reviewed_by_user_id_users_id_fk",
           "tableFrom": "trick_suggestions",
           "tableTo": "users",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3561,12 +3192,8 @@
           "name": "trick_videos_trick_id_tricks_id_fk",
           "tableFrom": "trick_videos",
           "tableTo": "tricks",
-          "columnsFrom": [
-            "trick_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["trick_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3574,12 +3201,8 @@
           "name": "trick_videos_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "trick_videos",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3587,12 +3210,8 @@
           "name": "trick_videos_submitted_by_user_id_users_id_fk",
           "tableFrom": "trick_videos",
           "tableTo": "users",
-          "columnsFrom": [
-            "submitted_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3600,12 +3219,8 @@
           "name": "trick_videos_reviewed_by_user_id_users_id_fk",
           "tableFrom": "trick_videos",
           "tableTo": "users",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3690,12 +3305,8 @@
           "name": "tricks_invented_by_user_id_users_id_fk",
           "tableFrom": "tricks",
           "tableTo": "users",
-          "columnsFrom": [
-            "invented_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invented_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3729,12 +3340,8 @@
           "name": "user_follows_followed_by_user_id_users_id_fk",
           "tableFrom": "user_follows",
           "tableTo": "users",
-          "columnsFrom": [
-            "followed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["followed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3742,12 +3349,8 @@
           "name": "user_follows_followed_user_id_users_id_fk",
           "tableFrom": "user_follows",
           "tableTo": "users",
-          "columnsFrom": [
-            "followed_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["followed_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3755,10 +3358,7 @@
       "compositePrimaryKeys": {
         "user_follows_followed_user_id_followed_by_user_id_pk": {
           "name": "user_follows_followed_user_id_followed_by_user_id_pk",
-          "columns": [
-            "followed_user_id",
-            "followed_by_user_id"
-          ]
+          "columns": ["followed_user_id", "followed_by_user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -3813,12 +3413,8 @@
           "name": "user_locations_user_id_users_id_fk",
           "tableFrom": "user_locations",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -3828,9 +3424,7 @@
         "user_locations_user_id_unique": {
           "name": "user_locations_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -3952,12 +3546,8 @@
           "name": "user_notification_settings_user_id_users_id_fk",
           "tableFrom": "user_notification_settings",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4021,12 +3611,8 @@
           "name": "user_socials_user_id_users_id_fk",
           "tableFrom": "user_socials",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4036,9 +3622,7 @@
         "user_socials_user_id_unique": {
           "name": "user_socials_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -4128,9 +3712,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -4186,12 +3768,8 @@
           "name": "utv_video_likes_utv_video_id_utv_videos_id_fk",
           "tableFrom": "utv_video_likes",
           "tableTo": "utv_videos",
-          "columnsFrom": [
-            "utv_video_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["utv_video_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4199,12 +3777,8 @@
           "name": "utv_video_likes_user_id_users_id_fk",
           "tableFrom": "utv_video_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4212,10 +3786,7 @@
       "compositePrimaryKeys": {
         "utv_video_likes_utv_video_id_user_id_pk": {
           "name": "utv_video_likes_utv_video_id_user_id_pk",
-          "columns": [
-            "utv_video_id",
-            "user_id"
-          ]
+          "columns": ["utv_video_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -4246,12 +3817,8 @@
           "name": "utv_video_message_likes_utv_video_message_id_utv_video_messages_id_fk",
           "tableFrom": "utv_video_message_likes",
           "tableTo": "utv_video_messages",
-          "columnsFrom": [
-            "utv_video_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["utv_video_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4259,12 +3826,8 @@
           "name": "utv_video_message_likes_user_id_users_id_fk",
           "tableFrom": "utv_video_message_likes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4272,10 +3835,7 @@
       "compositePrimaryKeys": {
         "utv_video_message_likes_utv_video_message_id_user_id_pk": {
           "name": "utv_video_message_likes_utv_video_message_id_user_id_pk",
-          "columns": [
-            "utv_video_message_id",
-            "user_id"
-          ]
+          "columns": ["utv_video_message_id", "user_id"]
         }
       },
       "uniqueConstraints": {},
@@ -4325,12 +3885,8 @@
           "name": "utv_video_messages_utv_video_id_utv_videos_id_fk",
           "tableFrom": "utv_video_messages",
           "tableTo": "utv_videos",
-          "columnsFrom": [
-            "utv_video_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["utv_video_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4338,12 +3894,8 @@
           "name": "utv_video_messages_user_id_users_id_fk",
           "tableFrom": "utv_video_messages",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -4396,12 +3948,8 @@
           "name": "utv_video_riders_utv_video_id_utv_videos_id_fk",
           "tableFrom": "utv_video_riders",
           "tableTo": "utv_videos",
-          "columnsFrom": [
-            "utv_video_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["utv_video_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4409,12 +3957,8 @@
           "name": "utv_video_riders_user_id_users_id_fk",
           "tableFrom": "utv_video_riders",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4499,12 +4043,8 @@
           "name": "utv_video_suggestions_utv_video_id_utv_videos_id_fk",
           "tableFrom": "utv_video_suggestions",
           "tableTo": "utv_videos",
-          "columnsFrom": [
-            "utv_video_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["utv_video_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4512,12 +4052,8 @@
           "name": "utv_video_suggestions_submitted_by_user_id_users_id_fk",
           "tableFrom": "utv_video_suggestions",
           "tableTo": "users",
-          "columnsFrom": [
-            "submitted_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -4525,12 +4061,8 @@
           "name": "utv_video_suggestions_reviewed_by_user_id_users_id_fk",
           "tableFrom": "utv_video_suggestions",
           "tableTo": "users",
-          "columnsFrom": [
-            "reviewed_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4610,12 +4142,8 @@
           "name": "utv_videos_mux_asset_id_mux_videos_asset_id_fk",
           "tableFrom": "utv_videos",
           "tableTo": "mux_videos",
-          "columnsFrom": [
-            "mux_asset_id"
-          ],
-          "columnsTo": [
-            "asset_id"
-          ],
+          "columnsFrom": ["mux_asset_id"],
+          "columnsTo": ["asset_id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4631,10 +4159,7 @@
     "public.catch_type": {
       "name": "catch_type",
       "schema": "public",
-      "values": [
-        "one-foot",
-        "two-foot"
-      ]
+      "values": ["one-foot", "two-foot"]
     },
     "public.flag_entity_type": {
       "name": "flag_entity_type",
@@ -4657,18 +4182,12 @@
     "public.glossary_proposal_action": {
       "name": "glossary_proposal_action",
       "schema": "public",
-      "values": [
-        "create",
-        "edit"
-      ]
+      "values": ["create", "edit"]
     },
     "public.glossary_proposal_type": {
       "name": "glossary_proposal_type",
       "schema": "public",
-      "values": [
-        "element",
-        "modifier"
-      ]
+      "values": ["element", "modifier"]
     },
     "public.notification_entity_type": {
       "name": "notification_entity_type",
@@ -4729,66 +4248,37 @@
     "public.riu_status": {
       "name": "riu_status",
       "schema": "public",
-      "values": [
-        "archived",
-        "active",
-        "upcoming"
-      ]
+      "values": ["archived", "active", "upcoming"]
     },
     "public.siu_status": {
       "name": "siu_status",
       "schema": "public",
-      "values": [
-        "active",
-        "archived"
-      ]
+      "values": ["active", "archived"]
     },
     "public.tourney_phase": {
       "name": "tourney_phase",
       "schema": "public",
-      "values": [
-        "setup",
-        "prelims",
-        "ranking",
-        "bracket",
-        "complete"
-      ]
+      "values": ["setup", "prelims", "ranking", "bracket", "complete"]
     },
     "public.trick_relationship_type": {
       "name": "trick_relationship_type",
       "schema": "public",
-      "values": [
-        "prerequisite",
-        "optional_prerequisite",
-        "related"
-      ]
+      "values": ["prerequisite", "optional_prerequisite", "related"]
     },
     "public.trick_submission_status": {
       "name": "trick_submission_status",
       "schema": "public",
-      "values": [
-        "pending",
-        "approved",
-        "rejected"
-      ]
+      "values": ["pending", "approved", "rejected"]
     },
     "public.trick_video_status": {
       "name": "trick_video_status",
       "schema": "public",
-      "values": [
-        "active",
-        "pending",
-        "rejected"
-      ]
+      "values": ["active", "pending", "rejected"]
     },
     "public.user_type": {
       "name": "user_type",
       "schema": "public",
-      "values": [
-        "user",
-        "admin",
-        "test"
-      ]
+      "values": ["user", "admin", "test"]
     }
   },
   "schemas": {},
