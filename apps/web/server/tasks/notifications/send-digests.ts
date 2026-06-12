@@ -1,4 +1,4 @@
-import { and, eq, gte, isNull, ne, sql } from "drizzle-orm"
+import { and, eq, gte, inArray, isNull, ne, sql } from "drizzle-orm"
 import { defineTask } from "nitro/task"
 import { Resend } from "resend"
 
@@ -203,7 +203,7 @@ export default defineTask({
         await db
           .update(notifications)
           .set({ emailedAt: new Date() })
-          .where(sql`${notifications.id} = ANY(${notificationIds})`)
+          .where(inArray(notifications.id, notificationIds))
 
         sentCount++
         logger.info("digest sent", {
