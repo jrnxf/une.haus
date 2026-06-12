@@ -7,6 +7,7 @@ import { ARCHIVED_ROUNDS_PAGE_SIZE } from "~/lib/games/rius/schemas"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
 import {
+  createNotification,
   deleteNotificationsForEntity,
   notifyFollowers,
 } from "~/lib/notifications/helpers.server"
@@ -189,6 +190,7 @@ export async function createRiuSubmission({
     .select({
       id: riuSets.id,
       userId: riuSets.userId,
+      name: riuSets.name,
       riu: {
         status: rius.status,
       },
@@ -231,6 +233,19 @@ export async function createRiuSubmission({
       userId,
     })
     .returning()
+
+  createNotification({
+    userId: riuSet.userId,
+    actorId: userId,
+    type: "game_activity",
+    entityType: "riuSubmission",
+    entityId: riuSubmission.id,
+    data: {
+      actorName: context.user.name,
+      actorAvatarId: context.user.avatarId,
+      entityTitle: riuSet.name,
+    },
+  }).catch(logRejection("games.rius.notify"))
 
   return riuSubmission
 }
