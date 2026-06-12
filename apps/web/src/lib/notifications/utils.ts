@@ -118,6 +118,13 @@ export function getNotificationMessage(
     case "mention": {
       return `${actorText} mentioned you in a ${formatEntityType(entityType)}${entityTitle ? `: "${entityTitle}"` : ""}`
     }
+    case "game_activity": {
+      const action =
+        entityType === "riuSubmission"
+          ? "submitted to your set"
+          : "built on your set"
+      return `${actorText} ${action}${entityTitle ? `: "${entityTitle}"` : ""}`
+    }
     default: {
       return "You have a new notification"
     }
@@ -157,6 +164,13 @@ export function getNotificationAction(
     }
     case "mention": {
       return `mentioned you in a ${formatEntityType(entityType)}${entityTitle ? ` "${entityTitle}"` : ""}`
+    }
+    case "game_activity": {
+      const action =
+        entityType === "riuSubmission"
+          ? "submitted to your set"
+          : "built on your set"
+      return `${action}${entityTitle ? ` "${entityTitle}"` : ""}`
     }
     default: {
       return "sent you a notification"
