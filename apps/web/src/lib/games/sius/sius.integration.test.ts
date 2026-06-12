@@ -450,11 +450,11 @@ describe("sius integration", () => {
 
     await waitFor(async () => {
       const rows = await db.query.notifications.findMany()
-      expect(rows).toHaveLength(1)
+      expect(rows).toHaveLength(2)
     })
 
     const messages = await db.query.siuSetMessages.findMany()
-    const [notification] = await db.query.notifications.findMany()
+    const notifications = await db.query.notifications.findMany()
 
     expect(set).toEqual(
       expect.objectContaining({
@@ -472,18 +472,33 @@ describe("sius integration", () => {
         userId: actor.id,
       }),
     ])
-    expect(notification).toEqual(
-      expect.objectContaining({
-        actorId: actor.id,
-        entityId: set.id,
-        entityType: "siuSet",
-        type: "new_content",
-        userId: follower.id,
-      }),
+    // follower gets the new_content notification
+    expect(notifications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          actorId: actor.id,
+          entityId: set.id,
+          entityType: "siuSet",
+          type: "new_content",
+          userId: follower.id,
+        }),
+      ]),
+    )
+    // the owner of the set that was continued gets the game_activity notification
+    expect(notifications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          actorId: actor.id,
+          entityId: set.id,
+          entityType: "siuSet",
+          type: "game_activity",
+          userId: latestSetter.id,
+        }),
+      ]),
     )
   })
 
-  it("addSiuSet rejects continuing your own latest set", async () => {
+  it("addSiuSet rejects continuing your own latest set and creates no game_activity notification", async () => {
     const actor = await seedUser({ name: "Actor" })
     const round = await seedActiveRound()
 
@@ -505,6 +520,8 @@ describe("sius integration", () => {
         },
       }),
     ).rejects.toThrow("You cannot stack up your own trick")
+
+    expect(await db.query.notifications.findMany()).toHaveLength(0)
   })
 
   it("addSiuSet rejects adding another child when the latest set is already continued", async () => {

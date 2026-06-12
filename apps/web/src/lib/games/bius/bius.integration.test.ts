@@ -143,11 +143,11 @@ describe("bius integration", () => {
 
     await waitFor(async () => {
       const rows = await db.query.notifications.findMany()
-      expect(rows).toHaveLength(1)
+      expect(rows).toHaveLength(2)
     })
 
     const messages = await db.query.biuSetMessages.findMany()
-    const [notification] = await db.query.notifications.findMany()
+    const notifications = await db.query.notifications.findMany()
 
     expect(set).toEqual(
       expect.objectContaining({
@@ -165,14 +165,29 @@ describe("bius integration", () => {
         userId: actor.id,
       }),
     ])
-    expect(notification).toEqual(
-      expect.objectContaining({
-        actorId: actor.id,
-        entityId: set.id,
-        entityType: "biuSet",
-        type: "new_content",
-        userId: follower.id,
-      }),
+    // follower gets the new_content notification
+    expect(notifications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          actorId: actor.id,
+          entityId: set.id,
+          entityType: "biuSet",
+          type: "new_content",
+          userId: follower.id,
+        }),
+      ]),
+    )
+    // the owner of the set that was continued gets the game_activity notification
+    expect(notifications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          actorId: actor.id,
+          entityId: set.id,
+          entityType: "biuSet",
+          type: "game_activity",
+          userId: latestSetter.id,
+        }),
+      ]),
     )
   })
 

@@ -9,6 +9,7 @@ const defaults: NotificationPreferences = {
   followsEnabled: true,
   newContentEnabled: true,
   mentionsEnabled: true,
+  gameActivityEnabled: true,
 }
 
 describe("shouldCreateNotification", () => {
@@ -44,6 +45,7 @@ describe("shouldCreateNotification", () => {
         "follow",
         "new_content",
         "mention",
+        "game_activity",
       ] as const) {
         expect(
           shouldCreateNotification({ actorId: 2, userId: 1, type }, null),
@@ -128,6 +130,33 @@ describe("shouldCreateNotification", () => {
       ).toBe(false)
     })
 
+    it("allows game_activity when settings are null", () => {
+      expect(
+        shouldCreateNotification(
+          { actorId: 2, userId: 1, type: "game_activity" },
+          null,
+        ),
+      ).toBe(true)
+    })
+
+    it("skips game_activity when gameActivityEnabled is false", () => {
+      expect(
+        shouldCreateNotification(
+          { actorId: 2, userId: 1, type: "game_activity" },
+          { ...defaults, gameActivityEnabled: false },
+        ),
+      ).toBe(false)
+    })
+
+    it("skips game_activity self-notification", () => {
+      expect(
+        shouldCreateNotification(
+          { actorId: 1, userId: 1, type: "game_activity" },
+          null,
+        ),
+      ).toBe(false)
+    })
+
     it("allows like when likesEnabled is true", () => {
       expect(
         shouldCreateNotification(
@@ -145,6 +174,7 @@ describe("shouldCreateNotification", () => {
       followsEnabled: false,
       newContentEnabled: false,
       mentionsEnabled: false,
+      gameActivityEnabled: false,
     }
 
     it.each(["archive_request", "chain_archived", "review", "flag"] as const)(

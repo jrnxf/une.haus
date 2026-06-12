@@ -287,6 +287,18 @@ describe("getNotificationAction", () => {
     )
   })
 
+  it("formats game_activity action for RIU submission", () => {
+    expect(getNotificationAction("game_activity", "riuSubmission")).toBe(
+      "submitted to your set",
+    )
+  })
+
+  it("formats game_activity action for BIU set", () => {
+    expect(getNotificationAction("game_activity", "biuSet")).toBe(
+      "built on your set",
+    )
+  })
+
   it("handles unknown type", () => {
     // @ts-expect-error - testing unknown type
     expect(getNotificationAction("unknown", "post")).toBe(

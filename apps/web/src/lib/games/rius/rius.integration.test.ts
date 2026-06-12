@@ -254,6 +254,41 @@ describe("rius integration", () => {
     )
   })
 
+  it("createRiuSubmission notifies the set owner with a game_activity notification", async () => {
+    const setOwner = await seedUser({ name: "Set Owner" })
+    const submitter = await seedUser({ name: "Submitter" })
+    const active = await seedRiu("active")
+    const activeSet = await seedRiuSet({
+      name: "Active Set",
+      riuId: active.id,
+      userId: setOwner.id,
+    })
+    const video = await seedMuxVideo("riu-sub-notify")
+
+    const submission = await createRiuSubmission({
+      ...asUser(submitter),
+      data: {
+        muxAssetId: video.assetId,
+        riuSetId: activeSet.id,
+      },
+    })
+
+    await waitFor(async () => {
+      const rows = await db.query.notifications.findMany()
+      expect(rows).toHaveLength(1)
+    })
+
+    expect(await db.query.notifications.findMany()).toEqual([
+      expect.objectContaining({
+        actorId: submitter.id,
+        entityId: submission.id,
+        entityType: "riuSubmission",
+        type: "game_activity",
+        userId: setOwner.id,
+      }),
+    ])
+  })
+
   it("deleteRiuSubmission is owner-only", async () => {
     const owner = await seedUser({ name: "Owner" })
     const otherUser = await seedUser({ name: "Other User" })
