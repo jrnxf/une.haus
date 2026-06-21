@@ -633,3 +633,17 @@ Never use `ring` for container outlines on Base UI popup/dropdown components (se
 ## Documentation
 
 When modifying code that has associated documentation in `docs/`, always update the docs to reflect changes. Keep documentation in sync with implementation.
+
+## Agent skills
+
+### Issue tracker
+
+Issues tracked in GitHub Issues (`jrnxf/une.haus`) via the `gh` CLI. External PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout (`CONTEXT.md` + `docs/adr/` at root). See `docs/agents/domain.md`.
