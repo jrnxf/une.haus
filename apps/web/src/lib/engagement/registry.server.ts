@@ -110,49 +110,6 @@ type MessageBinding = {
 export type EngagementBinding = ContentBinding | MessageBinding
 
 /**
- * Every engageable entity type. The `satisfies Record<…>` on the registry forces
- * each member to have a row; the schema-coverage test forces this list to stay
- * complete versus the database catalog.
- */
-const ENGAGEMENT_ENTITY_TYPES = [
-  // content (likeable + messageable)
-  "post",
-  "riuSet",
-  "riuSubmission",
-  "biuSet",
-  "siuSet",
-  "utvVideo",
-  "trick",
-  // message (likeable only)
-  "chatMessage",
-  "postMessage",
-  "riuSetMessage",
-  "riuSubmissionMessage",
-  "utvVideoMessage",
-  "biuSetMessage",
-  "siuSetMessage",
-  "trickMessage",
-] as const
-
-export type EngagementEntityType = (typeof ENGAGEMENT_ENTITY_TYPES)[number]
-
-/** The subset of engagement entity types whose binding kind is `content`. */
-export type EngagementContentType =
-  | "post"
-  | "riuSet"
-  | "riuSubmission"
-  | "biuSet"
-  | "siuSet"
-  | "utvVideo"
-  | "trick"
-
-/** The subset of engagement entity types whose binding kind is `message`. */
-export type EngagementMessageType = Exclude<
-  EngagementEntityType,
-  EngagementContentType
->
-
-/**
  * Resolve a record's owner by reading its `userId` column. `query` is the
  * Drizzle relational-query object for the table (e.g. `db.query.posts`); it is
  * invoked as a method so `this` stays bound.
@@ -401,7 +358,33 @@ export const ENTITY_REGISTRY = {
     resolveMessageTarget: async () => null,
     notificationType: "message_like",
   },
-} satisfies Record<EngagementEntityType, EngagementBinding>
+} satisfies Record<string, EngagementBinding>
+
+/**
+ * Every engageable entity type — derived from the registry keys, which are the
+ * single source of truth. `keyof typeof ENTITY_REGISTRY` is the only place
+ * engagement entity types are enumerated; every other union is a projection of
+ * this one. The schema-coverage test forces the registry (and therefore this
+ * type) to stay complete versus the database catalog.
+ */
+export type EngagementEntityType = keyof typeof ENTITY_REGISTRY
+
+/**
+ * The subset of engagement entity types whose binding kind is `content`. Derived
+ * from each binding's `kind` rather than re-listed, so it cannot drift from the
+ * registry.
+ */
+export type EngagementContentType = {
+  [K in EngagementEntityType]: (typeof ENTITY_REGISTRY)[K]["kind"] extends "content"
+    ? K
+    : never
+}[EngagementEntityType]
+
+/** The subset of engagement entity types whose binding kind is `message`. */
+export type EngagementMessageType = Exclude<
+  EngagementEntityType,
+  EngagementContentType
+>
 
 /** Narrowing type guard: is `type` a registered engagement content type? */
 export function isEngagementContentType(
