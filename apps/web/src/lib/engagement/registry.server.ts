@@ -56,7 +56,7 @@ import {
  * - `content`: likeable *and* messageable; a like notifies the content owner.
  * - `message`: likeable only; a like notifies the message author.
  */
-export type EngagementKind = "content" | "message"
+type EngagementKind = "content" | "message"
 
 export type EngagementBinding = {
   /** Capability axis — drives how a like is routed. */
@@ -86,7 +86,7 @@ export type EngagementBinding = {
  * each member to have a row; the schema-coverage test forces this list to stay
  * complete versus the database catalog.
  */
-export const ENGAGEMENT_ENTITY_TYPES = [
+const ENGAGEMENT_ENTITY_TYPES = [
   // content (likeable + messageable)
   "post",
   "riuSet",

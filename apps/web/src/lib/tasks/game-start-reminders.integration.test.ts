@@ -12,7 +12,7 @@ mock.module("resend", () => ({
   },
 }))
 
-const { default: gameStartRemindersTask } =
+const { default: gameStartRemindersTask, getHoursUntilNextRotation } =
   await import("../../../server/tasks/notifications/game-start-reminders")
 
 import { and, eq } from "drizzle-orm"
@@ -21,23 +21,15 @@ import { db } from "~/db"
 import { emailRemindersSent, rius, userNotificationSettings } from "~/db/schema"
 import { seedUser, truncatePublicTables } from "~/testing/integration"
 
+// Pin a deterministic clock so the window math doesn't depend on the wall clock.
+// 2026-06-21 is a Sunday at 00:00 UTC, i.e. exactly 24h before the next Monday
+// rotation — comfortably inside the realistic 1..72h reminder range.
+const NOW = new Date("2026-06-21T00:00:00.000Z")
+
 const taskEvent: TaskEvent = {
   name: "notifications:game-start-reminders",
-  payload: {},
+  payload: { nowMs: NOW.getTime() },
   context: {},
-}
-
-// Copied from the task source (getHoursUntilNextRotation is not exported):
-// hours until next Monday 00:00 UTC, Math.round so the cron tick closest to a
-// UTC hour boundary wins.
-function getHoursUntilNextRotation(): number {
-  const now = new Date()
-  const nextMonday = new Date(now)
-  const daysUntilMonday = (8 - now.getUTCDay()) % 7 || 7
-  nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday)
-  nextMonday.setUTCHours(0, 0, 0, 0)
-  const msUntil = nextMonday.getTime() - now.getTime()
-  return Math.round(msUntil / (1000 * 60 * 60))
 }
 
 function matchesWindow(hoursUntilStart: number, hoursBefore: number) {
@@ -92,7 +84,7 @@ describe("game-start-reminders task", () => {
 
   it("matching window: sends one reminder and records it", async () => {
     const riu = await seedUpcomingRiu()
-    const hoursUntilStart = getHoursUntilNextRotation()
+    const hoursUntilStart = getHoursUntilNextRotation(NOW)
     const hoursBefore = clamp(hoursUntilStart)
     // Guard: chosen value must actually satisfy the task's filter formula.
     expect(matchesWindow(hoursUntilStart, hoursBefore)).toBe(true)
@@ -120,7 +112,7 @@ describe("game-start-reminders task", () => {
 
   it("dedup: a second run skips the already-reminded user", async () => {
     await seedUpcomingRiu()
-    const hoursUntilStart = getHoursUntilNextRotation()
+    const hoursUntilStart = getHoursUntilNextRotation(NOW)
     const hoursBefore = clamp(hoursUntilStart)
     expect(matchesWindow(hoursUntilStart, hoursBefore)).toBe(true)
 
@@ -140,7 +132,7 @@ describe("game-start-reminders task", () => {
 
   it("non-matching window: user whose hoursBefore fails the filter gets nothing", async () => {
     await seedUpcomingRiu()
-    const hoursUntilStart = getHoursUntilNextRotation()
+    const hoursUntilStart = getHoursUntilNextRotation(NOW)
     // Pick a value far enough above hoursUntilStart that the filter fails.
     const hoursBefore = clamp(hoursUntilStart + 5)
     // Guard: chosen value must NOT satisfy the filter formula.
@@ -156,7 +148,7 @@ describe("game-start-reminders task", () => {
 
   it("unsubscribed-all: matching hours but globally unsubscribed gets nothing", async () => {
     await seedUpcomingRiu()
-    const hoursUntilStart = getHoursUntilNextRotation()
+    const hoursUntilStart = getHoursUntilNextRotation(NOW)
     const hoursBefore = clamp(hoursUntilStart)
     expect(matchesWindow(hoursUntilStart, hoursBefore)).toBe(true)
 
