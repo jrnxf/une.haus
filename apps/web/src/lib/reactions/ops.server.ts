@@ -1,35 +1,20 @@
 import "@tanstack/react-start/server-only"
 import { and, eq } from "drizzle-orm"
+import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
 
 import { db } from "~/db"
 import {
-  biuSetLikes,
-  biuSetMessageLikes,
-  chatMessageLikes,
+  NOTIFICATION_ENTITY_TYPES,
   type NotificationEntityType,
-  postLikes,
-  postMessageLikes,
-  riuSetLikes,
-  riuSetMessageLikes,
-  riuSubmissionLikes,
-  riuSubmissionMessageLikes,
-  siuSetLikes,
-  siuSetMessageLikes,
-  utvVideoLikes,
-  utvVideoMessageLikes,
 } from "~/db/schema"
+import { ENTITY_REGISTRY } from "~/lib/engagement/registry.server"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
 import {
   createNotification,
-  getContentOwner,
   getMessageOwner,
 } from "~/lib/notifications/helpers.server"
-import {
-  recordTypeWithLikes,
-  type RecordWithLikes,
-  type RecordWithLikesType,
-} from "~/lib/reactions/schemas"
+import { type RecordWithLikes } from "~/lib/reactions/schemas"
 
 type AuthenticatedContext = {
   user: {
@@ -39,16 +24,48 @@ type AuthenticatedContext = {
   }
 }
 
-// Map reaction types to notification entity types (only primary content, not messages)
-const LIKEABLE_ENTITY_TYPES: Partial<
-  Record<RecordWithLikesType, NotificationEntityType>
-> = {
-  post: "post",
-  riuSet: "riuSet",
-  riuSubmission: "riuSubmission",
-  biuSet: "biuSet",
-  siuSet: "siuSet",
-  utvVideo: "utvVideo",
+// A `*_likes` row is the liked record's foreign key plus the acting user.
+type LikeRow = { userId: number } & Record<string, number>
+
+const NOTIFICATION_ENTITY_TYPE_SET: ReadonlySet<string> = new Set(
+  NOTIFICATION_ENTITY_TYPES,
+)
+
+/**
+ * Every `*_likes` table pairs its foreign key with a `userId` column (composite
+ * PK). Drizzle's `PgTable` is untyped at this seam, so reach the column by name
+ * with a narrow cast rather than threading each concrete table type through.
+ */
+function userIdColumn(table: PgTable): AnyPgColumn {
+  return (table as unknown as Record<string, AnyPgColumn>).userId
+}
+
+/**
+ * The JS property key for a column on its table. Drizzle's `.values()` is keyed
+ * by JS property name (e.g. `siuSetMessageId`), not the SQL column name
+ * (`siu_set_message_id`), so resolve the key by identity-matching the registry's
+ * column reference — no `${type}Id` string construction.
+ */
+function columnKey(table: PgTable, column: AnyPgColumn): string {
+  const entry = Object.entries(
+    table as unknown as Record<string, AnyPgColumn>,
+  ).find(([, col]) => col === column)
+  invariant(entry, `could not resolve a JS key for column "${column.name}"`)
+  return entry[0]
+}
+
+/**
+ * Content entity types share their key with a notification entity type (a like
+ * on a `post` notifies about the `post`). The reactable union is wider than
+ * `NotificationEntityType` (it also covers message types), so narrow here; the
+ * invariant only fires if a content type lacks a matching notification type.
+ */
+function asNotificationEntityType(type: string): NotificationEntityType {
+  invariant(
+    NOTIFICATION_ENTITY_TYPE_SET.has(type),
+    `content type "${type}" has no matching notification entity type`,
+  )
+  return type as NotificationEntityType
 }
 
 export async function likeRecord({
@@ -62,26 +79,37 @@ export async function likeRecord({
 
   const { recordId, type } = input
 
-  const { table } = getTableByType(type)
+  const binding = ENTITY_REGISTRY[type]
 
   const result = await db
-    .insert(table)
+    .insert(binding.likesTable)
     .values({
-      [`${type}Id`]: recordId,
+      // The foreign-key column comes from the registry — never reconstructed at
+      // runtime from `${type}Id`, the documented silent-failure source.
+      [columnKey(binding.likesTable, binding.fkColumn)]: recordId,
       userId,
-    })
+    } satisfies LikeRow)
+    // A like is a single mark: the composite (fk, userId) primary key makes a
+    // repeated like a no-op rather than a duplicate-key error. `returning()`
+    // yields no rows on conflict, which gates the notification below so a
+    // double-like never re-notifies.
+    .onConflictDoNothing()
     .returning()
 
-  // Create notification for primary content types (not message likes)
-  const entityType = LIKEABLE_ENTITY_TYPES[type]
-  if (entityType) {
-    const ownerId = await getContentOwner(entityType, recordId)
+  const inserted = result.length > 0
+  if (!inserted) {
+    return result
+  }
+
+  if (binding.kind === "content") {
+    // A like on content notifies the content owner.
+    const ownerId = await binding.resolveOwner(recordId)
     if (ownerId && ownerId !== userId) {
       createNotification({
         userId: ownerId,
         actorId: userId,
-        type: "like",
-        entityType,
+        type: binding.notificationType,
+        entityType: asNotificationEntityType(type),
         entityId: recordId,
         data: {
           actorName: context.user.name,
@@ -90,13 +118,15 @@ export async function likeRecord({
       }).catch(logRejection("reactions.notify"))
     }
   } else {
-    // Message like — notify the message author
+    // A like on a message notifies the message author. The notification points
+    // at the message's *parent* entity (so the recipient lands on the thread),
+    // which the registry binding doesn't carry — resolve it from the helper.
     const messageOwner = await getMessageOwner(type, recordId)
     if (messageOwner && messageOwner.ownerId !== userId) {
       createNotification({
         userId: messageOwner.ownerId,
         actorId: userId,
-        type: "message_like",
+        type: binding.notificationType,
         entityType: messageOwner.parentEntityType,
         entityId: messageOwner.parentEntityId,
         data: {
@@ -122,64 +152,10 @@ export async function unlikeRecord({
 
   const { recordId, type } = input
 
-  const { table, column } = getTableByType(type)
+  const { likesTable, fkColumn } = ENTITY_REGISTRY[type]
 
   return await db
-    .delete(table)
-    .where(and(eq(column, recordId), eq(table.userId, userId)))
+    .delete(likesTable)
+    .where(and(eq(fkColumn, recordId), eq(userIdColumn(likesTable), userId)))
     .returning()
-}
-
-export const getTableByType = (type: RecordWithLikesType) => {
-  switch (type) {
-    case "post":
-      return { table: postLikes, column: postLikes.postId }
-    case "chatMessage":
-      return { table: chatMessageLikes, column: chatMessageLikes.chatMessageId }
-    case "postMessage":
-      return { table: postMessageLikes, column: postMessageLikes.postMessageId }
-    case "riuSet":
-      return { table: riuSetLikes, column: riuSetLikes.riuSetId }
-    case "riuSetMessage":
-      return {
-        table: riuSetMessageLikes,
-        column: riuSetMessageLikes.riuSetMessageId,
-      }
-    case "riuSubmission":
-      return {
-        table: riuSubmissionLikes,
-        column: riuSubmissionLikes.riuSubmissionId,
-      }
-    case "riuSubmissionMessage":
-      return {
-        table: riuSubmissionMessageLikes,
-        column: riuSubmissionMessageLikes.riuSubmissionMessageId,
-      }
-    case "utvVideo":
-      return { table: utvVideoLikes, column: utvVideoLikes.utvVideoId }
-    case "utvVideoMessage":
-      return {
-        table: utvVideoMessageLikes,
-        column: utvVideoMessageLikes.utvVideoMessageId,
-      }
-    case "biuSet":
-      return { table: biuSetLikes, column: biuSetLikes.biuSetId }
-    case "biuSetMessage":
-      return {
-        table: biuSetMessageLikes,
-        column: biuSetMessageLikes.biuSetMessageId,
-      }
-    case "siuSet":
-      return { table: siuSetLikes, column: siuSetLikes.siuSetId }
-    case "siuSetMessage":
-      return {
-        table: siuSetMessageLikes,
-        column: siuSetMessageLikes.siuSetMessageId,
-      }
-    default:
-      invariant(
-        false,
-        `Expected type to be one of ${recordTypeWithLikes.join(", ")}. Received ${type}`,
-      )
-  }
 }
