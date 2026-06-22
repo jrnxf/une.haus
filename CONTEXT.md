@@ -22,13 +22,13 @@ A named une maneuver — the unit of the shared trick catalogue. Carries alterna
 year landed, demo videos, and typed relationships to other tricks.
 
 **element**:
-An intrinsic building block a trick is *composed of* (spin, flip, twist). Assigned per-trick (many-to-many).
-Defines what the trick *is*.
+An intrinsic building block a trick is _composed of_ (spin, flip, twist). Assigned per-trick (many-to-many).
+Defines what the trick _is_.
 _Avoid_: component, part.
 
 **modifier**:
-An orthogonal variation that can decorate *any* trick without changing its identity (e.g. stance or grab
-variations). Defines how a trick is *varied*, not what it is. Global — applies across tricks.
+An orthogonal variation that can decorate _any_ trick without changing its identity (e.g. stance or grab
+variations). Defines how a trick is _varied_, not what it is. Global — applies across tricks.
 _Avoid_: variation, tag.
 
 **glossary**:
@@ -45,7 +45,7 @@ _Avoid_: submission, edit request.
 
 ### Games
 
-Three rider games, each an "___ It Up" format. All are built from **sets** and **submissions**.
+Three rider games, each an "\_\_\_ It Up" format. All are built from **sets** and **submissions**.
 
 **RIU — "Rack It Up"**:
 A rotating challenge game. Riders post **sets** and reply with **submissions**; each upload scores a point
@@ -72,7 +72,7 @@ A RIU cycle of play; rounds rotate over time, moving older ones from **active** 
 A locked archive of videos imported from **unicycle.tv** (Olaf's collection). Content is read-only — riders
 cannot add or remove videos; they may only update a video's metadata and like/message. A **video suggestion**
 is a proposed edit to an existing vault video's metadata.
-_Avoid_: une TV (UTV is *not* "une tv"), library, channel.
+_Avoid_: une TV (UTV is _not_ "une tv"), library, channel.
 
 ### Engagement
 

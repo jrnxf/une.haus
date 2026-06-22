@@ -18,9 +18,9 @@ import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
-// Calculate hours until next Monday 00:00 UTC
-function getHoursUntilNextRotation(): number {
-  const now = new Date()
+// Calculate hours until next Monday 00:00 UTC. `now` is injectable so tests can
+// pin a deterministic instant; production callers use the real clock.
+export function getHoursUntilNextRotation(now: Date = new Date()): number {
   const nextMonday = new Date(now)
 
   // Find next Monday
@@ -40,9 +40,14 @@ export default defineTask({
     name: TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
     description: "Send game start reminder emails to opted-in users",
   },
-  async run() {
+  async run(event) {
     const task = TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS
     logger.info("game-start-reminders started", { task })
+
+    // Clock seam: tests pin a deterministic instant via payload.nowMs; the cron
+    // sends an empty payload, so production uses the real clock.
+    const nowMs = event?.payload?.nowMs
+    const now = typeof nowMs === "number" ? new Date(nowMs) : new Date()
 
     // Get the upcoming RIU
     const upcomingRiu = await db.query.rius.findFirst({
@@ -62,7 +67,7 @@ export default defineTask({
       }
     }
 
-    const hoursUntilStart = getHoursUntilNextRotation()
+    const hoursUntilStart = getHoursUntilNextRotation(now)
 
     // Get set and rider counts for the upcoming round
     const setStats = await db
