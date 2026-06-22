@@ -1,5 +1,19 @@
 import { z } from "zod"
 
+import { type EngagementEntityType } from "~/lib/engagement/registry.server"
+
+/**
+ * The engageable entity types that can be liked through the reactions module.
+ *
+ * Constrained to registry keys via `satisfies readonly EngagementEntityType[]`
+ * so this union cannot drift from the registry — the registry remains the single
+ * source of truth for each type's likes table, foreign-key column, owner
+ * resolution, and notification type.
+ *
+ * Tricks own `*_likes` tables (so the registry covers them for schema coverage),
+ * but they are not yet wired into the reactions dispatch/UI, so `trick` and
+ * `trickMessage` are intentionally absent here.
+ */
 export const recordTypeWithLikes = [
   "chatMessage",
   "post",
@@ -14,7 +28,7 @@ export const recordTypeWithLikes = [
   "biuSetMessage",
   "siuSet",
   "siuSetMessage",
-] as const
+] as const satisfies readonly EngagementEntityType[]
 
 export const recordTypeToLabel: Record<RecordWithLikesType, string> = {
   post: "post",
