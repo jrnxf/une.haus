@@ -12,6 +12,25 @@ import { logger } from "~/lib/logger"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
+// RFC 2606 / 6761 reserved domains. These only ever appear in tests and
+// fixtures — never a real recipient — so we never hit the live Resend API for
+// them. An unmocked integration test once drained the entire daily email quota
+// by sending real magic-link codes to addresses like ratelimit@example.com.
+const RESERVED_EMAIL_DOMAINS = new Set([
+  "example.com",
+  "example.org",
+  "example.net",
+])
+const RESERVED_EMAIL_TLDS = [".test", ".example", ".invalid", ".localhost"]
+
+function isReservedRecipient(email: string): boolean {
+  const domain = email.slice(email.lastIndexOf("@") + 1).toLowerCase()
+  return (
+    RESERVED_EMAIL_DOMAINS.has(domain) ||
+    RESERVED_EMAIL_TLDS.some((tld) => domain.endsWith(tld))
+  )
+}
+
 type SessionStore = {
   update: (payload: {
     user: {
@@ -53,6 +72,16 @@ export async function sendAuthCode({
       expiresAt: inFiveMinutes,
     })
     .returning()
+
+  // Defense-in-depth: never send to reserved/test domains. The auth code is
+  // already persisted above, so any flow that needs it can read it; we just
+  // skip the live email. Prevents tests/fixtures from burning the Resend quota.
+  if (isReservedRecipient(input.email)) {
+    logger.warn("skipping auth email to reserved domain", {
+      email: input.email,
+    })
+    return
+  }
 
   const { data, error } = await resendClient.emails.send({
     from: "Colby Thomas <colby@jrnxf.co>",
