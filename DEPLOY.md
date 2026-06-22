@@ -108,3 +108,18 @@ which applies any migration files not yet recorded in
 Provisioned and operated from the `homelab` repo. See
 `homelab/docs/unehaus-migration/04-native-plan.md` for topology and the
 `unehaus` + `postgres` Ansible roles.
+
+From this repo:
+
+```bash
+bun preflight        # the role does NOT run tests — gate here first
+bun run deploy       # runs the unehaus play in the homelab repo
+```
+
+`bun run deploy` (`scripts/deploy.ts`) is a thin wrapper around
+`ansible-playbook playbooks/deploy-infra.yml --tags unehaus`. It assumes the
+homelab repo is a sibling checkout (`../homelab`); override with `HOMELAB_DIR`.
+Extra args pass straight through to ansible, e.g. `bun run deploy --check` for a
+dry run. The role rsyncs this repo's working tree to the box (no git pull on the
+server), so whatever is checked out here is what ships — the script prints the
+deploying commit and warns on a dirty tree.

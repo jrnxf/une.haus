@@ -15,6 +15,7 @@
     "start:web": "bun run --filter web start",
     "start:docs": "bun run --filter docs start",
     "preflight": "bun run scripts/preflight.ts",
+    "deploy": "bun run scripts/deploy.ts",
     "typecheck": "bun run --filter '*' typecheck",
     "lint": "oxlint",
     "format": "oxfmt --write",
