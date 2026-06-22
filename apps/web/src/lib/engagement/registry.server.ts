@@ -413,16 +413,6 @@ export function isEngagementContentType(
   )
 }
 
-/** Narrowing type guard: is `type` a registered engagement message type? */
-export function isEngagementMessageType(
-  type: string,
-): type is EngagementMessageType {
-  return (
-    type in ENTITY_REGISTRY &&
-    ENTITY_REGISTRY[type as EngagementEntityType].kind === "message"
-  )
-}
-
 /**
  * Resolve the content owner to notify for a like or message on a content entity.
  * Returns null when the entity is gone or has no owner (e.g. legacy vault
@@ -446,3 +436,90 @@ export async function resolveMessageTarget(
 ): Promise<MessageTarget | null> {
   return ENTITY_REGISTRY[type].resolveMessageTarget(recordId)
 }
+
+/**
+ * Message dispatch, anchored to the registry.
+ *
+ * A `message` is a comment-thread entry attached to a content entity (or to the
+ * global chat). Every message lives in some `{entity}_messages` table that the
+ * registry already owns via `EngagementBinding.messageTable`. This map names,
+ * for each message *parent type* a rider can post under, the registry-owned
+ * message table to write/read and the parent foreign-key column on that table.
+ *
+ * The parent column is stored as the real Drizzle column reference — never
+ * reconstructed at runtime from `` `${type}Id` `` (the documented
+ * silent-failure source, see CLAUDE.md). `chat` has no parent entity, so its
+ * `parentColumn` and `notificationEntityType` are `null`.
+ */
+export type MessageParentBinding = {
+  /** The registry-owned `{entity}_messages` table messages are stored in. */
+  messageTable: PgTable
+  /**
+   * The foreign-key column on `messageTable` pointing at the parent record, or
+   * `null` for `chat` (which has no parent entity). Real Drizzle column — never
+   * reconstructed from a string.
+   */
+  parentColumn: AnyPgColumn | null
+  /**
+   * Notification entity type for the parent, or `null` for `chat`. Drives owner
+   * comment notifications and message-like notification cleanup.
+   */
+  notificationEntityType: NotificationEntityType | null
+}
+
+/**
+ * Message parent registry — for each parent type a rider can attach a message
+ * to, the registry-owned message table and parent foreign-key column. Message
+ * tables are read back out of `ENTITY_REGISTRY` so this map can never name a
+ * table the registry doesn't own. The `MessageParentType` union is derived from
+ * its keys, so the schema and dispatch can never drift from one another.
+ */
+export const MESSAGE_PARENT_REGISTRY = {
+  chat: {
+    messageTable: ENTITY_REGISTRY.chatMessage.messageTable,
+    parentColumn: null,
+    notificationEntityType: null,
+  },
+  post: {
+    messageTable: ENTITY_REGISTRY.post.messageTable,
+    parentColumn: postMessages.postId,
+    notificationEntityType: "post",
+  },
+  riuSet: {
+    messageTable: ENTITY_REGISTRY.riuSet.messageTable,
+    parentColumn: riuSetMessages.riuSetId,
+    notificationEntityType: "riuSet",
+  },
+  riuSubmission: {
+    messageTable: ENTITY_REGISTRY.riuSubmission.messageTable,
+    parentColumn: riuSubmissionMessages.riuSubmissionId,
+    notificationEntityType: "riuSubmission",
+  },
+  utvVideo: {
+    messageTable: ENTITY_REGISTRY.utvVideo.messageTable,
+    parentColumn: utvVideoMessages.utvVideoId,
+    notificationEntityType: "utvVideo",
+  },
+  biuSet: {
+    messageTable: ENTITY_REGISTRY.biuSet.messageTable,
+    parentColumn: biuSetMessages.biuSetId,
+    notificationEntityType: "biuSet",
+  },
+  siuSet: {
+    messageTable: ENTITY_REGISTRY.siuSet.messageTable,
+    parentColumn: siuSetMessages.siuSetId,
+    notificationEntityType: "siuSet",
+  },
+} satisfies Record<string, MessageParentBinding>
+
+export type MessageParentType = keyof typeof MESSAGE_PARENT_REGISTRY
+
+/** Every non-chat message parent type, in registry order. */
+export const RECORD_MESSAGE_PARENT_TYPES = Object.keys(
+  MESSAGE_PARENT_REGISTRY,
+).filter((type): type is Exclude<MessageParentType, "chat"> => type !== "chat")
+
+/** Resolve the registry-owned message binding for a parent type. */
+export const getMessageParentBinding = (
+  type: MessageParentType,
+): MessageParentBinding => MESSAGE_PARENT_REGISTRY[type]
