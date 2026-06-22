@@ -1,5 +1,14 @@
 import { z } from "zod"
 
+/**
+ * Non-chat message parent types. This list mirrors the keys of
+ * `MESSAGE_PARENT_REGISTRY` in the server-only engagement registry, which is the
+ * source of truth for message dispatch. It is duplicated here (rather than
+ * imported) because schemas run on the client, where the server-only registry
+ * cannot be bundled. Two guards keep the two in lock-step:
+ *   - a compile-time `AssertEqual` in `messages/ops.server.ts`, and
+ *   - a runtime equality assertion in `messages.integration.test.ts`.
+ */
 export const recordWithMessagesTypes = [
   "post",
   "riuSet",

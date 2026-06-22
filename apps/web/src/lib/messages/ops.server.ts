@@ -1,32 +1,95 @@
 import "@tanstack/react-start/server-only"
-import { and, eq } from "drizzle-orm"
+import { and, asc, desc, eq, getTableName } from "drizzle-orm"
+import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
 
 import { db } from "~/db"
 import {
-  biuSetMessages,
-  chatMessages,
-  postMessages,
-  riuSetMessages,
-  riuSubmissionMessages,
-  siuSetMessages,
-  utvVideoMessages,
-} from "~/db/schema"
-import {
+  getMessageParentBinding,
   isEngagementContentType,
+  type MessageParentType,
   resolveContentOwner,
 } from "~/lib/engagement/registry.server"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
 import { extractMentionedUserIds } from "~/lib/mentions/parse"
 import { resolvePreview } from "~/lib/mentions/resolve.server"
-import {
-  type MessageParentType,
-  recordWithMessagesTypes,
-} from "~/lib/messages/schemas"
+import { type MessageParentType as SchemaMessageParentType } from "~/lib/messages/schemas"
 import {
   createNotification,
   deleteNotificationsForMessage,
 } from "~/lib/notifications/helpers.server"
+
+/**
+ * Every `{entity}_messages` table shares these columns. The registry owns the
+ * tables as opaque `PgTable`s; this is the column surface the message ops
+ * operate over, regardless of which parent type resolved the table.
+ */
+type MessageColumns = {
+  id: AnyPgColumn
+  content: AnyPgColumn
+  createdAt: AnyPgColumn
+  userId: AnyPgColumn
+}
+type MessageTable = PgTable & MessageColumns
+
+/** Resolve the registry-owned message table for a parent type. */
+export const getTableByType = (type: MessageParentType): MessageTable =>
+  getMessageParentBinding(type).messageTable as unknown as MessageTable
+
+/** snake_case table name → the camelCase key Drizzle's relational query uses. */
+const toRelationalKey = (snake: string): string =>
+  snake.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
+
+/**
+ * Resolve the *property* key for a column on its table. Drizzle's `.values()`
+ * and `.set()` are keyed by the table's TS property names (e.g. `postId`), not
+ * the DB column name (`post_id`); the registry stores the column reference, so
+ * we map it back to its property key by identity — no string reconstruction.
+ */
+const parentColumnKey = (table: PgTable, column: AnyPgColumn): string => {
+  const entry = Object.entries(
+    table as unknown as Record<string, unknown>,
+  ).find(([, value]) => value === column)
+  invariant(entry, `column "${column.name}" not found on its table`)
+  return entry[0]
+}
+
+/** User fields exposed on a listed message's author and likers. */
+type MessageUser = { avatarId: string | null; id: number; name: string }
+
+/**
+ * The public shape of a listed message, identical across every parent type.
+ * Declared explicitly so the server-fn return type (and therefore every UI
+ * consumer) stays stable even though the underlying relational query is
+ * resolved dynamically through the registry.
+ */
+export type ListedMessage = {
+  id: number
+  content: string
+  createdAt: Date
+  userId: number
+  user: MessageUser
+  likes: { user: MessageUser }[]
+}
+
+/**
+ * Relational query accessor keyed by table export name. The registry owns which
+ * table each parent type resolves to; we look the accessor up by that table's
+ * name so the list query is registry-driven, not a hand-copied switch. The
+ * result is typed as `ListedMessage[]` — every message table shares this shape.
+ */
+type RelationalQuery = {
+  findMany: (config: Record<string, unknown>) => Promise<ListedMessage[]>
+}
+const relationalQueryFor = (table: MessageTable): RelationalQuery => {
+  const key = toRelationalKey(getTableName(table as never))
+  const query = (db.query as unknown as Record<string, RelationalQuery>)[key]
+  invariant(query, `no relational query for message table "${key}"`)
+  return query
+}
+
+/** Slim user projection shared by message authors and likers. */
+const userColumns = { avatarId: true, id: true, name: true } as const
 
 type AuthenticatedContext = {
   user: {
@@ -53,90 +116,23 @@ export async function createMessage({
 
   const { content, id, type } = input
 
-  let messageId: number | undefined
+  const { messageTable, parentColumn } = getMessageParentBinding(type)
 
-  if (type === "post") {
-    const [row] = await db
-      .insert(postMessages)
-      .values({
-        content,
-        postId: id,
-        userId,
-      })
-      .returning()
-    messageId = row.id
+  // Build the insert values for the registry-owned message table. Non-chat
+  // parents carry a foreign key to their parent record; chat has none. Drizzle
+  // `.values()` keys are the table's *property* names, so we resolve the parent
+  // column's property key off the registry-owned column reference — never
+  // reconstructed from `${type}Id`.
+  const values: Record<string, unknown> = { content, userId }
+  if (parentColumn) {
+    values[parentColumnKey(messageTable, parentColumn)] = id
   }
 
-  if (type === "chat") {
-    const [row] = await db
-      .insert(chatMessages)
-      .values({
-        content,
-        userId,
-      })
-      .returning()
-    messageId = row.id
-  }
-
-  if (type === "riuSet") {
-    const [row] = await db
-      .insert(riuSetMessages)
-      .values({
-        content,
-        riuSetId: id,
-        userId,
-      })
-      .returning()
-    messageId = row.id
-  }
-
-  if (type === "riuSubmission") {
-    const [row] = await db
-      .insert(riuSubmissionMessages)
-      .values({
-        content,
-        riuSubmissionId: id,
-        userId,
-      })
-      .returning()
-    messageId = row.id
-  }
-
-  if (type === "utvVideo") {
-    const [row] = await db
-      .insert(utvVideoMessages)
-      .values({
-        content,
-        utvVideoId: id,
-        userId,
-      })
-      .returning()
-    messageId = row.id
-  }
-
-  if (type === "biuSet") {
-    const [row] = await db
-      .insert(biuSetMessages)
-      .values({
-        content,
-        biuSetId: id,
-        userId,
-      })
-      .returning()
-    messageId = row.id
-  }
-
-  if (type === "siuSet") {
-    const [row] = await db
-      .insert(siuSetMessages)
-      .values({
-        content,
-        siuSetId: id,
-        userId,
-      })
-      .returning()
-    messageId = row.id
-  }
+  const [row] = await db
+    .insert(messageTable)
+    .values(values as never)
+    .returning()
+  const messageId = (row as { id: number }).id
 
   const preview = await resolvePreview(content)
 
@@ -217,7 +213,8 @@ export async function updateMessage({
     .where(and(eq(table.id, id), eq(table.userId, userId)))
 
   if (existing) {
-    const oldMentions = new Set(extractMentionedUserIds(existing.content))
+    const existingContent = existing.content as string
+    const oldMentions = new Set(extractMentionedUserIds(existingContent))
     const newMentions = extractMentionedUserIds(content).filter(
       (uid) => !oldMentions.has(uid),
     )
@@ -263,19 +260,14 @@ export async function deleteMessage({
 
   const table = getTableByType(input.type)
 
-  // Clean up message_like notifications before deleting
+  // Clean up message_like notifications before deleting. Non-chat parents file
+  // under their parent entity type; chat files under "chat".
   const entityType = isEngagementContentType(input.type)
     ? input.type
     : undefined
-  if (entityType) {
-    deleteNotificationsForMessage(entityType, input.id).catch(
-      logRejection("messages.notify"),
-    )
-  } else if (input.type === "chat") {
-    deleteNotificationsForMessage("chat", input.id).catch(
-      logRejection("messages.notify"),
-    )
-  }
+  deleteNotificationsForMessage(entityType ?? "chat", input.id).catch(
+    logRejection("messages.notify"),
+  )
 
   await db
     .delete(table)
@@ -290,49 +282,149 @@ async function getMessageParentEntityId(
   type: MessageParentType,
   messageId: number,
 ): Promise<number> {
-  if (type === "chat") return 0
+  const { messageTable, parentColumn } = getMessageParentBinding(type)
+  if (!parentColumn) return 0
 
-  const table = getTableByType(type)
-  const fkColumn = `${type}Id`
+  const table = messageTable as unknown as MessageTable
 
   const row = await db
-    // @ts-expect-error dynamic FK column — follows `${type}Id` pattern
-    .select({ parentId: table[fkColumn] })
+    .select({ parentId: parentColumn })
     .from(table)
     .where(eq(table.id, messageId))
     .then((rows) => rows[0])
 
-  return (row?.parentId as number) ?? 0
+  return (row?.parentId as number | null) ?? 0
 }
 
-export const getTableByType = (type: MessageParentType) => {
-  switch (type) {
-    case "post": {
-      return postMessages
+/**
+ * Compile-time guard: the client-safe `MessageParentType` declared in
+ * `schemas.ts` must stay exactly equal to the registry-derived union. If a
+ * parent type is added to or removed from `MESSAGE_PARENT_REGISTRY` without the
+ * matching change to the Zod schema (or vice versa), this assignment fails to
+ * type-check — the dispatch and the validation can never silently drift.
+ */
+type AssertEqual<A, B> = [A] extends [B]
+  ? [B] extends [A]
+    ? true
+    : never
+  : never
+const _messageParentTypesMatch: AssertEqual<
+  MessageParentType,
+  SchemaMessageParentType
+> = true
+void _messageParentTypesMatch
+
+type ListMessagesInput =
+  | { type: "chat"; id: -1; focus?: number }
+  | { type: Exclude<MessageParentType, "chat">; id: number }
+
+/**
+ * List messages for a parent. The message table is resolved through the
+ * registry for every content type; chat keeps its 28-day window + focus-mode
+ * behavior, and record types share one registry-driven relational query.
+ */
+export async function listMessages(input: ListMessagesInput) {
+  if (input.type === "chat") {
+    return listChatMessages(input.focus)
+  }
+  return listRecordMessages(input.type, input.id)
+}
+
+async function listChatMessages(focus?: number) {
+  const chatTable = getTableByType("chat")
+  const query = relationalQueryFor(chatTable)
+
+  const chatMessagesWith = {
+    likes: { with: { user: { columns: userColumns } } },
+    user: { columns: userColumns },
+  } as const
+
+  const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000)
+
+  // Get all messages from the last 28 days
+  const recentMessages = await query.findMany({
+    orderBy: asc(chatTable.createdAt),
+    where: (fields: Record<string, AnyPgColumn>, ops: { gte: typeof eq }) =>
+      ops.gte(fields.createdAt, twentyEightDaysAgo),
+    with: chatMessagesWith,
+  })
+
+  let defaultMessages = recentMessages
+
+  // If fewer than 100 messages, fetch older ones to reach 100
+  if (recentMessages.length < 100) {
+    const olderMessages = await query.findMany({
+      orderBy: desc(chatTable.createdAt),
+      limit: 100 - recentMessages.length,
+      where: (fields: Record<string, AnyPgColumn>, ops: { lt: typeof eq }) =>
+        ops.lt(fields.createdAt, twentyEightDaysAgo),
+      with: chatMessagesWith,
+    })
+
+    defaultMessages = [...olderMessages.toReversed(), ...recentMessages]
+  }
+
+  // Focus mode: if the target message is in the default window, just use that.
+  // Otherwise load a small window around the target message.
+  if (focus && !defaultMessages.some((m) => m.id === focus)) {
+    const beforeMessages = await query.findMany({
+      orderBy: desc(chatTable.id),
+      limit: 10,
+      where: (fields: Record<string, AnyPgColumn>, ops: { lt: typeof eq }) =>
+        ops.lt(fields.id, focus),
+      with: chatMessagesWith,
+    })
+
+    const targetAndAfter = await query.findMany({
+      orderBy: asc(chatTable.id),
+      limit: 11,
+      where: (fields: Record<string, AnyPgColumn>, ops: { gte: typeof eq }) =>
+        ops.gte(fields.id, focus),
+      with: chatMessagesWith,
+    })
+
+    return {
+      type: "chatMessages" as const,
+      focused: true as const,
+      messages: [...beforeMessages.toReversed(), ...targetAndAfter],
     }
-    case "chat": {
-      return chatMessages
-    }
-    case "riuSet": {
-      return riuSetMessages
-    }
-    case "riuSubmission": {
-      return riuSubmissionMessages
-    }
-    case "utvVideo": {
-      return utvVideoMessages
-    }
-    case "biuSet": {
-      return biuSetMessages
-    }
-    case "siuSet": {
-      return siuSetMessages
-    }
-    default: {
-      invariant(
-        false,
-        `Expected type to be one of ${recordWithMessagesTypes.join(", ")}. Received ${type}`,
-      )
-    }
+  }
+
+  return {
+    type: "chatMessages" as const,
+    focused: false as const,
+    messages: defaultMessages,
+  }
+}
+
+async function listRecordMessages(
+  type: Exclude<MessageParentType, "chat">,
+  parentId: number,
+) {
+  const { messageTable, parentColumn } = getMessageParentBinding(type)
+  invariant(
+    parentColumn,
+    `record message type "${type}" must have a parent column`,
+  )
+
+  const table = messageTable as unknown as MessageTable & {
+    createdAt: AnyPgColumn
+  }
+  const query = relationalQueryFor(table)
+
+  const messages = await query.findMany({
+    orderBy: asc(table.createdAt),
+    where: eq(parentColumn, parentId),
+    with: {
+      likes: { with: { user: { columns: userColumns } } },
+      user: { columns: userColumns },
+    },
+  })
+
+  return {
+    type: `${type}Messages` as const,
+    focused: false as const,
+    parentId,
+    messages,
   }
 }
