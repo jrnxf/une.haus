@@ -5,13 +5,16 @@ import { db } from "~/db"
 import {
   biuSetMessages,
   chatMessages,
-  type NotificationEntityType,
   postMessages,
   riuSetMessages,
   riuSubmissionMessages,
   siuSetMessages,
   utvVideoMessages,
 } from "~/db/schema"
+import {
+  isEngagementContentType,
+  resolveContentOwner,
+} from "~/lib/engagement/registry.server"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
 import { extractMentionedUserIds } from "~/lib/mentions/parse"
@@ -23,20 +26,7 @@ import {
 import {
   createNotification,
   deleteNotificationsForMessage,
-  getContentOwner,
 } from "~/lib/notifications/helpers.server"
-
-// Map message parent types to notification entity types
-const MESSAGE_ENTITY_TYPES: Partial<
-  Record<MessageParentType, NotificationEntityType>
-> = {
-  post: "post",
-  riuSet: "riuSet",
-  riuSubmission: "riuSubmission",
-  biuSet: "biuSet",
-  siuSet: "siuSet",
-  utvVideo: "utvVideo",
-}
 
 type AuthenticatedContext = {
   user: {
@@ -150,11 +140,13 @@ export async function createMessage({
 
   const preview = await resolvePreview(content)
 
-  // Create comment notification for the content owner (non-chat only)
-  const entityType = MESSAGE_ENTITY_TYPES[type]
+  // Create comment notification for the content owner (non-chat only). Chat
+  // messages have no content owner, so this resolves through the registry only
+  // for engagement content types.
+  const entityType = isEngagementContentType(type) ? type : undefined
   let ownerId: number | null | undefined
   if (entityType) {
-    ownerId = await getContentOwner(entityType, id)
+    ownerId = await resolveContentOwner(entityType, id)
     if (ownerId && ownerId !== userId) {
       createNotification({
         userId: ownerId,
@@ -230,7 +222,7 @@ export async function updateMessage({
       (uid) => !oldMentions.has(uid),
     )
 
-    const entityType = MESSAGE_ENTITY_TYPES[type]
+    const entityType = isEngagementContentType(type) ? type : undefined
     const mentionEntityType = entityType ?? "chat"
     const mentionEntityId = entityType
       ? await getMessageParentEntityId(type, id)
@@ -272,7 +264,9 @@ export async function deleteMessage({
   const table = getTableByType(input.type)
 
   // Clean up message_like notifications before deleting
-  const entityType = MESSAGE_ENTITY_TYPES[input.type]
+  const entityType = isEngagementContentType(input.type)
+    ? input.type
+    : undefined
   if (entityType) {
     deleteNotificationsForMessage(entityType, input.id).catch(
       logRejection("messages.notify"),

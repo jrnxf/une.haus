@@ -10,10 +10,7 @@ import {
 import { ENTITY_REGISTRY } from "~/lib/engagement/registry.server"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
-import {
-  createNotification,
-  getMessageOwner,
-} from "~/lib/notifications/helpers.server"
+import { createNotification } from "~/lib/notifications/helpers.server"
 import { type RecordWithLikes } from "~/lib/reactions/schemas"
 
 type AuthenticatedContext = {
@@ -119,16 +116,17 @@ export async function likeRecord({
     }
   } else {
     // A like on a message notifies the message author. The notification points
-    // at the message's *parent* entity (so the recipient lands on the thread),
-    // which the registry binding doesn't carry — resolve it from the helper.
-    const messageOwner = await getMessageOwner(type, recordId)
-    if (messageOwner && messageOwner.ownerId !== userId) {
+    // at the message's *parent* entity (so the recipient lands on the thread).
+    // The binding resolves both the author and the parent reference from the
+    // registry — no parallel `switch` in the notifications module.
+    const target = await binding.resolveMessageTarget(recordId)
+    if (target && target.ownerId !== userId) {
       createNotification({
-        userId: messageOwner.ownerId,
+        userId: target.ownerId,
         actorId: userId,
         type: binding.notificationType,
-        entityType: messageOwner.parentEntityType,
-        entityId: messageOwner.parentEntityId,
+        entityType: target.parentEntityType,
+        entityId: target.parentEntityId,
         data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
