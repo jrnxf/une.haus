@@ -7,21 +7,27 @@ import {
   biuSetLikes,
   biuSetMessageLikes,
   biuSetMessages,
+  biuSets,
   chatMessageLikes,
   chatMessages,
+  type NotificationEntityType,
   type NotificationType,
   postLikes,
   postMessageLikes,
   postMessages,
+  posts,
   riuSetLikes,
   riuSetMessageLikes,
   riuSetMessages,
+  riuSets,
   riuSubmissionLikes,
   riuSubmissionMessageLikes,
   riuSubmissionMessages,
+  riuSubmissions,
   siuSetLikes,
   siuSetMessageLikes,
   siuSetMessages,
+  siuSets,
   trickLikes,
   trickMessageLikes,
   trickMessages,
@@ -30,10 +36,6 @@ import {
   utvVideoMessageLikes,
   utvVideoMessages,
 } from "~/db/schema"
-import {
-  getContentOwner,
-  getMessageOwner,
-} from "~/lib/notifications/helpers.server"
 
 /**
  * EntityRegistry — the single source of truth for the engagement binding of
@@ -46,21 +48,29 @@ import {
  * several `switch`/union sites; missing an entry didn't error, it silently
  * no-oped (see CLAUDE.md on the dynamic `${type}Id` hazard).
  *
- * This module consolidates that map. Slice 1 only *introduces* the registry —
- * no consumers are rewired yet, so behavior is unchanged. Later slices rewrite
- * the scattered dispatch sites to read from here.
+ * Owner-resolution now lives here. Each binding knows how to read the user a
+ * notification must reach: the **content owner** for a like or message on a
+ * content entity, and the **message author** for a like on a message. The
+ * notifications module reads from this registry instead of re-deriving the same
+ * mapping in a parallel `switch`.
  */
 
 /**
- * Capability axis for an entity type.
- * - `content`: likeable *and* messageable; a like notifies the content owner.
- * - `message`: likeable only; a like notifies the message author.
+ * Where a notification about a *message like* points. Message likes notify the
+ * message author but reference the *parent* content entity so the recipient can
+ * navigate to the thread.
  */
-type EngagementKind = "content" | "message"
+export type MessageTarget = {
+  /** The message author — the user to notify. */
+  ownerId: number
+  /** The parent content entity the message hangs off of. */
+  parentEntityType: NotificationEntityType
+  /** The parent content entity's id. */
+  parentEntityId: number
+}
 
-export type EngagementBinding = {
-  /** Capability axis — drives how a like is routed. */
-  kind: EngagementKind
+type ContentBinding = {
+  kind: "content"
   /** The `{entity}Likes` table holding like rows. */
   likesTable: PgTable
   /**
@@ -69,17 +79,35 @@ export type EngagementBinding = {
    * `` `${type}Id` `` (the documented silent-failure source).
    */
   fkColumn: AnyPgColumn
-  /**
-   * For `content`: the `{entity}Messages` table of messages attached to it.
-   * For `message`: the `{entity}Messages` table the message rows live in.
-   * Always present so every `*_messages` table is owned by the registry.
-   */
+  /** The `{entity}Messages` table of messages attached to this content. */
   messageTable: PgTable
-  /** Resolves the user to notify (content owner / message author), or null. */
+  /** Resolves the content owner to notify, or null when none (e.g. legacy). */
   resolveOwner: (recordId: number) => Promise<number | null>
-  /** Notification type emitted when this entity is liked. */
+  /** Notification type emitted when this content is liked. */
   notificationType: NotificationType
 }
+
+type MessageBinding = {
+  kind: "message"
+  /** The `{entity}Likes` table holding like rows. */
+  likesTable: PgTable
+  /** The foreign-key column on `likesTable` pointing at the liked message. */
+  fkColumn: AnyPgColumn
+  /** The `{entity}Messages` table the message rows live in. */
+  messageTable: PgTable
+  /** Resolves the message author to notify, or null when the message is gone. */
+  resolveOwner: (recordId: number) => Promise<number | null>
+  /**
+   * Resolves the full notification target for a like on this message: author
+   * plus the parent content entity to reference. Null when the message is gone
+   * or its parent isn't a notifiable entity type.
+   */
+  resolveMessageTarget: (recordId: number) => Promise<MessageTarget | null>
+  /** Notification type emitted when this message is liked. */
+  notificationType: NotificationType
+}
+
+export type EngagementBinding = ContentBinding | MessageBinding
 
 /**
  * Every engageable entity type. The `satisfies Record<…>` on the registry forces
@@ -108,11 +136,43 @@ const ENGAGEMENT_ENTITY_TYPES = [
 
 export type EngagementEntityType = (typeof ENGAGEMENT_ENTITY_TYPES)[number]
 
-/** Resolve the owner of a message via the existing notifications helper. */
-const messageAuthor =
-  (type: string) =>
-  async (recordId: number): Promise<number | null> =>
-    (await getMessageOwner(type, recordId))?.ownerId ?? null
+/** The subset of engagement entity types whose binding kind is `content`. */
+export type EngagementContentType =
+  | "post"
+  | "riuSet"
+  | "riuSubmission"
+  | "biuSet"
+  | "siuSet"
+  | "utvVideo"
+  | "trick"
+
+/** The subset of engagement entity types whose binding kind is `message`. */
+export type EngagementMessageType = Exclude<
+  EngagementEntityType,
+  EngagementContentType
+>
+
+/**
+ * Resolve a record's owner by reading its `userId` column. `query` is the
+ * Drizzle relational-query object for the table (e.g. `db.query.posts`); it is
+ * invoked as a method so `this` stays bound.
+ */
+type UserIdQuery = {
+  findFirst: (args: {
+    where: ReturnType<typeof eq>
+    columns: { userId: true }
+  }) => Promise<{ userId: number } | undefined>
+}
+
+const ownerByUserId =
+  (query: UserIdQuery, idColumn: AnyPgColumn) =>
+  async (recordId: number): Promise<number | null> => {
+    const row = await query.findFirst({
+      where: eq(idColumn, recordId),
+      columns: { userId: true },
+    })
+    return row?.userId ?? null
+  }
 
 export const ENTITY_REGISTRY = {
   // --- content ---
@@ -121,7 +181,7 @@ export const ENTITY_REGISTRY = {
     likesTable: postLikes,
     fkColumn: postLikes.postId,
     messageTable: postMessages,
-    resolveOwner: (recordId) => getContentOwner("post", recordId),
+    resolveOwner: ownerByUserId(db.query.posts, posts.id),
     notificationType: "like",
   },
   riuSet: {
@@ -129,7 +189,7 @@ export const ENTITY_REGISTRY = {
     likesTable: riuSetLikes,
     fkColumn: riuSetLikes.riuSetId,
     messageTable: riuSetMessages,
-    resolveOwner: (recordId) => getContentOwner("riuSet", recordId),
+    resolveOwner: ownerByUserId(db.query.riuSets, riuSets.id),
     notificationType: "like",
   },
   riuSubmission: {
@@ -137,7 +197,8 @@ export const ENTITY_REGISTRY = {
     likesTable: riuSubmissionLikes,
     fkColumn: riuSubmissionLikes.riuSubmissionId,
     messageTable: riuSubmissionMessages,
-    resolveOwner: (recordId) => getContentOwner("riuSubmission", recordId),
+    // a submission notifies its submitter — the rider who uploaded it.
+    resolveOwner: ownerByUserId(db.query.riuSubmissions, riuSubmissions.id),
     notificationType: "like",
   },
   biuSet: {
@@ -145,7 +206,7 @@ export const ENTITY_REGISTRY = {
     likesTable: biuSetLikes,
     fkColumn: biuSetLikes.biuSetId,
     messageTable: biuSetMessages,
-    resolveOwner: (recordId) => getContentOwner("biuSet", recordId),
+    resolveOwner: ownerByUserId(db.query.biuSets, biuSets.id),
     notificationType: "like",
   },
   siuSet: {
@@ -153,7 +214,7 @@ export const ENTITY_REGISTRY = {
     likesTable: siuSetLikes,
     fkColumn: siuSetLikes.siuSetId,
     messageTable: siuSetMessages,
-    resolveOwner: (recordId) => getContentOwner("siuSet", recordId),
+    resolveOwner: ownerByUserId(db.query.siuSets, siuSets.id),
     notificationType: "like",
   },
   utvVideo: {
@@ -161,8 +222,8 @@ export const ENTITY_REGISTRY = {
     likesTable: utvVideoLikes,
     fkColumn: utvVideoLikes.utvVideoId,
     messageTable: utvVideoMessages,
-    // vault videos are legacy imports with no owner — getContentOwner returns null.
-    resolveOwner: (recordId) => getContentOwner("utvVideo", recordId),
+    // vault videos are legacy imports with no owner — nobody to notify.
+    resolveOwner: async () => null,
     notificationType: "like",
   },
   trick: {
@@ -188,7 +249,16 @@ export const ENTITY_REGISTRY = {
     likesTable: chatMessageLikes,
     fkColumn: chatMessageLikes.chatMessageId,
     messageTable: chatMessages,
-    resolveOwner: messageAuthor("chatMessage"),
+    resolveOwner: ownerByUserId(db.query.chatMessages, chatMessages.id),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.chatMessages.findFirst({
+        where: eq(chatMessages.id, recordId),
+        columns: { userId: true },
+      })
+      return msg
+        ? { ownerId: msg.userId, parentEntityType: "chat", parentEntityId: 0 }
+        : null
+    },
     notificationType: "message_like",
   },
   postMessage: {
@@ -196,7 +266,20 @@ export const ENTITY_REGISTRY = {
     likesTable: postMessageLikes,
     fkColumn: postMessageLikes.postMessageId,
     messageTable: postMessages,
-    resolveOwner: messageAuthor("postMessage"),
+    resolveOwner: ownerByUserId(db.query.postMessages, postMessages.id),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.postMessages.findFirst({
+        where: eq(postMessages.id, recordId),
+        columns: { userId: true, postId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "post",
+            parentEntityId: msg.postId,
+          }
+        : null
+    },
     notificationType: "message_like",
   },
   riuSetMessage: {
@@ -204,7 +287,20 @@ export const ENTITY_REGISTRY = {
     likesTable: riuSetMessageLikes,
     fkColumn: riuSetMessageLikes.riuSetMessageId,
     messageTable: riuSetMessages,
-    resolveOwner: messageAuthor("riuSetMessage"),
+    resolveOwner: ownerByUserId(db.query.riuSetMessages, riuSetMessages.id),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.riuSetMessages.findFirst({
+        where: eq(riuSetMessages.id, recordId),
+        columns: { userId: true, riuSetId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "riuSet",
+            parentEntityId: msg.riuSetId,
+          }
+        : null
+    },
     notificationType: "message_like",
   },
   riuSubmissionMessage: {
@@ -212,7 +308,23 @@ export const ENTITY_REGISTRY = {
     likesTable: riuSubmissionMessageLikes,
     fkColumn: riuSubmissionMessageLikes.riuSubmissionMessageId,
     messageTable: riuSubmissionMessages,
-    resolveOwner: messageAuthor("riuSubmissionMessage"),
+    resolveOwner: ownerByUserId(
+      db.query.riuSubmissionMessages,
+      riuSubmissionMessages.id,
+    ),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.riuSubmissionMessages.findFirst({
+        where: eq(riuSubmissionMessages.id, recordId),
+        columns: { userId: true, riuSubmissionId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "riuSubmission",
+            parentEntityId: msg.riuSubmissionId,
+          }
+        : null
+    },
     notificationType: "message_like",
   },
   utvVideoMessage: {
@@ -220,7 +332,20 @@ export const ENTITY_REGISTRY = {
     likesTable: utvVideoMessageLikes,
     fkColumn: utvVideoMessageLikes.utvVideoMessageId,
     messageTable: utvVideoMessages,
-    resolveOwner: messageAuthor("utvVideoMessage"),
+    resolveOwner: ownerByUserId(db.query.utvVideoMessages, utvVideoMessages.id),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.utvVideoMessages.findFirst({
+        where: eq(utvVideoMessages.id, recordId),
+        columns: { userId: true, utvVideoId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "utvVideo",
+            parentEntityId: msg.utvVideoId,
+          }
+        : null
+    },
     notificationType: "message_like",
   },
   biuSetMessage: {
@@ -228,7 +353,20 @@ export const ENTITY_REGISTRY = {
     likesTable: biuSetMessageLikes,
     fkColumn: biuSetMessageLikes.biuSetMessageId,
     messageTable: biuSetMessages,
-    resolveOwner: messageAuthor("biuSetMessage"),
+    resolveOwner: ownerByUserId(db.query.biuSetMessages, biuSetMessages.id),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.biuSetMessages.findFirst({
+        where: eq(biuSetMessages.id, recordId),
+        columns: { userId: true, biuSetId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "biuSet",
+            parentEntityId: msg.biuSetId,
+          }
+        : null
+    },
     notificationType: "message_like",
   },
   siuSetMessage: {
@@ -236,7 +374,20 @@ export const ENTITY_REGISTRY = {
     likesTable: siuSetMessageLikes,
     fkColumn: siuSetMessageLikes.siuSetMessageId,
     messageTable: siuSetMessages,
-    resolveOwner: messageAuthor("siuSetMessage"),
+    resolveOwner: ownerByUserId(db.query.siuSetMessages, siuSetMessages.id),
+    resolveMessageTarget: async (recordId) => {
+      const msg = await db.query.siuSetMessages.findFirst({
+        where: eq(siuSetMessages.id, recordId),
+        columns: { userId: true, siuSetId: true },
+      })
+      return msg
+        ? {
+            ownerId: msg.userId,
+            parentEntityType: "siuSet",
+            parentEntityId: msg.siuSetId,
+          }
+        : null
+    },
     notificationType: "message_like",
   },
   trickMessage: {
@@ -244,14 +395,54 @@ export const ENTITY_REGISTRY = {
     likesTable: trickMessageLikes,
     fkColumn: trickMessageLikes.trickMessageId,
     messageTable: trickMessages,
-    // trickMessage is not handled by getMessageOwner yet; resolve directly.
-    resolveOwner: async (recordId) => {
-      const message = await db.query.trickMessages.findFirst({
-        where: eq(trickMessages.id, recordId),
-        columns: { userId: true },
-      })
-      return message?.userId ?? null
-    },
+    resolveOwner: ownerByUserId(db.query.trickMessages, trickMessages.id),
+    // tricks are not a notifiable parent entity type yet, so a like on a trick
+    // message has no target to route to — preserves the prior null behavior.
+    resolveMessageTarget: async () => null,
     notificationType: "message_like",
   },
 } satisfies Record<EngagementEntityType, EngagementBinding>
+
+/** Narrowing type guard: is `type` a registered engagement content type? */
+export function isEngagementContentType(
+  type: string,
+): type is EngagementContentType {
+  return (
+    type in ENTITY_REGISTRY &&
+    ENTITY_REGISTRY[type as EngagementEntityType].kind === "content"
+  )
+}
+
+/** Narrowing type guard: is `type` a registered engagement message type? */
+export function isEngagementMessageType(
+  type: string,
+): type is EngagementMessageType {
+  return (
+    type in ENTITY_REGISTRY &&
+    ENTITY_REGISTRY[type as EngagementEntityType].kind === "message"
+  )
+}
+
+/**
+ * Resolve the content owner to notify for a like or message on a content entity.
+ * Returns null when the entity is gone or has no owner (e.g. legacy vault
+ * videos). Reads straight from the registry — no parallel `switch`.
+ */
+export async function resolveContentOwner(
+  type: EngagementContentType,
+  recordId: number,
+): Promise<number | null> {
+  return ENTITY_REGISTRY[type].resolveOwner(recordId)
+}
+
+/**
+ * Resolve the notification target for a like on a message: the message author
+ * plus the parent content entity to reference. Returns null when the message is
+ * gone. Reads straight from the registry — no parallel `switch`.
+ */
+export async function resolveMessageTarget(
+  type: EngagementMessageType,
+  recordId: number,
+): Promise<MessageTarget | null> {
+  return ENTITY_REGISTRY[type].resolveMessageTarget(recordId)
+}
