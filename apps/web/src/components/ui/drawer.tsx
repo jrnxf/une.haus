@@ -98,7 +98,10 @@ function DrawerOverlay({
 }
 
 const viewportClasses: Record<DrawerDirection, string> = {
-  bottom: "fixed inset-0 z-50 flex items-end",
+  // pb consumes --drawer-keyboard-inset (set by Drawer.VirtualKeyboardProvider)
+  // so the bottom sheet lifts above the software keyboard instead of sitting behind it.
+  bottom:
+    "fixed inset-0 z-50 flex items-end pb-[var(--drawer-keyboard-inset,0px)]",
   top: "fixed inset-0 z-50 flex items-start",
   right: "fixed inset-0 z-50 flex items-stretch justify-end",
   left: "fixed inset-0 z-50 flex items-stretch justify-start",
@@ -185,35 +188,59 @@ function DrawerContent({
   return (
     <DrawerPortal>
       {overlay && <DrawerOverlay />}
-      <DrawerPrimitive.Viewport className={viewportClasses[direction]}>
-        <DrawerPrimitive.Popup
-          data-slot="drawer-popup"
-          className={cn(
-            "bg-background flex flex-col outline-none",
-            popupClasses[direction],
-            className,
-          )}
-          {...props}
-        >
-          {(direction === "top" || direction === "bottom") && (
-            <div
-              aria-hidden
-              className="bg-muted mx-auto my-2 h-1.5 w-12 shrink-0 rounded-full transition-opacity duration-200 group-data-[nested-drawer-open]/popup:opacity-0 group-data-[nested-drawer-swiping]/popup:opacity-100"
-            />
-          )}
-          <DrawerPrimitive.Content className="flex min-h-0 flex-col gap-4 transition-opacity duration-300 ease-[cubic-bezier(0.45,1.005,0,1.005)] group-data-[nested-drawer-open]/popup:opacity-0 group-data-[nested-drawer-swiping]/popup:opacity-100">
-            {children}
-          </DrawerPrimitive.Content>
-          {/* Spacer to keep content above the bleed zone (-mb-[3rem]) + safe area */}
-          {(direction === "top" || direction === "bottom") && (
-            <div
-              aria-hidden
-              className="shrink-0 pb-[calc(env(safe-area-inset-bottom,0px)+3rem)]"
-            />
-          )}
-        </DrawerPrimitive.Popup>
-      </DrawerPrimitive.Viewport>
+      <DrawerPrimitive.VirtualKeyboardProvider>
+        <DrawerPrimitive.Viewport className={viewportClasses[direction]}>
+          <DrawerPrimitive.Popup
+            data-slot="drawer-popup"
+            className={cn(
+              "bg-background flex flex-col outline-none",
+              popupClasses[direction],
+              className,
+            )}
+            {...props}
+          >
+            {(direction === "top" || direction === "bottom") && (
+              <div
+                aria-hidden
+                className="bg-muted mx-auto my-2 h-1.5 w-12 shrink-0 rounded-full transition-opacity duration-200 group-data-[nested-drawer-open]/popup:opacity-0 group-data-[nested-drawer-swiping]/popup:opacity-100"
+              />
+            )}
+            <DrawerPrimitive.Content className="flex min-h-0 flex-col gap-4 transition-opacity duration-300 ease-[cubic-bezier(0.45,1.005,0,1.005)] group-data-[nested-drawer-open]/popup:opacity-0 group-data-[nested-drawer-swiping]/popup:opacity-100">
+              {children}
+            </DrawerPrimitive.Content>
+            {/* Spacer to keep content above the bleed zone (-mb-[3rem]) + safe area */}
+            {(direction === "top" || direction === "bottom") && (
+              <div
+                aria-hidden
+                className="shrink-0 pb-[calc(env(safe-area-inset-bottom,0px)+3rem)]"
+              />
+            )}
+          </DrawerPrimitive.Popup>
+        </DrawerPrimitive.Viewport>
+      </DrawerPrimitive.VirtualKeyboardProvider>
     </DrawerPortal>
+  )
+}
+
+/**
+ * An invisible edge region that opens the drawer when swiped.
+ *
+ * In Base UI 1.6.0 `Drawer.SwipeArea` is a swipe-to-OPEN affordance (the
+ * opposite of the swipe-to-dismiss gesture, which stays bound to the whole
+ * popup). Render it as a sibling of `DrawerTrigger`/`DrawerContent` inside
+ * `Drawer`, and position it along the screen edge via `className`, e.g.
+ * `className="fixed inset-x-0 bottom-0 h-4"` for a bottom drawer.
+ */
+function DrawerSwipeArea({
+  className,
+  ...props
+}: DrawerPrimitive.SwipeArea.Props) {
+  return (
+    <DrawerPrimitive.SwipeArea
+      data-slot="drawer-swipe-area"
+      className={cn("touch-none", className)}
+      {...props}
+    />
   )
 }
 
@@ -227,4 +254,11 @@ function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
   )
 }
 
-export { Drawer, DrawerClose, DrawerContent, DrawerTitle, DrawerTrigger }
+export {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerSwipeArea,
+  DrawerTitle,
+  DrawerTrigger,
+}
