@@ -23,6 +23,7 @@ import {
   TrayTitle,
   TrayTrigger,
 } from "~/components/tray"
+import { Bubble, BubbleContent } from "~/components/ui/bubble"
 import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,
@@ -170,30 +171,31 @@ export function MessageBubble({
           isOwnMessage ? "justify-end" : "justify-start",
         )}
       >
-        <div
+        <Bubble
           data-testid="message-container"
-          className={cn(
-            "group relative flex w-max max-w-[80%] items-center gap-2",
-            isOwnMessage ? "flex-row-reverse" : "flex-row",
-          )}
+          variant="outline"
+          align={isOwnMessage ? "end" : "start"}
         >
           {/* POC reference: this bubble previously rendered a menu trigger +
               dropdown actions here. The active interaction now opens a tray. */}
           <Tray open={detailsOpen} onOpenChange={setDetailsOpen}>
             <TrayTrigger asChild>
-              <button
-                type="button"
-                data-slot="message-bubble"
-                aria-label={`Message: ${message.content}`}
-                className="bg-card hover:bg-accent/50 relative cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
-                style={{ wordBreak: "break-word" }}
+              <BubbleContent
+                className="cursor-pointer whitespace-pre-wrap"
+                render={
+                  <button
+                    type="button"
+                    data-slot="message-bubble"
+                    aria-label={`Message: ${message.content}`}
+                  />
+                }
               >
                 <RichText
                   content={message.content}
                   className="leading-relaxed"
                   disableLinks
                 />
-              </button>
+              </BubbleContent>
             </TrayTrigger>
             <TrayContent
               dialogClassName="sm:max-w-2xl"
@@ -338,7 +340,7 @@ export function MessageBubble({
               </HoverCardContent>
             </HoverCard>
           )}
-        </div>
+        </Bubble>
       </div>
 
       {sessionUser && !isOwnMessage && (
