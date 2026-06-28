@@ -32,6 +32,9 @@
     "oxfmt": "^0.35.0",
     "oxlint": "^1.50.0"
   },
+  "overrides": {
+    "nitro": "3.0.1-alpha.1"
+  },
   "patchedDependencies": {
     "cmdk@1.1.1": "apps/web/patches/cmdk@1.1.1.patch"
   }
