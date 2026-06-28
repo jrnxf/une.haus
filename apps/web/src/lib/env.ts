@@ -47,6 +47,9 @@ export const env = createEnv({
     CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
     CLOUDFLARE_ACCOUNT_ID: z.string(),
     DATABASE_URL: z.string(),
+    // Optional until a Gelato account is provisioned. The Gelato client throws
+    // a clear error if a call is attempted without it set.
+    GELATO_API_KEY: z.string().optional(),
     GOOGLE_API_KEY: z.string(),
     LOG_SQL: booleanEnvVar,
     MUX_TOKEN_ID: z.string(),
