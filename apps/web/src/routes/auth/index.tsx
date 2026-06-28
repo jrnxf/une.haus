@@ -7,6 +7,7 @@ import {
   useSearch,
 } from "@tanstack/react-router"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 import { PageHeader } from "~/components/page-header"
@@ -48,6 +49,9 @@ function RouteComponent() {
         to: "/auth/verify",
         search: { redirect: search.redirect },
       })
+    },
+    onError: (error) => {
+      toast.error(error.message)
     },
   })
 
