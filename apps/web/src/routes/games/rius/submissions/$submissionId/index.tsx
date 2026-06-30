@@ -182,6 +182,7 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         record={record}
         messages={messagesQuery.data.messages}
         handleCreateMessage={(content) => createMessage.mutate(content)}
+        scrollTargetId="main-content"
       />
 
       <div className="space-y-3">

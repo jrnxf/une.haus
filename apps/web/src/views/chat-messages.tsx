@@ -37,15 +37,15 @@ export function ChatMessagesView({ focus }: { focus?: number }) {
   const isFocused = chatMessages.focused
 
   return (
-    <MessagesView
-      variant="fill"
-      record={{ type: "chat", id: -1 }}
-      messages={chatMessages.messages}
-      handleCreateMessage={createChatMessage}
-      highlightMessageId={focus}
-      // in focus mode the footer becomes "jump to latest", which navigates
-      // back to the live window rather than scrolling within it.
-      footer={isFocused ? <JumpToLatestButton /> : undefined}
-    />
+    <>
+      <MessagesView
+        record={{ type: "chat", id: -1 }}
+        messages={chatMessages.messages}
+        handleCreateMessage={createChatMessage}
+        scrollTargetId="main-content"
+        highlightMessageId={focus}
+        footer={isFocused ? <JumpToLatestButton /> : undefined}
+      />
+    </>
   )
 }

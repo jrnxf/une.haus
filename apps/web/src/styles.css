@@ -366,50 +366,6 @@ mux-player::part(poster img) {
   }
 }
 
-/*
-  Scroll fade for the MessageScroller viewport. The Base UI ScrollArea fade
-  above keys off --scroll-area-overflow-y-* custom properties that this plain
-  scroll container doesn't expose, so the equivalent overflow-aware effect is
-  driven here by the primitive's data-scrollable attribute (set to some
-  combination of "start"/"end" while there is more to scroll that way). A
-  mask gradient keeps it pinned to the visible box while content scrolls under.
-*/
-[data-slot="message-scroller-viewport"] {
-  --scroll-fade-size: 2rem;
-}
-[data-slot="message-scroller-viewport"][data-scrollable~="start"] {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    black var(--scroll-fade-size)
-  );
-}
-[data-slot="message-scroller-viewport"][data-scrollable~="end"] {
-  mask-image: linear-gradient(
-    to top,
-    transparent,
-    black var(--scroll-fade-size)
-  );
-}
-[data-slot="message-scroller-viewport"][data-scrollable~="start"][data-scrollable~="end"] {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    black var(--scroll-fade-size),
-    black calc(100% - var(--scroll-fade-size)),
-    transparent
-  );
-}
-
-/*
-  Highlight a deep-linked message. Embedded threads arrive via a #message-{id}
-  fragment (native :target); the chat passes the id through as data-focused.
-*/
-[data-slot="message"]:target [data-slot="message-bubble"],
-[data-slot="message"][data-focused="true"] [data-slot="message-bubble"] {
-  animation: highlight-glow 3s ease-out;
-}
-
 /* Center the TanStack devtools trigger at the bottom */
 button[aria-label="Open TanStack Devtools"] {
   left: 50%;

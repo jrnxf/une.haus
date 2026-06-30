@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import { GhostIcon } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
@@ -92,9 +93,9 @@ function UnauthenticatedView() {
             </FieldDescription>
             <InputOTP
               maxLength={4}
+              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
               value={code}
-              onChange={setCode}
-              normalizeValue={(v) => v.toUpperCase()}
+              onChange={(v) => setCode(v.toUpperCase())}
               onComplete={handleComplete}
               disabled={loading}
               autoFocus

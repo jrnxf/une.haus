@@ -1,205 +1,233 @@
-import { Fragment } from "react"
+import { useLayoutEffect, useRef } from "react"
 
 import { BaseMessageForm } from "~/components/forms/message"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
-import { Marker, MarkerContent } from "~/components/ui/marker"
-import {
-  MessageScroller,
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-  useMessageScroller,
-} from "~/components/ui/message-scroller"
-import { getDayDividerLabel } from "~/lib/date"
 import { type messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
 import { useSessionUser } from "~/lib/session/hooks"
 import { type ServerFnReturn } from "~/lib/types"
 import { cn } from "~/lib/utils"
+import { useScroll } from "~/lib/ux/hooks/use-scroll"
 
 type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number]
-
-// "fill" → dedicated full-height chat: the scroller owns its own bounded scroll
-// region with a pinned footer. "inline" → an embedded comment thread that flows
-// inside a longer page; the page itself does the scrolling.
-type MessagesVariant = "fill" | "inline"
-
-type MessagesViewProps = {
-  record: MessageParent
-  messages: Message[]
-  handleCreateMessage: (newMessage: string) => void
-  highlightMessageId?: number
-  footer?: React.ReactNode
-  variant?: MessagesVariant
-}
 
 export function MessagesView({
   record,
   messages,
   handleCreateMessage,
+  scrollTargetId,
   highlightMessageId,
   footer,
-  variant = "inline",
-}: MessagesViewProps) {
+}: {
+  record: MessageParent
+  messages: Message[]
+  handleCreateMessage: (newMessage: string) => void
+  scrollTargetId?: string
+  highlightMessageId?: number
+  footer?: React.ReactNode
+}) {
+  const scrollCountReference = useRef(0)
+  const pendingScrollRef = useRef(false)
+
   const sessionUser = useSessionUser()
 
-  // Single "now" reference so today/yesterday divider labels are consistent
-  // across the whole list for this render.
-  const now = new Date()
+  const { ref } = useScroll({ scrollTargetId })
 
-  // Label for a day-divider rendered before this message, or null when it sits
-  // on the same calendar day as the previous one (and null for the first
-  // message — no leading divider).
-  const dividerLabelFor = (message: Message, index: number) =>
-    getDayDividerLabel(message.createdAt, messages[index - 1]?.createdAt, now)
+  const lastChatMessageByUserId = messages.at(-1)?.userId
+  const chatMessageCount = messages.length
 
-  const renderRow = (message: Message, index: number) => {
-    const prev = messages[index - 1]
-    return (
-      <MessageRow
-        key={message.id}
-        record={record}
-        message={message}
-        isOwn={Boolean(sessionUser && sessionUser.id === message.user.id)}
-        showAuthor={prev?.user.id !== message.user.id}
-        isFirst={index === 0}
-        focusedMessageId={highlightMessageId}
-      />
+  useLayoutEffect(() => {
+    // For external scroll targets (embedded mode)
+    if (scrollTargetId) {
+      const target = document.querySelector<HTMLElement>(`#${scrollTargetId}`)
+      if (!target) return
+
+      const initialLoad = scrollCountReference.current === 0
+
+      // Scroll to bottom on initial load (skip if highlighting a specific message)
+      if (initialLoad) {
+        if (!highlightMessageId) {
+          target.scrollTop = target.scrollHeight
+        }
+        scrollCountReference.current++
+        return
+      }
+
+      // Scroll after user submits a message
+      if (pendingScrollRef.current) {
+        pendingScrollRef.current = false
+        target.scrollTop = target.scrollHeight
+      }
+      return
+    }
+
+    // Non-embedded mode: scroll the window
+    const initialLoad = scrollCountReference.current === 0
+
+    // Scroll to bottom on initial load
+    if (initialLoad) {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" })
+      scrollCountReference.current++
+      return
+    }
+
+    const lastMessageIsFromAuthUser =
+      sessionUser && sessionUser.id === lastChatMessageByUserId
+
+    // if the last message submitted was from the authenticated user, scroll to
+    // bottom. otherwise only scroll if user is within 400px of the bottom
+    const threshold = lastMessageIsFromAuthUser ? Number.MAX_SAFE_INTEGER : 400
+    const distanceFromBottom =
+      document.body.scrollHeight - window.innerHeight - window.scrollY
+
+    if (distanceFromBottom <= threshold) {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" })
+    }
+    scrollCountReference.current++
+  }, [
+    scrollTargetId,
+    lastChatMessageByUserId,
+    chatMessageCount,
+    sessionUser,
+    highlightMessageId,
+  ])
+
+  // Scroll to and highlight a message when navigating via notification or focus param
+  useLayoutEffect(() => {
+    const targetId = highlightMessageId
+      ? `message-${highlightMessageId}`
+      : window.location.hash.startsWith("#message-")
+        ? window.location.hash.slice(1)
+        : null
+    if (!targetId) return
+
+    const element = document.getElementById(targetId)
+    if (!element) return
+
+    element.scrollIntoView({ behavior: "smooth", block: "center" })
+
+    const bubble = element.querySelector<HTMLElement>(
+      '[data-slot="message-bubble"]',
     )
-  }
+    if (bubble) {
+      bubble.classList.add("animate-highlight-glow")
+    }
+  }, [highlightMessageId])
 
-  if (variant === "fill") {
+  // When scrollTargetId is passed, we're embedded in a container that already
+  // provides padding and max-width constraints
+  const isEmbedded = Boolean(scrollTargetId)
+
+  // For embedded mode, use the flex layout with scroll container
+  if (isEmbedded) {
     return (
-      <MessageScrollerProvider
-        autoScroll
-        // SSR-declarative initial position: newest message pinned to the
-        // bottom, or the focused message when arriving via a deep link.
-        defaultScrollPosition={highlightMessageId ? "last-anchor" : "end"}
-        // Match the old "within 400px of the bottom counts as pinned" rule.
-        scrollEdgeThreshold={400}
-      >
-        <div className="flex h-full min-h-0 flex-col gap-4">
-          <MessageScroller className="min-h-0 flex-1">
-            <MessageScrollerViewport>
-              <MessageScrollerContent>
-                {messages.map((message, index) => {
-                  const dividerLabel = dividerLabelFor(message, index)
-                  return (
-                    <Fragment key={message.id}>
-                      {/* Day-boundary divider: a plain row between items, never
-                          a scroll anchor of its own. */}
-                      {dividerLabel && <DayDivider label={dividerLabel} />}
-                      <MessageScrollerItem
-                        messageId={String(message.id)}
-                        scrollAnchor={message.id === highlightMessageId}
-                      >
-                        {renderRow(message, index)}
-                      </MessageScrollerItem>
-                    </Fragment>
-                  )
-                })}
-              </MessageScrollerContent>
-            </MessageScrollerViewport>
-            {/* jump-to-latest: a scroll button that auto-hides at the bottom
-                edge. Hidden in focus mode, where the footer owns "load latest"
-                (a navigation back to the live window). */}
-            {!highlightMessageId && <MessageScrollerButton />}
-          </MessageScroller>
-
-          <FillFooter footer={footer} onSend={handleCreateMessage} />
+      <div className="flex h-full flex-col">
+        <div className="min-h-0 flex-1 overflow-y-auto" ref={ref}>
+          <div className="space-y-2">
+            {messages.map((message, index) => {
+              const prev = messages[index - 1]
+              const isAuthUserMessage = Boolean(
+                sessionUser && sessionUser.id === message.user.id,
+              )
+              const isNewSection = prev?.user.id !== message.user.id
+              return (
+                <div
+                  id={`message-${message.id}`}
+                  data-slot="message"
+                  className={cn(
+                    "flex max-w-full flex-col",
+                    isAuthUserMessage && "items-end",
+                  )}
+                  key={message.id}
+                >
+                  {isNewSection && (
+                    <div
+                      className={cn(
+                        "mb-1",
+                        isAuthUserMessage ? "mr-1" : "ml-1",
+                        index !== 0 && "mt-4",
+                      )}
+                    >
+                      <MessageAuthor message={message} />
+                    </div>
+                  )}
+                  <MessageBubble parent={record} message={message} />
+                </div>
+              )
+            })}
+          </div>
         </div>
-      </MessageScrollerProvider>
+
+        <div className="shrink-0 pt-4">
+          {footer ?? (
+            <BaseMessageForm
+              onSubmit={(newMessage) => {
+                pendingScrollRef.current = true
+                handleCreateMessage(newMessage)
+              }}
+            />
+          )}
+        </div>
+
+        {!highlightMessageId && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `document.getElementById('${scrollTargetId}')?.scrollTo(0,1e9)`,
+            }}
+          />
+        )}
+      </div>
     )
   }
 
+  // Non-embedded: simple layout, form flows after messages
   return (
-    <div className="flex flex-col gap-2">
+    <div className="space-y-2">
       {messages.map((message, index) => {
-        const dividerLabel = dividerLabelFor(message, index)
+        const prev = messages[index - 1]
+        const isAuthUserMessage = Boolean(
+          sessionUser && sessionUser.id === message.user.id,
+        )
+        const isNewSection = prev?.user.id !== message.user.id
         return (
-          <Fragment key={message.id}>
-            {dividerLabel && <DayDivider label={dividerLabel} />}
-            {renderRow(message, index)}
-          </Fragment>
+          <div
+            id={`message-${message.id}`}
+            data-slot="message"
+            className={cn(
+              "flex max-w-full flex-col",
+              isAuthUserMessage && "items-end",
+            )}
+            key={message.id}
+          >
+            {isNewSection && (
+              <div className={cn("mb-1", index !== 0 && "mt-4")}>
+                <MessageAuthor message={message} />
+              </div>
+            )}
+            <MessageBubble parent={record} message={message} />
+          </div>
         )
       })}
       <div className="pt-2">
-        {footer ?? <BaseMessageForm onSubmit={handleCreateMessage} />}
+        {footer ?? (
+          <BaseMessageForm
+            onFocus={() =>
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "instant",
+              })
+            }
+            onSubmit={(newMessage) => {
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "instant",
+              })
+              handleCreateMessage(newMessage)
+            }}
+          />
+        )}
       </div>
     </div>
-  )
-}
-
-function FillFooter({
-  footer,
-  onSend,
-}: {
-  footer?: React.ReactNode
-  onSend: (newMessage: string) => void
-}) {
-  const { scrollToEnd } = useMessageScroller()
-
-  if (footer) {
-    return <div className="shrink-0">{footer}</div>
-  }
-
-  return (
-    <div className="shrink-0">
-      <BaseMessageForm
-        onSubmit={(newMessage) => {
-          onSend(newMessage)
-          // Sending your own message always returns you to the bottom, even
-          // when scrolled up; autoScroll then follows subsequent messages.
-          scrollToEnd({ behavior: "instant" })
-        }}
-      />
-    </div>
-  )
-}
-
-function MessageRow({
-  record,
-  message,
-  isOwn,
-  showAuthor,
-  isFirst,
-  focusedMessageId,
-}: {
-  record: MessageParent
-  message: Message
-  isOwn: boolean
-  showAuthor: boolean
-  isFirst: boolean
-  focusedMessageId?: number
-}) {
-  return (
-    <div
-      id={`message-${message.id}`}
-      data-slot="message"
-      data-focused={message.id === focusedMessageId ? "true" : undefined}
-      className={cn(
-        "flex max-w-full flex-col",
-        isOwn && "items-end",
-        showAuthor && !isFirst && "mt-4",
-      )}
-    >
-      {showAuthor && (
-        <div className={cn(isOwn ? "mr-1" : "ml-1")}>
-          <MessageAuthor message={message} />
-        </div>
-      )}
-      <MessageBubble parent={record} message={message} />
-    </div>
-  )
-}
-
-function DayDivider({ label }: { label: string }) {
-  return (
-    <Marker variant="separator" className="py-2">
-      <MarkerContent>{label}</MarkerContent>
-    </Marker>
   )
 }
