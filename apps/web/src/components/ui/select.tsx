@@ -6,16 +6,6 @@ import { cn } from "~/lib/utils"
 
 const Select = SelectPrimitive.Root
 
-function SelectLabel({ className, ...props }: SelectPrimitive.Label.Props) {
-  return (
-    <SelectPrimitive.Label
-      data-slot="select-label"
-      className={cn("text-foreground text-sm font-medium", className)}
-      {...props}
-    />
-  )
-}
-
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
     <SelectPrimitive.Group
@@ -175,7 +165,6 @@ export {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 }

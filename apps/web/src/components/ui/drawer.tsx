@@ -222,28 +222,6 @@ function DrawerContent({
   )
 }
 
-/**
- * An invisible edge region that opens the drawer when swiped.
- *
- * In Base UI 1.6.0 `Drawer.SwipeArea` is a swipe-to-OPEN affordance (the
- * opposite of the swipe-to-dismiss gesture, which stays bound to the whole
- * popup). Render it as a sibling of `DrawerTrigger`/`DrawerContent` inside
- * `Drawer`, and position it along the screen edge via `className`, e.g.
- * `className="fixed inset-x-0 bottom-0 h-4"` for a bottom drawer.
- */
-function DrawerSwipeArea({
-  className,
-  ...props
-}: DrawerPrimitive.SwipeArea.Props) {
-  return (
-    <DrawerPrimitive.SwipeArea
-      data-slot="drawer-swipe-area"
-      className={cn("touch-none", className)}
-      {...props}
-    />
-  )
-}
-
 function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
   return (
     <DrawerPrimitive.Title
@@ -254,11 +232,4 @@ function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
   )
 }
 
-export {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerSwipeArea,
-  DrawerTitle,
-  DrawerTrigger,
-}
+export { Drawer, DrawerClose, DrawerContent, DrawerTitle, DrawerTrigger }

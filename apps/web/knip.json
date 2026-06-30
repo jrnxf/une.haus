@@ -15,6 +15,7 @@
     "**/*.integration.test.ts"
   ],
   "project": ["src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
+  "ignore": ["src/lib/gelato/**", "src/lib/clients/gelato.ts"],
   "drizzle": false,
   "ignoreDependencies": [
     "@tailwindcss/postcss",

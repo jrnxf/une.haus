@@ -6,3 +6,4 @@ dist-ssr
 .env
 .playwright-mcp
 .source
+.claude
