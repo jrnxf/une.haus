@@ -1,6 +1,9 @@
+import { Fragment } from "react"
+
 import { BaseMessageForm } from "~/components/forms/message"
 import { MessageAuthor } from "~/components/messages/message-author"
 import { MessageBubble } from "~/components/messages/message-bubble"
+import { Marker, MarkerContent } from "~/components/ui/marker"
 import {
   MessageScroller,
   MessageScrollerButton,
@@ -10,6 +13,7 @@ import {
   MessageScrollerViewport,
   useMessageScroller,
 } from "~/components/ui/message-scroller"
+import { getDayDividerLabel } from "~/lib/date"
 import { type messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
 import { useSessionUser } from "~/lib/session/hooks"
@@ -42,6 +46,16 @@ export function MessagesView({
 }: MessagesViewProps) {
   const sessionUser = useSessionUser()
 
+  // Single "now" reference so today/yesterday divider labels are consistent
+  // across the whole list for this render.
+  const now = new Date()
+
+  // Label for a day-divider rendered before this message, or null when it sits
+  // on the same calendar day as the previous one (and null for the first
+  // message — no leading divider).
+  const dividerLabelFor = (message: Message, index: number) =>
+    getDayDividerLabel(message.createdAt, messages[index - 1]?.createdAt, now)
+
   const renderRow = (message: Message, index: number) => {
     const prev = messages[index - 1]
     return (
@@ -71,15 +85,22 @@ export function MessagesView({
           <MessageScroller className="min-h-0 flex-1">
             <MessageScrollerViewport>
               <MessageScrollerContent>
-                {messages.map((message, index) => (
-                  <MessageScrollerItem
-                    key={message.id}
-                    messageId={String(message.id)}
-                    scrollAnchor={message.id === highlightMessageId}
-                  >
-                    {renderRow(message, index)}
-                  </MessageScrollerItem>
-                ))}
+                {messages.map((message, index) => {
+                  const dividerLabel = dividerLabelFor(message, index)
+                  return (
+                    <Fragment key={message.id}>
+                      {/* Day-boundary divider: a plain row between items, never
+                          a scroll anchor of its own. */}
+                      {dividerLabel && <DayDivider label={dividerLabel} />}
+                      <MessageScrollerItem
+                        messageId={String(message.id)}
+                        scrollAnchor={message.id === highlightMessageId}
+                      >
+                        {renderRow(message, index)}
+                      </MessageScrollerItem>
+                    </Fragment>
+                  )
+                })}
               </MessageScrollerContent>
             </MessageScrollerViewport>
             {/* jump-to-latest: a scroll button that auto-hides at the bottom
@@ -96,7 +117,15 @@ export function MessagesView({
 
   return (
     <div className="flex flex-col gap-2">
-      {messages.map((message, index) => renderRow(message, index))}
+      {messages.map((message, index) => {
+        const dividerLabel = dividerLabelFor(message, index)
+        return (
+          <Fragment key={message.id}>
+            {dividerLabel && <DayDivider label={dividerLabel} />}
+            {renderRow(message, index)}
+          </Fragment>
+        )
+      })}
       <div className="pt-2">
         {footer ?? <BaseMessageForm onSubmit={handleCreateMessage} />}
       </div>
@@ -164,5 +193,13 @@ function MessageRow({
       )}
       <MessageBubble parent={record} message={message} />
     </div>
+  )
+}
+
+function DayDivider({ label }: { label: string }) {
+  return (
+    <Marker variant="separator" className="py-2">
+      <MarkerContent>{label}</MarkerContent>
+    </Marker>
   )
 }
