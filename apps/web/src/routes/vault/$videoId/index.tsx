@@ -236,7 +236,6 @@ function RouteComponent() {
               record={{ id: videoId, type: "utvVideo" }}
               messages={messagesData.messages}
               handleCreateMessage={createMessage}
-              scrollTargetId="main-content"
             />
           </div>
         </div>

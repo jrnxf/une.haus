@@ -53,6 +53,7 @@
         "@mux/upchunk": "^3.4.0",
         "@react-email/components": "^1.0.6",
         "@sentry/tanstackstart-react": "^10.43.0",
+        "@shadcn/react": "^0.1.0",
         "@t3-oss/env-core": "^0.13.0",
         "@tailwindcss/container-queries": "^0.1.1",
         "@tailwindcss/postcss": "^4.1.16",
@@ -977,6 +978,8 @@
     "@sentry/tanstackstart-react": ["@sentry/tanstackstart-react@10.43.0", "", { "dependencies": { "@opentelemetry/api": "^1.9.0", "@opentelemetry/semantic-conventions": "^1.37.0", "@sentry-internal/browser-utils": "10.43.0", "@sentry/core": "10.43.0", "@sentry/node": "10.43.0", "@sentry/react": "10.43.0", "@sentry/vite-plugin": "^5.1.0" } }, "sha512-FQqfAEgDxlPt6ewPhE7JSbZ1qewAk63qh5JiuvPoDB6nKd5ThamEV7KQi1I8Vk+HIfCByr9+a5umYUMIH6kH+w=="],
 
     "@sentry/vite-plugin": ["@sentry/vite-plugin@5.1.1", "", { "dependencies": { "@sentry/bundler-plugin-core": "5.1.1", "@sentry/rollup-plugin": "5.1.1" } }, "sha512-i6NWUDi2SDikfSUeMJvJTRdwEKYSfTd+mvBO2Ja51S1YK+hnickBuDfD+RvPerIXLuyRu3GamgNPbNqgCGUg/Q=="],
+
+    "@shadcn/react": ["@shadcn/react@0.1.0", "", { "peerDependencies": { "@types/react": ">=19", "react": ">=19" }, "optionalPeers": ["@types/react", "react"] }, "sha512-6i67TEnqValsZY7e4exJ4rkHo2OdHXmDH152YulwSpuEUnTQYumHkXzFsaje7HB7GbMTWuI9x1Jn6sSduCYdeA=="],
 
     "@shikijs/core": ["@shikijs/core@4.3.0", "", { "dependencies": { "@shikijs/primitive": "4.3.0", "@shikijs/types": "4.3.0", "@shikijs/vscode-textmate": "^10.0.2", "@types/hast": "^3.0.4", "hast-util-to-html": "^9.0.5" } }, "sha512-EooU3i9F6IAE8kEu+AnGf9DFZWkQBZ+hJn3tLVbsH+61mtQiva5biai66fAA6nvFPXkLgvrh7BrR7YcJU83xQQ=="],
 
