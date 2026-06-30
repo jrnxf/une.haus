@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 
@@ -54,9 +53,9 @@ function RouteComponent() {
             </FieldDescription>
             <InputOTP
               maxLength={4}
-              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
               value={code}
-              onChange={(v) => setCode(v.toUpperCase())}
+              onChange={setCode}
+              normalizeValue={(v) => v.toUpperCase()}
               onComplete={handleComplete}
               disabled={loading}
               autoFocus

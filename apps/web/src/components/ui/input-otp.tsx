@@ -1,28 +1,62 @@
-import { OTPInput, OTPInputContext } from "input-otp"
+import { OTPField } from "@base-ui/react/otp-field"
 import * as React from "react"
 
 import { cn } from "~/lib/utils"
 
+// Base UI's OTP Field spreads the value across N real `<input>` slots driven by
+// `length` on the Root. The Root's ref points at its wrapping `<div>`, so the
+// caller-supplied input `ref` and `autoFocus` are forwarded to the first slot's
+// input through this internal context instead.
+const InputOTPContext = React.createContext<{
+  autoFocus: boolean
+  inputRef?: React.Ref<HTMLInputElement>
+}>({ autoFocus: false })
+
+type InputOTPProps = Omit<
+  React.ComponentProps<typeof OTPField.Root>,
+  "length" | "onValueChange" | "onValueComplete" | "ref"
+> & {
+  /** Number of OTP slots. Mapped to Base UI's `length`. */
+  maxLength: number
+  /** Fired with the full value on every change. */
+  onChange?: (value: string) => void
+  /** Fired with the full value once every slot is filled. */
+  onComplete?: (value: string) => void
+  containerClassName?: string
+  /** Forwarded to the first slot's input element. */
+  ref?: React.Ref<HTMLInputElement>
+}
+
 function InputOTP({
   className,
   containerClassName,
+  maxLength,
+  onChange,
+  onComplete,
+  autoFocus = false,
+  ref,
+  children,
+  validationType = "alphanumeric",
   ...props
-}: React.ComponentProps<typeof OTPInput> & {
-  containerClassName?: string
-}) {
+}: InputOTPProps) {
   return (
-    <OTPInput
-      data-slot="input-otp"
-      containerClassName={cn(
-        "flex items-center gap-2 has-disabled:opacity-50",
-        containerClassName,
-      )}
-      className={cn(
-        "text-sm disabled:cursor-not-allowed sm:text-base",
-        className,
-      )}
-      {...props}
-    />
+    <InputOTPContext.Provider value={{ autoFocus, inputRef: ref }}>
+      <OTPField.Root
+        data-slot="input-otp"
+        length={maxLength}
+        onValueChange={(value) => onChange?.(value)}
+        onValueComplete={(value) => onComplete?.(value)}
+        validationType={validationType}
+        className={cn(
+          "flex items-center gap-2 has-disabled:opacity-50",
+          containerClassName,
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </OTPField.Root>
+    </InputOTPContext.Provider>
   )
 }
 
@@ -37,32 +71,28 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function InputOTPSlot({
-  index,
+  index = 0,
   className,
   ...props
-}: React.ComponentProps<"div"> & {
-  index: number
+}: Omit<React.ComponentProps<typeof OTPField.Input>, "ref"> & {
+  index?: number
 }) {
-  const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
+  const { autoFocus, inputRef } = React.useContext(InputOTPContext)
+  const isFirst = index === 0
 
   return (
-    <div
+    <OTPField.Input
       data-slot="input-otp-slot"
-      data-active={isActive}
+      autoFocus={isFirst ? autoFocus : undefined}
+      ref={isFirst ? inputRef : undefined}
       className={cn(
-        "border-input aria-invalid:border-destructive data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40 relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px] sm:text-base",
+        "border-input dark:bg-input/30 relative flex h-9 w-9 items-center justify-center border-y border-r text-center text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md disabled:cursor-not-allowed sm:text-base",
+        "focus:border-ring focus:z-10",
+        "aria-invalid:border-destructive focus:aria-invalid:border-destructive",
         className,
       )}
       {...props}
-    >
-      {char}
-      {hasFakeCaret && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink bg-foreground h-4 w-px duration-1000" />
-        </div>
-      )}
-    </div>
+    />
   )
 }
 
