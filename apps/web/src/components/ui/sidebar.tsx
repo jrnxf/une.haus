@@ -339,7 +339,7 @@ const sidebarMenuButtonVariants = cva(
     "data-[active=true]:bg-sidebar-accent/70 data-[active=true]:text-sidebar-accent-foreground data-[active=true]:hover:bg-sidebar-accent data-[active=true]:font-medium",
     "data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground",
     "group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2!",
-    "[&>span:last-child]:truncate [&>svg]:size-[1em] [&>svg]:shrink-0",
+    "[&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   ),
   {
     variants: {
@@ -351,7 +351,6 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        md: "h-10 text-sm",
         lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
       },
     },
@@ -433,7 +432,6 @@ function SidebarMenuAction({
         "after:absolute after:-inset-2 md:after:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
-        "peer-data-[size=md]/menu-button:top-2",
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
