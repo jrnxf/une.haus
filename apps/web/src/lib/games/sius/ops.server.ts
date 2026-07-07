@@ -11,13 +11,12 @@ import {
   sius,
   users,
 } from "~/db/schema"
-import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import {
-  createNotification,
-  deleteNotificationsForEntity,
-  notifyFollowers,
-} from "~/lib/notifications/helpers.server"
+  type AuthenticatedContext,
+  createChainGame,
+} from "~/lib/games/chain-game.server"
+import { invariant } from "~/lib/invariant"
+import { createNotification } from "~/lib/notifications/helpers.server"
 
 const ARCHIVE_VOTE_THRESHOLD = 5
 const MAX_ACTIVE_ROUNDS = 3
@@ -68,163 +67,93 @@ export async function startSiuRound() {
   })
 }
 
-type AuthenticatedContext = {
-  user: {
-    avatarId: string | null
-    id: number
-    name: string
-  }
-}
-
-export async function createFirstSiuSet({
-  data: input,
-  context,
-}: {
-  context: AuthenticatedContext
-  data: {
-    instructions?: string
-    muxAssetId: string
-    name: string
-    roundId: number
-  }
-}) {
-  const userId = context.user.id
-
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`SELECT pg_advisory_xact_lock(7101, ${input.roundId})`)
-
-    const round = await tx.query.sius.findFirst({
-      where: eq(sius.id, input.roundId),
+const siuChain = createChainGame({
+  lockBase: 7100,
+  entityType: "siuSet",
+  logTag: "games.sius",
+  copy: {
+    continueOwnSet: "You cannot stack up your own trick",
+    alreadyContinued: "This set has already been continued",
+  },
+  assertRoundOpen: async (exec, roundId) => {
+    const round = await exec.query.sius.findFirst({
+      where: eq(sius.id, roundId),
       columns: { id: true, status: true },
     })
-
     invariant(round, "Round not found")
     invariant(round.status === "active", "Round is not active")
-
-    const existingSet = await tx.query.siuSets.findFirst({
-      where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
-      columns: { id: true },
-    })
-
-    invariant(!existingSet, "Round already has a first set")
-
-    const [set] = await tx
-      .insert(siuSets)
-      .values({
-        siuId: input.roundId,
-        userId,
-        muxAssetId: input.muxAssetId,
-        name: input.name,
-        position: 1,
-        parentSetId: null,
-      })
-      .returning()
-
-    const instructions = input.instructions?.trim()
-    if (instructions) {
-      await tx.insert(siuSetMessages).values({
-        siuSetId: set.id,
-        userId,
-        content: instructions,
-      })
-    }
-
-    return set
-  })
-}
-
-export async function addSiuSet({
-  data: input,
-  context,
-}: {
-  context: AuthenticatedContext
-  data: {
-    instructions?: string
-    muxAssetId: string
-    name: string
-    roundId: number
-  }
-}) {
-  const userId = context.user.id
-
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`SELECT pg_advisory_xact_lock(7102, ${input.roundId})`)
-
-    const round = await tx.query.sius.findFirst({
-      where: eq(sius.id, input.roundId),
-      columns: { id: true, status: true },
-    })
-
-    invariant(round, "Round not found")
-    invariant(round.status === "active", "Round is not active")
-
-    const parentSet = await tx.query.siuSets.findFirst({
-      where: and(eq(siuSets.siuId, input.roundId), isNull(siuSets.deletedAt)),
+  },
+  findLatestSet: (exec, roundId) =>
+    exec.query.siuSets.findFirst({
+      where: and(eq(siuSets.siuId, roundId), isNull(siuSets.deletedAt)),
       orderBy: desc(siuSets.position),
-      columns: { id: true, userId: true, position: true },
-    })
-
-    invariant(parentSet, "Round has no sets yet")
-    invariant(parentSet.userId !== userId, "You cannot stack up your own trick")
-
-    const existingSet = await tx.query.siuSets.findFirst({
+    }),
+  findChildSet: (exec, parentSetId) =>
+    exec.query.siuSets.findFirst({
       where: and(
-        eq(siuSets.parentSetId, parentSet.id),
+        eq(siuSets.parentSetId, parentSetId),
         isNull(siuSets.deletedAt),
       ),
       columns: { id: true },
-    })
-
-    invariant(!existingSet, "This set has already been continued")
-
+    }),
+  findSet: (exec, setId) =>
+    exec.query.siuSets.findFirst({ where: eq(siuSets.id, setId) }),
+  insertSet: async (tx, values) => {
     const [set] = await tx
       .insert(siuSets)
       .values({
-        siuId: input.roundId,
-        userId,
-        muxAssetId: input.muxAssetId,
-        name: input.name,
-        position: parentSet.position + 1,
-        parentSetId: parentSet.id,
+        siuId: values.roundId,
+        userId: values.userId,
+        muxAssetId: values.muxAssetId,
+        name: values.name,
+        position: values.position,
+        parentSetId: values.parentSetId,
       })
       .returning()
-
-    const instructions = input.instructions?.trim()
-    if (instructions) {
-      await tx.insert(siuSetMessages).values({
-        siuSetId: set.id,
-        userId,
-        content: instructions,
-      })
-    }
-
-    notifyFollowers({
-      actorId: userId,
-      actorName: context.user.name,
-      actorAvatarId: context.user.avatarId,
-      type: "new_content",
-      entityType: "siuSet",
-      entityId: set.id,
-      entityTitle: set.name,
-    }).catch(logRejection("games.sius.notify"))
-
-    // Notify the owner of the set that was just continued
-    createNotification({
-      userId: parentSet.userId,
-      actorId: userId,
-      type: "game_activity",
-      entityType: "siuSet",
-      entityId: set.id,
-      data: {
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        entityTitle: set.name,
-      },
-    }).catch(logRejection("games.sius.notify"))
-
     return set
-  })
-}
+  },
+  insertInstructions: async (tx, setId, userId, content) => {
+    await tx.insert(siuSetMessages).values({ siuSetId: setId, userId, content })
+  },
+  renameSet: async (setId, userId, name) => {
+    const [updated] = await db
+      .update(siuSets)
+      .set({ name })
+      .where(and(eq(siuSets.id, setId), eq(siuSets.userId, userId)))
+      .returning()
+    return updated
+  },
+  softDeleteSet: async (setId) => {
+    await db
+      .update(siuSets)
+      .set({ deletedAt: new Date() })
+      .where(eq(siuSets.id, setId))
+  },
+  purgeSetEngagement: async (setId) => {
+    // Message likes cascade from messages.
+    await db.delete(siuSetMessages).where(eq(siuSetMessages.siuSetId, setId))
+    await db.delete(siuSetLikes).where(eq(siuSetLikes.siuSetId, setId))
+  },
+  hardDeleteSet: async (setId) => {
+    await db.delete(siuSets).where(eq(siuSets.id, setId))
+  },
+  onSetHardDeleted: async (set) => {
+    // Removing the round's only (first) set ends the round.
+    if (set.position === 1) {
+      await db
+        .update(sius)
+        .set({ status: "archived", endedAt: new Date() })
+        .where(eq(sius.id, set.siuId))
+
+      await topUpActiveRounds()
+    }
+  },
+})
+
+export const createFirstSiuSet = siuChain.createFirstSet
+export const addSiuSet = siuChain.continueSet
+export const updateSiuSet = siuChain.updateSet
+export const deleteSiuSet = siuChain.deleteSet
 
 export async function voteToArchive({
   data: input,
@@ -389,95 +318,6 @@ export async function archiveSiuRound({
   await topUpActiveRounds()
 
   return { success: true }
-}
-
-export async function updateSiuSet({
-  data: input,
-  context,
-}: {
-  context: AuthenticatedContext
-  data: {
-    name: string
-    setId: number
-  }
-}) {
-  const userId = context.user.id
-
-  const set = await db.query.siuSets.findFirst({
-    where: eq(siuSets.id, input.setId),
-    columns: { userId: true },
-  })
-
-  invariant(set, "Set not found")
-  invariant(set.userId === userId, "Access denied")
-
-  const [updated] = await db
-    .update(siuSets)
-    .set({ name: input.name })
-    .where(and(eq(siuSets.id, input.setId), eq(siuSets.userId, userId)))
-    .returning()
-
-  return updated
-}
-
-export async function deleteSiuSet({
-  data: input,
-  context,
-}: {
-  context: AuthenticatedContext
-  data: {
-    setId: number
-  }
-}) {
-  const userId = context.user.id
-
-  const set = await db.query.siuSets.findFirst({
-    where: eq(siuSets.id, input.setId),
-  })
-
-  invariant(set, "Set not found")
-  invariant(set.userId === userId, "Access denied")
-  invariant(!set.deletedAt, "Set is already deleted")
-
-  // Check if this set has non-deleted children
-  const childSet = await db.query.siuSets.findFirst({
-    where: and(eq(siuSets.parentSetId, set.id), isNull(siuSets.deletedAt)),
-  })
-
-  if (childSet) {
-    // Soft delete: keep row for round integrity, remove engagement data
-    await db
-      .update(siuSets)
-      .set({ deletedAt: new Date() })
-      .where(eq(siuSets.id, input.setId))
-
-    // Hard-delete engagement data (message likes cascade from messages)
-    await db
-      .delete(siuSetMessages)
-      .where(eq(siuSetMessages.siuSetId, input.setId))
-    await db.delete(siuSetLikes).where(eq(siuSetLikes.siuSetId, input.setId))
-
-    await deleteNotificationsForEntity("siuSet", input.setId)
-
-    return { type: "soft" as const }
-  }
-
-  // Hard delete: no children, remove the row entirely
-  await db.delete(siuSets).where(eq(siuSets.id, input.setId))
-
-  await deleteNotificationsForEntity("siuSet", input.setId)
-
-  // If this was the only set, archive the round
-  if (set.position === 1) {
-    await db
-      .update(sius)
-      .set({ status: "archived", endedAt: new Date() })
-      .where(eq(sius.id, set.siuId))
-
-    await topUpActiveRounds()
-  }
-
-  return { type: "hard" as const }
 }
 
 export async function listArchivedRounds() {
