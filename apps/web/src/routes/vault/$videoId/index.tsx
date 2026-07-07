@@ -1,24 +1,14 @@
 import { useSuspenseQueries } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { EllipsisVerticalIcon, PencilIcon, ShareIcon } from "lucide-react"
-import { toast } from "sonner"
 import { z } from "zod"
 
 import { DisciplineBadge } from "~/components/badges"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { PageHeader } from "~/components/page-header"
-import { Button } from "~/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
 import { SectionDivider } from "~/components/ui/section-divider"
 import { UserChip } from "~/components/user-chip"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { type UserDiscipline } from "~/db/schema"
-import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -27,6 +17,7 @@ import { seo } from "~/lib/seo"
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { utv } from "~/lib/utv/core"
+import { DetailActionsMenu } from "~/views/detail-actions-menu"
 import { MessagesView } from "~/views/messages"
 
 const pathParametersSchema = z.object({
@@ -108,7 +99,6 @@ function RouteComponent() {
 
   const sessionUser = useSessionUser()
   const isAdmin = useIsAdmin()
-  const haptics = useHaptics()
 
   const { mutate: createMessage } = useCreateMessage({
     id: videoId,
@@ -147,48 +137,20 @@ function RouteComponent() {
                 authUserLiked={authUserLiked}
                 onLikeUnlike={sessionUser ? likeUnlikeVideo : undefined}
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      size="icon-sm"
-                      variant="outline"
-                      aria-label="actions"
-                    />
-                  }
-                >
-                  <EllipsisVerticalIcon className="size-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => {
-                      navigator.clipboard.writeText(globalThis.location.href)
-                      haptics.success()
-                      toast.success("link copied")
-                    }}
-                  >
-                    <ShareIcon />
-                    share
-                  </DropdownMenuItem>
-                  {sessionUser && (
-                    <DropdownMenuItem
-                      render={
-                        <Link
-                          to={
-                            isAdmin
-                              ? "/vault/$videoId/edit"
-                              : "/vault/$videoId/suggest"
-                          }
-                          params={{ videoId }}
-                        />
+              <DetailActionsMenu
+                edit={
+                  sessionUser ? (
+                    <Link
+                      to={
+                        isAdmin
+                          ? "/vault/$videoId/edit"
+                          : "/vault/$videoId/suggest"
                       }
-                    >
-                      <PencilIcon />
-                      edit
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      params={{ videoId }}
+                    />
+                  ) : undefined
+                }
+              />
             </div>
           </div>
 

@@ -1,33 +1,14 @@
 import { useSuspenseQueries } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import {
-  EllipsisVerticalIcon,
-  FlagIcon,
-  PencilIcon,
-  ShareIcon,
-  TrashIcon,
-} from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
 
 import { Badges } from "~/components/badges"
-import { confirm } from "~/components/confirm-dialog"
-import { FlagTray } from "~/components/flag-tray"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { RichText } from "~/components/rich-text"
-import { Button } from "~/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { SectionDivider } from "~/components/ui/section-divider"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { VideoPlayer } from "~/components/video-player"
 import { YoutubeIframe } from "~/components/youtube-iframe"
-import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -36,93 +17,9 @@ import { useDeletePost } from "~/lib/posts/hooks"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { useSessionUser } from "~/lib/session/hooks"
 import { getCloudflareImageUrl } from "~/lib/utils"
+import { DetailActionsMenu } from "~/views/detail-actions-menu"
 import { DetailHeader } from "~/views/detail-header"
 import { MessagesView } from "~/views/messages"
-
-function PostActions({
-  postId,
-  post,
-  isOwner,
-  sessionUser,
-  deletePost,
-}: {
-  postId: number
-  post: { id: number }
-  isOwner: boolean
-  sessionUser: { id: number } | null | undefined
-  deletePost: (args: { data: number }) => void
-}) {
-  const haptics = useHaptics()
-  const [flagOpen, setFlagOpen] = useState(false)
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button size="icon-sm" variant="outline" aria-label="actions" />
-          }
-        >
-          <EllipsisVerticalIcon className="size-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => {
-              navigator.clipboard.writeText(globalThis.location.href)
-              haptics.success()
-              toast.success("link copied")
-            }}
-          >
-            <ShareIcon />
-            share
-          </DropdownMenuItem>
-          {sessionUser && !isOwner && (
-            <DropdownMenuItem onClick={() => setFlagOpen(true)}>
-              <FlagIcon />
-              flag
-            </DropdownMenuItem>
-          )}
-          {isOwner && (
-            <>
-              <DropdownMenuItem
-                render={<Link params={{ postId }} to="/posts/$postId/edit" />}
-              >
-                <PencilIcon />
-                edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() =>
-                  confirm.open({
-                    title: "delete post",
-                    description:
-                      "are you sure you want to delete this post? this action cannot be undone.",
-                    confirmText: "delete",
-                    onConfirm: () => {
-                      deletePost({ data: post.id })
-                    },
-                  })
-                }
-              >
-                <TrashIcon />
-                delete
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {sessionUser && !isOwner && (
-        <FlagTray
-          entityType="post"
-          entityId={post.id}
-          hideTrigger
-          open={flagOpen}
-          onOpenChange={setFlagOpen}
-        />
-      )}
-    </>
-  )
-}
 
 export function PostView({ postId }: { postId: number }) {
   const [{ data: post }, { data: messagesData }] = useSuspenseQueries({
@@ -188,12 +85,22 @@ export function PostView({ postId }: { postId: number }) {
             authUserLiked={authUserLiked}
             onLikeUnlike={sessionUser ? likeUnlikePost : undefined}
           />
-          <PostActions
-            postId={postId}
-            post={post}
-            isOwner={isOwner}
-            sessionUser={sessionUser}
-            deletePost={deletePost}
+          <DetailActionsMenu
+            flag={
+              sessionUser && !isOwner
+                ? { entityType: "post", entityId: post.id }
+                : undefined
+            }
+            edit={
+              isOwner ? (
+                <Link params={{ postId }} to="/posts/$postId/edit" />
+              ) : undefined
+            }
+            onDelete={
+              isOwner
+                ? { noun: "post", run: () => deletePost({ data: post.id }) }
+                : undefined
+            }
           />
         </DetailHeader.Actions>
       </DetailHeader>
