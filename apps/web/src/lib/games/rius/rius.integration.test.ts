@@ -346,6 +346,20 @@ describe("rius integration", () => {
     expect(rows).toHaveLength(4)
   })
 
+  it("the db allows many archived rounds but rejects a second active or upcoming round", async () => {
+    await seedRiu("active")
+    await seedRiu("upcoming")
+    await seedRiu("archived")
+    await seedRiu("archived")
+
+    await expect(
+      Promise.resolve(db.insert(rius).values({ status: "active" })),
+    ).rejects.toThrow("rius_one_active_idx")
+    await expect(
+      Promise.resolve(db.insert(rius).values({ status: "upcoming" })),
+    ).rejects.toThrow("rius_one_upcoming_idx")
+  })
+
   it("listArchivedRius returns real aggregate set and submission counts", async () => {
     const owner = await seedUser({ name: "Owner" })
     const submitter = await seedUser({ name: "Submitter" })
