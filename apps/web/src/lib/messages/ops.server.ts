@@ -3,7 +3,9 @@ import { and, asc, desc, eq, getTableName } from "drizzle-orm"
 import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
 
 import { db } from "~/db"
+import { type NotificationEntityType } from "~/db/schema"
 import {
+  type EngagementContentType,
   getMessageParentBinding,
   isEngagementContentType,
   type MessageParentType,
@@ -99,6 +101,55 @@ type AuthenticatedContext = {
   }
 }
 
+/**
+ * Resolve the notification-facing identity of a message's parent. `entityType`
+ * is the engagement content type when the parent is one (used for owner
+ * resolution and the real entity id); `mentionEntityType` is what mention and
+ * message-like notifications file under, falling back to "chat" for chat.
+ */
+function resolveMessageEntity(type: MessageParentType): {
+  entityType: Extract<MessageParentType, EngagementContentType> | undefined
+  mentionEntityType: NotificationEntityType
+} {
+  const entityType = isEngagementContentType(type) ? type : undefined
+  return { entityType, mentionEntityType: entityType ?? "chat" }
+}
+
+type NotifyMentionsArgs = {
+  recipientIds: number[]
+  author: AuthenticatedContext["user"]
+  entityType: NotificationEntityType
+  entityId: number
+  preview: string
+  messageId: number
+}
+
+/** Fire a mention notification to each already-filtered recipient. */
+function notifyMentions({
+  recipientIds,
+  author,
+  entityType,
+  entityId,
+  preview,
+  messageId,
+}: NotifyMentionsArgs): void {
+  for (const recipientId of recipientIds) {
+    createNotification({
+      userId: recipientId,
+      actorId: author.id,
+      type: "mention",
+      entityType,
+      entityId,
+      data: {
+        actorName: author.name,
+        actorAvatarId: author.avatarId,
+        entityPreview: preview,
+        messageId,
+      },
+    }).catch(logRejection("messages.notify"))
+  }
+}
+
 type CreateMessageArgs = {
   context: AuthenticatedContext
   data: {
@@ -139,7 +190,7 @@ export async function createMessage({
   // Create comment notification for the content owner (non-chat only). Chat
   // messages have no content owner, so this resolves through the registry only
   // for engagement content types.
-  const entityType = isEngagementContentType(type) ? type : undefined
+  const { entityType, mentionEntityType } = resolveMessageEntity(type)
   let ownerId: number | null | undefined
   if (entityType) {
     ownerId = await resolveContentOwner(entityType, id)
@@ -161,27 +212,17 @@ export async function createMessage({
   }
 
   // Notify @mentioned users (works for all message types including chat)
-  const mentionedUserIds = extractMentionedUserIds(content)
-  const mentionEntityType = entityType ?? "chat"
-  const mentionEntityId = entityType ? id : 0
-  for (const mentionedUserId of mentionedUserIds) {
-    if (mentionedUserId === userId) continue
-    if (mentionedUserId === ownerId) continue
-
-    createNotification({
-      userId: mentionedUserId,
-      actorId: userId,
-      type: "mention",
-      entityType: mentionEntityType,
-      entityId: mentionEntityId,
-      data: {
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        entityPreview: preview,
-        messageId,
-      },
-    }).catch(logRejection("messages.notify"))
-  }
+  const recipientIds = extractMentionedUserIds(content).filter(
+    (uid) => uid !== userId && uid !== ownerId,
+  )
+  notifyMentions({
+    recipientIds,
+    author: context.user,
+    entityType: mentionEntityType,
+    entityId: entityType ? id : 0,
+    preview,
+    messageId,
+  })
 }
 
 export async function updateMessage({
@@ -219,30 +260,20 @@ export async function updateMessage({
       (uid) => !oldMentions.has(uid),
     )
 
-    const entityType = isEngagementContentType(type) ? type : undefined
-    const mentionEntityType = entityType ?? "chat"
+    const { entityType, mentionEntityType } = resolveMessageEntity(type)
     const mentionEntityId = entityType
       ? await getMessageParentEntityId(type, id)
       : 0
     const preview = await resolvePreview(content)
 
-    for (const mentionedUserId of newMentions) {
-      if (mentionedUserId === userId) continue
-
-      createNotification({
-        userId: mentionedUserId,
-        actorId: userId,
-        type: "mention",
-        entityType: mentionEntityType,
-        entityId: mentionEntityId,
-        data: {
-          actorName: context.user.name,
-          actorAvatarId: context.user.avatarId,
-          entityPreview: preview,
-          messageId: id,
-        },
-      }).catch(logRejection("messages.notify"))
-    }
+    notifyMentions({
+      recipientIds: newMentions.filter((uid) => uid !== userId),
+      author: context.user,
+      entityType: mentionEntityType,
+      entityId: mentionEntityId,
+      preview,
+      messageId: id,
+    })
   }
 }
 
@@ -262,10 +293,8 @@ export async function deleteMessage({
 
   // Clean up message_like notifications before deleting. Non-chat parents file
   // under their parent entity type; chat files under "chat".
-  const entityType = isEngagementContentType(input.type)
-    ? input.type
-    : undefined
-  deleteNotificationsForMessage(entityType ?? "chat", input.id).catch(
+  const { mentionEntityType } = resolveMessageEntity(input.type)
+  deleteNotificationsForMessage(mentionEntityType, input.id).catch(
     logRejection("messages.notify"),
   )
 
