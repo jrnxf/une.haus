@@ -2,15 +2,12 @@ import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { useState } from "react"
 
 import { BaseMessageForm } from "~/components/forms/message"
-import { MessageAuthor } from "~/components/messages/message-author"
-import { MessageBubble } from "~/components/messages/message-bubble"
 import { Button } from "~/components/ui/button"
 import { SectionDivider } from "~/components/ui/section-divider"
 import { type messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
-import { useSessionUser } from "~/lib/session/hooks"
 import { type ServerFnReturn } from "~/lib/types"
-import { cn } from "~/lib/utils"
+import { MessageGroupList } from "~/views/message-group-list"
 
 type MessageType = ServerFnReturn<typeof messages.list.fn>["messages"][number]
 
@@ -28,7 +25,6 @@ export function CollapsibleMessages({
   initialVisibleCount = 3,
 }: CollapsibleMessagesProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const sessionUser = useSessionUser()
 
   const hasMoreMessages = messageList.length > initialVisibleCount
   const visibleMessages = isExpanded
@@ -67,30 +63,7 @@ export function CollapsibleMessages({
           </div>
 
           <div className="space-y-2">
-            {visibleMessages.map((message, index) => {
-              const isAuthUserMessage = Boolean(
-                sessionUser && sessionUser.id === message.user.id,
-              )
-              const prevMessage = visibleMessages[index - 1]
-              const isNewSection = prevMessage?.user.id !== message.user.id
-
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex max-w-full flex-col",
-                    isAuthUserMessage && "items-end",
-                  )}
-                >
-                  {isNewSection && (
-                    <div className={cn("mb-1", index !== 0 && "mt-4")}>
-                      <MessageAuthor message={message} />
-                    </div>
-                  )}
-                  <MessageBubble parent={record} message={message} />
-                </div>
-              )
-            })}
+            <MessageGroupList record={record} messages={visibleMessages} />
           </div>
         </>
       ) : null}

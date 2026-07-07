@@ -1,14 +1,12 @@
 import { useLayoutEffect, useRef } from "react"
 
 import { BaseMessageForm } from "~/components/forms/message"
-import { MessageAuthor } from "~/components/messages/message-author"
-import { MessageBubble } from "~/components/messages/message-bubble"
 import { type messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
 import { useSessionUser } from "~/lib/session/hooks"
 import { type ServerFnReturn } from "~/lib/types"
-import { cn } from "~/lib/utils"
 import { useScroll } from "~/lib/ux/hooks/use-scroll"
+import { MessageGroupList } from "~/views/message-group-list"
 
 type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number]
 
@@ -125,37 +123,12 @@ export function MessagesView({
       <div className="flex h-full flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto" ref={ref}>
           <div className="space-y-2">
-            {messages.map((message, index) => {
-              const prev = messages[index - 1]
-              const isAuthUserMessage = Boolean(
-                sessionUser && sessionUser.id === message.user.id,
-              )
-              const isNewSection = prev?.user.id !== message.user.id
-              return (
-                <div
-                  id={`message-${message.id}`}
-                  data-slot="message"
-                  className={cn(
-                    "flex max-w-full flex-col",
-                    isAuthUserMessage && "items-end",
-                  )}
-                  key={message.id}
-                >
-                  {isNewSection && (
-                    <div
-                      className={cn(
-                        "mb-1",
-                        isAuthUserMessage ? "mr-1" : "ml-1",
-                        index !== 0 && "mt-4",
-                      )}
-                    >
-                      <MessageAuthor message={message} />
-                    </div>
-                  )}
-                  <MessageBubble parent={record} message={message} />
-                </div>
-              )
-            })}
+            <MessageGroupList
+              record={record}
+              messages={messages}
+              withAnchors
+              insetAuthor
+            />
           </div>
         </div>
 
@@ -184,31 +157,7 @@ export function MessagesView({
   // Non-embedded: simple layout, form flows after messages
   return (
     <div className="space-y-2">
-      {messages.map((message, index) => {
-        const prev = messages[index - 1]
-        const isAuthUserMessage = Boolean(
-          sessionUser && sessionUser.id === message.user.id,
-        )
-        const isNewSection = prev?.user.id !== message.user.id
-        return (
-          <div
-            id={`message-${message.id}`}
-            data-slot="message"
-            className={cn(
-              "flex max-w-full flex-col",
-              isAuthUserMessage && "items-end",
-            )}
-            key={message.id}
-          >
-            {isNewSection && (
-              <div className={cn("mb-1", index !== 0 && "mt-4")}>
-                <MessageAuthor message={message} />
-              </div>
-            )}
-            <MessageBubble parent={record} message={message} />
-          </div>
-        )
-      })}
+      <MessageGroupList record={record} messages={messages} withAnchors />
       <div className="pt-2">
         {footer ?? (
           <BaseMessageForm
