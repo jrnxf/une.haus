@@ -1,8 +1,6 @@
-import { eq } from "drizzle-orm"
 import { defineTask } from "nitro/task"
 
-import { db } from "~/db"
-import { rius } from "~/db/schema"
+import { rotate } from "~/lib/games/rius/lifecycle.server"
 import { logger } from "~/lib/logger"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
@@ -16,44 +14,21 @@ export default defineTask({
     const task = TASK_NAMES.RIUS_ROTATE
     logger.info("rius rotation started", { task })
 
-    // Archive the currently active RIU
-    const archivedResult = await db
-      .update(rius)
-      .set({ status: "archived" })
-      .where(eq(rius.status, "active"))
-      .returning()
+    const { archived, activated, newRoundId } = await rotate()
 
-    logger.info("archived active rius", {
+    logger.info("rius rotation complete", {
       task,
-      archived: archivedResult.length,
+      archived,
+      activated,
+      newRiuId: newRoundId,
     })
-
-    // Promote upcoming RIU to active
-    const activatedResult = await db
-      .update(rius)
-      .set({ status: "active" })
-      .where(eq(rius.status, "upcoming"))
-      .returning()
-
-    logger.info("activated upcoming rius", {
-      task,
-      activated: activatedResult.length,
-    })
-
-    // Create a new upcoming RIU
-    const [newRiu] = await db
-      .insert(rius)
-      .values({ status: "upcoming" })
-      .returning()
-
-    logger.info("created new upcoming riu", { task, newRiuId: newRiu.id })
 
     return {
       result: {
         success: true,
-        archived: archivedResult.length,
-        activated: activatedResult.length,
-        newRiuId: newRiu.id,
+        archived,
+        activated,
+        newRiuId: newRoundId,
       },
     }
   },

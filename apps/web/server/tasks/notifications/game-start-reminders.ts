@@ -12,28 +12,17 @@ import {
   users,
 } from "~/db/schema"
 import { env } from "~/lib/env"
+import { hoursUntilNextRotation } from "~/lib/games/rius/lifecycle"
 import { logger } from "~/lib/logger"
 import { signUnsubscribe } from "~/lib/notification-settings/unsubscribe-token"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
-// Calculate hours until next Monday 00:00 UTC. `now` is injectable so tests can
-// pin a deterministic instant; production callers use the real clock.
-export function getHoursUntilNextRotation(now: Date = new Date()): number {
-  const nextMonday = new Date(now)
-
-  // Find next Monday
-  const daysUntilMonday = (8 - now.getUTCDay()) % 7 || 7
-  nextMonday.setUTCDate(now.getUTCDate() + daysUntilMonday)
-  nextMonday.setUTCHours(0, 0, 0, 0)
-
-  const msUntil = nextMonday.getTime() - now.getTime()
-  // Math.round (not Math.floor) so the cron tick closest to a UTC hour
-  // boundary wins. Math.floor caused emails to fire 1 hour early because
-  // the cron fires at :00:01, truncating e.g. 48.99h → 48.
-  return Math.round(msUntil / (1000 * 60 * 60))
-}
+// Reminder timing derives from the single rotation cadence. `now` is injectable
+// so tests can pin a deterministic instant; production callers use the real
+// clock.
+export const getHoursUntilNextRotation = hoursUntilNextRotation
 
 export default defineTask({
   meta: {

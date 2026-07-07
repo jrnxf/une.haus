@@ -9,6 +9,7 @@ import { type LoggingFunction, type RollupLog } from "rollup"
 import { defineConfig, type PluginOption } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
 
+import { ROTATION_CRON } from "./src/lib/games/rius/lifecycle"
 import { TASK_NAMES } from "./src/lib/tasks/constants"
 
 const devtoolsPlugin = async (): Promise<PluginOption> => {
@@ -72,9 +73,7 @@ const config = defineConfig(async () => {
           },
         },
         scheduledTasks: {
-          // Run RIU rotation at midnight (00:00) every Monday (server timezone)
-          // Cron: minute(0) hour(0) day(*) month(*) weekday(1=Monday)
-          "0 0 * * 1": [TASK_NAMES.RIUS_ROTATE],
+          [ROTATION_CRON]: [TASK_NAMES.RIUS_ROTATE],
           // Every hour at :00 — digest checks user's configured hour/day,
           // game-start checks hours-until-rotation with 1h window
           "0 * * * *": [

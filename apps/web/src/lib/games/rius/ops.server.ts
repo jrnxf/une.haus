@@ -3,6 +3,7 @@ import { and, desc, eq, lt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import { riuSets, riuSubmissions, rius } from "~/db/schema"
+import { assertCanEditSet, assertCanSubmit } from "~/lib/games/rius/lifecycle"
 import { ARCHIVED_ROUNDS_PAGE_SIZE } from "~/lib/games/rius/schemas"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
@@ -89,7 +90,7 @@ export async function updateRiuSet({
 
   invariant(set, "Set not found")
   invariant(set.userId === context.user.id, "Access denied")
-  invariant(set.riu.status === "upcoming", "Access denied")
+  assertCanEditSet(set.riu)
 
   const [riuSet] = await db
     .update(riuSets)
@@ -133,7 +134,7 @@ export async function deleteRiuSet({
   invariant(set, "Set not found")
 
   invariant(set.userId === userId, "Access denied")
-  invariant(set.riu.status === "upcoming", "Access denied")
+  assertCanEditSet(set.riu)
 
   const [deletedSet] = await db
     .delete(riuSets)
@@ -203,9 +204,7 @@ export async function createRiuSubmission({
     throw new Error("No RIU set found")
   }
 
-  if (riuSet.riu.status !== "active") {
-    throw new Error("RIU set is not from an active RIU")
-  }
+  assertCanSubmit(riuSet.riu)
 
   if (riuSet.userId === userId) {
     throw new Error("You cannot submit to your own set")
@@ -273,22 +272,6 @@ export async function listArchivedRius() {
     setsCount: Number(riu.setsCount),
     submissionsCount: Number(riu.submissionsCount),
   }))
-}
-
-export async function rotateRius() {
-  await db
-    .update(rius)
-    .set({ status: "archived" })
-    .where(eq(rius.status, "active"))
-
-  await db
-    .update(rius)
-    .set({ status: "active" })
-    .where(eq(rius.status, "upcoming"))
-
-  await db.insert(rius).values({
-    status: "upcoming",
-  })
 }
 
 export async function listArchivedRiuRounds({

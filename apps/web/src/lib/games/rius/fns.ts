@@ -11,6 +11,7 @@ import {
   type UserDiscipline,
   users,
 } from "~/db/schema"
+import { assertCanViewSet, isRosterPrivate } from "~/lib/games/rius/lifecycle"
 import {
   createRiuSetSchema,
   createRiuSubmissionSchema,
@@ -31,6 +32,10 @@ import {
 
 const loadRiuOps = createServerOnlyFn(
   () => import("~/lib/games/rius/ops.server"),
+)
+
+const loadRiuLifecycle = createServerOnlyFn(
+  () => import("~/lib/games/rius/lifecycle.server"),
 )
 
 export const getRiuSetServerFn = createServerFn({
@@ -108,25 +113,22 @@ export const getRiuSetServerFn = createServerFn({
 
     invariant(set, "Set not found")
 
-    if (set.riu.status === "upcoming") {
-      const isOwner = context.user?.id === set.user.id
-      const authUser = context.user
-        ? await db.query.users.findFirst({
-            where: eq(users.id, context.user.id),
-            columns: {
-              type: true,
-            },
-          })
-        : null
-      const isAdmin = authUser?.type === "admin"
+    const isOwner = context.user?.id === set.user.id
+    // The admin lookup only matters for a private (upcoming) roster, so only
+    // pay for it there.
+    const isAdmin =
+      isRosterPrivate(set.riu.status) && context.user
+        ? (
+            await db.query.users.findFirst({
+              where: eq(users.id, context.user.id),
+              columns: {
+                type: true,
+              },
+            })
+          )?.type === "admin"
+        : false
 
-      invariant(isOwner || isAdmin, "Access denied")
-    } else {
-      invariant(
-        set.riu.status === "active" || set.riu.status === "archived",
-        "Access denied",
-      )
-    }
+    assertCanViewSet({ status: set.riu.status, isOwner, isAdmin })
 
     return set
   })
@@ -578,6 +580,6 @@ export const adminOnlyRotateRiusServerFn = createServerFn({
 })
   .middleware([adminOnlyMiddleware])
   .handler(async () => {
-    const { rotateRius } = await loadRiuOps()
-    return rotateRius()
+    const { rotate } = await loadRiuLifecycle()
+    return rotate()
   })

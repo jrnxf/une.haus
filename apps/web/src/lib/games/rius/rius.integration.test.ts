@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
 import { riuSets, riuSubmissions, rius, userFollows } from "~/db/schema"
+import { rotate } from "~/lib/games/rius/lifecycle.server"
 import {
   createRiuSet,
   createRiuSubmission,
   deleteRiuSet,
   deleteRiuSubmission,
   listArchivedRius,
-  rotateRius,
   updateRiuSet,
 } from "~/lib/games/rius/ops.server"
 import {
@@ -328,12 +328,12 @@ describe("rius integration", () => {
     ).resolves.toEqual(expect.objectContaining({ id: submission.id }))
   })
 
-  it("rotateRius archives the active round, activates the upcoming round, and creates one new upcoming round", async () => {
+  it("rotate archives the active round, activates the upcoming round, and creates one new upcoming round", async () => {
     const active = await seedRiu("active")
     const upcoming = await seedRiu("upcoming")
     const archived = await seedRiu("archived")
 
-    await rotateRius()
+    await rotate()
 
     const rows = await db.query.rius.findMany({
       orderBy: (table, { asc }) => [asc(table.id)],
