@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "rius_one_active_idx" ON "rius" USING btree ("status") WHERE "rius"."status" = 'active';--> statement-breakpoint
+CREATE UNIQUE INDEX "rius_one_upcoming_idx" ON "rius" USING btree ("status") WHERE "rius"."status" = 'upcoming';

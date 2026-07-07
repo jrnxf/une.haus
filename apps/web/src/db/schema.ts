@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm"
 import {
   boolean,
   index,
@@ -11,9 +12,11 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm/relations"
 
+import { RIU_STATUSES } from "~/lib/games/rius/lifecycle"
 import { type TournamentState } from "~/lib/tourney/types"
 
 export const TRICK_SUBMISSION_STATUSES = [
@@ -26,7 +29,6 @@ export const trickSubmissionStatusEnum = pgEnum(
   "trick_submission_status",
   TRICK_SUBMISSION_STATUSES,
 )
-export const RIU_STATUSES = ["archived", "active", "upcoming"] as const
 // enums
 export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
 
@@ -448,14 +450,28 @@ export const muxVideos = pgTable("mux_videos", {
     .defaultNow(),
 })
 
-export const rius = pgTable("rius", {
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  id: serial("id").primaryKey(),
-  startedAt: timestamp("started_at", { withTimezone: true }),
-  status: riuStatusEnum("status").default("upcoming"),
-})
+export const rius = pgTable(
+  "rius",
+  {
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    id: serial("id").primaryKey(),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    status: riuStatusEnum("status").default("upcoming"),
+  },
+  (t) => [
+    // The rotation invariant, enforced by the database: at most one active and
+    // at most one upcoming round can exist at a time. Archived rounds are
+    // unconstrained history.
+    uniqueIndex("rius_one_active_idx")
+      .on(t.status)
+      .where(sql`${t.status} = 'active'`),
+    uniqueIndex("rius_one_upcoming_idx")
+      .on(t.status)
+      .where(sql`${t.status} = 'upcoming'`),
+  ],
+)
 
 export const riuSets = pgTable(
   "riu_sets",

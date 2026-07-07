@@ -89,7 +89,11 @@ const recordCases = [
     type: "riuSet" as const,
     messageTable: riuSetMessages,
     async seedParent(ownerId: number) {
-      const riu = first(await db.insert(rius).values({}).returning())
+      // Seed as archived so a test can create several independent parents: at
+      // most one active and one upcoming round may exist at a time.
+      const riu = first(
+        await db.insert(rius).values({ status: "archived" }).returning(),
+      )
       const mux = await seedMuxVideo()
       const set = first(
         await db
@@ -109,7 +113,11 @@ const recordCases = [
     type: "riuSubmission" as const,
     messageTable: riuSubmissionMessages,
     async seedParent(ownerId: number) {
-      const riu = first(await db.insert(rius).values({}).returning())
+      // Seed as archived so a test can create several independent parents: at
+      // most one active and one upcoming round may exist at a time.
+      const riu = first(
+        await db.insert(rius).values({ status: "archived" }).returning(),
+      )
       const setMux = await seedMuxVideo()
       const set = first(
         await db
