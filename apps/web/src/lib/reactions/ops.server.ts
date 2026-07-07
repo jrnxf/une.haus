@@ -7,6 +7,7 @@ import {
   NOTIFICATION_ENTITY_TYPES,
   type NotificationEntityType,
 } from "~/db/schema"
+import { columnKey } from "~/lib/engagement/column-key.server"
 import { ENTITY_REGISTRY } from "~/lib/engagement/registry.server"
 import { invariant } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
@@ -35,20 +36,6 @@ const NOTIFICATION_ENTITY_TYPE_SET: ReadonlySet<string> = new Set(
  */
 function userIdColumn(table: PgTable): AnyPgColumn {
   return (table as unknown as Record<string, AnyPgColumn>).userId
-}
-
-/**
- * The JS property key for a column on its table. Drizzle's `.values()` is keyed
- * by JS property name (e.g. `siuSetMessageId`), not the SQL column name
- * (`siu_set_message_id`), so resolve the key by identity-matching the registry's
- * column reference — no `${type}Id` string construction.
- */
-function columnKey(table: PgTable, column: AnyPgColumn): string {
-  const entry = Object.entries(
-    table as unknown as Record<string, AnyPgColumn>,
-  ).find(([, col]) => col === column)
-  invariant(entry, `could not resolve a JS key for column "${column.name}"`)
-  return entry[0]
 }
 
 /**

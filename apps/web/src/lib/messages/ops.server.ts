@@ -4,6 +4,7 @@ import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
 
 import { db } from "~/db"
 import { type NotificationEntityType } from "~/db/schema"
+import { columnKey } from "~/lib/engagement/column-key.server"
 import {
   type EngagementContentType,
   getMessageParentBinding,
@@ -41,20 +42,6 @@ export const getTableByType = (type: MessageParentType): MessageTable =>
 /** snake_case table name → the camelCase key Drizzle's relational query uses. */
 const toRelationalKey = (snake: string): string =>
   snake.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
-
-/**
- * Resolve the *property* key for a column on its table. Drizzle's `.values()`
- * and `.set()` are keyed by the table's TS property names (e.g. `postId`), not
- * the DB column name (`post_id`); the registry stores the column reference, so
- * we map it back to its property key by identity — no string reconstruction.
- */
-const parentColumnKey = (table: PgTable, column: AnyPgColumn): string => {
-  const entry = Object.entries(
-    table as unknown as Record<string, unknown>,
-  ).find(([, value]) => value === column)
-  invariant(entry, `column "${column.name}" not found on its table`)
-  return entry[0]
-}
 
 /** User fields exposed on a listed message's author and likers. */
 type MessageUser = { avatarId: string | null; id: number; name: string }
@@ -176,7 +163,7 @@ export async function createMessage({
   // reconstructed from `${type}Id`.
   const values: Record<string, unknown> = { content, userId }
   if (parentColumn) {
-    values[parentColumnKey(messageTable, parentColumn)] = id
+    values[columnKey(messageTable, parentColumn)] = id
   }
 
   const [row] = await db

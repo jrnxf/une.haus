@@ -23,3 +23,6 @@ export const updateNotificationSettingsSchema = z.object({
 export type UpdateNotificationSettingsInput = z.infer<
   typeof updateNotificationSettingsSchema
 >
+
+/** The unsubscribe scopes covered by a signed unsubscribe token. */
+export type UnsubscribeType = "all" | "digest" | "game_start"

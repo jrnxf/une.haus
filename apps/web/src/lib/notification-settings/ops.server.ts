@@ -4,15 +4,16 @@ import { eq } from "drizzle-orm"
 import { db } from "~/db"
 import { userNotificationSettings } from "~/db/schema"
 
-import type { UpdateNotificationSettingsInput } from "~/lib/notification-settings/schemas"
+import type {
+  UnsubscribeType,
+  UpdateNotificationSettingsInput,
+} from "~/lib/notification-settings/schemas"
 
 type AuthenticatedContext = {
   user: {
     id: number
   }
 }
-
-type UnsubscribeType = "all" | "digest" | "game_start"
 
 export async function getNotificationSettings({
   context,
