@@ -1,32 +1,14 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import {
-  EllipsisVerticalIcon,
-  FlagIcon,
-  ShareIcon,
-  TrashIcon,
-} from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
 import { z } from "zod"
 
-import { confirm } from "~/components/confirm-dialog"
-import { FlagTray } from "~/components/flag-tray"
 import { SetCard } from "~/components/games/set-card"
 import { LikesButtonGroup } from "~/components/likes-button-group"
-import { Button } from "~/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { SectionDivider } from "~/components/ui/section-divider"
 import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
 import { useDeleteSubmission } from "~/lib/games/rius/hooks"
-import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
@@ -34,6 +16,7 @@ import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
+import { DetailActionsMenu } from "~/views/detail-actions-menu"
 import { DetailHeader } from "~/views/detail-header"
 import { MessagesView } from "~/views/messages"
 
@@ -158,14 +141,22 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
             authUserLiked={authUserLiked}
             onLikeUnlike={sessionUser ? likeUnlike.mutate : undefined}
           />
-          <SubmissionActionsMenu
-            submission={submission}
-            isOwner={isOwner}
-            canFlag={Boolean(sessionUser && !isOwner)}
-            onDelete={() =>
-              deleteSubmission.mutate({
-                data: { submissionId: submission.id },
-              })
+          <DetailActionsMenu
+            flag={
+              sessionUser && !isOwner
+                ? { entityType: "riuSubmission", entityId: submission.id }
+                : undefined
+            }
+            onDelete={
+              isOwner
+                ? {
+                    noun: "submission",
+                    run: () =>
+                      deleteSubmission.mutate({
+                        data: { submissionId: submission.id },
+                      }),
+                  }
+                : undefined
             }
           />
         </DetailHeader.Actions>
@@ -186,80 +177,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
         <SectionDivider>set</SectionDivider>
         <SetCard set={submission.riuSet} />
       </div>
-    </>
-  )
-}
-
-function SubmissionActionsMenu({
-  submission,
-  isOwner,
-  canFlag,
-  onDelete,
-}: {
-  submission: { id: number }
-  isOwner: boolean
-  canFlag: boolean
-  onDelete: () => void
-}) {
-  const haptics = useHaptics()
-  const [flagOpen, setFlagOpen] = useState(false)
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button size="icon-sm" variant="outline" aria-label="actions" />
-          }
-        >
-          <EllipsisVerticalIcon className="size-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => {
-              navigator.clipboard.writeText(globalThis.location.href)
-              haptics.success()
-              toast.success("link copied")
-            }}
-          >
-            <ShareIcon />
-            share
-          </DropdownMenuItem>
-          {canFlag && (
-            <DropdownMenuItem onClick={() => setFlagOpen(true)}>
-              <FlagIcon />
-              flag
-            </DropdownMenuItem>
-          )}
-          {isOwner && (
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() =>
-                confirm.open({
-                  title: "delete submission",
-                  description:
-                    "are you sure you want to delete this submission? this action cannot be undone.",
-                  confirmText: "delete",
-                  onConfirm: onDelete,
-                })
-              }
-            >
-              <TrashIcon />
-              delete
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {canFlag && (
-        <FlagTray
-          entityType="riuSubmission"
-          entityId={submission.id}
-          hideTrigger
-          open={flagOpen}
-          onOpenChange={setFlagOpen}
-        />
-      )}
     </>
   )
 }
