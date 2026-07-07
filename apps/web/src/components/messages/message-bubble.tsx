@@ -42,6 +42,7 @@ import { Textarea } from "~/components/ui/textarea"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
 import { useAuthGate } from "~/hooks/use-auth-gate"
+import { messageTypeFor } from "~/lib/engagement/manifest"
 import { useFlagContent } from "~/lib/flags/hooks"
 import { useHaptics } from "~/lib/haptics"
 import { stripMentionTokens } from "~/lib/mentions/parse"
@@ -62,7 +63,7 @@ export function MessageBubble({
   message: Message
 }) {
   const haptics = useHaptics()
-  const messageType = `${parent.type}Message` as const
+  const messageType = messageTypeFor(parent.type)
   const flagType = `${parent.type}Message` as FlagEntityType
   const { sessionUser } = useAuthGate()
   const [detailsOpen, setDetailsOpen] = React.useState(false)

@@ -124,9 +124,6 @@ function SubmissionView({ submissionId }: { submissionId: number }) {
   const likeUnlike = useLikeUnlikeRecord({
     record,
     authUserLiked,
-    optimisticUpdateQueryKey: games.rius.submissions.get.queryOptions({
-      submissionId,
-    }).queryKey,
   })
 
   const deleteSubmission = useDeleteSubmission({ setId: submission.riuSet.id })

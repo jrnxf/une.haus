@@ -132,8 +132,6 @@ function SetView({ setId }: { setId: number }) {
   const likeUnlike = useLikeUnlikeRecord({
     record,
     authUserLiked,
-    optimisticUpdateQueryKey: games.rius.sets.get.queryOptions({ setId })
-      .queryKey,
   })
 
   const isOwner = set.user.id === sessionUser?.id

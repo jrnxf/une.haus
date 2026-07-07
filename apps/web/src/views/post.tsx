@@ -151,7 +151,6 @@ export function PostView({ postId }: { postId: number }) {
   const { mutate: likeUnlikePost } = useLikeUnlikeRecord({
     authUserLiked,
     record: { id: postId, type: "post" },
-    optimisticUpdateQueryKey: posts.get.queryOptions({ postId }).queryKey,
     refetchQueryKey: posts.list.infiniteQueryOptions({}).queryKey,
   })
 
