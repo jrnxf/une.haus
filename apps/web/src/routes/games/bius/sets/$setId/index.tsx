@@ -190,8 +190,6 @@ function SetView({ setId }: { setId: number }) {
   const likeUnlike = useLikeUnlikeRecord({
     record,
     authUserLiked,
-    optimisticUpdateQueryKey: games.bius.sets.get.queryOptions({ setId })
-      .queryKey,
   })
 
   return (

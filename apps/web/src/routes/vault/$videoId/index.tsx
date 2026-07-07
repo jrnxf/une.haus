@@ -122,7 +122,6 @@ function RouteComponent() {
   const { mutate: likeUnlikeVideo } = useLikeUnlikeRecord({
     authUserLiked,
     record: { id: videoId, type: "utvVideo" },
-    optimisticUpdateQueryKey: utv.get.queryOptions(videoId).queryKey,
   })
 
   const displayTitle = video.title || video.legacyTitle

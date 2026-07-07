@@ -1,22 +1,17 @@
 import { z } from "zod"
 
+import { contentTypes } from "~/lib/engagement/manifest"
+
 /**
- * Non-chat message parent types. This list mirrors the keys of
- * `MESSAGE_PARENT_REGISTRY` in the server-only engagement registry, which is the
- * source of truth for message dispatch. It is duplicated here (rather than
- * imported) because schemas run on the client, where the server-only registry
- * cannot be bundled. Two guards keep the two in lock-step:
+ * Non-chat message parent types — the content entities a rider can attach a
+ * message to. Re-exported from the engagement manifest's `contentTypes`, which
+ * projects the server-only registry and locks its union at compile time. Every
+ * engageable content entity accepts messages, so the two lists are the same.
+ * Two further guards keep dispatch and validation in lock-step:
  *   - a compile-time `AssertEqual` in `messages/ops.server.ts`, and
  *   - a runtime equality assertion in `messages.integration.test.ts`.
  */
-export const recordWithMessagesTypes = [
-  "post",
-  "riuSet",
-  "riuSubmission",
-  "utvVideo",
-  "biuSet",
-  "siuSet",
-] as const
+export const recordWithMessagesTypes = contentTypes
 
 const messageFormSchema = z.object({
   content: z.string().min(1),
