@@ -17,6 +17,7 @@ import { getMuxPoster } from "~/components/video-player"
 import { USER_DISCIPLINES } from "~/db/schema"
 import { useFilteredList } from "~/hooks/use-filtered-list"
 import { seo } from "~/lib/seo"
+import { setsEqual } from "~/lib/utils"
 import { utv } from "~/lib/utv/core"
 
 export const Route = createFileRoute("/vault/")({
@@ -160,15 +161,9 @@ function VideoGrid({
       queryParams.disciplines &&
       queryParams.disciplines.length > 0
     ) {
-      const filterSet = new Set(queryParams.disciplines.map(String))
-      videos = videos.filter((video) => {
-        const videoSet = new Set((video.disciplines ?? []).map(String))
-        if (videoSet.size !== filterSet.size) return false
-        for (const discipline of filterSet) {
-          if (!videoSet.has(discipline)) return false
-        }
-        return true
-      })
+      videos = videos.filter((video) =>
+        setsEqual(video.disciplines ?? [], queryParams.disciplines ?? []),
+      )
     }
 
     if (
@@ -176,15 +171,9 @@ function VideoGrid({
       queryParams.riders &&
       queryParams.riders.length > 0
     ) {
-      const filterSet = new Set(queryParams.riders)
-      videos = videos.filter((video) => {
-        const videoSet = new Set(video.riders ?? [])
-        if (videoSet.size !== filterSet.size) return false
-        for (const rider of filterSet) {
-          if (!videoSet.has(rider)) return false
-        }
-        return true
-      })
+      videos = videos.filter((video) =>
+        setsEqual(video.riders ?? [], queryParams.riders ?? []),
+      )
     }
 
     return videos

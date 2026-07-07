@@ -19,6 +19,7 @@ import { POST_TAGS } from "~/db/schema"
 import { useFilteredList } from "~/hooks/use-filtered-list"
 import { posts } from "~/lib/posts"
 import { seo } from "~/lib/seo"
+import { setsEqual } from "~/lib/utils"
 
 export const Route = createFileRoute("/posts/")({
   validateSearch: posts.list.schema,
@@ -135,16 +136,9 @@ function PostsList({
       return allPosts
     }
 
-    const filterSet = new Set(queryParams.tags.map(String))
-
-    return allPosts.filter((post) => {
-      const postSet = new Set((post.tags ?? []).map(String))
-      if (postSet.size !== filterSet.size) return false
-      for (const tag of filterSet) {
-        if (!postSet.has(tag)) return false
-      }
-      return true
-    })
+    return allPosts.filter((post) =>
+      setsEqual(post.tags ?? [], queryParams.tags ?? []),
+    )
   }, [postsPages, queryParams.tags, tagsOperator])
 
   return (

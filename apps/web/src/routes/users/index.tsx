@@ -16,7 +16,7 @@ import { USER_DISCIPLINES } from "~/db/schema"
 import { useFilteredList } from "~/hooks/use-filtered-list"
 import { seo } from "~/lib/seo"
 import { users } from "~/lib/users"
-import { getCloudflareImageUrl } from "~/lib/utils"
+import { getCloudflareImageUrl, setsEqual } from "~/lib/utils"
 
 export const Route = createFileRoute("/users/")({
   validateSearch: users.list.schema,
@@ -131,15 +131,9 @@ function UsersList({
       return allUsers
     }
 
-    const filterSet = new Set(queryParams.disciplines.map(String))
-    return allUsers.filter((user) => {
-      const userSet = new Set((user.disciplines ?? []).map(String))
-      if (userSet.size !== filterSet.size) return false
-      for (const discipline of filterSet) {
-        if (!userSet.has(discipline)) return false
-      }
-      return true
-    })
+    return allUsers.filter((user) =>
+      setsEqual(user.disciplines ?? [], queryParams.disciplines ?? []),
+    )
   }, [usersPages, queryParams.disciplines, disciplinesOperator])
 
   return (

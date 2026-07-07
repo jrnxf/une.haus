@@ -53,6 +53,25 @@ export function isDefined<T>(x: T): x is NonNullable<T> {
   return x !== null && x !== undefined
 }
 
+/**
+ * Do `itemValues` and `filterValues` contain exactly the same distinct values?
+ * Both sides are stringified so numeric and string ids compare consistently.
+ * Backs the "equal" filter operator, which matches a record only when its tag
+ * set is identical to the selected filter set.
+ */
+export function setsEqual(
+  itemValues: readonly (string | number)[],
+  filterValues: readonly (string | number)[],
+): boolean {
+  const filterSet = new Set(filterValues.map(String))
+  const itemSet = new Set(itemValues.map(String))
+  if (itemSet.size !== filterSet.size) return false
+  for (const value of filterSet) {
+    if (!itemSet.has(value)) return false
+  }
+  return true
+}
+
 export function getCloudflareImageUrl(
   id: string,
   options: { width: number; quality: number },
