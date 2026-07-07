@@ -39,9 +39,11 @@ describe("getNotificationUrl", () => {
     expect(getNotificationUrl("user", 300)).toBe("/users/300")
   })
 
-  it("returns fallback URL for unknown type", () => {
-    // @ts-expect-error - testing unknown type
-    expect(getNotificationUrl("unknown", 999)).toBe("/")
+  it("throws for an unknown entity type", () => {
+    expect(() =>
+      // @ts-expect-error - testing unknown type
+      getNotificationUrl("unknown", 999),
+    ).toThrow()
   })
 })
 
@@ -160,12 +162,6 @@ describe("getNotificationMessage", () => {
       const msg = getNotificationMessage("unknown", "post", 1, ["Alice"])
       expect(msg).toBe("You have a new notification")
     })
-
-    it("handles unknown entity type", () => {
-      // @ts-expect-error - testing unknown type
-      const msg = getNotificationMessage("like", "unknown", 1, ["Alice"])
-      expect(msg).toBe("Alice liked your content")
-    })
   })
 
   describe("formatActors edge cases (via getNotificationMessage)", () => {
@@ -193,6 +189,7 @@ describe("getNotificationMessage", () => {
 
 describe("entity type formatting", () => {
   it.each([
+    ["chat", "chat"],
     ["post", "post"],
     ["riuSet", "RIU set"],
     ["riuSubmission", "RIU submission"],

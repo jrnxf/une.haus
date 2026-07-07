@@ -69,7 +69,7 @@ export function getNotificationUrl(
       break
     }
     default: {
-      url = "/"
+      return assertNever(entityType)
     }
   }
 
@@ -199,52 +199,27 @@ function formatActors(names: string[], totalCount: number): string {
   return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`
 }
 
+const entityTypeLabels = {
+  chat: "chat",
+  post: "post",
+  riuSet: "RIU set",
+  riuSubmission: "RIU submission",
+  biuSet: "BIU set",
+  siuSet: "SIU set",
+  siu: "SIU round",
+  utvVideo: "video",
+  utvVideoSuggestion: "video suggestion",
+  user: "profile",
+  trickSubmission: "trick submission",
+  trickSuggestion: "trick suggestion",
+  trickVideo: "trick video",
+  glossaryProposal: "glossary proposal",
+} satisfies Record<NotificationEntityType, string>
+
 function formatEntityType(entityType: NotificationEntityType): string {
-  switch (entityType) {
-    case "chat": {
-      return "chat"
-    }
-    case "post": {
-      return "post"
-    }
-    case "riuSet": {
-      return "RIU set"
-    }
-    case "riuSubmission": {
-      return "RIU submission"
-    }
-    case "biuSet": {
-      return "BIU set"
-    }
-    case "siuSet": {
-      return "SIU set"
-    }
-    case "siu": {
-      return "SIU round"
-    }
-    case "utvVideo": {
-      return "video"
-    }
-    case "user": {
-      return "profile"
-    }
-    case "trickSubmission": {
-      return "trick submission"
-    }
-    case "trickSuggestion": {
-      return "trick suggestion"
-    }
-    case "trickVideo": {
-      return "trick video"
-    }
-    case "glossaryProposal": {
-      return "glossary proposal"
-    }
-    case "utvVideoSuggestion": {
-      return "video suggestion"
-    }
-    default: {
-      return "content"
-    }
-  }
+  return entityTypeLabels[entityType]
+}
+
+function assertNever(value: never): never {
+  throw new Error(`unhandled notification entity type: ${String(value)}`)
 }
