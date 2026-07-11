@@ -7,8 +7,8 @@ export default function NoRiders() {
       hoursUntilStart={24}
       riderCount={0}
       setCount={0}
-      viewRoundUrl="https://une.haus/games/rius"
-      addSetUrl="https://une.haus/games/rius/sets/create"
+      viewRoundUrl="https://une.haus/games/rius/upcoming"
+      addSetUrl="https://une.haus/games/rius/upcoming/join"
       unsubscribeReminderUrl="https://une.haus/api/unsubscribe?type=game_start"
       unsubscribeAllUrl="https://une.haus/api/unsubscribe?type=all"
     />

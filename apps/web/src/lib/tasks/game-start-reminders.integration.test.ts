@@ -100,6 +100,13 @@ describe("game-start-reminders task", () => {
     expect(sendArg?.to).toEqual([user.email])
     expect(result.sent).toBe(1)
 
+    // The email's CTA links must point at routes that actually exist —
+    // /games/rius/upcoming/join is the set-submission page.
+    const emailBody = JSON.stringify(sendArg)
+    expect(emailBody).toContain("https://une.haus/games/rius/upcoming/join")
+    expect(emailBody).toContain("https://une.haus/games/rius/upcoming")
+    expect(emailBody).not.toContain("sets/create")
+
     const sentRows = await db.query.emailRemindersSent.findMany({
       where: and(
         eq(emailRemindersSent.userId, user.id),

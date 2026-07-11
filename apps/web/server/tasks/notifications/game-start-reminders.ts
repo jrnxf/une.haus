@@ -134,7 +134,7 @@ export default defineTask({
             riderCount: Number(riderCount),
             setCount: Number(setCount),
             viewRoundUrl: `https://une.haus/games/rius/upcoming`,
-            addSetUrl: `https://une.haus/games/rius/upcoming/sets/create`,
+            addSetUrl: `https://une.haus/games/rius/upcoming/join`,
             unsubscribeReminderUrl: `https://une.haus/api/unsubscribe?type=game_start&userId=${user.userId}&token=${signUnsubscribe(user.userId, "game_start")}`,
             unsubscribeAllUrl: `https://une.haus/api/unsubscribe?type=all&userId=${user.userId}&token=${signUnsubscribe(user.userId, "all")}`,
           }),
