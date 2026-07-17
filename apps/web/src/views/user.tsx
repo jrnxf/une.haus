@@ -32,7 +32,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
   const hasSocials = socials && Object.values(socials).some(isDefined)
 
   const followStatsVisible =
-    user.followers.count > 0 || user.following.count > 0
+    user.followers.count > 0 || user.following.count > 0 || user.videosCount > 0
   return (
     <div className="h-full overflow-y-auto" key={user.id}>
       <div className="mx-auto w-full max-w-2xl px-4 py-6">
@@ -96,9 +96,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
                 )}
               </div>
 
-              {(user.followers.count > 0 || user.following.count > 0) && (
-                <FollowStats {...user} />
-              )}
+              {followStatsVisible && <FollowStats {...user} />}
             </div>
           </div>
 
@@ -133,20 +131,32 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 }
 
 function FollowStats(props: UsersWithFollowsData) {
-  const { followers, following } = props
+  const { followers, following, videosCount, id } = props
+  const followCountsVisible = followers.count > 0 || following.count > 0
 
   return (
     <div className="-ml-2 flex items-center gap-2">
-      <UsersCombobox users={followers.users} peripheralKey="followers">
-        <Button type="button" className="text-sm" variant="ghost" size="sm">
-          {followers.count} {pluralize("follower", followers.count)}
+      {followCountsVisible && (
+        <>
+          <UsersCombobox users={followers.users} peripheralKey="followers">
+            <Button type="button" className="text-sm" variant="ghost" size="sm">
+              {followers.count} {pluralize("follower", followers.count)}
+            </Button>
+          </UsersCombobox>
+          <UsersCombobox users={following.users} peripheralKey="following">
+            <Button type="button" className="text-sm" variant="ghost" size="sm">
+              {following.count} following
+            </Button>
+          </UsersCombobox>
+        </>
+      )}
+      {videosCount > 0 && (
+        <Button asChild className="text-sm" variant="ghost" size="sm">
+          <Link to="/users/$userId/videos" params={{ userId: id }}>
+            {videosCount} {pluralize("video", videosCount)}
+          </Link>
         </Button>
-      </UsersCombobox>
-      <UsersCombobox users={following.users} peripheralKey="following">
-        <Button type="button" className="text-sm" variant="ghost" size="sm">
-          {following.count} following
-        </Button>
-      </UsersCombobox>
+      )}
     </div>
   )
 }

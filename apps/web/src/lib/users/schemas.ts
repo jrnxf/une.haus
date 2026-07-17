@@ -103,6 +103,27 @@ export const getUserActivitySchema = z.object({
   type: z.enum(ACTIVITY_TYPES).optional(),
 })
 
+export const USER_VIDEO_TYPES = [
+  "post",
+  "riuSet",
+  "riuSubmission",
+  "biuSet",
+  "siuSet",
+  "trickVideo",
+] as const
+
+/** Search-param filters for the user videos page (userId comes from the path) */
+export const userVideosFiltersSchema = z.object({
+  q: z.string().optional(),
+  types: commaArrayOf(USER_VIDEO_TYPES),
+})
+
+export const getUserVideosSchema = userVideosFiltersSchema.extend({
+  userId: z.coerce.number(),
+  cursor: z.string().nullish(),
+  limit: z.number().min(1).max(50).default(12),
+})
+
 export const setShopNotifySchema = z.object({
   notify: z.boolean(),
 })

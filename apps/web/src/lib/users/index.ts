@@ -9,6 +9,7 @@ import {
   getShopWaitlistUsersServerFn,
   getUserActivityServerFn,
   getUserFollowsServerFn,
+  getUserVideosServerFn,
   getUserWithFollowsServerFn,
   listUsersServerFn,
   setShopNotifyServerFn,
@@ -21,6 +22,7 @@ import {
   getUserActivitySchema,
   getUserFollowsSchema,
   getUserSchema,
+  getUserVideosSchema,
   listUsersSchema,
   setShopNotifySchema,
   unfollowUserSchema,
@@ -128,6 +130,30 @@ export const users = {
       })
     },
   },
+  videos: {
+    fn: getUserVideosServerFn,
+    schema: getUserVideosSchema,
+    infiniteQueryOptions: (
+      data: Omit<
+        ServerFnData<typeof getUserVideosServerFn>,
+        "cursor" | "limit"
+      >,
+    ) => {
+      return infiniteQueryOptions({
+        queryKey: ["users.videos", data],
+        queryFn: ({ pageParam: cursor }) => {
+          return getUserVideosServerFn({
+            data: {
+              ...data,
+              cursor,
+            },
+          })
+        },
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      })
+    },
+  },
   setShopNotify: {
     fn: setShopNotifyServerFn,
     schema: setShopNotifySchema,
@@ -159,4 +185,4 @@ export type UsersWithLocationsData = ServerFnReturn<
   typeof usersWithLocationsServerFn
 >
 
-export type { ActivityItem } from "~/lib/users/fns"
+export type { ActivityItem, UserVideoItem } from "~/lib/users/fns"

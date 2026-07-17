@@ -12,7 +12,9 @@ import {
   getUserActivitySchema,
   getUserFollowsSchema,
   getUserSchema,
+  getUserVideosSchema,
   listUsersSchema,
+  type USER_VIDEO_TYPES,
   setShopNotifySchema,
   unfollowUserSchema,
   updateUserSchema,
@@ -48,15 +50,17 @@ export const getUserWithFollowsServerFn = createServerFn({
 })
   .inputValidator(zodValidator(getUserSchema))
   .handler(async ({ data }) => {
-    const { getUser, getUserFollows } = await loadUserOps()
-    const [user, follows] = await Promise.all([
+    const { getUser, getUserFollows, getUserVideosCount } = await loadUserOps()
+    const [user, follows, videosCount] = await Promise.all([
       getUser(data.userId),
       getUserFollows(data.userId),
+      getUserVideosCount(data.userId),
     ])
 
     return {
       ...user,
       ...follows,
+      videosCount,
     }
   })
 
@@ -152,6 +156,28 @@ export const getUserActivityServerFn = createServerFn({
   .handler(async (ctx) => {
     const { getUserActivity } = await loadUserOps()
     return getUserActivity(ctx)
+  })
+
+export type UserVideoType = (typeof USER_VIDEO_TYPES)[number]
+
+export type UserVideoItem = {
+  type: UserVideoType
+  id: number
+  createdAt: Date
+  playbackId: string
+  /** Post title, set name, or trick name — whatever names the source entity */
+  title: string | null
+  /** Only set for trickVideo items, which link to the trick page */
+  trickId?: number
+}
+
+export const getUserVideosServerFn = createServerFn({
+  method: "GET",
+})
+  .inputValidator(zodValidator(getUserVideosSchema))
+  .handler(async (ctx) => {
+    const { getUserVideos } = await loadUserOps()
+    return getUserVideos(ctx)
   })
 
 export const setShopNotifyServerFn = createServerFn({

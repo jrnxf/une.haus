@@ -1,9 +1,23 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, desc, eq, gt, ilike, isNull, lt, ne, sql } from "drizzle-orm"
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  ilike,
+  isNotNull,
+  isNull,
+  lt,
+  ne,
+  sql,
+} from "drizzle-orm"
 
 import { db } from "~/db"
 import {
   biuSets,
+  muxVideos,
   postMessages,
   posts,
   rius,
@@ -25,7 +39,12 @@ import { PAGE_SIZE } from "~/lib/constants"
 import { assertFound } from "~/lib/invariant"
 import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
-import { type ActivityItem, type ActivityType } from "~/lib/users/fns"
+import {
+  type ActivityItem,
+  type ActivityType,
+  type UserVideoItem,
+  type UserVideoType,
+} from "~/lib/users/fns"
 import { type UpdateUserArgs } from "~/lib/users/schemas"
 
 type AuthenticatedContext = {
@@ -691,6 +710,360 @@ export async function getUserActivity({
     if (lastItem) {
       nextCursor = `${new Date(lastItem.createdAt).toISOString()}|${lastItem.type}|${lastItem.id}`
     }
+  }
+
+  return { items, nextCursor }
+}
+
+/**
+ * Total ready videos a user has uploaded across all video-bearing entities.
+ * Mirrors the visibility rules of getUserVideos.
+ */
+export async function getUserVideosCount(userId: number) {
+  const results = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(posts)
+      .innerJoin(muxVideos, eq(posts.muxAssetId, muxVideos.assetId))
+      .where(and(eq(posts.userId, userId), isNotNull(muxVideos.playbackId))),
+    db
+      .select({ value: count() })
+      .from(riuSets)
+      .innerJoin(rius, eq(rius.id, riuSets.riuId))
+      .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
+      .where(
+        and(
+          eq(riuSets.userId, userId),
+          ne(rius.status, "upcoming"),
+          isNotNull(muxVideos.playbackId),
+        ),
+      ),
+    db
+      .select({ value: count() })
+      .from(riuSubmissions)
+      .innerJoin(muxVideos, eq(riuSubmissions.muxAssetId, muxVideos.assetId))
+      .where(
+        and(eq(riuSubmissions.userId, userId), isNotNull(muxVideos.playbackId)),
+      ),
+    db
+      .select({ value: count() })
+      .from(biuSets)
+      .innerJoin(muxVideos, eq(biuSets.muxAssetId, muxVideos.assetId))
+      .where(
+        and(
+          eq(biuSets.userId, userId),
+          isNull(biuSets.deletedAt),
+          isNotNull(muxVideos.playbackId),
+        ),
+      ),
+    db
+      .select({ value: count() })
+      .from(siuSets)
+      .innerJoin(muxVideos, eq(siuSets.muxAssetId, muxVideos.assetId))
+      .where(
+        and(
+          eq(siuSets.userId, userId),
+          isNull(siuSets.deletedAt),
+          isNotNull(muxVideos.playbackId),
+        ),
+      ),
+    db
+      .select({ value: count() })
+      .from(trickVideos)
+      .innerJoin(muxVideos, eq(trickVideos.muxAssetId, muxVideos.assetId))
+      .where(
+        and(
+          eq(trickVideos.submittedByUserId, userId),
+          isNotNull(muxVideos.playbackId),
+        ),
+      ),
+  ])
+
+  return results.reduce((sum, [row]) => sum + (row?.value ?? 0), 0)
+}
+
+export async function getUserVideos({
+  data,
+}: {
+  data: {
+    cursor?: string | null
+    limit?: number
+    q?: string
+    types?: UserVideoType[]
+    userId: number
+  }
+}) {
+  const { userId, cursor, limit = 12, q, types } = data
+
+  // Cursor format matches getUserActivity: "timestamp|type|id"
+  let cursorDate: Date | null = null
+  if (cursor) {
+    const [timestamp] = cursor.split("|")
+    cursorDate = new Date(timestamp)
+  }
+
+  const shouldFetch = (type: UserVideoType) =>
+    !types || types.length === 0 || types.includes(type)
+
+  // Title search matches whatever names the source entity in the gallery:
+  // post title, set name (the parent set for riu submissions), or trick name
+  const qLike = q ? `%${q}%` : null
+
+  // Mux videos carry no uploader column, so "videos by this user" is a union
+  // over every owner-bearing table with a mux_asset_id. Joining muxVideos and
+  // requiring playbackId keeps still-processing uploads out of the gallery.
+  const [
+    postsData,
+    riuSetsData,
+    riuSubsData,
+    biuSetsData,
+    siuSetsData,
+    trickVideosData,
+  ] = await Promise.all([
+    shouldFetch("post")
+      ? db
+          .select({
+            id: posts.id,
+            createdAt: posts.createdAt,
+            title: posts.title,
+            playbackId: muxVideos.playbackId,
+          })
+          .from(posts)
+          .innerJoin(muxVideos, eq(posts.muxAssetId, muxVideos.assetId))
+          .where(
+            and(
+              eq(posts.userId, userId),
+              isNotNull(muxVideos.playbackId),
+              qLike ? ilike(posts.title, qLike) : undefined,
+              cursorDate ? lt(posts.createdAt, cursorDate) : undefined,
+            ),
+          )
+          .orderBy(desc(posts.createdAt))
+          .limit(limit + 1)
+      : Promise.resolve([]),
+
+    // Sets in upcoming rounds stay hidden, matching getUserActivity
+    shouldFetch("riuSet")
+      ? db
+          .select({
+            id: riuSets.id,
+            createdAt: riuSets.createdAt,
+            name: riuSets.name,
+            playbackId: muxVideos.playbackId,
+          })
+          .from(riuSets)
+          .innerJoin(rius, eq(rius.id, riuSets.riuId))
+          .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
+          .where(
+            and(
+              eq(riuSets.userId, userId),
+              ne(rius.status, "upcoming"),
+              isNotNull(muxVideos.playbackId),
+              qLike ? ilike(riuSets.name, qLike) : undefined,
+              cursorDate ? lt(riuSets.createdAt, cursorDate) : undefined,
+            ),
+          )
+          .orderBy(desc(riuSets.createdAt))
+          .limit(limit + 1)
+      : Promise.resolve([]),
+
+    shouldFetch("riuSubmission")
+      ? db
+          .select({
+            id: riuSubmissions.id,
+            createdAt: riuSubmissions.createdAt,
+            setName: riuSets.name,
+            playbackId: muxVideos.playbackId,
+          })
+          .from(riuSubmissions)
+          .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
+          .innerJoin(
+            muxVideos,
+            eq(riuSubmissions.muxAssetId, muxVideos.assetId),
+          )
+          .where(
+            and(
+              eq(riuSubmissions.userId, userId),
+              isNotNull(muxVideos.playbackId),
+              qLike ? ilike(riuSets.name, qLike) : undefined,
+              cursorDate ? lt(riuSubmissions.createdAt, cursorDate) : undefined,
+            ),
+          )
+          .orderBy(desc(riuSubmissions.createdAt))
+          .limit(limit + 1)
+      : Promise.resolve([]),
+
+    shouldFetch("biuSet")
+      ? db
+          .select({
+            id: biuSets.id,
+            createdAt: biuSets.createdAt,
+            name: biuSets.name,
+            playbackId: muxVideos.playbackId,
+          })
+          .from(biuSets)
+          .innerJoin(muxVideos, eq(biuSets.muxAssetId, muxVideos.assetId))
+          .where(
+            and(
+              eq(biuSets.userId, userId),
+              isNull(biuSets.deletedAt),
+              isNotNull(muxVideos.playbackId),
+              qLike ? ilike(biuSets.name, qLike) : undefined,
+              cursorDate ? lt(biuSets.createdAt, cursorDate) : undefined,
+            ),
+          )
+          .orderBy(desc(biuSets.createdAt))
+          .limit(limit + 1)
+      : Promise.resolve([]),
+
+    shouldFetch("siuSet")
+      ? db
+          .select({
+            id: siuSets.id,
+            createdAt: siuSets.createdAt,
+            name: siuSets.name,
+            playbackId: muxVideos.playbackId,
+          })
+          .from(siuSets)
+          .innerJoin(muxVideos, eq(siuSets.muxAssetId, muxVideos.assetId))
+          .where(
+            and(
+              eq(siuSets.userId, userId),
+              isNull(siuSets.deletedAt),
+              isNotNull(muxVideos.playbackId),
+              qLike ? ilike(siuSets.name, qLike) : undefined,
+              cursorDate ? lt(siuSets.createdAt, cursorDate) : undefined,
+            ),
+          )
+          .orderBy(desc(siuSets.createdAt))
+          .limit(limit + 1)
+      : Promise.resolve([]),
+
+    shouldFetch("trickVideo")
+      ? db
+          .select({
+            id: trickVideos.id,
+            createdAt: trickVideos.createdAt,
+            trickId: trickVideos.trickId,
+            trickName: tricks.name,
+            playbackId: muxVideos.playbackId,
+          })
+          .from(trickVideos)
+          .innerJoin(tricks, eq(trickVideos.trickId, tricks.id))
+          .innerJoin(muxVideos, eq(trickVideos.muxAssetId, muxVideos.assetId))
+          .where(
+            and(
+              eq(trickVideos.submittedByUserId, userId),
+              isNotNull(muxVideos.playbackId),
+              qLike ? ilike(tricks.name, qLike) : undefined,
+              cursorDate ? lt(trickVideos.createdAt, cursorDate) : undefined,
+            ),
+          )
+          .orderBy(desc(trickVideos.createdAt))
+          .limit(limit + 1)
+      : Promise.resolve([]),
+  ])
+
+  // The isNotNull filter guarantees playbackId, but the select type stays
+  // nullable — flatMap narrows without an assertion
+  const allItems: (UserVideoItem & { _ts: number })[] = [
+    ...postsData.flatMap((row) =>
+      row.playbackId
+        ? [
+            {
+              type: "post" as const,
+              id: row.id,
+              createdAt: row.createdAt,
+              playbackId: row.playbackId,
+              title: row.title,
+              _ts: getTime(row.createdAt),
+            },
+          ]
+        : [],
+    ),
+    ...riuSetsData.flatMap((row) =>
+      row.playbackId
+        ? [
+            {
+              type: "riuSet" as const,
+              id: row.id,
+              createdAt: row.createdAt,
+              playbackId: row.playbackId,
+              title: row.name,
+              _ts: getTime(row.createdAt),
+            },
+          ]
+        : [],
+    ),
+    ...riuSubsData.flatMap((row) =>
+      row.playbackId
+        ? [
+            {
+              type: "riuSubmission" as const,
+              id: row.id,
+              createdAt: row.createdAt,
+              playbackId: row.playbackId,
+              title: row.setName,
+              _ts: getTime(row.createdAt),
+            },
+          ]
+        : [],
+    ),
+    ...biuSetsData.flatMap((row) =>
+      row.playbackId
+        ? [
+            {
+              type: "biuSet" as const,
+              id: row.id,
+              createdAt: row.createdAt,
+              playbackId: row.playbackId,
+              title: row.name,
+              _ts: getTime(row.createdAt),
+            },
+          ]
+        : [],
+    ),
+    ...siuSetsData.flatMap((row) =>
+      row.playbackId
+        ? [
+            {
+              type: "siuSet" as const,
+              id: row.id,
+              createdAt: row.createdAt,
+              playbackId: row.playbackId,
+              title: row.name,
+              _ts: getTime(row.createdAt),
+            },
+          ]
+        : [],
+    ),
+    ...trickVideosData.flatMap((row) =>
+      row.playbackId
+        ? [
+            {
+              type: "trickVideo" as const,
+              id: row.id,
+              createdAt: row.createdAt,
+              playbackId: row.playbackId,
+              title: row.trickName,
+              trickId: row.trickId,
+              _ts: getTime(row.createdAt),
+            },
+          ]
+        : [],
+    ),
+  ]
+
+  allItems.sort((a, b) => b._ts - a._ts)
+  const sortedItems = allItems.map(({ _ts, ...item }) => item)
+
+  const hasMore = sortedItems.length > limit
+  const items = sortedItems.slice(0, limit)
+
+  let nextCursor: string | undefined
+  const lastItem = items.at(-1)
+  if (hasMore && lastItem) {
+    nextCursor = `${new Date(lastItem.createdAt).toISOString()}|${lastItem.type}|${lastItem.id}`
   }
 
   return { items, nextCursor }

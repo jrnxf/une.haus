@@ -23,6 +23,8 @@ import {
 import {
   followUser,
   getUserActivity,
+  getUserVideos,
+  getUserVideosCount,
   unfollowUser,
   updateUser,
 } from "~/lib/users/ops.server"
@@ -498,6 +500,251 @@ describe("users integration", () => {
         }),
       ])
       expect(activity.nextCursor).toBeUndefined()
+    })
+  })
+
+  describe("videos", () => {
+    it("lists only the user's ready videos newest-first with source titles, and paginates", async () => {
+      const user = await seedUser({ name: "Video User" })
+      const otherUser = await seedUser({ name: "Other User" })
+      const trick = await seedTrick({ name: "Video Trick" })
+      const [biu] = await db.insert(bius).values({}).returning()
+      const [activeRiu] = await db
+        .insert(rius)
+        .values({ status: "active" })
+        .returning()
+      const [upcomingRiu] = await db
+        .insert(rius)
+        .values({ status: "upcoming" })
+        .returning()
+      const [siu] = await db
+        .insert(sius)
+        .values({ status: "active" })
+        .returning()
+
+      const postVideo = await seedMux("post-video")
+      const otherPostVideo = await seedMux("other-post-video")
+      const riuSetVideo = await seedMux("riu-set-video")
+      const upcomingRiuSetVideo = await seedMux("upcoming-riu-set-video")
+      const riuSubmissionVideo = await seedMux("riu-submission-video")
+      const biuVideo = await seedMux("biu-video")
+      const biuDeletedVideo = await seedMux("biu-deleted-video")
+      const siuVideo = await seedMux("siu-video")
+      const siuDeletedVideo = await seedMux("siu-deleted-video")
+      const trickVideoAsset = await seedMux("trick-video")
+
+      // Still-processing upload: asset exists but has no playbackId yet
+      const [preparingVideo] = await db
+        .insert(muxVideos)
+        .values({ assetId: "preparing-video" })
+        .returning()
+
+      await db.insert(posts).values([
+        {
+          content: "with video",
+          createdAt: new Date("2024-01-01T12:00:00Z"),
+          muxAssetId: postVideo.assetId,
+          title: "Video Post",
+          userId: user.id,
+        },
+        {
+          content: "no video",
+          createdAt: new Date("2024-01-01T12:30:00Z"),
+          title: "Text Post",
+          userId: user.id,
+        },
+        {
+          content: "still processing",
+          createdAt: new Date("2024-01-01T12:31:00Z"),
+          muxAssetId: preparingVideo.assetId,
+          title: "Preparing Post",
+          userId: user.id,
+        },
+        {
+          content: "other rider's video",
+          createdAt: new Date("2024-01-01T12:32:00Z"),
+          muxAssetId: otherPostVideo.assetId,
+          title: "Other Post",
+          userId: otherUser.id,
+        },
+      ])
+
+      const [riuSet] = await db
+        .insert(riuSets)
+        .values({
+          createdAt: new Date("2024-01-01T12:01:00Z"),
+          instructions: "riu instructions",
+          muxAssetId: riuSetVideo.assetId,
+          name: "Active RIU Set",
+          riuId: activeRiu.id,
+          userId: user.id,
+        })
+        .returning()
+
+      await db.insert(riuSets).values({
+        createdAt: new Date("2024-01-01T12:33:00Z"),
+        instructions: "hidden until the round starts",
+        muxAssetId: upcomingRiuSetVideo.assetId,
+        name: "Upcoming RIU Set",
+        riuId: upcomingRiu.id,
+        userId: user.id,
+      })
+
+      await db.insert(riuSubmissions).values({
+        createdAt: new Date("2024-01-01T12:02:00Z"),
+        muxAssetId: riuSubmissionVideo.assetId,
+        riuSetId: riuSet.id,
+        userId: user.id,
+      })
+
+      await db.insert(biuSets).values([
+        {
+          biuId: biu.id,
+          createdAt: new Date("2024-01-01T12:03:00Z"),
+          muxAssetId: biuVideo.assetId,
+          name: "Active BIU Set",
+          parentSetId: null,
+          position: 1,
+          userId: user.id,
+        },
+        {
+          biuId: biu.id,
+          createdAt: new Date("2024-01-01T12:34:00Z"),
+          deletedAt: new Date("2024-01-01T13:00:00Z"),
+          muxAssetId: biuDeletedVideo.assetId,
+          name: "Deleted BIU Set",
+          parentSetId: null,
+          position: 2,
+          userId: user.id,
+        },
+      ])
+
+      await db.insert(siuSets).values([
+        {
+          createdAt: new Date("2024-01-01T12:04:00Z"),
+          muxAssetId: siuVideo.assetId,
+          name: "Active SIU Set",
+          parentSetId: null,
+          position: 1,
+          siuId: siu.id,
+          userId: user.id,
+        },
+        {
+          createdAt: new Date("2024-01-01T12:35:00Z"),
+          deletedAt: new Date("2024-01-01T13:00:00Z"),
+          muxAssetId: siuDeletedVideo.assetId,
+          name: "Deleted SIU Set",
+          parentSetId: null,
+          position: 2,
+          siuId: siu.id,
+          userId: user.id,
+        },
+      ])
+
+      await db.insert(trickVideos).values({
+        createdAt: new Date("2024-01-01T12:05:00Z"),
+        muxAssetId: trickVideoAsset.assetId,
+        status: "pending",
+        submittedByUserId: user.id,
+        trickId: trick.id,
+      })
+
+      const firstPage = await getUserVideos({
+        data: {
+          limit: 4,
+          userId: user.id,
+        },
+      })
+
+      expect(firstPage.items).toEqual([
+        expect.objectContaining({
+          playbackId: "playback-trick-video",
+          title: "Video Trick",
+          trickId: trick.id,
+          type: "trickVideo",
+        }),
+        expect.objectContaining({
+          playbackId: "playback-siu-video",
+          title: "Active SIU Set",
+          type: "siuSet",
+        }),
+        expect.objectContaining({
+          playbackId: "playback-biu-video",
+          title: "Active BIU Set",
+          type: "biuSet",
+        }),
+        expect.objectContaining({
+          playbackId: "playback-riu-submission-video",
+          title: "Active RIU Set",
+          type: "riuSubmission",
+        }),
+      ])
+      expect(firstPage.nextCursor).toBeDefined()
+
+      const secondPage = await getUserVideos({
+        data: {
+          cursor: firstPage.nextCursor,
+          limit: 4,
+          userId: user.id,
+        },
+      })
+
+      expect(secondPage.items).toEqual([
+        expect.objectContaining({
+          playbackId: "playback-riu-set-video",
+          title: "Active RIU Set",
+          type: "riuSet",
+        }),
+        expect.objectContaining({
+          playbackId: "playback-post-video",
+          title: "Video Post",
+          type: "post",
+        }),
+      ])
+      expect(secondPage.nextCursor).toBeUndefined()
+
+      const typeFiltered = await getUserVideos({
+        data: {
+          limit: 10,
+          types: ["post", "trickVideo"],
+          userId: user.id,
+        },
+      })
+
+      expect(typeFiltered.items.map((item) => item.type)).toEqual([
+        "trickVideo",
+        "post",
+      ])
+
+      const titleSearched = await getUserVideos({
+        data: {
+          limit: 10,
+          q: "video post",
+          userId: user.id,
+        },
+      })
+
+      expect(titleSearched.items).toEqual([
+        expect.objectContaining({ title: "Video Post", type: "post" }),
+      ])
+
+      // riu submissions match on their parent set's name
+      const setNameSearched = await getUserVideos({
+        data: {
+          limit: 10,
+          q: "active riu",
+          userId: user.id,
+        },
+      })
+
+      expect(setNameSearched.items.map((item) => item.type)).toEqual([
+        "riuSubmission",
+        "riuSet",
+      ])
+
+      // Count applies the same visibility rules as the listing
+      expect(await getUserVideosCount(user.id)).toBe(6)
+      expect(await getUserVideosCount(otherUser.id)).toBe(1)
     })
   })
 })
