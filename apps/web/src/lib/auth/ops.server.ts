@@ -5,7 +5,13 @@ import { Resend } from "resend"
 
 import AuthCodeTemplate from "../../../emails/auth-code"
 import { db } from "~/db"
-import { authCodes, users } from "~/db/schema"
+import {
+  authCodes,
+  type USER_DISCIPLINES,
+  userLocations,
+  userSocials,
+  users,
+} from "~/db/schema"
 import { rateLimit } from "~/lib/auth/rate-limit"
 import { env } from "~/lib/env"
 import { logger } from "~/lib/logger"
@@ -176,11 +182,27 @@ export async function register({
 }: {
   data: {
     bio?: null | string
+    disciplines?: (typeof USER_DISCIPLINES)[number][] | null
+    location?: {
+      countryCode: string
+      countryName: string
+      label: string
+      lat: number
+      lng: number
+    } | null
     name: string
+    socials?: {
+      facebook?: null | string
+      instagram?: null | string
+      spotify?: null | string
+      tiktok?: null | string
+      twitter?: null | string
+      youtube?: null | string
+    } | null
   }
   session: SessionStore
 }) {
-  const { name, bio } = input
+  const { name, bio, disciplines, location, socials } = input
 
   // Set by enterCode when a verified code has no matching account. Its
   // presence proves the visitor owns this email.
@@ -205,12 +227,26 @@ export async function register({
       email,
       name,
       bio,
+      disciplines,
     })
     .returning()
 
   if (!newUser) {
     throw new Error("Failed to create user")
   }
+
+  const profileInserts: Promise<unknown>[] = []
+  if (location) {
+    profileInserts.push(
+      db.insert(userLocations).values({ ...location, userId: newUser.id }),
+    )
+  }
+  if (socials) {
+    profileInserts.push(
+      db.insert(userSocials).values({ ...socials, userId: newUser.id }),
+    )
+  }
+  await Promise.all(profileInserts)
 
   await session.update({
     user: newUser,

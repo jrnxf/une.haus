@@ -47,33 +47,31 @@ const socialUrl = z
   .optional()
   .nullable()
 
+export const userLocationSchema = z.object({
+  countryCode: z.string().min(1),
+  countryName: z.string().min(1),
+  label: z.string().min(1),
+  lat: z.number(),
+  lng: z.number(),
+})
+
+export const userSocialsSchema = z.object({
+  facebook: socialUrl,
+  tiktok: socialUrl,
+  twitter: socialUrl,
+  youtube: socialUrl,
+  instagram: socialUrl,
+  spotify: socialUrl,
+})
+
 export const updateUserSchema = z.object({
   avatarId: z.string().nullable(),
   bio: z.string().trim().nullable(),
   email: z.string().trim().email(),
-  location: z
-    .object({
-      countryCode: z.string().min(1),
-      countryName: z.string().min(1),
-      label: z.string().min(1),
-      lat: z.number(),
-      lng: z.number(),
-    })
-    .optional()
-    .nullable(),
+  location: userLocationSchema.optional().nullable(),
   name: z.string().trim().min(1, { message: "Required" }),
   disciplines: z.array(z.enum(USER_DISCIPLINES)).optional().nullable(),
-  socials: z
-    .object({
-      facebook: socialUrl,
-      tiktok: socialUrl,
-      twitter: socialUrl,
-      youtube: socialUrl,
-      instagram: socialUrl,
-      spotify: socialUrl,
-    })
-    .optional()
-    .nullable(),
+  socials: userSocialsSchema.optional().nullable(),
 })
 
 export type UpdateUserArgs = z.infer<typeof updateUserSchema>

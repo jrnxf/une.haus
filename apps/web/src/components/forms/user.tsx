@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { useForm } from "react-hook-form"
+import { type Resolver, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { type z } from "zod"
 
@@ -22,16 +22,29 @@ import {
 } from "~/components/ui/form"
 import { Input } from "~/components/ui/input"
 import { USER_DISCIPLINES } from "~/db/schema"
+import { auth } from "~/lib/auth"
 import { session } from "~/lib/session"
 import { users } from "~/lib/users"
 
+type FormValues = z.infer<typeof users.update.schema>
+
 export function UserForm({
   user,
+  mode = "edit",
+  redirectTo,
+  pendingEmail,
 }: {
   user?: z.infer<typeof users.update.schema> & { id?: number }
+  /** "register" submits through auth.register with the session-verified email */
+  mode?: "edit" | "register"
+  /** register mode: where to navigate after the account is created */
+  redirectTo?: string
+  /** register mode: the verified email the account will be created under */
+  pendingEmail?: string
 }) {
   const navigate = useNavigate()
   const qc = useQueryClient()
+  const isRegister = mode === "register"
 
   const updateUser = useMutation({
     mutationFn: users.update.fn,
@@ -55,12 +68,62 @@ export function UserForm({
     },
   })
 
-  const rhf = useForm<z.infer<typeof users.update.schema>>({
-    defaultValues: user,
-    resolver: zodResolver(users.update.schema),
+  const registerUser = useMutation({
+    mutationFn: auth.register.fn,
+    onSuccess: async () => {
+      await qc.resetQueries({ queryKey: session.get.queryOptions().queryKey })
+      toast.success("welcome to une.haus!")
+      navigate({ to: redirectTo ?? "/auth/me" })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const rhf = useForm<FormValues>({
+    defaultValues: user ?? {
+      avatarId: null,
+      bio: "",
+      email: "",
+      name: "",
+      disciplines: [],
+      location: null,
+      socials: {
+        facebook: "",
+        instagram: "",
+        spotify: "",
+        tiktok: "",
+        twitter: "",
+        youtube: "",
+      },
+    },
+    // The register schema is the update schema minus email (session-proven)
+    // and avatar (upload requires an authed session), so the cast is sound
+    resolver: zodResolver(
+      isRegister ? auth.register.schema : users.update.schema,
+    ) as Resolver<FormValues>,
   })
 
   const { control, handleSubmit } = rhf
+
+  const submit = (data: FormValues) => {
+    if (!isRegister) {
+      updateUser.mutate({ data })
+      return
+    }
+    registerUser.mutate({
+      data: {
+        name: data.name,
+        bio: data.bio || undefined,
+        location: data.location ?? undefined,
+        disciplines: data.disciplines?.length ? data.disciplines : undefined,
+        socials:
+          data.socials && Object.values(data.socials).some(Boolean)
+            ? data.socials
+            : undefined,
+      },
+    })
+  }
 
   return (
     <Form
@@ -70,11 +133,15 @@ export function UserForm({
       method="post"
       onSubmit={(event) => {
         event.preventDefault()
-        handleSubmit((data) => {
-          updateUser.mutate({ data })
-        })(event)
+        handleSubmit(submit)(event)
       }}
     >
+      {isRegister && pendingEmail && (
+        <p className="text-muted-foreground text-sm">
+          registering as {pendingEmail}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
         <FormField
           control={control}
@@ -229,32 +296,36 @@ export function UserForm({
         />
       </div>
 
-      <FormField
-        control={control}
-        name="avatarId"
-        render={({ field }) => {
-          return (
-            <FormItem>
-              <FormLabel>avatar</FormLabel>
-              <ImageInput
-                previewClassNames="rounded-md size-86"
-                value={field.value}
-                onChange={(data) => {
-                  field.onChange(data ?? null)
-                }}
-              />
-            </FormItem>
-          )
-        }}
-      />
+      {!isRegister && (
+        <FormField
+          control={control}
+          name="avatarId"
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>avatar</FormLabel>
+                <ImageInput
+                  previewClassNames="rounded-md size-86"
+                  value={field.value}
+                  onChange={(data) => {
+                    field.onChange(data ?? null)
+                  }}
+                />
+              </FormItem>
+            )
+          }}
+        />
+      )}
 
       <ButtonGroup className="ml-auto">
         <ButtonGroup>
           <Button asChild variant="secondary">
-            <Link to="/auth/me">cancel</Link>
+            <Link to={isRegister ? "/auth" : "/auth/me"}>cancel</Link>
           </Button>
         </ButtonGroup>
-        <FormSubmitButton busy={updateUser.isPending} />
+        <FormSubmitButton
+          busy={isRegister ? registerUser.isPending : updateUser.isPending}
+        />
       </ButtonGroup>
     </Form>
   )

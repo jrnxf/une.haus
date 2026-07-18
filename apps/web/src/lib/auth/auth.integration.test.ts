@@ -202,7 +202,16 @@ describe("auth integration", () => {
     await register({
       data: {
         bio: "fresh profile",
+        disciplines: ["street", "flatland"],
+        location: {
+          countryCode: "PT",
+          countryName: "Portugal",
+          label: "Porto",
+          lat: 41.1579,
+          lng: -8.6291,
+        },
         name: "New User",
+        socials: { instagram: "https://instagram.com/newuser" },
       },
       session: fakeSession.session,
     })
@@ -214,9 +223,22 @@ describe("auth integration", () => {
     expect(user).toEqual(
       expect.objectContaining({
         bio: "fresh profile",
+        disciplines: ["street", "flatland"],
         email: "new-user@example.com",
         name: "New User",
       }),
+    )
+    expect(
+      await db.query.userLocations.findFirst({
+        where: (table, { eq }) => eq(table.userId, user?.id ?? -1),
+      }),
+    ).toEqual(expect.objectContaining({ countryCode: "PT", label: "Porto" }))
+    expect(
+      await db.query.userSocials.findFirst({
+        where: (table, { eq }) => eq(table.userId, user?.id ?? -1),
+      }),
+    ).toEqual(
+      expect.objectContaining({ instagram: "https://instagram.com/newuser" }),
     )
     expect(fakeSession.data.user).toEqual(
       expect.objectContaining({
