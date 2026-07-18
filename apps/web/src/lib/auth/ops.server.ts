@@ -9,6 +9,7 @@ import { authCodes, users } from "~/db/schema"
 import { rateLimit } from "~/lib/auth/rate-limit"
 import { env } from "~/lib/env"
 import { logger } from "~/lib/logger"
+import { type HausSession } from "~/lib/session/schema"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
 
@@ -32,14 +33,8 @@ function isReservedRecipient(email: string): boolean {
 }
 
 type SessionStore = {
-  update: (payload: {
-    user: {
-      avatarId: null | string
-      email: string
-      id: number
-      name: string
-    }
-  }) => Promise<unknown>
+  data: Partial<HausSession>
+  update: (payload: Partial<HausSession>) => Promise<unknown>
 }
 
 export async function sendAuthCode({
@@ -122,6 +117,7 @@ export async function enterCode({
   const [authCode] = await db
     .select({
       id: authCodes.id,
+      email: authCodes.email,
       expiresAt: authCodes.expiresAt,
       user: {
         id: users.id,
@@ -145,20 +141,28 @@ export async function enterCode({
     await db.delete(authCodes).where(eq(authCodes.id, authCode.id))
   }
 
-  if (!authCode.user) {
-    await deleteCode()
-    return { status: "user_not_found" as const }
-  }
-
   if (authCode.expiresAt < new Date()) {
     await deleteCode()
     return { status: "expired" as const }
+  }
+
+  if (!authCode.user) {
+    await deleteCode()
+    // The email column predates notNull; a code without one can't register.
+    if (!authCode.email) {
+      return { status: "invalid_code" as const }
+    }
+    // Email ownership is now proven but no account exists. Stash the email so
+    // register can read it server-side — the client never supplies it.
+    await session.update({ pendingEmail: authCode.email })
+    return { status: "user_not_found" as const }
   }
 
   await deleteCode()
 
   await session.update({
     user: authCode.user,
+    pendingEmail: undefined,
   })
 
   return {
@@ -172,12 +176,18 @@ export async function register({
 }: {
   data: {
     bio?: null | string
-    email: string
     name: string
   }
   session: SessionStore
 }) {
-  const { email, name, bio } = input
+  const { name, bio } = input
+
+  // Set by enterCode when a verified code has no matching account. Its
+  // presence proves the visitor owns this email.
+  const email = session.data.pendingEmail
+  if (!email) {
+    throw new Error("No verified email. Please request a new code.")
+  }
 
   const existingUsers = await db
     .select()
@@ -204,5 +214,6 @@ export async function register({
 
   await session.update({
     user: newUser,
+    pendingEmail: undefined,
   })
 }

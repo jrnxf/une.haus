@@ -129,7 +129,7 @@ describe("auth integration", () => {
     expect(fakeSession.updates).toHaveLength(0)
   })
 
-  it("enterCode returns user_not_found and deletes the code when the email has no user", async () => {
+  it("enterCode returns user_not_found, deletes the code, and stashes the verified email as pendingEmail", async () => {
     const fakeSession = createFakeSession()
 
     await db.insert(authCodes).values({
@@ -145,17 +145,63 @@ describe("auth integration", () => {
     })
 
     expect(result).toEqual({ status: "user_not_found" })
-    expect(fakeSession.updates).toHaveLength(0)
+    expect(fakeSession.data.user).toBeUndefined()
+    expect(fakeSession.data.pendingEmail).toBe("unknown@example.com")
     expect(await db.query.authCodes.findMany()).toHaveLength(0)
   })
 
-  it("register creates a user and stores the session user payload", async () => {
+  it("enterCode does not stash pendingEmail for an expired code of an unknown email", async () => {
     const fakeSession = createFakeSession()
+
+    await db.insert(authCodes).values({
+      code: "4444",
+      email: "unknown-expired@example.com",
+      expiresAt: new Date(Date.now() - 60_000),
+      id: "code-missing-user-expired",
+    })
+
+    const result = await enterCode({
+      data: { code: "4444" },
+      session: fakeSession.session,
+    })
+
+    expect(result).toEqual({ status: "expired" })
+    expect(fakeSession.data.pendingEmail).toBeUndefined()
+  })
+
+  it("enterCode login clears a leftover pendingEmail", async () => {
+    const user = await seedUser({
+      email: "back@example.com",
+      name: "Returning User",
+    })
+    const fakeSession = createFakeSession({
+      pendingEmail: "stale@example.com",
+    })
+
+    await db.insert(authCodes).values({
+      code: "5555",
+      email: user.email,
+      expiresAt: new Date(Date.now() + 60_000),
+      id: "code-clears-pending",
+    })
+
+    const result = await enterCode({
+      data: { code: "5555" },
+      session: fakeSession.session,
+    })
+
+    expect(result).toEqual({ status: "success" })
+    expect(fakeSession.data.pendingEmail).toBeUndefined()
+  })
+
+  it("register creates a user from the session's pendingEmail and logs them in", async () => {
+    const fakeSession = createFakeSession({
+      pendingEmail: "new-user@example.com",
+    })
 
     await register({
       data: {
         bio: "fresh profile",
-        email: "new-user@example.com",
         name: "New User",
       },
       session: fakeSession.session,
@@ -179,6 +225,78 @@ describe("auth integration", () => {
         name: "New User",
       }),
     )
+    expect(fakeSession.data.pendingEmail).toBeUndefined()
+  })
+
+  it("register throws when the session has no pendingEmail", async () => {
+    const fakeSession = createFakeSession()
+
+    await expect(
+      register({
+        data: { name: "No Email" },
+        session: fakeSession.session,
+      }),
+    ).rejects.toThrow("No verified email. Please request a new code.")
+
+    expect(await db.query.users.findMany()).toHaveLength(0)
+    expect(fakeSession.data.user).toBeUndefined()
+  })
+
+  it("register throws when a user already exists for the pendingEmail", async () => {
+    const user = await seedUser({
+      email: "taken@example.com",
+      name: "Existing User",
+    })
+    const fakeSession = createFakeSession({ pendingEmail: user.email })
+
+    await expect(
+      register({
+        data: { name: "Impostor" },
+        session: fakeSession.session,
+      }),
+    ).rejects.toThrow("User already exists")
+
+    expect(fakeSession.data.user).toBeUndefined()
+  })
+
+  it("registers a brand-new user end to end: send code → enter code → register", async () => {
+    const email = "fresh@example.com"
+    const fakeSession = createFakeSession()
+
+    await sendAuthCode({ data: { email } })
+
+    const [issued] = await db.query.authCodes.findMany({
+      where: (t, { eq }) => eq(t.email, email),
+    })
+    expect(issued).toBeDefined()
+
+    const entry = await enterCode({
+      data: { code: issued?.code ?? "" },
+      session: fakeSession.session,
+    })
+    expect(entry).toEqual({ status: "user_not_found" })
+    expect(fakeSession.data.pendingEmail).toBe(email)
+
+    await register({
+      data: { bio: "first ride", name: "Fresh Rider" },
+      session: fakeSession.session,
+    })
+
+    const user = await db.query.users.findFirst({
+      where: (t, { eq }) => eq(t.email, email),
+    })
+    expect(user).toEqual(
+      expect.objectContaining({
+        bio: "first ride",
+        email,
+        name: "Fresh Rider",
+      }),
+    )
+    expect(fakeSession.data.user).toEqual(
+      expect.objectContaining({ email, id: user?.id, name: "Fresh Rider" }),
+    )
+    expect(fakeSession.data.pendingEmail).toBeUndefined()
+    expect(await db.query.authCodes.findMany()).toHaveLength(0)
   })
 
   it("getSession returns flash once and clears it from stored session state", async () => {

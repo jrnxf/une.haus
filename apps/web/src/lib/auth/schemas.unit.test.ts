@@ -1,4 +1,9 @@
-import { enterCodeSchema, registerSchema, sendCodeSchema } from "./schemas"
+import {
+  authSearchSchema,
+  enterCodeSchema,
+  registerSchema,
+  sendCodeSchema,
+} from "./schemas"
 
 describe("sendCodeSchema", () => {
   it("accepts valid email", () => {
@@ -86,14 +91,23 @@ describe("enterCodeSchema", () => {
 
 describe("registerSchema", () => {
   const validData = {
-    code: "123456",
-    email: "test@example.com",
     name: "John Doe",
   }
 
   it("accepts valid registration data", () => {
     const result = registerSchema.safeParse(validData)
     expect(result.success).toBe(true)
+  })
+
+  it("has no email field — the server reads the verified email from the session", () => {
+    const result = registerSchema.safeParse({
+      ...validData,
+      email: "attacker@example.com",
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data).not.toHaveProperty("email")
+    }
   })
 
   it("accepts registration with optional bio", () => {
@@ -126,17 +140,6 @@ describe("registerSchema", () => {
     }
   })
 
-  it("normalizes email", () => {
-    const result = registerSchema.safeParse({
-      ...validData,
-      email: "  TEST@EXAMPLE.COM  ",
-    })
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.email).toBe("test@example.com")
-    }
-  })
-
   it("rejects empty name", () => {
     const result = registerSchema.safeParse({
       ...validData,
@@ -156,12 +159,9 @@ describe("registerSchema", () => {
     }
   })
 
-  it("rejects missing required fields", () => {
-    expect(registerSchema.safeParse({ code: "123" }).success).toBe(false)
-    expect(
-      registerSchema.safeParse({ email: "test@example.com" }).success,
-    ).toBe(false)
-    expect(registerSchema.safeParse({ name: "John" }).success).toBe(false)
+  it("rejects missing name", () => {
+    expect(registerSchema.safeParse({}).success).toBe(false)
+    expect(registerSchema.safeParse({ bio: "just a bio" }).success).toBe(false)
   })
 
   it("trims bio if provided", () => {
@@ -173,5 +173,24 @@ describe("registerSchema", () => {
     if (result.success) {
       expect(result.data.bio).toBe("My bio")
     }
+  })
+})
+
+describe("authSearchSchema", () => {
+  // Regression guard: injecting defaults or extra keys into the validated
+  // search params made every /auth route 307-redirect to a "normalized" URL
+  // that never converged — an infinite redirect loop on direct page loads.
+  it("returns an empty object for empty search — no injected defaults", () => {
+    expect(Object.keys(authSearchSchema.parse({}))).toEqual([])
+  })
+
+  it("round-trips a redirect param unchanged", () => {
+    expect(authSearchSchema.parse({ redirect: "/vault" })).toEqual({
+      redirect: "/vault",
+    })
+  })
+
+  it("strips unknown params", () => {
+    expect(authSearchSchema.parse({ flash: "hi", other: 1 })).toEqual({})
   })
 })

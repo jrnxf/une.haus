@@ -1,37 +1,55 @@
 import { stringifySearch } from "./url"
 
+// The invariant that prevents SSR redirect loops: TanStack Start normalizes
+// incoming URLs through URLSearchParams before the router compares them to
+// the stringified canonical URL. stringifySearch output must therefore be a
+// fixed point of that normalization — re-encoding it must change nothing.
+function isStableUnderUrlNormalization(searchStr: string): boolean {
+  if (searchStr === "") return true
+  const renormalized = new URLSearchParams(searchStr.slice(1)).toString()
+  return `?${renormalized}` === searchStr
+}
+
 describe("stringifySearch", () => {
-  it("decodes commas in query values", () => {
+  it("is stable under URLSearchParams normalization (SSR redirect-loop guard)", () => {
+    const cases: Array<Record<string, unknown>> = [
+      { redirect: "/vault" },
+      { redirect: "/posts/create" },
+      { riders: "1,20,~CustomName,30" },
+      { tags: ["flatland", "street"] },
+      { q: "a/b,c~d e" },
+      { w: "12-1", prelimTime: 60 },
+      {},
+    ]
+    for (const search of cases) {
+      const result = stringifySearch(search)
+      expect(isStableUnderUrlNormalization(result)).toBe(true)
+    }
+  })
+
+  it("uses canonical URLSearchParams encoding for commas", () => {
     const result = stringifySearch({ riders: "1,2,3" })
-    expect(result).toBe("?riders=1,2,3")
-    expect(result).not.toContain("%2C")
+    expect(result).toBe("?riders=1%2C2%2C3")
   })
 
-  it("decodes tildes in query values", () => {
-    const result = stringifySearch({ riders: "1,~Sam,3" })
-    expect(result).toBe("?riders=1,~Sam,3")
-    expect(result).not.toContain("%7E")
+  it("uses canonical URLSearchParams encoding for slashes", () => {
+    const result = stringifySearch({ redirect: "/posts/create" })
+    expect(result).toBe("?redirect=%2Fposts%2Fcreate")
   })
 
-  it("handles mixed encoded characters", () => {
-    const result = stringifySearch({ riders: "1,20,~CustomName,30" })
-    expect(result).toBe("?riders=1,20,~CustomName,30")
-  })
-
-  it("handles multiple params with commas", () => {
+  it("handles multiple params", () => {
     const result = stringifySearch({
       riders: "1,2,3",
       tags: "a,b,c",
     })
-    expect(result).toContain("riders=1,2,3")
-    expect(result).toContain("tags=a,b,c")
-    expect(result).not.toContain("%2C")
+    expect(result).toContain("riders=1%2C2%2C3")
+    expect(result).toContain("tags=a%2Cb%2Cc")
   })
 
-  it("preserves other encoded characters", () => {
-    // Spaces should remain encoded as +
+  it("keeps spaces encoded", () => {
     const result = stringifySearch({ name: "John Doe" })
     expect(result).not.toBe("?name=John Doe")
+    expect(isStableUnderUrlNormalization(result)).toBe(true)
   })
 
   it("handles empty search object", () => {
@@ -45,16 +63,8 @@ describe("stringifySearch", () => {
       prelimTime: 60,
       battleTime: 90,
     })
-    expect(result).toContain("riders=1,2,3")
     expect(result).toContain("prelimTime=60")
     expect(result).toContain("battleTime=90")
-  })
-
-  it("handles uppercase encoded sequences", () => {
-    // Some encoders use uppercase %2C, others lowercase %2c
-    // Our regex uses /gi flag to handle both
-    const result = stringifySearch({ riders: "A,B,C" })
-    expect(result).toBe("?riders=A,B,C")
   })
 
   it("handles winners param format", () => {
@@ -62,35 +72,16 @@ describe("stringifySearch", () => {
     expect(result).toBe("?w=12-1")
   })
 
-  it("handles complex bracket URL", () => {
-    const result = stringifySearch({
-      riders: "1,446,151,~Custom,331",
-      prelimTime: 60,
-      battleTime: 90,
-      finalsTime: 120,
-      w: "121-2",
-    })
-    expect(result).toContain("riders=1,446,151,~Custom,331")
-    expect(result).not.toContain("%2C")
-    expect(result).not.toContain("%7E")
-  })
-
   it("flattens string arrays into comma-separated values", () => {
     const result = stringifySearch({ tags: ["flatland", "street"] })
-    expect(result).toBe("?tags=flatland,street")
+    expect(result).toBe("?tags=flatland%2Cstreet")
     expect(result).not.toContain("%5B")
     expect(result).not.toContain("%5D")
   })
 
   it("flattens number arrays into comma-separated values", () => {
     const result = stringifySearch({ ids: [1, 2, 3] })
-    expect(result).toBe("?ids=1,2,3")
-  })
-
-  it("decodes slashes in query values", () => {
-    const result = stringifySearch({ redirect: "/posts/create" })
-    expect(result).toBe("?redirect=/posts/create")
-    expect(result).not.toContain("%2F")
+    expect(result).toBe("?ids=1%2C2%2C3")
   })
 
   it("leaves non-array values unchanged", () => {

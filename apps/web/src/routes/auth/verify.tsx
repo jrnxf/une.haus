@@ -8,7 +8,6 @@ import {
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
-import { z } from "zod"
 
 import { PageHeader } from "~/components/page-header"
 import { Field, FieldDescription, FieldLabel } from "~/components/ui/field"
@@ -18,21 +17,11 @@ import {
   InputOTPSlot,
 } from "~/components/ui/input-otp"
 import { auth } from "~/lib/auth"
-
-const searchParamsSchema = z
-  .object({
-    flash: z.string().optional(),
-    redirect: z.string().optional().default("/auth/me"),
-  })
-  .optional()
-  .default({
-    flash: undefined,
-    redirect: "/auth/me",
-  })
+import { authSearchSchema } from "~/lib/auth/schemas"
 
 export const Route = createFileRoute("/auth/verify")({
   component: RouteComponent,
-  validateSearch: searchParamsSchema,
+  validateSearch: authSearchSchema,
 })
 
 function RouteComponent() {
@@ -51,7 +40,10 @@ function RouteComponent() {
         navigate({ to: search.redirect ?? "/auth/me" })
       } else if (data.status === "user_not_found") {
         await queryClient.resetQueries({ queryKey: ["session.get"] })
-        navigate({ to: "/auth/register" })
+        navigate({
+          to: "/auth/register",
+          search: { redirect: search.redirect },
+        })
       } else if (data.status === "invalid_code") {
         toast.error("invalid code")
         setCode("")

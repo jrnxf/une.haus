@@ -9,6 +9,8 @@ const flashSchema = z.object({
 
 export const hausSessionSchema = z.object({
   flash: flashSchema.optional(),
+  // Email proven via auth code but with no account yet — consumed by register.
+  pendingEmail: z.string().email().optional(),
   theme: z.enum(["light", "dark", "system"]).default("system"),
   sidebarOpen: z.boolean().default(true),
   user: z
