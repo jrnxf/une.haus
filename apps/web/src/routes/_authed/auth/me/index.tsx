@@ -12,8 +12,11 @@ export const Route = createFileRoute("/_authed/auth/me/")({
       context.queryClient.ensureQueryData(
         users.get.queryOptions({ userId: context.user.id }),
       ),
-      context.queryClient.ensureInfiniteQueryData(
-        users.activity.infiniteQueryOptions({ userId: context.user.id }),
+      context.queryClient.ensureQueryData(
+        users.videosPreview.queryOptions({ userId: context.user.id }),
+      ),
+      context.queryClient.ensureQueryData(
+        users.activityPreview.queryOptions({ userId: context.user.id }),
       ),
     ])
     return {

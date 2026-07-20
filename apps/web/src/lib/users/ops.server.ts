@@ -16,13 +16,18 @@ import {
 
 import { db } from "~/db"
 import {
+  biuSetLikes,
   biuSets,
   muxVideos,
+  postLikes,
   postMessages,
   posts,
   rius,
+  riuSetLikes,
   riuSets,
+  riuSubmissionLikes,
   riuSubmissions,
+  siuSetLikes,
   siuSets,
   trickSubmissions,
   trickSuggestions,
@@ -254,8 +259,10 @@ const getTime = (d: Date) => d.getTime()
 export async function getUser(userId: number) {
   const [user] = await db
     .select({
+      arcadeHighScore: users.arcadeHighScore,
       avatarId: users.avatarId,
       bio: users.bio,
+      createdAt: users.createdAt,
       disciplines: users.disciplines,
       email: users.email,
       id: users.id,
@@ -713,6 +720,110 @@ export async function getUserActivity({
   }
 
   return { items, nextCursor }
+}
+
+/**
+ * Profile stat counts. Sets span all three games (soft-deleted excluded),
+ * tricks count approved trickipedia contributions (submissions + videos), and
+ * likes received span every likeable entity the user owns — message likes are
+ * deliberately excluded as low-signal.
+ */
+export async function getUserStats(userId: number) {
+  const [
+    [postsCount],
+    [riuSetsCount],
+    [biuSetsCount],
+    [siuSetsCount],
+    [riuSubmissionsCount],
+    [trickSubmissionsCount],
+    [trickVideosCount],
+    [postLikesCount],
+    [riuSetLikesCount],
+    [riuSubmissionLikesCount],
+    [biuSetLikesCount],
+    [siuSetLikesCount],
+  ] = await Promise.all([
+    db.select({ value: count() }).from(posts).where(eq(posts.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(riuSets)
+      .where(eq(riuSets.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(biuSets)
+      .where(and(eq(biuSets.userId, userId), isNull(biuSets.deletedAt))),
+    db
+      .select({ value: count() })
+      .from(siuSets)
+      .where(and(eq(siuSets.userId, userId), isNull(siuSets.deletedAt))),
+    db
+      .select({ value: count() })
+      .from(riuSubmissions)
+      .where(eq(riuSubmissions.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(trickSubmissions)
+      .where(
+        and(
+          eq(trickSubmissions.submittedByUserId, userId),
+          eq(trickSubmissions.status, "approved"),
+        ),
+      ),
+    db
+      .select({ value: count() })
+      .from(trickVideos)
+      .where(
+        and(
+          eq(trickVideos.submittedByUserId, userId),
+          eq(trickVideos.status, "active"),
+        ),
+      ),
+    db
+      .select({ value: count() })
+      .from(postLikes)
+      .innerJoin(posts, eq(postLikes.postId, posts.id))
+      .where(eq(posts.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(riuSetLikes)
+      .innerJoin(riuSets, eq(riuSetLikes.riuSetId, riuSets.id))
+      .where(eq(riuSets.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(riuSubmissionLikes)
+      .innerJoin(
+        riuSubmissions,
+        eq(riuSubmissionLikes.riuSubmissionId, riuSubmissions.id),
+      )
+      .where(eq(riuSubmissions.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(biuSetLikes)
+      .innerJoin(biuSets, eq(biuSetLikes.biuSetId, biuSets.id))
+      .where(eq(biuSets.userId, userId)),
+    db
+      .select({ value: count() })
+      .from(siuSetLikes)
+      .innerJoin(siuSets, eq(siuSetLikes.siuSetId, siuSets.id))
+      .where(eq(siuSets.userId, userId)),
+  ])
+
+  return {
+    posts: postsCount?.value ?? 0,
+    sets:
+      (riuSetsCount?.value ?? 0) +
+      (biuSetsCount?.value ?? 0) +
+      (siuSetsCount?.value ?? 0),
+    submissions: riuSubmissionsCount?.value ?? 0,
+    tricks:
+      (trickSubmissionsCount?.value ?? 0) + (trickVideosCount?.value ?? 0),
+    likesReceived:
+      (postLikesCount?.value ?? 0) +
+      (riuSetLikesCount?.value ?? 0) +
+      (riuSubmissionLikesCount?.value ?? 0) +
+      (biuSetLikesCount?.value ?? 0) +
+      (siuSetLikesCount?.value ?? 0),
+  }
 }
 
 /**

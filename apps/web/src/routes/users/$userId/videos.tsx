@@ -34,6 +34,7 @@ import { seo } from "~/lib/seo"
 import { session } from "~/lib/session/index"
 import { users, type UserVideoItem } from "~/lib/users"
 import { USER_VIDEO_TYPES, userVideosFiltersSchema } from "~/lib/users/schemas"
+import { getVideoSource } from "~/lib/users/video-source"
 import { errorFmt } from "~/lib/utils"
 
 const TYPE_LABELS = {
@@ -324,47 +325,6 @@ function VideoGallery({
       </Dialog>
     </div>
   )
-}
-
-function getVideoSource(item: UserVideoItem): { label: string; url: string } {
-  switch (item.type) {
-    case "post": {
-      return {
-        label: `post: ${item.title ?? "untitled"}`,
-        url: `/posts/${item.id}`,
-      }
-    }
-    case "riuSet": {
-      return {
-        label: `riu set: ${item.title ?? "untitled"}`,
-        url: `/games/rius/sets/${item.id}`,
-      }
-    }
-    case "riuSubmission": {
-      return {
-        label: `riu submission: ${item.title ?? "a set"}`,
-        url: `/games/rius/submissions/${item.id}`,
-      }
-    }
-    case "biuSet": {
-      return {
-        label: `biu set: ${item.title ?? "untitled"}`,
-        url: `/games/bius/sets/${item.id}`,
-      }
-    }
-    case "siuSet": {
-      return {
-        label: `siu set: ${item.title ?? "untitled"}`,
-        url: `/games/sius/sets/${item.id}`,
-      }
-    }
-    case "trickVideo": {
-      return {
-        label: `trick: ${item.title ?? "a trick"}`,
-        url: item.trickId ? `/tricks/${item.trickId}` : "/tricks",
-      }
-    }
-  }
 }
 
 function VideoCard({

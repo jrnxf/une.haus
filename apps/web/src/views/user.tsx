@@ -6,22 +6,36 @@ import {
   SiX,
   SiYoutube,
 } from "@icons-pack/react-simple-icons"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import {
+  FileTextIcon,
+  HeartIcon,
+  MergeIcon,
+  SparklesIcon,
+  StickyNoteIcon,
+  VideoIcon,
+} from "lucide-react"
 import pluralize from "pluralize"
+import { Suspense } from "react"
 
-import { ActivityFeed } from "~/components/activity-feed"
+import { getActivityDisplay } from "~/components/activity-display"
 import { Badges } from "~/components/badges"
 import { RichText } from "~/components/rich-text"
 import { SocialLink } from "~/components/social-link"
+import { StatCard } from "~/components/stats/stat-card"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
 import { FlagEmoji } from "~/components/ui/flag-emoji"
+import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { UsersCombobox } from "~/components/users-combobox"
+import { getMuxPoster } from "~/components/video-player"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { useSessionUser } from "~/lib/session/hooks"
-import { type UsersWithFollowsData } from "~/lib/users"
+import { users, type UsersWithFollowsData } from "~/lib/users"
 import { useFollowMutations } from "~/lib/users/hooks"
+import { getVideoSource } from "~/lib/users/video-source"
 import { cn, isDefined } from "~/lib/utils"
 
 export function UserView({ user }: { user: UsersWithFollowsData }) {
@@ -32,7 +46,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
   const hasSocials = socials && Object.values(socials).some(isDefined)
 
   const followStatsVisible =
-    user.followers.count > 0 || user.following.count > 0 || user.videosCount > 0
+    user.followers.count > 0 || user.following.count > 0
   return (
     <div className="h-full overflow-y-auto" key={user.id}>
       <div className="mx-auto w-full max-w-2xl px-4 py-6">
@@ -122,41 +136,199 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             </div>
           )}
 
-          {/* Activity Feed */}
-          <ActivityFeed userId={user.id} />
+          {/* Stats */}
+          <StatsRow user={user} />
+
+          {/* Recent videos */}
+          <Suspense>
+            <VideosPreview userId={user.id} />
+          </Suspense>
+
+          {/* Recent activity */}
+          <Suspense>
+            <ActivityPreview userId={user.id} />
+          </Suspense>
         </div>
       </div>
     </div>
   )
 }
 
+function StatsRow({ user }: { user: UsersWithFollowsData }) {
+  const stats = [
+    { label: "videos", value: user.videosCount, icon: VideoIcon },
+    { label: "posts", value: user.stats.posts, icon: StickyNoteIcon },
+    { label: "sets", value: user.stats.sets, icon: MergeIcon },
+    { label: "submissions", value: user.stats.submissions, icon: FileTextIcon },
+    { label: "tricks", value: user.stats.tricks, icon: SparklesIcon },
+    { label: "likes", value: user.stats.likesReceived, icon: HeartIcon },
+  ].filter((stat) => stat.value > 0)
+
+  const joined = new Date(user.createdAt)
+    .toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    .toLowerCase()
+
+  return (
+    <div className="flex flex-col gap-2">
+      {stats.length > 0 && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {stats.map((stat) => (
+            <StatCard
+              key={stat.label}
+              label={stat.label}
+              value={stat.value}
+              icon={stat.icon}
+              size="responsive"
+            />
+          ))}
+        </div>
+      )}
+      <p className="text-muted-foreground text-xs">
+        joined {joined}
+        {user.arcadeHighScore > 0 && (
+          <>
+            {" "}
+            &middot; arcade high score {user.arcadeHighScore.toLocaleString()}
+          </>
+        )}
+      </p>
+    </div>
+  )
+}
+
+function SectionHeader({
+  title,
+  to,
+  userId,
+}: {
+  title: string
+  to: "/users/$userId/videos" | "/users/$userId/activity"
+  userId: number
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <h2 className="text-sm font-medium">{title}</h2>
+      <Link
+        to={to}
+        params={{ userId }}
+        className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+      >
+        view all
+      </Link>
+    </div>
+  )
+}
+
+function VideosPreview({ userId }: { userId: number }) {
+  const { data } = useSuspenseQuery(
+    users.videosPreview.queryOptions({ userId }),
+  )
+
+  if (data.items.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <SectionHeader
+        title="videos"
+        to="/users/$userId/videos"
+        userId={userId}
+      />
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {data.items.map((item) => {
+          const { label, url } = getVideoSource(item)
+          return (
+            <Link
+              key={`${item.type}-${item.id}`}
+              to={url}
+              aria-label={label}
+              className="group relative aspect-video overflow-clip rounded-md bg-black"
+            >
+              <img
+                src={getMuxPoster({ playbackId: item.playbackId, width: 320 })}
+                alt={label}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+              />
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ActivityPreview({ userId }: { userId: number }) {
+  const { data } = useSuspenseQuery(
+    users.activityPreview.queryOptions({ userId }),
+  )
+
+  if (data.items.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <SectionHeader
+        title="activity"
+        to="/users/$userId/activity"
+        userId={userId}
+      />
+      <div className="relative flex flex-col">
+        {/* Connecting line behind the icons, stopping at the first and last icon centers */}
+        <div
+          aria-hidden
+          className="bg-border absolute top-4 bottom-4 left-3 w-px"
+        />
+        {data.items.map((item) => {
+          const { icon, label, url } = getActivityDisplay(item)
+          return (
+            <div
+              key={`${item.type}-${item.id}`}
+              className="hover:bg-accent/50 relative -mx-2 flex min-w-0 items-center gap-2 rounded-md px-2 py-1"
+            >
+              <span className="bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-full">
+                {icon}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-sm">
+                <Link
+                  to={url}
+                  className="after:absolute after:inset-0 after:rounded-md"
+                >
+                  {label}
+                </Link>
+              </span>
+              <span className="relative z-10 shrink-0">
+                <RelativeTimeCard
+                  date={new Date(item.createdAt)}
+                  variant="muted"
+                  className="text-xs"
+                />
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 function FollowStats(props: UsersWithFollowsData) {
-  const { followers, following, videosCount, id } = props
-  const followCountsVisible = followers.count > 0 || following.count > 0
+  const { followers, following } = props
 
   return (
     <div className="-ml-2 flex items-center gap-2">
-      {followCountsVisible && (
-        <>
-          <UsersCombobox users={followers.users} peripheralKey="followers">
-            <Button type="button" className="text-sm" variant="ghost" size="sm">
-              {followers.count} {pluralize("follower", followers.count)}
-            </Button>
-          </UsersCombobox>
-          <UsersCombobox users={following.users} peripheralKey="following">
-            <Button type="button" className="text-sm" variant="ghost" size="sm">
-              {following.count} following
-            </Button>
-          </UsersCombobox>
-        </>
-      )}
-      {videosCount > 0 && (
-        <Button asChild className="text-sm" variant="ghost" size="sm">
-          <Link to="/users/$userId/videos" params={{ userId: id }}>
-            {videosCount} {pluralize("video", videosCount)}
-          </Link>
+      <UsersCombobox users={followers.users} peripheralKey="followers">
+        <Button type="button" className="text-sm" variant="ghost" size="sm">
+          {followers.count} {pluralize("follower", followers.count)}
         </Button>
-      )}
+      </UsersCombobox>
+      <UsersCombobox users={following.users} peripheralKey="following">
+        <Button type="button" className="text-sm" variant="ghost" size="sm">
+          {following.count} following
+        </Button>
+      </UsersCombobox>
     </div>
   )
 }

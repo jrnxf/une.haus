@@ -130,6 +130,24 @@ export const users = {
       })
     },
   },
+  /** First few activity items for the profile page preview section */
+  activityPreview: {
+    queryOptions: (data: { userId: number }) => {
+      return queryOptions({
+        queryKey: ["users.activity.preview", data],
+        queryFn: () => getUserActivityServerFn({ data: { ...data, limit: 5 } }),
+      })
+    },
+  },
+  /** First few videos for the profile page preview strip */
+  videosPreview: {
+    queryOptions: (data: { userId: number }) => {
+      return queryOptions({
+        queryKey: ["users.videos.preview", data],
+        queryFn: () => getUserVideosServerFn({ data: { ...data, limit: 4 } }),
+      })
+    },
+  },
   videos: {
     fn: getUserVideosServerFn,
     schema: getUserVideosSchema,

@@ -50,16 +50,19 @@ export const getUserWithFollowsServerFn = createServerFn({
 })
   .inputValidator(zodValidator(getUserSchema))
   .handler(async ({ data }) => {
-    const { getUser, getUserFollows, getUserVideosCount } = await loadUserOps()
-    const [user, follows, videosCount] = await Promise.all([
+    const { getUser, getUserFollows, getUserStats, getUserVideosCount } =
+      await loadUserOps()
+    const [user, follows, stats, videosCount] = await Promise.all([
       getUser(data.userId),
       getUserFollows(data.userId),
+      getUserStats(data.userId),
       getUserVideosCount(data.userId),
     ])
 
     return {
       ...user,
       ...follows,
+      stats,
       videosCount,
     }
   })
