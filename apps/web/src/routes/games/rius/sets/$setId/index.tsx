@@ -255,7 +255,7 @@ function SubmissionCard({
     instructions: string | null
   }
 }) {
-  return <RiuSubmissionCard submission={submission} set={set} />
+  return <RiuSubmissionCard submission={submission} set={set} showSubmitter />
 }
 
 function SubmissionsList({

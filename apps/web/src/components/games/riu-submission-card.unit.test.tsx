@@ -40,7 +40,34 @@ describe("RiuSubmissionCard", () => {
     expect(markup).toContain("Target Set")
     expect(markup).toContain("3 likes")
     expect(markup).toContain("2 messages")
-    // User name is no longer rendered in the card
+    // The set owner is not rendered in the card
     expect(markup).not.toContain("Jane")
+  })
+
+  it("titles the card with the submitter when showSubmitter is set", async () => {
+    const { RiuSubmissionCard } = await import("./riu-submission-card")
+
+    const markup = renderToStaticMarkup(
+      <RiuSubmissionCard
+        showSubmitter
+        submission={{
+          id: 42,
+          user: { id: 7, name: "Colby" },
+          likes: [],
+          messages: [],
+        }}
+        set={{
+          user: {
+            id: 1,
+            name: "Jane",
+          },
+          name: "Target Set",
+          instructions: null,
+        }}
+      />,
+    )
+
+    expect(markup).toContain("Colby")
+    expect(markup).not.toContain("Target Set")
   })
 })
