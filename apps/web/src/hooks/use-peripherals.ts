@@ -21,6 +21,16 @@ export function usePeripherals(key: string) {
 
   const open = peripherals?.includes(key) ?? false
 
+  // Closing is async (history.back → popstate → nuqs), so `open` stays true
+  // for a moment after setOpen(false). Dismissal sources can fire again in
+  // that window (Base UI's outside-press dismisses on both pointerdown and
+  // mousedown), and a second history.back() would navigate out of the app.
+  // Track the pending close so only the first call goes back.
+  const pendingCloseRef = React.useRef(false)
+  if (!open) {
+    pendingCloseRef.current = false
+  }
+
   const setOpen = React.useCallback(
     (nextOpen: boolean) => {
       if (nextOpen) {
@@ -34,6 +44,8 @@ export function usePeripherals(key: string) {
         })
       } else {
         // CLOSING: Go back to pop the entry (iOS swipe-back fix)
+        if (pendingCloseRef.current) return
+        pendingCloseRef.current = true
         router.history.back()
       }
     },
