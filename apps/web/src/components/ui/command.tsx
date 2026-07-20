@@ -80,7 +80,7 @@ function CommandDialog({
       )}
       <DialogContent
         className={cn(
-          "flex max-h-[min(400px,calc(100vh-100px))] flex-col gap-0 overflow-hidden p-0",
+          "flex max-h-[min(400px,calc(100vh-100px))] flex-col gap-0 overflow-hidden rounded-xl p-0",
           className,
         )}
         showCloseButton={showCloseButton}
@@ -95,7 +95,16 @@ function CommandDialog({
           value={value}
           onValueChange={onValueChange}
           shouldFilter={shouldFilter}
-          className="**:[[cmdk-group-heading]]:text-muted-foreground min-h-0 flex-1 rounded-none [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input-wrapper]]:min-h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2"
+          className={cn(
+            "**:[[cmdk-group-heading]]:text-muted-foreground min-h-0 flex-1 rounded-none p-1",
+            // group headings
+            "[&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2",
+            // pill-shaped search input with the icon trailing on the right
+            "[&_[data-slot=command-input-wrapper]]:border-input/30 [&_[data-slot=command-input-wrapper]]:bg-input/30 [&_[data-slot=command-input-wrapper]]:mb-1 [&_[data-slot=command-input-wrapper]]:h-8 [&_[data-slot=command-input-wrapper]]:min-h-8 [&_[data-slot=command-input-wrapper]]:rounded-lg [&_[data-slot=command-input-wrapper]]:border [&_[data-slot=command-input-wrapper]]:px-2",
+            "[&_[data-slot=command-input-wrapper]>svg]:order-last [&_[data-slot=command-input-wrapper]>svg]:size-4 [&_[data-slot=command-input-wrapper]>svg]:opacity-50",
+            // softly rounded items with a muted selection highlight
+            "[&_[data-slot=command-item][data-selected=true]]:bg-muted [&_[data-slot=command-item][data-selected=true]]:text-foreground [&_[data-slot=command-item]]:rounded-lg",
+          )}
         >
           {children}
         </Command>

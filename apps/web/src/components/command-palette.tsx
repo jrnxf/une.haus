@@ -1,11 +1,36 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { CheckIcon } from "lucide-react"
+import {
+  ActivityIcon,
+  BellIcon,
+  CheckIcon,
+  JoystickIcon,
+  LaptopIcon,
+  LockIcon,
+  LogInIcon,
+  LogOutIcon,
+  MessageCircleIcon,
+  MessagesSquareIcon,
+  MoonIcon,
+  PanelLeftIcon,
+  PlayIcon,
+  ShieldIcon,
+  ShoppingBagIcon,
+  StickyNoteIcon,
+  SunIcon,
+  SunMoonIcon,
+  TrafficConeIcon,
+  UserIcon,
+  UsersIcon,
+  WrenchIcon,
+} from "lucide-react"
 import * as React from "react"
 import { Suspense, useMemo, useRef } from "react"
 import { useHotkeys } from "react-hotkeys-hook"
 
+import { BracketIcon } from "~/components/icons/bracket-icon"
+import { PodiumIcon } from "~/components/icons/podium-icon"
 import { Button } from "~/components/ui/button"
 import {
   CommandDialog,
@@ -47,6 +72,8 @@ type Page =
   | "users"
   | "vault"
 
+type IconComponent = React.ComponentType<{ className?: string }>
+
 type SecondaryAction = {
   id: string
   label: string
@@ -59,6 +86,7 @@ type CommandItemConfig = {
   id: string
   label: string
   value: string
+  icon: IconComponent
   primaryAction: {
     label: string
     onAction: () => void
@@ -153,6 +181,7 @@ export function CommandPalette() {
       id: "games",
       label: "games",
       value: "/games",
+      icon: PodiumIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/games"),
@@ -171,6 +200,7 @@ export function CommandPalette() {
       id: "users",
       label: "users",
       value: "/users",
+      icon: UsersIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/users"),
@@ -189,6 +219,7 @@ export function CommandPalette() {
       id: "posts",
       label: "posts",
       value: "/posts",
+      icon: StickyNoteIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/posts"),
@@ -198,6 +229,7 @@ export function CommandPalette() {
       id: "chat",
       label: "chat",
       value: "/chat",
+      icon: MessagesSquareIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/chat"),
@@ -207,6 +239,7 @@ export function CommandPalette() {
       id: "vault",
       label: "vault",
       value: "/vault",
+      icon: LockIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/vault"),
@@ -225,6 +258,7 @@ export function CommandPalette() {
       id: "tricks",
       label: "tricks",
       value: "/tricks",
+      icon: TrafficConeIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/tricks"),
@@ -234,6 +268,7 @@ export function CommandPalette() {
       id: "metrics",
       label: "metrics",
       value: "/metrics",
+      icon: ActivityIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/metrics"),
@@ -243,6 +278,7 @@ export function CommandPalette() {
       id: "tourney",
       label: "tourney",
       value: "/tourney",
+      icon: BracketIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/tourney"),
@@ -252,6 +288,7 @@ export function CommandPalette() {
       id: "arcade",
       label: "arcade",
       value: "/arcade",
+      icon: JoystickIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/arcade"),
@@ -263,6 +300,7 @@ export function CommandPalette() {
             id: "notifications",
             label: "notifications",
             value: "/notifications",
+            icon: BellIcon,
             primaryAction: {
               label: "open",
               onAction: () => closeAndNavigate("/notifications"),
@@ -274,6 +312,7 @@ export function CommandPalette() {
       id: "feedback",
       label: "feedback",
       value: "/feedback",
+      icon: MessageCircleIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/feedback"),
@@ -283,6 +322,7 @@ export function CommandPalette() {
       id: "shop",
       label: "shop",
       value: "/shop",
+      icon: ShoppingBagIcon,
       primaryAction: {
         label: "open",
         onAction: () => closeAndNavigate("/shop"),
@@ -294,6 +334,7 @@ export function CommandPalette() {
             id: "admin",
             label: "admin",
             value: "/admin",
+            icon: ShieldIcon,
             primaryAction: {
               label: "open",
               onAction: () => closeAndNavigate("/admin"),
@@ -364,7 +405,7 @@ export function CommandPalette() {
   }
 
   const footer = (
-    <div className="dark:bg-input/30 flex w-full items-center justify-end gap-1 border-t px-2 py-1.5">
+    <div className="bg-muted/30 flex w-full items-center justify-end gap-1 border-t px-2 py-1.5">
       {/* Back action for sub-pages */}
       {pages.length > 1 && (
         <Button
@@ -496,6 +537,7 @@ export function CommandPalette() {
                     asChild
                   >
                     <Link to={item.value} replace>
+                      <item.icon />
                       {item.label}
                     </Link>
                   </CommandItem>
@@ -509,6 +551,7 @@ export function CommandPalette() {
                     closeMenu()
                   }}
                 >
+                  <PanelLeftIcon />
                   toggle sidebar
                   <CommandShortcut>
                     <KbdGroup>
@@ -522,6 +565,7 @@ export function CommandPalette() {
                     pushPage("theme")
                   }}
                 >
+                  <SunMoonIcon />
                   theme
                 </CommandItem>
                 {isAuthenticated ? (
@@ -532,6 +576,7 @@ export function CommandPalette() {
                       asChild
                     >
                       <Link replace to="/auth/me">
+                        <UserIcon />
                         profile
                       </Link>
                     </CommandItem>
@@ -541,6 +586,7 @@ export function CommandPalette() {
                         closeMenu()
                       }}
                     >
+                      <LogOutIcon />
                       logout
                     </CommandItem>
                     {import.meta.env.DEV && isAdmin && (
@@ -556,6 +602,7 @@ export function CommandPalette() {
                           closeMenu()
                         }}
                       >
+                        <WrenchIcon />
                         devtools
                       </CommandItem>
                     )}
@@ -567,6 +614,7 @@ export function CommandPalette() {
                     asChild
                   >
                     <Link replace to="/auth">
+                      <LogInIcon />
                       login
                     </Link>
                   </CommandItem>
@@ -577,7 +625,13 @@ export function CommandPalette() {
 
           {activePage === "theme" && (
             <CommandGroup heading="theme">
-              {(["light", "dark", "system"] as const).map((value) => (
+              {(
+                [
+                  { value: "light", icon: SunIcon },
+                  { value: "dark", icon: MoonIcon },
+                  { value: "system", icon: LaptopIcon },
+                ] as const
+              ).map(({ value, icon: Icon }) => (
                 <CommandItem
                   key={value}
                   onSelect={() => {
@@ -585,6 +639,7 @@ export function CommandPalette() {
                     closeMenu()
                   }}
                 >
+                  <Icon />
                   {value}
                   {theme === value && <CheckIcon className="ml-auto size-4" />}
                 </CommandItem>
@@ -600,6 +655,7 @@ export function CommandPalette() {
                 asChild
               >
                 <Link to="/games/rius/active" replace>
+                  <JoystickIcon />
                   rack it up
                 </Link>
               </CommandItem>
@@ -609,6 +665,7 @@ export function CommandPalette() {
                 asChild
               >
                 <Link to="/games/bius" replace>
+                  <JoystickIcon />
                   back it up
                 </Link>
               </CommandItem>
@@ -618,6 +675,7 @@ export function CommandPalette() {
                 asChild
               >
                 <Link to="/games/sius" replace>
+                  <JoystickIcon />
                   stack it up
                 </Link>
               </CommandItem>
@@ -717,6 +775,7 @@ function SearchUsersPage({
             value={`user-${user.id}-${user.name}`}
             onSelect={() => onSelectUser(user.id)}
           >
+            <UserIcon />
             {user.name}
           </CommandItem>
         ))}
@@ -752,6 +811,7 @@ function SearchUsersPage({
                 right: 0,
               }}
             >
+              <UserIcon />
               {user.name}
             </CommandItem>
           )
@@ -819,6 +879,7 @@ function SearchVaultPage({
             value={`video-${video.id}-${video.title}`}
             onSelect={() => onSelectVideo(video.id)}
           >
+            <PlayIcon />
             {video.title}
           </CommandItem>
         ))}
@@ -854,6 +915,7 @@ function SearchVaultPage({
                 right: 0,
               }}
             >
+              <PlayIcon />
               {video.title}
             </CommandItem>
           )
