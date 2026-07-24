@@ -163,7 +163,7 @@ function RouteComponent() {
         <div className="mb-6 flex items-center justify-between">
           <Button variant="ghost" size="sm" asChild>
             <Link to="/tricks/$trickId" params={{ trickId }}>
-              <ArrowLeft className="size-4" />
+              <ArrowLeft data-icon="inline-start" className="size-4" />
               back
             </Link>
           </Button>
@@ -196,7 +196,7 @@ function RouteComponent() {
         >
           {/* Basic Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">basic info</h3>
+            <h2 className="text-lg font-medium">basic info</h2>
 
             <FormField
               control={control}
@@ -219,7 +219,12 @@ function RouteComponent() {
                 <FormItem>
                   <FormLabel>description</FormLabel>
                   <FormControl>
-                    <Textarea {...field} value={field.value ?? ""} rows={3} />
+                    <Textarea
+                      {...field}
+                      aria-label="notes"
+                      value={field.value ?? ""}
+                      rows={3}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -247,7 +252,7 @@ function RouteComponent() {
 
           {/* History */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">history</h3>
+            <h2 className="text-lg font-medium">history</h2>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
@@ -295,7 +300,7 @@ function RouteComponent() {
 
           {/* Notes */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">notes</h3>
+            <h2 className="text-lg font-medium">notes</h2>
 
             <FormField
               control={control}
@@ -303,7 +308,12 @@ function RouteComponent() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Textarea {...field} value={field.value ?? ""} rows={3} />
+                    <Textarea
+                      {...field}
+                      aria-label="notes"
+                      value={field.value ?? ""}
+                      rows={3}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -313,7 +323,7 @@ function RouteComponent() {
 
           {/* Reason */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">reason for changes</h3>
+            <h2 className="text-lg font-medium">reason for changes</h2>
 
             <FormField
               control={control}
@@ -323,6 +333,7 @@ function RouteComponent() {
                   <FormControl>
                     <Textarea
                       {...field}
+                      aria-label="reason for changes"
                       placeholder="explain why these changes should be made..."
                       rows={2}
                     />

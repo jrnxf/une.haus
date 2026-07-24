@@ -12,8 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function zodErrorFmt(error: ZodError) {
   const errorCount = error.issues.length
-  const errorMessage = `Validation ${pluralize("error", errorCount)}: ${error.issues.map((issue) => issue.message).join(",")}`
-  return errorMessage
+  return `Validation ${pluralize("error", errorCount)}: ${error.issues.map((issue) => issue.message).join(",")}`
 }
 
 export function errorFmt(error: unknown) {

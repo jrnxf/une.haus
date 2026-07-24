@@ -13,7 +13,7 @@ function JumpToLatestButton() {
       <Button variant="outline" size="sm" asChild>
         <Link to="/chat">
           jump to latest
-          <ArrowDownIcon className="size-3.5" />
+          <ArrowDownIcon data-icon="inline-end" className="size-3.5" />
         </Link>
       </Button>
     </div>

@@ -16,6 +16,9 @@ type UserPinPopupProps = {
 }
 
 export function UserPinPopup({ users }: UserPinPopupProps) {
+  // nothing pinned here — skip rendering an empty popup shell
+  if (users.length === 0) return null
+
   const showScrollArea = users.length > 3
 
   const content = (

@@ -1,7 +1,6 @@
 import { Link, type LinkProps, useLocation } from "@tanstack/react-router"
 import { Children, type ReactNode, useEffect } from "react"
 
-import { CommandPalette } from "~/components/command-palette"
 import { useSetMobileBreadcrumbs } from "~/components/mobile-breadcrumbs-context"
 import {
   Breadcrumb,
@@ -27,22 +26,19 @@ function PageHeaderRoot({
   maxWidth?: string
 }) {
   return (
-    <>
-      <header className="bg-background sticky top-0 z-30 hidden shrink-0 border-b md:block">
-        <div
-          className={cn(
-            "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
-            // maxWidth,
-          )}
-        >
-          <SidebarTrigger className="-ml-1" size="icon-xs" />
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            {children}
-          </div>
-        </div>
-      </header>
-      <CommandPalette />
-    </>
+    // the command palette is mounted once at the app shell (src/App.tsx), not
+    // per page header
+    <header className="bg-background sticky top-0 z-30 hidden shrink-0 border-b md:block">
+      <div
+        className={cn(
+          "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
+          // maxWidth,
+        )}
+      >
+        <SidebarTrigger className="-ml-1" size="icon-xs" />
+        <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
+      </div>
+    </header>
   )
 }
 
@@ -99,10 +95,14 @@ function Crumb({
 }) {
   if (to) {
     return (
-      <BreadcrumbLink render={<Link to={to as LinkProps["to"]} />}>
-        {Icon && <Icon className="mr-1.5 inline size-3.5" />}
-        {children}
-      </BreadcrumbLink>
+      <BreadcrumbLink
+        render={
+          <Link to={to as LinkProps["to"]}>
+            {Icon && <Icon className="mr-1.5 inline size-3.5" />}
+            {children}
+          </Link>
+        }
+      />
     )
   }
   if (inert) {

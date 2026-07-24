@@ -13,8 +13,10 @@ import { contentTypes } from "~/lib/engagement/manifest"
  */
 export const recordWithMessagesTypes = contentTypes
 
+export const messageContentSchema = z.string().min(1)
+
 const messageFormSchema = z.object({
-  content: z.string().min(1),
+  content: messageContentSchema,
 })
 
 const chatParentMessageSchema = z.object({

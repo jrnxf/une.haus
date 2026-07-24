@@ -19,12 +19,12 @@ function useFollowMutation<TVariables>({
   userId,
   mutationFn,
   applyFollowers,
-  errorMessage,
+  errorToast,
 }: {
   userId: number
   mutationFn: (variables: TVariables) => Promise<unknown>
   applyFollowers: (followers: Followers, sessionUser: SessionUser) => Followers
-  errorMessage: string
+  errorToast: string
 }) {
   const qc = useQueryClient()
   const sessionUser = useSessionUser()
@@ -52,7 +52,7 @@ function useFollowMutation<TVariables>({
       console.error(error)
       if (context) {
         qc.setQueryData(queryKey, context.previousData)
-        toast.error(errorMessage)
+        toast.error(errorToast)
       }
     },
     onSettled: () => {
@@ -77,7 +77,7 @@ export function useFollowMutations({ userId }: { userId: number }) {
         },
       ],
     }),
-    errorMessage: "failed to follow user",
+    errorToast: "failed to follow user",
   })
 
   const { mutate: unfollow } = useFollowMutation({
@@ -87,7 +87,7 @@ export function useFollowMutations({ userId }: { userId: number }) {
       count: followers.count - 1,
       users: followers.users.filter((user) => user.id !== sessionUser.id),
     }),
-    errorMessage: "failed to unfollow user",
+    errorToast: "failed to unfollow user",
   })
 
   return { follow, unfollow }

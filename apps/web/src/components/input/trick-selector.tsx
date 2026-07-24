@@ -177,6 +177,7 @@ export function TrickRelationshipSelector({
           {rel.targetTrickName}
           <button
             type="button"
+            aria-label={`remove ${rel.targetTrickName}`}
             onClick={() => handleRemove(rel.targetTrickId)}
             className="hover:bg-muted rounded-sm p-0.5"
           >
@@ -321,6 +322,7 @@ export function ElementSelector({
           {element.name}
           <button
             type="button"
+            aria-label={`remove ${element.name}`}
             onClick={() => handleRemove(element.id)}
             className="hover:bg-muted rounded-sm p-0.5"
           >

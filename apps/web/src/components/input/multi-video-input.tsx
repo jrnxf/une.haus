@@ -121,6 +121,7 @@ export function MultiVideoInput({
             >
               <VideoPlayer className="w-full" playbackId={video.playbackId} />
               <Button
+                aria-label={`remove video ${index + 1}`}
                 className="absolute top-2 right-2"
                 onClick={() => removeVideo(index)}
                 type="button"

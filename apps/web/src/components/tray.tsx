@@ -74,6 +74,7 @@ export function TrayContent({
   children,
   showCloseButton = true,
   overlay = true,
+  title,
   ...properties
 }: {
   dialogClassName?: string
@@ -82,6 +83,8 @@ export function TrayContent({
   className?: string
   showCloseButton?: boolean
   overlay?: boolean
+  /** visually hidden accessible name for trays whose content has no TrayTitle */
+  title?: string
 }) {
   const { isMobile } = useTrayContext()
 
@@ -93,6 +96,9 @@ export function TrayContent({
           className={cn("p-4", className, drawerClassName)}
           overlay={false}
         >
+          {title ? (
+            <DrawerTitle className="sr-only">{title}</DrawerTitle>
+          ) : null}
           {children}
         </DrawerContent>
       ) : (
@@ -102,6 +108,9 @@ export function TrayContent({
           showCloseButton={showCloseButton}
           {...properties}
         >
+          {title ? (
+            <DialogTitle className="sr-only">{title}</DialogTitle>
+          ) : null}
           {children}
         </DialogContent>
       )}

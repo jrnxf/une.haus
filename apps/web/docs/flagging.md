@@ -421,7 +421,7 @@ Game entity pages use the same pattern with their respective entity types (`biuS
 
 **File:** `src/components/messages/message-bubble.tsx`
 
-Messages show a "flag" option in the long-press context menu. Clicking it opens a `MessageFlagTray` (internal component) instead of navigating. The message type is derived from the parent type.
+Messages show a "flag" option in the long-press context menu. Clicking it opens a `MessageFlagTray` (a thin wrapper around `<FlagTray>`) instead of navigating. The message type is derived from the parent type.
 
 **Note:** The message type is derived from the parent type (e.g., `post` → `postMessage`, `chat` → `chatMessage`).
 

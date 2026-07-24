@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react"
 
 import { MentionTextarea } from "~/components/input/mention-textarea"
 import { Button } from "~/components/ui/button"
+import { messageContentSchema } from "~/lib/messages/schemas"
 import { useSessionUser } from "~/lib/session/hooks"
 
 export function BaseMessageForm({
@@ -82,8 +83,9 @@ export function BaseMessageForm({
       }}
       onSubmit={(event) => {
         event.preventDefault()
-        if (!content) return
-        onSubmit(content)
+        const parsed = messageContentSchema.safeParse(content)
+        if (!parsed.success) return
+        onSubmit(parsed.data)
         refocusAfterSubmitRef.current = true
         reset()
       }}

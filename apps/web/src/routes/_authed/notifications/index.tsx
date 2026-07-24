@@ -98,7 +98,9 @@ function RouteComponent() {
                     disabled={markAllRead.isPending}
                   >
                     {markAllRead.isPending ? (
-                      <Loader2 className="size-4 animate-spin" />
+                      <span role="status" aria-label="marking all read">
+                        <Loader2 className="size-4 animate-spin" />
+                      </span>
                     ) : (
                       <Check className="size-4" />
                     )}
@@ -112,7 +114,13 @@ function RouteComponent() {
             }
           />
 
-          <Suspense>
+          <Suspense
+            fallback={
+              <div className="text-muted-foreground flex justify-center py-6">
+                <Loader2 className="size-5 animate-spin" />
+              </div>
+            }
+          >
             <NotificationList filter={deferredFilter} />
           </Suspense>
         </div>

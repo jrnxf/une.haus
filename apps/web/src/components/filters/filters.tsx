@@ -408,6 +408,7 @@ function FilterChip({
       {field.type === "text" ? (
         <input
           autoFocus
+          aria-label={field.label}
           value={active.values[0] || ""}
           onChange={(e) => onSetValues([e.target.value])}
           placeholder={field.placeholder}
@@ -466,7 +467,7 @@ function FiltersTrigger({
       <DropdownMenuTrigger
         render={<Button variant="outline" size={size ?? "sm"} />}
       >
-        <FilterIcon className="size-3.5" />
+        <FilterIcon data-icon="inline-start" className="size-3.5" />
         filters
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[220px]">

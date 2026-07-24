@@ -72,6 +72,7 @@ function RouteComponent() {
               enter the 6-digit code sent to your email
             </FieldDescription>
             <InputOTP
+              aria-label="verification code"
               maxLength={6}
               pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
               value={code}

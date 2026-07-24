@@ -266,7 +266,10 @@ function RouteComponent() {
                     }
                     disabled={updateSettings.isPending || isEmailDisabled}
                   >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger
+                      aria-label="email digest frequency"
+                      className="w-32"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -299,7 +302,10 @@ function RouteComponent() {
                             }
                             disabled={updateSettings.isPending}
                           >
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger
+                              aria-label="email digest day of week"
+                              className="w-32"
+                            >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -330,7 +336,10 @@ function RouteComponent() {
                             }
                             disabled={updateSettings.isPending}
                           >
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger
+                              aria-label="email digest day of month"
+                              className="w-32"
+                            >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -358,7 +367,10 @@ function RouteComponent() {
                           }
                           disabled={updateSettings.isPending}
                         >
-                          <SelectTrigger className="w-32">
+                          <SelectTrigger
+                            aria-label="email digest hour"
+                            className="w-32"
+                          >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -438,7 +450,10 @@ function RouteComponent() {
                         }
                         disabled={updateSettings.isPending}
                       >
-                        <SelectTrigger className="w-32">
+                        <SelectTrigger
+                          aria-label="game start reminder lead time"
+                          className="w-32"
+                        >
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

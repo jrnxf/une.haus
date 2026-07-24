@@ -36,11 +36,11 @@ function OnlineUserList({
               params={{ userId: user.id }}
               replace
               onClick={onNavigate}
-            />
+            >
+              <span className="text-xs font-medium">{user.name}</span>
+            </Link>
           }
-        >
-          <span className="text-xs font-medium">{user.name}</span>
-        </DropdownMenuItem>
+        />
       ))}
       {guests > 0 && (
         <DropdownMenuLabel>
@@ -87,16 +87,18 @@ function OnlineCount() {
 
 function OnlineDropdownContent({ onNavigate }: { onNavigate: () => void }) {
   const { data } = useQuery(presence.online.queryOptions())
-
-  if (!data || data.total === 0) return null
+  const users = data?.users ?? []
+  const guests = data?.guests ?? 0
 
   return (
     <DropdownMenuContent side="top" align="start" className="min-w-0">
-      <OnlineUserList
-        users={data.users}
-        guests={data.guests}
-        onNavigate={onNavigate}
-      />
+      {users.length === 0 && guests === 0 ? (
+        <DropdownMenuLabel className="text-muted-foreground font-normal">
+          no one online
+        </DropdownMenuLabel>
+      ) : (
+        <OnlineUserList users={users} guests={guests} onNavigate={onNavigate} />
+      )}
     </DropdownMenuContent>
   )
 }

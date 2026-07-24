@@ -151,6 +151,11 @@ function DataGrid<TData extends object>({
 
   return (
     <DataGridProvider table={table} {...mergedProps}>
+      {mergedProps.isLoading ? (
+        <span role="status" className="sr-only">
+          loading
+        </span>
+      ) : null}
       {children}
     </DataGridProvider>
   )

@@ -146,6 +146,7 @@ function RouteComponent() {
                           : "/vault/$videoId/suggest"
                       }
                       params={{ videoId }}
+                      aria-label="edit"
                     />
                   ) : undefined
                 }

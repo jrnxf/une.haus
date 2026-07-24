@@ -74,11 +74,14 @@ export function FlagTray({
           <TooltipContent>flag</TooltipContent>
         </Tooltip>
       )}
-      <TrayContent>
+      <TrayContent title="flag content">
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">
-            <Label>reason</Label>
+            <Label htmlFor="flag-reason">reason</Label>
             <Textarea
+              id="flag-reason"
+              required
+              minLength={4}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={placeholder}
@@ -96,7 +99,9 @@ export function FlagTray({
               type="submit"
               disabled={!reason.trim() || flagContent.isPending}
             >
-              {flagContent.isPending ? "submitting..." : "submit"}
+              <span role="status">
+                {flagContent.isPending ? "submitting..." : "submit"}
+              </span>
             </Button>
           </div>
         </form>

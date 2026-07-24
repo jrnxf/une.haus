@@ -284,6 +284,7 @@ function RouteComponent() {
                         <Button
                           size="icon-sm"
                           variant="ghost"
+                          aria-label={`move video ${index + 1} up`}
                           onClick={() => moveVideo(video.id, "up")}
                           disabled={index === 0 || reorderVideos.isPending}
                         >
@@ -292,6 +293,7 @@ function RouteComponent() {
                         <Button
                           size="icon-sm"
                           variant="ghost"
+                          aria-label={`move video ${index + 1} down`}
                           onClick={() => moveVideo(video.id, "down")}
                           disabled={
                             index === activeVideos.length - 1 ||
@@ -323,12 +325,13 @@ function RouteComponent() {
                         }
                         disabled={demoteVideo.isPending}
                       >
-                        <XCircle className="size-4" />
+                        <XCircle data-icon="inline-start" className="size-4" />
                         demote
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
+                        aria-label="delete video"
                         onClick={() =>
                           deleteVideo.mutate({ data: { id: video.id } })
                         }
@@ -416,7 +419,7 @@ function RouteComponent() {
                       }
                       disabled={deleteVideo.isPending}
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 data-icon="inline-start" className="size-4" />
                       delete permanently
                     </Button>
                   </CardContent>
@@ -471,6 +474,7 @@ function PendingVideoCard({
           />
         )}
         <Textarea
+          aria-label="review notes"
           placeholder="review notes..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -485,7 +489,7 @@ function PendingVideoCard({
             disabled={isReviewPending || isAtLimit || !trimmed}
             title={isAtLimit ? "demote an active video first" : "approve video"}
           >
-            <CheckCircle className="size-4" />
+            <CheckCircle data-icon="inline-start" className="size-4" />
             approve
           </Button>
           <Button
@@ -495,12 +499,13 @@ function PendingVideoCard({
             onClick={() => onReview("rejected", trimmed)}
             disabled={isReviewPending || !trimmed}
           >
-            <XCircle className="size-4" />
+            <XCircle data-icon="inline-start" className="size-4" />
             reject
           </Button>
           <Button
             size="sm"
             variant="destructive"
+            aria-label="delete video"
             onClick={onDelete}
             disabled={isDeletePending}
           >

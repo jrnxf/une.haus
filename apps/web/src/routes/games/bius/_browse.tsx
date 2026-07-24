@@ -55,7 +55,7 @@ function RouteComponent() {
           <div className="flex items-center gap-2">
             <Tray>
               <TrayTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="how to play">
                   <InfoIcon className="size-4" />
                 </Button>
               </TrayTrigger>

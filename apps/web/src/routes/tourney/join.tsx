@@ -53,6 +53,7 @@ function RouteComponent() {
               enter the 4-digit code to watch live
             </FieldDescription>
             <InputOTP
+              aria-label="tournament code"
               maxLength={4}
               pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
               value={code}

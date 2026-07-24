@@ -59,12 +59,12 @@ function GlossaryElementsPage() {
                     <Link
                       to="/tricks/glossary/elements/$elementId/suggest"
                       params={{ elementId: element.id }}
-                    />
+                    >
+                      <PencilIcon />
+                      suggest edit
+                    </Link>
                   }
-                >
-                  <PencilIcon />
-                  suggest edit
-                </DropdownMenuItem>
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           )}

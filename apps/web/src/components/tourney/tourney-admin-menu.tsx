@@ -67,10 +67,12 @@ export function TourneyAdminMenu({
           </>
         )}
         <DropdownMenuItem
-          render={<Link to="/tourney/$code/edit" params={{ code }} />}
-        >
-          edit
-        </DropdownMenuItem>
+          render={
+            <Link to="/tourney/$code/edit" params={{ code }}>
+              edit
+            </Link>
+          }
+        />
         <DropdownMenuItem
           variant="destructive"
           onClick={() =>

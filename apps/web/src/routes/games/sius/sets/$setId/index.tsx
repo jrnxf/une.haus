@@ -235,7 +235,11 @@ function NextSetButton({ setId }: { setId: number }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button size="icon-sm" variant="outline" asChild aria-label="next set">
-          <Link to="/games/sius/sets/$setId" params={{ setId }}>
+          <Link
+            to="/games/sius/sets/$setId"
+            params={{ setId }}
+            aria-label="next set"
+          >
             <ArrowUpIcon className="size-4" />
           </Link>
         </Button>
@@ -255,7 +259,11 @@ function PreviousSetButton({ setId }: { setId: number }) {
           asChild
           aria-label="previous set"
         >
-          <Link to="/games/sius/sets/$setId" params={{ setId }}>
+          <Link
+            to="/games/sius/sets/$setId"
+            params={{ setId }}
+            aria-label="previous set"
+          >
             <ArrowDownIcon className="size-4" />
           </Link>
         </Button>
@@ -296,6 +304,7 @@ function SetActionsMenu({
             <Link
               to="/games/sius/sets/$setId/edit"
               params={{ setId: set.id }}
+              aria-label="edit"
             />
           ) : undefined
         }

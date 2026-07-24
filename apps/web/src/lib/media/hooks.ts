@@ -32,19 +32,17 @@ type FileRejectionLike = {
 export function getVideoFileRejectionMessage(
   fileRejections: ReadonlyArray<FileRejectionLike>,
 ) {
-  const hasTooLarge = fileRejections.some((rejection) =>
-    rejection.errors.some((error) => error.code === "file-too-large"),
+  const codes = new Set(
+    fileRejections
+      .flatMap((rejection) => rejection.errors)
+      .map((error) => error.code),
   )
 
-  if (hasTooLarge) {
+  if (codes.has("file-too-large")) {
     return VIDEO_TOO_LARGE_MESSAGE
   }
 
-  const hasInvalidType = fileRejections.some((rejection) =>
-    rejection.errors.some((error) => error.code === "file-invalid-type"),
-  )
-
-  if (hasInvalidType) {
+  if (codes.has("file-invalid-type")) {
     return VIDEO_INVALID_TYPE_MESSAGE
   }
 

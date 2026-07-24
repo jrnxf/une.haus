@@ -20,23 +20,22 @@ export function UploadDropZone({
 }) {
   return (
     <div className="flex items-center gap-2">
+      {/* the input lives outside the button — nesting one interactive
+          control inside another is invalid; dropzone proxies clicks to it */}
+      <input
+        {...getInputProps()}
+        id={inputId}
+        aria-label="file upload"
+        disabled={disabled || undefined}
+      />
       <Button
         aria-label="file upload"
-        className={cn(
-          // "border-input ring-offset-background dark:bg-input/30 text-foreground relative inline-flex h-9 w-fit max-w-full items-center justify-start overflow-hidden rounded-md border bg-transparent px-3 py-1 text-base font-normal focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden",
-          hasFile && "max-w-56",
-        )}
+        className={cn(hasFile && "max-w-56")}
         type="button"
         variant="outline"
-        // variant="unstyled"
         {...getRootProps()}
         disabled={disabled || undefined}
       >
-        <input
-          {...getInputProps()}
-          id={inputId}
-          disabled={disabled || undefined}
-        />
         {children}
       </Button>
     </div>

@@ -150,26 +150,44 @@ function RouteComponent() {
               <FieldSet>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel>name</FieldLabel>
-                    <Input placeholder="enter your name" />
+                    <FieldLabel htmlFor="sandbox-name">name</FieldLabel>
+                    <Input id="sandbox-name" placeholder="enter your name" />
                     <FieldDescription>your display name</FieldDescription>
                   </Field>
                   <Field>
-                    <FieldLabel>email</FieldLabel>
-                    <Input type="email" placeholder="you@example.com" />
+                    <FieldLabel htmlFor="sandbox-email">email</FieldLabel>
+                    <Input
+                      id="sandbox-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                    />
                   </Field>
                   <Field>
-                    <FieldLabel>search</FieldLabel>
-                    <Input placeholder="search..." />
+                    <FieldLabel htmlFor="sandbox-search">search</FieldLabel>
+                    <Input id="sandbox-search" placeholder="search..." />
                   </Field>
                   <Field>
-                    <FieldLabel>disabled</FieldLabel>
-                    <Input placeholder="can't edit this" disabled />
+                    <FieldLabel htmlFor="sandbox-disabled">disabled</FieldLabel>
+                    <Input
+                      id="sandbox-disabled"
+                      placeholder="can't edit this"
+                      disabled
+                    />
                   </Field>
                   <Field>
-                    <FieldLabel>with error</FieldLabel>
-                    <Input placeholder="invalid" aria-invalid="true" />
-                    <FieldError>this field is required</FieldError>
+                    <FieldLabel htmlFor="sandbox-invalid">
+                      with error
+                    </FieldLabel>
+                    <Input
+                      id="sandbox-invalid"
+                      placeholder="invalid"
+                      aria-invalid="true"
+                      aria-describedby="sandbox-invalid-error"
+                    />
+                    <FieldError id="sandbox-invalid-error">
+                      this field is required
+                    </FieldError>
                   </Field>
                 </FieldGroup>
               </FieldSet>
@@ -184,14 +202,17 @@ function RouteComponent() {
               <FieldSet>
                 <FieldGroup>
                   <Field>
-                    <FieldLabel>bio</FieldLabel>
-                    <Textarea placeholder="tell us about yourself" />
+                    <FieldLabel htmlFor="sandbox-bio">bio</FieldLabel>
+                    <Textarea
+                      id="sandbox-bio"
+                      placeholder="tell us about yourself"
+                    />
                     <FieldDescription>max 200 characters</FieldDescription>
                   </Field>
                   <Field>
                     <FieldLabel>category</FieldLabel>
                     <Select defaultValue="general">
-                      <SelectTrigger>
+                      <SelectTrigger aria-label="category">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -209,7 +230,7 @@ function RouteComponent() {
                   <Field>
                     <FieldLabel>disabled select</FieldLabel>
                     <Select defaultValue="locked" disabled>
-                      <SelectTrigger>
+                      <SelectTrigger aria-label="disabled select">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -233,34 +254,53 @@ function RouteComponent() {
                 <FieldGroup>
                   <Field orientation="horizontal">
                     <Checkbox
+                      id="sandbox-agree"
                       checked={agreed}
                       onCheckedChange={(checked) => setAgreed(Boolean(checked))}
                     />
-                    <FieldLabel>i agree to the terms</FieldLabel>
+                    <FieldLabel htmlFor="sandbox-agree">
+                      i agree to the terms
+                    </FieldLabel>
                   </Field>
                   <Field orientation="horizontal">
-                    <Checkbox checked disabled />
-                    <FieldLabel>disabled checked</FieldLabel>
+                    <Checkbox id="sandbox-disabled-checked" checked disabled />
+                    <FieldLabel htmlFor="sandbox-disabled-checked">
+                      disabled checked
+                    </FieldLabel>
                   </Field>
                   <Separator />
-                  <RadioGroup value={plan} onValueChange={setPlan}>
+                  <RadioGroup
+                    aria-label="plan"
+                    value={plan}
+                    onValueChange={setPlan}
+                  >
                     <Field orientation="horizontal">
-                      <RadioGroupItem value="free" />
-                      <FieldLabel>free</FieldLabel>
+                      <RadioGroupItem id="sandbox-plan-free" value="free" />
+                      <FieldLabel htmlFor="sandbox-plan-free">free</FieldLabel>
                     </Field>
                     <Field orientation="horizontal">
-                      <RadioGroupItem value="pro" />
-                      <FieldLabel>pro</FieldLabel>
+                      <RadioGroupItem id="sandbox-plan-pro" value="pro" />
+                      <FieldLabel htmlFor="sandbox-plan-pro">pro</FieldLabel>
                     </Field>
                     <Field orientation="horizontal">
-                      <RadioGroupItem value="enterprise" />
-                      <FieldLabel>enterprise</FieldLabel>
+                      <RadioGroupItem
+                        id="sandbox-plan-enterprise"
+                        value="enterprise"
+                      />
+                      <FieldLabel htmlFor="sandbox-plan-enterprise">
+                        enterprise
+                      </FieldLabel>
                     </Field>
                   </RadioGroup>
                   <Separator />
                   <Field>
                     <FieldLabel>verification code</FieldLabel>
-                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                    <InputOTP
+                      aria-label="verification code"
+                      maxLength={6}
+                      value={otp}
+                      onChange={setOtp}
+                    >
                       <InputOTPGroup>
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />
@@ -296,13 +336,13 @@ function RouteComponent() {
               <div className="flex flex-wrap gap-2">
                 <Button size="sm">small</Button>
                 <Button>default</Button>
-                <Button size="icon">
+                <Button size="icon" aria-label="mail">
                   <MailIcon className="size-4" />
                 </Button>
-                <Button size="icon-sm" variant="outline">
+                <Button size="icon-sm" variant="outline" aria-label="search">
                   <SearchIcon className="size-4" />
                 </Button>
-                <Button size="icon-xs" variant="secondary">
+                <Button size="icon-xs" variant="secondary" aria-label="bold">
                   <BoldIcon className="size-3" />
                 </Button>
               </div>
@@ -319,13 +359,17 @@ function RouteComponent() {
               <Separator />
               <div className="flex flex-wrap gap-2">
                 <ButtonGroup>
-                  <Button variant="outline" size="icon-sm">
+                  <Button variant="outline" size="icon-sm" aria-label="bold">
                     <BoldIcon className="size-4" />
                   </Button>
-                  <Button variant="outline" size="icon-sm">
+                  <Button variant="outline" size="icon-sm" aria-label="italic">
                     <ItalicIcon className="size-4" />
                   </Button>
-                  <Button variant="outline" size="icon-sm">
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label="underline"
+                  >
                     <UnderlineIcon className="size-4" />
                   </Button>
                 </ButtonGroup>
@@ -695,6 +739,7 @@ function RouteComponent() {
                 <CollapsibleTrigger asChild>
                   <Button variant="outline" size="sm">
                     <ChevronDownIcon
+                      data-icon="inline-start"
                       className={`size-4 transition-transform ${collapsibleOpen ? "rotate-180" : ""}`}
                     />
                     collapsible
@@ -766,7 +811,11 @@ function RouteComponent() {
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon-sm">
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label="send email"
+                      >
                         <MailIcon className="size-4" />
                       </Button>
                     </TooltipTrigger>

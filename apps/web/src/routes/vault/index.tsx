@@ -11,6 +11,7 @@ import { Filters, type FilterField } from "~/components/filters/filters"
 import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { Button } from "~/components/ui/button"
 import { StatBadge } from "~/components/ui/stat-badge"
 import { getMuxPoster } from "~/components/video-player"
@@ -119,7 +120,7 @@ function RouteComponent() {
           }
         />
 
-        <Suspense>
+        <Suspense fallback={<SuspenseLoader />}>
           <VideoGrid
             queryParams={
               queryParams as {

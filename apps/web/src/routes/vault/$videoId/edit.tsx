@@ -148,7 +148,11 @@ function RouteComponent() {
 
           <div className="space-y-2">
             <Label>riders</Label>
-            <Suspense fallback={<Input disabled placeholder="search..." />}>
+            <Suspense
+              fallback={
+                <Input aria-label="riders" disabled placeholder="search..." />
+              }
+            >
               <RiderSelector value={riders} onChange={setRiders} />
             </Suspense>
           </div>
@@ -174,6 +178,7 @@ function RouteComponent() {
               )}
               <input
                 type="range"
+                aria-label="thumbnail scale"
                 min={1}
                 max={3}
                 step={0.01}

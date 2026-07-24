@@ -9,6 +9,7 @@ import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
 import { UserOnlineStatus } from "~/components/user-online-status"
@@ -93,7 +94,7 @@ function RouteComponent() {
             </Button>
           </div>
 
-          <Suspense>
+          <Suspense fallback={<SuspenseLoader />}>
             <UsersList
               queryParams={
                 queryParams as { name?: string; disciplines?: string[] }

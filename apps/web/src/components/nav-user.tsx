@@ -85,42 +85,54 @@ export function AuthedUserMenuItems({
   return (
     <>
       <DropdownMenuGroup>
-        <DropdownMenuItem render={<Link to="/feedback" />}>
-          <Send className="size-3.5" />
-          feedback
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/privacy" />}>
-          <EyeOff className="size-3.5" />
-          privacy
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/terms" />}>
-          <ScrollText className="size-3.5" />
-          terms
-        </DropdownMenuItem>
+        <DropdownMenuItem
+          render={
+            <Link to="/feedback">
+              <Send className="size-3.5" />
+              feedback
+            </Link>
+          }
+        />
+        <DropdownMenuItem
+          render={
+            <Link to="/privacy">
+              <EyeOff className="size-3.5" />
+              privacy
+            </Link>
+          }
+        />
+        <DropdownMenuItem
+          render={
+            <Link to="/terms">
+              <ScrollText className="size-3.5" />
+              terms
+            </Link>
+          }
+        />
         <DropdownMenuItem
           render={
             <a
               href="https://docs.une.haus"
               target="_blank"
               rel="noopener noreferrer"
-            />
+            >
+              <BookIcon className="size-3.5" />
+              docs
+            </a>
           }
-        >
-          <BookIcon className="size-3.5" />
-          docs
-        </DropdownMenuItem>
+        />
         <DropdownMenuItem
           render={
             <a
               href="https://github.com/jrnxf/une.haus"
               target="_blank"
               rel="noopener noreferrer"
-            />
+            >
+              <TerminalIcon className="size-3.5" />
+              source
+            </a>
           }
-        >
-          <TerminalIcon className="size-3.5" />
-          source
-        </DropdownMenuItem>
+        />
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <ThemeSubmenu />
@@ -137,46 +149,58 @@ export function UnauthedUserMenuItems() {
   return (
     <>
       <DropdownMenuGroup>
-        <DropdownMenuItem render={<Link to="/privacy" />}>
-          <EyeOff className="size-3.5" />
-          privacy
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/terms" />}>
-          <ScrollText className="size-3.5" />
-          terms
-        </DropdownMenuItem>
+        <DropdownMenuItem
+          render={
+            <Link to="/privacy">
+              <EyeOff className="size-3.5" />
+              privacy
+            </Link>
+          }
+        />
+        <DropdownMenuItem
+          render={
+            <Link to="/terms">
+              <ScrollText className="size-3.5" />
+              terms
+            </Link>
+          }
+        />
         <DropdownMenuItem
           render={
             <a
               href="https://docs.une.haus"
               target="_blank"
               rel="noopener noreferrer"
-            />
+            >
+              <BookIcon className="size-3.5" />
+              docs
+            </a>
           }
-        >
-          <BookIcon className="size-3.5" />
-          docs
-        </DropdownMenuItem>
+        />
         <DropdownMenuItem
           render={
             <a
               href="https://github.com/jrnxf/une.haus"
               target="_blank"
               rel="noopener noreferrer"
-            />
+            >
+              <TerminalIcon className="size-3.5" />
+              source
+            </a>
           }
-        >
-          <TerminalIcon className="size-3.5" />
-          source
-        </DropdownMenuItem>
+        />
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <ThemeSubmenu />
       <DropdownMenuSeparator />
-      <DropdownMenuItem render={<Link to="/auth" />}>
-        <LogIn className="size-3.5" />
-        auth
-      </DropdownMenuItem>
+      <DropdownMenuItem
+        render={
+          <Link to="/auth">
+            <LogIn className="size-3.5" />
+            auth
+          </Link>
+        }
+      />
     </>
   )
 }

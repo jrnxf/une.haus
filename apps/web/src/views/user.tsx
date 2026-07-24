@@ -24,6 +24,7 @@ import { Badges } from "~/components/badges"
 import { RichText } from "~/components/rich-text"
 import { SocialLink } from "~/components/social-link"
 import { StatCard } from "~/components/stats/stat-card"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
 import { FlagEmoji } from "~/components/ui/flag-emoji"
@@ -127,12 +128,32 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           {/* Socials */}
           {hasSocials && (
             <div className="flex gap-2">
-              <SocialLink href={socials.youtube} icon={SiYoutube} />
-              <SocialLink href={socials.tiktok} icon={SiTiktok} />
-              <SocialLink href={socials.instagram} icon={SiInstagram} />
-              <SocialLink href={socials.spotify} icon={SiSpotify} />
-              <SocialLink href={socials.twitter} icon={SiX} />
-              <SocialLink href={socials.facebook} icon={SiFacebook} />
+              <SocialLink
+                href={socials.youtube}
+                icon={SiYoutube}
+                label="youtube"
+              />
+              <SocialLink
+                href={socials.tiktok}
+                icon={SiTiktok}
+                label="tiktok"
+              />
+              <SocialLink
+                href={socials.instagram}
+                icon={SiInstagram}
+                label="instagram"
+              />
+              <SocialLink
+                href={socials.spotify}
+                icon={SiSpotify}
+                label="spotify"
+              />
+              <SocialLink href={socials.twitter} icon={SiX} label="twitter" />
+              <SocialLink
+                href={socials.facebook}
+                icon={SiFacebook}
+                label="facebook"
+              />
             </div>
           )}
 
@@ -140,12 +161,12 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
           <StatsRow user={user} />
 
           {/* Recent videos */}
-          <Suspense>
+          <Suspense fallback={<SuspenseLoader />}>
             <VideosPreview userId={user.id} />
           </Suspense>
 
           {/* Recent activity */}
-          <Suspense>
+          <Suspense fallback={<SuspenseLoader />}>
             <ActivityPreview userId={user.id} />
           </Suspense>
         </div>

@@ -77,13 +77,15 @@ export const MentionList = forwardRef<
       className="border-border bg-popover max-h-60 overflow-y-auto rounded-md border p-1 shadow-md"
     >
       {props.items.map((item, index) => (
-        <div
+        <button
           key={item.id}
+          type="button"
           role="option"
+          tabIndex={-1}
           aria-label={item.name}
           aria-selected={index === selectedIndex}
           className={cn(
-            "flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
+            "flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
             index === selectedIndex && "bg-accent text-accent-foreground",
           )}
           onClick={() => selectItem(index)}
@@ -98,7 +100,7 @@ export const MentionList = forwardRef<
             <AvatarFallback name={item.name} />
           </Avatar>
           {item.name}
-        </div>
+        </button>
       ))}
     </div>
   )

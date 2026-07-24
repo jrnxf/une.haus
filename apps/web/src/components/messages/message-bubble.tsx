@@ -13,6 +13,7 @@ import React from "react"
 import { toast } from "sonner"
 
 import { confirm } from "~/components/confirm-dialog"
+import { FlagTray } from "~/components/flag-tray"
 import { MentionTextarea } from "~/components/input/mention-textarea"
 import { LikesButtonGroup } from "~/components/likes-button-group"
 import { RichText } from "~/components/rich-text"
@@ -35,15 +36,12 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "~/components/ui/hover-card"
-import { Label } from "~/components/ui/label"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { ScrollArea } from "~/components/ui/scroll-area"
-import { Textarea } from "~/components/ui/textarea"
 import { UserOnlineStatus } from "~/components/user-online-status"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { messageTypeFor } from "~/lib/engagement/manifest"
-import { useFlagContent } from "~/lib/flags/hooks"
 import { useHaptics } from "~/lib/haptics"
 import { stripMentionTokens } from "~/lib/mentions/parse"
 import { messages } from "~/lib/messages"
@@ -532,61 +530,15 @@ function MessageFlagTray({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const [reason, setReason] = React.useState("")
-  const flagContent = useFlagContent()
-  const flagType = `${parent.type}Message` as FlagEntityType
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!reason.trim()) return
-    flagContent.mutate(
-      {
-        data: {
-          entityType: flagType,
-          entityId: messageId,
-          reason,
-          parentEntityId: parent.id,
-        },
-      },
-      {
-        onSuccess: () => {
-          setReason("")
-          onOpenChange(false)
-        },
-      },
-    )
-  }
-
   return (
-    <Tray open={open} onOpenChange={onOpenChange}>
-      <TrayContent drawerClassName="pb-4">
-        <TrayTitle className="sr-only">flag message</TrayTitle>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <div className="space-y-2">
-            <Label>reason</Label>
-            <Textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="explain why this message should be reviewed"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={!reason.trim() || flagContent.isPending}
-            >
-              {flagContent.isPending ? "submitting..." : "submit"}
-            </Button>
-          </div>
-        </form>
-      </TrayContent>
-    </Tray>
+    <FlagTray
+      entityType={`${parent.type}Message` as FlagEntityType}
+      entityId={messageId}
+      parentEntityId={parent.id}
+      hideTrigger
+      open={open}
+      onOpenChange={onOpenChange}
+      placeholder="explain why this message should be reviewed"
+    />
   )
 }

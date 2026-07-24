@@ -10,6 +10,7 @@ import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { Button } from "~/components/ui/button"
 import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
@@ -100,7 +101,7 @@ function RouteComponent() {
               </Button>
             }
           />
-          <Suspense>
+          <Suspense fallback={<SuspenseLoader />}>
             <PostsList
               queryParams={queryParams as { q?: string; tags?: string[] }}
               tagsOperator={operators.tags ?? "contain"}

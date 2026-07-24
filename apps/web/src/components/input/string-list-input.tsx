@@ -9,11 +9,15 @@ export function StringListInput({
   value,
   onChange,
   placeholder = "Add item...",
+  ...inputProps
 }: {
   value: string[]
   onChange: (values: string[]) => void
   placeholder?: string
-}) {
+} & Omit<
+  React.ComponentProps<typeof Input>,
+  "value" | "onChange" | "onKeyDown" | "placeholder" | "className"
+>) {
   const [inputValue, setInputValue] = useState("")
 
   const handleAdd = () => {
@@ -39,6 +43,8 @@ export function StringListInput({
     <div className="space-y-2">
       <div className="relative">
         <Input
+          aria-label={placeholder}
+          {...inputProps}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}

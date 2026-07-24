@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import {
   ActivityIcon,
@@ -33,8 +32,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar"
-import { admin } from "~/lib/admin"
-import { notifications } from "~/lib/notifications"
+import { useNavCounts } from "~/hooks/use-nav-counts"
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
 
 const baseItems: NavMainItem[] = [
@@ -95,15 +93,7 @@ function useNavItems(): NavMainItem[] {
   const sessionUser = useSessionUser()
   const isAdmin = useIsAdmin()
 
-  const { data: unreadCount = 0 } = useQuery({
-    ...notifications.unreadCount.queryOptions(),
-    enabled: Boolean(sessionUser),
-  })
-
-  const { data: adminPendingCount = 0 } = useQuery({
-    ...admin.pendingCount.queryOptions(),
-    enabled: Boolean(isAdmin),
-  })
+  const { unreadCount, adminPendingCount } = useNavCounts()
 
   return React.useMemo(() => {
     if (!sessionUser) return baseItems
@@ -159,7 +149,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="w-fit data-[slot=sidebar-menu-button]:p-1.5!"
               asChild
             >
-              <Link to="/" className="h-fit">
+              <Link to="/" className="h-fit" aria-label="home">
                 <div>
                   <Logo className="h-8 fill-transparent! stroke-black! stroke-2 dark:stroke-white!" />
                 </div>

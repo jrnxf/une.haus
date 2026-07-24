@@ -116,6 +116,7 @@ function RouteComponent() {
               <FormItem>
                 <FormLabel>attachment</FormLabel>
                 <RadioGroup
+                  aria-label="attachment"
                   className="flex gap-4 py-2"
                   onValueChange={(value) => {
                     field.onChange(undefined)
@@ -271,6 +272,7 @@ function FeedbackVideoInput({
           <VideoPlayer playbackId={value.playbackId} />
 
           <Button
+            aria-label="remove video"
             className="absolute top-2 right-2"
             onClick={handleReset}
             type="button"

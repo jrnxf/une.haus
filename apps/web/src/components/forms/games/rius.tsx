@@ -27,15 +27,11 @@ import {
 import { type ServerFnReturn } from "~/lib/types"
 
 export function CreateRiuSetForm() {
-  const rhf = useForm<z.infer<typeof games.rius.sets.create.schema>>({
-    resolver: zodResolver(games.rius.sets.create.schema),
-  })
-
   const createSet = useCreateSet()
 
   return (
     <SetUploadForm
-      rhf={rhf}
+      schema={games.rius.sets.create.schema}
       isPending={createSet.isPending}
       onSubmit={(data) => {
         createSet.mutate({ data })
@@ -89,6 +85,7 @@ export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
                 }}
               />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />

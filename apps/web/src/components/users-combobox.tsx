@@ -53,22 +53,14 @@ export function UsersCombobox({
                 params={{ userId: user.id }}
                 replace
                 className="flex items-center gap-2"
-              />
+              >
+                <span>{user.name}</span>
+              </Link>
             }
             onClick={() => {
               isNavigatingRef.current = true
             }}
-          >
-            {/* <Avatar className="size-5">
-                <AvatarImage
-                  src={user.avatarId}
-                  alt={user.name}
-                  className="object-cover"
-                />
-                <AvatarFallback name={user.name} />
-              </Avatar> */}
-            <span>{user.name}</span>
-          </DropdownMenuItem>
+          />
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

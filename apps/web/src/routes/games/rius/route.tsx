@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import {
   createFileRoute,
   Link,
@@ -14,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { games } from "~/lib/games"
+import { useRiuBreadcrumbTrail } from "~/lib/games/rius/breadcrumbs"
 import { cn } from "~/lib/utils"
 
 export const Route = createFileRoute("/games/rius")({
@@ -30,50 +29,11 @@ function getRiuRoundLink(roundId: string, status: string | undefined): string {
 function RouteComponent() {
   const pathname = useLocation({ select: (location) => location.pathname })
   const isIndex = pathname === "/games/rius" || pathname === "/games/rius/"
-  const isActive = pathname.startsWith("/games/rius/active")
-  const isUpcoming = pathname.startsWith("/games/rius/upcoming")
-  const archivedId = pathname.match(/^\/games\/rius\/archived\/(\d+)/)?.[1]
-  const setId = pathname.match(/^\/games\/rius\/sets\/(\d+)/)?.[1]
-  const submissionId = pathname.match(/^\/games\/rius\/submissions\/(\d+)/)?.[1]
-
-  const activeQuery = useQuery({
-    ...games.rius.active.list.queryOptions(),
-    enabled: isActive,
-  })
-  const upcomingQuery = useQuery({
-    ...games.rius.upcoming.roster.queryOptions(),
-    enabled: isUpcoming,
-  })
-  const setQuery = useQuery({
-    ...games.rius.sets.get.queryOptions({ setId: Number(setId) }),
-    enabled: Boolean(setId),
-  })
-  const submissionQuery = useQuery({
-    ...games.rius.submissions.get.queryOptions({
-      submissionId: Number(submissionId),
-    }),
-    enabled: Boolean(submissionId),
-  })
-
-  const roundId =
-    archivedId ??
-    (isActive ? activeQuery.data?.id?.toString() : undefined) ??
-    (isUpcoming ? upcomingQuery.data?.round?.id?.toString() : undefined) ??
-    setQuery.data?.riu.id?.toString() ??
-    submissionQuery.data?.riuSet.riuId?.toString()
-
-  const roundStatus = isActive
-    ? "active"
-    : isUpcoming
-      ? "upcoming"
-      : archivedId
-        ? "archived"
-        : (setQuery.data?.riu.status ?? submissionQuery.data?.riuSet.riu.status)
+  const { setId, submissionId, isOnRoundPage, roundId, roundStatus } =
+    useRiuBreadcrumbTrail(pathname)
 
   const roundLink =
     roundId && roundStatus ? getRiuRoundLink(roundId, roundStatus) : undefined
-
-  const isOnRoundPage = isActive || isUpcoming || Boolean(archivedId)
 
   return (
     <>
@@ -119,7 +79,7 @@ function GameDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "flex items-center gap-1 text-sm outline-none",
+          "focus-visible:ring-ring flex items-center gap-1 rounded-sm text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           isCurrentPage
             ? "text-foreground font-medium"
             : "text-muted-foreground hover:text-foreground transition-colors",
@@ -129,15 +89,9 @@ function GameDropdown({
         <ChevronDownIcon className="size-3" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem render={<Link to="/games/rius" />}>
-          rack it up
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/games/bius" />}>
-          back it up
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/games/sius" />}>
-          stack it up
-        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link to="/games/rius">rack it up</Link>} />
+        <DropdownMenuItem render={<Link to="/games/bius">back it up</Link>} />
+        <DropdownMenuItem render={<Link to="/games/sius">stack it up</Link>} />
       </DropdownMenuContent>
     </DropdownMenu>
   )

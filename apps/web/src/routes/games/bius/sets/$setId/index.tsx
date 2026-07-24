@@ -123,6 +123,7 @@ function SetView({ setId }: { setId: number }) {
                     <Link
                       to="/games/bius/sets/$setId"
                       params={{ setId: set.childSet.id }}
+                      aria-label="next set"
                     >
                       <ArrowUpIcon className="size-4" />
                     </Link>
@@ -143,6 +144,7 @@ function SetView({ setId }: { setId: number }) {
                     <Link
                       to="/games/bius/sets/$setId"
                       params={{ setId: set.parentSet.id }}
+                      aria-label="previous set"
                     >
                       <ArrowDownIcon className="size-4" />
                     </Link>
@@ -221,6 +223,7 @@ function SetView({ setId }: { setId: number }) {
                 <Link
                   to="/games/bius/sets/$setId/edit"
                   params={{ setId: set.id }}
+                  aria-label="edit"
                 />
               ) : undefined
             }
@@ -293,7 +296,11 @@ function NextSetButton({ setId }: { setId: number }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button size="icon-sm" variant="outline" asChild aria-label="next set">
-          <Link to="/games/bius/sets/$setId" params={{ setId }}>
+          <Link
+            to="/games/bius/sets/$setId"
+            params={{ setId }}
+            aria-label="next set"
+          >
             <ArrowUpIcon className="size-4" />
           </Link>
         </Button>
@@ -313,7 +320,11 @@ function PreviousSetButton({ setId }: { setId: number }) {
           asChild
           aria-label="previous set"
         >
-          <Link to="/games/bius/sets/$setId" params={{ setId }}>
+          <Link
+            to="/games/bius/sets/$setId"
+            params={{ setId }}
+            aria-label="previous set"
+          >
             <ArrowDownIcon className="size-4" />
           </Link>
         </Button>

@@ -152,6 +152,7 @@ function RouteComponent() {
               <FormItem>
                 <FormLabel>media</FormLabel>
                 <RadioGroup
+                  aria-label="media"
                   className="flex gap-4 py-2"
                   onValueChange={(value) => {
                     field.onChange(undefined)

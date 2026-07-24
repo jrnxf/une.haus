@@ -15,6 +15,7 @@ export function YoutubeInput({
   return (
     <div className="space-y-2">
       <Input
+        aria-label="youtube url"
         defaultValue={currentId ? `https://youtu.be/${currentId}` : ""}
         placeholder="YouTube URL"
         onChange={(event) => {

@@ -7,6 +7,7 @@ import pluralize from "pluralize"
 import { Suspense, useMemo } from "react"
 
 import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { Button } from "~/components/ui/button"
 import { CountdownClock } from "~/components/ui/countdown-clock"
 import { Metaline } from "~/components/ui/metaline"
@@ -102,7 +103,7 @@ function RouteComponent() {
             <UpcomingRoundCard />
           </section>
         </div>
-        <Suspense>
+        <Suspense fallback={<SuspenseLoader />}>
           <ArchivedRoundsSection />
         </Suspense>
       </div>

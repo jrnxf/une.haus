@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, redirect } from "@tanstack/react-router"
-import { GhostIcon } from "lucide-react"
+import { GhostIcon, Loader2Icon } from "lucide-react"
 import {
   Suspense,
   useCallback,
@@ -309,7 +309,13 @@ function RouteComponent() {
       </PageHeader>
       <div ref={containerRef} className="bg-background flex h-full flex-col">
         {activeTimer ? (
-          <Suspense>
+          <Suspense
+            fallback={
+              <div className="text-muted-foreground flex flex-1 items-center justify-center py-6">
+                <Loader2Icon className="size-5 animate-spin" />
+              </div>
+            }
+          >
             <SplitTimer
               key={activeTimer.match.id}
               rider1={activeTimer.match.player1 ?? undefined}

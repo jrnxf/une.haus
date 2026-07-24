@@ -107,7 +107,7 @@ function RouteComponent() {
     <>
       <Filters ... />
       {/* Suspense boundary keeps filters visible during cold-cache loads */}
-      <Suspense>
+      <Suspense fallback={<SuspenseLoader />}>
         <ItemsList queryParams={queryParams} />
       </Suspense>
     </>
@@ -127,7 +127,7 @@ function ItemsList({ queryParams }: { queryParams: { q?: string; tags?: string[]
 
 When the debounced navigate fires, `Route.useSearch()` updates with new params. `useDeferredValue` defers these new params — React keeps rendering with old values (cache hit) while concurrently trying the new values. If new data isn't cached yet, React abandons the concurrent render and keeps showing old results instead of triggering Suspense.
 
-The `<Suspense>` boundary is a safety net for cold loads (no cached data at all, e.g. first page load without SSR data).
+The `<Suspense>` boundary is a safety net for cold loads (no cached data at all, e.g. first page load without SSR data). Give it a visible fallback — `<SuspenseLoader />` from `~/components/suspense-loader` is the shared spinner — so a cold load shows progress instead of a blank region.
 
 ## Client-side filtering variant (tricks)
 

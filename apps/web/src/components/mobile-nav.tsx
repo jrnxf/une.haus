@@ -1,5 +1,4 @@
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
-import { useQuery } from "@tanstack/react-query"
 import { Link, useMatches } from "@tanstack/react-router"
 import {
   ActivityIcon,
@@ -34,10 +33,9 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
+import { useNavCounts } from "~/hooks/use-nav-counts"
 import { usePeripherals } from "~/hooks/use-peripherals"
-import { admin } from "~/lib/admin"
 import { useHaptics } from "~/lib/haptics"
-import { notifications } from "~/lib/notifications"
 import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { cn } from "~/lib/utils"
 
@@ -213,15 +211,7 @@ function MobileNavAccountItems() {
   const isAdmin = useIsAdmin()
   const currentPath = useMatches().at(-1)?.pathname ?? "/"
 
-  const { data: unreadCount = 0 } = useQuery({
-    ...notifications.unreadCount.queryOptions(),
-    enabled: Boolean(sessionUser),
-  })
-
-  const { data: adminPendingCount = 0 } = useQuery({
-    ...admin.pendingCount.queryOptions(),
-    enabled: Boolean(isAdmin),
-  })
+  const { unreadCount, adminPendingCount } = useNavCounts()
 
   if (!sessionUser) return null
 
@@ -302,7 +292,7 @@ export function MobileNavPopup({
             className="bg-muted mx-auto my-4 h-1.5 w-12 rounded-full"
           />
           <DrawerPrimitive.Content>
-            <nav className="overflow-y-auto px-4 pb-4">
+            <nav aria-label="primary" className="overflow-y-auto px-4 pb-4">
               <div className="grid grid-cols-2 gap-1">
                 {items.map((item) => (
                   <NavItem

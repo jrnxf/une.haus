@@ -160,6 +160,7 @@ function SetView({ setId }: { setId: number }) {
                 <Link
                   to="/games/rius/sets/$setId/edit"
                   params={{ setId: set.id }}
+                  aria-label="edit"
                 />
               ) : undefined
             }

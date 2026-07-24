@@ -31,18 +31,12 @@ import { invariant } from "~/lib/invariant"
 import type { ServerFnReturn } from "~/lib/types"
 
 export function CreateFirstSetForm({ roundId }: { roundId: number }) {
-  const rhf = useForm<z.infer<typeof games.sius.sets.createFirst.schema>>({
-    resolver: zodResolver(games.sius.sets.createFirst.schema),
-    defaultValues: {
-      roundId,
-    },
-  })
-
   const createFirstSet = useCreateFirstSet()
 
   return (
     <SetUploadForm
-      rhf={rhf}
+      schema={games.sius.sets.createFirst.schema}
+      defaultValues={{ roundId }}
       idFieldName="roundId"
       isPending={createFirstSet.isPending}
       onSubmit={(data) => {
@@ -58,14 +52,6 @@ export function CreateFirstSetForm({ roundId }: { roundId: number }) {
 }
 
 export function AddSetForm({ roundId }: { roundId: number }) {
-  const rhf = useForm<z.infer<typeof games.sius.sets.add.schema>>({
-    resolver: zodResolver(games.sius.sets.add.schema),
-    defaultValues: {
-      roundId,
-      confirmLine: false,
-    },
-  })
-
   const addSet = useAddSet()
 
   const { data: rounds } = useSuspenseQuery(
@@ -83,13 +69,14 @@ export function AddSetForm({ roundId }: { roundId: number }) {
 
   return (
     <SetUploadForm
-      rhf={rhf}
+      schema={games.sius.sets.add.schema}
+      defaultValues={{ roundId, confirmLine: false }}
       idFieldName="roundId"
       isPending={addSet.isPending}
       onSubmit={(data) => {
         addSet.mutate({ data })
       }}
-      bottomContent={
+      bottomContent={(rhf) =>
         line && line.length > 0 ? (
           <Alert className="block space-y-3">
             <TrickLine tricks={line} description="" includeYourSet />
@@ -101,6 +88,7 @@ export function AddSetForm({ roundId }: { roundId: number }) {
                   <div className="flex items-center gap-2">
                     <FormControl>
                       <Checkbox
+                        aria-label="i confirm my set includes the listed tricks in order"
                         checked={field.value === true}
                         onCheckedChange={(checked) =>
                           field.onChange(checked === true)

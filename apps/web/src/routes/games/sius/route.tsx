@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import {
   createFileRoute,
   Link,
@@ -14,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { games } from "~/lib/games"
+import { useSiuBreadcrumbTrail } from "~/lib/games/sius/breadcrumbs"
 import { cn } from "~/lib/utils"
 
 export const Route = createFileRoute("/games/sius")({
@@ -29,23 +28,8 @@ function getSiuRoundLink(roundId: string, status: string | undefined): string {
 function RouteComponent() {
   const pathname = useLocation({ select: (location) => location.pathname })
   const isIndex = pathname === "/games/sius" || pathname === "/games/sius/"
-  const activeRoundId = pathname.match(/^\/games\/sius\/(\d+)/)?.[1]
-  const archivedRoundId = pathname.match(/^\/games\/sius\/archived\/(\d+)/)?.[1]
-  const browseRoundId = archivedRoundId ?? activeRoundId
-  const setId = pathname.match(/^\/games\/sius\/sets\/(\d+)/)?.[1]
-
-  const setQuery = useQuery({
-    ...games.sius.sets.get.queryOptions({ setId: Number(setId) }),
-    enabled: Boolean(setId),
-  })
-
-  const roundId = browseRoundId ?? setQuery.data?.siu.id?.toString()
-
-  const roundStatus = archivedRoundId
-    ? "archived"
-    : activeRoundId
-      ? "active"
-      : setQuery.data?.siu.status
+  const { browseRoundId, setId, roundId, roundStatus } =
+    useSiuBreadcrumbTrail(pathname)
 
   const roundLink =
     roundId && roundStatus ? getSiuRoundLink(roundId, roundStatus) : undefined
@@ -88,7 +72,7 @@ function GameDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "flex items-center gap-1 text-sm outline-none",
+          "focus-visible:ring-ring flex items-center gap-1 rounded-sm text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           isCurrentPage
             ? "text-foreground font-medium"
             : "text-muted-foreground hover:text-foreground transition-colors",
@@ -98,15 +82,9 @@ function GameDropdown({
         <ChevronDownIcon className="size-3" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem render={<Link to="/games/rius" />}>
-          rack it up
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/games/bius" />}>
-          back it up
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/games/sius" />}>
-          stack it up
-        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link to="/games/rius">rack it up</Link>} />
+        <DropdownMenuItem render={<Link to="/games/bius">back it up</Link>} />
+        <DropdownMenuItem render={<Link to="/games/sius">stack it up</Link>} />
       </DropdownMenuContent>
     </DropdownMenu>
   )

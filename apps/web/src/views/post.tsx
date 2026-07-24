@@ -92,7 +92,11 @@ export function PostView({ postId }: { postId: number }) {
             }
             edit={
               isOwner ? (
-                <Link params={{ postId }} to="/posts/$postId/edit" />
+                <Link
+                  params={{ postId }}
+                  to="/posts/$postId/edit"
+                  aria-label="edit"
+                />
               ) : undefined
             }
             onDelete={

@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query"
 import {
   createFileRoute,
   Link,
@@ -14,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { games } from "~/lib/games"
+import { useBiuBreadcrumbTrail } from "~/lib/games/bius/breadcrumbs"
 import { cn } from "~/lib/utils"
 
 export const Route = createFileRoute("/games/bius")({
@@ -24,15 +23,7 @@ export const Route = createFileRoute("/games/bius")({
 function RouteComponent() {
   const pathname = useLocation({ select: (location) => location.pathname })
   const isIndex = pathname === "/games/bius" || pathname === "/games/bius/"
-  const browseRoundId = pathname.match(/^\/games\/bius\/(\d+)/)?.[1]
-  const setId = pathname.match(/^\/games\/bius\/sets\/(\d+)/)?.[1]
-
-  const setQuery = useQuery({
-    ...games.bius.sets.get.queryOptions({ setId: Number(setId) }),
-    enabled: Boolean(setId),
-  })
-
-  const roundId = browseRoundId ?? setQuery.data?.biu.id?.toString()
+  const { browseRoundId, setId, roundId } = useBiuBreadcrumbTrail(pathname)
 
   return (
     <>
@@ -72,7 +63,7 @@ function GameDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "flex items-center gap-1 text-sm outline-none",
+          "focus-visible:ring-ring flex items-center gap-1 rounded-sm text-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           isCurrentPage
             ? "text-foreground font-medium"
             : "text-muted-foreground hover:text-foreground transition-colors",
@@ -82,15 +73,9 @@ function GameDropdown({
         <ChevronDownIcon className="size-3" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem render={<Link to="/games/rius" />}>
-          rack it up
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/games/bius" />}>
-          back it up
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/games/sius" />}>
-          stack it up
-        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link to="/games/rius">rack it up</Link>} />
+        <DropdownMenuItem render={<Link to="/games/bius">back it up</Link>} />
+        <DropdownMenuItem render={<Link to="/games/sius">stack it up</Link>} />
       </DropdownMenuContent>
     </DropdownMenu>
   )

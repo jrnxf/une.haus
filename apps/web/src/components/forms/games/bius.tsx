@@ -26,18 +26,12 @@ import {
 import type { ServerFnReturn } from "~/lib/types"
 
 export function CreateFirstSetForm({ roundId }: { roundId: number }) {
-  const rhf = useForm<z.infer<typeof games.bius.sets.createFirst.schema>>({
-    resolver: zodResolver(games.bius.sets.createFirst.schema),
-    defaultValues: {
-      roundId,
-    },
-  })
-
   const createFirstSet = useCreateFirstSet()
 
   return (
     <SetUploadForm
-      rhf={rhf}
+      schema={games.bius.sets.createFirst.schema}
+      defaultValues={{ roundId }}
       idFieldName="roundId"
       isPending={createFirstSet.isPending}
       onSubmit={(data) => {
@@ -119,18 +113,12 @@ export function EditBiuSetForm({ set }: { set: EditBiuSet }) {
 }
 
 export function BackUpSetForm({ roundId }: { roundId: number }) {
-  const rhf = useForm<z.infer<typeof games.bius.sets.backUp.schema>>({
-    resolver: zodResolver(games.bius.sets.backUp.schema),
-    defaultValues: {
-      roundId,
-    },
-  })
-
   const backUpSet = useBackUpSet()
 
   return (
     <SetUploadForm
-      rhf={rhf}
+      schema={games.bius.sets.backUp.schema}
+      defaultValues={{ roundId }}
       idFieldName="roundId"
       isPending={backUpSet.isPending}
       onSubmit={(data) => {

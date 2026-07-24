@@ -203,7 +203,7 @@ export function ActivityFeed({ userId }: ActivityFeedProps) {
       value={typeFilter}
       onValueChange={(v) => setTypeFilter(v as ActivityTypeFilter | "all")}
     >
-      <SelectTrigger className="h-7 w-fit text-xs">
+      <SelectTrigger className="h-7 w-fit text-xs" aria-label="filter activity">
         <SelectValue />
       </SelectTrigger>
       <SelectContent

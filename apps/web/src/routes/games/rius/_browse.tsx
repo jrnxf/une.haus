@@ -76,7 +76,7 @@ function RouteComponent() {
           ) : isActive ? (
             <Tray>
               <TrayTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="how to play">
                   <InfoIcon className="size-4" />
                 </Button>
               </TrayTrigger>

@@ -118,10 +118,16 @@ export function TrickForm({
                     {...field}
                     id={field.name}
                     aria-invalid={fieldState.invalid}
+                    aria-describedby={
+                      fieldState.invalid ? `${field.name}-error` : undefined
+                    }
                     placeholder="treyflip"
                   />
                   {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+                    <FieldError
+                      id={`${field.name}-error`}
+                      errors={[fieldState.error]}
+                    />
                   )}
                 </Field>
               )}
@@ -154,6 +160,7 @@ export function TrickForm({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>alternate names</FieldLabel>
                   <StringListInput
+                    id={field.name}
                     value={field.value ?? []}
                     onChange={field.onChange}
                     placeholder="add alias..."
@@ -296,7 +303,11 @@ export function TrickForm({
                 <FieldLabel>invented by</FieldLabel>
                 <Suspense
                   fallback={
-                    <Input disabled placeholder="who invented this trick?" />
+                    <Input
+                      aria-label="invented by"
+                      disabled
+                      placeholder="who invented this trick?"
+                    />
                   }
                 >
                   <SingleRiderSelector
@@ -332,6 +343,9 @@ export function TrickForm({
                       ref={field.ref}
                       onBlur={field.onBlur}
                       aria-invalid={fieldState.invalid}
+                      aria-describedby={
+                        fieldState.invalid ? `${field.name}-error` : undefined
+                      }
                       value={field.value?.toString() ?? ""}
                       onChange={(e) =>
                         field.onChange(
@@ -341,7 +355,10 @@ export function TrickForm({
                       placeholder="2010"
                     />
                     {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
+                      <FieldError
+                        id={`${field.name}-error`}
+                        errors={[fieldState.error]}
+                      />
                     )}
                   </Field>
                 )}
@@ -414,9 +431,11 @@ export function TrickForm({
             <FormCancelButton onClick={onCancel}>cancel</FormCancelButton>
           )}
           <Button type="submit" disabled={isPending || formState.isSubmitting}>
-            {isPending || formState.isSubmitting
-              ? "saving..."
-              : submitLabel.toLowerCase()}
+            <span role="status">
+              {isPending || formState.isSubmitting
+                ? "saving..."
+                : submitLabel.toLowerCase()}
+            </span>
           </Button>
         </div>
       </FieldGroup>

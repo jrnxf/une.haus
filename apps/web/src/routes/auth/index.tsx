@@ -76,11 +76,17 @@ function RouteComponent() {
             control={sendCodeForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>auth</FieldLabel>
+                <FieldLabel htmlFor={field.name}>auth</FieldLabel>
                 <FieldDescription>
                   enter your email for a verification code
                 </FieldDescription>
-                <Input {...field} autoFocus />
+                <Input
+                  {...field}
+                  id={field.name}
+                  type="email"
+                  autoComplete="email"
+                  autoFocus
+                />
                 <FieldError errors={[fieldState.error]} />
               </Field>
             )}

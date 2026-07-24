@@ -59,12 +59,12 @@ function GlossaryModifiersPage() {
                     <Link
                       to="/tricks/glossary/modifiers/$modifierId/suggest"
                       params={{ modifierId: modifier.id }}
-                    />
+                    >
+                      <PencilIcon />
+                      suggest edit
+                    </Link>
                   }
-                >
-                  <PencilIcon />
-                  suggest edit
-                </DropdownMenuItem>
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           )}

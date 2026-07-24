@@ -65,8 +65,11 @@ function RouteComponent() {
           }}
         >
           <Field>
-            <FieldLabel>name</FieldLabel>
+            <FieldLabel htmlFor="tourney-name">name</FieldLabel>
             <Input
+              id="tourney-name"
+              required
+              minLength={1}
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus

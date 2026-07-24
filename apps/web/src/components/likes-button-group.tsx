@@ -55,10 +55,12 @@ export function LikesButtonGroup({
           {users.map((user) => (
             <DropdownMenuItem
               key={user.id}
-              render={<Link to="/users/$userId" params={{ userId: user.id }} />}
-            >
-              {user.name}
-            </DropdownMenuItem>
+              render={
+                <Link to="/users/$userId" params={{ userId: user.id }}>
+                  {user.name}
+                </Link>
+              }
+            />
           ))}
         </DropdownMenuContent>
       </DropdownMenu>

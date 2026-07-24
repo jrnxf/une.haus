@@ -103,6 +103,9 @@ export function VideoSubmitForm({
                 {...field}
                 id={field.name}
                 aria-invalid={fieldState.invalid}
+                aria-describedby={
+                  fieldState.invalid ? `${field.name}-error` : undefined
+                }
                 value={field.value ?? ""}
                 placeholder="pov angle, slow motion, rear view..."
                 rows={2}
@@ -110,7 +113,12 @@ export function VideoSubmitForm({
               <FieldDescription>
                 describe what makes this video unique (max 200 characters)
               </FieldDescription>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              {fieldState.invalid && (
+                <FieldError
+                  id={`${field.name}-error`}
+                  errors={[fieldState.error]}
+                />
+              )}
             </Field>
           )}
         />
@@ -118,9 +126,11 @@ export function VideoSubmitForm({
         {/* Actions */}
         <Field orientation="horizontal">
           <Button type="submit" disabled={isPending || formState.isSubmitting}>
-            {isPending || formState.isSubmitting
-              ? "submitting..."
-              : "submit video"}
+            <span role="status">
+              {isPending || formState.isSubmitting
+                ? "submitting..."
+                : "submit video"}
+            </span>
           </Button>
           {onCancel && (
             <FormCancelButton onClick={onCancel}>cancel</FormCancelButton>

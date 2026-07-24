@@ -14,6 +14,7 @@ import { Filters, type FilterField } from "~/components/filters/filters"
 import { InfiniteScrollTrigger } from "~/components/infinite-scroll-trigger"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { Button } from "~/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
 import {
@@ -148,7 +149,7 @@ function RouteComponent() {
           }
         />
 
-        <Suspense>
+        <Suspense fallback={<SuspenseLoader />}>
           <VideoGallery
             userId={userId}
             queryParams={queryParams as VideoQueryParams}

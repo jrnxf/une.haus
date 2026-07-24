@@ -186,6 +186,7 @@ export function SingleRiderSelector({
             type="button"
             variant="ghost"
             size="icon-xs"
+            aria-label="clear rider"
             onClick={handleClear}
             className="text-muted-foreground hover:text-foreground"
           >

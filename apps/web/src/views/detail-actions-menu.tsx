@@ -25,7 +25,8 @@ type DetailActionsMenuProps = {
   // The flag item + tray. Rendered only when provided — callers compute the
   // permission gate. Omit entirely for entities that can't be flagged.
   flag?: { entityType: FlagEntityType; entityId: number }
-  // The edit item's link element, e.g. <Link to="/posts/$postId/edit" params={{ postId }} />.
+  // The edit item's link element, e.g.
+  // <Link to="/posts/$postId/edit" params={{ postId }} aria-label="edit" />.
   // Rendered only when provided — callers compute the permission gate.
   edit?: ReactElement
   // Delete item. `noun` fills the confirm title and body; `run` performs the deletion.

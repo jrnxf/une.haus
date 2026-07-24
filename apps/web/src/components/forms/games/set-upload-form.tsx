@@ -1,5 +1,13 @@
+import { zodResolver } from "@hookform/resolvers/zod"
 import { type ReactNode } from "react"
-import { type Path, type UseFormReturn } from "react-hook-form"
+import {
+  type DefaultValues,
+  type Path,
+  type Resolver,
+  useForm,
+  type UseFormReturn,
+} from "react-hook-form"
+import { type z } from "zod"
 
 import { MentionTextarea } from "~/components/input/mention-textarea"
 import { VideoInput } from "~/components/input/video-input"
@@ -23,8 +31,12 @@ type UploadFormValues = {
   roundId?: number
 }
 
+// owns the form setup (schema resolver + defaults) so every set-upload
+// surface gets the same validation and field-error rendering; callers only
+// wire the mutation
 export function SetUploadForm<TValues extends UploadFormValues>({
-  rhf,
+  schema,
+  defaultValues,
   isPending,
   onSubmit,
   cancel,
@@ -32,14 +44,21 @@ export function SetUploadForm<TValues extends UploadFormValues>({
   bottomContent,
   idFieldName,
 }: {
-  rhf: UseFormReturn<TValues>
+  schema: z.ZodType<TValues, TValues>
+  defaultValues?: DefaultValues<TValues>
   isPending: boolean
   onSubmit: (data: TValues) => void
   cancel: ReactNode
   topContent?: ReactNode
-  bottomContent?: ReactNode
+  bottomContent?: ReactNode | ((rhf: UseFormReturn<TValues>) => ReactNode)
   idFieldName?: Path<TValues>
 }) {
+  const rhf = useForm<TValues>({
+    // zodResolver cannot infer through a generic ZodType; the runtime shape is
+    // guaranteed by the schema prop's TValues bound
+    resolver: zodResolver(schema) as unknown as Resolver<TValues>,
+    defaultValues,
+  })
   const { control, handleSubmit } = rhf
 
   return (
@@ -113,7 +132,7 @@ export function SetUploadForm<TValues extends UploadFormValues>({
         )}
       />
 
-      {bottomContent}
+      {typeof bottomContent === "function" ? bottomContent(rhf) : bottomContent}
 
       <ButtonGroup className="ml-auto">
         <ButtonGroup>
