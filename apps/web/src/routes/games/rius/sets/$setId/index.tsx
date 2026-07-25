@@ -70,6 +70,7 @@ export const Route = createFileRoute("/games/rius/sets/$setId/")({
     const image = getMuxPoster({
       playbackId: set.video?.playbackId,
       width: 1200,
+      format: "jpg",
     })
 
     return seo({

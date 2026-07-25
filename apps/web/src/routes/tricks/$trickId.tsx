@@ -40,6 +40,7 @@ export const Route = createFileRoute("/tricks/$trickId")({
     const image = getMuxPoster({
       playbackId: trick.videos[0]?.playbackId,
       width: 1200,
+      format: "jpg",
     })
 
     return seo({

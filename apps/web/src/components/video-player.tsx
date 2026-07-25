@@ -8,18 +8,21 @@ export function getMuxPoster({
   width,
   height,
   time = 0,
+  format = "webp",
 }: {
   playbackId: null | string | undefined
   time?: number
   height?: number
   width?: number
+  // webp for in-app images; jpg for OG images since some scrapers reject webp
+  format?: "jpg" | "png" | "webp"
 }) {
   if (!playbackId) {
     return undefined
   }
 
   return queryString.stringifyUrl({
-    url: `https://image.mux.com/${playbackId}/thumbnail.png`,
+    url: `https://image.mux.com/${playbackId}/thumbnail.${format}`,
     query: {
       time,
       height,
@@ -80,7 +83,9 @@ export function VideoPlayer({
         onEnded={onEnded}
         playbackId={playbackId}
         playbackRates={[0.1, 0.25, 0.5, 0.75, 1]}
-        poster={showPoster ? getMuxPoster({ playbackId }) : undefined}
+        poster={
+          showPoster ? getMuxPoster({ playbackId, width: 1600 }) : undefined
+        }
         preload={autoPlay ? "auto" : "none"}
         startTime={0.001}
         streamType="on-demand"

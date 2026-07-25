@@ -270,7 +270,7 @@ function VideosPreview({ userId }: { userId: number }) {
                 src={getMuxPoster({ playbackId: item.playbackId, width: 320 })}
                 alt={label}
                 loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.015]"
               />
             </Link>
           )

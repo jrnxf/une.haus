@@ -63,6 +63,7 @@ export const Route = createFileRoute("/games/rius/submissions/$submissionId/")({
     const image = getMuxPoster({
       playbackId: submission.video?.playbackId,
       width: 1200,
+      format: "jpg",
     })
 
     return seo({

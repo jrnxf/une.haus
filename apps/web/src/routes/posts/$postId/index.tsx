@@ -56,7 +56,11 @@ export const Route = createFileRoute("/posts/$postId/")({
     const image = post.imageId
       ? getCloudflareImageUrl(post.imageId, { width: 1200, quality: 80 })
       : post.video?.playbackId
-        ? getMuxPoster({ playbackId: post.video.playbackId, width: 1200 })
+        ? getMuxPoster({
+            playbackId: post.video.playbackId,
+            width: 1200,
+            format: "jpg",
+          })
         : post.youtubeVideoId
           ? `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`
           : undefined

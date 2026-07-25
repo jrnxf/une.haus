@@ -60,6 +60,7 @@ export const Route = createFileRoute("/games/bius/sets/$setId/")({
     const image = getMuxPoster({
       playbackId: set.video?.playbackId,
       width: 1200,
+      format: "jpg",
     })
 
     return seo({

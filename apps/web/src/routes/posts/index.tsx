@@ -149,7 +149,7 @@ function PostsList({
         const posterUrl =
           post.imageId ||
           (post.video?.playbackId &&
-            getMuxPoster({ playbackId: post.video.playbackId })) ||
+            getMuxPoster({ playbackId: post.video.playbackId, width: 640 })) ||
           (post.youtubeVideoId &&
             `https://img.youtube.com/vi/${post.youtubeVideoId}/hqdefault.jpg`)
         return (

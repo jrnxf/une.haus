@@ -75,7 +75,11 @@ export const Route = createFileRoute("/vault/$videoId/")({
       title: displayTitle || "Video",
       description,
       path: `/vault/${video.id}`,
-      image: getMuxPoster({ playbackId: video.video?.playbackId, width: 1200 }),
+      image: getMuxPoster({
+        playbackId: video.video?.playbackId,
+        width: 1200,
+        format: "jpg",
+      }),
       card: "summary_large_image",
       type: "video.other",
     })
