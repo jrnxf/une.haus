@@ -74,6 +74,21 @@ In the homelab, these are rendered to `/etc/unehaus/.env` by the `unehaus`
 role from `ansible-vault`-encrypted secrets. The same values (minus
 box-local ones) live in GitHub Actions secrets for the build + test jobs.
 
+### adding an env var
+
+A new env var touches four places — in order:
+
+1. **Code**: `apps/web/src/lib/env.ts` (validator) + `apps/web/.env.example`.
+2. **GitHub secrets**: add the secret in repo settings and reference it in the
+   `env:` block of `.github/workflows/ci.yml` (build + test jobs read it).
+3. **Homelab**: add the vault secret and a line in
+   `ansible/roles/unehaus/templates/env.j2`, then `bun run deploy` to render
+   `/etc/unehaus/.env` (the converge restarts the units).
+4. **Local**: add the real value to `apps/web/.env`.
+
+Ship the code change only after 2–3 are in place, or the build/deploy will
+fail env validation.
+
 Observability vars: `SERVICE_NAME` is set per-unit by systemd; `GIT_COMMIT`
 comes from `/etc/unehaus/release.env`, rewritten by every deploy. The
 structured logger and boot log stamp both onto every line so Loki can
