@@ -26,7 +26,8 @@
     "db:seed": "bun run --filter web db:seed",
     "db:reset-dev": "bun run --filter web db:reset-dev",
     "test": "bun run --filter '*' test:unit",
-    "test:integration": "bun run --filter '*' test:integration"
+    "test:integration": "bun run --filter '*' test:integration",
+    "scan": "bunx @shadscan/cli@latest apps/web --no-interactive"
   },
   "devDependencies": {
     "oxfmt": "^0.35.0",
