@@ -26,8 +26,8 @@ function PageHeaderRoot({
   maxWidth?: string
 }) {
   return (
-    // the command palette is mounted once at the app shell (src/App.tsx), not
-    // per page header
+    // the command palette is mounted once at the root route shell
+    // (src/routes/__root.tsx), not per page header
     <header className="bg-background sticky top-0 z-30 hidden shrink-0 border-b md:block">
       <div
         className={cn(
