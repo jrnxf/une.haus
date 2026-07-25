@@ -27,26 +27,22 @@ env:
   VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
 jobs:
+  # Runs the same `bun preflight` as local pre-commit — one source of truth
+  # for what "green" means (lint, format, typecheck, schema check, knip,
+  # unit + integration tests, all workspaces). The integration runner spins
+  # up its own throwaway postgres container; docker is preinstalled on
+  # ubuntu-latest.
   ci:
     name: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: apps/web/package.json
       - run: bun install --frozen-lockfile
-      - name: lint
-        run: bun run lint
-      - name: format
-        run: bunx oxfmt --check
-      - name: typecheck
-        run: bun run --filter web typecheck
-      - name: db schema
-        run: bun run --filter web db:check
-      - name: unit tests
-        run: bun run --filter web test:unit
-      - name: integration tests
-        if: github.event_name == 'push' || github.event.pull_request.draft == false
-        run: bun run --filter web test:integration
+      - name: preflight
+        run: bun run preflight
 
   # Build the release artifact on a GH-hosted runner (linux-x64, same platform
   # as the LXC). Runs in parallel with ci; deploy waits on both.

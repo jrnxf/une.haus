@@ -10,8 +10,10 @@ Ansible role — native Bun + systemd, no container runtime.
 
 On every push to `main`:
 
-1. **ci** (GH-hosted): lint, format, typecheck, schema check, unit +
-   integration tests.
+1. **ci** (GH-hosted): runs `bun preflight` — the same gate as local
+   pre-commit (lint, format, typecheck, schema check, knip, unit +
+   integration tests; the integration runner brings its own postgres
+   container via docker).
 2. **build** (GH-hosted, parallel with ci): `bun run build:web` +
    `build:docs` on linux-x64 — same platform as the LXC. Bun is pinned via
    `apps/web/package.json` `packageManager` (keep in lockstep with
