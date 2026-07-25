@@ -39,6 +39,30 @@ import { useLogout, useSessionUser } from "~/lib/session/hooks"
 import { useTheme } from "~/lib/theme/context"
 import { cn } from "~/lib/utils"
 
+function SourceMenuItem() {
+  const showSha = import.meta.env.PROD && __COMMIT_SHA__ !== "unknown"
+
+  return (
+    <DropdownMenuItem
+      render={
+        <a
+          href="https://github.com/jrnxf/une.haus"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <TerminalIcon className="size-3.5" />
+          source
+          {showSha && (
+            <span className="text-muted-foreground ml-auto pl-4 font-mono text-[10px]">
+              {__COMMIT_SHA__}
+            </span>
+          )}
+        </a>
+      }
+    />
+  )
+}
+
 function ThemeSubmenu() {
   const { theme, setTheme } = useTheme()
 
@@ -121,18 +145,7 @@ export function AuthedUserMenuItems({
             </a>
           }
         />
-        <DropdownMenuItem
-          render={
-            <a
-              href="https://github.com/jrnxf/une.haus"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <TerminalIcon className="size-3.5" />
-              source
-            </a>
-          }
-        />
+        <SourceMenuItem />
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <ThemeSubmenu />
@@ -177,18 +190,7 @@ export function UnauthedUserMenuItems() {
             </a>
           }
         />
-        <DropdownMenuItem
-          render={
-            <a
-              href="https://github.com/jrnxf/une.haus"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <TerminalIcon className="size-3.5" />
-              source
-            </a>
-          }
-        />
+        <SourceMenuItem />
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <ThemeSubmenu />
