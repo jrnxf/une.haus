@@ -1,33 +1,57 @@
 # Deploy
 
-`une.haus` is deploy-agnostic. Production lives in the homelab repo
-(`~/Dev/homelab`) as the `unehaus` Ansible role — native Bun + systemd,
-no container runtime. This file documents the build/run contract a host
-must satisfy.
+`une.haus` deploys continuously: **pushing to `main` is the deploy**. GitHub
+Actions builds a self-contained release artifact and ships it to the homelab
+LXC through a self-hosted runner. Provisioning (systemd units, env, the
+runner itself) lives in the homelab repo (`~/Dev/homelab`) as the `unehaus`
+Ansible role — native Bun + systemd, no container runtime.
 
-## Build
+## Pipeline (`.github/workflows/ci.yml`)
+
+On every push to `main`:
+
+1. **ci** (GH-hosted): lint, format, typecheck, schema check, unit +
+   integration tests.
+2. **build** (GH-hosted, parallel with ci): `bun run build:web` +
+   `build:docs` on linux-x64 — same platform as the LXC. Bun is pinned via
+   `apps/web/package.json` `packageManager` (keep in lockstep with
+   `unehaus_bun_version` in the homelab role). Nitro emits self-contained
+   `apps/*/.output` bundles (server deps traced into
+   `.output/server/node_modules`, pure JS — the job fails if any native
+   `.node` binary sneaks in). Also bundles the migration runner
+   (`apps/web/src/scripts/migrate-prod.ts` → single-file `migrate.mjs` +
+   a copy of `drizzle/`). Everything is tarred and uploaded as an artifact.
+3. **deploy** (self-hosted runner on the LXC, needs ci + build, serialized):
+   - extract the artifact to `/opt/unehaus/releases/<short-sha>`
+   - run migrations (`bun migrate.mjs`, `DATABASE_URL` from
+     `/etc/unehaus/.env`)
+   - write `GIT_COMMIT=<short-sha>` to `/etc/unehaus/release.env`
+   - flip the `/opt/unehaus/current` symlink to the new release
+   - `sudo systemctl restart unehaus-web unehaus-docs` (narrow sudoers rule)
+   - smoke-check both ports, dumping journal logs on failure
+   - prune to the 5 most recent releases
+
+Deploy status is visible on every commit in GitHub. **Rollback**: point
+`current` at a previous release dir and restart, or revert the commit and
+let CI redeploy.
+
+The runner is outbound-only (long-polls GitHub) — nothing inbound is
+exposed; public ingress stays cloudflared.
+
+## Run contract
+
+Each app runs from its workspace inside the active release:
 
 ```bash
-bun install --frozen-lockfile
-bun run build:web
-bun run build:docs
+cd /opt/unehaus/current/apps/web  && bun run start   # port 3000 (PORT to override)
+cd /opt/unehaus/current/apps/docs && bun run start   # port 3001
 ```
 
-Each produces a `.output/` directory under its workspace
-(`apps/web/.output`, `apps/docs/.output`).
-
-## Start
-
-From the repo root (so Bun resolves the workspace):
-
-```bash
-bun run start:web    # apps/web — port 3000 (PORT to override)
-bun run start:docs   # apps/docs — port 3001 (PORT to override)
-```
-
-In production, each is its own systemd unit
-(`unehaus-web.service` / `unehaus-docs.service`) reading
-`/etc/unehaus/.env` via `EnvironmentFile=`.
+In production each is its own systemd unit (`unehaus-web.service` /
+`unehaus-docs.service`) reading `/etc/unehaus/.env` plus
+`/etc/unehaus/release.env` via `EnvironmentFile=`. The runtime needs only
+Bun and `.output` — no `node_modules`, no on-box install or build. Size the
+LXC for serving, not building.
 
 ## Required environment
 
@@ -46,14 +70,15 @@ lives in `apps/web/src/lib/env.ts`.
 | `SENTRY_*`                                                     | Optional                   |
 | `LOG_SQL`                                                      | Optional                   |
 
-In the homelab, these are rendered to `/etc/unehaus/.env` by the
-`unehaus` role from `ansible-vault`-encrypted secrets — they don't live
-in this repo.
+In the homelab, these are rendered to `/etc/unehaus/.env` by the `unehaus`
+role from `ansible-vault`-encrypted secrets. The same values (minus
+box-local ones) live in GitHub Actions secrets for the build + test jobs.
 
-Two optional observability vars are injected directly by the systemd unit
-(not the `.env`): `SERVICE_NAME` and `GIT_COMMIT`. The structured logger and
-boot log stamp them onto every line so Loki can attribute logs to a service
-and release. Both are absent in local dev. See `apps/web/docs/logging.md`.
+Observability vars: `SERVICE_NAME` is set per-unit by systemd; `GIT_COMMIT`
+comes from `/etc/unehaus/release.env`, rewritten by every deploy. The
+structured logger and boot log stamp both onto every line so Loki can
+attribute logs to a service and release. Both are absent in local dev. See
+`apps/web/docs/logging.md`.
 
 ## Local dev
 
@@ -71,55 +96,40 @@ runs natively on your machine.
 
 ## Schema migrations
 
-Prod migrations use **`drizzle-kit migrate`** (versioned SQL files in
-`apps/web/drizzle/`), not `push`. Migration files are generated locally,
-reviewed, and committed before deploying.
+Prod migrations are applied by the deploy job using a bundled programmatic
+migrator (`drizzle-orm`'s `migrate()` — same journal table as
+`drizzle-kit migrate`, `drizzle.__drizzle_migrations`, so the two are
+interchangeable). Migration files are generated locally, reviewed, and
+committed before pushing; the deploy applies anything not yet recorded.
+Idempotent: a no-op once all are applied.
 
-### one-time baseline (run once before the next deploy)
+(Historical note: the pre-existing prod schema was stamped as baseline 0000
+via `db:baseline` — see `apps/web/src/db/scripts/baseline.ts`.)
 
-The existing prod schema must be stamped as baseline 0000 so the migrator
-doesn't try to recreate it. On the prod box as the `unehaus` user:
-
-```bash
-set -a; . /etc/unehaus/.env; set +a
-cd /opt/unehaus && bun run --filter web db:baseline
-```
-
-This marks `0000_baseline.sql` as applied without executing it, so the next
-`db:migrate` run only applies `0001_add_engagement_indexes.sql` onward.
-
-### every deploy
-
-The deploy already runs `bun run db:migrate` (= `drizzle-kit migrate`),
-which applies any migration files not yet recorded in
-`drizzle.__drizzle_migrations`. No manual steps needed after baselining.
-
-### adding future schema changes
+### adding schema changes
 
 1. Edit `apps/web/src/db/schema.ts`.
 2. `cd apps/web && DATABASE_URL=postgres://dummy bunx drizzle-kit generate --name <description>`
 3. Review the generated SQL carefully — especially enums: confirm `ALTER TYPE … ADD VALUE`, never `DROP TYPE`.
-4. Commit the `.sql` file alongside the schema change.
+4. Commit the `.sql` file alongside the schema change — it deploys with the push.
 
-**`drizzle-kit push` must never be used against prod again.**
+**`drizzle-kit push` must never be used against prod.**
 
-## Production deploy
+## Provisioning (infra changes only)
 
-Provisioned and operated from the `homelab` repo. See
-`homelab/docs/unehaus-migration/04-native-plan.md` for topology and the
-`unehaus` + `postgres` Ansible roles.
+Users, systemd units, `/etc/unehaus/.env` from vault, the deploy runner,
+and cloudflared are managed by the `unehaus` Ansible role in the homelab
+repo. See `homelab/docs/unehaus-migration/04-native-plan.md` for topology.
 
 From this repo:
 
 ```bash
-bun preflight        # the role does NOT run tests — gate here first
-bun run deploy       # runs the unehaus play in the homelab repo
+bun run deploy       # converge the unehaus role (NOT a code deploy)
 ```
 
-`bun run deploy` (`scripts/deploy.ts`) is a thin wrapper around
+`scripts/deploy.ts` is a thin wrapper around
 `ansible-playbook playbooks/deploy-infra.yml --tags unehaus`. It assumes the
-homelab repo is a sibling checkout (`../homelab`); override with `HOMELAB_DIR`.
-Extra args pass straight through to ansible, e.g. `bun run deploy --check` for a
-dry run. The role rsyncs this repo's working tree to the box (no git pull on the
-server), so whatever is checked out here is what ships — the script prints the
-deploying commit and warns on a dirty tree.
+homelab repo is a sibling checkout (`../homelab`); override with
+`HOMELAB_DIR`. Extra args pass through, e.g. `bun run deploy --check`.
+Registering the runner for the first time needs an authed `gh` CLI on the
+control node (it fetches a short-lived registration token).

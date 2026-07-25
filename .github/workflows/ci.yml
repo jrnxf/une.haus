@@ -5,9 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+# Cancel superseded runs on PRs, but never on main: a fresh push must not
+# cancel a deploy that is mid-flight (migrations applied, symlink half-flipped).
+# Main pushes queue behind each other via the deploy job's own group instead.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -44,3 +47,115 @@ jobs:
       - name: integration tests
         if: github.event_name == 'push' || github.event.pull_request.draft == false
         run: bun run --filter web test:integration
+
+  # Build the release artifact on a GH-hosted runner (linux-x64, same platform
+  # as the LXC). Runs in parallel with ci; deploy waits on both.
+  build:
+    name: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          # Pin to apps/web's `packageManager` so the artifact is built by the
+          # same Bun version the homelab role installs on the LXC.
+          bun-version-file: apps/web/package.json
+      - run: bun install --frozen-lockfile
+      - name: build web
+        run: bun run build:web
+        env:
+          DB_TUNNEL: "0"
+      - name: build docs
+        run: bun run build:docs
+      - name: assert artifact is portable
+        # Nitro traces server deps into .output/server/node_modules. Today they
+        # are pure JS; a dependency that ships a native addon would make the
+        # artifact platform-bound, so fail loudly instead of shipping it.
+        run: |
+          if find apps/web/.output apps/docs/.output -name '*.node' -print | grep -q .; then
+            echo "native .node binaries found in .output — artifact is not portable" >&2
+            exit 1
+          fi
+      - name: bundle migrator
+        run: |
+          mkdir -p release/migrate
+          bun build apps/web/src/scripts/migrate-prod.ts --target=bun --outfile=release/migrate/migrate.mjs
+          cp -R apps/web/drizzle release/migrate/drizzle
+      - name: stage release
+        run: |
+          mkdir -p release/apps/web release/apps/docs
+          cp -R apps/web/.output release/apps/web/.output
+          cp apps/web/package.json release/apps/web/package.json
+          cp -R apps/docs/.output release/apps/docs/.output
+          cp apps/docs/package.json release/apps/docs/package.json
+          tar -czf release.tar.gz -C release .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: release.tar.gz
+          retention-days: 7
+
+  # Runs on the self-hosted runner inside the homelab (on the unehaus LXC
+  # itself, as the unehaus user), so every path below is local to the box.
+  # The runner is provisioned by the homelab repo's `unehaus` Ansible role.
+  deploy:
+    name: deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [ci, build]
+    runs-on: [self-hosted, unehaus]
+    timeout-minutes: 15
+    concurrency:
+      group: unehaus-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+      - name: extract release
+        run: |
+          set -euo pipefail
+          short_sha=${GITHUB_SHA:0:7}
+          release_dir=/opt/unehaus/releases/$short_sha
+          rm -rf "$release_dir"
+          mkdir -p "$release_dir"
+          tar -xzf release.tar.gz -C "$release_dir"
+          echo "SHORT_SHA=$short_sha" >> "$GITHUB_ENV"
+          echo "RELEASE_DIR=$release_dir" >> "$GITHUB_ENV"
+      - name: migrate database
+        run: |
+          set -euo pipefail
+          set -a; . /etc/unehaus/.env; set +a
+          bun "$RELEASE_DIR/migrate/migrate.mjs" "$RELEASE_DIR/migrate/drizzle"
+      - name: activate release
+        # release.env is a second EnvironmentFile= on both units — the logger
+        # stamps GIT_COMMIT onto every line so Loki can attribute logs to a
+        # release. The sudo rule for this exact restart command is installed by
+        # the ansible role.
+        run: |
+          set -euo pipefail
+          printf 'GIT_COMMIT=%s\n' "$SHORT_SHA" > /etc/unehaus/release.env
+          ln -sfn "$RELEASE_DIR" /opt/unehaus/current
+          sudo systemctl restart unehaus-web.service unehaus-docs.service
+      - name: smoke check
+        run: |
+          set -euo pipefail
+          for app in web:3000 docs:3001; do
+            name=unehaus-${app%%:*}
+            port=${app#*:}
+            ok=""
+            for _ in $(seq 1 30); do
+              if curl -fsS -o /dev/null "http://127.0.0.1:$port"; then ok=1; break; fi
+              sleep 1
+            done
+            if [ -z "$ok" ]; then
+              echo "$name not responding on :$port after restart" >&2
+              journalctl -u "$name" -n 50 --no-pager || true
+              exit 1
+            fi
+          done
+      - name: prune old releases
+        run: |
+          set -euo pipefail
+          cd /opt/unehaus/releases
+          ls -1t | tail -n +6 | xargs -r rm -rf --

@@ -81,8 +81,10 @@ Development (pretty):
 [info] (req 5f3c8a1d) request { method: 'GET', path: '/games/rius', status: 200, duration_ms: 42 }
 ```
 
-`commit` and `service` come from `GIT_COMMIT` / `SERVICE_NAME`, injected by the
-systemd unit in the homelab (`roles/unehaus`). They're absent in local dev.
+`commit` and `service` come from `GIT_COMMIT` / `SERVICE_NAME`. `SERVICE_NAME`
+is set per-unit by systemd in the homelab (`roles/unehaus`); `GIT_COMMIT` is
+read from `/etc/unehaus/release.env`, rewritten by each CI deploy with the
+shipped commit. Both are absent in local dev.
 
 ## Request correlation
 
