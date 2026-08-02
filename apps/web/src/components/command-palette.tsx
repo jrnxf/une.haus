@@ -775,7 +775,6 @@ function SearchUsersPage({
             value={`user-${user.id}-${user.name}`}
             onSelect={() => onSelectUser(user.id)}
           >
-            <UserIcon />
             {user.name}
           </CommandItem>
         ))}
@@ -811,7 +810,6 @@ function SearchUsersPage({
                 right: 0,
               }}
             >
-              <UserIcon />
               {user.name}
             </CommandItem>
           )
