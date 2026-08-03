@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, countDistinct, eq, ne } from "drizzle-orm"
+import { and, asc, countDistinct, eq, isNotNull, ne } from "drizzle-orm"
 
 import { type LandTrickArgs, type UnlandTrickArgs } from "./schemas"
 import { db } from "~/db"
@@ -11,6 +11,7 @@ import {
   riuSubmissions,
   siuSets,
   trickVideos,
+  utvVideoRiders,
   utvVideos,
 } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
@@ -90,6 +91,16 @@ export async function landTrick({
   context: AuthenticatedContext
   data: LandTrickArgs
 }) {
+  // Guard double-submits and re-linking the same vault video to one trick
+  const existing = await db.query.trickVideos.findFirst({
+    where: and(
+      eq(trickVideos.trickId, data.trickId),
+      eq(trickVideos.muxAssetId, data.muxAssetId),
+      eq(trickVideos.submittedByUserId, context.user.id),
+    ),
+  })
+  invariant(!existing, "Video already submitted for this trick")
+
   return submitVideo({
     context,
     data: {
@@ -98,6 +109,64 @@ export async function landTrick({
       notes: data.notes ?? null,
     },
   })
+}
+
+export type VaultVideoOption = {
+  utvVideoId: number
+  title: string
+  muxAssetId: string
+  playbackId: string | null
+  thumbnailSeconds: number
+  durationSeconds: number | null
+}
+
+async function getMuxAssetDuration(assetId: string): Promise<number | null> {
+  try {
+    const { muxClient } = await import("~/lib/clients/mux")
+    const asset = await muxClient.video.assets.retrieve(assetId)
+    return asset.duration ?? null
+  } catch {
+    // Duration is display sugar — a mux hiccup must not break the picker
+    return null
+  }
+}
+
+// Vault videos the rider appears in that have playable mux footage — the
+// candidates for linking as landing proof.
+export async function vaultVideosForUser(
+  userId: number,
+  // Injectable so integration tests avoid the remote mux call
+  getAssetDuration: (
+    assetId: string,
+  ) => Promise<number | null> = getMuxAssetDuration,
+): Promise<VaultVideoOption[]> {
+  const rows = await db
+    .selectDistinct({
+      utvVideoId: utvVideos.id,
+      title: utvVideos.title,
+      legacyTitle: utvVideos.legacyTitle,
+      thumbnailSeconds: utvVideos.thumbnailSeconds,
+      muxAssetId: muxVideos.assetId,
+      playbackId: muxVideos.playbackId,
+    })
+    .from(utvVideoRiders)
+    .innerJoin(utvVideos, eq(utvVideoRiders.utvVideoId, utvVideos.id))
+    .innerJoin(muxVideos, eq(utvVideos.muxAssetId, muxVideos.assetId))
+    .where(
+      and(eq(utvVideoRiders.userId, userId), isNotNull(muxVideos.playbackId)),
+    )
+    .orderBy(asc(utvVideos.id))
+
+  return Promise.all(
+    rows.map(async (row) => ({
+      utvVideoId: row.utvVideoId,
+      title: row.title || row.legacyTitle,
+      muxAssetId: row.muxAssetId,
+      playbackId: row.playbackId,
+      thumbnailSeconds: row.thumbnailSeconds,
+      durationSeconds: await getAssetDuration(row.muxAssetId),
+    })),
+  )
 }
 
 // How many rows across the app still reference a mux asset. Un-land must not

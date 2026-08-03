@@ -1,12 +1,19 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
-import { trickVideos, tricks, utvVideos } from "~/db/schema"
+import {
+  muxVideos,
+  trickVideos,
+  tricks,
+  utvVideoRiders,
+  utvVideos,
+} from "~/db/schema"
 import {
   landTrick,
   landingCounts,
   landingsForUser,
   unlandTrick,
+  vaultVideosForUser,
 } from "~/lib/tricks/landings/ops.server"
 import {
   asUser,
@@ -311,6 +318,82 @@ describe("landings integration", () => {
     expect(await db.query.trickVideos.findMany()).toHaveLength(0)
     const assets = await db.query.muxVideos.findMany()
     expect(assets.map((a) => a.assetId)).not.toContain(own.muxAssetId)
+  })
+
+  it("landTrick rejects submitting the same video twice for one trick", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const trick = await seedTrick("Duplicate Trick")
+    const video = await seedMuxVideo()
+
+    const data = {
+      trickId: trick.id,
+      muxAssetId: video.assetId,
+      notes: null,
+      confirmedSingleTrick: true as const,
+    }
+
+    await landTrick({ ...asUser(rider), data })
+    await expect(landTrick({ ...asUser(rider), data })).rejects.toThrow(
+      "Video already submitted for this trick",
+    )
+  })
+
+  it("vaultVideosForUser returns only the rider's playable vault videos", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const other = await seedUser({ name: "Other" })
+
+    const playable = await seedMuxVideo()
+    const otherAsset = await seedMuxVideo()
+    // A mux row without a playback id — footage that can't be shown
+    const [unplayable] = await db
+      .insert(muxVideos)
+      .values({ assetId: "asset-unplayable" })
+      .returning()
+
+    const [mine] = await db
+      .insert(utvVideos)
+      .values({
+        legacyUrl: "https://example.com/1",
+        legacyTitle: "legacy title",
+        muxAssetId: playable.assetId,
+      })
+      .returning()
+    const [notMine] = await db
+      .insert(utvVideos)
+      .values({
+        legacyUrl: "https://example.com/2",
+        legacyTitle: "someone else",
+        muxAssetId: otherAsset.assetId,
+      })
+      .returning()
+    const [broken] = await db
+      .insert(utvVideos)
+      .values({
+        legacyUrl: "https://example.com/3",
+        legacyTitle: "no playback",
+        muxAssetId: unplayable.assetId,
+      })
+      .returning()
+
+    await db.insert(utvVideoRiders).values([
+      { utvVideoId: mine.id, userId: rider.id },
+      { utvVideoId: notMine.id, userId: other.id },
+      { utvVideoId: broken.id, userId: rider.id },
+    ])
+
+    const options = await vaultVideosForUser(rider.id, async () => 92.4)
+
+    expect(options).toEqual([
+      {
+        utvVideoId: mine.id,
+        // Empty title falls back to the legacy title
+        title: "legacy title",
+        muxAssetId: playable.assetId,
+        playbackId: playable.playbackId,
+        thumbnailSeconds: 30,
+        durationSeconds: 92.4,
+      },
+    ])
   })
 
   it("unlandTrick throws when there is no landing to remove", async () => {

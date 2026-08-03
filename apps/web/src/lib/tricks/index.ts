@@ -36,6 +36,7 @@ import {
   landTrickServerFn,
   listLandingsForUserServerFn,
   listMyLandingsServerFn,
+  listVaultVideosForLandingServerFn,
   unlandTrickServerFn,
 } from "./landings/fns"
 import {
@@ -369,6 +370,15 @@ export const tricks = {
       fn: landTrickServerFn,
       schema: landTrickSchema,
     },
+    vault: {
+      fn: listVaultVideosForLandingServerFn,
+      queryOptions: () =>
+        queryOptions({
+          queryKey: ["tricks.landings.vault"],
+          queryFn: () => listVaultVideosForLandingServerFn(),
+          staleTime: 1000 * 60 * 5, // 5 minutes — durations come from mux
+        }),
+    },
     unland: {
       fn: unlandTrickServerFn,
       schema: unlandTrickSchema,
@@ -413,3 +423,6 @@ export const tricks = {
 
 // Type exports
 export type PendingVideosData = ServerFnReturn<typeof listPendingVideosServerFn>
+export type VaultVideoOption = ServerFnReturn<
+  typeof listVaultVideosForLandingServerFn
+>[number]
