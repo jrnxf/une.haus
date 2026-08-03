@@ -4,6 +4,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router"
 import { PageHeader } from "~/components/page-header"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session/index"
+import { tricks } from "~/lib/tricks"
 import { users } from "~/lib/users"
 import { errorFmt, getCloudflareImageUrl } from "~/lib/utils"
 import { UserView } from "~/views/user"
@@ -18,6 +19,10 @@ export const Route = createFileRoute("/users/$userId/")({
         context.queryClient.ensureQueryData(
           users.videosPreview.queryOptions({ userId }),
         ),
+        context.queryClient.ensureQueryData(
+          tricks.landings.forUser.queryOptions({ userId }),
+        ),
+        context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
         context.queryClient.ensureQueryData(
           users.activityPreview.queryOptions({ userId }),
         ),

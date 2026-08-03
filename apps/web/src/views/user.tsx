@@ -26,6 +26,7 @@ import { SocialLink } from "~/components/social-link"
 import { StatCard } from "~/components/stats/stat-card"
 import { SuspenseLoader } from "~/components/suspense-loader"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { badgeVariants } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { FlagEmoji } from "~/components/ui/flag-emoji"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
@@ -34,6 +35,7 @@ import { UsersCombobox } from "~/components/users-combobox"
 import { getMuxPoster } from "~/components/video-player"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { useSessionUser } from "~/lib/session/hooks"
+import { tricks } from "~/lib/tricks"
 import { users, type UsersWithFollowsData } from "~/lib/users"
 import { useFollowMutations } from "~/lib/users/hooks"
 import { getVideoSource } from "~/lib/users/video-source"
@@ -165,6 +167,11 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
             <VideosPreview userId={user.id} />
           </Suspense>
 
+          {/* Recent landings */}
+          <Suspense fallback={<SuspenseLoader />}>
+            <LandingsPreview userId={user.id} />
+          </Suspense>
+
           {/* Recent activity */}
           <Suspense fallback={<SuspenseLoader />}>
             <ActivityPreview userId={user.id} />
@@ -223,7 +230,10 @@ function SectionHeader({
   userId,
 }: {
   title: string
-  to: "/users/$userId/videos" | "/users/$userId/activity"
+  to:
+    | "/users/$userId/videos"
+    | "/users/$userId/activity"
+    | "/users/$userId/tricks"
   userId: number
 }) {
   return (
@@ -272,6 +282,73 @@ function VideosPreview({ userId }: { userId: number }) {
                 loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.015]"
               />
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function LandingsPreview({ userId }: { userId: number }) {
+  const sessionUser = useSessionUser()
+  const { data: landings } = useSuspenseQuery(
+    tricks.landings.forUser.queryOptions({ userId }),
+  )
+  const { data: graph } = useSuspenseQuery(tricks.graph.queryOptions())
+
+  const isOwnProfile = sessionUser?.id === userId
+
+  const recent = landings
+    .filter((landing) => graph.byId[landing.trickId])
+    .toSorted(
+      (a, b) =>
+        new Date(b.firstLandedAt).getTime() -
+        new Date(a.firstLandedAt).getTime(),
+    )
+    .slice(0, 8)
+
+  if (recent.length === 0) {
+    if (!isOwnProfile) return null
+    return (
+      <div className="flex flex-col gap-2">
+        <SectionHeader
+          title="landed tricks"
+          to="/users/$userId/tricks"
+          userId={userId}
+        />
+        <div className="text-muted-foreground flex items-center justify-between gap-2 text-sm">
+          <span>nothing landed yet — prove it with video</span>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/tricks">browse</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <SectionHeader
+        title="landed tricks"
+        to="/users/$userId/tricks"
+        userId={userId}
+      />
+      <div className="flex flex-wrap gap-2">
+        {recent.map((landing) => {
+          const trick = graph.byId[landing.trickId]
+          if (!trick) return null
+          return (
+            <Link
+              key={landing.trickId}
+              to="/tricks/$trickId"
+              params={{ trickId: String(landing.trickId) }}
+              className={badgeVariants({ variant: "secondary" })}
+            >
+              {trick.name}
+              {landing.status === "pending" && (
+                <span className="text-muted-foreground">pending</span>
+              )}
             </Link>
           )
         })}

@@ -23,6 +23,7 @@ import {
 import { getMuxPoster } from "~/components/video-player"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
+import { useSessionUser } from "~/lib/session/hooks"
 import { tricks } from "~/lib/tricks"
 import { useLandings } from "~/lib/tricks/landings/hooks"
 import { users } from "~/lib/users"
@@ -65,6 +66,7 @@ function TrickDetailPage() {
   const { isAdmin } = Route.useLoaderData()
   const { trickId } = Route.useParams()
   const qc = useQueryClient()
+  const sessionUser = useSessionUser()
   const { data } = useSuspenseQuery(tricks.graph.queryOptions())
   const { data: allUsers = [] } = useSuspenseQuery(users.all.queryOptions())
   const { landedSet, byTrickId } = useLandings()
@@ -84,6 +86,13 @@ function TrickDetailPage() {
       qc.removeQueries({
         queryKey: tricks.landings.counts.queryOptions().queryKey,
       })
+      if (sessionUser) {
+        qc.removeQueries({
+          queryKey: tricks.landings.forUser.queryOptions({
+            userId: sessionUser.id,
+          }).queryKey,
+        })
+      }
     },
     onError: (error) => {
       toast.error(error.message)

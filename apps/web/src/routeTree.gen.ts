@@ -51,6 +51,7 @@ import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/n
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin/index'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
 import { Route as UsersUserIdVideosRouteImport } from './routes/users/$userId/videos'
+import { Route as UsersUserIdTricksRouteImport } from './routes/users/$userId/tricks'
 import { Route as UsersUserIdActivityRouteImport } from './routes/users/$userId/activity'
 import { Route as TricksGlossaryListRouteImport } from './routes/tricks/glossary/_list'
 import { Route as TourneyCodeLiveRouteImport } from './routes/tourney/$code/live'
@@ -312,6 +313,11 @@ const VaultVideoIdEditRoute = VaultVideoIdEditRouteImport.update({
 const UsersUserIdVideosRoute = UsersUserIdVideosRouteImport.update({
   id: '/users/$userId/videos',
   path: '/users/$userId/videos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersUserIdTricksRoute = UsersUserIdTricksRouteImport.update({
+  id: '/users/$userId/tricks',
+  path: '/users/$userId/tricks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsersUserIdActivityRoute = UsersUserIdActivityRouteImport.update({
@@ -639,6 +645,7 @@ export interface FileRoutesByFullPath {
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary': typeof TricksGlossaryListRouteWithChildren
   '/users/$userId/activity': typeof UsersUserIdActivityRoute
+  '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/admin/': typeof AuthedAdminIndexRoute
@@ -730,6 +737,7 @@ export interface FileRoutesByTo {
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary': typeof TricksGlossaryIndexRoute
   '/users/$userId/activity': typeof UsersUserIdActivityRoute
+  '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/admin': typeof AuthedAdminIndexRoute
@@ -823,6 +831,7 @@ export interface FileRoutesById {
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary/_list': typeof TricksGlossaryListRouteWithChildren
   '/users/$userId/activity': typeof UsersUserIdActivityRoute
+  '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
@@ -917,6 +926,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/live'
     | '/tricks/glossary'
     | '/users/$userId/activity'
+    | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
     | '/admin/'
@@ -1008,6 +1018,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/live'
     | '/tricks/glossary'
     | '/users/$userId/activity'
+    | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
     | '/admin'
@@ -1100,6 +1111,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/live'
     | '/tricks/glossary/_list'
     | '/users/$userId/activity'
+    | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
     | '/_authed/admin/'
@@ -1187,6 +1199,7 @@ export interface RootRouteChildren {
   TourneyCodeLiveRoute: typeof TourneyCodeLiveRoute
   TricksGlossaryListRoute: typeof TricksGlossaryListRouteWithChildren
   UsersUserIdActivityRoute: typeof UsersUserIdActivityRoute
+  UsersUserIdTricksRoute: typeof UsersUserIdTricksRoute
   UsersUserIdVideosRoute: typeof UsersUserIdVideosRoute
   VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
@@ -1491,6 +1504,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId/videos'
       fullPath: '/users/$userId/videos'
       preLoaderRoute: typeof UsersUserIdVideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/$userId/tricks': {
+      id: '/users/$userId/tricks'
+      path: '/users/$userId/tricks'
+      fullPath: '/users/$userId/tricks'
+      preLoaderRoute: typeof UsersUserIdTricksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/users/$userId/activity': {
@@ -2095,6 +2115,7 @@ const rootRouteChildren: RootRouteChildren = {
   TourneyCodeLiveRoute: TourneyCodeLiveRoute,
   TricksGlossaryListRoute: TricksGlossaryListRouteWithChildren,
   UsersUserIdActivityRoute: UsersUserIdActivityRoute,
+  UsersUserIdTricksRoute: UsersUserIdTricksRoute,
   UsersUserIdVideosRoute: UsersUserIdVideosRoute,
   VaultVideoIdEditRoute: VaultVideoIdEditRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,
