@@ -3,6 +3,8 @@ import {
   buildTricksData,
   computeAllNeighbors,
   computeDepthsAndDependents,
+  computeFrontierSet,
+  computeLandedSet,
   describeModifierDiff,
   modifierDirection,
 } from "./compute"
@@ -463,5 +465,56 @@ describe("buildTricksData", () => {
     // Indexes built
     expect(result.elements).toContain("spin")
     expect(result.byElement.spin).toHaveLength(2)
+  })
+})
+
+// ── computeLandedSet ──────────────────────────────────────────────
+
+describe("computeLandedSet", () => {
+  it("collects trick ids from landings", () => {
+    const landed = computeLandedSet([{ trickId: 1 }, { trickId: 3 }])
+    expect(landed).toEqual(new Set([1, 3]))
+  })
+
+  it("returns an empty set for no landings", () => {
+    expect(computeLandedSet([])).toEqual(new Set())
+  })
+})
+
+// ── computeFrontierSet ────────────────────────────────────────────
+
+describe("computeFrontierSet", () => {
+  const tricks = [
+    { id: 1, prerequisite: null },
+    { id: 2, prerequisite: 1 },
+    { id: 3, prerequisite: 2 },
+    { id: 4, prerequisite: null },
+  ]
+
+  it("with nothing landed, frontier is every prerequisite-free trick", () => {
+    expect(computeFrontierSet(tricks, new Set())).toEqual(new Set([1, 4]))
+  })
+
+  it("landing a prerequisite moves its dependent into the frontier", () => {
+    expect(computeFrontierSet(tricks, new Set([1]))).toEqual(new Set([2, 4]))
+  })
+
+  it("landed tricks are never in the frontier", () => {
+    expect(computeFrontierSet(tricks, new Set([1, 2, 4]))).toEqual(new Set([3]))
+  })
+
+  it("everything landed leaves an empty frontier", () => {
+    expect(computeFrontierSet(tricks, new Set([1, 2, 3, 4]))).toEqual(new Set())
+  })
+
+  it("a prerequisite outside the dataset is treated as absent", () => {
+    const dangling = [{ id: 5, prerequisite: 999 }]
+    expect(computeFrontierSet(dangling, new Set())).toEqual(new Set([5]))
+  })
+
+  it("skipping a level is not frontier", () => {
+    // Trick 3's prerequisite (2) is unlanded, so 3 stays out even though 1 is landed.
+    const frontier = computeFrontierSet(tricks, new Set([1]))
+    expect(frontier.has(3)).toBe(false)
   })
 })

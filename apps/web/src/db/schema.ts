@@ -1462,6 +1462,7 @@ export const trickVideos = pgTable(
   (t) => [
     index("trick_videos_trick_id_idx").on(t.trickId),
     index("trick_videos_status_idx").on(t.status),
+    index("trick_videos_submitted_by_idx").on(t.submittedByUserId),
   ],
 )
 

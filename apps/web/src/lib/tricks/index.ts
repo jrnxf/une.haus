@@ -32,6 +32,12 @@ import {
   reviewGlossaryProposalSchema,
 } from "./glossary/schemas"
 import {
+  getLandingCountsServerFn,
+  listLandingsForUserServerFn,
+  listMyLandingsServerFn,
+} from "./landings/fns"
+import { listLandingsForUserSchema } from "./landings/schemas"
+import {
   createElementSchema,
   createModifierSchema,
   createTrickSchema,
@@ -320,6 +326,38 @@ export const tricks = {
     delete: {
       fn: deleteVideoServerFn,
       schema: deleteVideoSchema,
+    },
+  },
+
+  // Landings (derived: a rider's non-rejected videos on a trick)
+  landings: {
+    mine: {
+      fn: listMyLandingsServerFn,
+      queryOptions: () =>
+        queryOptions({
+          queryKey: ["tricks.landings.mine"],
+          queryFn: () => listMyLandingsServerFn(),
+          staleTime: 1000 * 30, // 30 seconds
+        }),
+    },
+    forUser: {
+      fn: listLandingsForUserServerFn,
+      schema: listLandingsForUserSchema,
+      queryOptions: (data: ServerFnData<typeof listLandingsForUserServerFn>) =>
+        queryOptions({
+          queryKey: ["tricks.landings.forUser", data],
+          queryFn: () => listLandingsForUserServerFn({ data }),
+          staleTime: 1000 * 30, // 30 seconds
+        }),
+    },
+    counts: {
+      fn: getLandingCountsServerFn,
+      queryOptions: () =>
+        queryOptions({
+          queryKey: ["tricks.landings.counts"],
+          queryFn: () => getLandingCountsServerFn(),
+          staleTime: 1000 * 60, // 1 minute
+        }),
     },
   },
 
