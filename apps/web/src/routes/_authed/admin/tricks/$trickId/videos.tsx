@@ -480,6 +480,17 @@ function PendingVideoCard({
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
         />
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() =>
+            setNotes(
+              "contains multiple tricks — submit a clip of just this trick",
+            )
+          }
+        >
+          contains multiple tricks
+        </Button>
         <div className="flex gap-2">
           <Button
             size="sm"
