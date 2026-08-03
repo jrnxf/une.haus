@@ -36,7 +36,6 @@ type VideoSubmitFormProps = {
   onSubmit: (data: { muxAssetId: string; notes?: string }) => void
   onCancel?: () => void
   isPending?: boolean
-  submitLabel?: string
   // Rendered directly above the actions row (e.g. the single-trick attestation)
   attestation?: ReactNode
   submitDisabled?: boolean
@@ -47,7 +46,6 @@ export function VideoSubmitForm({
   onSubmit,
   onCancel,
   isPending = false,
-  submitLabel = "save",
   attestation,
   submitDisabled = false,
 }: VideoSubmitFormProps) {
@@ -140,7 +138,7 @@ export function VideoSubmitForm({
             disabled={submitDisabled || isPending || formState.isSubmitting}
           >
             <span role="status">
-              {isPending || formState.isSubmitting ? "saving..." : submitLabel}
+              {isPending || formState.isSubmitting ? "saving..." : "save"}
             </span>
           </Button>
           {onCancel && (

@@ -34,6 +34,7 @@ import {
 } from "~/db/schema"
 import { flagsDomain } from "~/lib/flags"
 import { type PendingVideosData, tricks } from "~/lib/tricks"
+import { MULTIPLE_TRICKS_REJECTION } from "~/lib/tricks/videos/schemas"
 import { type ServerFnReturn } from "~/lib/types"
 import { utv } from "~/lib/utv/core"
 
@@ -576,9 +577,6 @@ function VideosSection() {
     </div>
   )
 }
-
-const MULTIPLE_TRICKS_REJECTION =
-  "contains multiple tricks — submit a clip of just this trick"
 
 function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
   const qc = useQueryClient()

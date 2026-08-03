@@ -4,7 +4,7 @@ import { CheckIcon, ClockIcon, GhostIcon, VideoIcon } from "lucide-react"
 
 import { PageHeader } from "~/components/page-header"
 import { StatCard } from "~/components/stats/stat-card"
-import { badgeVariants } from "~/components/ui/badge"
+import { LandingBadge } from "~/components/tricks/landing-badge"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
@@ -155,24 +155,16 @@ function RouteComponent() {
                       </span>
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {landed.map((trick) => {
-                        const landing = landingByTrickId.get(trick.id)
-                        return (
-                          <Link
-                            key={trick.id}
-                            to="/tricks/$trickId"
-                            params={{ trickId: String(trick.id) }}
-                            className={badgeVariants({ variant: "secondary" })}
-                          >
-                            {trick.name}
-                            {landing?.status === "pending" && (
-                              <span className="text-muted-foreground">
-                                pending
-                              </span>
-                            )}
-                          </Link>
-                        )
-                      })}
+                      {landed.map((trick) => (
+                        <LandingBadge
+                          key={trick.id}
+                          trickId={trick.id}
+                          name={trick.name}
+                          pending={
+                            landingByTrickId.get(trick.id)?.status === "pending"
+                          }
+                        />
+                      ))}
                     </div>
                   </div>
                 )

@@ -39,6 +39,7 @@ import {
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { normalizeMultiOperator } from "~/hooks/use-filtered-list"
+import { commaArrayOf } from "~/lib/schema-utils"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 import { type Trick, tricks } from "~/lib/tricks"
@@ -56,14 +57,7 @@ const tricksSearchSchema = z.object({
       return arr.length > 0 ? arr : undefined
     }),
   elements_op: z.string().optional(),
-  landed: z
-    .union([z.string(), z.array(z.string())])
-    .optional()
-    .transform((val) => {
-      if (!val) return undefined
-      const arr = typeof val === "string" ? val.split(",").filter(Boolean) : val
-      return arr.length > 0 ? arr : undefined
-    }),
+  landed: commaArrayOf(["landed", "not-landed", "next-up"]),
 })
 
 const LANDED_FILTER_OPTIONS = [

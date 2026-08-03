@@ -35,7 +35,6 @@ import {
   getLandingCountsServerFn,
   landTrickServerFn,
   listLandingsForUserServerFn,
-  listMyLandingsServerFn,
   listVaultVideosForLandingServerFn,
   unlandTrickServerFn,
 } from "./landings/fns"
@@ -338,15 +337,6 @@ export const tricks = {
 
   // Landings (derived: a rider's non-rejected videos on a trick)
   landings: {
-    mine: {
-      fn: listMyLandingsServerFn,
-      queryOptions: () =>
-        queryOptions({
-          queryKey: ["tricks.landings.mine"],
-          queryFn: () => listMyLandingsServerFn(),
-          staleTime: 1000 * 30, // 30 seconds
-        }),
-    },
     forUser: {
       fn: listLandingsForUserServerFn,
       schema: listLandingsForUserSchema,

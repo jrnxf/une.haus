@@ -10,15 +10,6 @@ import { authMiddleware } from "~/lib/middleware"
 
 const loadLandingOps = createServerOnlyFn(() => import("./ops.server"))
 
-export const listMyLandingsServerFn = createServerFn({
-  method: "GET",
-})
-  .middleware([authMiddleware])
-  .handler(async ({ context }) => {
-    const { landingsForUser } = await loadLandingOps()
-    return landingsForUser(context.user.id)
-  })
-
 export const listLandingsForUserServerFn = createServerFn({
   method: "GET",
 })

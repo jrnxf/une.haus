@@ -1,11 +1,6 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { CheckIcon, GhostIcon } from "lucide-react"
-import { toast } from "sonner"
 
 import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
@@ -23,9 +18,8 @@ import {
 import { getMuxPoster } from "~/components/video-player"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
-import { useSessionUser } from "~/lib/session/hooks"
 import { tricks } from "~/lib/tricks"
-import { useLandings } from "~/lib/tricks/landings/hooks"
+import { useLandings, useUnlandTrick } from "~/lib/tricks/landings/hooks"
 import { users } from "~/lib/users"
 import { DetailHeader } from "~/views/detail-header"
 
@@ -65,39 +59,13 @@ export const Route = createFileRoute("/tricks/$trickId")({
 function TrickDetailPage() {
   const { isAdmin } = Route.useLoaderData()
   const { trickId } = Route.useParams()
-  const qc = useQueryClient()
-  const sessionUser = useSessionUser()
   const { data } = useSuspenseQuery(tricks.graph.queryOptions())
   const { data: allUsers = [] } = useSuspenseQuery(users.all.queryOptions())
   const { landedSet, byTrickId } = useLandings()
   const trick = data.byId[Number(trickId)]
 
   const landing = trick ? byTrickId.get(trick.id) : undefined
-
-  const unland = useMutation({
-    mutationFn: tricks.landings.unland.fn,
-    onSuccess: () => {
-      toast.success("landing removed")
-      qc.invalidateQueries({
-        queryKey: tricks.landings.mine.queryOptions().queryKey,
-      })
-      // An active proof may have just left the reference carousel
-      qc.invalidateQueries({ queryKey: tricks.graph.queryOptions().queryKey })
-      qc.removeQueries({
-        queryKey: tricks.landings.counts.queryOptions().queryKey,
-      })
-      if (sessionUser) {
-        qc.removeQueries({
-          queryKey: tricks.landings.forUser.queryOptions({
-            userId: sessionUser.id,
-          }).queryKey,
-        })
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const unland = useUnlandTrick()
 
   if (!trick) {
     return (

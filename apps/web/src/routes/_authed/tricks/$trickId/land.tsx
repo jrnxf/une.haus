@@ -1,15 +1,10 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query"
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, useRouter } from "@tanstack/react-router"
 import { GhostIcon } from "lucide-react"
 import { type ReactNode, useState } from "react"
-import { toast } from "sonner"
 
 import { PageHeader } from "~/components/page-header"
+import { SuspenseLoader } from "~/components/suspense-loader"
 import { VaultVideoPicker } from "~/components/tricks/vault-video-picker"
 import { VideoSubmitForm } from "~/components/tricks/video-submit-form"
 import { Button } from "~/components/ui/button"
@@ -24,8 +19,8 @@ import {
 } from "~/components/ui/empty"
 import { Field, FieldLabel } from "~/components/ui/field"
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
-import { useSessionUser } from "~/lib/session/hooks"
 import { tricks } from "~/lib/tricks"
+import { useLandTrick } from "~/lib/tricks/landings/hooks"
 
 export const Route = createFileRoute("/_authed/tricks/$trickId/land")({
   loader: async ({ context, params }) => {
@@ -37,12 +32,10 @@ export const Route = createFileRoute("/_authed/tricks/$trickId/land")({
 })
 
 function SingleTrickAttestation({
-  id,
   trickName,
   checked,
   onChange,
 }: {
-  id: string
   trickName: string
   checked: boolean
   onChange: (checked: boolean) => void
@@ -50,11 +43,11 @@ function SingleTrickAttestation({
   return (
     <Field orientation="horizontal" className="items-start gap-2">
       <Checkbox
-        id={id}
+        id="confirmed-single-trick"
         checked={checked}
         onCheckedChange={(next) => onChange(next === true)}
       />
-      <FieldLabel htmlFor={id} className="font-normal">
+      <FieldLabel htmlFor="confirmed-single-trick" className="font-normal">
         this video contains only{" "}
         <span className="font-medium">{trickName}</span> — sets with multiple
         tricks will be rejected
@@ -64,12 +57,14 @@ function SingleTrickAttestation({
 }
 
 function VaultPath({
-  trickName,
+  attestation,
+  canSubmit,
   onSubmit,
   isPending,
   onSwitchToUpload,
 }: {
-  trickName: string
+  attestation: ReactNode
+  canSubmit: boolean
   onSubmit: (muxAssetId: string) => void
   isPending: boolean
   onSwitchToUpload: () => void
@@ -78,16 +73,9 @@ function VaultPath({
     tricks.landings.vault.queryOptions(),
   )
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
-  const [attested, setAttested] = useState(false)
 
   if (isLoading) {
-    return (
-      <div className="space-y-2">
-        <div className="bg-muted h-20 w-full animate-pulse rounded-md" />
-        <div className="bg-muted h-20 w-full animate-pulse rounded-md" />
-        <div className="bg-muted h-20 w-full animate-pulse rounded-md" />
-      </div>
-    )
+    return <SuspenseLoader />
   }
 
   if (!vaultVideos || vaultVideos.length === 0) {
@@ -119,15 +107,10 @@ function VaultPath({
         onChange={setSelectedAssetId}
       />
 
-      <SingleTrickAttestation
-        id="vault-confirmed-single-trick"
-        trickName={trickName}
-        checked={attested}
-        onChange={setAttested}
-      />
+      {attestation}
 
       <Button
-        disabled={!selectedAssetId || !attested || isPending}
+        disabled={!selectedAssetId || !canSubmit || isPending}
         onClick={() => {
           if (selectedAssetId) onSubmit(selectedAssetId)
         }}
@@ -140,8 +123,6 @@ function VaultPath({
 
 function RouteComponent() {
   const router = useRouter()
-  const qc = useQueryClient()
-  const sessionUser = useSessionUser()
   const { trickId } = Route.useParams()
   const id = Number(trickId)
 
@@ -150,27 +131,9 @@ function RouteComponent() {
   const [path, setPath] = useState<"upload" | "vault">("upload")
   const [attested, setAttested] = useState(false)
 
-  const land = useMutation({
-    mutationFn: tricks.landings.land.fn,
+  const land = useLandTrick({
     onSuccess: () => {
-      toast.success("landing submitted")
-      qc.removeQueries({
-        queryKey: tricks.landings.mine.queryOptions().queryKey,
-      })
-      qc.removeQueries({
-        queryKey: tricks.landings.counts.queryOptions().queryKey,
-      })
-      if (sessionUser) {
-        qc.removeQueries({
-          queryKey: tricks.landings.forUser.queryOptions({
-            userId: sessionUser.id,
-          }).queryKey,
-        })
-      }
       router.navigate({ to: "/tricks/$trickId", params: { trickId } })
-    },
-    onError: (error) => {
-      toast.error(error.message)
     },
   })
 
@@ -182,55 +145,24 @@ function RouteComponent() {
     )
   }
 
-  let panel: ReactNode
-  if (path === "upload") {
-    panel = (
-      <VideoSubmitForm
-        trickName={trick.name}
-        onSubmit={(data) => {
-          land.mutate({
-            data: {
-              trickId: trick.id,
-              muxAssetId: data.muxAssetId,
-              notes: data.notes ?? null,
-              confirmedSingleTrick: true,
-            },
-          })
-        }}
-        onCancel={() =>
-          router.navigate({ to: "/tricks/$trickId", params: { trickId } })
-        }
-        isPending={land.isPending}
-        submitDisabled={!attested}
-        attestation={
-          <SingleTrickAttestation
-            id="upload-confirmed-single-trick"
-            trickName={trick.name}
-            checked={attested}
-            onChange={setAttested}
-          />
-        }
-      />
-    )
-  } else {
-    panel = (
-      <VaultPath
-        trickName={trick.name}
-        isPending={land.isPending}
-        onSwitchToUpload={() => setPath("upload")}
-        onSubmit={(muxAssetId) => {
-          land.mutate({
-            data: {
-              trickId: trick.id,
-              muxAssetId,
-              notes: null,
-              confirmedSingleTrick: true,
-            },
-          })
-        }}
-      />
-    )
+  const submitLanding = (muxAssetId: string, notes: string | null = null) => {
+    land.mutate({
+      data: {
+        trickId: trick.id,
+        muxAssetId,
+        notes,
+        confirmedSingleTrick: true,
+      },
+    })
   }
+
+  const attestation = (
+    <SingleTrickAttestation
+      trickName={trick.name}
+      checked={attested}
+      onChange={setAttested}
+    />
+  )
 
   return (
     <>
@@ -261,7 +193,28 @@ function RouteComponent() {
           </TabsList>
         </Tabs>
 
-        {panel}
+        {path === "upload" ? (
+          <VideoSubmitForm
+            trickName={trick.name}
+            onSubmit={(data) =>
+              submitLanding(data.muxAssetId, data.notes ?? null)
+            }
+            onCancel={() =>
+              router.navigate({ to: "/tricks/$trickId", params: { trickId } })
+            }
+            isPending={land.isPending}
+            submitDisabled={!attested}
+            attestation={attestation}
+          />
+        ) : (
+          <VaultPath
+            attestation={attestation}
+            canSubmit={attested}
+            isPending={land.isPending}
+            onSwitchToUpload={() => setPath("upload")}
+            onSubmit={submitLanding}
+          />
+        )}
       </div>
     </>
   )

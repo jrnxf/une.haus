@@ -393,13 +393,6 @@ export function buildTricksData(tricks: Trick[]): TricksData {
 
 // ==================== LANDINGS ====================
 
-// A rider has landed a trick when they have any non-rejected video for it.
-// Input is the per-trick landing list from the landings queries, so the set is
-// just the trick ids.
-export function computeLandedSet(landings: { trickId: number }[]): Set<number> {
-  return new Set(landings.map((l) => l.trickId))
-}
-
 // Frontier ("next up") tricks: not landed, and either no prerequisite or the
 // prerequisite is already landed. A prerequisite pointing outside the dataset
 // is treated as absent, mirroring computeDepthsAndDependents.

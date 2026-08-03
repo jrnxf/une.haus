@@ -4,7 +4,6 @@ import {
   computeAllNeighbors,
   computeDepthsAndDependents,
   computeFrontierSet,
-  computeLandedSet,
   describeModifierDiff,
   modifierDirection,
 } from "./compute"
@@ -465,19 +464,6 @@ describe("buildTricksData", () => {
     // Indexes built
     expect(result.elements).toContain("spin")
     expect(result.byElement.spin).toHaveLength(2)
-  })
-})
-
-// ── computeLandedSet ──────────────────────────────────────────────
-
-describe("computeLandedSet", () => {
-  it("collects trick ids from landings", () => {
-    const landed = computeLandedSet([{ trickId: 1 }, { trickId: 3 }])
-    expect(landed).toEqual(new Set([1, 3]))
-  })
-
-  it("returns an empty set for no landings", () => {
-    expect(computeLandedSet([])).toEqual(new Set())
   })
 })
 

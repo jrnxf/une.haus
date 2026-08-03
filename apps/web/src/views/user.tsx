@@ -25,8 +25,8 @@ import { RichText } from "~/components/rich-text"
 import { SocialLink } from "~/components/social-link"
 import { StatCard } from "~/components/stats/stat-card"
 import { SuspenseLoader } from "~/components/suspense-loader"
+import { LandingBadge } from "~/components/tricks/landing-badge"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
-import { badgeVariants } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { FlagEmoji } from "~/components/ui/flag-emoji"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
@@ -339,17 +339,12 @@ function LandingsPreview({ userId }: { userId: number }) {
           const trick = graph.byId[landing.trickId]
           if (!trick) return null
           return (
-            <Link
+            <LandingBadge
               key={landing.trickId}
-              to="/tricks/$trickId"
-              params={{ trickId: String(landing.trickId) }}
-              className={badgeVariants({ variant: "secondary" })}
-            >
-              {trick.name}
-              {landing.status === "pending" && (
-                <span className="text-muted-foreground">pending</span>
-              )}
-            </Link>
+              trickId={landing.trickId}
+              name={trick.name}
+              pending={landing.status === "pending"}
+            />
           )
         })}
       </div>
