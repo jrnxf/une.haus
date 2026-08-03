@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Info } from "lucide-react"
+import { type ReactNode } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -35,6 +36,10 @@ type VideoSubmitFormProps = {
   onSubmit: (data: { muxAssetId: string; notes?: string }) => void
   onCancel?: () => void
   isPending?: boolean
+  submitLabel?: string
+  // Rendered directly above the actions row (e.g. the single-trick attestation)
+  attestation?: ReactNode
+  submitDisabled?: boolean
 }
 
 export function VideoSubmitForm({
@@ -42,6 +47,9 @@ export function VideoSubmitForm({
   onSubmit,
   onCancel,
   isPending = false,
+  submitLabel = "save",
+  attestation,
+  submitDisabled = false,
 }: VideoSubmitFormProps) {
   const rhf = useForm<VideoSubmitFormValues>({
     defaultValues: {
@@ -123,13 +131,16 @@ export function VideoSubmitForm({
           )}
         />
 
+        {attestation}
+
         {/* Actions */}
         <Field orientation="horizontal">
-          <Button type="submit" disabled={isPending || formState.isSubmitting}>
+          <Button
+            type="submit"
+            disabled={submitDisabled || isPending || formState.isSubmitting}
+          >
             <span role="status">
-              {isPending || formState.isSubmitting
-                ? "submitting..."
-                : "submit video"}
+              {isPending || formState.isSubmitting ? "saving..." : submitLabel}
             </span>
           </Button>
           {onCancel && (

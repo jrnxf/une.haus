@@ -69,6 +69,7 @@ import { Route as ApiTourneySseCodeRouteImport } from './routes/api/tourney/sse.
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
+import { Route as AuthedTricksTrickIdLandRouteImport } from './routes/_authed/tricks/$trickId/land'
 import { Route as AuthedTourneyCodeRankingRouteImport } from './routes/_authed/tourney/$code/ranking'
 import { Route as AuthedTourneyCodePrelimsRouteImport } from './routes/_authed/tourney/$code/prelims'
 import { Route as AuthedTourneyCodeEditRouteImport } from './routes/_authed/tourney/$code/edit'
@@ -404,6 +405,11 @@ const AuthedTricksTrickIdSubmitVideoRoute =
     path: '/tricks/$trickId/submit-video',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedTricksTrickIdLandRoute = AuthedTricksTrickIdLandRouteImport.update({
+  id: '/tricks/$trickId/land',
+  path: '/tricks/$trickId/land',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedTourneyCodeRankingRoute =
   AuthedTourneyCodeRankingRouteImport.update({
     id: '/tourney/$code/ranking',
@@ -653,6 +659,7 @@ export interface FileRoutesByFullPath {
   '/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
+  '/tricks/$trickId/land': typeof AuthedTricksTrickIdLandRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
@@ -739,6 +746,7 @@ export interface FileRoutesByTo {
   '/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
+  '/tricks/$trickId/land': typeof AuthedTricksTrickIdLandRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
@@ -835,6 +843,7 @@ export interface FileRoutesById {
   '/_authed/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/_authed/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/_authed/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
+  '/_authed/tricks/$trickId/land': typeof AuthedTricksTrickIdLandRoute
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
@@ -928,6 +937,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/edit'
     | '/tourney/$code/prelims'
     | '/tourney/$code/ranking'
+    | '/tricks/$trickId/land'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
@@ -1014,6 +1024,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/edit'
     | '/tourney/$code/prelims'
     | '/tourney/$code/ranking'
+    | '/tricks/$trickId/land'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
@@ -1109,6 +1120,7 @@ export interface FileRouteTypes {
     | '/_authed/tourney/$code/edit'
     | '/_authed/tourney/$code/prelims'
     | '/_authed/tourney/$code/ranking'
+    | '/_authed/tricks/$trickId/land'
     | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/vault/$videoId/suggest'
@@ -1607,6 +1619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTricksTrickIdSubmitVideoRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/tricks/$trickId/land': {
+      id: '/_authed/tricks/$trickId/land'
+      path: '/tricks/$trickId/land'
+      fullPath: '/tricks/$trickId/land'
+      preLoaderRoute: typeof AuthedTricksTrickIdLandRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/tourney/$code/ranking': {
       id: '/_authed/tourney/$code/ranking'
       path: '/tourney/$code/ranking'
@@ -1875,6 +1894,7 @@ interface AuthedRouteChildren {
   AuthedTourneyCodeEditRoute: typeof AuthedTourneyCodeEditRoute
   AuthedTourneyCodePrelimsRoute: typeof AuthedTourneyCodePrelimsRoute
   AuthedTourneyCodeRankingRoute: typeof AuthedTourneyCodeRankingRoute
+  AuthedTricksTrickIdLandRoute: typeof AuthedTricksTrickIdLandRoute
   AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute
   AuthedTricksTrickIdSuggestRoute: typeof AuthedTricksTrickIdSuggestRoute
   AuthedVaultVideoIdSuggestRoute: typeof AuthedVaultVideoIdSuggestRoute
@@ -1907,6 +1927,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedTourneyCodeEditRoute: AuthedTourneyCodeEditRoute,
   AuthedTourneyCodePrelimsRoute: AuthedTourneyCodePrelimsRoute,
   AuthedTourneyCodeRankingRoute: AuthedTourneyCodeRankingRoute,
+  AuthedTricksTrickIdLandRoute: AuthedTricksTrickIdLandRoute,
   AuthedTricksTrickIdSubmitVideoRoute: AuthedTricksTrickIdSubmitVideoRoute,
   AuthedTricksTrickIdSuggestRoute: AuthedTricksTrickIdSuggestRoute,
   AuthedVaultVideoIdSuggestRoute: AuthedVaultVideoIdSuggestRoute,

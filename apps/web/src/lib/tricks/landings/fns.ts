@@ -1,7 +1,11 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
 
-import { listLandingsForUserSchema } from "./schemas"
+import {
+  landTrickSchema,
+  listLandingsForUserSchema,
+  unlandTrickSchema,
+} from "./schemas"
 import { authMiddleware } from "~/lib/middleware"
 
 const loadLandingOps = createServerOnlyFn(() => import("./ops.server"))
@@ -30,3 +34,23 @@ export const getLandingCountsServerFn = createServerFn({
   const { landingCounts } = await loadLandingOps()
   return landingCounts()
 })
+
+export const landTrickServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(landTrickSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { landTrick } = await loadLandingOps()
+    return landTrick(ctx)
+  })
+
+export const unlandTrickServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(unlandTrickSchema))
+  .middleware([authMiddleware])
+  .handler(async (ctx) => {
+    const { unlandTrick } = await loadLandingOps()
+    return unlandTrick(ctx)
+  })

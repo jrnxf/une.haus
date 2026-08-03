@@ -33,10 +33,16 @@ import {
 } from "./glossary/schemas"
 import {
   getLandingCountsServerFn,
+  landTrickServerFn,
   listLandingsForUserServerFn,
   listMyLandingsServerFn,
+  unlandTrickServerFn,
 } from "./landings/fns"
-import { listLandingsForUserSchema } from "./landings/schemas"
+import {
+  landTrickSchema,
+  listLandingsForUserSchema,
+  unlandTrickSchema,
+} from "./landings/schemas"
 import {
   createElementSchema,
   createModifierSchema,
@@ -358,6 +364,14 @@ export const tricks = {
           queryFn: () => getLandingCountsServerFn(),
           staleTime: 1000 * 60, // 1 minute
         }),
+    },
+    land: {
+      fn: landTrickServerFn,
+      schema: landTrickSchema,
+    },
+    unland: {
+      fn: unlandTrickServerFn,
+      schema: unlandTrickSchema,
     },
   },
 

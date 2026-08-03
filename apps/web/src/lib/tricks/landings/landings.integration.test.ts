@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
-import { trickVideos, tricks } from "~/db/schema"
+import { trickVideos, tricks, utvVideos } from "~/db/schema"
 import {
+  landTrick,
   landingCounts,
   landingsForUser,
+  unlandTrick,
 } from "~/lib/tricks/landings/ops.server"
 import {
+  asUser,
   seedMuxVideo,
   seedUser,
   truncatePublicTables,
@@ -183,5 +186,142 @@ describe("landings integration", () => {
     expect(byTrick.get(popular.id)).toBe(2)
     expect(byTrick.get(niche.id)).toBe(1)
     expect(byTrick.has(unlanded.id)).toBe(false)
+  })
+
+  it("landTrick creates a pending video row for the rider", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const trick = await seedTrick("Land Trick")
+    const video = await seedMuxVideo()
+
+    const row = await landTrick({
+      ...asUser(rider),
+      data: {
+        trickId: trick.id,
+        muxAssetId: video.assetId,
+        notes: null,
+        confirmedSingleTrick: true,
+      },
+    })
+
+    expect(row).toEqual(
+      expect.objectContaining({
+        trickId: trick.id,
+        muxAssetId: video.assetId,
+        status: "pending",
+        submittedByUserId: rider.id,
+      }),
+    )
+  })
+
+  it("unlandTrick deletes own non-rejected rows and the unshared mux asset", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const other = await seedUser({ name: "Other" })
+    const trick = await seedTrick("Unland Trick")
+
+    const own = await seedTrickVideo({
+      trickId: trick.id,
+      userId: rider.id,
+      status: "pending",
+    })
+    const rejected = await seedTrickVideo({
+      trickId: trick.id,
+      userId: rider.id,
+      status: "rejected",
+    })
+    const others = await seedTrickVideo({
+      trickId: trick.id,
+      userId: other.id,
+      status: "active",
+    })
+
+    const deletedAssets: string[] = []
+    const result = await unlandTrick({
+      ...asUser(rider),
+      data: { trickId: trick.id },
+      deleteRemoteAsset: async (assetId) => {
+        deletedAssets.push(assetId)
+      },
+    })
+
+    expect(result).toEqual({ removed: 1 })
+
+    const remainingRows = await db.query.trickVideos.findMany()
+    expect(remainingRows.map((r) => r.id).toSorted()).toEqual(
+      [rejected.id, others.id].toSorted(),
+    )
+
+    // The direct-upload asset was destroyed remotely and locally
+    expect(deletedAssets).toEqual([own.muxAssetId])
+    const remainingAssets = await db.query.muxVideos.findMany()
+    expect(remainingAssets.map((a) => a.assetId)).not.toContain(own.muxAssetId)
+  })
+
+  it("unlandTrick keeps a shared (vault-linked) mux asset", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const trick = await seedTrick("Vault Linked Trick")
+    const video = await seedMuxVideo()
+
+    await db.insert(utvVideos).values({
+      legacyUrl: "https://example.com",
+      legacyTitle: "vault video",
+      muxAssetId: video.assetId,
+    })
+    await db.insert(trickVideos).values({
+      muxAssetId: video.assetId,
+      status: "pending",
+      submittedByUserId: rider.id,
+      trickId: trick.id,
+    })
+
+    const deletedAssets: string[] = []
+    await unlandTrick({
+      ...asUser(rider),
+      data: { trickId: trick.id },
+      deleteRemoteAsset: async (assetId) => {
+        deletedAssets.push(assetId)
+      },
+    })
+
+    // The landing row is gone but the asset survives for the vault
+    expect(await db.query.trickVideos.findMany()).toHaveLength(0)
+    expect(deletedAssets).toEqual([])
+    const assets = await db.query.muxVideos.findMany()
+    expect(assets.map((a) => a.assetId)).toContain(video.assetId)
+  })
+
+  it("unlandTrick still removes the landing when the remote delete fails", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const trick = await seedTrick("Flaky Mux Trick")
+
+    const own = await seedTrickVideo({
+      trickId: trick.id,
+      userId: rider.id,
+      status: "pending",
+    })
+
+    const result = await unlandTrick({
+      ...asUser(rider),
+      data: { trickId: trick.id },
+      deleteRemoteAsset: async () => {
+        throw new Error("mux is down")
+      },
+    })
+
+    expect(result).toEqual({ removed: 1 })
+    expect(await db.query.trickVideos.findMany()).toHaveLength(0)
+    const assets = await db.query.muxVideos.findMany()
+    expect(assets.map((a) => a.assetId)).not.toContain(own.muxAssetId)
+  })
+
+  it("unlandTrick throws when there is no landing to remove", async () => {
+    const rider = await seedUser({ name: "Rider" })
+    const trick = await seedTrick("Never Landed Trick")
+
+    await expect(
+      unlandTrick({
+        ...asUser(rider),
+        data: { trickId: trick.id },
+      }),
+    ).rejects.toThrow("No landing to remove")
   })
 })
