@@ -126,7 +126,7 @@ function TrickDetailPage() {
                     confirm.open({
                       title: "un-land trick",
                       description:
-                        "this removes your landing and deletes your proof video. vault videos stay in your vault.",
+                        "this removes your landing and deletes your proof video. game footage stays in your games.",
                       confirmText: "un-land",
                       variant: "destructive",
                       onConfirm: () =>
