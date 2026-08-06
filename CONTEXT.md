@@ -43,6 +43,16 @@ _Avoid_: suggestion (that is a different concept — see below).
 A rider's proposed **edit to an existing** trick, expressed as a diff and awaiting review.
 _Avoid_: submission, edit request.
 
+**landing**:
+A rider's attested claim of having landed a trick, proven with a video — uploaded fresh or picked from
+their existing game footage. A landing counts the moment its proof is submitted; a rejected proof video
+revokes it, and a rider can **un-land** to withdraw it.
+_Avoid_: completion, check-off.
+
+**frontier**:
+A rider's "next up" tricks — those not yet landed whose prerequisite (if any) is already landed.
+_Avoid_: recommendations, unlocked.
+
 ### Games
 
 Three rider games, each an "\_\_\_ It Up" format. All are built from **sets** and **submissions**.
