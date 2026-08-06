@@ -1,5 +1,6 @@
-import net from "node:net"
 import process from "node:process"
+
+import { canConnect, LOCAL_HOSTS, waitForPort } from "./tunnel-shared"
 
 // Run a command with the homelab Postgres reachable on localhost.
 //
@@ -21,8 +22,6 @@ import process from "node:process"
 // Escape hatches: DB_TUNNEL=0 skips tunnel management entirely, DB_TUNNEL_PORT
 // overrides the port derived from DATABASE_URL.
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]"])
-
 function portFromDatabaseUrl(): number | undefined {
   const raw = process.env.DATABASE_URL
   if (!raw) return undefined
@@ -43,28 +42,6 @@ const command = process.argv.slice(2).join(" ")
 if (!command) {
   console.error("with-db-tunnel: no command to run")
   process.exit(1)
-}
-
-function canConnect(port: number, timeoutMs: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const socket = net.connect({ host: "127.0.0.1", port })
-    const done = (ok: boolean) => {
-      socket.destroy()
-      resolve(ok)
-    }
-    socket.setTimeout(timeoutMs)
-    socket.once("connect", () => done(true))
-    socket.once("timeout", () => done(false))
-    socket.once("error", () => done(false))
-  })
-}
-
-async function waitForPort(port: number, attempts: number): Promise<boolean> {
-  for (let i = 0; i < attempts; i++) {
-    if (await canConnect(port, 1000)) return true
-    await Bun.sleep(500)
-  }
-  return false
 }
 
 let tunnel: Bun.Subprocess | undefined

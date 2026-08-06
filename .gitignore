@@ -5,5 +5,6 @@ dist-ssr
 *.local
 .env
 .playwright-mcp
+sandbox/prod.dump
 .source
 .claude
