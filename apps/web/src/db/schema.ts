@@ -1463,6 +1463,11 @@ export const trickVideos = pgTable(
     index("trick_videos_trick_id_idx").on(t.trickId),
     index("trick_videos_status_idx").on(t.status),
     index("trick_videos_submitted_by_idx").on(t.submittedByUserId),
+    uniqueIndex("trick_videos_trick_asset_user_uq").on(
+      t.trickId,
+      t.muxAssetId,
+      t.submittedByUserId,
+    ),
   ],
 )
 
