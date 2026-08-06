@@ -1,9 +1,16 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, countDistinct, eq, isNotNull, ne } from "drizzle-orm"
+import { and, asc, countDistinct, eq, isNotNull, isNull, ne } from "drizzle-orm"
 
 import { type LandTrickArgs, type UnlandTrickArgs } from "./schemas"
 import { db } from "~/db"
-import { muxVideos, trickVideos, utvVideoRiders, utvVideos } from "~/db/schema"
+import {
+  biuSets,
+  muxVideos,
+  riuSets,
+  riuSubmissions,
+  siuSets,
+  trickVideos,
+} from "~/db/schema"
 import { invariant } from "~/lib/invariant"
 import { deleteMuxAssetIfUnreferenced } from "~/lib/media/ops.server"
 import { submitVideo } from "~/lib/tricks/videos/ops.server"
@@ -92,62 +99,118 @@ export async function landTrick({
   })
 }
 
-export type VaultVideoOption = {
-  utvVideoId: number
-  title: string
+export type GameVideoOption = {
+  id: string
+  label: string
+  game: "riu" | "biu" | "siu"
+  kind: "set" | "submission"
   muxAssetId: string
   playbackId: string | null
-  thumbnailSeconds: number
-  durationSeconds: number | null
 }
 
-async function getMuxAssetDuration(assetId: string): Promise<number | null> {
-  try {
-    const { muxClient } = await import("~/lib/clients/mux")
-    const asset = await muxClient.video.assets.retrieve(assetId)
-    return asset.duration ?? null
-  } catch {
-    // Duration is display sugar — a mux hiccup must not break the picker
-    return null
-  }
-}
+const tag = <
+  R,
+  G extends GameVideoOption["game"],
+  K extends GameVideoOption["kind"],
+>(
+  rows: R[],
+  game: G,
+  kind: K,
+) => rows.map((row) => ({ ...row, game, kind }))
 
-// Vault videos the rider appears in that have playable mux footage — the
-// candidates for linking as landing proof.
-export async function vaultVideosForUser(
+// The rider's own game footage with playable mux assets — sets and
+// submissions across every game type, the candidates for linking as landing
+// proof. Newest first; an asset appearing in several places is offered once.
+// Deliberately no per-asset mux calls (e.g. durations): an active rider has
+// hundreds of candidates and live retrieval blew past the server's response
+// timeout. Duration display can return once it's persisted from the
+// asset.ready webhook.
+export async function gameVideosForUser(
   userId: number,
-  // Injectable so integration tests avoid the remote mux call
-  getAssetDuration: (
-    assetId: string,
-  ) => Promise<number | null> = getMuxAssetDuration,
-): Promise<VaultVideoOption[]> {
-  const rows = await db
-    .selectDistinct({
-      utvVideoId: utvVideos.id,
-      title: utvVideos.title,
-      legacyTitle: utvVideos.legacyTitle,
-      thumbnailSeconds: utvVideos.thumbnailSeconds,
-      muxAssetId: muxVideos.assetId,
-      playbackId: muxVideos.playbackId,
-    })
-    .from(utvVideoRiders)
-    .innerJoin(utvVideos, eq(utvVideoRiders.utvVideoId, utvVideos.id))
-    .innerJoin(muxVideos, eq(utvVideos.muxAssetId, muxVideos.assetId))
-    .where(
-      and(eq(utvVideoRiders.userId, userId), isNotNull(muxVideos.playbackId)),
-    )
-    .orderBy(asc(utvVideos.id))
+): Promise<GameVideoOption[]> {
+  // biu and siu sets share a shape (soft-deletable, self-named); riu sets
+  // have no soft delete, and riu submissions borrow their host set's name.
+  const softDeletableSetRows = (table: typeof biuSets | typeof siuSets) =>
+    db
+      .select({
+        id: table.id,
+        name: table.name,
+        muxAssetId: muxVideos.assetId,
+        playbackId: muxVideos.playbackId,
+        createdAt: table.createdAt,
+      })
+      .from(table)
+      .innerJoin(muxVideos, eq(table.muxAssetId, muxVideos.assetId))
+      .where(
+        and(
+          eq(table.userId, userId),
+          isNull(table.deletedAt),
+          isNotNull(muxVideos.playbackId),
+        ),
+      )
 
-  return Promise.all(
-    rows.map(async (row) => ({
-      utvVideoId: row.utvVideoId,
-      title: row.title || row.legacyTitle,
+  const [riuSetRows, riuSubmissionRows, biuSetRows, siuSetRows] =
+    await Promise.all([
+      db
+        .select({
+          id: riuSets.id,
+          name: riuSets.name,
+          muxAssetId: muxVideos.assetId,
+          playbackId: muxVideos.playbackId,
+          createdAt: riuSets.createdAt,
+        })
+        .from(riuSets)
+        .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
+        .where(
+          and(eq(riuSets.userId, userId), isNotNull(muxVideos.playbackId)),
+        ),
+      db
+        .select({
+          id: riuSubmissions.id,
+          name: riuSets.name,
+          muxAssetId: muxVideos.assetId,
+          playbackId: muxVideos.playbackId,
+          createdAt: riuSubmissions.createdAt,
+        })
+        .from(riuSubmissions)
+        .innerJoin(riuSets, eq(riuSubmissions.riuSetId, riuSets.id))
+        .innerJoin(muxVideos, eq(riuSubmissions.muxAssetId, muxVideos.assetId))
+        .where(
+          and(
+            eq(riuSubmissions.userId, userId),
+            isNotNull(muxVideos.playbackId),
+          ),
+        ),
+      softDeletableSetRows(biuSets),
+      softDeletableSetRows(siuSets),
+    ])
+
+  const candidates = [
+    ...tag(riuSetRows, "riu", "set"),
+    ...tag(riuSubmissionRows, "riu", "submission"),
+    ...tag(biuSetRows, "biu", "set"),
+    ...tag(siuSetRows, "siu", "set"),
+  ].toSorted((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
+  // The picker's radio value is the mux asset id, so an asset that shows up
+  // in several places (e.g. a set reused as a submission) is offered once —
+  // the newest occurrence wins.
+  const seenAssets = new Set<string>()
+  const options: GameVideoOption[] = []
+  for (const row of candidates) {
+    if (seenAssets.has(row.muxAssetId)) continue
+    seenAssets.add(row.muxAssetId)
+    options.push({
+      id: `${row.game}-${row.kind}-${row.id}`,
+      label: row.name,
+      game: row.game,
+      kind: row.kind,
       muxAssetId: row.muxAssetId,
       playbackId: row.playbackId,
-      thumbnailSeconds: row.thumbnailSeconds,
-      durationSeconds: await getAssetDuration(row.muxAssetId),
-    })),
-  )
+    })
+  }
+
+  return options
 }
 
 export async function unlandTrick({

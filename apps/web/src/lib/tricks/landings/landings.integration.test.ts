@@ -2,18 +2,24 @@ import { beforeEach, describe, expect, it } from "bun:test"
 
 import { db } from "~/db"
 import {
+  bius,
+  biuSets,
   muxVideos,
+  rius,
+  riuSets,
+  riuSubmissions,
+  sius,
+  siuSets,
   trickVideos,
   tricks,
-  utvVideoRiders,
   utvVideos,
 } from "~/db/schema"
 import {
+  gameVideosForUser,
   landTrick,
   landingCounts,
   landingsForUser,
   unlandTrick,
-  vaultVideosForUser,
 } from "~/lib/tricks/landings/ops.server"
 import {
   asUser,
@@ -338,11 +344,19 @@ describe("landings integration", () => {
     )
   })
 
-  it("vaultVideosForUser returns only the rider's playable vault videos", async () => {
+  it("gameVideosForUser returns the rider's playable sets and submissions, newest first", async () => {
     const rider = await seedUser({ name: "Rider" })
     const other = await seedUser({ name: "Other" })
 
-    const playable = await seedMuxVideo()
+    const [riu] = await db.insert(rius).values({}).returning()
+    const [biu] = await db.insert(bius).values({}).returning()
+    const [siu] = await db.insert(sius).values({}).returning()
+
+    const riuSetAsset = await seedMuxVideo()
+    const submissionAsset = await seedMuxVideo()
+    const biuAsset = await seedMuxVideo()
+    const siuAsset = await seedMuxVideo()
+    const deletedAsset = await seedMuxVideo()
     const otherAsset = await seedMuxVideo()
     // A mux row without a playback id — footage that can't be shown
     const [unplayable] = await db
@@ -350,50 +364,152 @@ describe("landings integration", () => {
       .values({ assetId: "asset-unplayable" })
       .returning()
 
-    const [mine] = await db
-      .insert(utvVideos)
+    const [myRiuSet] = await db
+      .insert(riuSets)
       .values({
-        legacyUrl: "https://example.com/1",
-        legacyTitle: "legacy title",
-        muxAssetId: playable.assetId,
+        riuId: riu.id,
+        userId: rider.id,
+        name: "my riu set",
+        muxAssetId: riuSetAsset.assetId,
+        createdAt: new Date("2026-01-01T00:00:00Z"),
       })
       .returning()
-    const [notMine] = await db
-      .insert(utvVideos)
+    // Another rider's set that ours submitted to — the submission counts,
+    // the host set itself does not.
+    const [othersSet] = await db
+      .insert(riuSets)
       .values({
-        legacyUrl: "https://example.com/2",
-        legacyTitle: "someone else",
+        riuId: riu.id,
+        userId: other.id,
+        name: "others set",
         muxAssetId: otherAsset.assetId,
       })
       .returning()
-    const [broken] = await db
-      .insert(utvVideos)
+    const [mySubmission] = await db
+      .insert(riuSubmissions)
       .values({
-        legacyUrl: "https://example.com/3",
-        legacyTitle: "no playback",
-        muxAssetId: unplayable.assetId,
+        riuSetId: othersSet.id,
+        userId: rider.id,
+        muxAssetId: submissionAsset.assetId,
+        createdAt: new Date("2026-02-01T00:00:00Z"),
       })
       .returning()
+    const [mySiuSet] = await db
+      .insert(siuSets)
+      .values({
+        siuId: siu.id,
+        userId: rider.id,
+        name: "my siu set",
+        muxAssetId: siuAsset.assetId,
+        position: 0,
+        createdAt: new Date("2026-03-01T00:00:00Z"),
+      })
+      .returning()
+    const [myBiuSet] = await db
+      .insert(biuSets)
+      .values({
+        biuId: biu.id,
+        userId: rider.id,
+        name: "my biu set",
+        muxAssetId: biuAsset.assetId,
+        position: 0,
+        createdAt: new Date("2026-04-01T00:00:00Z"),
+      })
+      .returning()
+    // Soft-deleted and unplayable footage never shows up
+    await db.insert(siuSets).values({
+      siuId: siu.id,
+      userId: rider.id,
+      name: "deleted siu set",
+      muxAssetId: deletedAsset.assetId,
+      position: 1,
+      deletedAt: new Date(),
+    })
+    await db.insert(siuSets).values({
+      siuId: siu.id,
+      userId: rider.id,
+      name: "unplayable siu set",
+      muxAssetId: unplayable.assetId,
+      position: 2,
+    })
 
-    await db.insert(utvVideoRiders).values([
-      { utvVideoId: mine.id, userId: rider.id },
-      { utvVideoId: notMine.id, userId: other.id },
-      { utvVideoId: broken.id, userId: rider.id },
-    ])
-
-    const options = await vaultVideosForUser(rider.id, async () => 92.4)
+    const options = await gameVideosForUser(rider.id)
 
     expect(options).toEqual([
       {
-        utvVideoId: mine.id,
-        // Empty title falls back to the legacy title
-        title: "legacy title",
-        muxAssetId: playable.assetId,
-        playbackId: playable.playbackId,
-        thumbnailSeconds: 30,
-        durationSeconds: 92.4,
+        id: `biu-set-${myBiuSet.id}`,
+        label: "my biu set",
+        game: "biu",
+        kind: "set",
+        muxAssetId: biuAsset.assetId,
+        playbackId: biuAsset.playbackId,
+      },
+      {
+        id: `siu-set-${mySiuSet.id}`,
+        label: "my siu set",
+        game: "siu",
+        kind: "set",
+        muxAssetId: siuAsset.assetId,
+        playbackId: siuAsset.playbackId,
+      },
+      {
+        id: `riu-submission-${mySubmission.id}`,
+        // A submission is labeled by the set it answered
+        label: "others set",
+        game: "riu",
+        kind: "submission",
+        muxAssetId: submissionAsset.assetId,
+        playbackId: submissionAsset.playbackId,
+      },
+      {
+        id: `riu-set-${myRiuSet.id}`,
+        label: "my riu set",
+        game: "riu",
+        kind: "set",
+        muxAssetId: riuSetAsset.assetId,
+        playbackId: riuSetAsset.playbackId,
       },
     ])
+  })
+
+  it("gameVideosForUser offers a shared asset once — newest occurrence wins", async () => {
+    const rider = await seedUser({ name: "Rider" })
+
+    const [riu] = await db.insert(rius).values({}).returning()
+    const shared = await seedMuxVideo()
+
+    await db.insert(riuSets).values({
+      riuId: riu.id,
+      userId: rider.id,
+      name: "old set",
+      muxAssetId: shared.assetId,
+      createdAt: new Date("2026-01-01T00:00:00Z"),
+    })
+    const [hostSet] = await db
+      .insert(riuSets)
+      .values({
+        riuId: riu.id,
+        userId: rider.id,
+        name: "host set",
+        muxAssetId: shared.assetId,
+        createdAt: new Date("2026-01-02T00:00:00Z"),
+      })
+      .returning()
+    const [newer] = await db
+      .insert(riuSubmissions)
+      .values({
+        riuSetId: hostSet.id,
+        userId: rider.id,
+        muxAssetId: shared.assetId,
+        createdAt: new Date("2026-02-01T00:00:00Z"),
+      })
+      .returning()
+
+    const options = await gameVideosForUser(rider.id)
+
+    expect(options).toHaveLength(1)
+    expect(options[0]?.id).toBe(`riu-submission-${newer.id}`)
+    expect(options[0]?.muxAssetId).toBe(shared.assetId)
   })
 
   it("unlandTrick throws when there is no landing to remove", async () => {

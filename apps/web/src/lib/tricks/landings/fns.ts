@@ -26,13 +26,13 @@ export const getLandingCountsServerFn = createServerFn({
   return landingCounts()
 })
 
-export const listVaultVideosForLandingServerFn = createServerFn({
+export const listGameVideosForLandingServerFn = createServerFn({
   method: "GET",
 })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const { vaultVideosForUser } = await loadLandingOps()
-    return vaultVideosForUser(context.user.id)
+    const { gameVideosForUser } = await loadLandingOps()
+    return gameVideosForUser(context.user.id)
   })
 
 export const landTrickServerFn = createServerFn({

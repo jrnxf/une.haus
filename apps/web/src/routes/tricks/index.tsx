@@ -531,8 +531,15 @@ function TricksListPage() {
           right={
             <>
               {sessionUser && (
-                <span className="text-muted-foreground self-center text-sm tabular-nums">
-                  {landedCount} / {data.tricks.length} landed
+                <span className="text-muted-foreground flex items-center gap-3 self-center text-sm">
+                  {/* Legend for the glyph column */}
+                  <span className="flex items-center gap-1.5">
+                    <span className="bg-primary inline-block size-1.5 rounded-full" />
+                    next up
+                  </span>
+                  <span className="tabular-nums">
+                    {landedCount} / {data.tricks.length} landed
+                  </span>
                 </span>
               )}
               <Button asChild variant="secondary">

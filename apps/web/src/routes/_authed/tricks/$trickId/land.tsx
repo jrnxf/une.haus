@@ -5,7 +5,7 @@ import { type ReactNode, useState } from "react"
 
 import { PageHeader } from "~/components/page-header"
 import { SuspenseLoader } from "~/components/suspense-loader"
-import { VaultVideoPicker } from "~/components/tricks/vault-video-picker"
+import { GameVideoPicker } from "~/components/tricks/game-video-picker"
 import { VideoSubmitForm } from "~/components/tricks/video-submit-form"
 import { Button } from "~/components/ui/button"
 import { Checkbox } from "~/components/ui/checkbox"
@@ -56,21 +56,23 @@ function SingleTrickAttestation({
   )
 }
 
-function VaultPath({
+function GamesPath({
   attestation,
   canSubmit,
   onSubmit,
   isPending,
   onSwitchToUpload,
+  trickName,
 }: {
   attestation: ReactNode
   canSubmit: boolean
   onSubmit: (muxAssetId: string) => void
   isPending: boolean
   onSwitchToUpload: () => void
+  trickName: string
 }) {
-  const { data: vaultVideos, isPending: isLoading } = useQuery(
-    tricks.landings.vault.queryOptions(),
+  const { data: gameVideos, isPending: isLoading } = useQuery(
+    tricks.landings.gameVideos.queryOptions(),
   )
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
 
@@ -78,16 +80,16 @@ function VaultPath({
     return <SuspenseLoader />
   }
 
-  if (!vaultVideos || vaultVideos.length === 0) {
+  if (!gameVideos || gameVideos.length === 0) {
     return (
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <GhostIcon />
           </EmptyMedia>
-          <EmptyTitle>no vault videos</EmptyTitle>
+          <EmptyTitle>no game footage</EmptyTitle>
           <EmptyDescription>
-            you don&apos;t appear in any vault videos with playable footage
+            your sets and submissions with playable footage will show up here
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
@@ -101,10 +103,11 @@ function VaultPath({
 
   return (
     <div className="space-y-4">
-      <VaultVideoPicker
-        videos={vaultVideos}
+      <GameVideoPicker
+        videos={gameVideos}
         value={selectedAssetId}
         onChange={setSelectedAssetId}
+        defaultQuery={trickName}
       />
 
       {attestation}
@@ -128,7 +131,7 @@ function RouteComponent() {
 
   const { data: trick } = useSuspenseQuery(tricks.get.queryOptions({ id }))
 
-  const [path, setPath] = useState<"upload" | "vault">("upload")
+  const [path, setPath] = useState<"upload" | "games">("upload")
   const [attested, setAttested] = useState(false)
 
   const land = useLandTrick({
@@ -184,12 +187,12 @@ function RouteComponent() {
         <Tabs
           value={path}
           onValueChange={(next) => {
-            if (next === "upload" || next === "vault") setPath(next)
+            if (next === "upload" || next === "games") setPath(next)
           }}
         >
           <TabsList>
             <TabsTrigger value="upload">upload</TabsTrigger>
-            <TabsTrigger value="vault">from vault</TabsTrigger>
+            <TabsTrigger value="games">from games</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -207,12 +210,13 @@ function RouteComponent() {
             attestation={attestation}
           />
         ) : (
-          <VaultPath
+          <GamesPath
             attestation={attestation}
             canSubmit={attested}
             isPending={land.isPending}
             onSwitchToUpload={() => setPath("upload")}
             onSubmit={submitLanding}
+            trickName={trick.name}
           />
         )}
       </div>
