@@ -19,13 +19,6 @@ export const listLandingsForUserServerFn = createServerFn({
     return landingsForUser(data.userId)
   })
 
-export const getLandingCountsServerFn = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  const { landingCounts } = await loadLandingOps()
-  return landingCounts()
-})
-
 export const listGameVideosForLandingServerFn = createServerFn({
   method: "GET",
 })

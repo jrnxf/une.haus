@@ -598,10 +598,6 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
     },
     onSuccess: (_, variables) => {
       qc.removeQueries({ queryKey: graphQueryKey })
-      // A rejection revokes the submitter's landing
-      qc.removeQueries({
-        queryKey: tricks.landings.counts.queryOptions().queryKey,
-      })
       toast.success(
         variables.data.status === "active"
           ? "video approved"

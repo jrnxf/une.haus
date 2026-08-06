@@ -3,7 +3,7 @@ import { useDeferredValue, useMemo, useState } from "react"
 import { Button } from "~/components/ui/button"
 import { Checkbox } from "~/components/ui/checkbox"
 import { Input } from "~/components/ui/input"
-import { getMuxPoster, VideoPlayer } from "~/components/video-player"
+import { VideoPlayer } from "~/components/video-player"
 
 import type { GameVideoOption } from "~/lib/tricks"
 
@@ -69,22 +69,10 @@ export function GameVideoPicker({
                 key={video.id}
                 className="relative aspect-video overflow-clip rounded-md bg-black"
               >
-                {video.playbackId ? (
-                  <VideoPlayer
-                    playbackId={video.playbackId}
-                    className="h-full w-full rounded-none"
-                  />
-                ) : (
-                  <img
-                    src={getMuxPoster({
-                      playbackId: video.playbackId,
-                      width: 320,
-                    })}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                )}
+                <VideoPlayer
+                  playbackId={video.playbackId}
+                  className="h-full w-full rounded-none"
+                />
                 {/* Blurred title bar (vault style) carrying the select checkbox */}
                 <label className="absolute inset-x-0 bottom-0 z-10 flex cursor-pointer items-center gap-2 rounded-b-md bg-black/60 px-2 py-1.5 backdrop-blur-xs">
                   <Checkbox

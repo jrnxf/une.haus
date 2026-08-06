@@ -32,7 +32,6 @@ import {
   reviewGlossaryProposalSchema,
 } from "./glossary/schemas"
 import {
-  getLandingCountsServerFn,
   landTrickServerFn,
   listLandingsForUserServerFn,
   listGameVideosForLandingServerFn,
@@ -345,15 +344,6 @@ export const tricks = {
           queryKey: ["tricks.landings.forUser", data],
           queryFn: () => listLandingsForUserServerFn({ data }),
           staleTime: 1000 * 30, // 30 seconds
-        }),
-    },
-    counts: {
-      fn: getLandingCountsServerFn,
-      queryOptions: () =>
-        queryOptions({
-          queryKey: ["tricks.landings.counts"],
-          queryFn: () => getLandingCountsServerFn(),
-          staleTime: 1000 * 60, // 1 minute
         }),
     },
     land: {

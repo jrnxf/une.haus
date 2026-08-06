@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, countDistinct, eq, isNotNull, isNull, ne } from "drizzle-orm"
+import { and, asc, eq, isNotNull, isNull, ne } from "drizzle-orm"
 
 import { type LandTrickArgs, type UnlandTrickArgs } from "./schemas"
 import { db } from "~/db"
@@ -69,19 +69,6 @@ export async function landingsForUser(userId: number): Promise<Landing[]> {
   return [...byTrick.values()]
 }
 
-export async function landingCounts(): Promise<
-  { trickId: number; riders: number }[]
-> {
-  return db
-    .select({
-      trickId: trickVideos.trickId,
-      riders: countDistinct(trickVideos.submittedByUserId),
-    })
-    .from(trickVideos)
-    .where(ne(trickVideos.status, "rejected"))
-    .groupBy(trickVideos.trickId)
-}
-
 export async function landTrick({
   data,
   context,
@@ -105,7 +92,7 @@ export type GameVideoOption = {
   game: "riu" | "biu" | "siu"
   kind: "set" | "submission"
   muxAssetId: string
-  playbackId: string | null
+  playbackId: string
 }
 
 const tag = <
@@ -198,7 +185,7 @@ export async function gameVideosForUser(
   const seenAssets = new Set<string>()
   const options: GameVideoOption[] = []
   for (const row of candidates) {
-    if (seenAssets.has(row.muxAssetId)) continue
+    if (row.playbackId === null || seenAssets.has(row.muxAssetId)) continue
     seenAssets.add(row.muxAssetId)
     options.push({
       id: `${row.game}-${row.kind}-${row.id}`,

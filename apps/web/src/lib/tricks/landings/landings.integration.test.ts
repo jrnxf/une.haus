@@ -17,7 +17,6 @@ import {
 import {
   gameVideosForUser,
   landTrick,
-  landingCounts,
   landingsForUser,
   unlandTrick,
 } from "~/lib/tricks/landings/ops.server"
@@ -155,50 +154,6 @@ describe("landings integration", () => {
   it("a user with no landings gets an empty list", async () => {
     const rider = await seedUser({ name: "Rider" })
     expect(await landingsForUser(rider.id)).toEqual([])
-  })
-
-  it("landingCounts counts distinct riders per trick, excluding rejected", async () => {
-    const riderA = await seedUser({ name: "Rider A" })
-    const riderB = await seedUser({ name: "Rider B" })
-    const riderC = await seedUser({ name: "Rider C" })
-    const popular = await seedTrick("Popular Trick")
-    const niche = await seedTrick("Niche Trick")
-    const unlanded = await seedTrick("Unlanded Trick")
-
-    // Rider A has two videos on the same trick — counts once.
-    await seedTrickVideo({
-      trickId: popular.id,
-      userId: riderA.id,
-      status: "pending",
-    })
-    await seedTrickVideo({
-      trickId: popular.id,
-      userId: riderA.id,
-      status: "active",
-    })
-    await seedTrickVideo({
-      trickId: popular.id,
-      userId: riderB.id,
-      status: "pending",
-    })
-    // Rejected videos never count.
-    await seedTrickVideo({
-      trickId: popular.id,
-      userId: riderC.id,
-      status: "rejected",
-    })
-    await seedTrickVideo({
-      trickId: niche.id,
-      userId: riderB.id,
-      status: "active",
-    })
-
-    const counts = await landingCounts()
-    const byTrick = new Map(counts.map((c) => [c.trickId, c.riders]))
-
-    expect(byTrick.get(popular.id)).toBe(2)
-    expect(byTrick.get(niche.id)).toBe(1)
-    expect(byTrick.has(unlanded.id)).toBe(false)
   })
 
   it("landTrick creates a pending video row for the rider", async () => {
@@ -442,7 +397,7 @@ describe("landings integration", () => {
         game: "biu",
         kind: "set",
         muxAssetId: biuAsset.assetId,
-        playbackId: biuAsset.playbackId,
+        playbackId: `playback-${biuAsset.assetId}`,
       },
       {
         id: `siu-set-${mySiuSet.id}`,
@@ -450,7 +405,7 @@ describe("landings integration", () => {
         game: "siu",
         kind: "set",
         muxAssetId: siuAsset.assetId,
-        playbackId: siuAsset.playbackId,
+        playbackId: `playback-${siuAsset.assetId}`,
       },
       {
         id: `riu-submission-${mySubmission.id}`,
@@ -459,7 +414,7 @@ describe("landings integration", () => {
         game: "riu",
         kind: "submission",
         muxAssetId: submissionAsset.assetId,
-        playbackId: submissionAsset.playbackId,
+        playbackId: `playback-${submissionAsset.assetId}`,
       },
       {
         id: `riu-set-${myRiuSet.id}`,
@@ -467,7 +422,7 @@ describe("landings integration", () => {
         game: "riu",
         kind: "set",
         muxAssetId: riuSetAsset.assetId,
-        playbackId: riuSetAsset.playbackId,
+        playbackId: `playback-${riuSetAsset.assetId}`,
       },
     ])
   })

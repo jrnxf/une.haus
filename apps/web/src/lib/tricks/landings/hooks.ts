@@ -50,9 +50,6 @@ function useRemoveLandingQueries() {
   const qc = useQueryClient()
   const sessionUser = useSessionUser()
   return () => {
-    qc.removeQueries({
-      queryKey: tricks.landings.counts.queryOptions().queryKey,
-    })
     if (sessionUser) {
       qc.removeQueries({
         queryKey: tricks.landings.forUser.queryOptions({
@@ -97,9 +94,6 @@ export function useUnlandTrick() {
       }
       // An active proof may have just left the reference carousel
       qc.invalidateQueries({ queryKey: tricks.graph.queryOptions().queryKey })
-      qc.removeQueries({
-        queryKey: tricks.landings.counts.queryOptions().queryKey,
-      })
     },
     onError: (error) => {
       toast.error(error.message)
