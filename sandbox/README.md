@@ -16,8 +16,9 @@ bun run sandbox down       # stop containers (data volume survives)
 ## How it works
 
 - **Clone**: opens its own ssh tunnel to the homelab box on local port 55433
-  (`ClearAllForwardings` so the `unehaus-db` alias's 5432 forward can't
-  collide with a local postgres), `pg_dump --format=custom` with the
+  (`ExitOnForwardFailure=no` so the `unehaus-db` alias's 5432 forward failing
+  against a local postgres doesn't kill the tunnel — only 55433 has to come
+  up), `pg_dump --format=custom` with the
   credentials from `apps/web/.env`, then drop-and-restore into the sandbox
   postgres. The dump lands at `sandbox/prod.dump` (gitignored).
 - **Migrate**: `drizzle-kit migrate` pointed at the sandbox — prod's
