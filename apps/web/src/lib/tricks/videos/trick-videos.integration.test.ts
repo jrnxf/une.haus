@@ -4,9 +4,11 @@ import { db } from "~/db"
 import { trickVideos, tricks } from "~/db/schema"
 import {
   demoteVideo,
+  pinVideo,
   reorderVideos,
   reviewVideo,
   submitVideo,
+  unpinVideo,
 } from "~/lib/tricks/videos/ops.server"
 import {
   asUser,
@@ -330,6 +332,158 @@ describe("trick videos integration", () => {
         },
       }),
     ).rejects.toThrow(`Video ${pendingVideo.id} is not active for this trick`)
+  })
+
+  async function seedActiveVideo(
+    trickId: number,
+    submitterId: number,
+    assetId: string,
+    overrides: Partial<typeof trickVideos.$inferInsert> = {},
+  ) {
+    const muxVideo = await seedMuxVideo(assetId)
+    const [video] = await db
+      .insert(trickVideos)
+      .values({
+        muxAssetId: muxVideo.assetId,
+        sortOrder: 0,
+        status: "active",
+        submittedByUserId: submitterId,
+        trickId,
+        ...overrides,
+      })
+      .returning()
+    return video
+  }
+
+  it("pinVideo assigns increasing ranks and enforces the pin limit", async () => {
+    const submitter = await seedUser({ name: "Submitter" })
+    const trick = await seedTrick({ name: "Pin Trick" })
+
+    const videoIds: number[] = []
+    for (const assetId of ["pin-0", "pin-1", "pin-2", "pin-3"]) {
+      const video = await seedActiveVideo(trick.id, submitter.id, assetId)
+      videoIds.push(video.id)
+    }
+
+    const first = await pinVideo({ data: { id: videoIds[0] } })
+    const second = await pinVideo({ data: { id: videoIds[1] } })
+    const third = await pinVideo({ data: { id: videoIds[2] } })
+
+    expect(first.pinnedRank).toBe(1)
+    expect(second.pinnedRank).toBe(2)
+    expect(third.pinnedRank).toBe(3)
+
+    await expect(pinVideo({ data: { id: videoIds[3] } })).rejects.toThrow(
+      "Cannot pin more than 3 videos. Unpin one first.",
+    )
+  })
+
+  it("pinVideo rejects non-active and already-pinned videos", async () => {
+    const submitter = await seedUser({ name: "Submitter" })
+    const trick = await seedTrick({ name: "Pin Validation Trick" })
+
+    const pendingMux = await seedMuxVideo("pin-pending")
+    const [pendingVideo] = await db
+      .insert(trickVideos)
+      .values({
+        muxAssetId: pendingMux.assetId,
+        status: "pending",
+        submittedByUserId: submitter.id,
+        trickId: trick.id,
+      })
+      .returning()
+
+    await expect(pinVideo({ data: { id: pendingVideo.id } })).rejects.toThrow(
+      "Only active videos can be pinned",
+    )
+
+    const active = await seedActiveVideo(trick.id, submitter.id, "pin-active")
+    await pinVideo({ data: { id: active.id } })
+    await expect(pinVideo({ data: { id: active.id } })).rejects.toThrow(
+      "Video is already pinned",
+    )
+  })
+
+  it("pinVideo reuses gaps safely after an unpin and stays unique per trick", async () => {
+    const submitter = await seedUser({ name: "Submitter" })
+    const trick = await seedTrick({ name: "Pin Gap Trick" })
+
+    const a = await seedActiveVideo(trick.id, submitter.id, "gap-a")
+    const b = await seedActiveVideo(trick.id, submitter.id, "gap-b")
+    const c = await seedActiveVideo(trick.id, submitter.id, "gap-c")
+
+    await pinVideo({ data: { id: a.id } })
+    await pinVideo({ data: { id: b.id } })
+    await unpinVideo({ data: { id: a.id } })
+
+    // b keeps rank 2; the next pin must not collide with it
+    const pinnedC = await pinVideo({ data: { id: c.id } })
+    expect(pinnedC.pinnedRank).toBe(3)
+  })
+
+  it("unpinVideo clears the rank and rejects unpinned videos", async () => {
+    const submitter = await seedUser({ name: "Submitter" })
+    const trick = await seedTrick({ name: "Unpin Trick" })
+
+    const video = await seedActiveVideo(trick.id, submitter.id, "unpin-a")
+    await pinVideo({ data: { id: video.id } })
+
+    const updated = await unpinVideo({ data: { id: video.id } })
+    expect(updated.pinnedRank).toBeNull()
+
+    await expect(unpinVideo({ data: { id: video.id } })).rejects.toThrow(
+      "Video is not pinned",
+    )
+  })
+
+  it("database enforces unique pinned rank per trick while allowing many unpinned rows", async () => {
+    const submitter = await seedUser({ name: "Submitter" })
+    const trick = await seedTrick({ name: "Index Trick" })
+
+    // Multiple null ranks are fine (partial index ignores them)
+    await seedActiveVideo(trick.id, submitter.id, "idx-null-a")
+    await seedActiveVideo(trick.id, submitter.id, "idx-null-b")
+
+    await seedActiveVideo(trick.id, submitter.id, "idx-rank-1", {
+      pinnedRank: 1,
+    })
+
+    const dupMux = await seedMuxVideo("idx-rank-dup")
+    await expect(
+      Promise.resolve().then(() =>
+        db.insert(trickVideos).values({
+          muxAssetId: dupMux.assetId,
+          pinnedRank: 1,
+          sortOrder: 0,
+          status: "active",
+          submittedByUserId: submitter.id,
+          trickId: trick.id,
+        }),
+      ),
+    ).rejects.toThrow(/trick_videos_pinned_rank_uq|duplicate key/)
+
+    // Same rank on a different trick is allowed
+    const otherTrick = await seedTrick({ name: "Other Index Trick" })
+    await seedActiveVideo(otherTrick.id, submitter.id, "idx-other-rank-1", {
+      pinnedRank: 1,
+    })
+  })
+
+  it("demoteVideo clears the pinned rank", async () => {
+    const submitter = await seedUser({ name: "Submitter" })
+    const trick = await seedTrick({ name: "Demote Pin Trick" })
+
+    const video = await seedActiveVideo(trick.id, submitter.id, "demote-pin")
+    await pinVideo({ data: { id: video.id } })
+
+    const updated = await demoteVideo({ data: { id: video.id } })
+    expect(updated).toEqual(
+      expect.objectContaining({
+        id: video.id,
+        pinnedRank: null,
+        status: "pending",
+      }),
+    )
   })
 
   it("demoteVideo moves an active video back to pending and resets sort order", async () => {
