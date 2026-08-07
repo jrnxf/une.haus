@@ -4,15 +4,12 @@ import { toast } from "sonner"
 
 import { useSessionUser } from "~/lib/session/hooks"
 import { tricks } from "~/lib/tricks"
-import { computeFrontierSet } from "~/lib/tricks/compute"
-import { type Trick } from "~/lib/tricks/types"
 
 /**
- * The session user's landings plus derived landed/frontier sets. The query only
- * runs with a session user — guests get empty sets. Pass the full trick list to
- * also get the frontier ("next up") set; without it the frontier is empty.
+ * The session user's landings plus the derived landed set. The query only
+ * runs with a session user — guests get empty sets.
  */
-export function useLandings(allTricks?: Pick<Trick, "id" | "prerequisite">[]) {
+export function useLandings() {
   const sessionUser = useSessionUser()
 
   const { data, isPending } = useQuery({
@@ -30,16 +27,9 @@ export function useLandings(allTricks?: Pick<Trick, "id" | "prerequisite">[]) {
 
   const landedSet = useMemo(() => new Set(byTrickId.keys()), [byTrickId])
 
-  const frontierSet = useMemo(
-    () =>
-      allTricks ? computeFrontierSet(allTricks, landedSet) : new Set<number>(),
-    [allTricks, landedSet],
-  )
-
   return {
     landings,
     landedSet,
-    frontierSet,
     byTrickId,
     isPending: Boolean(sessionUser) && isPending,
   }
