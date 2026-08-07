@@ -456,7 +456,7 @@ function TricksListPage() {
         return null
       },
     })
-    return [glyphColumn, ...baseColumns]
+    return [...baseColumns, glyphColumn]
   }, [sessionUser, landedSet])
 
   const landedCount = useMemo(

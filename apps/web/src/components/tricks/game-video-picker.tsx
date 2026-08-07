@@ -1,16 +1,17 @@
+import { PlayIcon } from "lucide-react"
 import { useDeferredValue, useMemo, useState } from "react"
 
 import { Button } from "~/components/ui/button"
 import { Checkbox } from "~/components/ui/checkbox"
+import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
-import { VideoPlayer } from "~/components/video-player"
+import { getMuxPoster, VideoPlayer } from "~/components/video-player"
 
 import type { GameVideoOption } from "~/lib/tricks"
 
 // Tolerant match: "tiger-flip" finds "tiger flip" and vice versa
 const strip = (s: string) => s.toLowerCase().replaceAll(/[^a-z0-9]/g, "")
 
-// Players are heavy — start with one grid's worth and grow on demand
 const PAGE_SIZE = 6
 
 type GameVideoPickerProps = {
@@ -29,8 +30,10 @@ export function GameVideoPicker({
 }: GameVideoPickerProps) {
   const [query, setQuery] = useState(defaultQuery)
   const [limit, setLimit] = useState(PAGE_SIZE)
-  // Typing stays snappy: the input tracks `query` directly while the grid of
-  // players re-renders against the deferred value when React is idle
+  // The clip being previewed in the dialog, if any
+  const [preview, setPreview] = useState<GameVideoOption | null>(null)
+  // Typing stays snappy: the input tracks `query` directly while the grid
+  // re-renders against the deferred value when React is idle
   const deferredQuery = useDeferredValue(query)
 
   const q = strip(deferredQuery)
@@ -69,10 +72,28 @@ export function GameVideoPicker({
                 key={video.id}
                 className="relative aspect-video overflow-clip rounded-md bg-black"
               >
-                <VideoPlayer
-                  playbackId={video.playbackId}
-                  className="h-full w-full rounded-none"
-                />
+                {/* Poster opens the preview dialog; the footer bar below is a
+                    sibling so selecting never triggers playback */}
+                <button
+                  type="button"
+                  onClick={() => setPreview(video)}
+                  aria-label={`play ${video.label}`}
+                  className="group absolute inset-0 cursor-pointer"
+                >
+                  <img
+                    src={getMuxPoster({
+                      playbackId: video.playbackId,
+                      width: 640,
+                    })}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex size-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-xs transition-transform group-hover:scale-110">
+                      <PlayIcon className="size-4 fill-white text-white" />
+                    </span>
+                  </span>
+                </button>
                 {/* Blurred title bar (vault style) carrying the select checkbox */}
                 <label className="absolute inset-x-0 bottom-0 z-10 flex cursor-pointer items-center gap-2 rounded-b-md bg-black/60 px-2 py-1.5 backdrop-blur-xs">
                   <Checkbox
@@ -104,6 +125,26 @@ export function GameVideoPicker({
           )}
         </div>
       )}
+
+      <Dialog
+        open={Boolean(preview)}
+        onOpenChange={(open) => {
+          if (!open) setPreview(null)
+        }}
+      >
+        <DialogContent className="gap-2 p-2 sm:max-w-3xl">
+          <DialogTitle className="sr-only">
+            {preview ? preview.label : "video preview"}
+          </DialogTitle>
+          {preview && (
+            <VideoPlayer
+              autoPlay
+              playbackId={preview.playbackId}
+              className="w-full rounded-md"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
