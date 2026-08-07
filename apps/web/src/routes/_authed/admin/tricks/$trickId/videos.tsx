@@ -69,6 +69,10 @@ function RouteComponent() {
   const videosQueryKey = tricks.videos.list.queryOptions({
     trickId: numericTrickId,
   }).queryKey
+  const activeVideosQueryKey = tricks.videos.list.queryOptions({
+    trickId: numericTrickId,
+    status: "active",
+  }).queryKey
   const graphQueryKey = tricks.graph.queryOptions().queryKey
 
   const activeVideos = allVideos.filter((v) => v.status === "active")
@@ -97,6 +101,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: (_, variables) => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success(
         variables.data.status === "active"
@@ -131,6 +136,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("video demoted to pending")
     },
@@ -159,6 +165,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("video deleted")
     },
@@ -190,6 +197,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("video pinned")
     },
@@ -220,6 +228,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("video unpinned")
     },
@@ -254,6 +263,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("videos reordered")
     },
