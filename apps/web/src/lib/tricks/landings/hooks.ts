@@ -87,12 +87,6 @@ export function useUnlandTrick() {
       qc.invalidateQueries({
         queryKey: tricks.videos.list.queryOptions({
           trickId: variables.data.trickId,
-          status: "active",
-        }).queryKey,
-      })
-      qc.removeQueries({
-        queryKey: tricks.videos.list.queryOptions({
-          trickId: variables.data.trickId,
         }).queryKey,
       })
     },
