@@ -1444,6 +1444,9 @@ export const trickVideos = pgTable(
       .references(() => muxVideos.assetId, { onDelete: "cascade" }),
     status: trickVideoStatusEnum("status").notNull().default("pending"),
     sortOrder: integer("sort_order").notNull().default(0),
+    // Admin-curated ordering: pinned videos (max 3 per trick) lead the
+    // carousel. Null = not pinned; lower rank shows first.
+    pinnedRank: integer("pinned_rank"),
     submittedByUserId: integer("submitted_by_user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -1468,6 +1471,9 @@ export const trickVideos = pgTable(
       t.muxAssetId,
       t.submittedByUserId,
     ),
+    uniqueIndex("trick_videos_pinned_rank_uq")
+      .on(t.trickId, t.pinnedRank)
+      .where(sql`pinned_rank is not null`),
   ],
 )
 

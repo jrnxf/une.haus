@@ -43,6 +43,13 @@
       "when": 1786039971791,
       "tag": "0005_add_trick_video_unique_index",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786135137493,
+      "tag": "0006_elite_network",
+      "breakpoints": true
     }
   ]
 }

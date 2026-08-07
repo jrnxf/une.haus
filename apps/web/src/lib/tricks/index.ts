@@ -87,9 +87,11 @@ import {
   demoteVideoServerFn,
   listPendingVideosServerFn,
   listVideosServerFn,
+  pinVideoServerFn,
   reorderVideosServerFn,
   reviewVideoServerFn,
   submitVideoServerFn,
+  unpinVideoServerFn,
 } from "./videos/fns"
 import {
   deleteVideoSchema,
@@ -98,9 +100,11 @@ import {
   type ListVideosInput,
   listPendingVideosSchema,
   listVideosSchema,
+  pinVideoSchema,
   reorderVideosSchema,
   reviewVideoSchema,
   submitVideoSchema,
+  unpinVideoSchema,
 } from "./videos/schemas"
 import { type ServerFnData, type ServerFnReturn } from "~/lib/types"
 
@@ -327,6 +331,14 @@ export const tricks = {
     demote: {
       fn: demoteVideoServerFn,
       schema: demoteVideoSchema,
+    },
+    pin: {
+      fn: pinVideoServerFn,
+      schema: pinVideoSchema,
+    },
+    unpin: {
+      fn: unpinVideoServerFn,
+      schema: unpinVideoSchema,
     },
     delete: {
       fn: deleteVideoServerFn,
