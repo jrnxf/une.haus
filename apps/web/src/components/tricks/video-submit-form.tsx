@@ -134,18 +134,18 @@ export function VideoSubmitForm({
         {attestation}
 
         {/* Actions */}
-        <Field orientation="horizontal">
+        <Field orientation="horizontal" className="justify-end">
+          {onCancel && (
+            <FormCancelButton onClick={onCancel}>cancel</FormCancelButton>
+          )}
           <Button
             type="submit"
             disabled={submitDisabled || isPending || formState.isSubmitting}
           >
             <span role="status">
-              {isPending || formState.isSubmitting ? "saving..." : "save"}
+              {isPending || formState.isSubmitting ? "saving..." : "submit"}
             </span>
           </Button>
-          {onCancel && (
-            <FormCancelButton onClick={onCancel}>cancel</FormCancelButton>
-          )}
         </Field>
       </FieldGroup>
     </Form>

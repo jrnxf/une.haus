@@ -1,11 +1,13 @@
 import "@tanstack/react-start/server-only"
-import { and, eq } from "drizzle-orm"
+import { and, eq, isNotNull } from "drizzle-orm"
 
 import {
   type DemoteVideoArgs,
+  type PinVideoArgs,
   type ReorderVideosArgs,
   type ReviewVideoArgs,
   type SubmitVideoArgs,
+  type UnpinVideoArgs,
 } from "./schemas"
 import { db } from "~/db"
 import { tricks, trickVideos } from "~/db/schema"
@@ -13,6 +15,7 @@ import { invariant } from "~/lib/invariant"
 import { createNotification } from "~/lib/notifications/helpers.server"
 
 const MAX_ACTIVE_VIDEOS = 5
+export const MAX_PINNED_VIDEOS = 3
 
 type AuthenticatedContext = {
   user: {
@@ -204,7 +207,62 @@ export async function demoteVideo({ data }: { data: DemoteVideoArgs }) {
     .set({
       status: "pending",
       sortOrder: 0,
+      pinnedRank: null,
     })
+    .where(eq(trickVideos.id, id))
+    .returning()
+
+  return updatedVideo
+}
+
+export async function pinVideo({ data }: { data: PinVideoArgs }) {
+  const { id } = data
+
+  const video = await db.query.trickVideos.findFirst({
+    where: eq(trickVideos.id, id),
+  })
+
+  invariant(video, "Video not found")
+  invariant(video.status === "active", "Only active videos can be pinned")
+  invariant(video.pinnedRank === null, "Video is already pinned")
+
+  const pinned = await db.query.trickVideos.findMany({
+    where: and(
+      eq(trickVideos.trickId, video.trickId),
+      isNotNull(trickVideos.pinnedRank),
+    ),
+  })
+
+  invariant(
+    pinned.length < MAX_PINNED_VIDEOS,
+    `Cannot pin more than ${MAX_PINNED_VIDEOS} videos. Unpin one first.`,
+  )
+
+  // Ranks can have gaps after unpins/deletes; max+1 stays unique
+  const nextRank = Math.max(...pinned.map((v) => v.pinnedRank ?? 0), 0) + 1
+
+  const [updatedVideo] = await db
+    .update(trickVideos)
+    .set({ pinnedRank: nextRank })
+    .where(eq(trickVideos.id, id))
+    .returning()
+
+  return updatedVideo
+}
+
+export async function unpinVideo({ data }: { data: UnpinVideoArgs }) {
+  const { id } = data
+
+  const video = await db.query.trickVideos.findFirst({
+    where: eq(trickVideos.id, id),
+  })
+
+  invariant(video, "Video not found")
+  invariant(video.pinnedRank !== null, "Video is not pinned")
+
+  const [updatedVideo] = await db
+    .update(trickVideos)
+    .set({ pinnedRank: null })
     .where(eq(trickVideos.id, id))
     .returning()
 

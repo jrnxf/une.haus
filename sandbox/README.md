@@ -6,12 +6,19 @@ web app in a container on **http://localhost:3100**.
 
 ```bash
 bun run sandbox            # clone prod + migrate + build + up
+bun run sandbox dev        # clone prod + migrate + vite dev on the host (:3000)
 bun run sandbox clone      # re-clone prod (drops sandbox schema first)
 bun run sandbox migrate    # apply committed drizzle migrations to sandbox
 bun run sandbox build      # rebuild apps/web/.output against sandbox db
 bun run sandbox up         # start containers
 bun run sandbox down       # stop containers (data volume survives)
 ```
+
+`bun run dev` (web) is an alias for `bun run sandbox dev`: every dev session
+starts from a fresh clone of prod, then runs the normal vite dev server on the
+host against the sandbox postgres — tinker freely, prod can't be touched. The
+old dev-against-prod-through-the-tunnel flow is still there as
+`bun run dev:prod` in `apps/web`.
 
 ## How it works
 
@@ -47,6 +54,6 @@ localhost the whole way — nothing points at une.haus.
 - The sandbox holds a copy of prod data — treat `sandbox/prod.dump` and the
   `sandbox_pg` volume accordingly. `docker volume rm unehaus-sandbox_sandbox_pg`
   wipes it.
-- Port map: 3100 (web), 55432 (sandbox postgres), 55433 (clone tunnel,
-  transient). Nothing touches 3000/5432, so dev and other projects keep
-  working.
+- Port map: 3100 (web container), 55432 (sandbox postgres), 55433 (clone
+  tunnel, transient). `sandbox dev` runs vite on the usual 3000; nothing
+  touches 5432, so other projects keep working.

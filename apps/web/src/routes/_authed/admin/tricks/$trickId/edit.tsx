@@ -51,6 +51,12 @@ function RouteComponent() {
           queryKey: tricks.videos.list.queryOptions({ trickId: trick.id })
             .queryKey,
         })
+        qc.removeQueries({
+          queryKey: tricks.videos.list.queryOptions({
+            trickId: trick.id,
+            status: "active",
+          }).queryKey,
+        })
       }
       router.navigate({ to: "/tricks" })
     },

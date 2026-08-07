@@ -1,6 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, asc, desc, eq, ilike, notInArray } from "drizzle-orm"
+import { and, asc, desc, eq, ilike, notInArray, sql } from "drizzle-orm"
 
 import {
   createElementSchema,
@@ -241,7 +241,10 @@ export const getTrickByIdServerFn = createServerFn({
       with: {
         videos: {
           where: eq(trickVideos.status, "active"),
-          orderBy: [asc(trickVideos.sortOrder)],
+          orderBy: [
+            sql`${trickVideos.pinnedRank} asc nulls last`,
+            asc(trickVideos.sortOrder),
+          ],
         },
         elementAssignments: {
           with: {
@@ -334,7 +337,10 @@ export const getAllTricksForGraphServerFn = createServerFn({
             },
           },
         },
-        orderBy: (videos, { asc }) => [asc(videos.sortOrder)],
+        orderBy: (videos, { asc, sql }) => [
+          sql`${videos.pinnedRank} asc nulls last`,
+          asc(videos.sortOrder),
+        ],
       },
       elementAssignments: {
         with: {

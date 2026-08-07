@@ -1,15 +1,17 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, asc, desc, eq, lt } from "drizzle-orm"
+import { and, asc, desc, eq, lt, sql } from "drizzle-orm"
 
 import {
   deleteVideoSchema,
   demoteVideoSchema,
   listPendingVideosSchema,
   listVideosSchema,
+  pinVideoSchema,
   reorderVideosSchema,
   reviewVideoSchema,
   submitVideoSchema,
+  unpinVideoSchema,
 } from "./schemas"
 import { db } from "~/db"
 import { trickVideos } from "~/db/schema"
@@ -44,7 +46,11 @@ export const listVideosServerFn = createServerFn({
           },
         },
       },
-      orderBy: [asc(trickVideos.sortOrder), asc(trickVideos.createdAt)],
+      orderBy: [
+        sql`${trickVideos.pinnedRank} asc nulls last`,
+        asc(trickVideos.sortOrder),
+        asc(trickVideos.createdAt),
+      ],
     })
 
     return videos
@@ -130,6 +136,26 @@ export const demoteVideoServerFn = createServerFn({
   .handler(async (ctx) => {
     const { demoteVideo } = await loadTrickVideoOps()
     return demoteVideo(ctx)
+  })
+
+export const pinVideoServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(pinVideoSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async (ctx) => {
+    const { pinVideo } = await loadTrickVideoOps()
+    return pinVideo(ctx)
+  })
+
+export const unpinVideoServerFn = createServerFn({
+  method: "POST",
+})
+  .inputValidator(zodValidator(unpinVideoSchema))
+  .middleware([adminOnlyMiddleware])
+  .handler(async (ctx) => {
+    const { unpinVideo } = await loadTrickVideoOps()
+    return unpinVideo(ctx)
   })
 
 export const deleteVideoServerFn = createServerFn({

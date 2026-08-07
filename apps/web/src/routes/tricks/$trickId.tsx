@@ -24,11 +24,17 @@ import { users } from "~/lib/users"
 import { DetailHeader } from "~/views/detail-header"
 
 export const Route = createFileRoute("/tricks/$trickId")({
-  loader: async ({ context }) => {
+  loader: async ({ context, params }) => {
     const [graph, sessionData] = await Promise.all([
       context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
       context.queryClient.ensureQueryData(session.get.queryOptions()),
       context.queryClient.ensureQueryData(users.all.queryOptions()),
+      context.queryClient.ensureQueryData(
+        tricks.videos.list.queryOptions({
+          trickId: Number(params.trickId),
+          status: "active",
+        }),
+      ),
     ])
     return {
       graph,
@@ -61,8 +67,27 @@ function TrickDetailPage() {
   const { trickId } = Route.useParams()
   const { data } = useSuspenseQuery(tricks.graph.queryOptions())
   const { data: allUsers = [] } = useSuspenseQuery(users.all.queryOptions())
+  const { data: activeVideos } = useSuspenseQuery(
+    tricks.videos.list.queryOptions({
+      trickId: Number(trickId),
+      status: "active",
+    }),
+  )
   const { landedSet, byTrickId } = useLandings()
   const trick = data.byId[Number(trickId)]
+
+  const carouselVideos = activeVideos.flatMap((v) =>
+    v.video?.playbackId
+      ? [
+          {
+            id: v.id,
+            playbackId: v.video.playbackId,
+            notes: v.notes,
+            submittedBy: v.submittedBy,
+          },
+        ]
+      : [],
+  )
 
   const landing = trick ? byTrickId.get(trick.id) : undefined
   const unland = useUnlandTrick()
@@ -286,13 +311,13 @@ function TrickDetailPage() {
           )}
 
           {/* Videos */}
-          {trick.videos.length > 0 && (
+          {carouselVideos.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-muted-foreground text-sm font-medium">
                 videos
               </h3>
               <div className="max-w-lg">
-                <VideoCarousel videos={trick.videos} />
+                <VideoCarousel videos={carouselVideos} />
               </div>
             </div>
           )}

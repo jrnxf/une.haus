@@ -57,13 +57,12 @@ const tricksSearchSchema = z.object({
       return arr.length > 0 ? arr : undefined
     }),
   elements_op: z.string().optional(),
-  landed: commaArrayOf(["landed", "not-landed", "next-up"]),
+  landed: commaArrayOf(["landed", "not-landed"]),
 })
 
 const LANDED_FILTER_OPTIONS = [
   { value: "landed", label: "landed" },
   { value: "not-landed", label: "not landed" },
-  { value: "next-up", label: "next up" },
 ]
 
 export const Route = createFileRoute("/tricks/")({
@@ -167,7 +166,7 @@ function TricksListPage() {
   const routeNavigate = Route.useNavigate()
   const navigate = useNavigate()
   const sessionUser = useSessionUser()
-  const { landedSet, frontierSet } = useLandings(data.tricks)
+  const { landedSet } = useLandings()
   const [sorting, setSorting] = useState<SortingState>([
     { id: "name", desc: false },
   ])
@@ -418,7 +417,6 @@ function TricksListPage() {
         const isLanded = landedSet.has(t.id)
         if (wants.has("landed") && isLanded) return true
         if (wants.has("not-landed") && !isLanded) return true
-        if (wants.has("next-up") && frontierSet.has(t.id)) return true
         return false
       })
     }
@@ -433,10 +431,9 @@ function TricksListPage() {
     searchParams.landed,
     sessionUser,
     landedSet,
-    frontierSet,
   ])
 
-  // Read-only landing glyphs: check = landed, accent dot = frontier ("next up")
+  // Read-only landing glyph: check = landed
   const columns = useMemo(() => {
     if (!sessionUser) return baseColumns
     const glyphColumn = columnHelper.display({
@@ -456,19 +453,11 @@ function TricksListPage() {
             />
           )
         }
-        if (frontierSet.has(trick.id)) {
-          return (
-            <span
-              aria-label="next up"
-              className="bg-primary inline-block size-1.5 rounded-full"
-            />
-          )
-        }
         return null
       },
     })
     return [glyphColumn, ...baseColumns]
-  }, [sessionUser, landedSet, frontierSet])
+  }, [sessionUser, landedSet])
 
   const landedCount = useMemo(
     () => data.tricks.filter((t: Trick) => landedSet.has(t.id)).length,
@@ -531,15 +520,8 @@ function TricksListPage() {
           right={
             <>
               {sessionUser && (
-                <span className="text-muted-foreground flex items-center gap-3 self-center text-sm">
-                  {/* Legend for the glyph column */}
-                  <span className="flex items-center gap-1.5">
-                    <span className="bg-primary inline-block size-1.5 rounded-full" />
-                    next up
-                  </span>
-                  <span className="tabular-nums">
-                    {landedCount} / {data.tricks.length} landed
-                  </span>
+                <span className="text-muted-foreground self-center text-sm tabular-nums">
+                  {landedCount} / {data.tricks.length} landed
                 </span>
               )}
               <Button asChild variant="secondary">

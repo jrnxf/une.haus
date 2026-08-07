@@ -100,16 +100,18 @@ attribute logs to a service and release. Both are absent in local dev. See
 ## Local dev
 
 ```bash
-docker compose up -d        # spin up just postgres on localhost:5432
 cp apps/web/.env.example apps/web/.env
 # fill in real secrets in apps/web/.env
 bun install
 bun dev                     # runs web + docs in parallel
 ```
 
-The compose file is **dev-only** — it brings up a single postgres
-container for `bun dev` to talk to. There is no app container; the app
-runs natively on your machine.
+`bun dev` runs the web app against a fresh sandbox clone of the prod
+database — see `sandbox/README.md`. The old dev-against-prod-through-the-tunnel
+flow is `bun run dev:prod` in `apps/web`; the root compose file
+(`docker compose up -d`) is **dev-only** and brings up a single postgres on
+localhost:5432 for that flow. There is no app container; the app runs
+natively on your machine.
 
 For a fully containerized app against a clone of the prod database, see
 `sandbox/README.md` (`bun run sandbox`).

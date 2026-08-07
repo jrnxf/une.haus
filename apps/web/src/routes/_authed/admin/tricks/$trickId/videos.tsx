@@ -9,6 +9,8 @@ import {
   ArrowUp,
   CheckCircle,
   GhostIcon,
+  PinIcon,
+  PinOffIcon,
   Trash2,
   XCircle,
 } from "lucide-react"
@@ -34,6 +36,7 @@ import { tricks } from "~/lib/tricks"
 import { MULTIPLE_TRICKS_REJECTION } from "~/lib/tricks/videos/schemas"
 
 const MAX_ACTIVE_VIDEOS = 5
+const MAX_PINNED_VIDEOS = 3
 
 export const Route = createFileRoute("/_authed/admin/tricks/$trickId/videos")({
   loader: async ({ context, params }) => {
@@ -66,6 +69,10 @@ function RouteComponent() {
   const videosQueryKey = tricks.videos.list.queryOptions({
     trickId: numericTrickId,
   }).queryKey
+  const activeVideosQueryKey = tricks.videos.list.queryOptions({
+    trickId: numericTrickId,
+    status: "active",
+  }).queryKey
   const graphQueryKey = tricks.graph.queryOptions().queryKey
 
   const activeVideos = allVideos.filter((v) => v.status === "active")
@@ -73,6 +80,8 @@ function RouteComponent() {
   const rejectedVideos = allVideos.filter((v) => v.status === "rejected")
 
   const isAtLimit = activeVideos.length >= MAX_ACTIVE_VIDEOS
+  const pinnedCount = activeVideos.filter((v) => v.pinnedRank !== null).length
+  const isAtPinLimit = pinnedCount >= MAX_PINNED_VIDEOS
 
   const reviewVideo = useMutation({
     mutationFn: tricks.videos.review.fn,
@@ -92,6 +101,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: (_, variables) => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success(
         variables.data.status === "active"
@@ -126,6 +136,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("video demoted to pending")
     },
@@ -154,8 +165,72 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("video deleted")
+    },
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(videosQueryKey, context.prev)
+      }
+      toast.error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: videosQueryKey })
+    },
+  })
+
+  const pinVideo = useMutation({
+    mutationFn: tricks.videos.pin.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: videosQueryKey })
+      const prev = qc.getQueryData(videosQueryKey)
+
+      const maxRank = Math.max(...activeVideos.map((v) => v.pinnedRank ?? 0), 0)
+      qc.setQueryData(videosQueryKey, (old) => {
+        if (!old) return old
+        return old.map((v) =>
+          v.id === variables.data.id ? { ...v, pinnedRank: maxRank + 1 } : v,
+        )
+      })
+
+      return { prev }
+    },
+    onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
+      qc.removeQueries({ queryKey: graphQueryKey })
+      toast.success("video pinned")
+    },
+    onError: (error, _, context) => {
+      if (context?.prev) {
+        qc.setQueryData(videosQueryKey, context.prev)
+      }
+      toast.error(error.message)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: videosQueryKey })
+    },
+  })
+
+  const unpinVideo = useMutation({
+    mutationFn: tricks.videos.unpin.fn,
+    onMutate: async (variables) => {
+      await qc.cancelQueries({ queryKey: videosQueryKey })
+      const prev = qc.getQueryData(videosQueryKey)
+
+      qc.setQueryData(videosQueryKey, (old) => {
+        if (!old) return old
+        return old.map((v) =>
+          v.id === variables.data.id ? { ...v, pinnedRank: null } : v,
+        )
+      })
+
+      return { prev }
+    },
+    onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
+      qc.removeQueries({ queryKey: graphQueryKey })
+      toast.success("video unpinned")
     },
     onError: (error, _, context) => {
       if (context?.prev) {
@@ -188,6 +263,7 @@ function RouteComponent() {
       return { prev }
     },
     onSuccess: () => {
+      qc.removeQueries({ queryKey: activeVideosQueryKey })
       qc.removeQueries({ queryKey: graphQueryKey })
       toast.success("videos reordered")
     },
@@ -242,7 +318,8 @@ function RouteComponent() {
       <div className="mx-auto w-full max-w-3xl space-y-6 p-4">
         <p className="text-muted-foreground text-sm">
           {activeVideos.length}/{MAX_ACTIVE_VIDEOS} active{" "}
-          {pluralize("video", activeVideos.length)}
+          {pluralize("video", activeVideos.length)} · {pinnedCount}/
+          {MAX_PINNED_VIDEOS} pinned — pinned videos lead the trick page
         </p>
 
         {/* Active Videos */}
@@ -278,8 +355,14 @@ function RouteComponent() {
                 <Card key={video.id}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">
+                      <CardTitle className="flex items-center gap-2 text-sm">
                         video {index + 1}
+                        {video.pinnedRank !== null && (
+                          <Badge variant="secondary">
+                            <PinIcon className="size-3" />
+                            pinned
+                          </Badge>
+                        )}
                       </CardTitle>
                       <div className="flex gap-1">
                         <Button
@@ -307,6 +390,9 @@ function RouteComponent() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
+                    <p className="text-muted-foreground text-xs">
+                      submitted by {video.submittedBy.name}
+                    </p>
                     {video.video?.playbackId && (
                       <VideoPlayer playbackId={video.video.playbackId} />
                     )}
@@ -317,6 +403,44 @@ function RouteComponent() {
                       />
                     )}
                     <div className="flex gap-2">
+                      {video.pinnedRank !== null ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() =>
+                            unpinVideo.mutate({ data: { id: video.id } })
+                          }
+                          disabled={unpinVideo.isPending}
+                        >
+                          <PinOffIcon
+                            data-icon="inline-start"
+                            className="size-4"
+                          />
+                          unpin
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() =>
+                            pinVideo.mutate({ data: { id: video.id } })
+                          }
+                          disabled={pinVideo.isPending || isAtPinLimit}
+                          title={
+                            isAtPinLimit
+                              ? `only ${MAX_PINNED_VIDEOS} videos can be pinned — unpin one first`
+                              : "pin video"
+                          }
+                        >
+                          <PinIcon
+                            data-icon="inline-start"
+                            className="size-4"
+                          />
+                          pin
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"

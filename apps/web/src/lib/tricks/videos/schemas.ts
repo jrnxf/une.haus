@@ -62,6 +62,19 @@ export const demoteVideoSchema = z.object({
   id: z.number(),
 })
 
+// Pin/unpin an active video so it leads the trick page carousel (admin)
+export const pinVideoSchema = z.object({
+  id: z.number(),
+})
+
+export type PinVideoArgs = z.infer<typeof pinVideoSchema>
+
+export const unpinVideoSchema = z.object({
+  id: z.number(),
+})
+
+export type UnpinVideoArgs = z.infer<typeof unpinVideoSchema>
+
 export type DemoteVideoArgs = z.infer<typeof demoteVideoSchema>
 
 // Delete video (admin)
