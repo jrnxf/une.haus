@@ -10,6 +10,7 @@ import { LOCAL_HOSTS, waitForPort } from "./tunnel-shared"
 // anywhere).
 //
 //   bun run sandbox            # clone + migrate + build + up
+//   bun run sandbox dev        # clone + migrate + vite dev on the host (:3000)
 //   bun run sandbox clone      # dump prod through its own ssh tunnel, restore
 //   bun run sandbox migrate    # apply committed drizzle migrations to sandbox
 //   bun run sandbox build      # vite build against the sandbox database
@@ -109,7 +110,11 @@ async function clone() {
   })
 
   console.log("sandbox: resetting sandbox schema…")
-  const dropSql = "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
+  // The dump also carries the drizzle schema (migrations journal) — drop it
+  // too or the restore collides with the previous clone's copy. pg_restore
+  // recreates it.
+  const dropSql =
+    "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public; DROP SCHEMA IF EXISTS drizzle CASCADE;"
   await $`psql ${SANDBOX_URL} -v ON_ERROR_STOP=1 -c ${dropSql}`
 
   console.log("sandbox: restoring dump…")
@@ -143,6 +148,36 @@ async function build() {
     .env({ ...process.env, DATABASE_URL: SANDBOX_URL, DB_TUNNEL: "0" })
 }
 
+// Fresh clone of prod, then the normal vite dev server on the host — pointed
+// at the sandbox postgres instead of the tunneled prod database, so tinkering
+// can't touch prod. Same vite command as the `dev:prod` package script, minus
+// the with-db-tunnel wrapper (no tunnel wanted here).
+async function dev() {
+  await clone()
+  await migrate()
+  console.log("sandbox: starting vite dev against sandbox database…")
+  const child = Bun.spawn(
+    [
+      "sh",
+      "-c",
+      "NODE_OPTIONS='--import ./instrument.server.mjs' bun --bun vite dev --host",
+    ],
+    {
+      cwd: WEB_DIR,
+      env: { ...process.env, DATABASE_URL: SANDBOX_URL },
+      stdin: "inherit",
+      stdout: "inherit",
+      stderr: "inherit",
+    },
+  )
+  const forward = (signal: NodeJS.Signals) => {
+    child.kill(signal === "SIGINT" ? "SIGINT" : "SIGTERM")
+  }
+  process.on("SIGINT", forward)
+  process.on("SIGTERM", forward)
+  process.exit(await child.exited)
+}
+
 async function up() {
   await $`docker compose -f ${COMPOSE_FILE} up -d --wait`
   console.log("sandbox: web running at http://localhost:3100")
@@ -161,6 +196,9 @@ switch (command) {
     await build()
     await up()
     break
+  case "dev":
+    await dev()
+    break
   case "clone":
     await clone()
     break
@@ -177,5 +215,7 @@ switch (command) {
     await down()
     break
   default:
-    fail(`unknown command "${command}" (clone | migrate | build | up | down)`)
+    fail(
+      `unknown command "${command}" (dev | clone | migrate | build | up | down)`,
+    )
 }

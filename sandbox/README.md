@@ -6,12 +6,19 @@ web app in a container on **http://localhost:3100**.
 
 ```bash
 bun run sandbox            # clone prod + migrate + build + up
+bun run sandbox dev        # clone prod + migrate + vite dev on the host (:3000)
 bun run sandbox clone      # re-clone prod (drops sandbox schema first)
 bun run sandbox migrate    # apply committed drizzle migrations to sandbox
 bun run sandbox build      # rebuild apps/web/.output against sandbox db
 bun run sandbox up         # start containers
 bun run sandbox down       # stop containers (data volume survives)
 ```
+
+`bun run dev` (web) is an alias for `bun run sandbox dev`: every dev session
+starts from a fresh clone of prod, then runs the normal vite dev server on the
+host against the sandbox postgres — tinker freely, prod can't be touched. The
+old dev-against-prod-through-the-tunnel flow is still there as
+`bun run dev:prod` in `apps/web`.
 
 ## How it works
 

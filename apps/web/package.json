@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run src/scripts/with-db-tunnel.ts \"NODE_OPTIONS='--import ./instrument.server.mjs' bun --bun vite dev --host\"",
+    "dev": "bun run src/scripts/sandbox.ts dev",
+    "dev:prod": "bun run src/scripts/with-db-tunnel.ts \"NODE_OPTIONS='--import ./instrument.server.mjs' bun --bun vite dev --host\"",
     "build": "bun run src/scripts/with-db-tunnel.ts \"NODE_OPTIONS='--max-old-space-size=8192' vite build && cp instrument.server.mjs .output/server\"",
     "bundle:info": "bun run src/scripts/bundle/info.ts",
     "bundle:analyze": "bunx vite-bundle-visualizer",
