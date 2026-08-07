@@ -72,7 +72,7 @@ export function useUnlandTrick() {
 
   return useMutation({
     mutationFn: tricks.landings.unland.fn,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("landing removed")
       // Stay-on-page flow: refetch the live landings query in place
       if (sessionUser) {
@@ -84,6 +84,17 @@ export function useUnlandTrick() {
       }
       // An active proof may have just left the reference carousel
       qc.invalidateQueries({ queryKey: tricks.graph.queryOptions().queryKey })
+      qc.invalidateQueries({
+        queryKey: tricks.videos.list.queryOptions({
+          trickId: variables.data.trickId,
+          status: "active",
+        }).queryKey,
+      })
+      qc.removeQueries({
+        queryKey: tricks.videos.list.queryOptions({
+          trickId: variables.data.trickId,
+        }).queryKey,
+      })
     },
     onError: (error) => {
       toast.error(error.message)

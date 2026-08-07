@@ -598,6 +598,16 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
     },
     onSuccess: (_, variables) => {
       qc.removeQueries({ queryKey: graphQueryKey })
+      qc.removeQueries({
+        queryKey: tricks.videos.list.queryOptions({ trickId: video.trick.id })
+          .queryKey,
+      })
+      qc.removeQueries({
+        queryKey: tricks.videos.list.queryOptions({
+          trickId: video.trick.id,
+          status: "active",
+        }).queryKey,
+      })
       toast.success(
         variables.data.status === "active"
           ? "video approved"
