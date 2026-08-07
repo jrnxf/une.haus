@@ -18,7 +18,7 @@ une.haus is a platform for unicyclists to share tricks, compete in games, organi
 
 **core features**
 
-- **tricks** — browse a comprehensive trick encyclopedia with detail pages showing full trick info, videos, and prerequisites; land tricks with video proof and track which are next up
+- **tricks** — browse a comprehensive trick encyclopedia with detail pages showing full trick info, videos, and prerequisites; land tricks with video proof
 - **games** — three collaborative games: _rack it up_ (post creative sets weekly and reply to others), _back it up_ (match the last trick then set a new one, building evolving chains), and _stack it up_ (nail every trick in the stack then add your own to the end)
 - **vault** — explore unicycle.tv videos with community metadata curation, rider attribution, and filtering by discipline
 - **posts** — share stories in posts with tags (freestyle, street, trials, etc.), leave comments, and like content
@@ -56,21 +56,21 @@ bun dev
 
 ### scripts
 
-| command                    | description                        |
-| -------------------------- | ---------------------------------- |
-| `bun dev`                  | start dev server                   |
-| `bun run build`            | build for production               |
-| `bun start`                | run production server              |
-| `bun run lint`             | lint                               |
-| `bun run format`           | format with oxfmt                  |
-| `bun run check`            | lint with auto-fix and format      |
-| `bun run typecheck`        | type check                         |
-| `bun preflight`            | lint, format, typecheck, and test  |
-| `bun run test:unit`        | run unit tests                     |
-| `bun run test:integration` | run integration tests              |
-| `bun run db:migrate`       | push database migrations           |
-| `bun run db:seed`          | wipe, migrate, and seed database   |
-| `bun run clean`            | find and fix unused code with knip |
+| command                    | description                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| `bun dev`                  | dev server on a sandbox clone of prod (see [`sandbox/README.md`](./sandbox/README.md)) |
+| `bun run build`            | build for production                                                                   |
+| `bun start`                | run production server                                                                  |
+| `bun run lint`             | lint                                                                                   |
+| `bun run format`           | format with oxfmt                                                                      |
+| `bun run check`            | lint with auto-fix and format                                                          |
+| `bun run typecheck`        | type check                                                                             |
+| `bun preflight`            | lint, format, typecheck, and test                                                      |
+| `bun run test:unit`        | run unit tests                                                                         |
+| `bun run test:integration` | run integration tests                                                                  |
+| `bun run db:migrate`       | push database migrations                                                               |
+| `bun run db:seed`          | wipe, migrate, and seed database                                                       |
+| `bun run clean`            | find and fix unused code with knip                                                     |
 
 ### contributing
 

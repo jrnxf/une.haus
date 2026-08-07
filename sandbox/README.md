@@ -54,6 +54,6 @@ localhost the whole way — nothing points at une.haus.
 - The sandbox holds a copy of prod data — treat `sandbox/prod.dump` and the
   `sandbox_pg` volume accordingly. `docker volume rm unehaus-sandbox_sandbox_pg`
   wipes it.
-- Port map: 3100 (web), 55432 (sandbox postgres), 55433 (clone tunnel,
-  transient). Nothing touches 3000/5432, so dev and other projects keep
-  working.
+- Port map: 3100 (web container), 55432 (sandbox postgres), 55433 (clone
+  tunnel, transient). `sandbox dev` runs vite on the usual 3000; nothing
+  touches 5432, so other projects keep working.
