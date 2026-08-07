@@ -29,6 +29,20 @@
       "when": 1783420417880,
       "tag": "0003_robust_vin_gonzales",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785776356292,
+      "tag": "0004_overconfident_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786039971791,
+      "tag": "0005_add_trick_video_unique_index",
+      "breakpoints": true
     }
   ]
 }

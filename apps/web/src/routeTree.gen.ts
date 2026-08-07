@@ -51,6 +51,7 @@ import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/n
 import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin/index'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
 import { Route as UsersUserIdVideosRouteImport } from './routes/users/$userId/videos'
+import { Route as UsersUserIdTricksRouteImport } from './routes/users/$userId/tricks'
 import { Route as UsersUserIdActivityRouteImport } from './routes/users/$userId/activity'
 import { Route as TricksGlossaryListRouteImport } from './routes/tricks/glossary/_list'
 import { Route as TourneyCodeLiveRouteImport } from './routes/tourney/$code/live'
@@ -69,6 +70,7 @@ import { Route as ApiTourneySseCodeRouteImport } from './routes/api/tourney/sse.
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
 import { Route as AuthedTricksTrickIdSuggestRouteImport } from './routes/_authed/tricks/$trickId/suggest'
 import { Route as AuthedTricksTrickIdSubmitVideoRouteImport } from './routes/_authed/tricks/$trickId/submit-video'
+import { Route as AuthedTricksTrickIdLandRouteImport } from './routes/_authed/tricks/$trickId/land'
 import { Route as AuthedTourneyCodeRankingRouteImport } from './routes/_authed/tourney/$code/ranking'
 import { Route as AuthedTourneyCodePrelimsRouteImport } from './routes/_authed/tourney/$code/prelims'
 import { Route as AuthedTourneyCodeEditRouteImport } from './routes/_authed/tourney/$code/edit'
@@ -313,6 +315,11 @@ const UsersUserIdVideosRoute = UsersUserIdVideosRouteImport.update({
   path: '/users/$userId/videos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UsersUserIdTricksRoute = UsersUserIdTricksRouteImport.update({
+  id: '/users/$userId/tricks',
+  path: '/users/$userId/tricks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsersUserIdActivityRoute = UsersUserIdActivityRouteImport.update({
   id: '/users/$userId/activity',
   path: '/users/$userId/activity',
@@ -404,6 +411,11 @@ const AuthedTricksTrickIdSubmitVideoRoute =
     path: '/tricks/$trickId/submit-video',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedTricksTrickIdLandRoute = AuthedTricksTrickIdLandRouteImport.update({
+  id: '/tricks/$trickId/land',
+  path: '/tricks/$trickId/land',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedTourneyCodeRankingRoute =
   AuthedTourneyCodeRankingRouteImport.update({
     id: '/tourney/$code/ranking',
@@ -633,6 +645,7 @@ export interface FileRoutesByFullPath {
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary': typeof TricksGlossaryListRouteWithChildren
   '/users/$userId/activity': typeof UsersUserIdActivityRoute
+  '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/admin/': typeof AuthedAdminIndexRoute
@@ -653,6 +666,7 @@ export interface FileRoutesByFullPath {
   '/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
+  '/tricks/$trickId/land': typeof AuthedTricksTrickIdLandRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
@@ -723,6 +737,7 @@ export interface FileRoutesByTo {
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary': typeof TricksGlossaryIndexRoute
   '/users/$userId/activity': typeof UsersUserIdActivityRoute
+  '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/admin': typeof AuthedAdminIndexRoute
@@ -739,6 +754,7 @@ export interface FileRoutesByTo {
   '/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
+  '/tricks/$trickId/land': typeof AuthedTricksTrickIdLandRoute
   '/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
@@ -815,6 +831,7 @@ export interface FileRoutesById {
   '/tourney/$code/live': typeof TourneyCodeLiveRoute
   '/tricks/glossary/_list': typeof TricksGlossaryListRouteWithChildren
   '/users/$userId/activity': typeof UsersUserIdActivityRoute
+  '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
   '/_authed/admin/': typeof AuthedAdminIndexRoute
@@ -835,6 +852,7 @@ export interface FileRoutesById {
   '/_authed/tourney/$code/edit': typeof AuthedTourneyCodeEditRoute
   '/_authed/tourney/$code/prelims': typeof AuthedTourneyCodePrelimsRoute
   '/_authed/tourney/$code/ranking': typeof AuthedTourneyCodeRankingRoute
+  '/_authed/tricks/$trickId/land': typeof AuthedTricksTrickIdLandRoute
   '/_authed/tricks/$trickId/submit-video': typeof AuthedTricksTrickIdSubmitVideoRoute
   '/_authed/tricks/$trickId/suggest': typeof AuthedTricksTrickIdSuggestRoute
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
@@ -908,6 +926,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/live'
     | '/tricks/glossary'
     | '/users/$userId/activity'
+    | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
     | '/admin/'
@@ -928,6 +947,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/edit'
     | '/tourney/$code/prelims'
     | '/tourney/$code/ranking'
+    | '/tricks/$trickId/land'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
@@ -998,6 +1018,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/live'
     | '/tricks/glossary'
     | '/users/$userId/activity'
+    | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
     | '/admin'
@@ -1014,6 +1035,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/edit'
     | '/tourney/$code/prelims'
     | '/tourney/$code/ranking'
+    | '/tricks/$trickId/land'
     | '/tricks/$trickId/submit-video'
     | '/tricks/$trickId/suggest'
     | '/vault/$videoId/suggest'
@@ -1089,6 +1111,7 @@ export interface FileRouteTypes {
     | '/tourney/$code/live'
     | '/tricks/glossary/_list'
     | '/users/$userId/activity'
+    | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
     | '/_authed/admin/'
@@ -1109,6 +1132,7 @@ export interface FileRouteTypes {
     | '/_authed/tourney/$code/edit'
     | '/_authed/tourney/$code/prelims'
     | '/_authed/tourney/$code/ranking'
+    | '/_authed/tricks/$trickId/land'
     | '/_authed/tricks/$trickId/submit-video'
     | '/_authed/tricks/$trickId/suggest'
     | '/_authed/vault/$videoId/suggest'
@@ -1175,6 +1199,7 @@ export interface RootRouteChildren {
   TourneyCodeLiveRoute: typeof TourneyCodeLiveRoute
   TricksGlossaryListRoute: typeof TricksGlossaryListRouteWithChildren
   UsersUserIdActivityRoute: typeof UsersUserIdActivityRoute
+  UsersUserIdTricksRoute: typeof UsersUserIdTricksRoute
   UsersUserIdVideosRoute: typeof UsersUserIdVideosRoute
   VaultVideoIdEditRoute: typeof VaultVideoIdEditRoute
   PostsPostIdIndexRoute: typeof PostsPostIdIndexRoute
@@ -1481,6 +1506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdVideosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/users/$userId/tricks': {
+      id: '/users/$userId/tricks'
+      path: '/users/$userId/tricks'
+      fullPath: '/users/$userId/tricks'
+      preLoaderRoute: typeof UsersUserIdTricksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/users/$userId/activity': {
       id: '/users/$userId/activity'
       path: '/users/$userId/activity'
@@ -1605,6 +1637,13 @@ declare module '@tanstack/react-router' {
       path: '/tricks/$trickId/submit-video'
       fullPath: '/tricks/$trickId/submit-video'
       preLoaderRoute: typeof AuthedTricksTrickIdSubmitVideoRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tricks/$trickId/land': {
+      id: '/_authed/tricks/$trickId/land'
+      path: '/tricks/$trickId/land'
+      fullPath: '/tricks/$trickId/land'
+      preLoaderRoute: typeof AuthedTricksTrickIdLandRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/tourney/$code/ranking': {
@@ -1875,6 +1914,7 @@ interface AuthedRouteChildren {
   AuthedTourneyCodeEditRoute: typeof AuthedTourneyCodeEditRoute
   AuthedTourneyCodePrelimsRoute: typeof AuthedTourneyCodePrelimsRoute
   AuthedTourneyCodeRankingRoute: typeof AuthedTourneyCodeRankingRoute
+  AuthedTricksTrickIdLandRoute: typeof AuthedTricksTrickIdLandRoute
   AuthedTricksTrickIdSubmitVideoRoute: typeof AuthedTricksTrickIdSubmitVideoRoute
   AuthedTricksTrickIdSuggestRoute: typeof AuthedTricksTrickIdSuggestRoute
   AuthedVaultVideoIdSuggestRoute: typeof AuthedVaultVideoIdSuggestRoute
@@ -1907,6 +1947,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedTourneyCodeEditRoute: AuthedTourneyCodeEditRoute,
   AuthedTourneyCodePrelimsRoute: AuthedTourneyCodePrelimsRoute,
   AuthedTourneyCodeRankingRoute: AuthedTourneyCodeRankingRoute,
+  AuthedTricksTrickIdLandRoute: AuthedTricksTrickIdLandRoute,
   AuthedTricksTrickIdSubmitVideoRoute: AuthedTricksTrickIdSubmitVideoRoute,
   AuthedTricksTrickIdSuggestRoute: AuthedTricksTrickIdSuggestRoute,
   AuthedVaultVideoIdSuggestRoute: AuthedVaultVideoIdSuggestRoute,
@@ -2074,6 +2115,7 @@ const rootRouteChildren: RootRouteChildren = {
   TourneyCodeLiveRoute: TourneyCodeLiveRoute,
   TricksGlossaryListRoute: TricksGlossaryListRouteWithChildren,
   UsersUserIdActivityRoute: UsersUserIdActivityRoute,
+  UsersUserIdTricksRoute: UsersUserIdTricksRoute,
   UsersUserIdVideosRoute: UsersUserIdVideosRoute,
   VaultVideoIdEditRoute: VaultVideoIdEditRoute,
   PostsPostIdIndexRoute: PostsPostIdIndexRoute,

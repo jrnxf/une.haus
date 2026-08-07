@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Info } from "lucide-react"
+import { type ReactNode } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -35,6 +36,9 @@ type VideoSubmitFormProps = {
   onSubmit: (data: { muxAssetId: string; notes?: string }) => void
   onCancel?: () => void
   isPending?: boolean
+  // Rendered directly above the actions row (e.g. the single-trick attestation)
+  attestation?: ReactNode
+  submitDisabled?: boolean
 }
 
 export function VideoSubmitForm({
@@ -42,6 +46,8 @@ export function VideoSubmitForm({
   onSubmit,
   onCancel,
   isPending = false,
+  attestation,
+  submitDisabled = false,
 }: VideoSubmitFormProps) {
   const rhf = useForm<VideoSubmitFormValues>({
     defaultValues: {
@@ -67,11 +73,13 @@ export function VideoSubmitForm({
         <Alert>
           <Info className="size-4" />
           <AlertDescription>
-            submitting a video for{" "}
-            <span className="font-medium">{trickName}</span>. ideal videos are
-            short clips showing the trick from different angles, slow motion
-            views, or POV perspectives. all from the same rider in one edit is
-            best!
+            <p className="text-pretty">
+              submitting a video for{" "}
+              <span className="font-medium">{trickName}</span>. ideal videos are
+              high quality and show the trick done cleanly — multiple angles if
+              possible, with one clip in slow motion. all from the same rider in
+              one edit is best!
+            </p>
           </AlertDescription>
         </Alert>
 
@@ -107,7 +115,7 @@ export function VideoSubmitForm({
                   fieldState.invalid ? `${field.name}-error` : undefined
                 }
                 value={field.value ?? ""}
-                placeholder="pov angle, slow motion, rear view..."
+                placeholder="slow motion, rear view, second angle..."
                 rows={2}
               />
               <FieldDescription>
@@ -123,13 +131,16 @@ export function VideoSubmitForm({
           )}
         />
 
+        {attestation}
+
         {/* Actions */}
         <Field orientation="horizontal">
-          <Button type="submit" disabled={isPending || formState.isSubmitting}>
+          <Button
+            type="submit"
+            disabled={submitDisabled || isPending || formState.isSubmitting}
+          >
             <span role="status">
-              {isPending || formState.isSubmitting
-                ? "submitting..."
-                : "submit video"}
+              {isPending || formState.isSubmitting ? "saving..." : "save"}
             </span>
           </Button>
           {onCancel && (

@@ -36,6 +36,16 @@ export async function submitVideo({
 
   invariant(trick, "Trick not found")
 
+  // Guard double-submits and re-linking the same video to one trick
+  const existing = await db.query.trickVideos.findFirst({
+    where: and(
+      eq(trickVideos.trickId, data.trickId),
+      eq(trickVideos.muxAssetId, data.muxAssetId),
+      eq(trickVideos.submittedByUserId, context.user.id),
+    ),
+  })
+  invariant(!existing, "Video already submitted for this trick")
+
   const [video] = await db
     .insert(trickVideos)
     .values({

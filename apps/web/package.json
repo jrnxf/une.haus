@@ -16,6 +16,7 @@
     "db:baseline": "bun src/db/scripts/baseline.ts",
     "db:reset-dev": "bun run src/scripts/reset-dev-db.ts",
     "db:clean-notifications": "bun run src/scripts/clean-orphaned-notifications.ts",
+    "sandbox": "bun run src/scripts/sandbox.ts",
     "email:dev": "npx react-email dev",
     "typecheck": "tsc --noEmit",
     "test:unit": "bun test unit.test",

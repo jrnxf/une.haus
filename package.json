@@ -25,6 +25,7 @@
     "db:migrate": "bun run --filter web db:migrate",
     "db:seed": "bun run --filter web db:seed",
     "db:reset-dev": "bun run --filter web db:reset-dev",
+    "sandbox": "bun run --filter web sandbox",
     "test": "bun run --filter '*' test:unit",
     "test:integration": "bun run --filter '*' test:integration",
     "scan": "bunx @shadscan/cli@latest apps/web --no-interactive"

@@ -391,6 +391,30 @@ export function buildTricksData(tricks: Trick[]): TricksData {
   }
 }
 
+// ==================== LANDINGS ====================
+
+// Frontier ("next up") tricks: not landed, and either no prerequisite or the
+// prerequisite is already landed. A prerequisite pointing outside the dataset
+// is treated as absent, mirroring computeDepthsAndDependents.
+export function computeFrontierSet(
+  tricks: Pick<Trick, "id" | "prerequisite">[],
+  landed: Set<number>,
+): Set<number> {
+  const ids = new Set(tricks.map((t) => t.id))
+  const frontier = new Set<number>()
+
+  for (const t of tricks) {
+    if (landed.has(t.id)) continue
+    const prerequisite =
+      t.prerequisite !== null && ids.has(t.prerequisite) ? t.prerequisite : null
+    if (prerequisite === null || landed.has(prerequisite)) {
+      frontier.add(t.id)
+    }
+  }
+
+  return frontier
+}
+
 // Type for database trick video
 type DbTrickVideo = {
   id: number

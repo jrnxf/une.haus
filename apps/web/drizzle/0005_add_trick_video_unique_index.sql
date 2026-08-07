@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "trick_videos_trick_asset_user_uq" ON "trick_videos" USING btree ("trick_id","mux_asset_id","submitted_by_user_id");

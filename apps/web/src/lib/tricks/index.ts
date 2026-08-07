@@ -32,6 +32,17 @@ import {
   reviewGlossaryProposalSchema,
 } from "./glossary/schemas"
 import {
+  landTrickServerFn,
+  listLandingsForUserServerFn,
+  listGameVideosForLandingServerFn,
+  unlandTrickServerFn,
+} from "./landings/fns"
+import {
+  landTrickSchema,
+  listLandingsForUserSchema,
+  unlandTrickSchema,
+} from "./landings/schemas"
+import {
   createElementSchema,
   createModifierSchema,
   createTrickSchema,
@@ -323,6 +334,37 @@ export const tricks = {
     },
   },
 
+  // Landings (derived: a rider's non-rejected videos on a trick)
+  landings: {
+    forUser: {
+      fn: listLandingsForUserServerFn,
+      schema: listLandingsForUserSchema,
+      queryOptions: (data: ServerFnData<typeof listLandingsForUserServerFn>) =>
+        queryOptions({
+          queryKey: ["tricks.landings.forUser", data],
+          queryFn: () => listLandingsForUserServerFn({ data }),
+          staleTime: 1000 * 30, // 30 seconds
+        }),
+    },
+    land: {
+      fn: landTrickServerFn,
+      schema: landTrickSchema,
+    },
+    gameVideos: {
+      fn: listGameVideosForLandingServerFn,
+      queryOptions: () =>
+        queryOptions({
+          queryKey: ["tricks.landings.gameVideos"],
+          queryFn: () => listGameVideosForLandingServerFn(),
+          staleTime: 1000 * 60 * 5, // 5 minutes
+        }),
+    },
+    unland: {
+      fn: unlandTrickServerFn,
+      schema: unlandTrickSchema,
+    },
+  },
+
   // Glossary proposals (elements/modifiers community contributions)
   glossary: {
     proposals: {
@@ -361,3 +403,6 @@ export const tricks = {
 
 // Type exports
 export type PendingVideosData = ServerFnReturn<typeof listPendingVideosServerFn>
+export type GameVideoOption = ServerFnReturn<
+  typeof listGameVideosForLandingServerFn
+>[number]

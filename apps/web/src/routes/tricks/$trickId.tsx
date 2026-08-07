@@ -1,7 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { GhostIcon } from "lucide-react"
+import { CheckIcon, GhostIcon } from "lucide-react"
 
+import { confirm } from "~/components/confirm-dialog"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
 import { VideoCarousel } from "~/components/tricks/video-carousel"
@@ -18,6 +19,7 @@ import { getMuxPoster } from "~/components/video-player"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
 import { tricks } from "~/lib/tricks"
+import { useLandings, useUnlandTrick } from "~/lib/tricks/landings/hooks"
 import { users } from "~/lib/users"
 import { DetailHeader } from "~/views/detail-header"
 
@@ -59,7 +61,11 @@ function TrickDetailPage() {
   const { trickId } = Route.useParams()
   const { data } = useSuspenseQuery(tricks.graph.queryOptions())
   const { data: allUsers = [] } = useSuspenseQuery(users.all.queryOptions())
+  const { landedSet, byTrickId } = useLandings()
   const trick = data.byId[Number(trickId)]
+
+  const landing = trick ? byTrickId.get(trick.id) : undefined
+  const unland = useUnlandTrick()
 
   if (!trick) {
     return (
@@ -98,9 +104,49 @@ function TrickDetailPage() {
       <div className="mx-auto w-full max-w-3xl p-4">
         <div className="space-y-6">
           <DetailHeader>
-            <DetailHeader.Title>{trick.name}</DetailHeader.Title>
+            <DetailHeader.Title
+              meta={
+                landing
+                  ? [
+                      "landed",
+                      landing.status === "active" ? "active" : "pending review",
+                    ]
+                  : undefined
+              }
+            >
+              {trick.name}
+            </DetailHeader.Title>
             <DetailHeader.Actions>
-              <Button asChild size="sm">
+              {landing ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={unland.isPending}
+                  onClick={() =>
+                    confirm.open({
+                      title: "un-land trick",
+                      description:
+                        "this removes your landing and deletes your proof video. game footage stays in your games.",
+                      confirmText: "un-land",
+                      variant: "destructive",
+                      onConfirm: () =>
+                        unland.mutate({ data: { trickId: trick.id } }),
+                    })
+                  }
+                >
+                  un-land
+                </Button>
+              ) : (
+                <Button asChild size="sm">
+                  <Link
+                    to="/tricks/$trickId/land"
+                    params={{ trickId: String(trick.id) }}
+                  >
+                    landed
+                  </Link>
+                </Button>
+              )}
+              <Button asChild size="sm" variant="outline">
                 <Link
                   to={
                     isAdmin
@@ -169,6 +215,9 @@ function TrickDetailPage() {
                     className={badgeVariants({ variant: "secondary" })}
                   >
                     {prerequisiteTrick.name}
+                    {landedSet.has(prerequisiteTrick.id) && (
+                      <CheckIcon aria-label="landed" className="size-3" />
+                    )}
                   </Link>
                 )}
                 {optionalPrerequisiteTrick && (
@@ -178,6 +227,9 @@ function TrickDetailPage() {
                     className={badgeVariants({ variant: "secondary" })}
                   >
                     {optionalPrerequisiteTrick.name}
+                    {landedSet.has(optionalPrerequisiteTrick.id) && (
+                      <CheckIcon aria-label="landed" className="size-3" />
+                    )}
                   </Link>
                 )}
               </div>

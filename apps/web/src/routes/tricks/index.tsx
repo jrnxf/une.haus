@@ -10,6 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { CheckIcon } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { z } from "zod"
 
@@ -38,8 +39,11 @@ import {
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { normalizeMultiOperator } from "~/hooks/use-filtered-list"
+import { commaArrayOf } from "~/lib/schema-utils"
 import { seo } from "~/lib/seo"
+import { useSessionUser } from "~/lib/session/hooks"
 import { type Trick, tricks } from "~/lib/tricks"
+import { useLandings } from "~/lib/tricks/landings/hooks"
 
 const tricksSearchSchema = z.object({
   name: z.string().optional(),
@@ -53,7 +57,14 @@ const tricksSearchSchema = z.object({
       return arr.length > 0 ? arr : undefined
     }),
   elements_op: z.string().optional(),
+  landed: commaArrayOf(["landed", "not-landed", "next-up"]),
 })
+
+const LANDED_FILTER_OPTIONS = [
+  { value: "landed", label: "landed" },
+  { value: "not-landed", label: "not landed" },
+  { value: "next-up", label: "next up" },
+]
 
 export const Route = createFileRoute("/tricks/")({
   validateSearch: tricksSearchSchema,
@@ -73,7 +84,7 @@ const strip = (s: string) => s.toLowerCase().replaceAll(/[^a-z0-9]/g, "")
 
 const columnHelper = createColumnHelper<Trick>()
 
-const columns = [
+const baseColumns = [
   columnHelper.accessor("name", {
     header: ({ column }) => (
       <DataGridColumnHeader column={column} title="name" />
@@ -155,6 +166,8 @@ function TricksListPage() {
   const searchParams = Route.useSearch()
   const routeNavigate = Route.useNavigate()
   const navigate = useNavigate()
+  const sessionUser = useSessionUser()
+  const { landedSet, frontierSet } = useLandings(data.tricks)
   const [sorting, setSorting] = useState<SortingState>([
     { id: "name", desc: false },
   ])
@@ -163,6 +176,9 @@ function TricksListPage() {
   const [nameInput, setNameInput] = useState(searchParams.name ?? "")
   const [elements, setElements] = useState<string[]>(
     searchParams.elements ?? [],
+  )
+  const [landedFilter, setLandedFilter] = useState<string[]>(
+    searchParams.landed ?? [],
   )
   const [name_op, setName_op] = useState(searchParams.name_op ?? "contains")
   const [elements_op, setElements_op] = useState<"contain" | "equal">(
@@ -177,6 +193,7 @@ function TricksListPage() {
       name_op?: string
       elements?: string[]
       elements_op?: string
+      landed?: string[]
     }) => {
       routeNavigate({
         search: {
@@ -190,6 +207,10 @@ function TricksListPage() {
             updates.elements && updates.elements.length > 0
               ? updates.elements_op
               : undefined,
+          landed:
+            updates.landed && updates.landed.length > 0
+              ? updates.landed
+              : undefined,
         },
         replace: true,
       })
@@ -202,6 +223,7 @@ function TricksListPage() {
     const initial = new Set<string>()
     if (nameInput) initial.add("name")
     if (elements.length > 0) initial.add("elements")
+    if (landedFilter.length > 0) initial.add("landed")
     return initial
   })
 
@@ -230,8 +252,19 @@ function TricksListPage() {
         defaultOperator: "contain",
         options: data.elements.map((e: string) => ({ value: e, label: e })),
       },
+      // Landings are per-rider — the filter only makes sense signed in
+      ...(sessionUser
+        ? [
+            {
+              key: "landed",
+              label: "landed",
+              type: "multiselect" as const,
+              options: LANDED_FILTER_OPTIONS,
+            },
+          ]
+        : []),
     ],
-    [data.elements],
+    [data.elements, sessionUser],
   )
 
   // Derive filters from LOCAL state (immediate feedback, not URL)
@@ -253,26 +286,38 @@ function TricksListPage() {
         values: elements,
       })
     }
+    if (activeFields.has("landed") || landedFilter.length > 0) {
+      result.push({
+        id: "landed",
+        field: "landed",
+        operator: "contain",
+        values: landedFilter,
+      })
+    }
     return result
-  }, [nameInput, elements, activeFields, name_op, elements_op])
+  }, [nameInput, elements, landedFilter, activeFields, name_op, elements_op])
 
   const handleFiltersChange = useCallback(
     (next: ActiveFilter[]) => {
       const nameFilter = next.find((f) => f.field === "name")
       const elementsFilter = next.find((f) => f.field === "elements")
+      const landedFilterNext = next.find((f) => f.field === "landed")
 
       setActiveFields((prev) => {
         const wantName = Boolean(nameFilter)
         const wantElements = Boolean(elementsFilter)
+        const wantLanded = Boolean(landedFilterNext)
         if (
           prev.has("name") === wantName &&
-          prev.has("elements") === wantElements
+          prev.has("elements") === wantElements &&
+          prev.has("landed") === wantLanded
         ) {
           return prev
         }
         const s = new Set<string>()
         if (wantName) s.add("name")
         if (wantElements) s.add("elements")
+        if (wantLanded) s.add("landed")
         return s
       })
 
@@ -283,12 +328,17 @@ function TricksListPage() {
           ? elementsFilter.values
           : []
       const newElementsOp = normalizeMultiOperator(elementsFilter?.operator)
+      const newLanded =
+        landedFilterNext && landedFilterNext.values.length > 0
+          ? landedFilterNext.values
+          : []
 
       // Update local state immediately for instant feedback
       setNameInput(newName)
       if (nameFilter) setName_op(newNameOp)
       setElements(newElements)
       if (elementsFilter) setElements_op(newElementsOp)
+      setLandedFilter(newLanded)
 
       // Debounced URL update via router
       debouncedNavigate({
@@ -296,6 +346,7 @@ function TricksListPage() {
         name_op: newNameOp,
         elements: newElements,
         elements_op: newElementsOp,
+        landed: newLanded,
       })
     },
     [debouncedNavigate],
@@ -361,6 +412,17 @@ function TricksListPage() {
       }
     }
 
+    if (sessionUser && searchParams.landed && searchParams.landed.length > 0) {
+      const wants = new Set(searchParams.landed)
+      result = result.filter((t: Trick) => {
+        const isLanded = landedSet.has(t.id)
+        if (wants.has("landed") && isLanded) return true
+        if (wants.has("not-landed") && !isLanded) return true
+        if (wants.has("next-up") && frontierSet.has(t.id)) return true
+        return false
+      })
+    }
+
     return result
   }, [
     data.tricks,
@@ -368,7 +430,50 @@ function TricksListPage() {
     searchParams.name_op,
     searchParams.elements,
     searchParams.elements_op,
+    searchParams.landed,
+    sessionUser,
+    landedSet,
+    frontierSet,
   ])
+
+  // Read-only landing glyphs: check = landed, accent dot = frontier ("next up")
+  const columns = useMemo(() => {
+    if (!sessionUser) return baseColumns
+    const glyphColumn = columnHelper.display({
+      id: "landed",
+      header: () => <span className="sr-only">landed</span>,
+      meta: {
+        headerClassName: "w-8 min-w-8 max-w-8",
+        cellClassName: "w-8 min-w-8 max-w-8",
+      },
+      cell: (info) => {
+        const trick = info.row.original
+        if (landedSet.has(trick.id)) {
+          return (
+            <CheckIcon
+              aria-label="landed"
+              className="text-muted-foreground size-3.5"
+            />
+          )
+        }
+        if (frontierSet.has(trick.id)) {
+          return (
+            <span
+              aria-label="next up"
+              className="bg-primary inline-block size-1.5 rounded-full"
+            />
+          )
+        }
+        return null
+      },
+    })
+    return [glyphColumn, ...baseColumns]
+  }, [sessionUser, landedSet, frontierSet])
+
+  const landedCount = useMemo(
+    () => data.tricks.filter((t: Trick) => landedSet.has(t.id)).length,
+    [data.tricks, landedSet],
+  )
 
   const table = useReactTable({
     data: filteredTricks,
@@ -425,6 +530,18 @@ function TricksListPage() {
           }
           right={
             <>
+              {sessionUser && (
+                <span className="text-muted-foreground flex items-center gap-3 self-center text-sm">
+                  {/* Legend for the glyph column */}
+                  <span className="flex items-center gap-1.5">
+                    <span className="bg-primary inline-block size-1.5 rounded-full" />
+                    next up
+                  </span>
+                  <span className="tabular-nums">
+                    {landedCount} / {data.tricks.length} landed
+                  </span>
+                </span>
+              )}
               <Button asChild variant="secondary">
                 <Link to="/tricks/glossary/elements">glossary</Link>
               </Button>

@@ -4,7 +4,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { type ReactNode } from "react"
+import { type ReactNode, useState } from "react"
 import { toast } from "sonner"
 
 import { confirm } from "~/components/confirm-dialog"
@@ -24,6 +24,7 @@ import { CountChip } from "~/components/ui/count-chip"
 import { DiffViewer } from "~/components/ui/diff-viewer"
 import { Metaline } from "~/components/ui/metaline"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
+import { Textarea } from "~/components/ui/textarea"
 import { VideoPlayer } from "~/components/video-player"
 import {
   type FlagEntityType,
@@ -33,6 +34,7 @@ import {
 } from "~/db/schema"
 import { flagsDomain } from "~/lib/flags"
 import { type PendingVideosData, tricks } from "~/lib/tricks"
+import { MULTIPLE_TRICKS_REJECTION } from "~/lib/tricks/videos/schemas"
 import { type ServerFnReturn } from "~/lib/types"
 import { utv } from "~/lib/utv/core"
 
@@ -578,6 +580,8 @@ function VideosSection() {
 
 function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
   const qc = useQueryClient()
+  const [reviewNotes, setReviewNotes] = useState("")
+  const trimmedNotes = reviewNotes.trim()
   const pendingVideosQueryKey =
     tricks.videos.listPending.queryOptions().queryKey
   const graphQueryKey = tricks.graph.queryOptions().queryKey
@@ -613,7 +617,13 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
     <Card className="rounded-md py-3">
       <CardContent className="space-y-4 px-4">
         <div className="flex items-start justify-between gap-2">
-          <p className="truncate text-sm font-medium">{video.trick.name}</p>
+          <Link
+            to="/admin/tricks/$trickId/videos"
+            params={{ trickId: String(video.trick.id) }}
+            className="truncate text-sm font-medium underline-offset-4 hover:underline"
+          >
+            {video.trick.name}
+          </Link>
           <SubmitterBadge
             userId={video.submittedBy.id}
             name={video.submittedBy.name}
@@ -628,25 +638,51 @@ function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
             {video.notes}
           </p>
         )}
+        <div className="space-y-2">
+          <Textarea
+            aria-label="review notes"
+            placeholder="review notes (required to reject)..."
+            rows={2}
+            value={reviewNotes}
+            onChange={(e) => setReviewNotes(e.target.value)}
+          />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setReviewNotes(MULTIPLE_TRICKS_REJECTION)}
+            disabled={review.isPending}
+          >
+            contains multiple tricks
+          </Button>
+        </div>
         <ReviewActions
           onApprove={() =>
             review.mutate({
-              data: { id: video.id, status: "active", reviewNotes: "" },
+              data: {
+                id: video.id,
+                status: "active",
+                reviewNotes: trimmedNotes,
+              },
             })
           }
           onReject={() =>
             confirm.open({
               title: "reject video?",
               description:
-                "this will reject the video. this action cannot be undone.",
+                "this will reject the video and revoke the rider's landing. this action cannot be undone.",
               confirmText: "reject",
               variant: "destructive",
               onConfirm: () =>
                 review.mutate({
-                  data: { id: video.id, status: "rejected", reviewNotes: "" },
+                  data: {
+                    id: video.id,
+                    status: "rejected",
+                    reviewNotes: trimmedNotes,
+                  },
                 }),
             })
           }
+          rejectDisabled={!trimmedNotes}
           isPending={review.isPending}
         />
       </CardContent>
@@ -1087,10 +1123,12 @@ function ReviewActions({
   onApprove,
   onReject,
   isPending,
+  rejectDisabled = false,
 }: {
   onApprove: () => void
   onReject: () => void
   isPending: boolean
+  rejectDisabled?: boolean
 }) {
   return (
     <div className="flex justify-end gap-2">
@@ -1098,7 +1136,7 @@ function ReviewActions({
         size="sm"
         variant="destructive"
         onClick={onReject}
-        disabled={isPending}
+        disabled={isPending || rejectDisabled}
       >
         reject
       </Button>

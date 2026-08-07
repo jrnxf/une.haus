@@ -48,7 +48,8 @@ function BreadcrumbLink({
         (render.props as Record<string, string>).className,
       ),
       "data-slot": "breadcrumb-link",
-      children,
+      // The render element owns its children — passing a `children` key here
+      // (even undefined) would make cloneElement replace them.
     } as React.Attributes)
   }
 

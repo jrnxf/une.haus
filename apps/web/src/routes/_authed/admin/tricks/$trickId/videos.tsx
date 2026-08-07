@@ -31,6 +31,7 @@ import {
 import { Textarea } from "~/components/ui/textarea"
 import { VideoPlayer } from "~/components/video-player"
 import { tricks } from "~/lib/tricks"
+import { MULTIPLE_TRICKS_REJECTION } from "~/lib/tricks/videos/schemas"
 
 const MAX_ACTIVE_VIDEOS = 5
 
@@ -480,6 +481,14 @@ function PendingVideoCard({
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
         />
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setNotes(MULTIPLE_TRICKS_REJECTION)}
+          disabled={isReviewPending}
+        >
+          contains multiple tricks
+        </Button>
         <div className="flex gap-2">
           <Button
             size="sm"

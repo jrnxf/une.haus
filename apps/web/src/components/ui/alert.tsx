@@ -41,7 +41,9 @@ export function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
+        // Block flow (not grid): mixed inline children must read as one
+        // paragraph instead of fragmenting into one row per element
+        "text-muted-foreground col-start-2 space-y-1 text-sm [&_p]:leading-relaxed",
         className,
       )}
       {...props}

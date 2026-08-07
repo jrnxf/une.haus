@@ -168,7 +168,7 @@ function RouteComponent() {
             </Link>
           </Button>
           <Button variant="secondary" size="sm" asChild>
-            <Link to="/tricks/$trickId/submit-video" params={{ trickId }}>
+            <Link to="/tricks/$trickId/land" params={{ trickId }}>
               submit
             </Link>
           </Button>

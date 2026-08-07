@@ -111,6 +111,9 @@ The compose file is **dev-only** — it brings up a single postgres
 container for `bun dev` to talk to. There is no app container; the app
 runs natively on your machine.
 
+For a fully containerized app against a clone of the prod database, see
+`sandbox/README.md` (`bun run sandbox`).
+
 ## Schema migrations
 
 Prod migrations are applied by the deploy job using a bundled programmatic

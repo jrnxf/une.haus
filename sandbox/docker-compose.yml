@@ -1,0 +1,44 @@
+name: unehaus-sandbox
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: unehaus-sandbox-pg
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_USER: unehaus
+      POSTGRES_PASSWORD: sandbox
+      POSTGRES_DB: unehaus
+    volumes:
+      - sandbox_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unehaus"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    image: oven/bun:1.3.2
+    container_name: unehaus-sandbox-web
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /app
+    command: bun --import ./.output/server/instrument.server.mjs .output/server/index.mjs
+    env_file:
+      # Real secrets (Resend, Mux, Cloudflare, session) come from the local
+      # dev env file; DATABASE_URL below overrides its value so the app talks
+      # to the sandbox postgres, never the tunneled homelab database.
+      - ../apps/web/.env
+    environment:
+      DATABASE_URL: postgres://unehaus:sandbox@postgres:5432/unehaus
+      HOST: 0.0.0.0
+      PORT: "3000"
+    ports:
+      - "3100:3000"
+    volumes:
+      - ../apps/web/.output:/app/.output:ro
+
+volumes:
+  sandbox_pg:

@@ -2,6 +2,10 @@ import { z } from "zod"
 
 import { TRICK_VIDEO_STATUSES } from "~/db/schema"
 
+// Shared quick-reject copy for the admin review surfaces
+export const MULTIPLE_TRICKS_REJECTION =
+  "contains multiple tricks — submit a clip of just this trick"
+
 // Submit video for a trick (user submits for review)
 export const submitVideoSchema = z.object({
   trickId: z.number(),
