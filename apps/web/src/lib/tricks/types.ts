@@ -1,4 +1,4 @@
-export type TrickVideo = {
+type TrickVideo = {
   id: number
   playbackId: string
   status: "active" | "pending" | "rejected"

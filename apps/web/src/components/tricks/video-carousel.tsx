@@ -1,6 +1,8 @@
+import { Link } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 
 import { RichText } from "~/components/rich-text"
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import {
   Carousel,
   type CarouselApi,
@@ -10,11 +12,21 @@ import {
   CarouselPrevious,
 } from "~/components/ui/carousel"
 import { VideoPlayer } from "~/components/video-player"
-import { type TrickVideo } from "~/lib/tricks/types"
 import { cn } from "~/lib/utils"
 
+type CarouselVideo = {
+  id: number
+  playbackId: string
+  notes: string | null
+  submittedBy?: {
+    id: number
+    name: string
+    avatarId: string | null
+  } | null
+}
+
 type VideoCarouselProps = {
-  videos: TrickVideo[]
+  videos: CarouselVideo[]
   className?: string
 }
 
@@ -58,30 +70,53 @@ export function VideoCarousel({ videos, className }: VideoCarouselProps) {
         )}
       </Carousel>
 
+      {/* Uploader attribution + dot indicators */}
+      {(activeVideo?.submittedBy || videos.length > 1) && (
+        <div className="flex items-center gap-2">
+          {activeVideo?.submittedBy && (
+            <Link
+              to="/users/$userId"
+              params={{ userId: activeVideo.submittedBy.id }}
+              className="flex min-w-0 items-center gap-2"
+            >
+              <Avatar
+                cloudflareId={activeVideo.submittedBy.avatarId}
+                alt={activeVideo.submittedBy.name}
+                className="size-5"
+              >
+                <AvatarImage width={40} quality={70} />
+                <AvatarFallback name={activeVideo.submittedBy.name} />
+              </Avatar>
+              <span className="truncate text-sm underline underline-offset-4">
+                {activeVideo.submittedBy.name}
+              </span>
+            </Link>
+          )}
+          {videos.length > 1 && (
+            <div className="ml-auto flex gap-1.5">
+              {videos.map((video, index) => (
+                <button
+                  key={video.id}
+                  type="button"
+                  onClick={() => api?.scrollTo(index)}
+                  className={cn(
+                    "size-2 rounded-full transition-colors",
+                    index === current ? "bg-primary" : "bg-muted-foreground/30",
+                  )}
+                  aria-label={`Go to video ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Video notes */}
       {activeVideo?.notes && (
         <RichText
           content={activeVideo.notes}
           className="text-muted-foreground text-sm"
         />
-      )}
-
-      {/* Dot indicators */}
-      {videos.length > 1 && (
-        <div className="flex justify-center gap-1.5">
-          {videos.map((video, index) => (
-            <button
-              key={video.id}
-              type="button"
-              onClick={() => api?.scrollTo(index)}
-              className={cn(
-                "size-2 rounded-full transition-colors",
-                index === current ? "bg-primary" : "bg-muted-foreground/30",
-              )}
-              aria-label={`Go to video ${index + 1}`}
-            />
-          ))}
-        </div>
       )}
     </div>
   )
