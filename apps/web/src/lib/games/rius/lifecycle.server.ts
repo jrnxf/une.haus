@@ -12,32 +12,41 @@ export type RotateResult = {
 }
 
 // The single rotation transition: advance every round one step along the
-// lifecycle chain, then seed a fresh upcoming round. Wrapped in a transaction
-// so the "exactly one active, one upcoming" invariant never observes a partial
-// rotation. The step order in ROTATION guarantees the active round vacates
+// lifecycle chain, then seed a fresh upcoming round. Runs as one atomic
+// db.batch so the "exactly one active, one upcoming" invariant never observes
+// a partial rotation (D1 has no interactive transactions; batch is its atomic
+// unit). The step order in ROTATION guarantees the active round vacates
 // before the upcoming round is promoted into its place.
 export async function rotate(): Promise<RotateResult> {
-  return db.transaction(async (tx) => {
-    const counts: Record<string, number> = {}
+  const [firstStep, ...restSteps] = ROTATION
 
-    for (const { from, to } of ROTATION) {
-      const moved = await tx
+  const results = await db.batch([
+    db
+      .update(rius)
+      .set({ status: firstStep.to })
+      .where(eq(rius.status, firstStep.from))
+      .returning(),
+    ...restSteps.map(({ from, to }) =>
+      db
         .update(rius)
         .set({ status: to })
         .where(eq(rius.status, from))
-        .returning()
-      counts[from] = moved.length
-    }
+        .returning(),
+    ),
+    db.insert(rius).values({ status: SEEDED_STATUS }).returning(),
+  ])
 
-    const [newRound] = await tx
-      .insert(rius)
-      .values({ status: SEEDED_STATUS })
-      .returning()
-
-    return {
-      archived: counts.active ?? 0,
-      activated: counts.upcoming ?? 0,
-      newRoundId: newRound.id,
-    }
+  const counts: Record<string, number> = {}
+  ROTATION.forEach(({ from }, i) => {
+    counts[from] = (results[i] as unknown[]).length
   })
+
+  const inserted = results.at(-1) as (typeof rius.$inferSelect)[]
+  const newRound = inserted[0]
+
+  return {
+    archived: counts.active ?? 0,
+    activated: counts.upcoming ?? 0,
+    newRoundId: newRound.id,
+  }
 }

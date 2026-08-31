@@ -46,7 +46,9 @@ export const env = createEnv({
   server: {
     CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
     CLOUDFLARE_ACCOUNT_ID: z.string(),
-    DATABASE_URL: z.string(),
+    // A `file:` sqlite path for bun contexts (tests, scripts, drizzle-kit).
+    // Absent on Workers, where the database is the D1 binding instead.
+    DATABASE_URL: z.string().optional(),
     // Optional until a Gelato account is provisioned. The Gelato client throws
     // a clear error if a call is attempted without it set.
     GELATO_API_KEY: z.string().optional(),

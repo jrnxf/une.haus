@@ -88,26 +88,30 @@ export async function listGroupedNotifications({
     entity_id: number
     count: number
     latest_id: number
-    latest_at: Date
-    is_read: boolean
+    latest_at: number
+    is_read: number
     data: string | null
-    actors: { id: number; name: string; avatarId: string | null }[]
+    actors: string
   }
 
-  const result = await db.execute<GroupedRow>(sql`
+  const unread = unreadOnly ? 1 : 0
+
+  // json_group_array has no ORDER BY clause in SQLite, so the actor list is
+  // ordered by the inner subquery before aggregation; group `data` comes from
+  // the group's latest row via max(id).
+  const result = (await db.all(sql`
     WITH groups AS (
       SELECT
         type,
         entity_type,
         entity_id,
-        count(*)::int                                       AS count,
-        max(id)::int                                        AS latest_id,
-        max(created_at)                                     AS latest_at,
-        (count(*) FILTER (WHERE read_at IS NULL)) = 0       AS is_read,
-        (array_agg(data::text ORDER BY created_at DESC))[1] AS data
+        count(*)                                                AS count,
+        max(id)                                                 AS latest_id,
+        max(created_at)                                         AS latest_at,
+        SUM(CASE WHEN read_at IS NULL THEN 1 ELSE 0 END) = 0    AS is_read
       FROM notifications
       WHERE user_id = ${userId}
-        AND (${unreadOnly} = false OR read_at IS NULL)
+        AND (${unread} = 0 OR read_at IS NULL)
       GROUP BY type, entity_type, entity_id
       ORDER BY max(created_at) DESC
       LIMIT ${limit}
@@ -120,30 +124,31 @@ export async function listGroupedNotifications({
       g.latest_id,
       g.latest_at,
       g.is_read,
-      g.data,
-      COALESCE(a.actors, '[]'::json) AS actors
+      (SELECT d.data FROM notifications d WHERE d.id = g.latest_id) AS data,
+      COALESCE(
+        (
+          SELECT json_group_array(
+                   json_object('id', s.id, 'name', s.name, 'avatarId', s.avatar_id)
+                 )
+          FROM (
+            SELECT u.id, u.name, u.avatar_id, max(n.created_at) AS last_at
+            FROM notifications n
+            JOIN users u ON u.id = n.actor_id
+            WHERE n.user_id = ${userId}
+              AND n.type = g.type
+              AND n.entity_type = g.entity_type
+              AND n.entity_id = g.entity_id
+              AND (${unread} = 0 OR n.read_at IS NULL)
+            GROUP BY u.id, u.name, u.avatar_id
+            ORDER BY max(n.created_at) DESC
+            LIMIT 3
+          ) s
+        ),
+        '[]'
+      ) AS actors
     FROM groups g
-    LEFT JOIN LATERAL (
-      SELECT json_agg(
-               json_build_object('id', s.id, 'name', s.name, 'avatarId', s.avatar_id)
-               ORDER BY s.last_at DESC
-             ) AS actors
-      FROM (
-        SELECT u.id, u.name, u.avatar_id, max(n.created_at) AS last_at
-        FROM notifications n
-        JOIN users u ON u.id = n.actor_id
-        WHERE n.user_id = ${userId}
-          AND n.type = g.type
-          AND n.entity_type = g.entity_type
-          AND n.entity_id = g.entity_id
-          AND (${unreadOnly} = false OR n.read_at IS NULL)
-        GROUP BY u.id, u.name, u.avatar_id
-        ORDER BY max(n.created_at) DESC
-        LIMIT 3
-      ) s
-    ) a ON true
     ORDER BY g.latest_at DESC
-  `)
+  `)) as GroupedRow[]
 
   return result.map((row) => ({
     type: row.type,
@@ -151,9 +156,13 @@ export async function listGroupedNotifications({
     entityId: row.entity_id,
     count: row.count,
     latestId: row.latest_id,
-    latestAt: row.latest_at,
-    isRead: row.is_read,
-    actors: row.actors,
+    latestAt: new Date(row.latest_at),
+    isRead: Boolean(row.is_read),
+    actors: JSON.parse(row.actors) as {
+      id: number
+      name: string
+      avatarId: string | null
+    }[],
     data: row.data ? JSON.parse(row.data) : null,
   }))
 }

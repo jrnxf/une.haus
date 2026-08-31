@@ -353,13 +353,15 @@ describe("rius integration", () => {
     await seedRiu("archived")
     await seedRiu("archived")
 
+    // SQLite reports the violated columns, not the index name, so both
+    // partial indexes surface as the same message.
     await expectDbRejection(
       Promise.resolve(db.insert(rius).values({ status: "active" })),
-      "rius_one_active_idx",
+      "UNIQUE constraint failed: rius.status",
     )
     await expectDbRejection(
       Promise.resolve(db.insert(rius).values({ status: "upcoming" })),
-      "rius_one_upcoming_idx",
+      "UNIQUE constraint failed: rius.status",
     )
   })
 

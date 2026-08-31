@@ -52,10 +52,10 @@ export async function sendAuthCode({
 }) {
   // Max 3 codes per email per 15 min, and 10 sends per IP per 15 min.
   const FIFTEEN_MIN = 15 * 60 * 1000
-  if (!rateLimit(`send:email:${input.email}`, 3, FIFTEEN_MIN)) {
+  if (!(await rateLimit(`send:email:${input.email}`, 3, FIFTEEN_MIN))) {
     throw new Error("Too many code requests. Please wait a few minutes.")
   }
-  if (!rateLimit(`send:ip:${ip}`, 10, FIFTEEN_MIN)) {
+  if (!(await rateLimit(`send:ip:${ip}`, 10, FIFTEEN_MIN))) {
     throw new Error("Too many code requests. Please wait a few minutes.")
   }
 
@@ -114,7 +114,7 @@ export async function enterCode({
   ip?: string
 }) {
   // Max 10 code-entry attempts per IP per 15 min.
-  if (!rateLimit(`enter:ip:${ip}`, 10, 15 * 60 * 1000)) {
+  if (!(await rateLimit(`enter:ip:${ip}`, 10, 15 * 60 * 1000))) {
     throw new Error("Too many attempts. Please wait a few minutes.")
   }
 

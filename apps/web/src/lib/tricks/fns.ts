@@ -1,6 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, asc, desc, eq, ilike, notInArray, sql } from "drizzle-orm"
+import { and, asc, desc, eq, like, notInArray, sql } from "drizzle-orm"
 
 import {
   createElementSchema,
@@ -280,7 +280,7 @@ export const searchTricksServerFn = createServerFn({
       .from(tricks)
       .where(
         and(
-          data.q ? ilike(tricks.name, `%${data.q}%`) : undefined,
+          data.q ? like(tricks.name, `%${data.q}%`) : undefined,
           data.excludeIds.length > 0
             ? notInArray(tricks.id, data.excludeIds)
             : undefined,

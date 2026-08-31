@@ -1,6 +1,6 @@
 import "@tanstack/react-start/server-only"
 import { eq } from "drizzle-orm"
-import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
+import { type AnySQLiteColumn, type SQLiteTable } from "drizzle-orm/sqlite-core"
 
 import { db } from "~/db"
 import {
@@ -72,15 +72,15 @@ export type MessageTarget = {
 type ContentBinding = {
   kind: "content"
   /** The `{entity}Likes` table holding like rows. */
-  likesTable: PgTable
+  likesTable: SQLiteTable
   /**
    * The foreign-key column on `likesTable` pointing at the liked record. Stored
    * as the actual Drizzle column reference — never reconstructed at runtime from
    * `` `${type}Id` `` (the documented silent-failure source).
    */
-  fkColumn: AnyPgColumn
+  fkColumn: AnySQLiteColumn
   /** The `{entity}Messages` table of messages attached to this content. */
-  messageTable: PgTable
+  messageTable: SQLiteTable
   /** Resolves the content owner to notify, or null when none (e.g. legacy). */
   resolveOwner: (recordId: number) => Promise<number | null>
   /** Notification type emitted when this content is liked. */
@@ -90,11 +90,11 @@ type ContentBinding = {
 type MessageBinding = {
   kind: "message"
   /** The `{entity}Likes` table holding like rows. */
-  likesTable: PgTable
+  likesTable: SQLiteTable
   /** The foreign-key column on `likesTable` pointing at the liked message. */
-  fkColumn: AnyPgColumn
+  fkColumn: AnySQLiteColumn
   /** The `{entity}Messages` table the message rows live in. */
-  messageTable: PgTable
+  messageTable: SQLiteTable
   /** Resolves the message author to notify, or null when the message is gone. */
   resolveOwner: (recordId: number) => Promise<number | null>
   /**
@@ -122,7 +122,7 @@ type UserIdQuery = {
 }
 
 const ownerByUserId =
-  (query: UserIdQuery, idColumn: AnyPgColumn) =>
+  (query: UserIdQuery, idColumn: AnySQLiteColumn) =>
   async (recordId: number): Promise<number | null> => {
     const row = await query.findFirst({
       where: eq(idColumn, recordId),
@@ -436,13 +436,13 @@ export async function resolveMessageTarget(
  */
 export type MessageParentBinding = {
   /** The registry-owned `{entity}_messages` table messages are stored in. */
-  messageTable: PgTable
+  messageTable: SQLiteTable
   /**
    * The foreign-key column on `messageTable` pointing at the parent record, or
    * `null` for `chat` (which has no parent entity). Real Drizzle column — never
    * reconstructed from a string.
    */
-  parentColumn: AnyPgColumn | null
+  parentColumn: AnySQLiteColumn | null
   /**
    * Notification entity type for the parent, or `null` for `chat`. Drives owner
    * comment notifications and message-like notification cleanup.

@@ -21,54 +21,45 @@ import { createNotification } from "~/lib/notifications/helpers.server"
 const ARCHIVE_VOTE_THRESHOLD = 5
 const MAX_ACTIVE_ROUNDS = 3
 
+// Insert one active round only if the cap has room. The count check and the
+// insert are one atomic statement (D1 has no interactive transactions), so
+// concurrent callers can never overshoot MAX_ACTIVE_ROUNDS. Returns the new
+// round id, or undefined when the cap is already met.
+async function insertActiveRoundIfBelowCap(): Promise<number | undefined> {
+  const rows = (await db.all(
+    sql`INSERT INTO sius (status)
+        SELECT 'active'
+        WHERE (SELECT COUNT(*) FROM sius WHERE status = 'active') < ${MAX_ACTIVE_ROUNDS}
+        RETURNING id`,
+  )) as { id: number }[]
+  return rows[0]?.id
+}
+
 // There should always be MAX_ACTIVE_ROUNDS rounds open for play — call this
 // after any path that archives a round to spin up replacements.
 async function topUpActiveRounds() {
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`SELECT pg_advisory_xact_lock(7110)`)
-
-    const activeRounds = await tx.query.sius.findMany({
-      where: eq(sius.status, "active"),
-      columns: { id: true },
-    })
-
-    const deficit = MAX_ACTIVE_ROUNDS - activeRounds.length
-    if (deficit <= 0) return []
-
-    return tx
-      .insert(sius)
-      .values(
-        Array.from({ length: deficit }, () => ({ status: "active" as const })),
-      )
-      .returning()
-  })
+  const created: number[] = []
+  for (let i = 0; i < MAX_ACTIVE_ROUNDS; i++) {
+    const id = await insertActiveRoundIfBelowCap()
+    if (id === undefined) break
+    created.push(id)
+  }
+  return created
 }
 
 export async function startSiuRound() {
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`SELECT pg_advisory_xact_lock(7110)`)
+  const id = await insertActiveRoundIfBelowCap()
+  invariant(
+    id !== undefined,
+    `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+  )
 
-    const activeRounds = await tx.query.sius.findMany({
-      where: eq(sius.status, "active"),
-      columns: { id: true },
-    })
-
-    invariant(
-      activeRounds.length < MAX_ACTIVE_ROUNDS,
-      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
-    )
-
-    const [round] = await tx
-      .insert(sius)
-      .values({ status: "active" })
-      .returning()
-
-    return { round }
-  })
+  const round = await db.query.sius.findFirst({ where: eq(sius.id, id) })
+  invariant(round, "Round not found after insert")
+  return { round }
 }
 
 const siuChain = createChainGame({
-  lockBase: 7100,
   entityType: "siuSet",
   logTag: "games.sius",
   copy: {
@@ -98,8 +89,8 @@ const siuChain = createChainGame({
     }),
   findSet: (exec, setId) =>
     exec.query.siuSets.findFirst({ where: eq(siuSets.id, setId) }),
-  insertSet: async (tx, values) => {
-    const [set] = await tx
+  insertSet: async (values) => {
+    const [set] = await db
       .insert(siuSets)
       .values({
         siuId: values.roundId,
@@ -112,8 +103,8 @@ const siuChain = createChainGame({
       .returning()
     return set
   },
-  insertInstructions: async (tx, setId, userId, content) => {
-    await tx.insert(siuSetMessages).values({ siuSetId: setId, userId, content })
+  insertInstructions: async (setId, userId, content) => {
+    await db.insert(siuSetMessages).values({ siuSetId: setId, userId, content })
   },
   renameSet: async (setId, userId, name) => {
     const [updated] = await db

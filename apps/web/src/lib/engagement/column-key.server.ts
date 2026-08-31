@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
+import { type AnySQLiteColumn, type SQLiteTable } from "drizzle-orm/sqlite-core"
 
 import { invariant } from "~/lib/invariant"
 
@@ -10,9 +10,9 @@ import { invariant } from "~/lib/invariant"
  * the column reference, so resolve the property key by identity-matching that
  * reference rather than reconstructing a `${type}Id` string.
  */
-export function columnKey(table: PgTable, column: AnyPgColumn): string {
+export function columnKey(table: SQLiteTable, column: AnySQLiteColumn): string {
   const entry = Object.entries(
-    table as unknown as Record<string, AnyPgColumn>,
+    table as unknown as Record<string, AnySQLiteColumn>,
   ).find(([, col]) => col === column)
   invariant(entry, `could not resolve a JS key for column "${column.name}"`)
   return entry[0]

@@ -1,6 +1,6 @@
 import "@tanstack/react-start/server-only"
 import { and, eq } from "drizzle-orm"
-import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
+import { type AnySQLiteColumn, type SQLiteTable } from "drizzle-orm/sqlite-core"
 
 import { db } from "~/db"
 import {
@@ -31,11 +31,11 @@ const NOTIFICATION_ENTITY_TYPE_SET: ReadonlySet<string> = new Set(
 
 /**
  * Every `*_likes` table pairs its foreign key with a `userId` column (composite
- * PK). Drizzle's `PgTable` is untyped at this seam, so reach the column by name
+ * PK). Drizzle's `SQLiteTable` is untyped at this seam, so reach the column by name
  * with a narrow cast rather than threading each concrete table type through.
  */
-function userIdColumn(table: PgTable): AnyPgColumn {
-  return (table as unknown as Record<string, AnyPgColumn>).userId
+function userIdColumn(table: SQLiteTable): AnySQLiteColumn {
+  return (table as unknown as Record<string, AnySQLiteColumn>).userId
 }
 
 /**

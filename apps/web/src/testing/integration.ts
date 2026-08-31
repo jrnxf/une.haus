@@ -3,58 +3,48 @@ import { sql } from "drizzle-orm"
 import { db } from "~/db"
 import { muxVideos, users } from "~/db/schema"
 
-// Safety: integration tests must run inside the ephemeral Docker container
-// started by run-integration-tests.ts. Running them directly (e.g.
+// Safety: integration tests must run against the ephemeral sqlite file
+// created by run-integration-tests.ts. Running them directly (e.g.
 // `bun test foo.integration.test.ts`) would hit your dev database and wipe it.
-if (process.env.INTEGRATION_TEST_DOCKER !== "true") {
+if (process.env.INTEGRATION_TEST_DB !== "true") {
   throw new Error(
     "FATAL: Integration tests must be run via `bun run test:integration`.\n" +
       "Running them directly uses your dev DATABASE_URL and truncates all tables.\n" +
-      "The test:integration script spins up an ephemeral Docker Postgres container.",
+      "The test:integration script creates an ephemeral sqlite database.",
   )
 }
 
 const dbUrl = process.env.DATABASE_URL ?? ""
-if (dbUrl.includes("production")) {
+if (!dbUrl.includes("unehaus-integration-test")) {
   throw new Error(
-    `FATAL: Integration tests are pointing at a production database!\nDATABASE_URL: ${dbUrl}`,
-  )
-}
-
-// Final safeguard: verify at the connection level that we're actually talking
-// to the Docker container. This catches any env leak the static checks miss.
-const [{ current_database }] = await db.execute<{ current_database: string }>(
-  sql`SELECT current_database()`,
-)
-if (current_database !== "unehaus_test") {
-  throw new Error(
-    `FATAL: Integration tests connected to "${current_database}", expected "unehaus_test".\n` +
-      `DATABASE_URL: ${process.env.DATABASE_URL}`,
+    `FATAL: Integration tests are not pointing at an ephemeral test database!\nDATABASE_URL: ${dbUrl}`,
   )
 }
 
 export async function truncatePublicTables() {
-  const rows = await db.execute(
-    sql<{ tablename: string }>`
-      select tablename
-      from pg_tables
-      where schemaname = 'public'
-    `,
-  )
+  const rows = (await db.all(
+    sql`SELECT name FROM sqlite_master
+        WHERE type = 'table'
+          AND name NOT LIKE 'sqlite_%'
+          AND name NOT LIKE '\\_\\_drizzle%' ESCAPE '\\'
+          AND name != 'sqlite_sequence'`,
+  )) as { name: string }[]
 
-  const tableNames = rows
-    .map((row) => row.tablename)
-    .filter((name) => name !== "__drizzle_migrations")
+  const tableNames = rows.map((row) => row.name)
 
   if (tableNames.length === 0) {
     return
   }
 
-  await db.execute(
-    sql.raw(
-      `TRUNCATE TABLE ${tableNames.map((name) => `"public"."${name}"`).join(", ")} RESTART IDENTITY CASCADE`,
-    ),
-  )
+  // Each DELETE autocommits, so FK deferral can't help — switch enforcement
+  // off for the wipe (this is the whole point of the truncate helper).
+  await db.run(sql.raw("PRAGMA foreign_keys = OFF"))
+  for (const name of tableNames) {
+    await db.run(sql.raw(`DELETE FROM "${name}"`))
+  }
+  // RESTART IDENTITY equivalent: reset AUTOINCREMENT counters.
+  await db.run(sql.raw("DELETE FROM sqlite_sequence"))
+  await db.run(sql.raw("PRAGMA foreign_keys = ON"))
 }
 
 export async function waitFor(

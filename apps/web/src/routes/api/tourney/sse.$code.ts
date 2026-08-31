@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { eq } from "drizzle-orm"
 
-import {
-  subscribeAdminHeartbeat,
-  subscribeTourneyUpdates,
-} from "~/lib/tourney/realtime"
+import { db } from "~/db"
+import { tournaments } from "~/db/schema"
 
 const MAX_CONNECTION_MS = 5 * 60 * 1000
 const KEEPALIVE_INTERVAL_MS = 15_000
+const POLL_INTERVAL_MS = 2000
 
+// SSE backed by database polling: mutations persist to the tournaments row
+// (updatedAt / adminHeartbeatAt) and this stream relays any change. Workers
+// isolates share no process memory, so the old in-memory EventEmitter pubsub
+// could never reach subscribers running in other isolates.
 export const Route = createFileRoute("/api/tourney/sse/$code")({
   server: {
     handlers: {
@@ -18,14 +22,13 @@ export const Route = createFileRoute("/api/tourney/sse/$code")({
           start(controller) {
             const encoder = new TextEncoder()
             let closed = false
-            // oxlint-disable-next-line unicorn/consistent-function-scoping -- reassigned below after subscribing
-            let cleanupHeartbeat = () => {}
+            let lastUpdatedAt = 0
+            let lastHeartbeatAt = 0
 
             const close = () => {
               if (closed) return
               closed = true
-              cleanupState()
-              cleanupHeartbeat()
+              clearInterval(pollTimer)
               clearInterval(keepaliveTimer)
               clearTimeout(lifetimeTimer)
               try {
@@ -37,40 +40,64 @@ export const Route = createFileRoute("/api/tourney/sse/$code")({
 
             request.signal.addEventListener("abort", close)
 
-            const send = (data: string) => {
+            const enqueue = (chunk: string) => {
               if (closed) return
               try {
-                controller.enqueue(encoder.encode(`data: ${data}\n\n`))
+                controller.enqueue(encoder.encode(chunk))
               } catch {
                 close()
               }
             }
 
-            const cleanupState = subscribeTourneyUpdates(code, (data) => {
-              send(JSON.stringify(data))
-            })
-
-            cleanupHeartbeat = subscribeAdminHeartbeat(code, () => {
+            const poll = async () => {
               if (closed) return
-              try {
-                controller.enqueue(
-                  encoder.encode(`event: heartbeat\ndata: {}\n\n`),
-                )
-              } catch {
-                close()
+              const tournament = await db.query.tournaments.findFirst({
+                where: eq(tournaments.code, code),
+                columns: {
+                  phase: true,
+                  state: true,
+                  updatedAt: true,
+                  adminHeartbeatAt: true,
+                },
+              })
+              if (!tournament || closed) return
+
+              const updatedAt = tournament.updatedAt.getTime()
+              if (updatedAt > lastUpdatedAt) {
+                // First poll only records the baseline — subscribers already
+                // loaded the current state through the regular query.
+                if (lastUpdatedAt > 0) {
+                  enqueue(
+                    `data: ${JSON.stringify({
+                      phase: tournament.phase,
+                      state: tournament.state,
+                      updatedAt,
+                    })}\n\n`,
+                  )
+                }
+                lastUpdatedAt = updatedAt
               }
-            })
+
+              const heartbeatAt = tournament.adminHeartbeatAt?.getTime() ?? 0
+              if (heartbeatAt > lastHeartbeatAt) {
+                if (lastHeartbeatAt > 0) {
+                  enqueue(`event: heartbeat\ndata: {}\n\n`)
+                }
+                lastHeartbeatAt = heartbeatAt
+              }
+            }
+
+            const pollTimer = setInterval(() => {
+              poll().catch(close)
+            }, POLL_INTERVAL_MS)
 
             const keepaliveTimer = setInterval(() => {
-              if (closed) return
-              try {
-                controller.enqueue(encoder.encode(`: ping\n\n`))
-              } catch {
-                close()
-              }
+              enqueue(`: ping\n\n`)
             }, KEEPALIVE_INTERVAL_MS)
 
             const lifetimeTimer = setTimeout(close, MAX_CONNECTION_MS)
+
+            poll().catch(close)
           },
         })
 

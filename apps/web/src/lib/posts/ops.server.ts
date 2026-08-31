@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, countDistinct, desc, eq, ilike, lt, or, sql } from "drizzle-orm"
+import { and, countDistinct, desc, eq, like, lt, or, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema"
@@ -129,15 +129,18 @@ export async function listPosts({
     .where(
       and(
         or(
-          input.q ? ilike(posts.title, `%${input.q}%`) : undefined,
-          input.q ? ilike(posts.content, `%${input.q}%`) : undefined,
-          input.q ? ilike(users.name, `%${input.q}%`) : undefined,
+          input.q ? like(posts.title, `%${input.q}%`) : undefined,
+          input.q ? like(posts.content, `%${input.q}%`) : undefined,
+          input.q ? like(users.name, `%${input.q}%`) : undefined,
         ),
         input.tags && input.tags.length > 0
-          ? sql`${posts.tags}::jsonb ?| array[${sql.join(
-              input.tags.map((tag) => sql`${tag}`),
-              sql`, `,
-            )}]`
+          ? sql`EXISTS (
+              SELECT 1 FROM json_each(${posts.tags})
+              WHERE json_each.value IN (${sql.join(
+                input.tags.map((tag) => sql`${tag}`),
+                sql`, `,
+              )})
+            )`
           : undefined,
         input.cursor ? lt(posts.id, input.cursor) : undefined,
       ),

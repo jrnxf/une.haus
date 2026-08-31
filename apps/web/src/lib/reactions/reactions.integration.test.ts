@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 import { and, eq, getTableName } from "drizzle-orm"
-import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
+import { type AnySQLiteColumn, type SQLiteTable } from "drizzle-orm/sqlite-core"
 
 import { db } from "~/db"
 import {
@@ -73,8 +73,8 @@ async function seedMuxAssetId() {
 }
 
 /** Every `*_likes` table has a `userId` column; reach it by name for queries. */
-function likeUserId(table: PgTable): AnyPgColumn {
-  return (table as unknown as Record<string, AnyPgColumn>).userId
+function likeUserId(table: SQLiteTable): AnySQLiteColumn {
+  return (table as unknown as Record<string, AnySQLiteColumn>).userId
 }
 
 /** Count rows in a type's `*_likes` table for a given record. */

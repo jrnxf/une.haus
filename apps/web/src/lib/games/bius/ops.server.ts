@@ -7,7 +7,6 @@ import { createChainGame } from "~/lib/games/chain-game.server"
 import { invariant } from "~/lib/invariant"
 
 const biuChain = createChainGame({
-  lockBase: 7200,
   entityType: "biuSet",
   logTag: "games.bius",
   copy: {
@@ -36,8 +35,8 @@ const biuChain = createChainGame({
     }),
   findSet: (exec, setId) =>
     exec.query.biuSets.findFirst({ where: eq(biuSets.id, setId) }),
-  insertSet: async (tx, values) => {
-    const [set] = await tx
+  insertSet: async (values) => {
+    const [set] = await db
       .insert(biuSets)
       .values({
         biuId: values.roundId,
@@ -50,8 +49,8 @@ const biuChain = createChainGame({
       .returning()
     return set
   },
-  insertInstructions: async (tx, setId, userId, content) => {
-    await tx.insert(biuSetMessages).values({ biuSetId: setId, userId, content })
+  insertInstructions: async (setId, userId, content) => {
+    await db.insert(biuSetMessages).values({ biuSetId: setId, userId, content })
   },
   renameSet: async (setId, userId, name) => {
     const [updated] = await db
@@ -122,22 +121,25 @@ export async function getChains() {
 }
 
 export async function startRound() {
-  return db.transaction(async (tx) => {
-    await tx.execute(sql`SELECT pg_advisory_xact_lock(7210)`)
+  // Count check and insert are one atomic statement (D1 has no interactive
+  // transactions), so concurrent callers can never overshoot the cap.
+  const rows = (await db.all(
+    sql`INSERT INTO bius (created_at)
+        SELECT CAST(unixepoch('subsec') * 1000 AS INTEGER)
+        WHERE (SELECT COUNT(*) FROM bius) < ${MAX_ACTIVE_ROUNDS}
+        RETURNING id`,
+  )) as { id: number }[]
 
-    const activeRounds = await tx.query.bius.findMany({
-      columns: { id: true },
-    })
+  invariant(
+    rows[0] !== undefined,
+    `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
+  )
 
-    invariant(
-      activeRounds.length < MAX_ACTIVE_ROUNDS,
-      `Maximum of ${MAX_ACTIVE_ROUNDS} active rounds reached`,
-    )
-
-    const [round] = await tx.insert(bius).values({}).returning()
-
-    return { round }
+  const round = await db.query.bius.findFirst({
+    where: eq(bius.id, rows[0].id),
   })
+  invariant(round, "Round not found after insert")
+  return { round }
 }
 
 export async function getSet({

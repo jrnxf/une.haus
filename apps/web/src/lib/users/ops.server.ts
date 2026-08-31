@@ -6,7 +6,7 @@ import {
   desc,
   eq,
   gt,
-  ilike,
+  like,
   isNotNull,
   isNull,
   lt,
@@ -127,10 +127,16 @@ export async function listUsers({
     .leftJoin(userSocials, eq(userSocials.userId, users.id))
     .where(
       and(
-        input.name ? ilike(users.name, `%${input.name}%`) : undefined,
+        input.name ? like(users.name, `%${input.name}%`) : undefined,
         input.id ? eq(users.id, input.id) : undefined,
         input.disciplines && input.disciplines.length > 0
-          ? sql`${users.disciplines}::jsonb @> ${sql.raw(`'${JSON.stringify(input.disciplines)}'`)}::jsonb`
+          ? // Contains-all: no required discipline may be missing from the
+            // user's list. json_each over a NULL column yields no rows, so
+            // users without disciplines are excluded.
+            sql`NOT EXISTS (
+              SELECT 1 FROM json_each(${JSON.stringify(input.disciplines)}) AS req
+              WHERE req.value NOT IN (SELECT value FROM json_each(${users.disciplines}))
+            ) AND ${users.disciplines} IS NOT NULL`
           : undefined,
         input.cursor ? gt(users.id, input.cursor) : undefined,
       ),
@@ -948,7 +954,7 @@ export async function getUserVideos({
             and(
               eq(posts.userId, userId),
               isNotNull(muxVideos.playbackId),
-              qLike ? ilike(posts.title, qLike) : undefined,
+              qLike ? like(posts.title, qLike) : undefined,
               cursorDate ? lt(posts.createdAt, cursorDate) : undefined,
             ),
           )
@@ -973,7 +979,7 @@ export async function getUserVideos({
               eq(riuSets.userId, userId),
               ne(rius.status, "upcoming"),
               isNotNull(muxVideos.playbackId),
-              qLike ? ilike(riuSets.name, qLike) : undefined,
+              qLike ? like(riuSets.name, qLike) : undefined,
               cursorDate ? lt(riuSets.createdAt, cursorDate) : undefined,
             ),
           )
@@ -999,7 +1005,7 @@ export async function getUserVideos({
             and(
               eq(riuSubmissions.userId, userId),
               isNotNull(muxVideos.playbackId),
-              qLike ? ilike(riuSets.name, qLike) : undefined,
+              qLike ? like(riuSets.name, qLike) : undefined,
               cursorDate ? lt(riuSubmissions.createdAt, cursorDate) : undefined,
             ),
           )
@@ -1022,7 +1028,7 @@ export async function getUserVideos({
               eq(biuSets.userId, userId),
               isNull(biuSets.deletedAt),
               isNotNull(muxVideos.playbackId),
-              qLike ? ilike(biuSets.name, qLike) : undefined,
+              qLike ? like(biuSets.name, qLike) : undefined,
               cursorDate ? lt(biuSets.createdAt, cursorDate) : undefined,
             ),
           )
@@ -1045,7 +1051,7 @@ export async function getUserVideos({
               eq(siuSets.userId, userId),
               isNull(siuSets.deletedAt),
               isNotNull(muxVideos.playbackId),
-              qLike ? ilike(siuSets.name, qLike) : undefined,
+              qLike ? like(siuSets.name, qLike) : undefined,
               cursorDate ? lt(siuSets.createdAt, cursorDate) : undefined,
             ),
           )
@@ -1069,7 +1075,7 @@ export async function getUserVideos({
             and(
               eq(trickVideos.submittedByUserId, userId),
               isNotNull(muxVideos.playbackId),
-              qLike ? ilike(tricks.name, qLike) : undefined,
+              qLike ? like(tricks.name, qLike) : undefined,
               cursorDate ? lt(trickVideos.createdAt, cursorDate) : undefined,
             ),
           )
@@ -1208,7 +1214,7 @@ export async function getShopWaitlistCount({
   }
 }) {
   const [result] = await db
-    .select({ count: sql<number>`count(*)::int` })
+    .select({ count: sql<number>`count(*)` })
     .from(users)
     .where(eq(users.notifyWhenShop, true))
 

@@ -6,10 +6,6 @@ import { tournaments } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
 import { applyMachineEvent, type TournamentEvent } from "~/lib/tourney/machine"
 import {
-  publishAdminHeartbeat,
-  publishTourneyUpdate,
-} from "~/lib/tourney/realtime"
-import {
   type AdvancePhaseInput,
   type BracketActionInput,
   type CreateTournamentInput,
@@ -80,22 +76,18 @@ export async function listTournaments({
 
 async function updateTournamentState(
   id: number,
-  code: string,
-  currentPhase: string,
   state: TournamentState,
   newPhase?: string,
 ) {
-  const phase = newPhase ?? currentPhase
   const updates: Record<string, unknown> = {
     state,
     updatedAt: new Date(),
   }
   if (newPhase) updates.phase = newPhase
 
-  // Publish to SSE subscribers immediately for minimal latency,
-  // then persist to DB.
-  publishTourneyUpdate(code, { phase, state, updatedAt: Date.now() })
-
+  // Persisting IS the publish: the SSE route polls this row and pushes any
+  // change to subscribers (Workers isolates share no process memory, so an
+  // in-memory pubsub cannot reach them).
   await db.update(tournaments).set(updates).where(eq(tournaments.id, id))
 }
 
@@ -186,12 +178,7 @@ export async function prelimAction({
     event,
   )
 
-  await updateTournamentState(
-    tournament.id,
-    tournament.code,
-    tournament.phase,
-    result.state,
-  )
+  await updateTournamentState(tournament.id, result.state)
   return { state: result.state }
 }
 
@@ -215,12 +202,7 @@ export async function rankingAction({
     event,
   )
 
-  await updateTournamentState(
-    tournament.id,
-    tournament.code,
-    tournament.phase,
-    result.state,
-  )
+  await updateTournamentState(tournament.id, result.state)
   return { state: result.state }
 }
 
@@ -241,12 +223,7 @@ export async function bracketAction({
     event,
   )
 
-  await updateTournamentState(
-    tournament.id,
-    tournament.code,
-    tournament.phase,
-    result.state,
-  )
+  await updateTournamentState(tournament.id, result.state)
   return { state: result.state }
 }
 
@@ -270,13 +247,7 @@ export async function advancePhase({
     event,
   )
 
-  await updateTournamentState(
-    tournament.id,
-    tournament.code,
-    tournament.phase,
-    result.state,
-    result.phase,
-  )
+  await updateTournamentState(tournament.id, result.state, result.phase)
   return { phase: result.phase, state: result.state }
 }
 
@@ -285,7 +256,10 @@ export async function adminHeartbeat({
 }: {
   data: { code: string }
 }) {
-  publishAdminHeartbeat(input.code.toUpperCase())
+  await db
+    .update(tournaments)
+    .set({ adminHeartbeatAt: new Date() })
+    .where(eq(tournaments.code, input.code.toUpperCase()))
 }
 
 // ---------------------------------------------------------------------------

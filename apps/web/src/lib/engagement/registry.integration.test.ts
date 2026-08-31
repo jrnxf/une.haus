@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 import { getTableName, sql } from "drizzle-orm"
-import { getTableConfig } from "drizzle-orm/pg-core"
+import { getTableConfig } from "drizzle-orm/sqlite-core"
 
 import { db } from "~/db"
 import {
@@ -18,15 +18,15 @@ const entries = Object.entries(ENTITY_REGISTRY) as [
 
 describe("engagement registry schema coverage", () => {
   it("has a registry entry for every *_likes / *_messages table in the catalog", async () => {
-    const rows = await db.execute<{ tablename: string }>(
+    const rows = (await db.all(
       sql`
-        select tablename
-        from pg_tables
-        where schemaname = 'public'
-          and tablename ~ '_(likes|messages)$'
+        select name
+        from sqlite_master
+        where type = 'table'
+          and (name like '%\\_likes' escape '\\' or name like '%\\_messages' escape '\\')
       `,
-    )
-    const catalog = new Set(rows.map((row) => row.tablename))
+    )) as { name: string }[]
+    const catalog = new Set(rows.map((row) => row.name))
 
     // Tables claimed by the registry: every entry's likes table and message table.
     const claimed = new Set<string>()

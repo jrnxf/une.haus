@@ -100,22 +100,24 @@ export const allUtvVideosServerFn = createServerFn({
     .groupBy(utvVideoMessages.utvVideoId)
     .as("messages_sq")
 
-  return await db
+  const rows = await db
     .select({
       id: utvVideos.id,
       title: utvVideos.title,
       legacyUrl: utvVideos.legacyUrl,
       disciplines: utvVideos.disciplines,
-      riders: sql<string[]>`
+      // json_group_array over the ordered rider names; parsed to string[] in
+      // the map below (SQLite has no native array values).
+      riders: sql<string>`
         COALESCE(
           (
-            SELECT array_agg(DISTINCT COALESCE(${users.name}, ${utvVideoRiders.name}))
+            SELECT json_group_array(DISTINCT COALESCE(${users.name}, ${utvVideoRiders.name}))
             FROM ${utvVideoRiders}
             LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
             WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
               AND COALESCE(${users.name}, ${utvVideoRiders.name}) IS NOT NULL
           ),
-          ARRAY[]::text[]
+          '[]'
         )
       `,
       scale: utvVideos.thumbnailScale,
@@ -130,6 +132,11 @@ export const allUtvVideosServerFn = createServerFn({
     .leftJoin(likesSubquery, eq(utvVideos.id, likesSubquery.utvVideoId))
     .leftJoin(messagesSubquery, eq(utvVideos.id, messagesSubquery.utvVideoId))
     .orderBy(asc(utvVideos.id))
+
+  return rows.map((row) => ({
+    ...row,
+    riders: JSON.parse(row.riders) as string[],
+  }))
 })
 
 export const listUtvRidersServerFn = createServerFn({

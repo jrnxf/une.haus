@@ -1,6 +1,4 @@
 import "@tanstack/react-start/server-only"
-import { sql } from "drizzle-orm"
-
 import { db } from "~/db"
 import { type NotificationEntityType } from "~/db/schema"
 import { background } from "~/lib/execution-context"
@@ -21,18 +19,19 @@ export type AuthenticatedContext = {
 
 // Both chain games play out as a linked list of sets: the first set opens the
 // round at position 1, and every later set continues the previous one at
-// position + 1. Everything below is the shared policy for that shape —
-// advisory locking, the existence/ownership invariants, the position math, and
-// the follower/owner notifications. A per-game descriptor supplies the parts
-// that genuinely differ: the tables (via typed data-access closures), the
-// advisory-lock base, the engagement entity type, and the copy strings.
+// position + 1. Everything below is the shared policy for that shape — the
+// existence/ownership invariants, the position math, and the follower/owner
+// notifications. A per-game descriptor supplies the parts that genuinely
+// differ: the tables (via typed data-access closures), the engagement entity
+// type, and the copy strings.
+//
+// Concurrency: D1 has no interactive transactions, so the read-check-insert
+// flow is optimistic. The database is the backstop — each game's sets table
+// carries two partial unique indexes ("one live child per set",
+// "one live set per round position"), so a lost race surfaces as a UNIQUE
+// violation on insert, which we translate back into the game's invariant copy.
 
-// A transaction handle from db.transaction, used to serialize the read-modify-
-// write of a chain continuation under an advisory lock.
-type ChainTx = Parameters<Parameters<typeof db.transaction>[0]>[0]
-
-// Anything that exposes the relational query API — satisfied by both `db` and a
-// transaction handle, so reads can run inside or outside a transaction.
+// Anything that exposes the relational query API — satisfied by `db`.
 type QueryExecutor = { query: typeof db.query }
 
 // The minimal shape the shared policy needs from a set row. Concrete games
@@ -56,10 +55,6 @@ type NewChainSet = {
 }
 
 export type ChainGameDescriptor<TSet extends ChainSet> = {
-  // Base advisory-lock id. Creating the first set locks on base + 1, continuing
-  // the chain locks on base + 2 — keeping the two paths on distinct ids while
-  // staying deterministic per game.
-  lockBase: number
   // Engagement + notification entity type, e.g. "biuSet" / "siuSet".
   entityType: NotificationEntityType
   // Prefix for background-task tags on fire-and-forget notifications, e.g.
@@ -89,10 +84,9 @@ export type ChainGameDescriptor<TSet extends ChainSet> = {
   findSet: (exec: QueryExecutor, setId: number) => Promise<TSet | undefined>
 
   // Insert a set and return the full row.
-  insertSet: (tx: ChainTx, values: NewChainSet) => Promise<TSet>
+  insertSet: (values: NewChainSet) => Promise<TSet>
   // Insert an instructions message on a freshly created set.
   insertInstructions: (
-    tx: ChainTx,
     setId: number,
     userId: number,
     content: string,
@@ -123,6 +117,18 @@ type SetInput = {
   roundId: number
 }
 
+// A UNIQUE violation from the sets table's partial indexes means we lost an
+// insert race that the pre-insert reads didn't see. drizzle wraps the driver
+// error, so scan the cause chain.
+function isUniqueViolation(error: unknown): boolean {
+  let current: unknown = error
+  while (current instanceof Error) {
+    if (/UNIQUE constraint failed/i.test(current.message)) return true
+    current = current.cause
+  }
+  return false
+}
+
 export function createChainGame<TSet extends ChainSet>(
   descriptor: ChainGameDescriptor<TSet>,
 ) {
@@ -135,17 +141,14 @@ export function createChainGame<TSet extends ChainSet>(
   }) {
     const userId = context.user.id
 
-    return db.transaction(async (tx) => {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(${sql.raw(String(descriptor.lockBase + 1))}, ${input.roundId})`,
-      )
+    await descriptor.assertRoundOpen(db, input.roundId)
 
-      await descriptor.assertRoundOpen(tx, input.roundId)
+    const existingSet = await descriptor.findLatestSet(db, input.roundId)
+    invariant(!existingSet, "Round already has a first set")
 
-      const existingSet = await descriptor.findLatestSet(tx, input.roundId)
-      invariant(!existingSet, "Round already has a first set")
-
-      const set = await descriptor.insertSet(tx, {
+    let set: TSet
+    try {
+      set = await descriptor.insertSet({
         roundId: input.roundId,
         userId,
         muxAssetId: input.muxAssetId,
@@ -153,14 +156,19 @@ export function createChainGame<TSet extends ChainSet>(
         position: 1,
         parentSetId: null,
       })
+    } catch (error) {
+      // Lost a race with a concurrent first set — the round_position index
+      // rejected the duplicate position 1.
+      invariant(!isUniqueViolation(error), "Round already has a first set")
+      throw error
+    }
 
-      const instructions = input.instructions?.trim()
-      if (instructions) {
-        await descriptor.insertInstructions(tx, set.id, userId, instructions)
-      }
+    const instructions = input.instructions?.trim()
+    if (instructions) {
+      await descriptor.insertInstructions(set.id, userId, instructions)
+    }
 
-      return set
-    })
+    return set
   }
 
   async function continueSet({
@@ -172,23 +180,20 @@ export function createChainGame<TSet extends ChainSet>(
   }) {
     const userId = context.user.id
 
-    return db.transaction(async (tx) => {
-      await tx.execute(
-        sql`SELECT pg_advisory_xact_lock(${sql.raw(String(descriptor.lockBase + 2))}, ${input.roundId})`,
-      )
+    await descriptor.assertRoundOpen(db, input.roundId)
 
-      await descriptor.assertRoundOpen(tx, input.roundId)
+    const parentSet = await descriptor.findLatestSet(db, input.roundId)
 
-      const parentSet = await descriptor.findLatestSet(tx, input.roundId)
+    invariant(parentSet, "Round has no sets yet")
+    invariant(parentSet.userId !== userId, descriptor.copy.continueOwnSet)
 
-      invariant(parentSet, "Round has no sets yet")
-      invariant(parentSet.userId !== userId, descriptor.copy.continueOwnSet)
+    // Ensure this latest set is still uncontinued.
+    const existingChild = await descriptor.findChildSet(db, parentSet.id)
+    invariant(!existingChild, descriptor.copy.alreadyContinued)
 
-      // Ensure this latest set is still uncontinued.
-      const existingChild = await descriptor.findChildSet(tx, parentSet.id)
-      invariant(!existingChild, descriptor.copy.alreadyContinued)
-
-      const set = await descriptor.insertSet(tx, {
+    let set: TSet
+    try {
+      set = await descriptor.insertSet({
         roundId: input.roundId,
         userId,
         muxAssetId: input.muxAssetId,
@@ -196,45 +201,50 @@ export function createChainGame<TSet extends ChainSet>(
         position: parentSet.position + 1,
         parentSetId: parentSet.id,
       })
+    } catch (error) {
+      // Lost a race with a concurrent continuation — the one_child or
+      // round_position index rejected the duplicate.
+      invariant(!isUniqueViolation(error), descriptor.copy.alreadyContinued)
+      throw error
+    }
 
-      const instructions = input.instructions?.trim()
-      if (instructions) {
-        await descriptor.insertInstructions(tx, set.id, userId, instructions)
-      }
+    const instructions = input.instructions?.trim()
+    if (instructions) {
+      await descriptor.insertInstructions(set.id, userId, instructions)
+    }
 
-      // Notify followers about the new set.
-      background(
-        notifyFollowers({
-          actorId: userId,
+    // Notify followers about the new set.
+    background(
+      notifyFollowers({
+        actorId: userId,
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        type: "new_content",
+        entityType: descriptor.entityType,
+        entityId: set.id,
+        entityTitle: set.name,
+      }),
+      `${descriptor.logTag}.notify`,
+    )
+
+    // Notify the owner of the set that was just continued.
+    background(
+      createNotification({
+        userId: parentSet.userId,
+        actorId: userId,
+        type: "game_activity",
+        entityType: descriptor.entityType,
+        entityId: set.id,
+        data: {
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
-          type: "new_content",
-          entityType: descriptor.entityType,
-          entityId: set.id,
           entityTitle: set.name,
-        }),
-        `${descriptor.logTag}.notify`,
-      )
+        },
+      }),
+      `${descriptor.logTag}.notify`,
+    )
 
-      // Notify the owner of the set that was just continued.
-      background(
-        createNotification({
-          userId: parentSet.userId,
-          actorId: userId,
-          type: "game_activity",
-          entityType: descriptor.entityType,
-          entityId: set.id,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-            entityTitle: set.name,
-          },
-        }),
-        `${descriptor.logTag}.notify`,
-      )
-
-      return set
-    })
+    return set
   }
 
   async function updateSet({

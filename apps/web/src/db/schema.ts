@@ -1,20 +1,15 @@
 import { sql } from "drizzle-orm"
+import { relations } from "drizzle-orm/relations"
 import {
-  boolean,
   index,
   integer,
-  json,
-  pgEnum,
-  pgTable,
   primaryKey,
   real,
-  serial,
+  sqliteTable,
   text,
-  timestamp,
   unique,
   uniqueIndex,
-} from "drizzle-orm/pg-core"
-import { relations } from "drizzle-orm/relations"
+} from "drizzle-orm/sqlite-core"
 
 import { RIU_STATUSES } from "~/lib/games/rius/lifecycle"
 import { type TournamentState } from "~/lib/tourney/types"
@@ -25,18 +20,11 @@ export const TRICK_SUBMISSION_STATUSES = [
   "rejected",
 ] as const
 
-export const trickSubmissionStatusEnum = pgEnum(
-  "trick_submission_status",
-  TRICK_SUBMISSION_STATUSES,
-)
 // enums
-export const riuStatusEnum = pgEnum("riu_status", RIU_STATUSES)
 
 export const SIU_STATUSES = ["active", "archived"] as const
-export const siuStatusEnum = pgEnum("siu_status", SIU_STATUSES)
 
 export const USER_TYPES = ["user", "admin", "test"] as const
-export const userTypeEnum = pgEnum("user_type", USER_TYPES)
 
 export const USER_DISCIPLINES = [
   "street",
@@ -68,8 +56,6 @@ export const POST_TAGS = [
 
 type PostTag = (typeof POST_TAGS)[number]
 
-export const postTagEnum = pgEnum("post_tag", POST_TAGS)
-
 // Notification enums
 export const NOTIFICATION_TYPES = [
   "like",
@@ -86,11 +72,6 @@ export const NOTIFICATION_TYPES = [
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
-
-export const notificationTypeEnum = pgEnum(
-  "notification_type",
-  NOTIFICATION_TYPES,
-)
 
 export const NOTIFICATION_ENTITY_TYPES = [
   "chat",
@@ -111,28 +92,25 @@ export const NOTIFICATION_ENTITY_TYPES = [
 
 export type NotificationEntityType = (typeof NOTIFICATION_ENTITY_TYPES)[number]
 
-export const notificationEntityTypeEnum = pgEnum(
-  "notification_entity_type",
-  NOTIFICATION_ENTITY_TYPES,
-)
-
-export const users = pgTable("users", {
+export const users = sqliteTable("users", {
   avatarId: text("avatar_id"),
   bio: text("bio"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
-  disciplines: json("disciplines").$type<UserDiscipline[]>(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+  disciplines: text("disciplines", { mode: "json" }).$type<UserDiscipline[]>(),
   email: text("email").unique().notNull(),
-  id: serial("id").primaryKey(),
-  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }),
   name: text("name").notNull(),
   arcadeHighScore: integer("arcade_high_score").notNull().default(0),
-  notifyWhenShop: boolean("notify_when_shop").notNull().default(false),
-  type: userTypeEnum("type").default("user"),
+  notifyWhenShop: integer("notify_when_shop", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  type: text("type", { enum: USER_TYPES }).default("user"),
 })
 
-export const userLocations = pgTable("user_locations", {
+export const userLocations = sqliteTable("user_locations", {
   countryCode: text("country_code").notNull(),
   countryName: text("country_name").notNull(),
   label: text("label").notNull(),
@@ -144,7 +122,7 @@ export const userLocations = pgTable("user_locations", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const userSocials = pgTable("user_socials", {
+export const userSocials = sqliteTable("user_socials", {
   facebook: text("facebook"),
 
   instagram: text("instagram"),
@@ -158,23 +136,41 @@ export const userSocials = pgTable("user_socials", {
   youtube: text("youtube"),
 })
 
-export const authCodes = pgTable("auth_codes", {
+export const authCodes = sqliteTable("auth_codes", {
   id: text("id").primaryKey(),
   email: text("email"),
   code: text("code").notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
 })
 
-export const posts = pgTable(
+// Fixed-window rate-limit counters (auth code send/entry). Enforced in the
+// database because Workers isolates share no process memory — an in-memory
+// limiter multiplies an attacker's budget by the isolate count.
+export const rateLimits = sqliteTable("rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  resetsAt: integer("resets_at", { mode: "timestamp_ms" }).notNull(),
+})
+
+// Presence: one row per online subject ("user:<id>" or "anon:<ip hash>"),
+// upserted by the 15s presence poll and pruned lazily on read. Replaces the
+// old in-memory maps — Workers isolates share no process memory.
+export const presence = sqliteTable("presence", {
+  subject: text("subject").primaryKey(),
+  userId: integer("user_id"),
+  lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }).notNull(),
+})
+
+export const posts = sqliteTable(
   "posts",
   {
     content: text("content").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
-    id: serial("id").primaryKey(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     imageId: text("image_id"),
-    tags: json("tags").$type<PostTag[]>().default([]),
+    tags: text("tags", { mode: "json" }).$type<PostTag[]>().default([]),
 
     title: text("title").notNull(),
     userId: integer("user_id")
@@ -190,19 +186,19 @@ export const posts = pgTable(
   (t) => [index("posts_user_created_idx").on(t.userId, t.createdAt)],
 )
 
-export const chatMessages = pgTable("chat_messages", {
+export const chatMessages = sqliteTable("chat_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 
-  id: serial("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const chatMessageLikes = pgTable(
+export const chatMessageLikes = sqliteTable(
   "chat_message_likes",
   {
     chatMessageId: integer("chat_message_id")
@@ -215,15 +211,15 @@ export const chatMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.chatMessageId, t.userId] })],
 )
 
-export const postMessages = pgTable(
+export const postMessages = sqliteTable(
   "post_messages",
   {
     content: text("content").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     postId: integer("post_id")
       .notNull()
       .references(() => posts.id, { onDelete: "cascade" }),
@@ -234,7 +230,7 @@ export const postMessages = pgTable(
   (t) => [index("post_messages_user_created_idx").on(t.userId, t.createdAt)],
 )
 
-export const postLikes = pgTable(
+export const postLikes = sqliteTable(
   "post_likes",
   {
     postId: integer("post_id")
@@ -247,7 +243,7 @@ export const postLikes = pgTable(
   (t) => [primaryKey({ columns: [t.postId, t.userId] })],
 )
 
-export const postMessageLikes = pgTable(
+export const postMessageLikes = sqliteTable(
   "post_message_likes",
   {
     postMessageId: integer("post_message_id")
@@ -260,13 +256,13 @@ export const postMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.postMessageId, t.userId] })],
 )
 
-export const riuSetMessages = pgTable("riu_set_messages", {
+export const riuSetMessages = sqliteTable("riu_set_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 
-  id: serial("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   riuSetId: integer("riu_set_id")
     .notNull()
     .references(() => riuSets.id, { onDelete: "cascade" }),
@@ -275,7 +271,7 @@ export const riuSetMessages = pgTable("riu_set_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const riuSetLikes = pgTable(
+export const riuSetLikes = sqliteTable(
   "riu_set_likes",
   {
     riuSetId: integer("riu_set_id")
@@ -288,7 +284,7 @@ export const riuSetLikes = pgTable(
   (t) => [primaryKey({ columns: [t.riuSetId, t.userId] })],
 )
 
-export const riuSetMessageLikes = pgTable(
+export const riuSetMessageLikes = sqliteTable(
   "riu_set_message_likes",
   {
     riuSetMessageId: integer("riu_set_message_id")
@@ -301,13 +297,13 @@ export const riuSetMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.riuSetMessageId, t.userId] })],
 )
 
-export const riuSubmissionMessages = pgTable("riu_submission_messages", {
+export const riuSubmissionMessages = sqliteTable("riu_submission_messages", {
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 
-  id: serial("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   riuSubmissionId: integer("riu_submission_id")
     .notNull()
     .references(() => riuSubmissions.id, { onDelete: "cascade" }),
@@ -316,7 +312,7 @@ export const riuSubmissionMessages = pgTable("riu_submission_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const riuSubmissionMessageLikes = pgTable(
+export const riuSubmissionMessageLikes = sqliteTable(
   "riu_submission_message_likes",
   {
     riuSubmissionMessageId: integer("riu_submission_message_id")
@@ -329,7 +325,7 @@ export const riuSubmissionMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.riuSubmissionMessageId, t.userId] })],
 )
 
-export const riuSubmissionLikes = pgTable(
+export const riuSubmissionLikes = sqliteTable(
   "riu_submission_likes",
   {
     riuSubmissionId: integer("riu_submission_id")
@@ -342,22 +338,22 @@ export const riuSubmissionLikes = pgTable(
   (t) => [primaryKey({ columns: [t.riuSubmissionId, t.userId] })],
 )
 
-export const utvVideos = pgTable("utv_videos", {
-  id: serial("id").primaryKey(),
+export const utvVideos = sqliteTable("utv_videos", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   legacyUrl: text("legacy_url").notNull(),
   legacyTitle: text("legacy_title").notNull(),
   title: text("title").notNull().default(""),
   thumbnailScale: real("thumbnail_scale").notNull().default(1),
   thumbnailSeconds: integer("thumbnail_seconds").notNull().default(30),
   titleConfidenceScore: integer("title_confidence_score").notNull().default(-1),
-  disciplines: json("disciplines").$type<UserDiscipline[]>(),
+  disciplines: text("disciplines", { mode: "json" }).$type<UserDiscipline[]>(),
   muxAssetId: text("mux_asset_id").references(() => muxVideos.assetId, {
     onDelete: "set null",
   }),
 })
 
-export const utvVideoRiders = pgTable("utv_video_riders", {
-  id: serial("id").primaryKey(),
+export const utvVideoRiders = sqliteTable("utv_video_riders", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   utvVideoId: integer("utv_video_id")
     .notNull()
     .references(() => utvVideos.id, { onDelete: "cascade" }),
@@ -368,7 +364,7 @@ export const utvVideoRiders = pgTable("utv_video_riders", {
   order: integer("order").notNull().default(0),
 })
 
-export const utvVideoLikes = pgTable(
+export const utvVideoLikes = sqliteTable(
   "utv_video_likes",
   {
     utvVideoId: integer("utv_video_id")
@@ -381,12 +377,12 @@ export const utvVideoLikes = pgTable(
   (t) => [primaryKey({ columns: [t.utvVideoId, t.userId] })],
 )
 
-export const utvVideoMessages = pgTable("utv_video_messages", {
-  id: serial("id").primaryKey(),
+export const utvVideoMessages = sqliteTable("utv_video_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   utvVideoId: integer("utv_video_id")
     .notNull()
     .references(() => utvVideos.id, { onDelete: "cascade" }),
@@ -395,7 +391,7 @@ export const utvVideoMessages = pgTable("utv_video_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const utvVideoMessageLikes = pgTable(
+export const utvVideoMessageLikes = sqliteTable(
   "utv_video_message_likes",
   {
     utvVideoMessageId: integer("utv_video_message_id")
@@ -415,50 +411,54 @@ export type UtvVideoSuggestionDiff = {
   riders?: { userId: number | null; name: string | null }[]
 }
 
-export const utvVideoSuggestions = pgTable("utv_video_suggestions", {
-  id: serial("id").primaryKey(),
+export const utvVideoSuggestions = sqliteTable("utv_video_suggestions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   utvVideoId: integer("utv_video_id")
     .notNull()
     .references(() => utvVideos.id, { onDelete: "cascade" }),
-  diff: json("diff").$type<UtvVideoSuggestionDiff>().notNull(),
+  diff: text("diff", { mode: "json" })
+    .$type<UtvVideoSuggestionDiff>()
+    .notNull(),
   reason: text("reason"),
-  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  status: text("status", { enum: TRICK_SUBMISSION_STATUSES })
+    .notNull()
+    .default("pending"),
   submittedByUserId: integer("submitted_by_user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
-export const utvClaps = pgTable("utv_claps", {
-  id: serial("id").primaryKey(),
+export const utvClaps = sqliteTable("utv_claps", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   count: integer("count").notNull().default(0),
 })
 
-export const muxVideos = pgTable("mux_videos", {
+export const muxVideos = sqliteTable("mux_videos", {
   assetId: text("asset_id").primaryKey(),
   playbackId: text("playback_id").unique(),
   uploadId: text("upload_id").unique(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
-export const rius = pgTable(
+export const rius = sqliteTable(
   "rius",
   {
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
-    id: serial("id").primaryKey(),
-    startedAt: timestamp("started_at", { withTimezone: true }),
-    status: riuStatusEnum("status").default("upcoming"),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    startedAt: integer("started_at", { mode: "timestamp_ms" }),
+    status: text("status", { enum: RIU_STATUSES }).default("upcoming"),
   },
   (t) => [
     // The rotation invariant, enforced by the database: at most one active and
@@ -473,14 +473,14 @@ export const rius = pgTable(
   ],
 )
 
-export const riuSets = pgTable(
+export const riuSets = sqliteTable(
   "riu_sets",
   {
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
     instructions: text("instructions"),
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
 
     riuId: integer("riu_id")
@@ -502,13 +502,13 @@ export const riuSets = pgTable(
   ],
 )
 
-export const riuSubmissions = pgTable(
+export const riuSubmissions = sqliteTable(
   "riu_submissions",
   {
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
-    id: serial("id").primaryKey(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+    id: integer("id").primaryKey({ autoIncrement: true }),
 
     riuSetId: integer("riu_set_id")
       .notNull()
@@ -530,20 +530,20 @@ export const riuSubmissions = pgTable(
 )
 
 // BIU (Back It Up) Game Tables
-export const bius = pgTable("bius", {
-  id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+export const bius = sqliteTable("bius", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
-export const biuSets = pgTable(
+export const biuSets = sqliteTable(
   "biu_sets",
   {
-    id: serial("id").primaryKey(),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 
     biuId: integer("biu_id")
       .notNull()
@@ -559,15 +559,24 @@ export const biuSets = pgTable(
     name: text("name").notNull(),
     position: integer("position").notNull(),
     parentSetId: integer("parent_set_id"),
-    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
   },
   (t) => [
     index("biu_sets_user_created_idx").on(t.userId, t.createdAt),
     index("biu_sets_biu_id_idx").on(t.biuId),
+    // Chain integrity, enforced by the database (D1 has no interactive
+    // transactions): a live set can be continued at most once, and a round
+    // can hold at most one live set per position.
+    uniqueIndex("biu_sets_one_child_uq")
+      .on(t.parentSetId)
+      .where(sql`parent_set_id IS NOT NULL AND deleted_at IS NULL`),
+    uniqueIndex("biu_sets_round_position_uq")
+      .on(t.biuId, t.position)
+      .where(sql`deleted_at IS NULL`),
   ],
 )
 
-export const biuSetLikes = pgTable(
+export const biuSetLikes = sqliteTable(
   "biu_set_likes",
   {
     biuSetId: integer("biu_set_id")
@@ -580,12 +589,12 @@ export const biuSetLikes = pgTable(
   (t) => [primaryKey({ columns: [t.biuSetId, t.userId] })],
 )
 
-export const biuSetMessages = pgTable("biu_set_messages", {
-  id: serial("id").primaryKey(),
+export const biuSetMessages = sqliteTable("biu_set_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   biuSetId: integer("biu_set_id")
     .notNull()
     .references(() => biuSets.id, { onDelete: "cascade" }),
@@ -594,7 +603,7 @@ export const biuSetMessages = pgTable("biu_set_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const biuSetMessageLikes = pgTable(
+export const biuSetMessageLikes = sqliteTable(
   "biu_set_message_likes",
   {
     biuSetMessageId: integer("biu_set_message_id")
@@ -608,22 +617,22 @@ export const biuSetMessageLikes = pgTable(
 )
 
 // SIU (Stack It Up) Game Tables
-export const sius = pgTable("sius", {
-  id: serial("id").primaryKey(),
-  status: siuStatusEnum("status").default("active"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+export const sius = sqliteTable("sius", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  status: text("status", { enum: SIU_STATUSES }).default("active"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
-  endedAt: timestamp("ended_at", { withTimezone: true }),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+  endedAt: integer("ended_at", { mode: "timestamp_ms" }),
 })
 
-export const siuSets = pgTable(
+export const siuSets = sqliteTable(
   "siu_sets",
   {
-    id: serial("id").primaryKey(),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 
     siuId: integer("siu_id")
       .notNull()
@@ -639,15 +648,22 @@ export const siuSets = pgTable(
     name: text("name").notNull(),
     position: integer("position").notNull(),
     parentSetId: integer("parent_set_id"),
-    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+    deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
   },
   (t) => [
     index("siu_sets_user_created_idx").on(t.userId, t.createdAt),
     index("siu_sets_siu_id_idx").on(t.siuId),
+    // Same chain-integrity indexes as biu_sets — see that table's comment.
+    uniqueIndex("siu_sets_one_child_uq")
+      .on(t.parentSetId)
+      .where(sql`parent_set_id IS NOT NULL AND deleted_at IS NULL`),
+    uniqueIndex("siu_sets_round_position_uq")
+      .on(t.siuId, t.position)
+      .where(sql`deleted_at IS NULL`),
   ],
 )
 
-export const siuArchiveVotes = pgTable(
+export const siuArchiveVotes = sqliteTable(
   "siu_archive_votes",
   {
     siuId: integer("siu_id")
@@ -656,14 +672,14 @@ export const siuArchiveVotes = pgTable(
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   },
   (t) => [primaryKey({ columns: [t.siuId, t.userId] })],
 )
 
-export const siuSetLikes = pgTable(
+export const siuSetLikes = sqliteTable(
   "siu_set_likes",
   {
     siuSetId: integer("siu_set_id")
@@ -676,12 +692,12 @@ export const siuSetLikes = pgTable(
   (t) => [primaryKey({ columns: [t.siuSetId, t.userId] })],
 )
 
-export const siuSetMessages = pgTable("siu_set_messages", {
-  id: serial("id").primaryKey(),
+export const siuSetMessages = sqliteTable("siu_set_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   siuSetId: integer("siu_set_id")
     .notNull()
     .references(() => siuSets.id, { onDelete: "cascade" }),
@@ -690,7 +706,7 @@ export const siuSetMessages = pgTable("siu_set_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const siuSetMessageLikes = pgTable(
+export const siuSetMessageLikes = sqliteTable(
   "siu_set_message_likes",
   {
     siuSetMessageId: integer("siu_set_message_id")
@@ -703,7 +719,7 @@ export const siuSetMessageLikes = pgTable(
   (t) => [primaryKey({ columns: [t.siuSetMessageId, t.userId] })],
 )
 
-export const userFollows = pgTable(
+export const userFollows = sqliteTable(
   "user_follows",
   {
     followedByUserId: integer("followed_by_user_id")
@@ -726,25 +742,27 @@ export type NotificationData = {
   messageId?: number
 }
 
-export const notifications = pgTable(
+export const notifications = sqliteTable(
   "notifications",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     actorId: integer("actor_id").references(() => users.id, {
       onDelete: "cascade",
     }),
-    type: notificationTypeEnum("type").notNull(),
-    entityType: notificationEntityTypeEnum("entity_type").notNull(),
+    type: text("type", { enum: NOTIFICATION_TYPES }).notNull(),
+    entityType: text("entity_type", {
+      enum: NOTIFICATION_ENTITY_TYPES,
+    }).notNull(),
     entityId: integer("entity_id").notNull(),
-    data: json("data").$type<NotificationData>(),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    data: text("data", { mode: "json" }).$type<NotificationData>(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
-    readAt: timestamp("read_at", { withTimezone: true }),
-    emailedAt: timestamp("emailed_at", { withTimezone: true }),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+    readAt: integer("read_at", { mode: "timestamp_ms" }),
+    emailedAt: integer("emailed_at", { mode: "timestamp_ms" }),
   },
   (t) => [
     index("notifications_user_id_idx").on(t.userId),
@@ -765,52 +783,71 @@ export type EmailDigestFrequency = (typeof EMAIL_DIGEST_FREQUENCIES)[number]
 export const EMAIL_REMINDER_TYPES = ["digest", "game_start"] as const
 export type EmailReminderType = (typeof EMAIL_REMINDER_TYPES)[number]
 
-export const userNotificationSettings = pgTable("user_notification_settings", {
-  userId: integer("user_id")
-    .primaryKey()
-    .references(() => users.id, { onDelete: "cascade" }),
-  // In-app notification toggles
-  likesEnabled: boolean("likes_enabled").notNull().default(true),
-  commentsEnabled: boolean("comments_enabled").notNull().default(true),
-  followsEnabled: boolean("follows_enabled").notNull().default(true),
-  newContentEnabled: boolean("new_content_enabled").notNull().default(true),
-  mentionsEnabled: boolean("mentions_enabled").notNull().default(true),
-  gameActivityEnabled: boolean("game_activity_enabled").notNull().default(true),
-  // Email digest preferences (opt-in, default off)
-  emailDigestFrequency: text("email_digest_frequency")
-    .$type<EmailDigestFrequency>()
-    .notNull()
-    .default("off"),
-  emailDigestDayOfWeek: integer("email_digest_day_of_week").default(0), // 0=Sunday
-  emailDigestDayOfMonth: integer("email_digest_day_of_month").default(1), // 1st of month
-  emailDigestHourUtc: integer("email_digest_hour_utc").default(9), // 9am UTC
-  // Game start reminder preferences (opt-in, default off)
-  gameStartReminderEnabled: boolean("game_start_reminder_enabled")
-    .notNull()
-    .default(false),
-  gameStartReminderHoursBefore: integer(
-    "game_start_reminder_hours_before",
-  ).default(24),
-  // Global email unsubscribe
-  emailUnsubscribedAll: boolean("email_unsubscribed_all")
-    .notNull()
-    .default(false),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-})
+export const userNotificationSettings = sqliteTable(
+  "user_notification_settings",
+  {
+    userId: integer("user_id")
+      .primaryKey()
+      .references(() => users.id, { onDelete: "cascade" }),
+    // In-app notification toggles
+    likesEnabled: integer("likes_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    commentsEnabled: integer("comments_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    followsEnabled: integer("follows_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    newContentEnabled: integer("new_content_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    mentionsEnabled: integer("mentions_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    gameActivityEnabled: integer("game_activity_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    // Email digest preferences (opt-in, default off)
+    emailDigestFrequency: text("email_digest_frequency")
+      .$type<EmailDigestFrequency>()
+      .notNull()
+      .default("off"),
+    emailDigestDayOfWeek: integer("email_digest_day_of_week").default(0), // 0=Sunday
+    emailDigestDayOfMonth: integer("email_digest_day_of_month").default(1), // 1st of month
+    emailDigestHourUtc: integer("email_digest_hour_utc").default(9), // 9am UTC
+    // Game start reminder preferences (opt-in, default off)
+    gameStartReminderEnabled: integer("game_start_reminder_enabled", {
+      mode: "boolean",
+    })
+      .notNull()
+      .default(false),
+    gameStartReminderHoursBefore: integer(
+      "game_start_reminder_hours_before",
+    ).default(24),
+    // Global email unsubscribe
+    emailUnsubscribedAll: integer("email_unsubscribed_all", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+  },
+)
 
 // Track sent email reminders to avoid duplicates
-export const emailRemindersSent = pgTable(
+export const emailRemindersSent = sqliteTable(
   "email_reminders_sent",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     reminderType: text("reminder_type").$type<EmailReminderType>().notNull(),
     riuId: integer("riu_id").references(() => rius.id, { onDelete: "cascade" }),
-    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+    sentAt: integer("sent_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   },
   (t) => [
     index("email_reminders_sent_user_type_riu_idx").on(
@@ -839,20 +876,18 @@ export const FLAG_ENTITY_TYPES = [
 
 export type FlagEntityType = (typeof FLAG_ENTITY_TYPES)[number]
 
-export const flagEntityTypeEnum = pgEnum("flag_entity_type", FLAG_ENTITY_TYPES)
-
-export const flags = pgTable("flags", {
-  id: serial("id").primaryKey(),
-  entityType: flagEntityTypeEnum("entity_type").notNull(),
+export const flags = sqliteTable("flags", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  entityType: text("entity_type", { enum: FLAG_ENTITY_TYPES }).notNull(),
   entityId: integer("entity_id").notNull(),
   reason: text("reason").notNull(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
-  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+  resolvedAt: integer("resolved_at", { mode: "timestamp_ms" }),
   resolvedByUserId: integer("resolved_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
@@ -1373,49 +1408,42 @@ export type SelectUser = typeof users.$inferSelect
 
 // Trick Enums
 export const CATCH_TYPES = ["one-foot", "two-foot"] as const
-export const catchTypeEnum = pgEnum("catch_type", CATCH_TYPES)
 
 export const TRICK_RELATIONSHIP_TYPES = [
   "prerequisite",
   "optional_prerequisite",
   "related",
 ] as const
-export const trickRelationshipTypeEnum = pgEnum(
-  "trick_relationship_type",
-  TRICK_RELATIONSHIP_TYPES,
-)
 
 export const TRICK_VIDEO_STATUSES = ["active", "pending", "rejected"] as const
-export const trickVideoStatusEnum = pgEnum(
-  "trick_video_status",
-  TRICK_VIDEO_STATUSES,
-)
 
 // Trick Modifiers (global, apply to any trick)
-export const trickModifiers = pgTable("trick_modifiers", {
-  id: serial("id").primaryKey(),
+export const trickModifiers = sqliteTable("trick_modifiers", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 // Trick Elements (components that make up a trick: spin, flip, twist, etc.)
-export const trickElements = pgTable("trick_elements", {
-  id: serial("id").primaryKey(),
+export const trickElements = sqliteTable("trick_elements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 // Core Tricks Table
-export const tricks = pgTable("tricks", {
-  id: serial("id").primaryKey(),
+export const tricks = sqliteTable("tricks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  alternateNames: json("alternate_names").$type<string[]>().default([]),
+  alternateNames: text("alternate_names", { mode: "json" })
+    .$type<string[]>()
+    .default([]),
   description: text("description"),
   inventedBy: text("invented_by"),
   inventedByUserId: integer("invented_by_user_id").references(() => users.id, {
@@ -1423,26 +1451,28 @@ export const tricks = pgTable("tricks", {
   }),
   yearLanded: integer("year_landed"),
   notes: text("notes"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 // Trick Videos (multiple per trick)
-export const trickVideos = pgTable(
+export const trickVideos = sqliteTable(
   "trick_videos",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     trickId: integer("trick_id")
       .notNull()
       .references(() => tricks.id, { onDelete: "cascade" }),
     muxAssetId: text("mux_asset_id")
       .notNull()
       .references(() => muxVideos.assetId, { onDelete: "cascade" }),
-    status: trickVideoStatusEnum("status").notNull().default("pending"),
+    status: text("status", { enum: TRICK_VIDEO_STATUSES })
+      .notNull()
+      .default("pending"),
     sortOrder: integer("sort_order").notNull().default(0),
     // Admin-curated ordering: pinned videos (max 3 per trick) lead the
     // carousel. Null = not pinned; lower rank shows first.
@@ -1456,11 +1486,11 @@ export const trickVideos = pgTable(
         onDelete: "set null",
       },
     ),
-    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
     notes: text("notes"),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   },
   (t) => [
     index("trick_videos_trick_id_idx").on(t.trickId),
@@ -1478,7 +1508,7 @@ export const trickVideos = pgTable(
 )
 
 // Trick Element Assignments (many-to-many)
-export const trickElementAssignments = pgTable(
+export const trickElementAssignments = sqliteTable(
   "trick_element_assignments",
   {
     trickId: integer("trick_id")
@@ -1492,17 +1522,17 @@ export const trickElementAssignments = pgTable(
 )
 
 // Trick Relationships (directed graph)
-export const trickRelationships = pgTable(
+export const trickRelationships = sqliteTable(
   "trick_relationships",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     sourceTrickId: integer("source_trick_id")
       .notNull()
       .references(() => tricks.id, { onDelete: "cascade" }),
     targetTrickId: integer("target_trick_id")
       .notNull()
       .references(() => tricks.id, { onDelete: "cascade" }),
-    type: trickRelationshipTypeEnum("type").notNull(),
+    type: text("type", { enum: TRICK_RELATIONSHIP_TYPES }).notNull(),
   },
   (t) => [
     index("trick_relationships_source_idx").on(t.sourceTrickId),
@@ -1511,10 +1541,12 @@ export const trickRelationships = pgTable(
 )
 
 // Trick Submissions (user-submitted for review)
-export const trickSubmissions = pgTable("trick_submissions", {
-  id: serial("id").primaryKey(),
+export const trickSubmissions = sqliteTable("trick_submissions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  alternateNames: json("alternate_names").$type<string[]>().default([]),
+  alternateNames: text("alternate_names", { mode: "json" })
+    .$type<string[]>()
+    .default([]),
   description: text("description"),
   inventedBy: text("invented_by"),
   inventedByUserId: integer("invented_by_user_id").references(() => users.id, {
@@ -1524,22 +1556,24 @@ export const trickSubmissions = pgTable("trick_submissions", {
   videoUrl: text("video_url"),
   videoTimestamp: text("video_timestamp"),
   notes: text("notes"),
-  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  status: text("status", { enum: TRICK_SUBMISSION_STATUSES })
+    .notNull()
+    .default("pending"),
   submittedByUserId: integer("submitted_by_user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 // Trick Submission Element Assignments
-export const trickSubmissionElementAssignments = pgTable(
+export const trickSubmissionElementAssignments = sqliteTable(
   "trick_submission_element_assignments",
   {
     submissionId: integer("submission_id")
@@ -1553,17 +1587,17 @@ export const trickSubmissionElementAssignments = pgTable(
 )
 
 // Trick Submission Relationships
-export const trickSubmissionRelationships = pgTable(
+export const trickSubmissionRelationships = sqliteTable(
   "trick_submission_relationships",
   {
-    id: serial("id").primaryKey(),
+    id: integer("id").primaryKey({ autoIncrement: true }),
     submissionId: integer("submission_id")
       .notNull()
       .references(() => trickSubmissions.id, { onDelete: "cascade" }),
     targetTrickId: integer("target_trick_id")
       .notNull()
       .references(() => tricks.id, { onDelete: "cascade" }),
-    type: trickRelationshipTypeEnum("type").notNull(),
+    type: text("type", { enum: TRICK_RELATIONSHIP_TYPES }).notNull(),
   },
 )
 
@@ -1584,70 +1618,65 @@ export type TrickSuggestionDiff = {
   }
 }
 
-export const trickSuggestions = pgTable("trick_suggestions", {
-  id: serial("id").primaryKey(),
+export const trickSuggestions = sqliteTable("trick_suggestions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   trickId: integer("trick_id")
     .notNull()
     .references(() => tricks.id, { onDelete: "cascade" }),
-  diff: json("diff").$type<TrickSuggestionDiff>().notNull(),
+  diff: text("diff", { mode: "json" }).$type<TrickSuggestionDiff>().notNull(),
   reason: text("reason"),
-  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  status: text("status", { enum: TRICK_SUBMISSION_STATUSES })
+    .notNull()
+    .default("pending"),
   submittedByUserId: integer("submitted_by_user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 // Glossary Proposals (community-submitted element/modifier create or edit proposals)
 export const GLOSSARY_PROPOSAL_ACTIONS = ["create", "edit"] as const
 export const GLOSSARY_PROPOSAL_TYPES = ["element", "modifier"] as const
 
-export const glossaryProposalActionEnum = pgEnum(
-  "glossary_proposal_action",
-  GLOSSARY_PROPOSAL_ACTIONS,
-)
-export const glossaryProposalTypeEnum = pgEnum(
-  "glossary_proposal_type",
-  GLOSSARY_PROPOSAL_TYPES,
-)
-
 export type GlossaryProposalDiff = {
   name?: string
   description?: string | null
 }
 
-export const glossaryProposals = pgTable("glossary_proposals", {
-  id: serial("id").primaryKey(),
-  action: glossaryProposalActionEnum("action").notNull(),
-  type: glossaryProposalTypeEnum("type").notNull(),
+export const glossaryProposals = sqliteTable("glossary_proposals", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  action: text("action", { enum: GLOSSARY_PROPOSAL_ACTIONS }).notNull(),
+  type: text("type", { enum: GLOSSARY_PROPOSAL_TYPES }).notNull(),
   name: text("name").notNull(),
   description: text("description"),
   targetId: integer("target_id"),
-  diff: json("diff").$type<GlossaryProposalDiff>(),
+  diff: text("diff", { mode: "json" }).$type<GlossaryProposalDiff>(),
   reason: text("reason"),
-  status: trickSubmissionStatusEnum("status").notNull().default("pending"),
+  status: text("status", { enum: TRICK_SUBMISSION_STATUSES })
+    .notNull()
+    .default("pending"),
   submittedByUserId: integer("submitted_by_user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   reviewedByUserId: integer("reviewed_by_user_id").references(() => users.id, {
     onDelete: "set null",
   }),
-  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
   reviewNotes: text("review_notes"),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 // Trick Engagement Tables
-export const trickLikes = pgTable(
+export const trickLikes = sqliteTable(
   "trick_likes",
   {
     trickId: integer("trick_id")
@@ -1660,12 +1689,12 @@ export const trickLikes = pgTable(
   (t) => [primaryKey({ columns: [t.trickId, t.userId] })],
 )
 
-export const trickMessages = pgTable("trick_messages", {
-  id: serial("id").primaryKey(),
+export const trickMessages = sqliteTable("trick_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
   trickId: integer("trick_id")
     .notNull()
     .references(() => tricks.id, { onDelete: "cascade" }),
@@ -1674,7 +1703,7 @@ export const trickMessages = pgTable("trick_messages", {
     .references(() => users.id, { onDelete: "cascade" }),
 })
 
-export const trickMessageLikes = pgTable(
+export const trickMessageLikes = sqliteTable(
   "trick_message_likes",
   {
     trickMessageId: integer("trick_message_id")
@@ -1886,23 +1915,24 @@ export const TOURNEY_PHASES = [
   "complete",
 ] as const
 
-export const tourneyPhaseEnum = pgEnum("tourney_phase", TOURNEY_PHASES)
-
-export const tournaments = pgTable("tournaments", {
-  id: serial("id").primaryKey(),
+export const tournaments = sqliteTable("tournaments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   code: text("code").notNull().unique(),
   name: text("name").notNull(),
-  phase: tourneyPhaseEnum("phase").notNull().default("setup"),
+  phase: text("phase", { enum: TOURNEY_PHASES }).notNull().default("setup"),
   createdByUserId: integer("created_by_user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  state: json("state").$type<TournamentState>().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  state: text("state", { mode: "json" }).$type<TournamentState>().notNull(),
+  // Stamped by the admin client's periodic heartbeat; the SSE poll loop
+  // relays it so viewers can tell whether the admin is still driving.
+  adminHeartbeatAt: integer("admin_heartbeat_at", { mode: "timestamp_ms" }),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
-    .defaultNow(),
+    .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
 })
 
 export const tournamentsRelations = relations(tournaments, ({ one }) => ({

@@ -1,61 +1,63 @@
 {
-  "id": "7f4b63e2-d564-4fde-919b-186d76cdca49",
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "294a78f4-140f-4798-bd59-c229a0805006",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
   "tables": {
-    "public.auth_codes": {
+    "auth_codes": {
       "name": "auth_codes",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "email": {
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "code": {
           "name": "code",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "expires_at": {
           "name": "expires_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.biu_set_likes": {
+    "biu_set_likes": {
       "name": "biu_set_likes",
-      "schema": "",
       "columns": {
         "biu_set_id": {
           "name": "biu_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -81,30 +83,29 @@
       },
       "compositePrimaryKeys": {
         "biu_set_likes_biu_set_id_user_id_pk": {
-          "name": "biu_set_likes_biu_set_id_user_id_pk",
-          "columns": ["biu_set_id", "user_id"]
+          "columns": ["biu_set_id", "user_id"],
+          "name": "biu_set_likes_biu_set_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.biu_set_message_likes": {
+    "biu_set_message_likes": {
       "name": "biu_set_message_likes",
-      "schema": "",
       "columns": {
         "biu_set_message_id": {
           "name": "biu_set_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -130,49 +131,51 @@
       },
       "compositePrimaryKeys": {
         "biu_set_message_likes_biu_set_message_id_user_id_pk": {
-          "name": "biu_set_message_likes_biu_set_message_id_user_id_pk",
-          "columns": ["biu_set_message_id", "user_id"]
+          "columns": ["biu_set_message_id", "user_id"],
+          "name": "biu_set_message_likes_biu_set_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.biu_set_messages": {
+    "biu_set_messages": {
       "name": "biu_set_messages",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "biu_set_id": {
           "name": "biu_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -198,71 +201,100 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.biu_sets": {
+    "biu_sets": {
       "name": "biu_sets",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "biu_id": {
           "name": "biu_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "position": {
           "name": "position",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "parent_set_id": {
           "name": "parent_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "biu_sets_user_created_idx": {
+          "name": "biu_sets_user_created_idx",
+          "columns": ["user_id", "created_at"],
+          "isUnique": false
+        },
+        "biu_sets_biu_id_idx": {
+          "name": "biu_sets_biu_id_idx",
+          "columns": ["biu_id"],
+          "isUnique": false
+        },
+        "biu_sets_one_child_uq": {
+          "name": "biu_sets_one_child_uq",
+          "columns": ["parent_set_id"],
+          "isUnique": true,
+          "where": "parent_set_id IS NOT NULL AND deleted_at IS NULL"
+        },
+        "biu_sets_round_position_uq": {
+          "name": "biu_sets_round_position_uq",
+          "columns": ["biu_id", "position"],
+          "isUnique": true,
+          "where": "deleted_at IS NULL"
+        }
+      },
       "foreignKeys": {
         "biu_sets_biu_id_bius_id_fk": {
           "name": "biu_sets_biu_id_bius_id_fk",
@@ -294,51 +326,49 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.bius": {
+    "bius": {
       "name": "bius",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.chat_message_likes": {
+    "chat_message_likes": {
       "name": "chat_message_likes",
-      "schema": "",
       "columns": {
         "chat_message_id": {
           "name": "chat_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -364,43 +394,44 @@
       },
       "compositePrimaryKeys": {
         "chat_message_likes_chat_message_id_user_id_pk": {
-          "name": "chat_message_likes_chat_message_id_user_id_pk",
-          "columns": ["chat_message_id", "user_id"]
+          "columns": ["chat_message_id", "user_id"],
+          "name": "chat_message_likes_chat_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.chat_messages": {
+    "chat_messages": {
       "name": "chat_messages",
-      "schema": "",
       "columns": {
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -417,73 +448,53 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.email_reminders_sent": {
+    "email_reminders_sent": {
       "name": "email_reminders_sent",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reminder_type": {
           "name": "reminder_type",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "riu_id": {
           "name": "riu_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "sent_at": {
           "name": "sent_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {
         "email_reminders_sent_user_type_riu_idx": {
           "name": "email_reminders_sent_user_type_riu_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "reminder_type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "riu_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id", "reminder_type", "riu_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -508,75 +519,81 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.flags": {
+    "flags": {
       "name": "flags",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "entity_type": {
           "name": "entity_type",
-          "type": "flag_entity_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "entity_id": {
           "name": "entity_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reason": {
           "name": "reason",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "resolved_at": {
           "name": "resolved_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "resolved_by_user_id": {
           "name": "resolved_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "resolution": {
           "name": "resolution",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "parent_entity_id": {
           "name": "parent_entity_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -602,102 +619,110 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.glossary_proposals": {
+    "glossary_proposals": {
       "name": "glossary_proposals",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "action": {
           "name": "action",
-          "type": "glossary_proposal_action",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "type": {
           "name": "type",
-          "type": "glossary_proposal_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "target_id": {
           "name": "target_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "diff": {
           "name": "diff",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "reason": {
           "name": "reason",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "trick_submission_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'pending'"
         },
         "submitted_by_user_id": {
           "name": "submitted_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reviewed_by_user_id": {
           "name": "reviewed_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "reviewed_at": {
           "name": "reviewed_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "review_notes": {
           "name": "review_notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -723,205 +748,158 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.mux_videos": {
+    "mux_videos": {
       "name": "mux_videos",
-      "schema": "",
       "columns": {
         "asset_id": {
           "name": "asset_id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "playback_id": {
           "name": "playback_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "upload_id": {
           "name": "upload_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
+      "indexes": {
         "mux_videos_playback_id_unique": {
           "name": "mux_videos_playback_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["playback_id"]
+          "columns": ["playback_id"],
+          "isUnique": true
         },
         "mux_videos_upload_id_unique": {
           "name": "mux_videos_upload_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["upload_id"]
+          "columns": ["upload_id"],
+          "isUnique": true
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.notifications": {
+    "notifications": {
       "name": "notifications",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "actor_id": {
           "name": "actor_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "type": {
           "name": "type",
-          "type": "notification_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "entity_type": {
           "name": "entity_type",
-          "type": "notification_entity_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "entity_id": {
           "name": "entity_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "data": {
           "name": "data",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "read_at": {
           "name": "read_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "emailed_at": {
           "name": "emailed_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "notifications_user_id_idx": {
           "name": "notifications_user_id_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id"],
+          "isUnique": false
         },
         "notifications_user_unread_idx": {
           "name": "notifications_user_unread_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "read_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id", "read_at"],
+          "isUnique": false
         },
         "notifications_grouping_idx": {
           "name": "notifications_grouping_idx",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "entity_type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "entity_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id", "entity_type", "entity_id"],
+          "isUnique": false
         },
         "notifications_created_at_idx": {
           "name": "notifications_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["created_at"],
+          "isUnique": false
+        },
+        "notifications_user_emailed_created_idx": {
+          "name": "notifications_user_emailed_created_idx",
+          "columns": ["user_id", "emailed_at", "created_at"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -946,25 +924,24 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.post_likes": {
+    "post_likes": {
       "name": "post_likes",
-      "schema": "",
       "columns": {
         "post_id": {
           "name": "post_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -990,30 +967,29 @@
       },
       "compositePrimaryKeys": {
         "post_likes_post_id_user_id_pk": {
-          "name": "post_likes_post_id_user_id_pk",
-          "columns": ["post_id", "user_id"]
+          "columns": ["post_id", "user_id"],
+          "name": "post_likes_post_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.post_message_likes": {
+    "post_message_likes": {
       "name": "post_message_likes",
-      "schema": "",
       "columns": {
         "post_message_id": {
           "name": "post_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1039,52 +1015,60 @@
       },
       "compositePrimaryKeys": {
         "post_message_likes_post_message_id_user_id_pk": {
-          "name": "post_message_likes_post_message_id_user_id_pk",
-          "columns": ["post_message_id", "user_id"]
+          "columns": ["post_message_id", "user_id"],
+          "name": "post_message_likes_post_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.post_messages": {
+    "post_messages": {
       "name": "post_messages",
-      "schema": "",
       "columns": {
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "post_id": {
           "name": "post_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "post_messages_user_created_idx": {
+          "name": "post_messages_user_created_idx",
+          "columns": ["user_id", "created_at"],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "post_messages_post_id_posts_id_fk": {
           "name": "post_messages_post_id_posts_id_fk",
@@ -1107,72 +1091,84 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.posts": {
+    "posts": {
       "name": "posts",
-      "schema": "",
       "columns": {
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "image_id": {
           "name": "image_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "tags": {
           "name": "tags",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'::json"
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "title": {
           "name": "title",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "youtube_video_id": {
           "name": "youtube_video_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "posts_user_created_idx": {
+          "name": "posts_user_created_idx",
+          "columns": ["user_id", "created_at"],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "posts_user_id_users_id_fk": {
           "name": "posts_user_id_users_id_fk",
@@ -1195,25 +1191,86 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_set_likes": {
-      "name": "riu_set_likes",
-      "schema": "",
+    "presence": {
+      "name": "presence",
       "columns": {
-        "riu_set_id": {
-          "name": "riu_set_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "autoincrement": false
+        },
+        "last_seen_at": {
+          "name": "last_seen_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "rate_limits": {
+      "name": "rate_limits",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resets_at": {
+          "name": "resets_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "riu_set_likes": {
+      "name": "riu_set_likes",
+      "columns": {
+        "riu_set_id": {
+          "name": "riu_set_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1239,30 +1296,29 @@
       },
       "compositePrimaryKeys": {
         "riu_set_likes_riu_set_id_user_id_pk": {
-          "name": "riu_set_likes_riu_set_id_user_id_pk",
-          "columns": ["riu_set_id", "user_id"]
+          "columns": ["riu_set_id", "user_id"],
+          "name": "riu_set_likes_riu_set_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_set_message_likes": {
+    "riu_set_message_likes": {
       "name": "riu_set_message_likes",
-      "schema": "",
       "columns": {
         "riu_set_message_id": {
           "name": "riu_set_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1288,49 +1344,51 @@
       },
       "compositePrimaryKeys": {
         "riu_set_message_likes_riu_set_message_id_user_id_pk": {
-          "name": "riu_set_message_likes_riu_set_message_id_user_id_pk",
-          "columns": ["riu_set_message_id", "user_id"]
+          "columns": ["riu_set_message_id", "user_id"],
+          "name": "riu_set_message_likes_riu_set_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_set_messages": {
+    "riu_set_messages": {
       "name": "riu_set_messages",
-      "schema": "",
       "columns": {
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "riu_set_id": {
           "name": "riu_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1356,59 +1414,74 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_sets": {
+    "riu_sets": {
       "name": "riu_sets",
-      "schema": "",
       "columns": {
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "instructions": {
           "name": "instructions",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "riu_id": {
           "name": "riu_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "riu_sets_user_created_idx": {
+          "name": "riu_sets_user_created_idx",
+          "columns": ["user_id", "created_at"],
+          "isUnique": false
+        },
+        "riu_sets_riu_id_idx": {
+          "name": "riu_sets_riu_id_idx",
+          "columns": ["riu_id"],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "riu_sets_riu_id_rius_id_fk": {
           "name": "riu_sets_riu_id_rius_id_fk",
@@ -1440,25 +1513,24 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_submission_likes": {
+    "riu_submission_likes": {
       "name": "riu_submission_likes",
-      "schema": "",
       "columns": {
         "riu_submission_id": {
           "name": "riu_submission_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1484,30 +1556,29 @@
       },
       "compositePrimaryKeys": {
         "riu_submission_likes_riu_submission_id_user_id_pk": {
-          "name": "riu_submission_likes_riu_submission_id_user_id_pk",
-          "columns": ["riu_submission_id", "user_id"]
+          "columns": ["riu_submission_id", "user_id"],
+          "name": "riu_submission_likes_riu_submission_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_submission_message_likes": {
+    "riu_submission_message_likes": {
       "name": "riu_submission_message_likes",
-      "schema": "",
       "columns": {
         "riu_submission_message_id": {
           "name": "riu_submission_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1533,49 +1604,51 @@
       },
       "compositePrimaryKeys": {
         "riu_submission_message_likes_riu_submission_message_id_user_id_pk": {
-          "name": "riu_submission_message_likes_riu_submission_message_id_user_id_pk",
-          "columns": ["riu_submission_message_id", "user_id"]
+          "columns": ["riu_submission_message_id", "user_id"],
+          "name": "riu_submission_message_likes_riu_submission_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_submission_messages": {
+    "riu_submission_messages": {
       "name": "riu_submission_messages",
-      "schema": "",
       "columns": {
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "riu_submission_id": {
           "name": "riu_submission_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1601,47 +1674,60 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.riu_submissions": {
+    "riu_submissions": {
       "name": "riu_submissions",
-      "schema": "",
       "columns": {
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "riu_set_id": {
           "name": "riu_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "riu_submissions_user_created_idx": {
+          "name": "riu_submissions_user_created_idx",
+          "columns": ["user_id", "created_at"],
+          "isUnique": false
+        },
+        "riu_submissions_riu_set_id_user_id_unique": {
+          "name": "riu_submissions_riu_set_id_user_id_unique",
+          "columns": ["riu_set_id", "user_id"],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "riu_submissions_riu_set_id_riu_sets_id_fk": {
           "name": "riu_submissions_riu_set_id_riu_sets_id_fk",
@@ -1672,79 +1758,86 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "riu_submissions_riu_set_id_user_id_unique": {
-          "name": "riu_submissions_riu_set_id_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["riu_set_id", "user_id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.rius": {
+    "rius": {
       "name": "rius",
-      "schema": "",
       "columns": {
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "started_at": {
           "name": "started_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "riu_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": "'upcoming'"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "rius_one_active_idx": {
+          "name": "rius_one_active_idx",
+          "columns": ["status"],
+          "isUnique": true,
+          "where": "\"rius\".\"status\" = 'active'"
+        },
+        "rius_one_upcoming_idx": {
+          "name": "rius_one_upcoming_idx",
+          "columns": ["status"],
+          "isUnique": true,
+          "where": "\"rius\".\"status\" = 'upcoming'"
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.siu_archive_votes": {
+    "siu_archive_votes": {
       "name": "siu_archive_votes",
-      "schema": "",
       "columns": {
         "siu_id": {
           "name": "siu_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -1770,30 +1863,29 @@
       },
       "compositePrimaryKeys": {
         "siu_archive_votes_siu_id_user_id_pk": {
-          "name": "siu_archive_votes_siu_id_user_id_pk",
-          "columns": ["siu_id", "user_id"]
+          "columns": ["siu_id", "user_id"],
+          "name": "siu_archive_votes_siu_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.siu_set_likes": {
+    "siu_set_likes": {
       "name": "siu_set_likes",
-      "schema": "",
       "columns": {
         "siu_set_id": {
           "name": "siu_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1819,30 +1911,29 @@
       },
       "compositePrimaryKeys": {
         "siu_set_likes_siu_set_id_user_id_pk": {
-          "name": "siu_set_likes_siu_set_id_user_id_pk",
-          "columns": ["siu_set_id", "user_id"]
+          "columns": ["siu_set_id", "user_id"],
+          "name": "siu_set_likes_siu_set_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.siu_set_message_likes": {
+    "siu_set_message_likes": {
       "name": "siu_set_message_likes",
-      "schema": "",
       "columns": {
         "siu_set_message_id": {
           "name": "siu_set_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1868,49 +1959,51 @@
       },
       "compositePrimaryKeys": {
         "siu_set_message_likes_siu_set_message_id_user_id_pk": {
-          "name": "siu_set_message_likes_siu_set_message_id_user_id_pk",
-          "columns": ["siu_set_message_id", "user_id"]
+          "columns": ["siu_set_message_id", "user_id"],
+          "name": "siu_set_message_likes_siu_set_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.siu_set_messages": {
+    "siu_set_messages": {
       "name": "siu_set_messages",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "siu_set_id": {
           "name": "siu_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1936,71 +2029,100 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.siu_sets": {
+    "siu_sets": {
       "name": "siu_sets",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "siu_id": {
           "name": "siu_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "position": {
           "name": "position",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "parent_set_id": {
           "name": "parent_set_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "siu_sets_user_created_idx": {
+          "name": "siu_sets_user_created_idx",
+          "columns": ["user_id", "created_at"],
+          "isUnique": false
+        },
+        "siu_sets_siu_id_idx": {
+          "name": "siu_sets_siu_id_idx",
+          "columns": ["siu_id"],
+          "isUnique": false
+        },
+        "siu_sets_one_child_uq": {
+          "name": "siu_sets_one_child_uq",
+          "columns": ["parent_set_id"],
+          "isUnique": true,
+          "where": "parent_set_id IS NOT NULL AND deleted_at IS NULL"
+        },
+        "siu_sets_round_position_uq": {
+          "name": "siu_sets_round_position_uq",
+          "columns": ["siu_id", "position"],
+          "isUnique": true,
+          "where": "deleted_at IS NULL"
+        }
+      },
       "foreignKeys": {
         "siu_sets_siu_id_sius_id_fk": {
           "name": "siu_sets_siu_id_sius_id_fk",
@@ -2032,108 +2154,125 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.sius": {
+    "sius": {
       "name": "sius",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "status": {
           "name": "status",
-          "type": "siu_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": "'active'"
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "ended_at": {
           "name": "ended_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.tournaments": {
+    "tournaments": {
       "name": "tournaments",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "code": {
           "name": "code",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "phase": {
           "name": "phase",
-          "type": "tourney_phase",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'setup'"
         },
         "created_by_user_id": {
           "name": "created_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "state": {
           "name": "state",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
+        },
+        "admin_heartbeat_at": {
+          "name": "admin_heartbeat_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "tournaments_code_unique": {
+          "name": "tournaments_code_unique",
+          "columns": ["code"],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "tournaments_created_by_user_id_users_id_fk": {
           "name": "tournaments_created_by_user_id_users_id_fk",
@@ -2146,32 +2285,25 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "tournaments_code_unique": {
-          "name": "tournaments_code_unique",
-          "nullsNotDistinct": false,
-          "columns": ["code"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.trick_element_assignments": {
+    "trick_element_assignments": {
       "name": "trick_element_assignments",
-      "schema": "",
       "columns": {
         "trick_id": {
           "name": "trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "element_id": {
           "name": "element_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -2197,68 +2329,68 @@
       },
       "compositePrimaryKeys": {
         "trick_element_assignments_trick_id_element_id_pk": {
-          "name": "trick_element_assignments_trick_id_element_id_pk",
-          "columns": ["trick_id", "element_id"]
+          "columns": ["trick_id", "element_id"],
+          "name": "trick_element_assignments_trick_id_element_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_elements": {
+    "trick_elements": {
       "name": "trick_elements",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_likes": {
+    "trick_likes": {
       "name": "trick_likes",
-      "schema": "",
       "columns": {
         "trick_id": {
           "name": "trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -2284,30 +2416,29 @@
       },
       "compositePrimaryKeys": {
         "trick_likes_trick_id_user_id_pk": {
-          "name": "trick_likes_trick_id_user_id_pk",
-          "columns": ["trick_id", "user_id"]
+          "columns": ["trick_id", "user_id"],
+          "name": "trick_likes_trick_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_message_likes": {
+    "trick_message_likes": {
       "name": "trick_message_likes",
-      "schema": "",
       "columns": {
         "trick_message_id": {
           "name": "trick_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -2333,49 +2464,51 @@
       },
       "compositePrimaryKeys": {
         "trick_message_likes_trick_message_id_user_id_pk": {
-          "name": "trick_message_likes_trick_message_id_user_id_pk",
-          "columns": ["trick_message_id", "user_id"]
+          "columns": ["trick_message_id", "user_id"],
+          "name": "trick_message_likes_trick_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_messages": {
+    "trick_messages": {
       "name": "trick_messages",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "trick_id": {
           "name": "trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -2401,108 +2534,89 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_modifiers": {
+    "trick_modifiers": {
       "name": "trick_modifiers",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_relationships": {
+    "trick_relationships": {
       "name": "trick_relationships",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "source_trick_id": {
           "name": "source_trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "target_trick_id": {
           "name": "target_trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "type": {
           "name": "type",
-          "type": "trick_relationship_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "trick_relationships_source_idx": {
           "name": "trick_relationships_source_idx",
-          "columns": [
-            {
-              "expression": "source_trick_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["source_trick_id"],
+          "isUnique": false
         },
         "trick_relationships_target_idx": {
           "name": "trick_relationships_target_idx",
-          "columns": [
-            {
-              "expression": "target_trick_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["target_trick_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -2527,25 +2641,24 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_submission_element_assignments": {
+    "trick_submission_element_assignments": {
       "name": "trick_submission_element_assignments",
-      "schema": "",
       "columns": {
         "submission_id": {
           "name": "submission_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "element_id": {
           "name": "element_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -2571,43 +2684,43 @@
       },
       "compositePrimaryKeys": {
         "trick_submission_element_assignments_submission_id_element_id_pk": {
-          "name": "trick_submission_element_assignments_submission_id_element_id_pk",
-          "columns": ["submission_id", "element_id"]
+          "columns": ["submission_id", "element_id"],
+          "name": "trick_submission_element_assignments_submission_id_element_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_submission_relationships": {
+    "trick_submission_relationships": {
       "name": "trick_submission_relationships",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "submission_id": {
           "name": "submission_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "target_trick_id": {
           "name": "target_trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "type": {
           "name": "type",
-          "type": "trick_relationship_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -2633,113 +2746,125 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_submissions": {
+    "trick_submissions": {
       "name": "trick_submissions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "alternate_names": {
           "name": "alternate_names",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'::json"
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "invented_by": {
           "name": "invented_by",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "invented_by_user_id": {
           "name": "invented_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "year_landed": {
           "name": "year_landed",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "video_url": {
           "name": "video_url",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "video_timestamp": {
           "name": "video_timestamp",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "notes": {
           "name": "notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "trick_submission_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'pending'"
         },
         "submitted_by_user_id": {
           "name": "submitted_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reviewed_by_user_id": {
           "name": "reviewed_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "reviewed_at": {
           "name": "reviewed_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "review_notes": {
           "name": "review_notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -2774,76 +2899,82 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_suggestions": {
+    "trick_suggestions": {
       "name": "trick_suggestions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "trick_id": {
           "name": "trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "diff": {
           "name": "diff",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reason": {
           "name": "reason",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "trick_submission_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'pending'"
         },
         "submitted_by_user_id": {
           "name": "submitted_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reviewed_by_user_id": {
           "name": "reviewed_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "reviewed_at": {
           "name": "reviewed_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "review_notes": {
           "name": "review_notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -2878,38 +3009,38 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.trick_videos": {
+    "trick_videos": {
       "name": "trick_videos",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "trick_id": {
           "name": "trick_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "trick_video_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'pending'"
         },
         "sort_order": {
@@ -2917,70 +3048,79 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
+        },
+        "pinned_rank": {
+          "name": "pinned_rank",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "submitted_by_user_id": {
           "name": "submitted_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reviewed_by_user_id": {
           "name": "reviewed_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "reviewed_at": {
           "name": "reviewed_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "notes": {
           "name": "notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {
         "trick_videos_trick_id_idx": {
           "name": "trick_videos_trick_id_idx",
-          "columns": [
-            {
-              "expression": "trick_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["trick_id"],
+          "isUnique": false
         },
         "trick_videos_status_idx": {
           "name": "trick_videos_status_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["status"],
+          "isUnique": false
+        },
+        "trick_videos_submitted_by_idx": {
+          "name": "trick_videos_submitted_by_idx",
+          "columns": ["submitted_by_user_id"],
+          "isUnique": false
+        },
+        "trick_videos_trick_asset_user_uq": {
+          "name": "trick_videos_trick_asset_user_uq",
+          "columns": ["trick_id", "mux_asset_id", "submitted_by_user_id"],
+          "isUnique": true
+        },
+        "trick_videos_pinned_rank_uq": {
+          "name": "trick_videos_pinned_rank_uq",
+          "columns": ["trick_id", "pinned_rank"],
+          "isUnique": true,
+          "where": "pinned_rank is not null"
         }
       },
       "foreignKeys": {
@@ -3023,76 +3163,83 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.tricks": {
+    "tricks": {
       "name": "tricks",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "alternate_names": {
           "name": "alternate_names",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'::json"
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "description": {
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "invented_by": {
           "name": "invented_by",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "invented_by_user_id": {
           "name": "invented_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "year_landed": {
           "name": "year_landed",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "notes": {
           "name": "notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -3109,25 +3256,24 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.user_follows": {
+    "user_follows": {
       "name": "user_follows",
-      "schema": "",
       "columns": {
         "followed_by_user_id": {
           "name": "followed_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "followed_user_id": {
           "name": "followed_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -3153,57 +3299,66 @@
       },
       "compositePrimaryKeys": {
         "user_follows_followed_user_id_followed_by_user_id_pk": {
-          "name": "user_follows_followed_user_id_followed_by_user_id_pk",
-          "columns": ["followed_user_id", "followed_by_user_id"]
+          "columns": ["followed_user_id", "followed_by_user_id"],
+          "name": "user_follows_followed_user_id_followed_by_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.user_locations": {
+    "user_locations": {
       "name": "user_locations",
-      "schema": "",
       "columns": {
         "country_code": {
           "name": "country_code",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "country_name": {
           "name": "country_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "label": {
           "name": "label",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "lat": {
           "name": "lat",
           "type": "real",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "lng": {
           "name": "lng",
           "type": "real",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "user_locations_user_id_unique": {
+          "name": "user_locations_user_id_unique",
+          "columns": ["user_id"],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "user_locations_user_id_users_id_fk": {
           "name": "user_locations_user_id_users_id_fk",
@@ -3216,60 +3371,65 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "user_locations_user_id_unique": {
-          "name": "user_locations_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["user_id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.user_notification_settings": {
+    "user_notification_settings": {
       "name": "user_notification_settings",
-      "schema": "",
       "columns": {
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "likes_enabled": {
           "name": "likes_enabled",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": true
         },
         "comments_enabled": {
           "name": "comments_enabled",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": true
         },
         "follows_enabled": {
           "name": "follows_enabled",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": true
         },
         "new_content_enabled": {
           "name": "new_content_enabled",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": true
         },
         "mentions_enabled": {
           "name": "mentions_enabled",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "game_activity_enabled": {
+          "name": "game_activity_enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
           "default": true
         },
         "email_digest_frequency": {
@@ -3277,6 +3437,7 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'off'"
         },
         "email_digest_day_of_week": {
@@ -3284,6 +3445,7 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": 0
         },
         "email_digest_day_of_month": {
@@ -3291,6 +3453,7 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": 1
         },
         "email_digest_hour_utc": {
@@ -3298,13 +3461,15 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": 9
         },
         "game_start_reminder_enabled": {
           "name": "game_start_reminder_enabled",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": false
         },
         "game_start_reminder_hours_before": {
@@ -3312,21 +3477,24 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": 24
         },
         "email_unsubscribed_all": {
           "name": "email_unsubscribed_all",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -3343,58 +3511,68 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.user_socials": {
+    "user_socials": {
       "name": "user_socials",
-      "schema": "",
       "columns": {
         "facebook": {
           "name": "facebook",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "instagram": {
           "name": "instagram",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "spotify": {
           "name": "spotify",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "tiktok": {
           "name": "tiktok",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "twitter": {
           "name": "twitter",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "youtube": {
           "name": "youtube",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "user_socials_user_id_unique": {
+          "name": "user_socials_user_id_unique",
+          "columns": ["user_id"],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "user_socials_user_id_users_id_fk": {
           "name": "user_socials_user_id_users_id_fk",
@@ -3407,122 +3585,122 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "user_socials_user_id_unique": {
-          "name": "user_socials_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": ["user_id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.users": {
+    "users": {
       "name": "users",
-      "schema": "",
       "columns": {
         "avatar_id": {
           "name": "avatar_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "bio": {
           "name": "bio",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "disciplines": {
           "name": "disciplines",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "email": {
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "last_seen_at": {
           "name": "last_seen_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "arcade_high_score": {
           "name": "arcade_high_score",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         },
         "notify_when_shop": {
           "name": "notify_when_shop",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": false
         },
         "type": {
           "name": "type",
-          "type": "user_type",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
+          "autoincrement": false,
           "default": "'user'"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
+      "indexes": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": ["email"],
+          "isUnique": true
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.utv_claps": {
+    "utv_claps": {
       "name": "utv_claps",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "count": {
           "name": "count",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         }
       },
@@ -3530,25 +3708,24 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.utv_video_likes": {
+    "utv_video_likes": {
       "name": "utv_video_likes",
-      "schema": "",
       "columns": {
         "utv_video_id": {
           "name": "utv_video_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -3574,30 +3751,29 @@
       },
       "compositePrimaryKeys": {
         "utv_video_likes_utv_video_id_user_id_pk": {
-          "name": "utv_video_likes_utv_video_id_user_id_pk",
-          "columns": ["utv_video_id", "user_id"]
+          "columns": ["utv_video_id", "user_id"],
+          "name": "utv_video_likes_utv_video_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.utv_video_message_likes": {
+    "utv_video_message_likes": {
       "name": "utv_video_message_likes",
-      "schema": "",
       "columns": {
         "utv_video_message_id": {
           "name": "utv_video_message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -3623,49 +3799,51 @@
       },
       "compositePrimaryKeys": {
         "utv_video_message_likes_utv_video_message_id_user_id_pk": {
-          "name": "utv_video_message_likes_utv_video_message_id_user_id_pk",
-          "columns": ["utv_video_message_id", "user_id"]
+          "columns": ["utv_video_message_id", "user_id"],
+          "name": "utv_video_message_likes_utv_video_message_id_user_id_pk"
         }
       },
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.utv_video_messages": {
+    "utv_video_messages": {
       "name": "utv_video_messages",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         },
         "utv_video_id": {
           "name": "utv_video_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -3691,43 +3869,45 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.utv_video_riders": {
+    "utv_video_riders": {
       "name": "utv_video_riders",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "utv_video_id": {
           "name": "utv_video_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "order": {
           "name": "order",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         }
       },
@@ -3754,76 +3934,82 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.utv_video_suggestions": {
+    "utv_video_suggestions": {
       "name": "utv_video_suggestions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "utv_video_id": {
           "name": "utv_video_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "diff": {
           "name": "diff",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reason": {
           "name": "reason",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "status": {
           "name": "status",
-          "type": "trick_submission_status",
-          "typeSchema": "public",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'pending'"
         },
         "submitted_by_user_id": {
           "name": "submitted_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reviewed_by_user_id": {
           "name": "reviewed_by_user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "reviewed_at": {
           "name": "reviewed_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "review_notes": {
           "name": "review_notes",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false,
+          "default": "(CAST(unixepoch('subsec') * 1000 AS INTEGER))"
         }
       },
       "indexes": {},
@@ -3858,37 +4044,38 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.utv_videos": {
+    "utv_videos": {
       "name": "utv_videos",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": true
         },
         "legacy_url": {
           "name": "legacy_url",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "legacy_title": {
           "name": "legacy_title",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "title": {
           "name": "title",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "''"
         },
         "thumbnail_scale": {
@@ -3896,6 +4083,7 @@
           "type": "real",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 1
         },
         "thumbnail_seconds": {
@@ -3903,6 +4091,7 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 30
         },
         "title_confidence_score": {
@@ -3910,19 +4099,22 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": -1
         },
         "disciplines": {
           "name": "disciplines",
-          "type": "json",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "mux_asset_id": {
           "name": "mux_asset_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -3939,144 +4131,17 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     }
   },
-  "enums": {
-    "public.catch_type": {
-      "name": "catch_type",
-      "schema": "public",
-      "values": ["one-foot", "two-foot"]
-    },
-    "public.flag_entity_type": {
-      "name": "flag_entity_type",
-      "schema": "public",
-      "values": [
-        "post",
-        "biuSet",
-        "siuSet",
-        "riuSet",
-        "riuSubmission",
-        "postMessage",
-        "biuSetMessage",
-        "siuSetMessage",
-        "riuSetMessage",
-        "riuSubmissionMessage",
-        "utvVideoMessage",
-        "chatMessage"
-      ]
-    },
-    "public.glossary_proposal_action": {
-      "name": "glossary_proposal_action",
-      "schema": "public",
-      "values": ["create", "edit"]
-    },
-    "public.glossary_proposal_type": {
-      "name": "glossary_proposal_type",
-      "schema": "public",
-      "values": ["element", "modifier"]
-    },
-    "public.notification_entity_type": {
-      "name": "notification_entity_type",
-      "schema": "public",
-      "values": [
-        "chat",
-        "post",
-        "riuSet",
-        "riuSubmission",
-        "biuSet",
-        "siuSet",
-        "siu",
-        "utvVideo",
-        "utvVideoSuggestion",
-        "user",
-        "trickSubmission",
-        "trickSuggestion",
-        "trickVideo",
-        "glossaryProposal"
-      ]
-    },
-    "public.notification_type": {
-      "name": "notification_type",
-      "schema": "public",
-      "values": [
-        "like",
-        "message_like",
-        "comment",
-        "follow",
-        "new_content",
-        "archive_request",
-        "chain_archived",
-        "review",
-        "flag",
-        "mention"
-      ]
-    },
-    "public.post_tag": {
-      "name": "post_tag",
-      "schema": "public",
-      "values": [
-        "flatland",
-        "street",
-        "trials",
-        "freestyle",
-        "mountain",
-        "distance",
-        "random",
-        "memes",
-        "buy",
-        "sell",
-        "nbds",
-        "til",
-        "bails"
-      ]
-    },
-    "public.riu_status": {
-      "name": "riu_status",
-      "schema": "public",
-      "values": ["archived", "active", "upcoming"]
-    },
-    "public.siu_status": {
-      "name": "siu_status",
-      "schema": "public",
-      "values": ["active", "archived"]
-    },
-    "public.tourney_phase": {
-      "name": "tourney_phase",
-      "schema": "public",
-      "values": ["setup", "prelims", "ranking", "bracket", "complete"]
-    },
-    "public.trick_relationship_type": {
-      "name": "trick_relationship_type",
-      "schema": "public",
-      "values": ["prerequisite", "optional_prerequisite", "related"]
-    },
-    "public.trick_submission_status": {
-      "name": "trick_submission_status",
-      "schema": "public",
-      "values": ["pending", "approved", "rejected"]
-    },
-    "public.trick_video_status": {
-      "name": "trick_video_status",
-      "schema": "public",
-      "values": ["active", "pending", "rejected"]
-    },
-    "public.user_type": {
-      "name": "user_type",
-      "schema": "public",
-      "values": ["user", "admin", "test"]
-    }
-  },
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
   "views": {},
+  "enums": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }

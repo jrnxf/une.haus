@@ -461,7 +461,7 @@ describe("trick videos integration", () => {
           trickId: trick.id,
         }),
       ),
-      /trick_videos_pinned_rank_uq|duplicate key/,
+      /UNIQUE constraint failed: trick_videos\.trick_id, trick_videos\.pinned_rank/,
     )
 
     // Same rank on a different trick is allowed

@@ -1,54 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1781130124197,
-      "tag": "0000_baseline",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1781130134095,
-      "tag": "0001_add_engagement_indexes",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1781269999113,
-      "tag": "0002_typical_nemesis",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1783420417880,
-      "tag": "0003_robust_vin_gonzales",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1785776356292,
-      "tag": "0004_overconfident_beast",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1786039971791,
-      "tag": "0005_add_trick_video_unique_index",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1786135137493,
-      "tag": "0006_elite_network",
+      "version": "6",
+      "when": 1788200581359,
+      "tag": "0000_init",
       "breakpoints": true
     }
   ]

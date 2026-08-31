@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, asc, count, desc, eq, gt, ilike, lt, sql } from "drizzle-orm"
+import { and, asc, count, desc, eq, gt, like, lt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import {
@@ -102,16 +102,18 @@ export async function listUtvVideos({
       title: utvVideos.title,
       legacyUrl: utvVideos.legacyUrl,
       disciplines: utvVideos.disciplines,
-      riders: sql<string[]>`
+      // json_group_array parsed to string[] before returning (SQLite has no
+      // native array values).
+      riders: sql<string>`
         COALESCE(
           (
-            SELECT array_agg(DISTINCT COALESCE(${users.name}, ${utvVideoRiders.name}))
+            SELECT json_group_array(DISTINCT COALESCE(${users.name}, ${utvVideoRiders.name}))
             FROM ${utvVideoRiders}
             LEFT JOIN ${users} ON ${utvVideoRiders.userId} = ${users.id}
             WHERE ${utvVideoRiders.utvVideoId} = ${utvVideos.id}
               AND COALESCE(${users.name}, ${utvVideoRiders.name}) IS NOT NULL
           ),
-          ARRAY[]::text[]
+          '[]'
         )
       `,
       scale: utvVideos.thumbnailScale,
@@ -127,12 +129,15 @@ export async function listUtvVideos({
     .leftJoin(messagesSubquery, eq(utvVideos.id, messagesSubquery.utvVideoId))
     .where(
       and(
-        input.q ? ilike(utvVideos.title, `%${input.q}%`) : undefined,
+        input.q ? like(utvVideos.title, `%${input.q}%`) : undefined,
         input.disciplines && input.disciplines.length > 0
-          ? sql`${utvVideos.disciplines}::jsonb ?| array[${sql.join(
-              input.disciplines.map((d) => sql`${d}`),
-              sql`,`,
-            )}]`
+          ? sql`EXISTS (
+              SELECT 1 FROM json_each(${utvVideos.disciplines})
+              WHERE json_each.value IN (${sql.join(
+                input.disciplines.map((d) => sql`${d}`),
+                sql`, `,
+              )})
+            )`
           : undefined,
         input.riders && input.riders.length > 0
           ? sql`
@@ -162,7 +167,10 @@ export async function listUtvVideos({
     .limit(PAGE_SIZE + 1)
 
   const hasMore = rows.length > PAGE_SIZE
-  const items = hasMore ? rows.slice(0, PAGE_SIZE) : rows
+  const items = (hasMore ? rows.slice(0, PAGE_SIZE) : rows).map((row) => ({
+    ...row,
+    riders: JSON.parse(row.riders) as string[],
+  }))
   const lastRow = items.at(-1)
 
   const nextCursor =

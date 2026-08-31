@@ -110,42 +110,33 @@ async function computeStats() {
     db.select({ count: count() }).from(utvVideoMessages),
     db.select({ count: count() }).from(trickMessages),
     db.select({ count: count() }).from(muxVideos),
-    db.execute<{ month: string; activityCount: number }>(sql`
+    db.all(sql`
       WITH monthly_activity AS (
-        SELECT DATE_TRUNC('month', created_at) as month, 'post' as type FROM posts
+        SELECT strftime('%Y-%m', created_at / 1000, 'unixepoch') as month FROM posts
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month, 'message' as type FROM chat_messages
+        SELECT strftime('%Y-%m', created_at / 1000, 'unixepoch') as month FROM chat_messages
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month, 'set' as type FROM riu_sets
+        SELECT strftime('%Y-%m', created_at / 1000, 'unixepoch') as month FROM riu_sets
         UNION ALL
-        SELECT DATE_TRUNC('month', created_at) as month, 'submission' as type FROM riu_submissions
+        SELECT strftime('%Y-%m', created_at / 1000, 'unixepoch') as month FROM riu_submissions
       )
       SELECT
-        TO_CHAR(month, 'YYYY-MM') as month,
+        month,
         COUNT(*) as "activityCount"
       FROM monthly_activity
       GROUP BY month
       ORDER BY month ASC
-    `),
-    db.execute<{ discipline: string; count: number }>(sql`
+    `) as Promise<{ month: string; activityCount: number }[]>,
+    db.all(sql`
       SELECT
-        discipline,
+        je.value as discipline,
         COUNT(*) as count
-      FROM users,
-        jsonb_array_elements_text(disciplines::jsonb) as discipline
-      WHERE disciplines IS NOT NULL
-      GROUP BY discipline
+      FROM users, json_each(users.disciplines) as je
+      WHERE users.disciplines IS NOT NULL
+      GROUP BY je.value
       ORDER BY count DESC
-    `),
-    db.execute<{
-      id: number
-      name: string
-      avatarId: string | null
-      contentCount: number
-      messagesCount: number
-      likesCount: number
-      totalPoints: number
-    }>(sql`
+    `) as Promise<{ discipline: string; count: number }[]>,
+    db.all(sql`
       SELECT
         u.id,
         u.name,
@@ -202,7 +193,17 @@ async function computeStats() {
       WHERE (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
       ORDER BY "totalPoints" DESC
       LIMIT 5
-    `),
+    `) as Promise<
+      {
+        id: number
+        name: string
+        avatarId: string | null
+        contentCount: number
+        messagesCount: number
+        likesCount: number
+        totalPoints: number
+      }[]
+    >,
   ])
 
   const totalLikes =
@@ -267,15 +268,7 @@ async function computeStats() {
 }
 
 async function computeContributors() {
-  const contributorsResult = await db.execute<{
-    id: number
-    name: string
-    avatarId: string | null
-    contentCount: number
-    messagesCount: number
-    likesCount: number
-    totalPoints: number
-  }>(sql`
+  const contributorsResult = (await db.all(sql`
     SELECT
       u.id,
       u.name,
@@ -331,7 +324,15 @@ async function computeContributors() {
     ) likes ON u.id = likes.user_id
     WHERE (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
     ORDER BY "totalPoints" DESC
-  `)
+  `)) as {
+    id: number
+    name: string
+    avatarId: string | null
+    contentCount: number
+    messagesCount: number
+    likesCount: number
+    totalPoints: number
+  }[]
 
   return contributorsResult.map((row) => ({
     id: row.id,

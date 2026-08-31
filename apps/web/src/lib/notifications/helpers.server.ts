@@ -191,7 +191,7 @@ export async function deleteNotificationsForMessage(
       and(
         eq(notifications.type, "message_like"),
         eq(notifications.entityType, entityType),
-        sql`(${notifications.data}->>'messageId')::int = ${messageId}`,
+        sql`${notifications.data}->>'messageId' = ${messageId}`,
       ),
     )
 }

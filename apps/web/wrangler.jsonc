@@ -4,6 +4,16 @@
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server.ts",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "unehaus",
+      // Placeholder until `wrangler d1 create unehaus` runs on the real
+      // account; local dev/preview work with any id.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle",
+    },
+  ],
   "triggers": {
     // Keep in sync with ROTATION_CRON in src/lib/games/rius/lifecycle.ts and
     // the dispatch table in src/server.ts. Workers crons fire in UTC.

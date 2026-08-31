@@ -1,60 +1,30 @@
-import { $, Glob } from "bun"
-import { resolve } from "node:path"
+import { Glob } from "bun"
+import { mkdtempSync, rmSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join, resolve } from "node:path"
 
 process.chdir(resolve(import.meta.dirname, "../.."))
 
-const containerName = `unehaus-integration-tests-${process.pid}`
-
-async function waitForPostgresReady(container: string, timeoutMs = 60_000) {
-  const deadline = Date.now() + timeoutMs
-
-  while (Date.now() < deadline) {
-    const result =
-      await $`docker exec ${container} pg_isready -U unehaus_test -d unehaus_test`
-        .quiet()
-        .nothrow()
-    if (result.exitCode === 0) return
-    await Bun.sleep(500)
-  }
-
-  const logs = await $`docker logs ${container}`.nothrow().text()
-  throw new Error(
-    `Postgres did not become ready within ${timeoutMs}ms.\n${logs}`,
-  )
-}
+// Ephemeral sqlite database per run — the local stand-in for D1 (libsql
+// driver, same async + batch() semantics). The recognizable path segment is
+// what src/testing/integration.ts checks before truncating anything.
+const dbDir = mkdtempSync(join(tmpdir(), "unehaus-integration-test-"))
+const dbPath = join(dbDir, "unehaus-integration-test.sqlite")
 
 process.on("exit", () => {
-  Bun.spawnSync(["docker", "rm", "-f", containerName], {
-    stdout: "ignore",
-    stderr: "ignore",
-  })
+  rmSync(dbDir, { recursive: true, force: true })
 })
-
-// Start postgres container
-await $`docker run -d --name ${containerName} -e POSTGRES_USER=unehaus_test -e POSTGRES_PASSWORD=unehaus_test -e POSTGRES_DB=unehaus_test -P postgres:16-alpine`.quiet()
-
-// Wait for postgres to be ready
-await waitForPostgresReady(containerName)
-
-// Get mapped port
-const portOutput = await $`docker port ${containerName} 5432/tcp`.quiet().text()
-const port = portOutput.trim().split(":").pop()
-
-if (!port) {
-  console.error("Failed to determine mapped PostgreSQL port")
-  process.exit(1)
-}
 
 const testEnv = {
   ...process.env,
-  DATABASE_URL: `postgresql://unehaus_test:unehaus_test@127.0.0.1:${port}/unehaus_test`,
-  INTEGRATION_TEST_DOCKER: "true",
+  DATABASE_URL: `file:${dbPath}`,
+  INTEGRATION_TEST_DB: "true",
 }
 
-async function runStreaming(cmd: string[], runEnv) {
+async function runStreaming(cmd: string[], runEnv: Record<string, unknown>) {
   const proc = Bun.spawn(cmd, {
     cwd: process.cwd(),
-    env: runEnv,
+    env: runEnv as Record<string, string>,
     stdout: "inherit",
     stderr: "inherit",
   })
@@ -65,7 +35,7 @@ async function runStreaming(cmd: string[], runEnv) {
 // Bootstrap schema
 console.log(`Bootstrapping schema on ${testEnv.DATABASE_URL}`)
 const bootstrapExitCode = await runStreaming(
-  ["bunx", "drizzle-kit", "push", "--config=drizzle.config.ts"],
+  ["bunx", "drizzle-kit", "push", "--config=drizzle.config.ts", "--force"],
   testEnv,
 )
 if (bootstrapExitCode !== 0) {

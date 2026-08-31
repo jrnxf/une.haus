@@ -1,6 +1,6 @@
 import "@tanstack/react-start/server-only"
 import { and, asc, desc, eq, getTableName } from "drizzle-orm"
-import { type AnyPgColumn, type PgTable } from "drizzle-orm/pg-core"
+import { type AnySQLiteColumn, type SQLiteTable } from "drizzle-orm/sqlite-core"
 
 import { db } from "~/db"
 import { type NotificationEntityType } from "~/db/schema"
@@ -24,16 +24,16 @@ import {
 
 /**
  * Every `{entity}_messages` table shares these columns. The registry owns the
- * tables as opaque `PgTable`s; this is the column surface the message ops
+ * tables as opaque `SQLiteTable`s; this is the column surface the message ops
  * operate over, regardless of which parent type resolved the table.
  */
 type MessageColumns = {
-  id: AnyPgColumn
-  content: AnyPgColumn
-  createdAt: AnyPgColumn
-  userId: AnyPgColumn
+  id: AnySQLiteColumn
+  content: AnySQLiteColumn
+  createdAt: AnySQLiteColumn
+  userId: AnySQLiteColumn
 }
-type MessageTable = PgTable & MessageColumns
+type MessageTable = SQLiteTable & MessageColumns
 
 /** Resolve the registry-owned message table for a parent type. */
 export const getTableByType = (type: MessageParentType): MessageTable =>
@@ -367,7 +367,7 @@ async function listChatMessages(focus?: number) {
   // Get all messages from the last 28 days
   const recentMessages = await query.findMany({
     orderBy: asc(chatTable.createdAt),
-    where: (fields: Record<string, AnyPgColumn>, ops: { gte: typeof eq }) =>
+    where: (fields: Record<string, AnySQLiteColumn>, ops: { gte: typeof eq }) =>
       ops.gte(fields.createdAt, twentyEightDaysAgo),
     with: chatMessagesWith,
   })
@@ -379,8 +379,10 @@ async function listChatMessages(focus?: number) {
     const olderMessages = await query.findMany({
       orderBy: desc(chatTable.createdAt),
       limit: 100 - recentMessages.length,
-      where: (fields: Record<string, AnyPgColumn>, ops: { lt: typeof eq }) =>
-        ops.lt(fields.createdAt, twentyEightDaysAgo),
+      where: (
+        fields: Record<string, AnySQLiteColumn>,
+        ops: { lt: typeof eq },
+      ) => ops.lt(fields.createdAt, twentyEightDaysAgo),
       with: chatMessagesWith,
     })
 
@@ -393,16 +395,20 @@ async function listChatMessages(focus?: number) {
     const beforeMessages = await query.findMany({
       orderBy: desc(chatTable.id),
       limit: 10,
-      where: (fields: Record<string, AnyPgColumn>, ops: { lt: typeof eq }) =>
-        ops.lt(fields.id, focus),
+      where: (
+        fields: Record<string, AnySQLiteColumn>,
+        ops: { lt: typeof eq },
+      ) => ops.lt(fields.id, focus),
       with: chatMessagesWith,
     })
 
     const targetAndAfter = await query.findMany({
       orderBy: asc(chatTable.id),
       limit: 11,
-      where: (fields: Record<string, AnyPgColumn>, ops: { gte: typeof eq }) =>
-        ops.gte(fields.id, focus),
+      where: (
+        fields: Record<string, AnySQLiteColumn>,
+        ops: { gte: typeof eq },
+      ) => ops.gte(fields.id, focus),
       with: chatMessagesWith,
     })
 
@@ -431,7 +437,7 @@ async function listRecordMessages(
   )
 
   const table = messageTable as unknown as MessageTable & {
-    createdAt: AnyPgColumn
+    createdAt: AnySQLiteColumn
   }
   const query = relationalQueryFor(table)
 

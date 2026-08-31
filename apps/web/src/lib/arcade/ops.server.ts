@@ -24,7 +24,7 @@ export async function saveHighScore({
   await db
     .update(users)
     .set({
-      arcadeHighScore: sql`greatest(${users.arcadeHighScore}, ${data.score})`,
+      arcadeHighScore: sql`max(${users.arcadeHighScore}, ${data.score})`,
     })
     .where(eq(users.id, context.user.id))
 }
