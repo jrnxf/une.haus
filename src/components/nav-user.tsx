@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router"
 import {
-  BookIcon,
   ChevronsUpDown,
   EyeOff,
   LogIn,
@@ -133,18 +132,6 @@ export function AuthedUserMenuItems({
             </Link>
           }
         />
-        <DropdownMenuItem
-          render={
-            <a
-              href="https://docs.une.haus"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <BookIcon className="size-3.5" />
-              docs
-            </a>
-          }
-        />
         <SourceMenuItem />
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
@@ -176,18 +163,6 @@ export function UnauthedUserMenuItems() {
               <ScrollText className="size-3.5" />
               terms
             </Link>
-          }
-        />
-        <DropdownMenuItem
-          render={
-            <a
-              href="https://docs.une.haus"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <BookIcon className="size-3.5" />
-              docs
-            </a>
           }
         />
         <SourceMenuItem />
