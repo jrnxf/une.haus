@@ -28,7 +28,7 @@ une.haus is a platform for unicyclists to share tricks, compete in games, organi
 ### tech stack
 
 - [tanstack start](https://tanstack.com/start) — react 19 ssr framework
-- [drizzle](https://orm.drizzle.team) — typescript orm for postgresql
+- [drizzle](https://orm.drizzle.team) — typescript orm for sqlite (cloudflare d1)
 - [tailwind css](https://tailwindcss.com) v4
 - [tanstack router](https://tanstack.com/router) + [tanstack query](https://tanstack.com/query)
 - [mux](https://mux.com) — video processing
@@ -37,7 +37,7 @@ une.haus is a platform for unicyclists to share tricks, compete in games, organi
 
 ### hosting
 
-une.haus is self-hosted on a homelab server — bun running natively under systemd, postgres on the same box, exposed via a cloudflare tunnel (no open ports). no platform-as-a-service, no managed database. the repo itself is deploy-agnostic; any host that can run bun + postgres works. see [`DEPLOY.md`](./DEPLOY.md) for the build/run contract.
+une.haus runs on cloudflare workers — pushing to `main` is the deploy. the worker (`unehaus`), its d1 database, and the custom domain are all cloudflare-managed; there is no server to provision. see [`DEPLOY.md`](./DEPLOY.md) for the pipeline.
 
 ### getting started
 

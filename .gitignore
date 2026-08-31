@@ -5,7 +5,6 @@ dist-ssr
 *.local
 .env
 .playwright-mcp
-sandbox/prod.dump
 .source
 .env.workspace-backup
 .claude
@@ -13,7 +12,3 @@ sandbox/prod.dump
 .tanstack
 .output
 .dev.vars
-sandbox/cutover.dump
-sandbox/*.sql
-sandbox/*.txt
-sandbox/*.json

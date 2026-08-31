@@ -3,7 +3,7 @@
 This app uses a two-layer test strategy:
 
 1. Unit tests for pure decision logic.
-2. Integration tests for server-side behavior against a real Postgres database.
+2. Integration tests for server-side behavior against a real SQLite database.
 
 The goal is to put each assertion at the cheapest layer that still proves the behavior we care about.
 
@@ -55,22 +55,22 @@ Convention:
 
 For this app, a lot of important behavior lives between pure logic and full browser flows:
 
-- Postgres-specific SQL in notification grouping and unread logic.
+- SQLite-dialect SQL in notification grouping and unread logic.
 - Foreign-key and cascade behavior.
 - Background side effects triggered by server handlers.
 - Domain rules that depend on actual persisted state.
 
 Mocking the database here would test our mocks more than the app. Integration tests are the right layer: real DB, real handler logic, minimal setup.
 
-### Real Postgres, not in-memory Postgres
+### Real SQLite, the local stand-in for D1
 
-The integration layer uses a disposable real Postgres container, not an in-memory emulator.
+The integration layer uses an ephemeral on-disk SQLite database via the libsql driver — the same async + `batch()` semantics the app uses against D1 in production.
 
 Why:
 
-- We use Postgres-specific behavior such as advisory locks and aggregate SQL.
-- We want the real query planner, real constraints, real timestamps, real cascades.
-- An emulator can be useful for experiments, but it is not the source of truth for DB behavior.
+- We want the real dialect: real constraints, real timestamps, real cascades.
+- The libsql driver matches D1's async surface, so handler code runs unmodified.
+- A mock can be useful for experiments, but it is not the source of truth for DB behavior.
 
 ### Runner design
 
@@ -78,16 +78,16 @@ The runner is [src/scripts/run-integration-tests.ts](/Users/colby/Dev/une.haus/s
 
 It does four things:
 
-1. Starts a throwaway `postgres:16-alpine` container.
-2. Overrides `DATABASE_URL` and related DB env vars for the test process.
+1. Creates a throwaway SQLite file in a temp directory.
+2. Overrides `DATABASE_URL` (plus `INTEGRATION_TEST_DB`) for the test process.
 3. Applies the current schema with `drizzle-kit push`.
-4. Runs the integration suites and destroys the container on exit.
+4. Runs the integration suites and deletes the database on exit.
 
 This keeps integration tests isolated from your dev `DATABASE_URL` and avoids polluting local development data.
 
 ### Per-test isolation
 
-Within a single integration run, each test truncates all public tables and restarts identities before the next test.
+Within a single integration run, each test clears every table and resets autoincrement counters before the next test.
 
 That gives us:
 
