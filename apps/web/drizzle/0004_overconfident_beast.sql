@@ -1,1 +1,0 @@
-CREATE INDEX "trick_videos_submitted_by_idx" ON "trick_videos" USING btree ("submitted_by_user_id");

@@ -18,7 +18,7 @@ here=$(pwd)
 # No-op in the main worktree itself — only populate linked worktrees.
 [ "$here" = "$main_root" ] && exit 0
 
-for f in .env apps/web/.env; do
+for f in .env .dev.vars; do
   if [ -f "$main_root/$f" ] && [ ! -e "$here/$f" ]; then
     mkdir -p "$here/$(dirname "$f")"
     ln -s "$main_root/$f" "$here/$f"

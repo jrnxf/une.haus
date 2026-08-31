@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "unehaus",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./src/server.ts",
+  "vars": {
+    "VITE_ENVIRONMENT": "production",
+  },
+  // Run the worker near the D1 primary (WEUR) instead of near the visitor —
+  // per-request DB round-trips dominate over first-hop latency.
+  "placement": { "mode": "smart" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "unehaus",
+      "database_id": "65de246d-e126-41e9-854c-f7a848c432c1",
+      "migrations_dir": "drizzle",
+    },
+  ],
+  "triggers": {
+    // Keep in sync with ROTATION_CRON in src/lib/games/rius/lifecycle.ts and
+    // the dispatch table in src/server.ts. Workers crons fire in UTC.
+    "crons": ["0 0 * * 1", "0 * * * *"],
+  },
+}
