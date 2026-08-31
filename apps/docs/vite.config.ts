@@ -1,8 +1,8 @@
+import { cloudflare } from "@cloudflare/vite-plugin"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import react from "@vitejs/plugin-react"
 import mdx from "fumadocs-mdx/vite"
-import { nitro } from "nitro/vite"
 import { defineConfig, type Plugin } from "vite"
 import tsConfigPaths from "vite-tsconfig-paths"
 
@@ -11,7 +11,7 @@ function aliasNodePath(): Plugin {
     name: "alias-node-path",
     enforce: "pre",
     async resolveId(source, importer) {
-      if (source === "node:path" && this.environment?.name !== "nitro") {
+      if (source === "node:path") {
         return this.resolve("pathe", importer, { skipSelf: true })
       }
     },
@@ -34,10 +34,7 @@ export default defineConfig({
     mdx(await import("./source.config")),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
     tailwindcss(),
-    nitro({
-      preset: "bun",
-      compatibilityDate: "latest",
-    }),
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
     tanstackStart(),
     react(),
   ],

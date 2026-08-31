@@ -8,3 +8,4 @@ dist-ssr
 sandbox/prod.dump
 .source
 .claude
+.wrangler/
