@@ -20,9 +20,9 @@ On every push to `main`:
    `unehaus_bun_version` in the homelab role). Nitro emits self-contained
    `apps/*/.output` bundles (server deps traced into
    `.output/server/node_modules`, pure JS — the job fails if any native
-   `.node` binary sneaks in). Also bundles the migration runner
-   (`apps/web/src/scripts/migrate-prod.ts` → single-file `migrate.mjs` +
-   a copy of `drizzle/`). Everything is tarred and uploaded as an artifact.
+   node` binary sneaks in). Also bundles the migration runner
+(`apps/web/src/scripts/migrate-prod.ts`→ single-file`migrate.mjs`+
+a copy of`drizzle/`). Everything is tarred and uploaded as an artifact.
 3. **deploy** (self-hosted runner on the LXC, needs ci + build, serialized):
    - extract the artifact to `/opt/unehaus/releases/<short-sha>`
    - run migrations (`bun migrate.mjs`, `DATABASE_URL` from

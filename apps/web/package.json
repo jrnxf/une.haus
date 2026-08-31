@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler d1 migrations apply unehaus --local && bun --bun vite dev",
+    "dev": "wrangler d1 migrations apply unehaus --local && vite dev",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "bundle:info": "bun run src/scripts/bundle/info.ts",
     "bundle:analyze": "bunx vite-bundle-visualizer",
