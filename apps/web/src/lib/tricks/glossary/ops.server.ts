@@ -3,8 +3,8 @@ import { and, desc, eq, lt } from "drizzle-orm"
 
 import { db } from "~/db"
 import { glossaryProposals, trickElements, trickModifiers } from "~/db/schema"
+import { background } from "~/lib/execution-context"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 
 type AuthenticatedContext = {
@@ -177,19 +177,22 @@ export async function reviewGlossaryProposal({
     .returning()
 
   if (proposal.submittedByUserId !== context.user.id) {
-    createNotification({
-      userId: proposal.submittedByUserId,
-      actorId: context.user.id,
-      type: "review",
-      entityType: "glossaryProposal",
-      entityId: id,
-      data: {
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        entityTitle: status,
-        entityPreview: reviewNotes ?? undefined,
-      },
-    }).catch(logRejection("tricks.glossary.notify"))
+    background(
+      createNotification({
+        userId: proposal.submittedByUserId,
+        actorId: context.user.id,
+        type: "review",
+        entityType: "glossaryProposal",
+        entityId: id,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityTitle: status,
+          entityPreview: reviewNotes ?? undefined,
+        },
+      }),
+      "tricks.glossary.notify",
+    )
   }
 
   return updatedProposal

@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 
-import type { TaskEvent } from "nitro/types"
-
 const sendMock = mock((_payload: { to: string[] }) =>
   Promise.resolve({ data: { id: "email-id" }, error: null }),
 )
@@ -12,8 +10,8 @@ mock.module("resend", () => ({
   },
 }))
 
-const { default: gameStartRemindersTask, getHoursUntilNextRotation } =
-  await import("../../../server/tasks/notifications/game-start-reminders")
+const { sendGameStartReminders, getHoursUntilNextRotation } =
+  await import("~/lib/tasks/game-start-reminders.server")
 
 import { and, eq } from "drizzle-orm"
 
@@ -26,21 +24,13 @@ import { seedUser, truncatePublicTables } from "~/testing/integration"
 // rotation — comfortably inside the realistic 1..72h reminder range.
 const NOW = new Date("2026-06-21T00:00:00.000Z")
 
-const taskEvent: TaskEvent = {
-  name: "notifications:game-start-reminders",
-  payload: { nowMs: NOW.getTime() },
-  context: {},
-}
-
 function matchesWindow(hoursUntilStart: number, hoursBefore: number) {
   const targetHours = hoursBefore
   return hoursUntilStart <= targetHours && hoursUntilStart > targetHours - 1
 }
 
 async function runReminders() {
-  const { result } = await gameStartRemindersTask.run(taskEvent)
-  if (!result) throw new Error("game-start-reminders task returned no result")
-  return result
+  return sendGameStartReminders(NOW)
 }
 
 async function seedUpcomingRiu() {

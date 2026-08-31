@@ -12,8 +12,8 @@ import {
   type MessageParentType,
   resolveContentOwner,
 } from "~/lib/engagement/registry.server"
+import { background } from "~/lib/execution-context"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import { extractMentionedUserIds } from "~/lib/mentions/parse"
 import { resolvePreview } from "~/lib/mentions/resolve.server"
 import { type MessageParentType as SchemaMessageParentType } from "~/lib/messages/schemas"
@@ -121,19 +121,22 @@ function notifyMentions({
   messageId,
 }: NotifyMentionsArgs): void {
   for (const recipientId of recipientIds) {
-    createNotification({
-      userId: recipientId,
-      actorId: author.id,
-      type: "mention",
-      entityType,
-      entityId,
-      data: {
-        actorName: author.name,
-        actorAvatarId: author.avatarId,
-        entityPreview: preview,
-        messageId,
-      },
-    }).catch(logRejection("messages.notify"))
+    background(
+      createNotification({
+        userId: recipientId,
+        actorId: author.id,
+        type: "mention",
+        entityType,
+        entityId,
+        data: {
+          actorName: author.name,
+          actorAvatarId: author.avatarId,
+          entityPreview: preview,
+          messageId,
+        },
+      }),
+      "messages.notify",
+    )
   }
 }
 
@@ -182,19 +185,22 @@ export async function createMessage({
   if (entityType) {
     ownerId = await resolveContentOwner(entityType, id)
     if (ownerId && ownerId !== userId) {
-      createNotification({
-        userId: ownerId,
-        actorId: userId,
-        type: "comment",
-        entityType,
-        entityId: id,
-        data: {
-          actorName: context.user.name,
-          actorAvatarId: context.user.avatarId,
-          entityPreview: preview,
-          messageId,
-        },
-      }).catch(logRejection("messages.notify"))
+      background(
+        createNotification({
+          userId: ownerId,
+          actorId: userId,
+          type: "comment",
+          entityType,
+          entityId: id,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+            entityPreview: preview,
+            messageId,
+          },
+        }),
+        "messages.notify",
+      )
     }
   }
 
@@ -281,8 +287,9 @@ export async function deleteMessage({
   // Clean up message_like notifications before deleting. Non-chat parents file
   // under their parent entity type; chat files under "chat".
   const { mentionEntityType } = resolveMessageEntity(input.type)
-  deleteNotificationsForMessage(mentionEntityType, input.id).catch(
-    logRejection("messages.notify"),
+  background(
+    deleteNotificationsForMessage(mentionEntityType, input.id),
+    "messages.notify",
   )
 
   await db

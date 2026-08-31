@@ -9,8 +9,8 @@ import {
 } from "~/db/schema"
 import { columnKey } from "~/lib/engagement/column-key.server"
 import { ENTITY_REGISTRY } from "~/lib/engagement/registry.server"
+import { background } from "~/lib/execution-context"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 import { type RecordWithLikes } from "~/lib/reactions/schemas"
 
@@ -89,17 +89,20 @@ export async function likeRecord({
     // A like on content notifies the content owner.
     const ownerId = await binding.resolveOwner(recordId)
     if (ownerId && ownerId !== userId) {
-      createNotification({
-        userId: ownerId,
-        actorId: userId,
-        type: binding.notificationType,
-        entityType: asNotificationEntityType(type),
-        entityId: recordId,
-        data: {
-          actorName: context.user.name,
-          actorAvatarId: context.user.avatarId,
-        },
-      }).catch(logRejection("reactions.notify"))
+      background(
+        createNotification({
+          userId: ownerId,
+          actorId: userId,
+          type: binding.notificationType,
+          entityType: asNotificationEntityType(type),
+          entityId: recordId,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+          },
+        }),
+        "reactions.notify",
+      )
     }
   } else {
     // A like on a message notifies the message author. The notification points
@@ -108,18 +111,21 @@ export async function likeRecord({
     // registry — no parallel `switch` in the notifications module.
     const target = await binding.resolveMessageTarget(recordId)
     if (target && target.ownerId !== userId) {
-      createNotification({
-        userId: target.ownerId,
-        actorId: userId,
-        type: binding.notificationType,
-        entityType: target.parentEntityType,
-        entityId: target.parentEntityId,
-        data: {
-          actorName: context.user.name,
-          actorAvatarId: context.user.avatarId,
-          messageId: recordId,
-        },
-      }).catch(logRejection("reactions.notify"))
+      background(
+        createNotification({
+          userId: target.ownerId,
+          actorId: userId,
+          type: binding.notificationType,
+          entityType: target.parentEntityType,
+          entityId: target.parentEntityId,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+            messageId: recordId,
+          },
+        }),
+        "reactions.notify",
+      )
     }
   }
 

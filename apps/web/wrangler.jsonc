@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "unehaus-web",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./src/server.ts",
+  "triggers": {
+    // Keep in sync with ROTATION_CRON in src/lib/games/rius/lifecycle.ts and
+    // the dispatch table in src/server.ts. Workers crons fire in UTC.
+    "crons": ["0 0 * * 1", "0 * * * *"],
+  },
+}

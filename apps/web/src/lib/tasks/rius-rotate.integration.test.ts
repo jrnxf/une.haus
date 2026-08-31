@@ -1,22 +1,12 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
-import rotateTask from "../../../server/tasks/rius/rotate"
 import { db } from "~/db"
 import { rius } from "~/db/schema"
+import { rotate } from "~/lib/games/rius/lifecycle.server"
 import { truncatePublicTables } from "~/testing/integration"
 
-import type { TaskEvent } from "nitro/types"
-
-const taskEvent: TaskEvent = {
-  name: "rius:rotate",
-  payload: {},
-  context: {},
-}
-
 async function runRotate() {
-  const { result } = await rotateTask.run(taskEvent)
-  if (!result) throw new Error("rotate task returned no result")
-  return result
+  return rotate()
 }
 
 beforeEach(async () => {
@@ -37,7 +27,6 @@ describe("rius rotate task", () => {
 
     expect(result.archived).toBe(1)
     expect(result.activated).toBe(1)
-    expect(result.success).toBe(true)
 
     const rows = await db.query.rius.findMany({
       orderBy: (table, { asc }) => [asc(table.id)],
@@ -49,7 +38,7 @@ describe("rius rotate task", () => {
     const upcomingRows = rows.filter((row) => row.status === "upcoming")
     expect(upcomingRows).toHaveLength(1)
     // the new upcoming is a brand new row, not the previous one
-    expect(upcomingRows[0]?.id).toBe(result.newRiuId)
+    expect(upcomingRows[0]?.id).toBe(result.newRoundId)
     expect(upcomingRows[0]?.id).not.toBe(upcoming.id)
   })
 
@@ -58,12 +47,11 @@ describe("rius rotate task", () => {
 
     expect(result.archived).toBe(0)
     expect(result.activated).toBe(0)
-    expect(result.success).toBe(true)
 
     const rows = await db.query.rius.findMany()
     expect(rows).toHaveLength(1)
     expect(rows[0]?.status).toBe("upcoming")
-    expect(rows[0]?.id).toBe(result.newRiuId)
+    expect(rows[0]?.id).toBe(result.newRoundId)
   })
 
   it("two consecutive runs preserve the weekly cycle invariant", async () => {

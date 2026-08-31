@@ -82,5 +82,10 @@ const testTarget =
         .toSorted()
         .map((f) => `./src/${f}`)
 
-const testExitCode = await runStreaming(["bun", "test", ...testTarget], testEnv)
+// 30s per-test budget: the 5s default flakes under preflight's parallel load
+// (typecheck + knip + unit + integration all compete for the machine).
+const testExitCode = await runStreaming(
+  ["bun", "test", "--timeout", "30000", ...testTarget],
+  testEnv,
+)
 process.exit(testExitCode)

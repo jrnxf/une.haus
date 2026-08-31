@@ -3,8 +3,8 @@ import { sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import { type NotificationEntityType } from "~/db/schema"
+import { background } from "~/lib/execution-context"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import {
   createNotification,
   deleteNotificationsForEntity,
@@ -62,7 +62,7 @@ export type ChainGameDescriptor<TSet extends ChainSet> = {
   lockBase: number
   // Engagement + notification entity type, e.g. "biuSet" / "siuSet".
   entityType: NotificationEntityType
-  // Prefix for logRejection tags on fire-and-forget notifications, e.g.
+  // Prefix for background-task tags on fire-and-forget notifications, e.g.
   // "games.bius" produces "games.bius.notify".
   logTag: string
   // Invariant copy that differs between games.
@@ -203,29 +203,35 @@ export function createChainGame<TSet extends ChainSet>(
       }
 
       // Notify followers about the new set.
-      notifyFollowers({
-        actorId: userId,
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        type: "new_content",
-        entityType: descriptor.entityType,
-        entityId: set.id,
-        entityTitle: set.name,
-      }).catch(logRejection(`${descriptor.logTag}.notify`))
-
-      // Notify the owner of the set that was just continued.
-      createNotification({
-        userId: parentSet.userId,
-        actorId: userId,
-        type: "game_activity",
-        entityType: descriptor.entityType,
-        entityId: set.id,
-        data: {
+      background(
+        notifyFollowers({
+          actorId: userId,
           actorName: context.user.name,
           actorAvatarId: context.user.avatarId,
+          type: "new_content",
+          entityType: descriptor.entityType,
+          entityId: set.id,
           entityTitle: set.name,
-        },
-      }).catch(logRejection(`${descriptor.logTag}.notify`))
+        }),
+        `${descriptor.logTag}.notify`,
+      )
+
+      // Notify the owner of the set that was just continued.
+      background(
+        createNotification({
+          userId: parentSet.userId,
+          actorId: userId,
+          type: "game_activity",
+          entityType: descriptor.entityType,
+          entityId: set.id,
+          data: {
+            actorName: context.user.name,
+            actorAvatarId: context.user.avatarId,
+            entityTitle: set.name,
+          },
+        }),
+        `${descriptor.logTag}.notify`,
+      )
 
       return set
     })

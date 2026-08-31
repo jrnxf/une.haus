@@ -4,8 +4,8 @@ import { and, countDistinct, desc, eq, ilike, lt, or, sql } from "drizzle-orm"
 import { db } from "~/db"
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
+import { background } from "~/lib/execution-context"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import { extractMentionedUserIds } from "~/lib/mentions/parse"
 import { resolvePreview } from "~/lib/mentions/resolve.server"
 import {
@@ -52,33 +52,39 @@ export async function createPost({
   invariant(post, "Failed to create post")
 
   // Notify followers about the new post
-  notifyFollowers({
-    actorId: userId,
-    actorName: context.user.name,
-    actorAvatarId: context.user.avatarId,
-    type: "new_content",
-    entityType: "post",
-    entityId: post.id,
-    entityTitle: post.title,
-  }).catch(logRejection("posts.notify"))
+  background(
+    notifyFollowers({
+      actorId: userId,
+      actorName: context.user.name,
+      actorAvatarId: context.user.avatarId,
+      type: "new_content",
+      entityType: "post",
+      entityId: post.id,
+      entityTitle: post.title,
+    }),
+    "posts.notify",
+  )
 
   // Notify @mentioned users in the post content
   const mentionedUserIds = extractMentionedUserIds(input.content)
   const preview = await resolvePreview(input.content)
   for (const mentionedUserId of mentionedUserIds) {
     if (mentionedUserId === userId) continue
-    createNotification({
-      userId: mentionedUserId,
-      actorId: userId,
-      type: "mention",
-      entityType: "post",
-      entityId: post.id,
-      data: {
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        entityPreview: preview,
-      },
-    }).catch(logRejection("posts.notify"))
+    background(
+      createNotification({
+        userId: mentionedUserId,
+        actorId: userId,
+        type: "mention",
+        entityType: "post",
+        entityId: post.id,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityPreview: preview,
+        },
+      }),
+      "posts.notify",
+    )
   }
 
   return post
@@ -243,18 +249,21 @@ export async function updatePost({
       const preview = await resolvePreview(updateData.content)
       for (const mentionedUserId of newMentions) {
         if (mentionedUserId === userId) continue
-        createNotification({
-          userId: mentionedUserId,
-          actorId: userId,
-          type: "mention",
-          entityType: "post",
-          entityId: postId,
-          data: {
-            actorName: context.user.name,
-            actorAvatarId: context.user.avatarId,
-            entityPreview: preview,
-          },
-        }).catch(logRejection("posts.notify"))
+        background(
+          createNotification({
+            userId: mentionedUserId,
+            actorId: userId,
+            type: "mention",
+            entityType: "post",
+            entityId: postId,
+            data: {
+              actorName: context.user.name,
+              actorAvatarId: context.user.avatarId,
+              entityPreview: preview,
+            },
+          }),
+          "posts.notify",
+        )
       }
     }
   }

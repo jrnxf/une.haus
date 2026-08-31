@@ -14,8 +14,8 @@ import {
   utvVideos,
 } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
+import { background } from "~/lib/execution-context"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 
 import type {
@@ -343,19 +343,22 @@ export async function reviewUtvSuggestion({
 
   // Notify submitter of review result
   if (suggestion.submittedByUserId !== context.user.id) {
-    createNotification({
-      userId: suggestion.submittedByUserId,
-      actorId: context.user.id,
-      type: "review",
-      entityType: "utvVideoSuggestion",
-      entityId: id,
-      data: {
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        entityTitle: status === "approved" ? "approved" : "rejected",
-        entityPreview: reviewNotes,
-      },
-    }).catch(logRejection("utv.notify"))
+    background(
+      createNotification({
+        userId: suggestion.submittedByUserId,
+        actorId: context.user.id,
+        type: "review",
+        entityType: "utvVideoSuggestion",
+        entityId: id,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityTitle: status === "approved" ? "approved" : "rejected",
+          entityPreview: reviewNotes,
+        },
+      }),
+      "utv.notify",
+    )
   }
 
   return updatedSuggestion

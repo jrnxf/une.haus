@@ -1,16 +1,13 @@
+import { cloudflare } from "@cloudflare/vite-plugin"
 import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite"
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
-import { nitro } from "nitro/vite"
 import { execSync } from "node:child_process"
 // import { beasties } from "vite-plugin-beasties";
 import { type LoggingFunction, type RollupLog } from "rollup"
 import { defineConfig, type PluginOption } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
-
-import { ROTATION_CRON } from "./src/lib/games/rius/lifecycle"
-import { TASK_NAMES } from "./src/lib/tasks/constants"
 
 const devtoolsPlugin = async (): Promise<PluginOption> => {
   const { devtools } = await import("@tanstack/devtools-vite")
@@ -62,26 +59,9 @@ const config = defineConfig(async () => {
       viteTsConfigPaths({
         projects: ["./tsconfig.json"],
       }),
-      nitro({
-        preset: "bun",
-        compatibilityDate: "latest",
-        serverDir: "./server",
-        experimental: {
-          tasks: true,
-          vite: {
-            serverReload: true,
-          },
-        },
-        scheduledTasks: {
-          [ROTATION_CRON]: [TASK_NAMES.RIUS_ROTATE],
-          // Every hour at :00 — digest checks user's configured hour/day,
-          // game-start checks hours-until-rotation with 1h window
-          "0 * * * *": [
-            TASK_NAMES.NOTIFICATIONS_SEND_DIGESTS,
-            TASK_NAMES.NOTIFICATIONS_GAME_START_REMINDERS,
-          ],
-        },
-      } as any),
+      // Cron schedules live in wrangler.jsonc (triggers.crons); the scheduled
+      // handler in src/server.ts dispatches on the cron expression.
+      cloudflare({ viteEnvironment: { name: "ssr" } }),
       tailwindcss(),
       // beasties({
       //   options: {

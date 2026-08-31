@@ -3,10 +3,10 @@ import { and, desc, eq, lt, sql } from "drizzle-orm"
 
 import { db } from "~/db"
 import { riuSets, riuSubmissions, rius } from "~/db/schema"
+import { background } from "~/lib/execution-context"
 import { assertCanEditSet, assertCanSubmit } from "~/lib/games/rius/lifecycle"
 import { ARCHIVED_ROUNDS_PAGE_SIZE } from "~/lib/games/rius/schemas"
 import { invariant } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import {
   createNotification,
   deleteNotificationsForEntity,
@@ -51,14 +51,17 @@ export async function createRiuSet({
     .returning()
 
   // Notify followers about the new RIU set
-  notifyFollowers({
-    actorId: userId,
-    actorName: context.user.name,
-    actorAvatarId: context.user.avatarId,
-    type: "new_content",
-    entityType: "riuSet",
-    entityId: riuSet.id,
-  }).catch(logRejection("games.rius.notify"))
+  background(
+    notifyFollowers({
+      actorId: userId,
+      actorName: context.user.name,
+      actorAvatarId: context.user.avatarId,
+      type: "new_content",
+      entityType: "riuSet",
+      entityId: riuSet.id,
+    }),
+    "games.rius.notify",
+  )
 
   return riuSet
 }
@@ -233,18 +236,21 @@ export async function createRiuSubmission({
     })
     .returning()
 
-  createNotification({
-    userId: riuSet.userId,
-    actorId: userId,
-    type: "game_activity",
-    entityType: "riuSubmission",
-    entityId: riuSubmission.id,
-    data: {
-      actorName: context.user.name,
-      actorAvatarId: context.user.avatarId,
-      entityTitle: riuSet.name,
-    },
-  }).catch(logRejection("games.rius.notify"))
+  background(
+    createNotification({
+      userId: riuSet.userId,
+      actorId: userId,
+      type: "game_activity",
+      entityType: "riuSubmission",
+      entityId: riuSubmission.id,
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+        entityTitle: riuSet.name,
+      },
+    }),
+    "games.rius.notify",
+  )
 
   return riuSubmission
 }

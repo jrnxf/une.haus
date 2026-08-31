@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test"
 
-import type { TaskEvent } from "nitro/types"
-
 const sendMock = mock((_payload: { to: string[] }) =>
   Promise.resolve({ data: { id: "email-id" }, error: null }),
 )
@@ -12,8 +10,7 @@ mock.module("resend", () => ({
   },
 }))
 
-const { default: sendDigestsTask } =
-  await import("../../../server/tasks/notifications/send-digests")
+const { sendDigests } = await import("~/lib/tasks/send-digests.server")
 
 import { and, eq } from "drizzle-orm"
 
@@ -21,16 +18,8 @@ import { db } from "~/db"
 import { notifications, userNotificationSettings } from "~/db/schema"
 import { seedUser, truncatePublicTables } from "~/testing/integration"
 
-const taskEvent: TaskEvent = {
-  name: "notifications:send-digests",
-  payload: {},
-  context: {},
-}
-
 async function runDigests() {
-  const { result } = await sendDigestsTask.run(taskEvent)
-  if (!result) throw new Error("send-digests task returned no result")
-  return result
+  return sendDigests()
 }
 
 const now = new Date()

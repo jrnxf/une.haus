@@ -41,8 +41,8 @@ import {
   utvVideos,
 } from "~/db/schema"
 import { PAGE_SIZE } from "~/lib/constants"
+import { background } from "~/lib/execution-context"
 import { assertFound } from "~/lib/invariant"
-import { logRejection } from "~/lib/logger"
 import { createNotification } from "~/lib/notifications/helpers.server"
 import {
   type ActivityItem,
@@ -222,17 +222,20 @@ export async function followUser({
     .onConflictDoNothing()
 
   // Notify the followed user
-  createNotification({
-    userId: input.userId,
-    actorId: context.user.id,
-    type: "follow",
-    entityType: "user",
-    entityId: context.user.id, // The actor is the entity (link to their profile)
-    data: {
-      actorName: context.user.name,
-      actorAvatarId: context.user.avatarId,
-    },
-  }).catch(logRejection("users.notify"))
+  background(
+    createNotification({
+      userId: input.userId,
+      actorId: context.user.id,
+      type: "follow",
+      entityType: "user",
+      entityId: context.user.id, // The actor is the entity (link to their profile)
+      data: {
+        actorName: context.user.name,
+        actorAvatarId: context.user.avatarId,
+      },
+    }),
+    "users.notify",
+  )
 }
 
 export async function unfollowUser({
