@@ -72,9 +72,12 @@ jobs:
       - name: deploy
         run: bunx wrangler deploy
       - name: smoke check
+        # Hits the workers.dev alias, not une.haus — the zone's bot
+        # protection 403s plain curl from GH runner IPs; workers.dev serves
+        # the same deployed worker without the zone WAF in front.
         run: |
           set -euo pipefail
-          for url in https://une.haus; do
+          for url in https://unehaus.jrnxf.workers.dev; do
             ok=""
             for _ in $(seq 1 30); do
               if curl -fsS -o /dev/null "$url"; then ok=1; break; fi
