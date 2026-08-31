@@ -4,13 +4,14 @@
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "./src/server.ts",
+  "vars": {
+    "VITE_ENVIRONMENT": "production",
+  },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "unehaus",
-      // Placeholder until `wrangler d1 create unehaus` runs on the real
-      // account; local dev/preview work with any id.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "65de246d-e126-41e9-854c-f7a848c432c1",
       "migrations_dir": "drizzle",
     },
   ],
