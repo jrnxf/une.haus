@@ -12,6 +12,7 @@ import {
 } from "~/lib/tricks/videos/ops.server"
 import {
   asUser,
+  expectDbRejection,
   seedMuxVideo,
   seedUser,
   truncatePublicTables,
@@ -449,7 +450,7 @@ describe("trick videos integration", () => {
     })
 
     const dupMux = await seedMuxVideo("idx-rank-dup")
-    await expect(
+    await expectDbRejection(
       Promise.resolve().then(() =>
         db.insert(trickVideos).values({
           muxAssetId: dupMux.assetId,
@@ -460,7 +461,8 @@ describe("trick videos integration", () => {
           trickId: trick.id,
         }),
       ),
-    ).rejects.toThrow(/trick_videos_pinned_rank_uq|duplicate key/)
+      /trick_videos_pinned_rank_uq|duplicate key/,
+    )
 
     // Same rank on a different trick is allowed
     const otherTrick = await seedTrick({ name: "Other Index Trick" })

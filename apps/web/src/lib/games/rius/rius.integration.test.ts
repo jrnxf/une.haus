@@ -13,6 +13,7 @@ import {
 } from "~/lib/games/rius/ops.server"
 import {
   asUser,
+  expectDbRejection,
   seedMuxVideo,
   seedUser,
   truncatePublicTables,
@@ -352,12 +353,14 @@ describe("rius integration", () => {
     await seedRiu("archived")
     await seedRiu("archived")
 
-    await expect(
+    await expectDbRejection(
       Promise.resolve(db.insert(rius).values({ status: "active" })),
-    ).rejects.toThrow("rius_one_active_idx")
-    await expect(
+      "rius_one_active_idx",
+    )
+    await expectDbRejection(
       Promise.resolve(db.insert(rius).values({ status: "upcoming" })),
-    ).rejects.toThrow("rius_one_upcoming_idx")
+      "rius_one_upcoming_idx",
+    )
   })
 
   it("listArchivedRius returns real aggregate set and submission counts", async () => {

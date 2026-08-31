@@ -81,6 +81,40 @@ export function randomId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2)}`
 }
 
+// Assert a DB operation rejects with a driver error matching `pattern`.
+// drizzle wraps driver errors in DrizzleQueryError whose message omits the
+// constraint name, so match against the full cause chain.
+export async function expectDbRejection(
+  operation: Promise<unknown>,
+  pattern: RegExp | string,
+) {
+  const error = await operation.then(
+    () => {
+      throw new Error("expected operation to reject, but it resolved")
+    },
+    (err: unknown) => err,
+  )
+
+  const chain: string[] = []
+  let current: unknown = error
+  while (current instanceof Error) {
+    chain.push(current.message)
+    current = current.cause
+  }
+
+  const haystack = chain.join(" | ")
+  const matches =
+    typeof pattern === "string"
+      ? haystack.includes(pattern)
+      : pattern.test(haystack)
+
+  if (!matches) {
+    throw new Error(
+      `expected rejection matching ${String(pattern)}, got: ${haystack}`,
+    )
+  }
+}
+
 export async function seedUser(
   overrides: Partial<typeof users.$inferInsert> = {},
 ) {
