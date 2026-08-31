@@ -7,6 +7,9 @@
   "vars": {
     "VITE_ENVIRONMENT": "production",
   },
+  // Run the worker near the D1 primary (WEUR) instead of near the visitor —
+  // per-request DB round-trips dominate over first-hop latency.
+  "placement": { "mode": "smart" },
   "d1_databases": [
     {
       "binding": "DB",

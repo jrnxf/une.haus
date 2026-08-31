@@ -7,7 +7,7 @@ import { type GelatoOrderItem } from "~/lib/gelato/schemas"
  */
 
 /**
- * Public print-ready masters served from `apps/web/public/merch/`. Gelato
+ * Public print-ready masters served from `public/merch/`. Gelato
  * fetches print files by URL, so they must be publicly reachable — pass an
  * absolute origin (e.g. https://une.haus) when building order items.
  *

@@ -28,8 +28,8 @@ env:
 jobs:
   # Runs the same `bun preflight` as local pre-commit — one source of truth
   # for what "green" means (lint, format, typecheck, schema check, knip,
-  # unit + integration tests, all workspaces). The integration runner uses an
-  # ephemeral sqlite file; no external services needed.
+  # unit + integration tests). The integration runner uses an ephemeral
+  # sqlite file; no external services needed.
   ci:
     name: ci
     runs-on: ubuntu-latest
@@ -37,13 +37,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version-file: apps/web/package.json
+          bun-version-file: package.json
       - run: bun install --frozen-lockfile
       - name: preflight
         run: bun run preflight
 
-  # Build and ship both apps to Cloudflare Workers. Runtime secrets live on
-  # the workers (`wrangler secret put`), not here — this env block only feeds
+  # Build and ship the app to Cloudflare Workers. Runtime secrets live on
+  # the worker (`wrangler secret put`), not here — this env block only feeds
   # the build (env validation, Sentry source maps, VITE_ vars).
   deploy:
     name: deploy
@@ -61,18 +61,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version-file: apps/web/package.json
+          bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - name: build web
-        run: bun run build:web
+      - name: build
+        run: bun run build
       - name: apply D1 migrations
         # Same contract as the old bundled migrator: applies anything not yet
         # recorded, no-op once current. Roll-forward only.
         run: bunx wrangler d1 migrations apply unehaus --remote
-        working-directory: apps/web
-      - name: deploy web
+      - name: deploy
         run: bunx wrangler deploy
-        working-directory: apps/web
       - name: smoke check
         run: |
           set -euo pipefail

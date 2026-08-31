@@ -3,22 +3,23 @@ import process from "node:process"
 const parallelChecks = [
   { label: "lint", cmd: ["oxlint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
-  { label: "typecheck", cmd: ["bun", "run", "--filter", "*", "typecheck"] },
-  { label: "db schema", cmd: ["bun", "run", "--filter", "web", "db:check"] },
+  { label: "typecheck", cmd: ["bun", "run", "typecheck"] },
+  { label: "db schema", cmd: ["bun", "run", "db:check"] },
   {
     label: "clean",
-    cmd: ["bun", "run", "--filter", "*", "clean:check"],
+    cmd: ["bun", "run", "clean:check"],
   },
-  { label: "unit tests", cmd: ["bun", "run", "--filter", "*", "test:unit"] },
+  { label: "unit tests", cmd: ["bun", "run", "test:unit"] },
 ]
 
-// Integration tests run against a dockerized postgres; running them while
-// typecheck/knip/lint saturate the host starves the DB container and hangs
-// random tests. Run them alone, after the parallel group.
+// Integration tests spawn their own worker pool over an ephemeral sqlite
+// file; running them while typecheck/knip/lint saturate the host makes
+// individual tests trip their timeouts. Run them alone, after the parallel
+// group.
 const serialChecks = [
   {
     label: "integration tests",
-    cmd: ["bun", "run", "--filter", "*", "test:integration"],
+    cmd: ["bun", "run", "test:integration"],
   },
 ]
 

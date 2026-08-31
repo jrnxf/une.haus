@@ -5,7 +5,7 @@ import { readdirSync, rmSync } from "node:fs"
 // dummy value is fine when one isn't already set (local dev / CI both provide it).
 process.env.DATABASE_URL ??= "postgres://dummy"
 
-// cwd is apps/web (this runs via `bun run --filter web db:check`).
+// cwd is the repo root (this runs via `bun run db:check`).
 const snapshot = () =>
   new Set<string>([
     ...readdirSync("drizzle"),
