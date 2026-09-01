@@ -36,6 +36,118 @@ import {
 } from "~/db/schema"
 import { ttlCache } from "~/lib/ttl-cache"
 
+// D1 rejects compound SELECTs with more than 5 terms, so long UNION ALL
+// chains must be nested into subselects of at most 5 terms each.
+const D1_MAX_COMPOUND_TERMS = 5
+
+function unionAllChunked(selects: string[]): string {
+  if (selects.length <= D1_MAX_COMPOUND_TERMS) {
+    return selects.join(" UNION ALL ")
+  }
+  const chunks: string[][] = []
+  for (let i = 0; i < selects.length; i += D1_MAX_COMPOUND_TERMS) {
+    chunks.push(selects.slice(i, i + D1_MAX_COMPOUND_TERMS))
+  }
+  return unionAllChunked(
+    chunks.map((chunk) => `SELECT * FROM (${chunk.join(" UNION ALL ")})`),
+  )
+}
+
+const CONTENT_SELECTS = [
+  "SELECT user_id FROM riu_sets",
+  "SELECT user_id FROM riu_submissions",
+  "SELECT user_id FROM biu_sets",
+  "SELECT user_id FROM siu_sets",
+  "SELECT user_id FROM posts",
+  "SELECT submitted_by_user_id as user_id FROM trick_submissions",
+  "SELECT submitted_by_user_id as user_id FROM trick_suggestions",
+  "SELECT submitted_by_user_id as user_id FROM trick_videos",
+  "SELECT submitted_by_user_id as user_id FROM utv_video_suggestions",
+]
+
+const MESSAGE_SELECTS = [
+  "SELECT user_id FROM chat_messages",
+  "SELECT user_id FROM post_messages",
+  "SELECT user_id FROM riu_set_messages",
+  "SELECT user_id FROM riu_submission_messages",
+  "SELECT user_id FROM biu_set_messages",
+  "SELECT user_id FROM siu_set_messages",
+  "SELECT user_id FROM utv_video_messages",
+  "SELECT user_id FROM trick_messages",
+]
+
+const LIKE_SELECTS = [
+  "SELECT user_id FROM post_likes",
+  "SELECT user_id FROM riu_set_likes",
+  "SELECT user_id FROM riu_submission_likes",
+  "SELECT user_id FROM biu_set_likes",
+  "SELECT user_id FROM siu_set_likes",
+  "SELECT user_id FROM chat_message_likes",
+  "SELECT user_id FROM utv_video_likes",
+  "SELECT user_id FROM post_message_likes",
+  "SELECT user_id FROM riu_set_message_likes",
+  "SELECT user_id FROM riu_submission_message_likes",
+  "SELECT user_id FROM biu_set_message_likes",
+  "SELECT user_id FROM siu_set_message_likes",
+  "SELECT user_id FROM utv_video_message_likes",
+  "SELECT user_id FROM trick_likes",
+  "SELECT user_id FROM trick_message_likes",
+]
+
+type ContributorRow = {
+  id: number
+  name: string
+  avatarId: string | null
+  contentCount: number
+  messagesCount: number
+  likesCount: number
+  totalPoints: number
+}
+
+function contributorsSql(limit?: number) {
+  return sql.raw(`
+    SELECT
+      u.id,
+      u.name,
+      u.avatar_id as "avatarId",
+      COALESCE(content.count, 0) as "contentCount",
+      COALESCE(msgs.count, 0) as "messagesCount",
+      COALESCE(likes.count, 0) as "likesCount",
+      (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
+    FROM users u
+    LEFT JOIN (
+      SELECT user_id, COUNT(*) as count FROM (
+        ${unionAllChunked(CONTENT_SELECTS)}
+      ) all_content GROUP BY user_id
+    ) content ON u.id = content.user_id
+    LEFT JOIN (
+      SELECT user_id, COUNT(*) as count FROM (
+        ${unionAllChunked(MESSAGE_SELECTS)}
+      ) all_msgs GROUP BY user_id
+    ) msgs ON u.id = msgs.user_id
+    LEFT JOIN (
+      SELECT user_id, COUNT(*) as count FROM (
+        ${unionAllChunked(LIKE_SELECTS)}
+      ) all_likes GROUP BY user_id
+    ) likes ON u.id = likes.user_id
+    WHERE (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
+    ORDER BY "totalPoints" DESC
+    ${limit ? `LIMIT ${limit}` : ""}
+  `)
+}
+
+function mapContributorRow(row: ContributorRow) {
+  return {
+    id: row.id,
+    name: row.name,
+    avatarId: row.avatarId,
+    contentCount: Number(row.contentCount),
+    messagesCount: Number(row.messagesCount),
+    likesCount: Number(row.likesCount),
+    totalPoints: Number(row.totalPoints),
+  }
+}
+
 async function computeStats() {
   const [
     usersResult,
@@ -136,74 +248,7 @@ async function computeStats() {
       GROUP BY je.value
       ORDER BY count DESC
     `) as Promise<{ discipline: string; count: number }[]>,
-    db.all(sql`
-      SELECT
-        u.id,
-        u.name,
-        u.avatar_id as "avatarId",
-        COALESCE(content.count, 0) as "contentCount",
-        COALESCE(msgs.count, 0) as "messagesCount",
-        COALESCE(likes.count, 0) as "likesCount",
-        (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
-      FROM users u
-      LEFT JOIN (
-        SELECT user_id, COUNT(*) as count FROM (
-          SELECT user_id FROM riu_sets
-          UNION ALL SELECT user_id FROM riu_submissions
-          UNION ALL SELECT user_id FROM biu_sets
-          UNION ALL SELECT user_id FROM siu_sets
-          UNION ALL SELECT user_id FROM posts
-          UNION ALL SELECT submitted_by_user_id as user_id FROM trick_submissions
-          UNION ALL SELECT submitted_by_user_id as user_id FROM trick_suggestions
-          UNION ALL SELECT submitted_by_user_id as user_id FROM trick_videos
-          UNION ALL SELECT submitted_by_user_id as user_id FROM utv_video_suggestions
-        ) all_content GROUP BY user_id
-      ) content ON u.id = content.user_id
-      LEFT JOIN (
-        SELECT user_id, COUNT(*) as count FROM (
-          SELECT user_id FROM chat_messages
-          UNION ALL SELECT user_id FROM post_messages
-          UNION ALL SELECT user_id FROM riu_set_messages
-          UNION ALL SELECT user_id FROM riu_submission_messages
-          UNION ALL SELECT user_id FROM biu_set_messages
-          UNION ALL SELECT user_id FROM siu_set_messages
-          UNION ALL SELECT user_id FROM utv_video_messages
-          UNION ALL SELECT user_id FROM trick_messages
-        ) all_msgs GROUP BY user_id
-      ) msgs ON u.id = msgs.user_id
-      LEFT JOIN (
-        SELECT user_id, COUNT(*) as count FROM (
-          SELECT user_id FROM post_likes
-          UNION ALL SELECT user_id FROM riu_set_likes
-          UNION ALL SELECT user_id FROM riu_submission_likes
-          UNION ALL SELECT user_id FROM biu_set_likes
-          UNION ALL SELECT user_id FROM siu_set_likes
-          UNION ALL SELECT user_id FROM chat_message_likes
-          UNION ALL SELECT user_id FROM utv_video_likes
-          UNION ALL SELECT user_id FROM post_message_likes
-          UNION ALL SELECT user_id FROM riu_set_message_likes
-          UNION ALL SELECT user_id FROM riu_submission_message_likes
-          UNION ALL SELECT user_id FROM biu_set_message_likes
-          UNION ALL SELECT user_id FROM siu_set_message_likes
-          UNION ALL SELECT user_id FROM utv_video_message_likes
-          UNION ALL SELECT user_id FROM trick_likes
-          UNION ALL SELECT user_id FROM trick_message_likes
-        ) all_likes GROUP BY user_id
-      ) likes ON u.id = likes.user_id
-      WHERE (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
-      ORDER BY "totalPoints" DESC
-      LIMIT 5
-    `) as Promise<
-      {
-        id: number
-        name: string
-        avatarId: string | null
-        contentCount: number
-        messagesCount: number
-        likesCount: number
-        totalPoints: number
-      }[]
-    >,
+    db.all(contributorsSql(5)) as Promise<ContributorRow[]>,
   ])
 
   const totalLikes =
@@ -254,95 +299,17 @@ async function computeStats() {
       discipline: row.discipline,
       count: Number(row.count),
     })),
-    topContributors: topContributorsResult.map((row) => ({
-      id: row.id,
-      name: row.name,
-      avatarId: row.avatarId,
-      contentCount: Number(row.contentCount),
-      messagesCount: Number(row.messagesCount),
-      likesCount: Number(row.likesCount),
-      totalPoints: Number(row.totalPoints),
-    })),
+    topContributors: topContributorsResult.map(mapContributorRow),
     usersOnline: null,
   }
 }
 
 async function computeContributors() {
-  const contributorsResult = (await db.all(sql`
-    SELECT
-      u.id,
-      u.name,
-      u.avatar_id as "avatarId",
-      COALESCE(content.count, 0) as "contentCount",
-      COALESCE(msgs.count, 0) as "messagesCount",
-      COALESCE(likes.count, 0) as "likesCount",
-      (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) as "totalPoints"
-    FROM users u
-    LEFT JOIN (
-      SELECT user_id, COUNT(*) as count FROM (
-        SELECT user_id FROM riu_sets
-        UNION ALL SELECT user_id FROM riu_submissions
-        UNION ALL SELECT user_id FROM biu_sets
-        UNION ALL SELECT user_id FROM siu_sets
-        UNION ALL SELECT user_id FROM posts
-        UNION ALL SELECT submitted_by_user_id as user_id FROM trick_submissions
-        UNION ALL SELECT submitted_by_user_id as user_id FROM trick_suggestions
-        UNION ALL SELECT submitted_by_user_id as user_id FROM trick_videos
-        UNION ALL SELECT submitted_by_user_id as user_id FROM utv_video_suggestions
-      ) all_content GROUP BY user_id
-    ) content ON u.id = content.user_id
-    LEFT JOIN (
-      SELECT user_id, COUNT(*) as count FROM (
-        SELECT user_id FROM chat_messages
-        UNION ALL SELECT user_id FROM post_messages
-        UNION ALL SELECT user_id FROM riu_set_messages
-        UNION ALL SELECT user_id FROM riu_submission_messages
-        UNION ALL SELECT user_id FROM biu_set_messages
-        UNION ALL SELECT user_id FROM siu_set_messages
-        UNION ALL SELECT user_id FROM utv_video_messages
-        UNION ALL SELECT user_id FROM trick_messages
-      ) all_msgs GROUP BY user_id
-    ) msgs ON u.id = msgs.user_id
-    LEFT JOIN (
-      SELECT user_id, COUNT(*) as count FROM (
-        SELECT user_id FROM post_likes
-        UNION ALL SELECT user_id FROM riu_set_likes
-        UNION ALL SELECT user_id FROM riu_submission_likes
-        UNION ALL SELECT user_id FROM biu_set_likes
-        UNION ALL SELECT user_id FROM siu_set_likes
-        UNION ALL SELECT user_id FROM chat_message_likes
-        UNION ALL SELECT user_id FROM utv_video_likes
-        UNION ALL SELECT user_id FROM post_message_likes
-        UNION ALL SELECT user_id FROM riu_set_message_likes
-        UNION ALL SELECT user_id FROM riu_submission_message_likes
-        UNION ALL SELECT user_id FROM biu_set_message_likes
-        UNION ALL SELECT user_id FROM siu_set_message_likes
-        UNION ALL SELECT user_id FROM utv_video_message_likes
-        UNION ALL SELECT user_id FROM trick_likes
-        UNION ALL SELECT user_id FROM trick_message_likes
-      ) all_likes GROUP BY user_id
-    ) likes ON u.id = likes.user_id
-    WHERE (COALESCE(content.count, 0) * 5) + (COALESCE(msgs.count, 0) * 2) + COALESCE(likes.count, 0) > 0
-    ORDER BY "totalPoints" DESC
-  `)) as {
-    id: number
-    name: string
-    avatarId: string | null
-    contentCount: number
-    messagesCount: number
-    likesCount: number
-    totalPoints: number
-  }[]
+  const contributorsResult = (await db.all(
+    contributorsSql(),
+  )) as ContributorRow[]
 
-  return contributorsResult.map((row) => ({
-    id: row.id,
-    name: row.name,
-    avatarId: row.avatarId,
-    contentCount: Number(row.contentCount),
-    messagesCount: Number(row.messagesCount),
-    likesCount: Number(row.likesCount),
-    totalPoints: Number(row.totalPoints),
-  }))
+  return contributorsResult.map(mapContributorRow)
 }
 
 const STATS_TTL_MS = 5 * 60 * 1000
