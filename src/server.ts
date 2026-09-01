@@ -1,3 +1,5 @@
+import geistMonoLatin from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
+import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url"
 import * as Sentry from "@sentry/cloudflare"
 import handler from "@tanstack/react-start/server-entry"
 
@@ -8,6 +10,7 @@ import { rotate } from "~/lib/games/rius/lifecycle.server"
 import { logger } from "~/lib/logger"
 import { sendGameStartReminders } from "~/lib/tasks/game-start-reminders.server"
 import { sendDigests } from "~/lib/tasks/send-digests.server"
+import appCss from "~/styles.css?url"
 
 // Structural types for the Workers runtime — avoids pulling the full
 // @cloudflare/workers-types ambient globals into the app's type space.
@@ -54,6 +57,24 @@ async function runScheduled(cron: string) {
 
 const isProduction = process.env.VITE_ENVIRONMENT === "production"
 
+// Link headers on HTML responses feed Cloudflare Early Hints: the edge caches
+// them and replays a 103 with these preloads before the worker even responds.
+// Keep in sync with the preload links in src/routes/__root.tsx. Requires the
+// Early Hints toggle on the zone (Speed → Optimization).
+const EARLY_HINTS_LINK = [
+  `<${appCss}>; rel=preload; as=style`,
+  `<${geistLatin}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
+  `<${geistMonoLatin}>; rel=preload; as=font; type="font/woff2"; crossorigin`,
+].join(", ")
+
+function withEarlyHints(response: Response): Response {
+  const contentType = response.headers.get("content-type") ?? ""
+  if (!contentType.includes("text/html")) return response
+  const withLink = new Response(response.body, response)
+  withLink.headers.append("Link", EARLY_HINTS_LINK)
+  return withLink
+}
+
 export default Sentry.withSentry(
   () => ({
     dsn: process.env.SENTRY_DSN,
@@ -76,7 +97,9 @@ export default Sentry.withSentry(
       ctx: WorkerExecutionContext,
     ): Promise<Response> {
       return runWithExecutionContext(ctx, () =>
-        runWithRequestDb(async () => handler.fetch(request)),
+        runWithRequestDb(async () =>
+          withEarlyHints(await handler.fetch(request)),
+        ),
       )
     },
     scheduled(
