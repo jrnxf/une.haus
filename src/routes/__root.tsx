@@ -1,3 +1,5 @@
+import geistMonoLatin from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
+import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url"
 import * as Sentry from "@sentry/tanstackstart-react"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { type QueryClient } from "@tanstack/react-query"
@@ -60,6 +62,25 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
   head: () => ({
     links: [
+      // Preload latin font subsets so the browser fetches them alongside the
+      // CSS instead of after parsing it — avoids the fallback-font flash on
+      // cold loads. Other subsets (latin-ext, cyrillic) stay lazy via
+      // unicode-range. crossorigin is required for font preloads even
+      // same-origin, or the preload is double-fetched.
+      {
+        rel: "preload",
+        href: geistLatin,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "preload",
+        href: geistMonoLatin,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
       {
         href: appCss,
         rel: "stylesheet",

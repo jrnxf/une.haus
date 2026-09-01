@@ -1,0 +1,5 @@
+# Everything under /assets/ is content-hashed by Vite — safe to cache forever.
+# Without this, Workers static assets serve max-age=0 and the browser
+# revalidates fonts/CSS/JS on every visit.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
