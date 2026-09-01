@@ -20,13 +20,15 @@ export const Route = createFileRoute("/users/$userId/")({
           users.videosPreview.queryOptions({ userId }),
         ),
         context.queryClient.ensureQueryData(
-          tricks.landings.forUser.queryOptions({ userId }),
-        ),
-        context.queryClient.ensureQueryData(tricks.graph.queryOptions()),
-        context.queryClient.ensureQueryData(
           users.activityPreview.queryOptions({ userId }),
         ),
       ])
+      // landed-tricks data (trick graph is heavy) loads behind its Suspense
+      // boundary — prefetch (not ensure) so the loader doesn't block on it
+      void context.queryClient.prefetchQuery(
+        tricks.landings.forUser.queryOptions({ userId }),
+      )
+      void context.queryClient.prefetchQuery(tricks.graph.queryOptions())
       return { user }
     } catch (error) {
       await session.flash.set.fn({
