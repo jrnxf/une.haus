@@ -14,6 +14,10 @@ import { isProduction } from "~/lib/env"
 export function getRouter() {
   const queryClient = new QueryClient({
     defaultOptions: {
+      // Bounds refetch chatter from viewport preloading. Stale-after-edit
+      // flashes are prevented by mutation-side removeQueries/optimistic
+      // updates (see CLAUDE.md), not by staleTime.
+      queries: { staleTime: 30 * 1000 },
       dehydrate: { serializeData: superjson.serialize },
       hydrate: { deserializeData: superjson.deserialize },
     },
@@ -25,13 +29,14 @@ export function getRouter() {
       queryClient,
       session: { theme: "dark", sidebarOpen: false },
     },
-    // I had this set to "intent" but it doesn't seem to be as helpful on
-    // mobile since there's no hover on mobile and it uses touch start events
-    // which mean it doesn't really load fast enough
-    defaultPreload: "intent",
-    // react-query will handle data fetching & caching
+    // "intent" only helps on desktop hover; on mobile touchstart fires too
+    // late. "viewport" preloads route chunks + loader data for every link
+    // as it scrolls into view, so taps hit a warm cache.
+    defaultPreload: "viewport",
+    // react-query owns data caching, but throttle loader re-runs from
+    // viewport intersection jitter while scrolling
     // https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: 30 * 1000,
     scrollRestoration: ({ location }) => !location.pathname.startsWith("/chat"),
     // scroll to top of main tag in addition to window
     scrollToTopSelectors: ["main"],
