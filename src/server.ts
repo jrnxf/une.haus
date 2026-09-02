@@ -75,6 +75,27 @@ function withEarlyHints(response: Response): Response {
   return withLink
 }
 
+// D1 Sessions API bookmark round-trip: the cookie carries the database
+// version this browser last saw, so the next request's session never reads
+// a replica older than that (read-your-writes across requests).
+const D1_BOOKMARK_COOKIE = "d1-bookmark"
+
+function readBookmark(request: Request): string | undefined {
+  const cookie = request.headers.get("cookie") ?? ""
+  const match = cookie.match(/(?:^|;\s*)d1-bookmark=([^;]+)/)
+  return match?.[1]
+}
+
+function withBookmark(response: Response, bookmark: string | null): Response {
+  if (!bookmark) return response
+  const withCookie = new Response(response.body, response)
+  withCookie.headers.append(
+    "Set-Cookie",
+    `${D1_BOOKMARK_COOKIE}=${bookmark}; Path=/; Max-Age=3600; SameSite=Lax; Secure; HttpOnly`,
+  )
+  return withCookie
+}
+
 export default Sentry.withSentry(
   () => ({
     dsn: process.env.SENTRY_DSN,
@@ -96,11 +117,13 @@ export default Sentry.withSentry(
       _env: unknown,
       ctx: WorkerExecutionContext,
     ): Promise<Response> {
-      return runWithExecutionContext(ctx, () =>
-        runWithRequestDb(async () =>
-          withEarlyHints(await handler.fetch(request)),
-        ),
-      )
+      return runWithExecutionContext(ctx, async () => {
+        const { result, bookmark } = await runWithRequestDb(
+          async () => withEarlyHints(await handler.fetch(request)),
+          readBookmark(request) ?? "first-unconstrained",
+        )
+        return withBookmark(result, bookmark)
+      })
     },
     scheduled(
       controller: ScheduledController,
@@ -109,14 +132,18 @@ export default Sentry.withSentry(
     ): void {
       ctx.waitUntil(
         runWithExecutionContext(ctx, () =>
-          runWithRequestDb(() =>
-            runScheduled(controller.cron).catch((err) => {
-              logger.error("scheduled run failed", {
-                cron: controller.cron,
-                err,
-              })
-              throw err
-            }),
+          // Crons have no user session to stay consistent with — always
+          // read the primary for the freshest data.
+          runWithRequestDb(
+            () =>
+              runScheduled(controller.cron).catch((err) => {
+                logger.error("scheduled run failed", {
+                  cron: controller.cron,
+                  err,
+                })
+                throw err
+              }),
+            "first-primary",
           ),
         ),
       )

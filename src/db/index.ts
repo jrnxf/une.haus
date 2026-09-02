@@ -31,6 +31,14 @@ async function getD1Binding(): Promise<unknown> {
   return (workerEnv as Record<string, unknown>).DB
 }
 
+// Structural types for the D1 Sessions API — a session implements
+// prepare/batch (all drizzle-orm/d1 needs) plus getBookmark. Constraint is
+// "first-primary", "first-unconstrained", or a bookmark from a prior session.
+type D1Session = { getBookmark: () => string | null }
+type D1BindingWithSessions = {
+  withSession: (constraint: string) => D1Session
+}
+
 function createLibsqlDb(): Db {
   if (!env.DATABASE_URL) {
     throw new Error(
@@ -46,10 +54,20 @@ function createLibsqlDb(): Db {
 const dbStorage = new AsyncLocalStorage<Db>()
 let fallbackDb: Db | undefined
 
-export async function runWithRequestDb<T>(fn: () => Promise<T>): Promise<T> {
-  const binding = await getD1Binding()
-  const requestDb = drizzleD1(binding as never, { logger, schema })
-  return dbStorage.run(requestDb, fn)
+// Runs fn with a per-request drizzle instance backed by a D1 session, so
+// reads route to the nearest replica (when read replication is enabled)
+// while staying sequentially consistent. Pass a bookmark from the caller's
+// previous session for cross-request read-your-writes; the returned bookmark
+// should be round-tripped back to that caller.
+export async function runWithRequestDb<T>(
+  fn: () => Promise<T>,
+  constraint = "first-unconstrained",
+): Promise<{ result: T; bookmark: string | null }> {
+  const binding = (await getD1Binding()) as D1BindingWithSessions
+  const session = binding.withSession(constraint)
+  const requestDb = drizzleD1(session as never, { logger, schema })
+  const result = await dbStorage.run(requestDb, fn)
+  return { result, bookmark: session.getBookmark() }
 }
 
 export const db: Db = new Proxy({} as Db, {
