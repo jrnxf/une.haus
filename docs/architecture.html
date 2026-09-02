@@ -1,0 +1,2213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>une.haus — architecture</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      :root {
+        --radius: 0.625rem;
+        --background: oklch(1 0 0);
+        --foreground: oklch(0 0 0);
+        --card: oklch(1 0 0);
+        --card-2: oklch(99.5% 0 0);
+        --muted: oklch(0.967 0 0);
+        --muted-foreground: oklch(0.552 0.016 285);
+        --border: oklch(0.92 0 0);
+        --sidebar: oklch(0.985 0 0);
+        --info: oklch(0.55 0.18 250);
+        --info-bg: oklch(0.96 0.03 250);
+        --info-border: oklch(0.83 0.08 250);
+        --success: oklch(0.52 0.17 142);
+        --success-bg: oklch(0.96 0.03 142);
+        --success-border: oklch(0.83 0.08 142);
+        --warning: oklch(0.6 0.17 65);
+        --warning-bg: oklch(0.96 0.03 65);
+        --warning-border: oklch(0.83 0.08 65);
+        --destructive: oklch(0.55 0.2 27);
+        --accent-edge: oklch(
+          0.646 0.17 41
+        ); /* cloudflare-ish ember, from chart-1 */
+        --accent-data: oklch(0.55 0.18 250); /* d1 / data blue */
+        --accent-ext: oklch(0.6 0.14 300); /* external services violet */
+        --rank-gold: oklch(0.75 0.15 93);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: oklch(0 0 0);
+          --foreground: oklch(0.985 0 0);
+          --card: oklch(17% 0 0);
+          --card-2: oklch(19% 0 0);
+          --muted: oklch(0.24 0 0);
+          --muted-foreground: oklch(0.705 0.015 285);
+          --border: oklch(0.25 0 0);
+          --sidebar: oklch(0.13 0 0);
+          --info: oklch(0.7 0.17 250);
+          --info-bg: oklch(0.25 0.05 250);
+          --info-border: oklch(0.4 0.08 250);
+          --success: oklch(0.7 0.17 142);
+          --success-bg: oklch(0.25 0.05 142);
+          --success-border: oklch(0.4 0.08 142);
+          --warning: oklch(0.7 0.17 65);
+          --warning-bg: oklch(0.25 0.05 65);
+          --warning-border: oklch(0.4 0.08 65);
+          --destructive: oklch(0.7 0.17 27);
+          --accent-edge: oklch(0.72 0.16 45);
+          --accent-data: oklch(0.7 0.17 250);
+          --accent-ext: oklch(0.72 0.13 300);
+          --rank-gold: oklch(0.87 0.17 93);
+        }
+      }
+      html {
+        background: var(--background);
+      }
+      body {
+        margin: 0;
+        font-family:
+          "Geist Mono", "Geist Mono Variable", ui-monospace, "SF Mono", Menlo,
+          monospace;
+        background: var(--background);
+        color: var(--foreground);
+        line-height: 1.6;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 24px 20px 96px;
+      }
+      a {
+        color: var(--info);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      code,
+      .path {
+        font-family: inherit;
+        background: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0.08em 0.35em;
+        font-size: 0.92em;
+        overflow-wrap: anywhere;
+      }
+      p,
+      li,
+      dd,
+      figcaption,
+      td,
+      th {
+        overflow-wrap: anywhere;
+      }
+      img,
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
+
+      /* hero */
+      .hero {
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) + 4px);
+        background:
+          radial-gradient(
+            1200px 420px at 15% -10%,
+            color-mix(in oklab, var(--accent-edge) 14%, transparent),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 380px at 90% 0%,
+            color-mix(in oklab, var(--accent-data) 12%, transparent),
+            transparent 60%
+          ),
+          var(--card);
+        padding: 40px 36px 32px;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero h1 {
+        margin: 0 0 4px;
+        font-size: 34px;
+        letter-spacing: -0.03em;
+        font-weight: 700;
+      }
+      .hero h1 .dot {
+        color: var(--accent-edge);
+      }
+      .hero .sub {
+        color: var(--muted-foreground);
+        margin: 0 0 20px;
+        max-width: 62ch;
+      }
+      .kicker {
+        display: inline-block;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: lowercase;
+        color: var(--accent-edge);
+        border: 1px solid
+          color-mix(in oklab, var(--accent-edge) 45%, var(--border));
+        background: color-mix(in oklab, var(--accent-edge) 10%, transparent);
+        border-radius: 999px;
+        padding: 3px 12px;
+        margin-bottom: 16px;
+      }
+      .statgrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+      }
+      .statgrid > * {
+        min-width: 0;
+      }
+      .stat {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: color-mix(in oklab, var(--card-2) 70%, transparent);
+        padding: 12px 14px;
+      }
+      .stat .v {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .stat .l {
+        font-size: 11px;
+        color: var(--muted-foreground);
+      }
+
+      /* sections */
+      section {
+        margin-top: 44px;
+      }
+      .seclabel {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .seclabel .num {
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      .lede {
+        color: var(--muted-foreground);
+        margin: 4px 0 18px;
+        max-width: 74ch;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) + 2px);
+        background: var(--card);
+        padding: 20px;
+      }
+      .figure {
+        padding: 22px;
+        overflow-x: auto;
+      }
+      figcaption {
+        color: var(--muted-foreground);
+        font-size: 12px;
+        margin-top: 12px;
+      }
+
+      .cols {
+        display: grid;
+        gap: 12px;
+      }
+      @media (min-width: 760px) {
+        .cols-2 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .cols-3 {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      .cols > * {
+        min-width: 0;
+      }
+
+      .minicard {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card-2);
+        padding: 14px 16px;
+      }
+      .minicard h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .minicard p {
+        margin: 0;
+        font-size: 12.5px;
+        color: var(--muted-foreground);
+      }
+      .minicard .tag {
+        float: right;
+        font-size: 10px;
+        border-radius: 999px;
+        padding: 1px 8px;
+        border: 1px solid var(--border);
+        color: var(--muted-foreground);
+        margin-left: 8px;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 10.5px;
+        border-radius: 999px;
+        padding: 1px 9px;
+        border: 1px solid;
+      }
+      .badge.edge {
+        color: var(--accent-edge);
+        border-color: color-mix(
+          in oklab,
+          var(--accent-edge) 50%,
+          var(--border)
+        );
+        background: color-mix(in oklab, var(--accent-edge) 10%, transparent);
+      }
+      .badge.data {
+        color: var(--accent-data);
+        border-color: color-mix(
+          in oklab,
+          var(--accent-data) 50%,
+          var(--border)
+        );
+        background: color-mix(in oklab, var(--accent-data) 10%, transparent);
+      }
+      .badge.ext {
+        color: var(--accent-ext);
+        border-color: color-mix(in oklab, var(--accent-ext) 50%, var(--border));
+        background: color-mix(in oklab, var(--accent-ext) 10%, transparent);
+      }
+      .badge.ok {
+        color: var(--success);
+        border-color: var(--success-border);
+        background: var(--success-bg);
+      }
+
+      pre.code {
+        margin: 0;
+        padding: 16px 18px;
+        overflow-x: auto;
+        background: var(--card-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 12.5px;
+        line-height: 1.55;
+      }
+      pre.code .c {
+        color: var(--muted-foreground);
+      }
+      pre.code .k {
+        color: var(--accent-edge);
+      }
+      pre.code .s {
+        color: var(--success);
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12.5px;
+      }
+      .tablewrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card);
+      }
+      th {
+        text-align: left;
+        font-size: 11px;
+        color: var(--muted-foreground);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+      }
+      th,
+      td {
+        padding: 9px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      thead tr {
+        background: var(--card-2);
+      }
+
+      /* svg shared */
+      svg text {
+        font-family: "Geist Mono", ui-monospace, Menlo, monospace;
+      }
+      .svg-node {
+        fill: var(--card-2);
+        stroke: var(--border);
+      }
+      .svg-node-strong {
+        fill: var(--card-2);
+      }
+      .svg-label {
+        fill: var(--foreground);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .svg-sub {
+        fill: var(--muted-foreground);
+        font-size: 10px;
+      }
+      .svg-edgeline {
+        stroke: var(--muted-foreground);
+        fill: none;
+      }
+      .svg-lane {
+        fill: color-mix(in oklab, var(--muted) 55%, transparent);
+        stroke: var(--border);
+        stroke-dasharray: 3 3;
+      }
+      .svg-lane-title {
+        fill: var(--muted-foreground);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+      }
+
+      footer {
+        margin-top: 64px;
+        color: var(--muted-foreground);
+        font-size: 12px;
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- ================= hero ================= -->
+      <header class="hero" id="hero">
+        <span class="kicker">architecture · cloudflare edition</span>
+        <h1>une<span class="dot">.</span>haus</h1>
+        <p class="sub">
+          all things une — tricks, games, vault, posts, tourneys — served
+          worldwide by a single cloudflare worker. no server to provision, no
+          container to babysit: pushing to <code>main</code> is the deploy.
+        </p>
+        <div class="statgrid">
+          <div class="stat">
+            <div class="v">1</div>
+            <div class="l">worker (<code>unehaus</code>)</div>
+          </div>
+          <div class="stat">
+            <div class="v">D1</div>
+            <div class="l">sqlite at the edge (WEUR)</div>
+          </div>
+          <div class="stat">
+            <div class="v">2</div>
+            <div class="l">cron triggers</div>
+          </div>
+          <div class="stat">
+            <div class="v">~25</div>
+            <div class="l">domain modules in <code>src/lib</code></div>
+          </div>
+          <div class="stat">
+            <div class="v">0</div>
+            <div class="l">servers to provision</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= 01 big picture ================= -->
+      <section id="big-picture">
+        <div class="seclabel">
+          <span class="num">01</span>
+          <h2>the big picture</h2>
+        </div>
+        <p class="lede">
+          one full-stack TanStack Start app compiled into one worker.
+          cloudflare's edge terminates TLS, replays early hints, and serves
+          hashed assets; every dynamic request runs the worker, which talks to
+          D1 over a binding and reaches out to a small set of managed services.
+        </p>
+
+        <figure class="card figure">
+          <svg
+            viewBox="0 0 980 430"
+            width="100%"
+            role="img"
+            aria-label="system overview: browser through cloudflare edge to the unehaus worker, D1, and external services"
+          >
+            <title>system overview</title>
+            <defs>
+              <marker
+                id="arr"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--muted-foreground)" />
+              </marker>
+            </defs>
+
+            <!-- lanes -->
+            <rect
+              class="svg-lane"
+              x="10"
+              y="34"
+              width="180"
+              height="360"
+              rx="10"
+            />
+            <text class="svg-lane-title" x="30" y="24">client</text>
+            <rect
+              class="svg-lane"
+              x="220"
+              y="34"
+              width="230"
+              height="360"
+              rx="10"
+            />
+            <text class="svg-lane-title" x="240" y="24">cloudflare edge</text>
+            <rect
+              class="svg-lane"
+              x="480"
+              y="34"
+              width="270"
+              height="360"
+              rx="10"
+            />
+            <text class="svg-lane-title" x="500" y="24">
+              worker · smart placement (weur)
+            </text>
+            <rect
+              class="svg-lane"
+              x="780"
+              y="34"
+              width="190"
+              height="360"
+              rx="10"
+            />
+            <text class="svg-lane-title" x="800" y="24">managed services</text>
+
+            <!-- client -->
+            <g id="node-browser">
+              <title>react 19 spa, hydrated after ssr</title>
+              <rect
+                class="svg-node"
+                x="30"
+                y="150"
+                width="140"
+                height="76"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="100" y="182" text-anchor="middle">
+                browser
+              </text>
+              <text class="svg-sub" x="100" y="200" text-anchor="middle">
+                react 19 · tanstack
+              </text>
+              <text class="svg-sub" x="100" y="214" text-anchor="middle">
+                query + router
+              </text>
+            </g>
+
+            <!-- edge -->
+            <g id="node-hints">
+              <title>
+                early hints: edge caches Link headers and replays 103 before the
+                worker responds
+              </title>
+              <rect
+                class="svg-node"
+                x="245"
+                y="70"
+                width="180"
+                height="58"
+                rx="8"
+                stroke="var(--accent-edge)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="335" y="94" text-anchor="middle">
+                103 early hints
+              </text>
+              <text class="svg-sub" x="335" y="112" text-anchor="middle">
+                css + font preloads
+              </text>
+            </g>
+            <g id="node-cache">
+              <title>hashed assets served with immutable cache headers</title>
+              <rect
+                class="svg-node"
+                x="245"
+                y="150"
+                width="180"
+                height="58"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="335" y="174" text-anchor="middle">
+                edge cache
+              </text>
+              <text class="svg-sub" x="335" y="192" text-anchor="middle">
+                hashed assets · immutable
+              </text>
+            </g>
+            <g id="node-triggers">
+              <title>cron triggers registered from wrangler.jsonc</title>
+              <rect
+                class="svg-node"
+                x="245"
+                y="300"
+                width="180"
+                height="58"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="335" y="324" text-anchor="middle">
+                cron triggers
+              </text>
+              <text class="svg-sub" x="335" y="342" text-anchor="middle">
+                weekly + hourly (utc)
+              </text>
+            </g>
+
+            <!-- worker -->
+            <g id="node-worker">
+              <title>
+                src/server.ts — sentry wrapper, fetch and scheduled handlers
+              </title>
+              <rect
+                class="svg-node"
+                x="505"
+                y="70"
+                width="220"
+                height="138"
+                rx="8"
+                stroke="var(--accent-edge)"
+                stroke-width="1.5"
+              />
+              <text class="svg-label" x="615" y="96" text-anchor="middle">
+                unehaus worker
+              </text>
+              <text class="svg-sub" x="615" y="114" text-anchor="middle">
+                src/server.ts
+              </text>
+              <line
+                x1="521"
+                y1="126"
+                x2="709"
+                y2="126"
+                stroke="var(--border)"
+              />
+              <text class="svg-sub" x="615" y="144" text-anchor="middle">
+                fetch() → tanstack start ssr
+              </text>
+              <text class="svg-sub" x="615" y="160" text-anchor="middle">
+                + server fn rpc
+              </text>
+              <text class="svg-sub" x="615" y="178" text-anchor="middle">
+                scheduled() → cron dispatch
+              </text>
+              <text class="svg-sub" x="615" y="194" text-anchor="middle">
+                sentry.withSentry wrapper
+              </text>
+            </g>
+            <g id="node-d1">
+              <title>
+                d1 database "unehaus", bound as DB; drizzle-orm/d1 per request
+              </title>
+              <path
+                d="M525 300 q90 -22 180 0 v58 q-90 22 -180 0 z"
+                fill="var(--card-2)"
+                stroke="var(--accent-data)"
+                stroke-width="1.5"
+              />
+              <text class="svg-label" x="615" y="326" text-anchor="middle">
+                d1 · sqlite
+              </text>
+              <text class="svg-sub" x="615" y="344" text-anchor="middle">
+                binding DB · drizzle orm
+              </text>
+            </g>
+
+            <!-- external -->
+            <g id="node-mux">
+              <title>mux: video ingest, encoding, playback</title>
+              <rect
+                class="svg-node"
+                x="800"
+                y="62"
+                width="150"
+                height="44"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="875" y="82" text-anchor="middle">
+                mux
+              </text>
+              <text class="svg-sub" x="875" y="97" text-anchor="middle">
+                video pipeline
+              </text>
+            </g>
+            <g id="node-resend">
+              <title>
+                resend: transactional email via react-email templates
+              </title>
+              <rect
+                class="svg-node"
+                x="800"
+                y="118"
+                width="150"
+                height="44"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="875" y="138" text-anchor="middle">
+                resend
+              </text>
+              <text class="svg-sub" x="875" y="153" text-anchor="middle">
+                email
+              </text>
+            </g>
+            <g id="node-sentry">
+              <title>
+                sentry: server (@sentry/cloudflare) + client instrumentation
+              </title>
+              <rect
+                class="svg-node"
+                x="800"
+                y="174"
+                width="150"
+                height="44"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="875" y="194" text-anchor="middle">
+                sentry
+              </text>
+              <text class="svg-sub" x="875" y="209" text-anchor="middle">
+                errors + traces
+              </text>
+            </g>
+            <g id="node-cfimages">
+              <title>cloudflare images api for avatar/image editing</title>
+              <rect
+                class="svg-node"
+                x="800"
+                y="230"
+                width="150"
+                height="44"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="875" y="250" text-anchor="middle">
+                cf images
+              </text>
+              <text class="svg-sub" x="875" y="265" text-anchor="middle">
+                image editing
+              </text>
+            </g>
+            <g id="node-google">
+              <title>google maps services for geocoding rider locations</title>
+              <rect
+                class="svg-node"
+                x="800"
+                y="286"
+                width="150"
+                height="44"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="875" y="306" text-anchor="middle">
+                google maps
+              </text>
+              <text class="svg-sub" x="875" y="321" text-anchor="middle">
+                geocoding
+              </text>
+            </g>
+            <g id="node-gelato">
+              <title>gelato print-on-demand for the shop (optional key)</title>
+              <rect
+                class="svg-node"
+                x="800"
+                y="342"
+                width="150"
+                height="44"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="875" y="362" text-anchor="middle">
+                gelato
+              </text>
+              <text class="svg-sub" x="875" y="377" text-anchor="middle">
+                merch
+              </text>
+            </g>
+
+            <!-- edges -->
+            <path
+              id="edge-req"
+              class="svg-edgeline"
+              d="M170 172 h55 q10 0 14 -9 l14 -28 q5 -9 15 -9 h230"
+              stroke-width="1.3"
+              marker-end="url(#arr)"
+            />
+            <path
+              id="edge-assets"
+              class="svg-edgeline"
+              d="M245 179 h-75"
+              stroke-width="1.3"
+              marker-end="url(#arr)"
+            />
+            <path
+              id="edge-worker"
+              class="svg-edgeline"
+              d="M425 99 h78"
+              stroke-width="1.3"
+              marker-end="url(#arr)"
+            />
+            <path
+              id="edge-cron"
+              class="svg-edgeline"
+              d="M425 320 q40 0 55 -40 l18 -50"
+              stroke-width="1.3"
+              marker-end="url(#arr)"
+            />
+            <path
+              id="edge-db"
+              class="svg-edgeline"
+              d="M615 208 v82"
+              stroke="var(--accent-data)"
+              stroke-width="1.4"
+              marker-end="url(#arr)"
+            />
+            <path
+              id="edge-ext"
+              class="svg-edgeline"
+              d="M725 140 h73"
+              stroke="var(--accent-ext)"
+              stroke-width="1.3"
+              marker-end="url(#arr)"
+            />
+            <path
+              id="edge-webhook"
+              class="svg-edgeline"
+              d="M800 84 h-40 q-20 0 -25 10"
+              stroke="var(--accent-ext)"
+              stroke-width="1.1"
+              stroke-dasharray="4 3"
+              marker-end="url(#arr)"
+            />
+
+            <text class="svg-sub" x="300" y="60" text-anchor="middle">
+              https request
+            </text>
+            <text class="svg-sub" x="656" y="250" text-anchor="middle">
+              sql over binding
+            </text>
+            <text class="svg-sub" x="762" y="132" text-anchor="middle">
+              api
+            </text>
+            <text class="svg-sub" x="757" y="72" text-anchor="middle">
+              webhooks
+            </text>
+          </svg>
+          <figcaption>
+            every box on the worker/edge side is cloudflare-managed. mux calls
+            back into the worker via <code>/api/mux</code> webhooks; everything
+            else is outbound. sources: <code>wrangler.jsonc</code>,
+            <code>src/server.ts</code>, <code>src/lib/clients/*</code>.
+          </figcaption>
+        </figure>
+
+        <div class="cols cols-3" style="margin-top: 12px">
+          <div class="minicard">
+            <span class="tag">why</span>
+            <h3>smart placement</h3>
+            <p>
+              <code>placement.mode = "smart"</code> runs the worker near the d1
+              primary in western europe instead of near the visitor —
+              per-request db round-trips dominate over first-hop latency, so
+              co-locating compute with data wins.
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="tag">why</span>
+            <h3>early hints</h3>
+            <p>
+              the worker appends <code>Link</code> preload headers to every html
+              response; the edge caches them and replays an http 103 with css +
+              geist font preloads before the worker even starts rendering.
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="tag">why</span>
+            <h3>one bundle</h3>
+            <p>
+              vite + <code>@cloudflare/vite-plugin</code> compile ssr, server
+              functions, api routes, and cron handlers into a single worker
+              script — one deploy artifact, one runtime to reason about.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 02 request lifecycle ================= -->
+      <section id="request-lifecycle">
+        <div class="seclabel">
+          <span class="num">02</span>
+          <h2>anatomy of a request</h2>
+        </div>
+        <p class="lede">
+          workers forbid sharing i/o objects across requests and kill unawaited
+          promises once the response returns. the entry file solves both with
+          <code>AsyncLocalStorage</code> seams: each request gets its own
+          drizzle instance and its own <code>ctx.waitUntil</code> channel,
+          invisible to domain code.
+        </p>
+
+        <figure class="card figure">
+          <svg
+            viewBox="0 0 980 330"
+            width="100%"
+            role="img"
+            aria-label="request lifecycle: nested wrappers from sentry down to route loaders and server functions"
+          >
+            <title>request lifecycle — nested contexts</title>
+            <defs>
+              <marker
+                id="arr2"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--muted-foreground)" />
+              </marker>
+            </defs>
+
+            <!-- nested boxes -->
+            <g id="ring-sentry">
+              <title>Sentry.withSentry wraps the whole worker export</title>
+              <rect
+                x="20"
+                y="20"
+                width="700"
+                height="290"
+                rx="12"
+                fill="color-mix(in oklab, var(--accent-ext) 6%, transparent)"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text class="svg-sub" x="40" y="44" style="font-weight: 600">
+                sentry.withSentry · traces 20% · errors
+              </text>
+            </g>
+            <g id="ring-ctx">
+              <title>
+                runWithExecutionContext: ALS store exposing ctx.waitUntil to lib
+                code
+              </title>
+              <rect
+                x="40"
+                y="56"
+                width="660"
+                height="234"
+                rx="10"
+                fill="color-mix(in oklab, var(--accent-edge) 6%, transparent)"
+                stroke="var(--accent-edge)"
+                stroke-width="1.2"
+              />
+              <text class="svg-sub" x="60" y="80" style="font-weight: 600">
+                runWithExecutionContext · background() → ctx.waitUntil
+              </text>
+            </g>
+            <g id="ring-db">
+              <title>
+                runWithRequestDb: fresh drizzle-d1 instance per request in an
+                ALS store
+              </title>
+              <rect
+                x="60"
+                y="92"
+                width="620"
+                height="178"
+                rx="10"
+                fill="color-mix(in oklab, var(--accent-data) 7%, transparent)"
+                stroke="var(--accent-data)"
+                stroke-width="1.2"
+              />
+              <text class="svg-sub" x="80" y="116" style="font-weight: 600">
+                runWithRequestDb · fresh drizzle(d1) per request
+              </text>
+            </g>
+            <g id="ring-start">
+              <title>
+                TanStack Start server entry with request middleware chain
+              </title>
+              <rect
+                x="80"
+                y="128"
+                width="580"
+                height="122"
+                rx="10"
+                fill="var(--card-2)"
+                stroke="var(--border)"
+              />
+              <text class="svg-label" x="100" y="152">
+                tanstack start handler
+              </text>
+            </g>
+
+            <!-- middleware chain -->
+            <g id="mw-1">
+              <title>
+                request logger middleware: requestId + one structured access log
+                line
+              </title>
+              <rect
+                class="svg-node"
+                x="100"
+                y="168"
+                width="160"
+                height="58"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="180"
+                y="192"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                request logger
+              </text>
+              <text class="svg-sub" x="180" y="208" text-anchor="middle">
+                requestId · access log
+              </text>
+            </g>
+            <g id="mw-2">
+              <title>
+                session middleware: resolves session, tags sentry scope and
+                request context with userId
+              </title>
+              <rect
+                class="svg-node"
+                x="290"
+                y="168"
+                width="160"
+                height="58"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="370"
+                y="192"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                session → user
+              </text>
+              <text class="svg-sub" x="370" y="208" text-anchor="middle">
+                sentry.setUser · userId
+              </text>
+            </g>
+            <g id="mw-3">
+              <title>
+                router: route loaders ensure query data; server functions
+                execute rpc
+              </title>
+              <rect
+                class="svg-node"
+                x="480"
+                y="168"
+                width="160"
+                height="58"
+                rx="8"
+                stroke="var(--accent-edge)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="560"
+                y="192"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                loader / server fn
+              </text>
+              <text class="svg-sub" x="560" y="208" text-anchor="middle">
+                ensureQueryData · rpc
+              </text>
+            </g>
+            <path
+              class="svg-edgeline"
+              d="M260 197 h22"
+              stroke-width="1.2"
+              marker-end="url(#arr2)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M450 197 h22"
+              stroke-width="1.2"
+              marker-end="url(#arr2)"
+            />
+
+            <!-- response side -->
+            <g id="node-earlyhints-out">
+              <title>
+                withEarlyHints appends Link preload headers on html responses
+              </title>
+              <rect
+                class="svg-node"
+                x="760"
+                y="92"
+                width="190"
+                height="70"
+                rx="8"
+                stroke="var(--accent-edge)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="855"
+                y="118"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                withEarlyHints()
+              </text>
+              <text class="svg-sub" x="855" y="134" text-anchor="middle">
+                append Link header
+              </text>
+              <text class="svg-sub" x="855" y="148" text-anchor="middle">
+                html responses only
+              </text>
+            </g>
+            <g id="node-response">
+              <title>final response streamed back through the edge</title>
+              <rect
+                class="svg-node"
+                x="760"
+                y="200"
+                width="190"
+                height="54"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="855"
+                y="222"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                response
+              </text>
+              <text class="svg-sub" x="855" y="238" text-anchor="middle">
+                ssr html / rpc json
+              </text>
+            </g>
+            <path
+              class="svg-edgeline"
+              d="M720 127 h32"
+              stroke-width="1.3"
+              marker-end="url(#arr2)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M855 162 v30"
+              stroke-width="1.3"
+              marker-end="url(#arr2)"
+            />
+          </svg>
+          <figcaption>
+            outermost to innermost: sentry → execution context → request db →
+            start middleware → route code. the same nesting runs for cron
+            invocations, minus the middleware. sources:
+            <code>src/server.ts</code>, <code>src/start.ts</code>,
+            <code>src/lib/execution-context.ts</code>,
+            <code>src/db/index.ts</code>.
+          </figcaption>
+        </figure>
+
+        <div class="cols cols-2" style="margin-top: 12px">
+          <div class="card">
+            <h3 style="margin: 0 0 8px; font-size: 13px">
+              the <code>db</code> proxy — two drivers, one import
+            </h3>
+            <pre
+              class="code"
+            ><span class="c">// src/db/index.ts — every domain module just imports { db }</span>
+export const db: Db = <span class="k">new Proxy</span>({} as Db, {
+  get(_target, prop) {
+    <span class="c">// workers: per-request drizzle(d1) from AsyncLocalStorage</span>
+    <span class="c">// bun (tests/scripts): libsql against file: DATABASE_URL</span>
+    const target = dbStorage.getStore()
+      ?? (fallbackDb ??= createLibsqlDb())
+    ...
+  },
+})</pre>
+            <p
+              style="
+                font-size: 12.5px;
+                color: var(--muted-foreground);
+                margin: 10px 0 0;
+              "
+            >
+              domain code never knows which driver it runs on. integration tests
+              hit an ephemeral sqlite file with the same async,
+              <code>batch()</code>-capable semantics as d1 — no docker, no
+              external services.
+            </p>
+          </div>
+          <div class="card">
+            <h3 style="margin: 0 0 8px; font-size: 13px">
+              background work must opt in
+            </h3>
+            <pre
+              class="code"
+            ><span class="c">// src/lib/execution-context.ts</span>
+<span class="c">// unawaited promises die when the response returns,</span>
+<span class="c">// so all fire-and-forget flows through waitUntil:</span>
+<span class="k">background</span>(sendNotifications(...), <span class="s">"messages.notify"</span>)
+<span class="c">// → ctx.waitUntil(guarded) on workers</span>
+<span class="c">// → plain fire-and-forget in tests/scripts</span></pre>
+            <p
+              style="
+                font-size: 12.5px;
+                color: var(--muted-foreground);
+                margin: 10px 0 0;
+              "
+            >
+              rejections are logged under the tag, never thrown. this one seam
+              is why notifications, digest fan-out, and mux cleanup can be
+              fire-and-forget without being silently killed by the runtime.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 03 code layout ================= -->
+      <section id="code-layout">
+        <div class="seclabel">
+          <span class="num">03</span>
+          <h2>domain layer</h2>
+        </div>
+        <p class="lede">
+          every feature lives in <code>src/lib/&lt;domain&gt;</code> with the
+          same four-file shape, exported as a facade object. routes consume the
+          facade through the loader + suspense pattern, so ssr and client
+          navigation share exactly one data path.
+        </p>
+
+        <div class="cols cols-2">
+          <div class="card">
+            <h3 style="margin: 0 0 8px; font-size: 13px">the facade shape</h3>
+            <pre class="code">src/lib/{domain}/
+├── fns.ts      <span class="c"># createServerFn() endpoints</span>
+├── schemas.ts  <span class="c"># zod input validation</span>
+├── hooks.ts    <span class="c"># react-query mutations</span>
+└── index.ts    <span class="c"># facade export</span>
+
+<span class="c">// consumed by routes:</span>
+loader: async ({ context }) =&gt; {
+  <span class="k">await</span> context.queryClient.<span class="k">ensureQueryData</span>(
+    tricks.get.queryOptions({ trickId }),
+  )
+}
+<span class="c">// component: useSuspenseQuery(same options)</span></pre>
+            <p
+              style="
+                font-size: 12.5px;
+                color: var(--muted-foreground);
+                margin: 10px 0 0;
+              "
+            >
+              server functions get readable, stable rpc ids
+              (<code>/_serverFn/lib_feedback_fns_submitFeedback…</code>) via a
+              custom <code>generateFunctionId</code> in
+              <code>vite.config.ts</code>, so access logs name real functions
+              instead of hashes.
+            </p>
+          </div>
+          <div class="card">
+            <h3 style="margin: 0 0 8px; font-size: 13px">
+              engagement, systematized
+            </h3>
+            <pre
+              class="code"
+            ><span class="c">// per entity (posts, sets, videos, tricks, …):</span>
+{entity}Likes         <span class="c"># pk: entityId + userId</span>
+{entity}Messages      <span class="c"># comment thread</span>
+{entity}MessageLikes  <span class="c"># pk: {entity}MessageId + userId</span></pre>
+            <p
+              style="
+                font-size: 12.5px;
+                color: var(--muted-foreground);
+                margin: 10px 0 0;
+              "
+            >
+              the reactions module builds column names dynamically
+              (<code>`${type}Id`</code>), so one generic implementation powers
+              likes and messages across every entity in the app — the schema
+              convention is load-bearing.
+            </p>
+          </div>
+        </div>
+
+        <div class="cols cols-3" style="margin-top: 12px">
+          <div class="minicard">
+            <span class="badge edge">games</span>
+            <h3 style="margin-top: 8px">rius · bius · sius</h3>
+            <p>
+              three "___ it up" games built from sets + submissions. riu rounds
+              rotate weekly via cron; biu/siu share a generic
+              <code>chain-game.server.ts</code> engine.
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="badge edge">tricks</span>
+            <h3 style="margin-top: 8px">encyclopedia + graph</h3>
+            <p>
+              tricks with elements, modifiers, typed prerequisites (xyflow
+              graph), submissions and suggestions under review, and video-proven
+              landings.
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="badge edge">vault (utv)</span>
+            <h3 style="margin-top: 8px">unicycle.tv archive</h3>
+            <p>
+              read-only imported video library; riders curate metadata via
+              suggestions, plus likes and messages.
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="badge edge">social</span>
+            <h3 style="margin-top: 8px">posts · chat · users</h3>
+            <p>
+              tagged posts, sitewide chat, follows, presence, rider map
+              (maplibre), mentions (tiptap editor).
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="badge edge">tourney</span>
+            <h3 style="margin-top: 8px">brackets</h3>
+            <p>
+              bracket-style tournaments with live features; state machines via
+              xstate.
+            </p>
+          </div>
+          <div class="minicard">
+            <span class="badge edge">platform</span>
+            <h3 style="margin-top: 8px">cross-cutting</h3>
+            <p>
+              notifications + digests, notification settings, flags/moderation,
+              stats, feedback, admin, arcade, shop (gelato).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 04 auth ================= -->
+      <section id="auth">
+        <div class="seclabel">
+          <span class="num">04</span>
+          <h2>auth — passwordless codes</h2>
+        </div>
+        <p class="lede">
+          no passwords stored, no oauth dependency. a rider asks for a code,
+          resend delivers it, and a signed session cookie carries the rest.
+        </p>
+
+        <figure class="card figure">
+          <svg
+            viewBox="0 0 980 170"
+            width="100%"
+            role="img"
+            aria-label="auth flow: email to code to session cookie"
+          >
+            <title>auth flow</title>
+            <defs>
+              <marker
+                id="arr3"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--muted-foreground)" />
+              </marker>
+            </defs>
+            <g id="auth-1">
+              <title>rider submits email</title>
+              <rect
+                class="svg-node"
+                x="20"
+                y="50"
+                width="160"
+                height="64"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="100"
+                y="76"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                enter email
+              </text>
+              <text class="svg-sub" x="100" y="94" text-anchor="middle">
+                /auth
+              </text>
+            </g>
+            <g id="auth-2">
+              <title>
+                rate limited: 3 per email, 10 per ip, per 15 minutes; stored in
+                auth_codes
+              </title>
+              <rect
+                class="svg-node"
+                x="225"
+                y="50"
+                width="180"
+                height="64"
+                rx="8"
+                stroke="var(--warning)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="315"
+                y="76"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                rate limit + code
+              </text>
+              <text class="svg-sub" x="315" y="94" text-anchor="middle">
+                3/email · 10/ip · 15 min
+              </text>
+            </g>
+            <g id="auth-3">
+              <title>resend sends react-email template</title>
+              <rect
+                class="svg-node"
+                x="450"
+                y="50"
+                width="160"
+                height="64"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="530"
+                y="76"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                resend email
+              </text>
+              <text class="svg-sub" x="530" y="94" text-anchor="middle">
+                react-email template
+              </text>
+            </g>
+            <g id="auth-4">
+              <title>code verified against auth_codes table in d1</title>
+              <rect
+                class="svg-node"
+                x="655"
+                y="50"
+                width="140"
+                height="64"
+                rx="8"
+                stroke="var(--accent-data)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="725"
+                y="76"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                verify code
+              </text>
+              <text class="svg-sub" x="725" y="94" text-anchor="middle">
+                auth_codes · d1
+              </text>
+            </g>
+            <g id="auth-5">
+              <title>
+                signed session cookie via SESSION_SECRET; session middleware
+                resolves it per request
+              </title>
+              <rect
+                class="svg-node"
+                x="830"
+                y="50"
+                width="130"
+                height="64"
+                rx="8"
+                stroke="var(--success)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="895"
+                y="76"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                session
+              </text>
+              <text class="svg-sub" x="895" y="94" text-anchor="middle">
+                signed cookie
+              </text>
+            </g>
+            <path
+              class="svg-edgeline"
+              d="M180 82 h37"
+              stroke-width="1.2"
+              marker-end="url(#arr3)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M405 82 h37"
+              stroke-width="1.2"
+              marker-end="url(#arr3)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M610 82 h37"
+              stroke-width="1.2"
+              marker-end="url(#arr3)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M795 82 h27"
+              stroke-width="1.2"
+              marker-end="url(#arr3)"
+            />
+          </svg>
+          <figcaption>
+            on logout/login the client runs
+            <code>queryClient.resetQueries(["session.get"])</code> — cache
+            cleared, not just invalidated, so loaders refetch fresh session
+            state. sources: <code>src/lib/auth/ops.server.ts</code>,
+            <code>src/lib/session/*</code>.
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- ================= 05 video pipeline ================= -->
+      <section id="video">
+        <div class="seclabel">
+          <span class="num">05</span>
+          <h2>video pipeline — mux</h2>
+        </div>
+        <p class="lede">
+          video is the heart of the product — landings, game submissions, vault
+          clips. uploads bypass the worker entirely: the browser streams
+          straight to mux, and the worker only handles metadata and webhooks.
+        </p>
+
+        <figure class="card figure">
+          <svg
+            viewBox="0 0 980 250"
+            width="100%"
+            role="img"
+            aria-label="video pipeline: browser uploads direct to mux, webhooks update d1, playback via mux player"
+          >
+            <title>video upload and playback</title>
+            <defs>
+              <marker
+                id="arr4"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--muted-foreground)" />
+              </marker>
+            </defs>
+            <g id="vid-browser">
+              <title>
+                browser uploads with upchunk to a mux direct-upload url
+              </title>
+              <rect
+                class="svg-node"
+                x="20"
+                y="86"
+                width="170"
+                height="70"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text class="svg-label" x="105" y="114" text-anchor="middle">
+                browser
+              </text>
+              <text class="svg-sub" x="105" y="132" text-anchor="middle">
+                upchunk · mux player
+              </text>
+            </g>
+            <g id="vid-worker">
+              <title>
+                worker creates the direct upload, receives webhooks at /api/mux,
+                polls muxVideos until playbackId lands
+              </title>
+              <rect
+                class="svg-node"
+                x="410"
+                y="20"
+                width="190"
+                height="80"
+                rx="8"
+                stroke="var(--accent-edge)"
+                stroke-width="1.4"
+              />
+              <text class="svg-label" x="505" y="50" text-anchor="middle">
+                worker
+              </text>
+              <text class="svg-sub" x="505" y="68" text-anchor="middle">
+                create upload url
+              </text>
+              <text class="svg-sub" x="505" y="83" text-anchor="middle">
+                webhook /api/mux
+              </text>
+            </g>
+            <g id="vid-mux">
+              <title>
+                mux encodes the asset and emits asset.created / asset.ready
+                webhooks
+              </title>
+              <rect
+                class="svg-node"
+                x="420"
+                y="150"
+                width="170"
+                height="70"
+                rx="8"
+                stroke="var(--accent-ext)"
+                stroke-width="1.4"
+              />
+              <text class="svg-label" x="505" y="178" text-anchor="middle">
+                mux
+              </text>
+              <text class="svg-sub" x="505" y="196" text-anchor="middle">
+                encode · playback ids
+              </text>
+            </g>
+            <g id="vid-d1">
+              <title>
+                muxVideos table maps uploadId → assetId → playbackId; rows
+                across 7 tables reference assets
+              </title>
+              <path
+                d="M790 90 q80 -20 160 0 v52 q-80 20 -160 0 z"
+                fill="var(--card-2)"
+                stroke="var(--accent-data)"
+                stroke-width="1.4"
+              />
+              <text class="svg-label" x="870" y="112" text-anchor="middle">
+                muxVideos
+              </text>
+              <text class="svg-sub" x="870" y="130" text-anchor="middle">
+                upload → asset → playback
+              </text>
+            </g>
+
+            <path
+              class="svg-edgeline"
+              d="M190 100 q60 -40 220 -48"
+              stroke-width="1.2"
+              marker-end="url(#arr4)"
+            />
+            <text class="svg-sub" x="280" y="42">1 · request upload url</text>
+            <path
+              class="svg-edgeline"
+              d="M190 140 q100 30 230 42"
+              stroke-width="1.4"
+              stroke="var(--accent-ext)"
+              marker-end="url(#arr4)"
+            />
+            <text class="svg-sub" x="235" y="192">
+              2 · chunked upload, direct
+            </text>
+            <path
+              class="svg-edgeline"
+              d="M505 150 v-50"
+              stroke="var(--accent-ext)"
+              stroke-width="1.2"
+              stroke-dasharray="4 3"
+              marker-end="url(#arr4)"
+            />
+            <text class="svg-sub" x="515" y="128">3 · webhooks</text>
+            <path
+              class="svg-edgeline"
+              d="M600 60 q140 5 235 42"
+              stroke="var(--accent-data)"
+              stroke-width="1.2"
+              marker-end="url(#arr4)"
+            />
+            <text class="svg-sub" x="672" y="62">
+              4 · upsert asset/playback ids
+            </text>
+            <path
+              class="svg-edgeline"
+              d="M590 200 q200 20 300 -40"
+              stroke-width="1.2"
+              stroke-dasharray="4 3"
+            />
+            <text class="svg-sub" x="660" y="222">
+              5 · playback: stream from mux cdn
+            </text>
+          </svg>
+          <figcaption>
+            deletion is reference-counted: an asset is destroyed only when zero
+            rows across posts, vault, game sets/submissions, and trick videos
+            still point at it. sources:
+            <code>src/lib/media/ops.server.ts</code>,
+            <code>src/routes/api/mux/</code>.
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- ================= 06 crons ================= -->
+      <section id="crons">
+        <div class="seclabel">
+          <span class="num">06</span>
+          <h2>scheduled work</h2>
+        </div>
+        <p class="lede">
+          no queue, no separate job runner — the same worker exposes a
+          <code>scheduled()</code> handler and dispatches on the cron
+          expression. background fan-out rides <code>ctx.waitUntil</code>.
+        </p>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>trigger (utc)</th>
+                <th>dispatch</th>
+                <th>what runs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>0 0 * * 1</code><br /><span
+                    style="color: var(--muted-foreground)"
+                    >mondays 00:00</span
+                  >
+                </td>
+                <td><code>rotate()</code></td>
+                <td>
+                  riu round rotation — archives the finished round, activates
+                  the next, opens a new one. constant lives in
+                  <code>src/lib/games/rius/lifecycle.ts</code>, kept in sync
+                  with <code>wrangler.jsonc</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>0 * * * *</code><br /><span
+                    style="color: var(--muted-foreground)"
+                    >hourly</span
+                  >
+                </td>
+                <td>
+                  <code>sendDigests()</code><br /><code
+                    >sendGameStartReminders()</code
+                  >
+                </td>
+                <td>
+                  notification digests honor each rider's configured hour/day;
+                  game-start reminders check hours-until-rotation within a
+                  one-hour window. both email via resend.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= 07 deploy ================= -->
+      <section id="deploy">
+        <div class="seclabel">
+          <span class="num">07</span>
+          <h2>deploy pipeline</h2>
+        </div>
+        <p class="lede">
+          continuous deployment with a single serialized lane: push to
+          <code>main</code>, and github actions does the rest. rollback is a
+          worker-version revert in the cloudflare dash — which is why migrations
+          are roll-forward only and must stay backward-compatible with the
+          previous worker.
+        </p>
+
+        <figure class="card figure">
+          <svg
+            viewBox="0 0 980 210"
+            width="100%"
+            role="img"
+            aria-label="deploy pipeline from git push through ci, build, migrations, wrangler deploy, and smoke check"
+          >
+            <title>deploy pipeline</title>
+            <defs>
+              <marker
+                id="arr5"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--muted-foreground)" />
+              </marker>
+            </defs>
+            <g id="dep-push">
+              <title>git push to main</title>
+              <rect
+                class="svg-node"
+                x="20"
+                y="60"
+                width="130"
+                height="60"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="85"
+                y="85"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                push main
+              </text>
+              <text class="svg-sub" x="85" y="102" text-anchor="middle">
+                git
+              </text>
+            </g>
+            <g id="dep-ci">
+              <title>
+                bun preflight: oxlint, oxfmt check, typecheck, schema check,
+                knip, unit + integration tests on ephemeral sqlite
+              </title>
+              <rect
+                class="svg-node"
+                x="185"
+                y="60"
+                width="160"
+                height="60"
+                rx="8"
+                stroke="var(--warning)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="265"
+                y="85"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                ci · preflight
+              </text>
+              <text class="svg-sub" x="265" y="102" text-anchor="middle">
+                lint · types · tests
+              </text>
+            </g>
+            <g id="dep-build">
+              <title>
+                vite build emits the worker bundle plus resolved
+                dist/server/wrangler.json — the generated config is what ships
+              </title>
+              <rect
+                class="svg-node"
+                x="380"
+                y="60"
+                width="150"
+                height="60"
+                rx="8"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="455"
+                y="85"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                vite build
+              </text>
+              <text class="svg-sub" x="455" y="102" text-anchor="middle">
+                bundle + config
+              </text>
+            </g>
+            <g id="dep-migrate">
+              <title>
+                wrangler d1 migrations apply --remote; no-op when current,
+                roll-forward only
+              </title>
+              <rect
+                class="svg-node"
+                x="565"
+                y="60"
+                width="160"
+                height="60"
+                rx="8"
+                stroke="var(--accent-data)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="645"
+                y="85"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                d1 migrations
+              </text>
+              <text class="svg-sub" x="645" y="102" text-anchor="middle">
+                roll-forward only
+              </text>
+            </g>
+            <g id="dep-deploy">
+              <title>bunx wrangler deploy uploads a new worker version</title>
+              <rect
+                class="svg-node"
+                x="760"
+                y="60"
+                width="120"
+                height="60"
+                rx="8"
+                stroke="var(--accent-edge)"
+                stroke-width="1.4"
+              />
+              <text
+                class="svg-label"
+                x="820"
+                y="85"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                deploy
+              </text>
+              <text class="svg-sub" x="820" y="102" text-anchor="middle">
+                wrangler
+              </text>
+            </g>
+            <g id="dep-smoke">
+              <title>smoke check against https://une.haus</title>
+              <rect
+                class="svg-node"
+                x="905"
+                y="60"
+                width="60"
+                height="60"
+                rx="8"
+                stroke="var(--success)"
+                stroke-width="1.2"
+              />
+              <text
+                class="svg-label"
+                x="935"
+                y="90"
+                text-anchor="middle"
+                style="font-size: 11px"
+              >
+                ✓
+              </text>
+              <text class="svg-sub" x="935" y="106" text-anchor="middle">
+                smoke
+              </text>
+            </g>
+            <path
+              class="svg-edgeline"
+              d="M150 90 h27"
+              stroke-width="1.2"
+              marker-end="url(#arr5)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M345 90 h27"
+              stroke-width="1.2"
+              marker-end="url(#arr5)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M530 90 h27"
+              stroke-width="1.2"
+              marker-end="url(#arr5)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M725 90 h27"
+              stroke-width="1.2"
+              marker-end="url(#arr5)"
+            />
+            <path
+              class="svg-edgeline"
+              d="M880 90 h17"
+              stroke-width="1.2"
+              marker-end="url(#arr5)"
+            />
+            <text class="svg-sub" x="490" y="160" text-anchor="middle">
+              serialized via the unehaus-deploy concurrency group — deploys
+              never interleave
+            </text>
+            <text class="svg-sub" x="490" y="178" text-anchor="middle">
+              sentry source maps upload during the build · same preflight gate
+              runs locally pre-commit
+            </text>
+          </svg>
+          <figcaption>
+            runtime secrets live on the worker (<code>wrangler secret put</code
+            >), never in github; the ci env block only feeds the build. source:
+            <code>DEPLOY.md</code>, <code>.github/workflows/ci.yml</code>.
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- ================= 08 perf + observability ================= -->
+      <section id="perf-obs">
+        <div class="seclabel">
+          <span class="num">08</span>
+          <h2>performance &amp; observability</h2>
+        </div>
+        <div class="cols cols-2">
+          <div class="card">
+            <h3 style="margin: 0 0 10px; font-size: 13px">
+              <span class="badge edge">performance</span>
+            </h3>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 18px;
+                font-size: 12.5px;
+                color: var(--muted-foreground);
+                display: grid;
+                gap: 8px;
+              "
+            >
+              <li>
+                <b style="color: var(--foreground)">compute near data</b> —
+                smart placement pins the worker beside the d1 primary; the
+                dominant cost is the many small sql round-trips per request, not
+                the visitor's first hop.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">103 early hints</b> — css
+                and latin-subset geist fonts preload from the edge before ssr
+                even starts.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">immutable assets</b> —
+                hashed build output cached forever at the edge.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">lazy heavy views</b> — trick
+                graph (xyflow), maps (maplibre), and charts load on demand.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">ssr without flashes</b> —
+                loaders <code>await ensureQueryData</code>; mutations use
+                optimistic updates or <code>removeQueries</code> + navigate,
+                never stale-flash <code>invalidate</code>.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">d1 discipline</b> — stats
+                queries chunk <code>UNION ALL</code> chains under d1's 5-term
+                compound-select limit.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="margin: 0 0 10px; font-size: 13px">
+              <span class="badge ext" style="color: var(--accent-ext)"
+                >observability</span
+              >
+            </h3>
+            <ul
+              style="
+                margin: 0;
+                padding-left: 18px;
+                font-size: 12.5px;
+                color: var(--muted-foreground);
+                display: grid;
+                gap: 8px;
+              "
+            >
+              <li>
+                <b style="color: var(--foreground)">structured logs</b> — one
+                json line per event with <code>requestId</code> and
+                <code>userId</code> stamped from request-context ALS; one
+                access-log line per request (method, path, status, duration).
+                tail via workers logs.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">sentry, both sides</b> —
+                <code>@sentry/cloudflare</code> wraps the worker (20% traces in
+                prod), the tanstack-start client sdk covers the browser; source
+                maps upload in ci.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">named rpc ids</b> —
+                server-function urls read
+                <code>lib_feedback_fns_submitFeedback…</code>, so logs name real
+                functions.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">deploy visibility</b> —
+                status on every commit; version history + one-click rollback in
+                the cloudflare dash.
+              </li>
+              <li>
+                <b style="color: var(--foreground)">backups</b> — d1 time
+                travel, 30-day point-in-time restore.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 09 stack table ================= -->
+      <section id="stack">
+        <div class="seclabel">
+          <span class="num">09</span>
+          <h2>stack at a glance</h2>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>layer</th>
+                <th>choice</th>
+                <th>notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>runtime</td>
+                <td>cloudflare workers (workerd)</td>
+                <td>
+                  <code>nodejs_compat</code>, smart placement, cron triggers,
+                  custom domain — all in <code>wrangler.jsonc</code>
+                </td>
+              </tr>
+              <tr>
+                <td>framework</td>
+                <td>tanstack start · react 19</td>
+                <td>
+                  ssr + server functions + file-based router in one vite build
+                  (<code>@cloudflare/vite-plugin</code>)
+                </td>
+              </tr>
+              <tr>
+                <td>data</td>
+                <td>d1 (sqlite) · drizzle orm</td>
+                <td>
+                  per-request driver via ALS; libsql file driver for bun
+                  tests/scripts; migrations in <code>drizzle/</code>
+                </td>
+              </tr>
+              <tr>
+                <td>data fetching</td>
+                <td>tanstack query</td>
+                <td>
+                  loader <code>ensureQueryData</code> +
+                  <code>useSuspenseQuery</code>; dot-notation query-key
+                  hierarchy
+                </td>
+              </tr>
+              <tr>
+                <td>styling</td>
+                <td>tailwind v4 · base ui</td>
+                <td>
+                  oklch token system, geist mono as the base face, light/dark
+                  via <code>.dark</code>
+                </td>
+              </tr>
+              <tr>
+                <td>video</td>
+                <td>mux</td>
+                <td>
+                  direct browser uploads (upchunk), webhooks, ref-counted asset
+                  deletion
+                </td>
+              </tr>
+              <tr>
+                <td>email</td>
+                <td>resend · react-email</td>
+                <td>auth codes, digests, game reminders, feedback</td>
+              </tr>
+              <tr>
+                <td>errors</td>
+                <td>sentry</td>
+                <td>server + client, traces sampled at 20% in production</td>
+              </tr>
+              <tr>
+                <td>tooling</td>
+                <td>bun · oxlint · oxfmt · knip</td>
+                <td>
+                  <code>bun preflight</code> gates both local commits and ci
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer>
+        drawn from <code>wrangler.jsonc</code> · <code>src/server.ts</code> ·
+        <code>src/start.ts</code> · <code>src/db/index.ts</code> ·
+        <code>src/lib/*</code> · <code>vite.config.ts</code> ·
+        <code>DEPLOY.md</code> · <code>README.md</code> ·
+        <code>CONTEXT.md</code> — une.haus, september 2026
+      </footer>
+    </main>
+  </body>
+</html>
