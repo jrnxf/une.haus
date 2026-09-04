@@ -6,7 +6,6 @@ import superjson from "superjson"
 
 import { CatchBoundary } from "./components/catch-boundary"
 import { NotFound } from "./components/not-found"
-import { SuspenseLoader } from "./components/suspense-loader"
 import { stringifySearch } from "./lib/url"
 import { routeTree } from "./routeTree.gen"
 import { isProduction } from "~/lib/env"
@@ -43,7 +42,6 @@ export function getRouter() {
 
     defaultErrorComponent: CatchBoundary,
     defaultNotFoundComponent: () => <NotFound />,
-    defaultPendingComponent: SuspenseLoader,
 
     defaultStructuralSharing: true,
 

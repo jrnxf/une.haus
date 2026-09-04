@@ -81,7 +81,13 @@ export function OnlineIndicator({ className }: { className?: string }) {
 }
 
 function OnlineCount() {
-  const { data } = useQuery(presence.online.queryOptions())
+  const { data, isPending } = useQuery(presence.online.queryOptions())
+  if (isPending) {
+    // count is realistically single-digit, so reserve one character
+    return (
+      <span className="bg-muted inline-block h-3 w-[1ch] animate-pulse rounded" />
+    )
+  }
   return <span>{data?.total ?? 0}</span>
 }
 
