@@ -20,7 +20,9 @@
   ],
   "triggers": {
     // Keep in sync with ROTATION_CRON in src/lib/games/rius/lifecycle.ts and
-    // the dispatch table in src/server.ts. Workers crons fire in UTC.
-    "crons": ["0 0 * * 1", "0 * * * *"],
+    // the dispatch table in src/server.ts. Workers crons fire in UTC. Weekdays
+    // are named, never numbered: Cloudflare counts 1-7 from Sunday, so a
+    // numeric "1" is Sunday here rather than Monday.
+    "crons": ["0 0 * * MON", "0 * * * *"],
   },
 }

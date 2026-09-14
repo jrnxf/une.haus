@@ -66,8 +66,9 @@ bunx wrangler deploy   # needs `wrangler login` or CLOUDFLARE_API_TOKEN
 
 Two cron triggers, registered from `wrangler.jsonc` on deploy (UTC):
 
-- `0 0 * * 1` — weekly RIU rotation (keep in sync with `ROTATION_CRON` in
-  `src/lib/games/rius/lifecycle.ts`)
+- `0 0 * * MON` — weekly RIU rotation, Monday 00:00 UTC (keep in sync with
+  `ROTATION_CRON` in `src/lib/games/rius/lifecycle.ts`). The weekday is
+  named because Cloudflare numbers days 1-7 from Sunday, so `1` is Sunday.
 - `0 * * * *` — hourly notifications
 
 The dispatch table lives in `src/server.ts`.

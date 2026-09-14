@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test"
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
 
 import {
   assertCanEditSet,
@@ -8,6 +10,7 @@ import {
   isRosterPrivate,
   msUntilNextRotation,
   ROTATION,
+  ROTATION_CRON,
   type RiuStatus,
   SEEDED_STATUS,
 } from "./lifecycle"
@@ -100,6 +103,23 @@ describe("rotation transitions", () => {
 
   it("seeds a fresh upcoming round", () => {
     expect(SEEDED_STATUS).toBe("upcoming")
+  })
+})
+
+describe("rotation cron", () => {
+  // Cloudflare numbers the day-of-week field 1-7 from Sunday, so a numeric
+  // weekday silently drifts a day from POSIX cron. Only named days are safe.
+  it("names the weekday instead of numbering it", () => {
+    const dayOfWeek = ROTATION_CRON.trim().split(/\s+/).at(-1)
+    expect(dayOfWeek).toBe("MON")
+  })
+
+  it("is registered verbatim as a wrangler cron trigger", () => {
+    const wrangler = readFileSync(
+      join(import.meta.dir, "../../../../wrangler.jsonc"),
+      "utf8",
+    )
+    expect(wrangler).toContain(JSON.stringify(ROTATION_CRON))
   })
 })
 

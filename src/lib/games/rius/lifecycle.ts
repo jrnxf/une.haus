@@ -32,8 +32,14 @@ export const ROTATION: readonly { from: RiuStatus; to: RiuStatus }[] = [
 export const SEEDED_STATUS: RiuStatus = "upcoming"
 
 // Rounds rotate at the start of each ISO week: Monday 00:00 UTC. Declared once
-// here so the Nitro cron schedule and the reminder timing both derive from it.
-export const ROTATION_CRON = "0 0 * * 1"
+// here so the Workers cron trigger (wrangler.jsonc) and the reminder timing
+// both derive from it.
+//
+// The weekday is spelled by name on purpose. Cloudflare numbers the
+// day-of-week field 1-7 starting at Sunday, unlike POSIX cron's 0-6 starting
+// at Sunday, so "0 0 * * 1" fires on Sunday there. A named day means the same
+// thing everywhere.
+export const ROTATION_CRON = "0 0 * * MON"
 
 // --------------------------------------------------------------------------
 // Guards — the status rules that gate set/submission mutations and visibility.
