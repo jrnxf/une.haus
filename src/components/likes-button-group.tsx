@@ -26,29 +26,21 @@ export function LikesButtonGroup({
   users,
   authUserLiked = false,
   onLikeUnlike,
-  disabledLikeReason,
 }: {
   users: User[]
   authUserLiked?: boolean
   onLikeUnlike?: () => void
-  disabledLikeReason?: string
 }) {
-  const canLikeUnlike = Boolean(onLikeUnlike)
   const likeButtonLabel = authUserLiked ? "unlike" : "like"
-  const likeTooltipLabel = disabledLikeReason ?? likeButtonLabel
 
-  if (!canLikeUnlike && !disabledLikeReason && users.length === 0) {
+  if (!onLikeUnlike && users.length === 0) {
     return null
   }
 
   const likesDropdown =
     users.length > 0 ? (
       <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="outline" size="sm" className="rounded-r-md!" />
-          }
-        >
+        <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
           {users.length} {users.length === 1 ? "like" : "likes"}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="max-w-xs">
@@ -66,45 +58,26 @@ export function LikesButtonGroup({
       </DropdownMenu>
     ) : null
 
-  const likeButton =
-    canLikeUnlike || disabledLikeReason ? (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {disabledLikeReason ? (
-            <span className="inline-flex">
-              <Button
-                size="icon-sm"
-                variant="outline"
-                disabled
-                aria-label={likeButtonLabel}
-              >
-                <HeartIcon
-                  className={cn(
-                    "size-4",
-                    authUserLiked && "fill-red-700/50 stroke-red-700",
-                  )}
-                />
-              </Button>
-            </span>
-          ) : (
-            <Button
-              size="icon-sm"
-              variant="outline"
-              onClick={onLikeUnlike}
-              aria-label={likeButtonLabel}
-            >
-              <HeartIcon
-                className={cn(
-                  "size-4",
-                  authUserLiked && "fill-red-700/50 stroke-red-700",
-                )}
-              />
-            </Button>
-          )}
-        </TooltipTrigger>
-        <TooltipContent>{likeTooltipLabel}</TooltipContent>
-      </Tooltip>
-    ) : null
+  const likeButton = onLikeUnlike ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon-sm"
+          variant="outline"
+          onClick={onLikeUnlike}
+          aria-label={likeButtonLabel}
+        >
+          <HeartIcon
+            className={cn(
+              "size-4",
+              authUserLiked && "fill-red-700/50 stroke-red-700",
+            )}
+          />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{likeButtonLabel}</TooltipContent>
+    </Tooltip>
+  ) : null
 
   return (
     <ButtonGroup>

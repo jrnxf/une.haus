@@ -407,6 +407,7 @@ function FilterChip({
       />
       {field.type === "text" ? (
         <input
+          data-slot="input"
           autoFocus
           aria-label={field.label}
           value={active.values[0] || ""}
