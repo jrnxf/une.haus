@@ -110,9 +110,12 @@ type MessageBinding = {
 export type EngagementBinding = ContentBinding | MessageBinding
 
 /**
- * Resolve a record's owner by reading its `userId` column. `query` is the
- * Drizzle relational-query object for the table (e.g. `db.query.posts`); it is
- * invoked as a method so `this` stays bound.
+ * Resolve a record's owner by reading its `userId` column. `getQuery` returns
+ * the Drizzle relational-query object for the table (e.g. `db.query.posts`).
+ * It is a thunk, not the object itself: `db` resolves to the per-request D1
+ * session, so reading `db.query.*` at module scope would capture whichever
+ * request first imported this module (or throw outside a request entirely).
+ * The query is invoked as a method so `this` stays bound.
  */
 type UserIdQuery = {
   findFirst: (args: {
@@ -122,9 +125,9 @@ type UserIdQuery = {
 }
 
 const ownerByUserId =
-  (query: UserIdQuery, idColumn: AnySQLiteColumn) =>
+  (getQuery: () => UserIdQuery, idColumn: AnySQLiteColumn) =>
   async (recordId: number): Promise<number | null> => {
-    const row = await query.findFirst({
+    const row = await getQuery().findFirst({
       where: eq(idColumn, recordId),
       columns: { userId: true },
     })
@@ -138,7 +141,7 @@ export const ENTITY_REGISTRY = {
     likesTable: postLikes,
     fkColumn: postLikes.postId,
     messageTable: postMessages,
-    resolveOwner: ownerByUserId(db.query.posts, posts.id),
+    resolveOwner: ownerByUserId(() => db.query.posts, posts.id),
     notificationType: "like",
   },
   riuSet: {
@@ -146,7 +149,7 @@ export const ENTITY_REGISTRY = {
     likesTable: riuSetLikes,
     fkColumn: riuSetLikes.riuSetId,
     messageTable: riuSetMessages,
-    resolveOwner: ownerByUserId(db.query.riuSets, riuSets.id),
+    resolveOwner: ownerByUserId(() => db.query.riuSets, riuSets.id),
     notificationType: "like",
   },
   riuSubmission: {
@@ -155,7 +158,10 @@ export const ENTITY_REGISTRY = {
     fkColumn: riuSubmissionLikes.riuSubmissionId,
     messageTable: riuSubmissionMessages,
     // a submission notifies its submitter — the rider who uploaded it.
-    resolveOwner: ownerByUserId(db.query.riuSubmissions, riuSubmissions.id),
+    resolveOwner: ownerByUserId(
+      () => db.query.riuSubmissions,
+      riuSubmissions.id,
+    ),
     notificationType: "like",
   },
   biuSet: {
@@ -163,7 +169,7 @@ export const ENTITY_REGISTRY = {
     likesTable: biuSetLikes,
     fkColumn: biuSetLikes.biuSetId,
     messageTable: biuSetMessages,
-    resolveOwner: ownerByUserId(db.query.biuSets, biuSets.id),
+    resolveOwner: ownerByUserId(() => db.query.biuSets, biuSets.id),
     notificationType: "like",
   },
   siuSet: {
@@ -171,7 +177,7 @@ export const ENTITY_REGISTRY = {
     likesTable: siuSetLikes,
     fkColumn: siuSetLikes.siuSetId,
     messageTable: siuSetMessages,
-    resolveOwner: ownerByUserId(db.query.siuSets, siuSets.id),
+    resolveOwner: ownerByUserId(() => db.query.siuSets, siuSets.id),
     notificationType: "like",
   },
   utvVideo: {
@@ -206,7 +212,7 @@ export const ENTITY_REGISTRY = {
     likesTable: chatMessageLikes,
     fkColumn: chatMessageLikes.chatMessageId,
     messageTable: chatMessages,
-    resolveOwner: ownerByUserId(db.query.chatMessages, chatMessages.id),
+    resolveOwner: ownerByUserId(() => db.query.chatMessages, chatMessages.id),
     resolveMessageTarget: async (recordId) => {
       const msg = await db.query.chatMessages.findFirst({
         where: eq(chatMessages.id, recordId),
@@ -223,7 +229,7 @@ export const ENTITY_REGISTRY = {
     likesTable: postMessageLikes,
     fkColumn: postMessageLikes.postMessageId,
     messageTable: postMessages,
-    resolveOwner: ownerByUserId(db.query.postMessages, postMessages.id),
+    resolveOwner: ownerByUserId(() => db.query.postMessages, postMessages.id),
     resolveMessageTarget: async (recordId) => {
       const msg = await db.query.postMessages.findFirst({
         where: eq(postMessages.id, recordId),
@@ -244,7 +250,10 @@ export const ENTITY_REGISTRY = {
     likesTable: riuSetMessageLikes,
     fkColumn: riuSetMessageLikes.riuSetMessageId,
     messageTable: riuSetMessages,
-    resolveOwner: ownerByUserId(db.query.riuSetMessages, riuSetMessages.id),
+    resolveOwner: ownerByUserId(
+      () => db.query.riuSetMessages,
+      riuSetMessages.id,
+    ),
     resolveMessageTarget: async (recordId) => {
       const msg = await db.query.riuSetMessages.findFirst({
         where: eq(riuSetMessages.id, recordId),
@@ -266,7 +275,7 @@ export const ENTITY_REGISTRY = {
     fkColumn: riuSubmissionMessageLikes.riuSubmissionMessageId,
     messageTable: riuSubmissionMessages,
     resolveOwner: ownerByUserId(
-      db.query.riuSubmissionMessages,
+      () => db.query.riuSubmissionMessages,
       riuSubmissionMessages.id,
     ),
     resolveMessageTarget: async (recordId) => {
@@ -289,7 +298,10 @@ export const ENTITY_REGISTRY = {
     likesTable: utvVideoMessageLikes,
     fkColumn: utvVideoMessageLikes.utvVideoMessageId,
     messageTable: utvVideoMessages,
-    resolveOwner: ownerByUserId(db.query.utvVideoMessages, utvVideoMessages.id),
+    resolveOwner: ownerByUserId(
+      () => db.query.utvVideoMessages,
+      utvVideoMessages.id,
+    ),
     resolveMessageTarget: async (recordId) => {
       const msg = await db.query.utvVideoMessages.findFirst({
         where: eq(utvVideoMessages.id, recordId),
@@ -310,7 +322,10 @@ export const ENTITY_REGISTRY = {
     likesTable: biuSetMessageLikes,
     fkColumn: biuSetMessageLikes.biuSetMessageId,
     messageTable: biuSetMessages,
-    resolveOwner: ownerByUserId(db.query.biuSetMessages, biuSetMessages.id),
+    resolveOwner: ownerByUserId(
+      () => db.query.biuSetMessages,
+      biuSetMessages.id,
+    ),
     resolveMessageTarget: async (recordId) => {
       const msg = await db.query.biuSetMessages.findFirst({
         where: eq(biuSetMessages.id, recordId),
@@ -331,7 +346,10 @@ export const ENTITY_REGISTRY = {
     likesTable: siuSetMessageLikes,
     fkColumn: siuSetMessageLikes.siuSetMessageId,
     messageTable: siuSetMessages,
-    resolveOwner: ownerByUserId(db.query.siuSetMessages, siuSetMessages.id),
+    resolveOwner: ownerByUserId(
+      () => db.query.siuSetMessages,
+      siuSetMessages.id,
+    ),
     resolveMessageTarget: async (recordId) => {
       const msg = await db.query.siuSetMessages.findFirst({
         where: eq(siuSetMessages.id, recordId),
@@ -352,7 +370,7 @@ export const ENTITY_REGISTRY = {
     likesTable: trickMessageLikes,
     fkColumn: trickMessageLikes.trickMessageId,
     messageTable: trickMessages,
-    resolveOwner: ownerByUserId(db.query.trickMessages, trickMessages.id),
+    resolveOwner: ownerByUserId(() => db.query.trickMessages, trickMessages.id),
     // tricks are not a notifiable parent entity type yet, so a like on a trick
     // message has no target to route to — preserves the prior null behavior.
     resolveMessageTarget: async () => null,
