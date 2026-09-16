@@ -672,15 +672,15 @@ function RouteComponent() {
               <Separator />
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <StatusIndicator className="bg-green-500" />
+                  <StatusIndicator status="online" />
                   <span className="text-sm">online</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <StatusIndicator className="bg-yellow-500" />
+                  <StatusIndicator status="away" />
                   <span className="text-sm">away</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <StatusIndicator className="bg-red-500" />
+                  <StatusIndicator status="busy" />
                   <span className="text-sm">busy</span>
                 </div>
               </div>
@@ -694,42 +694,25 @@ function RouteComponent() {
               <CardTitle>accordion & collapsible</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Accordion multiple>
-                <div className="space-y-2">
-                  <AccordionItem
-                    value="one"
-                    className="bg-card rounded-lg border"
-                  >
-                    <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                      first item
-                    </AccordionTrigger>
-                    <AccordionContent className="p-4 pt-0.5">
-                      content for the first accordion item
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem
-                    value="two"
-                    className="bg-card rounded-lg border"
-                  >
-                    <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                      second item
-                    </AccordionTrigger>
-                    <AccordionContent className="p-4 pt-0.5">
-                      content for the second accordion item
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem
-                    value="three"
-                    className="bg-card rounded-lg border"
-                  >
-                    <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                      third item
-                    </AccordionTrigger>
-                    <AccordionContent className="p-4 pt-0.5">
-                      content for the third accordion item
-                    </AccordionContent>
-                  </AccordionItem>
-                </div>
+              <Accordion multiple variant="card">
+                <AccordionItem value="one">
+                  <AccordionTrigger>first item</AccordionTrigger>
+                  <AccordionContent>
+                    content for the first accordion item
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="two">
+                  <AccordionTrigger>second item</AccordionTrigger>
+                  <AccordionContent>
+                    content for the second accordion item
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="three">
+                  <AccordionTrigger>third item</AccordionTrigger>
+                  <AccordionContent>
+                    content for the third accordion item
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
               <Separator />
               <Collapsible

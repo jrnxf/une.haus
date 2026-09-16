@@ -121,7 +121,7 @@ export const ImageInput = ({
             src={previewSource}
           />
           {imageUploadStatus === "pending" && (
-            <div className="absolute inset-0 flex h-full items-center justify-center bg-zinc-900/50 text-white">
+            <div className="absolute inset-0 flex h-full items-center justify-center bg-black/50 text-white">
               <Loader2Icon className="size-6 animate-spin duration-700" />
             </div>
           )}

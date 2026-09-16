@@ -82,6 +82,7 @@ export function RankedRiders({
 
   return (
     <Accordion
+      variant="card"
       className="relative pl-10"
       value={openUserId ? [openUserId.toString()] : []}
       onValueChange={(value) => {
@@ -135,18 +136,15 @@ export function RankedRiders({
               {ranking.rank}
             </div>
 
-            <AccordionItem
-              value={user.id.toString()}
-              className="bg-card border-border w-full rounded-lg border"
-            >
-              <AccordionTrigger className="-m-px items-center px-4 py-3 hover:no-underline data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
+            <AccordionItem value={user.id.toString()} className="w-full">
+              <AccordionTrigger className="-m-px">
                 <div className="space-y-1">
                   <h3 className="text-sm font-medium">{user.name}</h3>
                   <RiderStats ranking={ranking} />
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="p-3 pt-0">
+              <AccordionContent>
                 {sets.length > 0 || submissions.length > 0 ? (
                   <div className="space-y-3 pt-1">
                     {sets.length > 0 && (

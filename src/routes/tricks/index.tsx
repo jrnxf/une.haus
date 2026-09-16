@@ -148,7 +148,7 @@ const baseColumns = [
             <Badge
               key={e}
               variant="secondary"
-              className="px-1.5 py-0.5 text-xs md:px-2.5"
+              className="px-1.5 py-0.5 md:px-2.5"
             >
               {e}
             </Badge>

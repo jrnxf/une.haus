@@ -213,7 +213,7 @@ function RouteComponent() {
                 <div
                   className={cn(
                     "size-2 shrink-0 rounded-full",
-                    status === "done" && "bg-green-500",
+                    status === "done" && "bg-success",
                     status === "dq" && "bg-destructive",
                     status === "pending" && "bg-muted-foreground/30",
                   )}
@@ -483,7 +483,7 @@ function TimerView({
         className={cn(
           "flex h-full flex-col transition-colors duration-200",
           isTimerActive && !isLow && "bg-primary/5",
-          isLow && !isFinished && "bg-yellow-500/10",
+          isLow && !isFinished && "bg-warning/10",
           isFinished && "bg-destructive/20",
         )}
       >
@@ -516,13 +516,13 @@ function TimerView({
           </div>
 
           <p className="text-muted-foreground shrink-0 text-xs">
-            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">d</kbd>{" "}
+            <kbd className="bg-muted text-2xs rounded px-1 font-mono">d</kbd>{" "}
             disqualify{" "}
-            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+            <kbd className="bg-muted text-2xs rounded px-1 font-mono">
               space
             </kbd>{" "}
             start/stop{" "}
-            <kbd className="bg-muted rounded px-1 font-mono text-[10px]">n</kbd>{" "}
+            <kbd className="bg-muted text-2xs rounded px-1 font-mono">n</kbd>{" "}
             next
           </p>
         </div>

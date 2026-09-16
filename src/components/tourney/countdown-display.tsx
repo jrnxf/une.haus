@@ -24,7 +24,7 @@ export function CountdownDisplay({
       className={cn(
         "font-mono leading-none font-bold tabular-nums transition-colors",
         isFinished && "text-destructive",
-        isLow && !isFinished && "text-yellow-500",
+        isLow && !isFinished && "text-warning",
         className,
       )}
     >

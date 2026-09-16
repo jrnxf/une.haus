@@ -1,7 +1,7 @@
 import process from "node:process"
 
 const parallelChecks = [
-  { label: "lint", cmd: ["oxlint"] },
+  { label: "lint", cmd: ["bun", "run", "lint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
   { label: "typecheck", cmd: ["bun", "run", "typecheck"] },
   { label: "db schema", cmd: ["bun", "run", "db:check"] },

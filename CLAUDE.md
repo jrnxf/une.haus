@@ -4,6 +4,14 @@
 
 Always run `bun preflight` before committing. It runs lint, format check, typecheck, and all tests in parallel. Do not commit if preflight fails — fix the issues first.
 
+## Design-System Lint
+
+`@shadcn/lint` runs inside oxlint (`jsPlugins` in `.oxlintrc.json`). It checks Tailwind usage against the design system: no restyling `~/components/ui` components via `className` beyond layout classes, no raw palette colors, no arbitrary values, no inline styles, no unknown classes. Rule docs: https://github.com/shadcn-ui/lint/blob/main/docs/rules.md
+
+- `no-unknown-classes` and `require-static-classes` are errors. Fix them.
+- The other rules are warnings capped by `--max-warnings` in the `lint` script. New code must not add warnings; when you remove some, lower the cap.
+- Prefer a variant or a contract in `.oxlintrc.json` over disabling a rule. Document intentional exceptions inline with `// oxlint-disable-next-line shadcn/<rule> -- reason`.
+
 ## TypeScript Style
 
 - Always use `type` instead of `interface` for type definitions

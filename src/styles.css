@@ -10,6 +10,10 @@
   --font-sans: "Geist Variable", "ui-sans-serif", "system-ui", "sans-serif";
   --font-mono: "Geist Mono Variable", "ui-monospace";
 
+  --text-2xs: 0.625rem;
+
+  --shadow-glow: 0 0 15px rgb(0 0 0 / 0.3);
+
   --animate-accordion-up: accordion-up
     var(--tw-animation-duration, var(--tw-duration, 0.2s))
     var(--tw-ease, ease-out) var(--tw-animation-delay, 0s)
@@ -121,6 +125,13 @@
   --color-rank-bronze-foreground: var(--rank-bronze-foreground);
   --color-invert-foreground: var(--invert-foreground);
   --color-invert: var(--invert);
+  --color-link: var(--link);
+  --color-mono: var(--mono);
+  --color-mono-foreground: var(--mono-foreground);
+  --color-like: var(--like);
+  --color-online: var(--online);
+  --color-away: var(--away);
+  --color-busy: var(--busy);
 }
 
 :root {
@@ -183,6 +194,13 @@
   --sidebar-ring: oklch(0.705 0.015 285);
   --invert: var(--color-zinc-900);
   --invert-foreground: var(--color-zinc-50);
+  --link: var(--color-blue-400);
+  --mono: var(--color-zinc-950);
+  --mono-foreground: var(--color-white);
+  --like: var(--color-red-700);
+  --online: var(--color-green-600);
+  --away: var(--color-yellow-500);
+  --busy: var(--color-red-500);
 }
 
 .dark {
@@ -245,6 +263,13 @@
   --sidebar-ring: oklch(0.552 0.016 285);
   --invert: var(--color-zinc-700);
   --invert-foreground: var(--color-zinc-50);
+  --link: var(--color-blue-300);
+  --mono: var(--color-zinc-300);
+  --mono-foreground: var(--color-black);
+  --like: var(--color-red-700);
+  --online: var(--color-green-600);
+  --away: var(--color-yellow-500);
+  --busy: var(--color-red-500);
 }
 
 @layer base {

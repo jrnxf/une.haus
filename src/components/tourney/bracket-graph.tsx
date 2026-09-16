@@ -94,20 +94,18 @@ function MatchNode({ data }: { data: MatchNodeData }) {
   const player2IsBye = isBye(match.player2)
 
   const showGoldGlow = isLastRound && !is3rdPlace
-  const trophyColor = is3rdPlace ? "text-amber-600" : "text-yellow-500"
+  const trophyColor = is3rdPlace ? "text-rank-bronze" : "text-rank-gold"
 
   return (
     <div
       className={cn(
         "group bg-card w-[200px] overflow-hidden rounded-lg border shadow-sm",
-        showGoldGlow &&
-          "border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)]",
-        is3rdPlace &&
-          "border-amber-600/50 shadow-[0_0_15px_rgba(217,119,6,0.2)]",
+        showGoldGlow && "border-rank-gold/50 shadow-glow shadow-rank-gold/30",
+        is3rdPlace && "border-rank-bronze/50 shadow-glow shadow-rank-bronze/20",
       )}
     >
       {is3rdPlace && (
-        <div className="border-b px-3 py-0.5 text-center text-[10px] font-medium text-amber-600">
+        <div className="text-2xs text-rank-bronze border-b px-3 py-0.5 text-center font-medium">
           3rd place
         </div>
       )}
@@ -139,7 +137,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
           }}
         >
           {match.player1Seed && (
-            <span className="text-muted-foreground/50 shrink-0 text-[10px]">
+            <span className="text-muted-foreground/50 text-2xs shrink-0">
               {match.player1Seed}
             </span>
           )}
@@ -150,7 +148,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
             <MedalIcon
               className={cn(
                 "size-3 shrink-0",
-                match.winner === 1 ? "text-yellow-500" : "text-zinc-400",
+                match.winner === 1 ? "text-rank-gold" : "text-muted-foreground",
               )}
             />
           )}
@@ -190,7 +188,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
         }}
       >
         {match.player2Seed && (
-          <span className="text-muted-foreground/50 shrink-0 text-[10px]">
+          <span className="text-muted-foreground/50 text-2xs shrink-0">
             {match.player2Seed}
           </span>
         )}
@@ -201,7 +199,7 @@ function MatchNode({ data }: { data: MatchNodeData }) {
           <MedalIcon
             className={cn(
               "size-3 shrink-0",
-              match.winner === 2 ? "text-yellow-500" : "text-zinc-400",
+              match.winner === 2 ? "text-rank-gold" : "text-muted-foreground",
             )}
           />
         )}

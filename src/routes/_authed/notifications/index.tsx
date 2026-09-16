@@ -77,7 +77,7 @@ function RouteComponent() {
                   <TabsTrigger value="unread" className="text-xs">
                     unread
                     {unreadCount > 0 && (
-                      <span className="flex size-4 items-center justify-center rounded-full bg-blue-600 text-[10px] leading-none font-semibold text-white">
+                      <span className="bg-info text-2xs flex size-4 items-center justify-center rounded-full leading-none font-semibold text-white">
                         {unreadCount}
                       </span>
                     )}

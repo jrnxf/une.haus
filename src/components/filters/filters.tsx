@@ -207,7 +207,7 @@ function OptionItems({
             <DropdownMenuSubTrigger>
               <span className="flex-1">{option.label}</span>
               {count > 0 && (
-                <Badge variant="secondary" className="mr-1 px-1 text-xs">
+                <Badge variant="secondary" className="mr-1 px-1">
                   {count}
                 </Badge>
               )}

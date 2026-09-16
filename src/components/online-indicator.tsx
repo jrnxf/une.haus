@@ -70,7 +70,7 @@ export function OnlineIndicator({ className }: { className?: string }) {
         }
       >
         <span className="pr-1">
-          <StatusIndicator className="bg-green-600" />
+          <StatusIndicator status="online" />
         </span>
         <OnlineCount />
         <span>online</span>

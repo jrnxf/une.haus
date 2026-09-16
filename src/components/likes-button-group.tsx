@@ -70,7 +70,7 @@ export function LikesButtonGroup({
           <HeartIcon
             className={cn(
               "size-4",
-              authUserLiked && "fill-red-700/50 stroke-red-700",
+              authUserLiked && "fill-like/50 stroke-like",
             )}
           />
         </Button>

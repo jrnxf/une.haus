@@ -132,10 +132,7 @@ export function SingleRiderSelector({
                         alt={user.name}
                       >
                         <AvatarImage width={20} quality={85} />
-                        <AvatarFallback
-                          className="text-[10px]"
-                          name={user.name}
-                        />
+                        <AvatarFallback className="text-2xs" name={user.name} />
                       </Avatar>
                       <span>{user.name}</span>
                     </CommandItem>
@@ -171,13 +168,10 @@ export function SingleRiderSelector({
               alt={selectedUser.name}
             >
               <AvatarImage width={20} quality={85} />
-              <AvatarFallback
-                className="text-[10px]"
-                name={selectedUser.name}
-              />
+              <AvatarFallback className="text-2xs" name={selectedUser.name} />
             </Avatar>
           ) : (
-            <div className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded-full text-[10px] font-medium">
+            <div className="bg-muted text-muted-foreground text-2xs flex size-5 items-center justify-center rounded-full font-medium">
               {displayName.charAt(0).toUpperCase()}
             </div>
           )}

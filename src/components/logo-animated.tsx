@@ -84,7 +84,7 @@ export function LogoRandomScatter({ className }: { className?: string }) {
         <Link
           to="/users/$userId"
           params={{ userId: 146 }}
-          className="text-blue-400 dark:text-blue-300"
+          className="text-link"
         >
           Walker Orner
         </Link>

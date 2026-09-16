@@ -10,7 +10,7 @@ export function CountChip({
       {...props}
       className={cn(
         // p-[5px] gives us a perfect circle on 0-9 counts
-        "bg-blue-600 px-[5px] py-0 text-[10px] text-white hover:bg-blue-600",
+        "bg-info text-2xs hover:bg-info px-[5px] py-0 text-white",
         className,
       )}
     />

@@ -57,7 +57,7 @@ function renderToken(
       if (user) {
         if (mentionMode === "accentText") {
           return (
-            <span key={key} className="text-blue-400 dark:text-blue-300">
+            <span key={key} className="text-link">
               {user.name}
             </span>
           )
@@ -70,7 +70,7 @@ function renderToken(
             key={key}
             to="/users/$userId"
             params={{ userId: user.id }}
-            className="text-blue-400 dark:text-blue-300"
+            className="text-link"
           >
             {user.name}
           </Link>

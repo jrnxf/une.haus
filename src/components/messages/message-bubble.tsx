@@ -307,7 +307,7 @@ export function MessageBubble({
                   <button
                     aria-label={`${message.likes.length} likes`}
                     className={cn(
-                      "absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl bg-red-600 px-1.5 text-xs text-[10px] text-white",
+                      "bg-destructive text-2xs absolute top-0 z-10 flex -translate-y-1/2 items-center rounded-xl px-1.5 text-white",
                       isOwnMessage
                         ? "left-0 -translate-x-1/3"
                         : "right-0 translate-x-1/3",

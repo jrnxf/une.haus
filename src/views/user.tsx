@@ -79,7 +79,7 @@ export function UserView({ user }: { user: UsersWithFollowsData }) {
 
             <div className="min-w-0 flex-1 space-y-0.5">
               <div className="flex items-start justify-between gap-2">
-                <div className="space-y-0.y min-w-0">
+                <div className="min-w-0 space-y-0.5">
                   <h1 className="flex items-center gap-2 truncate text-xl font-semibold tracking-tight sm:text-2xl">
                     {user.name}
                     <UserOnlineStatus userId={user.id} />

@@ -109,80 +109,64 @@ function RouteComponent() {
             <Link to="/admin/sandbox">sandbox</Link>
           </Button>
         </div>
-        <Accordion multiple>
-          <div className="space-y-2">
-            <AccordionItem value="tricks" className="bg-card rounded-lg border">
-              <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                <TricksLabel />
-              </AccordionTrigger>
-              <AccordionContent className="p-4 pt-0.5">
-                <Accordion multiple>
-                  <div className="space-y-2">
-                    <AccordionItem
-                      value="submissions"
-                      className="bg-card rounded-lg border"
-                    >
-                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                        <SubmissionsLabel />
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 pt-0.5">
-                        <SubmissionsSection />
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem
-                      value="suggestions"
-                      className="bg-card rounded-lg border"
-                    >
-                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                        <SuggestionsLabel />
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 pt-0.5">
-                        <SuggestionsSection />
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem
-                      value="videos"
-                      className="bg-card rounded-lg border"
-                    >
-                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                        <VideosLabel />
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 pt-0.5">
-                        <VideosSection />
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem
-                      value="glossary"
-                      className="bg-card rounded-lg border"
-                    >
-                      <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                        <GlossaryLabel />
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 pt-0.5">
-                        <GlossarySection />
-                      </AccordionContent>
-                    </AccordionItem>
-                  </div>
-                </Accordion>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="vault" className="bg-card rounded-lg border">
-              <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                <VaultLabel />
-              </AccordionTrigger>
-              <AccordionContent className="p-4 pt-0.5">
-                <VaultSection />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="flags" className="bg-card rounded-lg border">
-              <AccordionTrigger className="items-center rounded-lg border-0 px-4 py-3 hover:no-underline">
-                <FlagsLabel />
-              </AccordionTrigger>
-              <AccordionContent className="p-4 pt-0.5">
-                <FlagsSection />
-              </AccordionContent>
-            </AccordionItem>
-          </div>
+        <Accordion multiple variant="card">
+          <AccordionItem value="tricks">
+            <AccordionTrigger>
+              <TricksLabel />
+            </AccordionTrigger>
+            <AccordionContent>
+              <Accordion multiple variant="card">
+                <AccordionItem value="submissions">
+                  <AccordionTrigger>
+                    <SubmissionsLabel />
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <SubmissionsSection />
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="suggestions">
+                  <AccordionTrigger>
+                    <SuggestionsLabel />
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <SuggestionsSection />
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="videos">
+                  <AccordionTrigger>
+                    <VideosLabel />
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <VideosSection />
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="glossary">
+                  <AccordionTrigger>
+                    <GlossaryLabel />
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <GlossarySection />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="vault">
+            <AccordionTrigger>
+              <VaultLabel />
+            </AccordionTrigger>
+            <AccordionContent>
+              <VaultSection />
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="flags">
+            <AccordionTrigger>
+              <FlagsLabel />
+            </AccordionTrigger>
+            <AccordionContent>
+              <FlagsSection />
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
 
         {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
@@ -785,12 +769,8 @@ function GlossarySection() {
             <CardContent className="space-y-4 px-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    {p.type}
-                  </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    {p.action}
-                  </Badge>
+                  <Badge variant="outline">{p.type}</Badge>
+                  <Badge variant="secondary">{p.action}</Badge>
                   <p className="truncate text-sm font-medium">{p.name}</p>
                 </div>
                 <SubmitterBadge
@@ -1058,9 +1038,7 @@ function FlagCard({
     <Card className="rounded-md py-3">
       <CardContent className="space-y-4 px-4">
         <div className="flex items-start justify-between gap-2">
-          <Badge variant="outline" className="text-xs">
-            {ENTITY_TYPE_LABELS[flag.entityType]}
-          </Badge>
+          <Badge variant="outline">{ENTITY_TYPE_LABELS[flag.entityType]}</Badge>
           <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
             <Link
               to="/users/$userId"

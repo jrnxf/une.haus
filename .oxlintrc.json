@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["import", "typescript", "unicorn", "react"],
+  "jsPlugins": ["@shadcn/lint"],
   "categories": {
     "correctness": "error",
     "suspicious": "warn",
@@ -12,6 +13,51 @@
   },
   "ignorePatterns": ["**/routeTree.gen.ts"],
   "rules": {
+    "shadcn/no-restyle": [
+      "warn",
+      {
+        "allow": ["layout"],
+        "contracts": [
+          { "pattern": "^Card$", "allow": ["layout", "spacing", "effects"] },
+          { "pattern": "^CardHeader$", "allow": ["layout", "spacing"] },
+          { "pattern": "^CardContent$", "allow": ["layout", "spacing"] },
+          {
+            "pattern": "^CardTitle$",
+            "allow": ["layout", "spacing", "typography"]
+          },
+          {
+            "pattern": "^Label$",
+            "allow": ["layout", "spacing", "typography", "color"]
+          },
+          { "pattern": "^Metaline$", "allow": ["layout", "typography"] },
+          { "pattern": "^Form$", "allow": ["layout", "spacing"] },
+          {
+            "pattern": "^(SortableItem|[A-Za-z]+Trigger)$",
+            "allow": [
+              "layout",
+              "spacing",
+              "typography",
+              "color",
+              "shape",
+              "effects",
+              "motion"
+            ]
+          }
+        ]
+      }
+    ],
+    "shadcn/no-raw-colors": ["warn", { "allow": ["shadow-glow"] }],
+    "shadcn/no-arbitrary-values": [
+      "warn",
+      { "allow": ["layout", "text-[*vw]"] }
+    ],
+    "shadcn/no-inline-styles": "off",
+    "shadcn/no-unknown-classes": [
+      "error",
+      { "allow": ["nodrag", "nopan", "tiptap", "tiptap-wrapper", "toaster"] }
+    ],
+    "shadcn/require-static-classes": "error",
+
     "no-unused-vars": "error",
     "no-implicit-coercion": [
       "error",
@@ -20,6 +66,11 @@
 
     "react/react-in-jsx-scope": "off",
     "react/exhaustive-deps": "warn",
+    "react/refs": "warn",
+    "react/set-state-in-effect": "warn",
+    "react/incompatible-library": "warn",
+    "react/purity": "warn",
+    "react/immutability": "warn",
 
     "typescript/consistent-type-imports": [
       "error",
@@ -34,7 +85,7 @@
     "unicorn/prefer-array-flat-map": "error",
     "unicorn/prefer-at": "error",
     "unicorn/explicit-length-check": "error",
-    "unicorn/prefer-for-of": "error",
+    "typescript/prefer-for-of": "error",
     "unicorn/prefer-node-protocol": "error",
     "unicorn/prefer-number-properties": "error",
     "unicorn/numeric-separators-style": "error",
@@ -61,5 +112,27 @@
     "jsx-a11y/click-events-have-key-events": "off",
     "jsx-a11y/mouse-events-have-key-events": "off",
     "jsx-a11y/no-noninteractive-element-interactions": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/components/ui/**",
+        "src/components/reui/**",
+        "src/components/tray.tsx"
+      ],
+      "rules": {
+        "shadcn/no-restyle": "off",
+        "shadcn/no-arbitrary-values": "off",
+        "shadcn/require-static-classes": "off"
+      }
+    },
+    {
+      "files": ["**/*.unit.test.ts"],
+      "rules": { "shadcn/no-unknown-classes": "off" }
+    },
+    {
+      "files": ["emails/**"],
+      "rules": { "shadcn/no-raw-colors": "off" }
+    }
+  ]
 }

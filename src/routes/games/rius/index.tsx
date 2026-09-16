@@ -139,7 +139,7 @@ function ActiveRoundCard() {
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <StatusIndicator className="bg-green-600" />
+              <StatusIndicator status="online" />
               <p className="truncate text-sm font-semibold">{activeRiu.id}</p>
             </div>
             <DateLabel date={activeRiu.createdAt} />

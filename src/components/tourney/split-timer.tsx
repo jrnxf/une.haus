@@ -260,7 +260,7 @@ export function SplitTimer({
             leftTimer.state === "finished" && "bg-destructive/20",
             leftTimer.timeRemaining <= 10_000 &&
               leftTimer.state === "running" &&
-              "bg-yellow-500/10",
+              "bg-warning/10",
             leftTimer.state === "running" && "bg-primary/5",
           )}
         >
@@ -304,7 +304,7 @@ export function SplitTimer({
             rightTimer.state === "finished" && "bg-destructive/20",
             rightTimer.timeRemaining <= 10_000 &&
               rightTimer.state === "running" &&
-              "bg-yellow-500/10",
+              "bg-warning/10",
             rightTimer.state === "running" && "bg-primary/5",
           )}
         >
@@ -344,16 +344,14 @@ export function SplitTimer({
       {/* Hotkey hints */}
       <div className="flex items-center justify-end border-t px-4 py-3">
         <p className="text-muted-foreground text-xs">
-          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
-            space
-          </kbd>{" "}
+          <kbd className="bg-muted text-2xs rounded px-1 font-mono">space</kbd>{" "}
           start/switch{" "}
-          <kbd className="bg-muted rounded px-1 font-mono text-[10px]">r</kbd>{" "}
+          <kbd className="bg-muted text-2xs rounded px-1 font-mono">r</kbd>{" "}
           reset
           {onClose && (
             <>
               {" "}
-              <kbd className="bg-muted rounded px-1 font-mono text-[10px]">
+              <kbd className="bg-muted text-2xs rounded px-1 font-mono">
                 b
               </kbd>{" "}
               bracket

@@ -190,8 +190,8 @@ describe("usersToGeoJSON", () => {
         name: "Alice",
         avatarId: null,
         location: {
-          lng: -122.419_412_345_67,
-          lat: 37.774_912_345_67,
+          lng: -122.41941234567,
+          lat: 37.77491234567,
           label: "Precise Location",
           countryCode: "US",
         },
@@ -201,7 +201,7 @@ describe("usersToGeoJSON", () => {
     const result = usersToGeoJSON(users)
 
     expect(result.features[0]?.geometry.coordinates).toEqual([
-      -122.419_412_345_67, 37.774_912_345_67,
+      -122.41941234567, 37.77491234567,
     ])
   })
 

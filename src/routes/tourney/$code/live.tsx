@@ -193,7 +193,7 @@ function PrelimsView({
                 <div
                   className={cn(
                     "size-2 shrink-0 rounded-full",
-                    status === "done" && "bg-green-500",
+                    status === "done" && "bg-success",
                     status === "dq" && "bg-destructive",
                     isCurrent && "bg-primary animate-pulse",
                     status === "pending" &&
@@ -223,7 +223,7 @@ function PrelimsView({
       className={cn(
         "flex flex-1 flex-col items-center justify-center transition-colors duration-200",
         isTimerRunning && !isLow && "bg-primary/5",
-        isLow && !isFinished && "bg-yellow-500/10",
+        isLow && !isFinished && "bg-warning/10",
         isFinished && "bg-destructive/20",
       )}
     >
@@ -472,7 +472,7 @@ function BattleTimerView({
         className={cn(
           "relative flex flex-1 flex-col items-center justify-center transition-colors duration-200",
           leftFinished && "bg-destructive/20",
-          leftLow && "bg-yellow-500/10",
+          leftLow && "bg-warning/10",
           leftRunning && !leftLow && "bg-primary/5",
         )}
       >
@@ -519,7 +519,7 @@ function BattleTimerView({
         className={cn(
           "relative flex flex-1 flex-col items-center justify-center transition-colors duration-200",
           rightFinished && "bg-destructive/20",
-          rightLow && "bg-yellow-500/10",
+          rightLow && "bg-warning/10",
           rightRunning && !rightLow && "bg-primary/5",
         )}
       >

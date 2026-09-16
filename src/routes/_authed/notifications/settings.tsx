@@ -215,7 +215,7 @@ function RouteComponent() {
                         <div>
                           <Label
                             htmlFor={item.key}
-                            className="cursor-pointer text-sm font-medium"
+                            className="cursor-pointer font-medium"
                           >
                             {item.label}
                           </Label>
@@ -250,7 +250,7 @@ function RouteComponent() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <Label className="text-muted-foreground w-20 text-sm">
+                  <Label className="text-muted-foreground w-20">
                     frequency
                   </Label>
                   <Select
@@ -289,7 +289,7 @@ function RouteComponent() {
                     <div className="ml-0 space-y-4 border-l-2 pl-4">
                       {settings.emailDigestFrequency === "weekly" && (
                         <div className="flex items-center gap-4">
-                          <Label className="text-muted-foreground w-20 text-sm">
+                          <Label className="text-muted-foreground w-20">
                             day
                           </Label>
                           <Select
@@ -323,7 +323,7 @@ function RouteComponent() {
 
                       {settings.emailDigestFrequency === "monthly" && (
                         <div className="flex items-center gap-4">
-                          <Label className="text-muted-foreground w-20 text-sm">
+                          <Label className="text-muted-foreground w-20">
                             day
                           </Label>
                           <Select
@@ -356,7 +356,7 @@ function RouteComponent() {
                       )}
 
                       <div className="flex items-center gap-4">
-                        <Label className="text-muted-foreground w-20 text-sm">
+                        <Label className="text-muted-foreground w-20">
                           time
                         </Label>
                         <Select
@@ -411,7 +411,7 @@ function RouteComponent() {
                       <div>
                         <Label
                           htmlFor="gameStartReminderEnabled"
-                          className="cursor-pointer text-sm font-medium"
+                          className="cursor-pointer font-medium"
                         >
                           round start reminder
                         </Label>
@@ -435,9 +435,7 @@ function RouteComponent() {
 
                   {settings.gameStartReminderEnabled && !isEmailDisabled && (
                     <div className="mt-4 ml-11 flex items-center gap-4">
-                      <Label className="text-muted-foreground text-sm">
-                        remind me
-                      </Label>
+                      <Label className="text-muted-foreground">remind me</Label>
                       <Select
                         items={HOURS_BEFORE_OPTIONS}
                         value={String(
@@ -487,7 +485,7 @@ function RouteComponent() {
                 <div>
                   <Label
                     htmlFor="emailUnsubscribedAll"
-                    className="cursor-pointer text-sm font-medium"
+                    className="cursor-pointer font-medium"
                   >
                     unsubscribe from all emails
                   </Label>

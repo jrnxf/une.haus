@@ -52,7 +52,7 @@ function SourceMenuItem() {
           <TerminalIcon className="size-3.5" />
           source
           {showSha && (
-            <span className="text-muted-foreground ml-auto pl-4 font-mono text-[10px]">
+            <span className="text-muted-foreground text-2xs ml-auto pl-4 font-mono">
               {__COMMIT_SHA__}
             </span>
           )}
