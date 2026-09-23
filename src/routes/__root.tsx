@@ -37,6 +37,7 @@ import { useRootRouteContext } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type HausSession } from "~/lib/session/schema"
 import { ThemeProvider } from "~/lib/theme/context"
+import { users } from "~/lib/users"
 import appCss from "~/styles.css?url"
 
 export interface RouterAppContext {
@@ -58,6 +59,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     )
 
     return { session: sessionData }
+  },
+  // Mentions (@[userId]) render through the users.all cache on every page.
+  // Ensure it here so SSR and hydration resolve names instead of flashing
+  // "(deleted user)" until the client fetch lands. ~1-4ms on D1, ~30KB raw.
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(users.all.queryOptions())
   },
   component: RootComponent,
   head: () => ({
