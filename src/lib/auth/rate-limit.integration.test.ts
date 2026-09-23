@@ -19,10 +19,13 @@ describe("rateLimit", () => {
   })
 
   it("an expired window restarts the count", async () => {
-    for (let i = 0; i < 3; i++) await rateLimit("k", 3, 50)
-    expect(await rateLimit("k", 3, 50)).toBe(false)
-    await Bun.sleep(60)
-    expect(await rateLimit("k", 3, 50)).toBe(true)
+    // Fixed clock: real time made this flaky on CI, where three DB round
+    // trips could outlast a short window before the denial was checked.
+    const t = Date.now()
+    for (let i = 0; i < 3; i++) await rateLimit("k", 3, 50, t)
+    expect(await rateLimit("k", 3, 50, t)).toBe(false)
+    expect(await rateLimit("k", 3, 50, t + 50)).toBe(false) // boundary is inclusive
+    expect(await rateLimit("k", 3, 50, t + 51)).toBe(true)
   })
 
   it("__resetRateLimits clears all buckets", async () => {

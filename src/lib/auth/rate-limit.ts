@@ -12,14 +12,14 @@ import { rateLimits } from "~/db/schema"
 /**
  * Returns true if the action is allowed, false if the limit is exceeded.
  * Counts hits per `key` within a fixed window of `windowMs`; allows up to `max`.
+ * `now` is injectable so tests can step the clock instead of sleeping.
  */
 export async function rateLimit(
   key: string,
   max: number,
   windowMs: number,
+  now = Date.now(),
 ): Promise<boolean> {
-  const now = Date.now()
-
   const [row] = await db
     .insert(rateLimits)
     .values({ key, count: 1, resetsAt: new Date(now + windowMs) })
