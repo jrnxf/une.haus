@@ -180,6 +180,7 @@ export function MentionTextarea({
         <>
           <BubbleMenu
             editor={editor}
+            // react-doctor-disable-next-line react-doctor/no-unguarded-browser-global-in-render-or-hook-init -- `editor` is null on the server (immediatelyRender: false), so this branch is client-only
             appendTo={document.body}
             options={{
               placement: "top",

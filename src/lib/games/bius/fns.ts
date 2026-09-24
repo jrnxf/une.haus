@@ -27,8 +27,8 @@ export const getChainsServerFn = createServerFn({ method: "GET" })
 
 // Start a new BIU round (admin only)
 export const startRoundServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(startRoundSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(startRoundSchema))
   .handler(async () => {
     const { startRound } = await loadBiuOps()
     return startRound()
@@ -36,8 +36,8 @@ export const startRoundServerFn = createServerFn({ method: "POST" })
 
 // Create first set in an existing empty round
 export const createFirstSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(createFirstSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createFirstSetSchema))
   .handler(async (ctx) => {
     const { createFirstBiuSet } = await loadBiuOps()
     return createFirstBiuSet(ctx)
@@ -53,8 +53,8 @@ export const getSetServerFn = createServerFn({ method: "GET" })
 
 // Back up a set (continue the chain)
 export const backUpSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(backUpSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(backUpSetSchema))
   .handler(async (ctx) => {
     const { backUpBiuSet } = await loadBiuOps()
     return backUpBiuSet(ctx)
@@ -62,8 +62,8 @@ export const backUpSetServerFn = createServerFn({ method: "POST" })
 
 // Update set (owner only)
 export const updateSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(updateSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateSetSchema))
   .handler(async (ctx) => {
     const { updateBiuSet } = await loadBiuOps()
     return updateBiuSet(ctx)
@@ -71,8 +71,8 @@ export const updateSetServerFn = createServerFn({ method: "POST" })
 
 // Delete set (owner only)
 export const deleteSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(deleteSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteSetSchema))
   .handler(async (ctx) => {
     const { deleteBiuSet } = await loadBiuOps()
     return deleteBiuSet(ctx)

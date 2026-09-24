@@ -22,15 +22,17 @@ export const Route = createFileRoute("/_authed")({
       user: sessionData.user,
     }
   },
-  errorComponent: ({ error }) => {
-    useEffect(() => {
-      Sentry.captureException(error)
-    }, [error])
-
-    if (error.message === "Not authenticated") {
-      return <p>You are not authenticated</p>
-    }
-
-    throw error
-  },
+  errorComponent: AuthedErrorComponent,
 })
+
+function AuthedErrorComponent({ error }: { error: Error }) {
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
+
+  if (error.message === "Not authenticated") {
+    return <p>You are not authenticated</p>
+  }
+
+  throw error
+}

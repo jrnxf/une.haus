@@ -150,8 +150,8 @@ export const getSetServerFn = createServerFn({ method: "GET" })
 
 // Start a new round (admin only)
 export const startRoundServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(startRoundSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(startRoundSchema))
   .handler(async () => {
     const { startSiuRound } = await loadSiuOps()
     return startSiuRound()
@@ -159,8 +159,8 @@ export const startRoundServerFn = createServerFn({ method: "POST" })
 
 // Create first set in an existing empty round
 export const createFirstSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(createFirstSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createFirstSetSchema))
   .handler(async (ctx) => {
     const { createFirstSiuSet } = await loadSiuOps()
     return createFirstSiuSet(ctx)
@@ -168,8 +168,8 @@ export const createFirstSetServerFn = createServerFn({ method: "POST" })
 
 // Add set (continue the round with full line + new trick)
 export const addSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(addSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(addSetSchema))
   .handler(async (ctx) => {
     const { addSiuSet } = await loadSiuOps()
     return addSiuSet(ctx)
@@ -177,8 +177,8 @@ export const addSetServerFn = createServerFn({ method: "POST" })
 
 // Vote to archive round
 export const voteToArchiveServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(voteToArchiveSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(voteToArchiveSchema))
   .handler(async (ctx) => {
     const { voteToArchive } = await loadSiuOps()
     return voteToArchive(ctx)
@@ -186,8 +186,8 @@ export const voteToArchiveServerFn = createServerFn({ method: "POST" })
 
 // Remove archive vote
 export const removeArchiveVoteServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(removeArchiveVoteSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(removeArchiveVoteSchema))
   .handler(async (ctx) => {
     const { removeArchiveVote } = await loadSiuOps()
     return removeArchiveVote(ctx)
@@ -195,8 +195,8 @@ export const removeArchiveVoteServerFn = createServerFn({ method: "POST" })
 
 // Archive round (admin only)
 export const archiveRoundServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(archiveRoundSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(archiveRoundSchema))
   .handler(async (ctx) => {
     const { archiveSiuRound } = await loadSiuOps()
     return archiveSiuRound(ctx)
@@ -204,8 +204,8 @@ export const archiveRoundServerFn = createServerFn({ method: "POST" })
 
 // Update set (owner only)
 export const updateSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(updateSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateSetSchema))
   .handler(async (ctx) => {
     const { updateSiuSet } = await loadSiuOps()
     return updateSiuSet(ctx)
@@ -213,8 +213,8 @@ export const updateSetServerFn = createServerFn({ method: "POST" })
 
 // Delete set (owner only)
 export const deleteSetServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(deleteSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteSetSchema))
   .handler(async (ctx) => {
     const { deleteSiuSet } = await loadSiuOps()
     return deleteSiuSet(ctx)

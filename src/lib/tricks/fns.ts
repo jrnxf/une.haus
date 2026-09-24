@@ -45,8 +45,8 @@ export const listModifiersServerFn = createServerFn({
 export const createModifierServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createModifierSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(createModifierSchema))
   .handler(async ({ data }) => {
     const [modifier] = await db.insert(trickModifiers).values(data).returning()
 
@@ -57,8 +57,8 @@ export const createModifierServerFn = createServerFn({
 export const updateModifierServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateModifierSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(updateModifierSchema))
   .handler(async ({ data }) => {
     const { id, ...updateData } = data
 
@@ -75,8 +75,8 @@ export const updateModifierServerFn = createServerFn({
 export const deleteModifierServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteModifierSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(deleteModifierSchema))
   .handler(async ({ data: id }) => {
     const [modifier] = await db
       .delete(trickModifiers)
@@ -105,8 +105,8 @@ export const listElementsServerFn = createServerFn({
 export const createElementServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createElementSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(createElementSchema))
   .handler(async ({ data }) => {
     const [element] = await db.insert(trickElements).values(data).returning()
 
@@ -117,8 +117,8 @@ export const createElementServerFn = createServerFn({
 export const updateElementServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateElementSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(updateElementSchema))
   .handler(async ({ data }) => {
     const { id, ...updateData } = data
 
@@ -135,8 +135,8 @@ export const updateElementServerFn = createServerFn({
 export const deleteElementServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteElementSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(deleteElementSchema))
   .handler(async ({ data: id }) => {
     const [element] = await db
       .delete(trickElements)
@@ -294,8 +294,8 @@ export const searchTricksServerFn = createServerFn({
 export const createTrickServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createTrickSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(createTrickSchema))
   .handler(async (ctx) => {
     const { createTrick } = await loadTrickOps()
     return createTrick(ctx)
@@ -304,8 +304,8 @@ export const createTrickServerFn = createServerFn({
 export const updateTrickServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateTrickSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(updateTrickSchema))
   .handler(async (ctx) => {
     const { updateTrick } = await loadTrickOps()
     return updateTrick(ctx)
@@ -314,8 +314,8 @@ export const updateTrickServerFn = createServerFn({
 export const deleteTrickServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteTrickSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(deleteTrickSchema))
   .handler(async (ctx) => {
     const { deleteTrick } = await loadTrickOps()
     return deleteTrick(ctx)

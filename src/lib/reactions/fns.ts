@@ -12,8 +12,8 @@ const loadReactionOps = createServerOnlyFn(
 export const likeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(likeRecordSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(likeRecordSchema))
   .handler(async (ctx) => {
     const { likeRecord } = await loadReactionOps()
     return likeRecord(ctx)
@@ -22,8 +22,8 @@ export const likeRecordServerFn = createServerFn({
 export const unlikeRecordServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(unlikeRecordSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(unlikeRecordSchema))
   .handler(async (ctx) => {
     const { unlikeRecord } = await loadReactionOps()
     return unlikeRecord(ctx)

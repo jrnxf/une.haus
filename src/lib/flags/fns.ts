@@ -7,16 +7,16 @@ import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware"
 const loadFlagOps = createServerOnlyFn(() => import("~/lib/flags/ops.server"))
 
 export const flagContentServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(flagContentSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(flagContentSchema))
   .handler(async (ctx) => {
     const { flagContent } = await loadFlagOps()
     return flagContent(ctx)
   })
 
 export const resolveFlagServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(resolveFlagSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(resolveFlagSchema))
   .handler(async (ctx) => {
     const { resolveFlag } = await loadFlagOps()
     return resolveFlag(ctx)

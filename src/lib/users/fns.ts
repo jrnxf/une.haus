@@ -70,8 +70,8 @@ export const getUserWithFollowsServerFn = createServerFn({
 export const updateUserServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateUserSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateUserSchema))
   .handler(async ({ data, context }) => {
     const session = await useServerSession()
     const { updateUser } = await loadUserOps()
@@ -95,8 +95,8 @@ export const getUserFollowsServerFn = createServerFn({
 export const followUserServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(followUserSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(followUserSchema))
   .handler(async (ctx) => {
     const { followUser } = await loadUserOps()
     return followUser(ctx)
@@ -105,8 +105,8 @@ export const followUserServerFn = createServerFn({
 export const unfollowUserServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(unfollowUserSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(unfollowUserSchema))
   .handler(async (ctx) => {
     const { unfollowUser } = await loadUserOps()
     return unfollowUser(ctx)
@@ -186,8 +186,8 @@ export const getUserVideosServerFn = createServerFn({
 export const setShopNotifyServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(setShopNotifySchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(setShopNotifySchema))
   .handler(async (ctx) => {
     const { setShopNotify } = await loadUserOps()
     return setShopNotify(ctx)

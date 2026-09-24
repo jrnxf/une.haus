@@ -34,8 +34,8 @@ export const getGlossaryProposalServerFn = createServerFn({
 export const createGlossaryProposalServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createGlossaryProposalSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createGlossaryProposalSchema))
   .handler(async (ctx) => {
     const { createGlossaryProposal } = await loadGlossaryOps()
     return createGlossaryProposal(ctx)
@@ -44,8 +44,8 @@ export const createGlossaryProposalServerFn = createServerFn({
 export const reviewGlossaryProposalServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(reviewGlossaryProposalSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(reviewGlossaryProposalSchema))
   .handler(async (ctx) => {
     const { reviewGlossaryProposal } = await loadGlossaryOps()
     return reviewGlossaryProposal(ctx)

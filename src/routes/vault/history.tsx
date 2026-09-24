@@ -1,7 +1,7 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import confetti from "canvas-confetti"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import pluralize from "pluralize"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -71,6 +71,7 @@ function ClapButton() {
   const isMutatingRef = useRef(false)
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const reduceMotion = useReducedMotion()
 
   const flushClicks = useCallback(async () => {
     if (isMutatingRef.current || pendingClicksRef.current === 0) return
@@ -146,7 +147,7 @@ function ClapButton() {
       <motion.button
         ref={buttonRef}
         onClick={handleClick}
-        whileTap={{ scale: 0.92 }}
+        whileTap={reduceMotion ? undefined : { scale: 0.92 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
         className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors"
       >

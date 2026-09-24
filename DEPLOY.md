@@ -10,8 +10,8 @@ and the `une.haus` custom domain are all Cloudflare-managed.
 On every push to `main`:
 
 1. **ci** (GH-hosted): runs `bun preflight` — the same gate as local
-   pre-commit (lint, format, typecheck, schema check, knip, unit +
-   integration tests; the integration runner uses an ephemeral sqlite file,
+   pre-commit (lint, format, typecheck, react-doctor, schema check, knip,
+   unit + integration tests; the integration runner uses an ephemeral sqlite file,
    no external services).
 2. **deploy** (GH-hosted, needs ci, serialized via the `unehaus-deploy`
    concurrency group):

@@ -65,7 +65,7 @@ bun dev
 | `bun run format`           | format with oxfmt                                                                      |
 | `bun run check`            | lint with auto-fix and format                                                          |
 | `bun run typecheck`        | type check                                                                             |
-| `bun preflight`            | lint, format, typecheck, and test                                                      |
+| `bun preflight`            | lint, format, typecheck, react doctor, and test                                        |
 | `bun run test:unit`        | run unit tests                                                                         |
 | `bun run test:integration` | run integration tests                                                                  |
 | `bun run db:migrate`       | push database migrations                                                               |

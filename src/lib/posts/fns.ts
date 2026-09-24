@@ -33,8 +33,8 @@ export const getPostServerFn = createServerFn({
 export const createPostServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createPostSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createPostSchema))
   .handler(async (ctx) => {
     const { createPost } = await loadPostOps()
     return createPost(ctx)
@@ -43,8 +43,8 @@ export const createPostServerFn = createServerFn({
 export const updatePostServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updatePostSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updatePostSchema))
   .handler(async (ctx) => {
     const { updatePost } = await loadPostOps()
     return updatePost(ctx)
@@ -53,8 +53,8 @@ export const updatePostServerFn = createServerFn({
 export const deletePostServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deletePostSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deletePostSchema))
   .handler(async (ctx) => {
     const { deletePost } = await loadPostOps()
     return deletePost(ctx)

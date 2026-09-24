@@ -21,8 +21,8 @@ const loadTourneyOps = createServerOnlyFn(
 export const createTournamentServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createTournamentSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createTournamentSchema))
   .handler(async (ctx) => {
     const { createTournament } = await loadTourneyOps()
     return createTournament(ctx)
@@ -31,8 +31,8 @@ export const createTournamentServerFn = createServerFn({
 export const updateTournamentServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateTournamentSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateTournamentSchema))
   .handler(async (ctx) => {
     const { updateTournament } = await loadTourneyOps()
     return updateTournament(ctx)
@@ -41,8 +41,8 @@ export const updateTournamentServerFn = createServerFn({
 export const deleteTournamentServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteTournamentSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteTournamentSchema))
   .handler(async (ctx) => {
     const { deleteTournament } = await loadTourneyOps()
     return deleteTournament(ctx)
@@ -60,8 +60,8 @@ export const getTournamentServerFn = createServerFn({
 export const listTournamentsServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(zodValidator(listTournamentsSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(listTournamentsSchema))
   .handler(async (ctx) => {
     const { listTournaments } = await loadTourneyOps()
     return listTournaments(ctx)
@@ -70,8 +70,8 @@ export const listTournamentsServerFn = createServerFn({
 export const prelimActionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(prelimActionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(prelimActionSchema))
   .handler(async (ctx) => {
     const { prelimAction } = await loadTourneyOps()
     return prelimAction(ctx)
@@ -80,8 +80,8 @@ export const prelimActionServerFn = createServerFn({
 export const rankingActionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(rankingActionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(rankingActionSchema))
   .handler(async (ctx) => {
     const { rankingAction } = await loadTourneyOps()
     return rankingAction(ctx)
@@ -90,8 +90,8 @@ export const rankingActionServerFn = createServerFn({
 export const bracketActionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(bracketActionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(bracketActionSchema))
   .handler(async (ctx) => {
     const { bracketAction } = await loadTourneyOps()
     return bracketAction(ctx)
@@ -100,8 +100,8 @@ export const bracketActionServerFn = createServerFn({
 export const advancePhaseServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(advancePhaseSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(advancePhaseSchema))
   .handler(async (ctx) => {
     const { advancePhase } = await loadTourneyOps()
     return advancePhase(ctx)
@@ -110,8 +110,8 @@ export const advancePhaseServerFn = createServerFn({
 export const adminHeartbeatServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(getTournamentSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(getTournamentSchema))
   .handler(async (ctx) => {
     const { adminHeartbeat } = await loadTourneyOps()
     return adminHeartbeat(ctx)

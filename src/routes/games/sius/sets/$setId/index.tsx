@@ -110,6 +110,15 @@ function SetView({ setId }: { setId: number }) {
   const isOwner = set.user.id === sessionUser?.id
   const isDeleted = Boolean(set.deletedAt)
 
+  const authUserLiked = set.likes.some(
+    (like: { user: { id: number } }) => like.user.id === sessionUser?.id,
+  )
+
+  const likeUnlike = useLikeUnlikeRecord({
+    record,
+    authUserLiked,
+  })
+
   // Deleted set: show minimal placeholder
   if (isDeleted) {
     return (
@@ -148,15 +157,6 @@ function SetView({ setId }: { setId: number }) {
 
   // Can delete if: owner and not already deleted
   const canDelete = isOwner
-
-  const authUserLiked = set.likes.some(
-    (like: { user: { id: number } }) => like.user.id === sessionUser?.id,
-  )
-
-  const likeUnlike = useLikeUnlikeRecord({
-    record,
-    authUserLiked,
-  })
 
   return (
     <div className="space-y-6">

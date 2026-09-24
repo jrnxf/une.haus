@@ -26,24 +26,24 @@ export const listCatalogsServerFn = createServerFn({ method: "GET" })
   })
 
 export const searchProductsServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(searchProductsSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(searchProductsSchema))
   .handler(async (ctx) => {
     const { searchProducts } = await loadGelatoOps()
     return searchProducts(ctx)
   })
 
 export const getProductServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(getProductSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(getProductSchema))
   .handler(async (ctx) => {
     const { getProduct } = await loadGelatoOps()
     return getProduct(ctx)
   })
 
 export const getPricesServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(getPricesSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(getPricesSchema))
   .handler(async (ctx) => {
     const { getPrices } = await loadGelatoOps()
     return getPrices(ctx)
@@ -53,16 +53,16 @@ export const getPricesServerFn = createServerFn({ method: "GET" })
 // orders produce + ship. ---
 
 export const createOrderServerFn = createServerFn({ method: "POST" })
-  .inputValidator(zodValidator(createOrderSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(createOrderSchema))
   .handler(async (ctx) => {
     const { createOrder } = await loadGelatoOps()
     return createOrder(ctx)
   })
 
 export const getOrderServerFn = createServerFn({ method: "GET" })
-  .inputValidator(zodValidator(getOrderSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(getOrderSchema))
   .handler(async (ctx) => {
     const { getOrder } = await loadGelatoOps()
     return getOrder(ctx)

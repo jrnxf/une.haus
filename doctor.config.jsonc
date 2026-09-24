@@ -1,0 +1,39 @@
+{
+  "$schema": "https://react.doctor/schema/config.json",
+
+  // Preflight is a local gate: no score upload, no share URL.
+  "noScore": true,
+  "share": false,
+
+  // oxlint (.oxlintrc.json) already runs the shadcn/react/unicorn rules with
+  // the project's contracts and warning cap. Don't re-run them here.
+  "adoptExistingLintConfig": false,
+
+  // Socket.dev dependency scoring needs the network. Keep it advisory so an
+  // offline preflight run cannot fail on it.
+  "supplyChain": { "severity": "warning" },
+
+  "ignore": {
+    "files": [".claude/**", "**/routeTree.gen.ts", "dist/**", ".wrangler/**"],
+    "overrides": [
+      {
+        // `useServerSession` is a TanStack Start server-only helper, not a
+        // React hook. It only runs inside server functions and middleware.
+        "files": [
+          "src/**/fns.ts",
+          "src/**/*.server.ts",
+          "src/lib/middleware.ts",
+          "src/start.ts",
+        ],
+        "rules": ["react-doctor/rules-of-hooks"],
+      },
+    ],
+  },
+
+  "rules": {
+    // Pre-existing "latest ref" (`ref.current = prop` during render) and
+    // adjust-on-prop-change patterns. Real per the React docs, but each site
+    // needs a considered refactor (useEffectEvent / state), so advisory for now.
+    "react-doctor/no-ref-current-in-render": "warn",
+  },
+}

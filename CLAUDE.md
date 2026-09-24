@@ -2,7 +2,7 @@
 
 ## Pre-commit
 
-Always run `bun preflight` before committing. It runs lint, format check, typecheck, and all tests in parallel. Do not commit if preflight fails — fix the issues first.
+Always run `bun preflight` before committing. It runs lint, format check, typecheck, react-doctor (`bun doctor`, configured in `doctor.config.jsonc`), and all tests in parallel. Do not commit if preflight fails — fix the issues first.
 
 ## Design-System Lint
 

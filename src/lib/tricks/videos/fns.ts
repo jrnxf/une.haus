@@ -59,8 +59,8 @@ export const listVideosServerFn = createServerFn({
 export const submitVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(submitVideoSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(submitVideoSchema))
   .handler(async (ctx) => {
     const { submitVideo } = await loadTrickVideoOps()
     return submitVideo(ctx)
@@ -71,8 +71,8 @@ export const submitVideoServerFn = createServerFn({
 export const listPendingVideosServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(zodValidator(listPendingVideosSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(listPendingVideosSchema))
   .handler(async ({ data: input }) => {
     const limit = input?.limit ?? 20
 
@@ -111,8 +111,8 @@ export const listPendingVideosServerFn = createServerFn({
 export const reviewVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(reviewVideoSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(reviewVideoSchema))
   .handler(async (ctx) => {
     const { reviewVideo } = await loadTrickVideoOps()
     return reviewVideo(ctx)
@@ -121,8 +121,8 @@ export const reviewVideoServerFn = createServerFn({
 export const reorderVideosServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(reorderVideosSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(reorderVideosSchema))
   .handler(async (ctx) => {
     const { reorderVideos } = await loadTrickVideoOps()
     return reorderVideos(ctx)
@@ -131,8 +131,8 @@ export const reorderVideosServerFn = createServerFn({
 export const demoteVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(demoteVideoSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(demoteVideoSchema))
   .handler(async (ctx) => {
     const { demoteVideo } = await loadTrickVideoOps()
     return demoteVideo(ctx)
@@ -141,8 +141,8 @@ export const demoteVideoServerFn = createServerFn({
 export const pinVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(pinVideoSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(pinVideoSchema))
   .handler(async (ctx) => {
     const { pinVideo } = await loadTrickVideoOps()
     return pinVideo(ctx)
@@ -151,8 +151,8 @@ export const pinVideoServerFn = createServerFn({
 export const unpinVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(unpinVideoSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(unpinVideoSchema))
   .handler(async (ctx) => {
     const { unpinVideo } = await loadTrickVideoOps()
     return unpinVideo(ctx)
@@ -161,8 +161,8 @@ export const unpinVideoServerFn = createServerFn({
 export const deleteVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteVideoSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(deleteVideoSchema))
   .handler(async ({ data }) => {
     const { id } = data
 

@@ -31,8 +31,8 @@ export const listGameVideosForLandingServerFn = createServerFn({
 export const landTrickServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(landTrickSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(landTrickSchema))
   .handler(async (ctx) => {
     const { landTrick } = await loadLandingOps()
     return landTrick(ctx)
@@ -41,8 +41,8 @@ export const landTrickServerFn = createServerFn({
 export const unlandTrickServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(unlandTrickSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(unlandTrickSchema))
   .handler(async (ctx) => {
     const { unlandTrick } = await loadLandingOps()
     return unlandTrick(ctx)

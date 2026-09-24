@@ -92,6 +92,7 @@ export function useVideoUpload(options: VideoUploadOptions = {}) {
           file,
         })
 
+        // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- handlers belong to this one-shot upload and die with it
         upload.on("error", (error) => {
           console.error("mux upload error", error.detail)
           const errorMessage =

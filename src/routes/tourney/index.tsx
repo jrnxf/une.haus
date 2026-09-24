@@ -30,12 +30,6 @@ import { tourney } from "~/lib/tourney"
 
 export const Route = createFileRoute("/tourney/")({
   component: RouteComponent,
-  head: () =>
-    seo({
-      title: "tournaments",
-      description: "unicycling tournaments on une.haus",
-      path: "/tourney",
-    }),
   loader: async ({ context }) => {
     const sessionData = context.queryClient.getQueryData(
       session.get.queryOptions().queryKey,
@@ -44,6 +38,12 @@ export const Route = createFileRoute("/tourney/")({
       await context.queryClient.ensureQueryData(tourney.list.queryOptions())
     }
   },
+  head: () =>
+    seo({
+      title: "tournaments",
+      description: "unicycling tournaments on une.haus",
+      path: "/tourney",
+    }),
 })
 
 function RouteComponent() {

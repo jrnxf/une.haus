@@ -20,8 +20,8 @@ export const getNotificationSettingsServerFn = createServerFn({
 export const updateNotificationSettingsServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateNotificationSettingsSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateNotificationSettingsSchema))
   .handler(async (ctx) => {
     const { updateNotificationSettings } = await loadNotificationSettingsOps()
     return updateNotificationSettings(ctx)

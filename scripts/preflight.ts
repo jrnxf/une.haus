@@ -4,6 +4,7 @@ const parallelChecks = [
   { label: "lint", cmd: ["bun", "run", "lint"] },
   { label: "format", cmd: ["oxfmt", "--check"] },
   { label: "typecheck", cmd: ["bun", "run", "typecheck"] },
+  { label: "react doctor", cmd: ["bun", "run", "doctor"] },
   { label: "db schema", cmd: ["bun", "run", "db:check"] },
   {
     label: "clean",

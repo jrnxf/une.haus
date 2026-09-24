@@ -12,12 +12,6 @@ import type { ComponentType } from "react"
 
 export const Route = createFileRoute("/games/")({
   component: RouteComponent,
-  head: () =>
-    seo({
-      title: "games",
-      description: "unicycling games on une.haus",
-      path: "/games",
-    }),
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
@@ -32,6 +26,12 @@ export const Route = createFileRoute("/games/")({
       ),
     ])
   },
+  head: () =>
+    seo({
+      title: "games",
+      description: "unicycling games on une.haus",
+      path: "/games",
+    }),
 })
 
 function RouteComponent() {

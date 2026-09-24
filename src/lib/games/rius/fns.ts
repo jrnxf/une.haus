@@ -41,8 +41,8 @@ const loadRiuLifecycle = createServerOnlyFn(
 export const getRiuSetServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(zodValidator(getRiuSetSchema))
   .middleware([authOptionalMiddleware])
+  .inputValidator(zodValidator(getRiuSetSchema))
   .handler(async ({ data: input, context }) => {
     const set = await db.query.riuSets.findFirst({
       where: eq(riuSets.id, input.setId),
@@ -136,8 +136,8 @@ export const getRiuSetServerFn = createServerFn({
 export const createRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createRiuSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createRiuSetSchema))
   .handler(async (ctx) => {
     const { createRiuSet } = await loadRiuOps()
     return createRiuSet(ctx)
@@ -146,8 +146,8 @@ export const createRiuSetServerFn = createServerFn({
 export const updateRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateRiuSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateRiuSetSchema))
   .handler(async (ctx) => {
     const { updateRiuSet } = await loadRiuOps()
     return updateRiuSet(ctx)
@@ -156,8 +156,8 @@ export const updateRiuSetServerFn = createServerFn({
 export const deleteRiuSetServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteRiuSetSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteRiuSetSchema))
   .handler(async (ctx) => {
     const { deleteRiuSet } = await loadRiuOps()
     return deleteRiuSet(ctx)
@@ -269,8 +269,8 @@ export const getRiuSubmissionServerFn = createServerFn({
 export const deleteRiuSubmissionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteRiuSubmissionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteRiuSubmissionSchema))
   .handler(async (ctx) => {
     const { deleteRiuSubmission } = await loadRiuOps()
     return deleteRiuSubmission(ctx)
@@ -279,8 +279,8 @@ export const deleteRiuSubmissionServerFn = createServerFn({
 export const createRiuSubmissionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createRiuSubmissionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createRiuSubmissionSchema))
   .handler(async (ctx) => {
     const { createRiuSubmission } = await loadRiuOps()
     return createRiuSubmission(ctx)

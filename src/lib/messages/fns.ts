@@ -25,8 +25,8 @@ export const listMessagesServerFn = createServerFn({
 export const createMessageServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createMessageSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createMessageSchema))
   .handler(async (ctx) => {
     const { createMessage } = await loadMessageOps()
     return createMessage(ctx)
@@ -35,8 +35,8 @@ export const createMessageServerFn = createServerFn({
 export const updateMessageServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateMessageSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(updateMessageSchema))
   .handler(async (ctx) => {
     const { updateMessage } = await loadMessageOps()
     return updateMessage(ctx)
@@ -45,8 +45,8 @@ export const updateMessageServerFn = createServerFn({
 export const deleteMessageServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteMessageSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteMessageSchema))
   .handler(async (ctx) => {
     const { deleteMessage } = await loadMessageOps()
     return deleteMessage(ctx)

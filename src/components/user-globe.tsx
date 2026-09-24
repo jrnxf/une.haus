@@ -177,6 +177,7 @@ export function UserGlobe({
         onMapMove([center.lng, center.lat], zoom)
       }
 
+      // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- listener lives on the map instance, which <Map> removes on unmount
       map.on("moveend", handleMoveEnd)
     },
     [onMapMove, initialZoom],

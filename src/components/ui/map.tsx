@@ -110,6 +110,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   projectionRef.current = projection
 
   // Initialize map with potentially transformed style
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- the cleanup calls map.remove(), which drops every listener registered on the map
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -401,6 +402,7 @@ function MapPopup({
 }: MapPopupProps) {
   const { map } = useMap()
   const popupOptionsRef = useRef(popupOptions)
+  // react-doctor-disable-next-line react-doctor/no-unguarded-browser-global-in-render-or-hook-init -- popups only mount after a client-side click on a map feature
   const container = useMemo(() => document.createElement("div"), [])
 
   const popup = useMemo(() => {

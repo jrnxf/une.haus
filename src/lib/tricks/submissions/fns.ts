@@ -109,8 +109,8 @@ export const getSubmissionServerFn = createServerFn({
 export const createSubmissionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createSubmissionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createSubmissionSchema))
   .handler(async (ctx) => {
     const { createSubmission } = await loadTrickSubmissionOps()
     return createSubmission(ctx)
@@ -119,8 +119,8 @@ export const createSubmissionServerFn = createServerFn({
 export const reviewSubmissionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(reviewSubmissionSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(reviewSubmissionSchema))
   .handler(async (ctx) => {
     const { reviewSubmission } = await loadTrickSubmissionOps()
     return reviewSubmission(ctx)
@@ -223,8 +223,8 @@ export const getSuggestionServerFn = createServerFn({
 export const createSuggestionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createSuggestionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createSuggestionSchema))
   .handler(async (ctx) => {
     const { createSuggestion } = await loadTrickSubmissionOps()
     return createSuggestion(ctx)
@@ -233,8 +233,8 @@ export const createSuggestionServerFn = createServerFn({
 export const reviewSuggestionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(reviewSuggestionSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(reviewSuggestionSchema))
   .handler(async (ctx) => {
     const { reviewSuggestion } = await loadTrickSubmissionOps()
     return reviewSuggestion(ctx)

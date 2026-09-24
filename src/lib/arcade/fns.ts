@@ -21,8 +21,8 @@ export const getArcadeHighScoreServerFn = createServerFn({
 export const saveArcadeHighScoreServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(saveHighScoreSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(saveHighScoreSchema))
   .handler(async (ctx) => {
     const { saveHighScore } = await loadArcadeOps()
     return saveHighScore(ctx)

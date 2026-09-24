@@ -169,8 +169,8 @@ const updateScaleSchema = z.object({
 export const updateUtvScaleServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateScaleSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(updateScaleSchema))
   .handler(async ({ data }) => {
     await db
       .update(utvVideos)
@@ -188,8 +188,8 @@ const updateThumbnailSecondsSchema = z.object({
 export const updateUtvThumbnailSecondsServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateThumbnailSecondsSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(updateThumbnailSecondsSchema))
   .handler(async ({ data, context }) => {
     return updateUtvThumbnailSecondsOp({ data, context })
   })
@@ -202,8 +202,8 @@ const updateTitleSchema = z.object({
 export const updateUtvTitleServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(updateTitleSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(updateTitleSchema))
   .handler(async ({ data, context }) => {
     return updateUtvTitleOp({ data, context })
   })
@@ -225,8 +225,8 @@ const adminUpdateSchema = z.object({
 export const adminUpdateUtvVideoServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(adminUpdateSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(adminUpdateSchema))
   .handler(async ({ data, context }) => {
     return adminUpdateUtvVideoOp({ data, context })
   })
@@ -315,8 +315,8 @@ export const getUtvSuggestionServerFn = createServerFn({
 export const createUtvSuggestionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(createUtvSuggestionSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(createUtvSuggestionSchema))
   .handler(async ({ data, context }) => {
     return createUtvSuggestionOp({ data, context })
   })
@@ -324,8 +324,8 @@ export const createUtvSuggestionServerFn = createServerFn({
 export const reviewUtvSuggestionServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(reviewUtvSuggestionSchema))
   .middleware([adminOnlyMiddleware])
+  .inputValidator(zodValidator(reviewUtvSuggestionSchema))
   .handler(async ({ data, context }) => {
     return reviewUtvSuggestionOp({ data, context })
   })

@@ -17,8 +17,8 @@ const loadNotificationOps = createServerOnlyFn(
 export const listNotificationsServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(zodValidator(listNotificationsSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(listNotificationsSchema))
   .handler(async (ctx) => {
     const { listNotifications } = await loadNotificationOps()
     return listNotifications(ctx)
@@ -27,8 +27,8 @@ export const listNotificationsServerFn = createServerFn({
 export const listGroupedNotificationsServerFn = createServerFn({
   method: "GET",
 })
-  .inputValidator(zodValidator(listNotificationsSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(listNotificationsSchema))
   .handler(async (ctx) => {
     const { listGroupedNotifications } = await loadNotificationOps()
     return listGroupedNotifications(ctx)
@@ -46,8 +46,8 @@ export const getUnreadCountServerFn = createServerFn({
 export const markReadServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(markReadSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(markReadSchema))
   .handler(async (ctx) => {
     const { markRead } = await loadNotificationOps()
     return markRead(ctx)
@@ -56,8 +56,8 @@ export const markReadServerFn = createServerFn({
 export const markGroupReadServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(markGroupReadSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(markGroupReadSchema))
   .handler(async (ctx) => {
     const { markGroupRead } = await loadNotificationOps()
     return markGroupRead(ctx)
@@ -66,8 +66,8 @@ export const markGroupReadServerFn = createServerFn({
 export const markAllReadServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(markAllReadSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(markAllReadSchema))
   .handler(async (ctx) => {
     const { markAllRead } = await loadNotificationOps()
     return markAllRead(ctx)
@@ -76,8 +76,8 @@ export const markAllReadServerFn = createServerFn({
 export const deleteNotificationServerFn = createServerFn({
   method: "POST",
 })
-  .inputValidator(zodValidator(deleteNotificationSchema))
   .middleware([authMiddleware])
+  .inputValidator(zodValidator(deleteNotificationSchema))
   .handler(async (ctx) => {
     const { deleteNotification } = await loadNotificationOps()
     return deleteNotification(ctx)
