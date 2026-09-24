@@ -642,6 +642,8 @@ Never use `ring` for container outlines on Base UI popup/dropdown components (se
 
 When modifying code that has associated documentation in `docs/`, always update the docs to reflect changes. Keep documentation in sync with implementation.
 
+Agent handoff documents live in `docs/handoffs/`, one dated file per handoff (`YYYY-MM-DD-topic.md`). When you finish items from a handoff, update its status section rather than writing a new file.
+
 ## Agent skills
 
 ### Issue tracker
