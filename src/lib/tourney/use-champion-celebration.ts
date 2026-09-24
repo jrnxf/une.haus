@@ -1,8 +1,6 @@
 import confetti from "canvas-confetti"
 import { useEffect, useRef, useState } from "react"
 
-import { useHaptics } from "~/lib/haptics"
-
 const colors = [
   "#ff6b6b",
   "#ff8c42",
@@ -20,7 +18,6 @@ const colors = [
 ]
 
 export function useChampionCelebration(champion: string | null) {
-  const haptics = useHaptics()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const confettiRef = useRef<confetti.CreateTypes | null>(null)
   const [celebrationDismissed, setCelebrationDismissed] = useState(false)
@@ -62,7 +59,6 @@ export function useChampionCelebration(champion: string | null) {
       fireConfetti
     ) {
       prevChampionForConfettiRef.current = champion
-      haptics.heavy()
       fireConfetti({
         particleCount: 80,
         spread: 100,
@@ -72,7 +68,7 @@ export function useChampionCelebration(champion: string | null) {
     } else if (!champion) {
       prevChampionForConfettiRef.current = null
     }
-  }, [champion, haptics])
+  }, [champion])
 
   return {
     canvasRef,

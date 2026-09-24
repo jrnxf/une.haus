@@ -42,7 +42,6 @@ import { UserOnlineStatus } from "~/components/user-online-status"
 import { type FlagEntityType, FLAG_ENTITY_TYPES } from "~/db/schema"
 import { useAuthGate } from "~/hooks/use-auth-gate"
 import { messageTypeFor } from "~/lib/engagement/manifest"
-import { useHaptics } from "~/lib/haptics"
 import { stripMentionTokens } from "~/lib/mentions/parse"
 import { messages } from "~/lib/messages"
 import { type MessageParent } from "~/lib/messages/schemas"
@@ -60,7 +59,6 @@ export function MessageBubble({
   parent: MessageParent
   message: Message
 }) {
-  const haptics = useHaptics()
   const messageType = messageTypeFor(parent.type)
   const flagType = `${parent.type}Message` as FlagEntityType
   const { sessionUser } = useAuthGate()
@@ -108,7 +106,6 @@ export function MessageBubble({
       return { prev }
     },
     onSuccess: () => {
-      haptics.success()
       toast.success("message deleted")
       setDetailsOpen(false)
     },
@@ -116,7 +113,6 @@ export function MessageBubble({
       if (context?.prev) {
         queryClient.setQueryData(listQueryKey, context.prev)
       }
-      haptics.error()
       toast.error("failed to delete message")
     },
     onSettled: () => {
@@ -134,7 +130,6 @@ export function MessageBubble({
       (id) => userMap.get(id)?.name,
     )
     navigator.clipboard.writeText(plainText)
-    haptics.success()
     toast.success("message copied", { duration: 1000 })
   }
 
@@ -363,7 +358,6 @@ function EditMessageDrawer({
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const haptics = useHaptics()
   const queryClient = useQueryClient()
   const [content, setContent] = React.useState(message.content)
   const wasOpenRef = React.useRef(open)
@@ -396,7 +390,6 @@ function EditMessageDrawer({
       return { prev }
     },
     onSuccess: () => {
-      haptics.success()
       toast.success("message updated")
       onOpenChange(false)
     },
@@ -404,7 +397,6 @@ function EditMessageDrawer({
       if (context?.prev) {
         queryClient.setQueryData(listQueryKey, context.prev)
       }
-      haptics.error()
       toast.error("failed to update message")
     },
     onSettled: () => {
@@ -429,7 +421,6 @@ function EditMessageDrawer({
       return { prev }
     },
     onSuccess: () => {
-      haptics.success()
       toast.success("message deleted")
       onOpenChange(false)
     },
@@ -437,7 +428,6 @@ function EditMessageDrawer({
       if (context?.prev) {
         queryClient.setQueryData(listQueryKey, context.prev)
       }
-      haptics.error()
       toast.error("failed to delete message")
     },
     onSettled: () => {

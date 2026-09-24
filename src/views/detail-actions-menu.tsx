@@ -17,7 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu"
-import { useHaptics } from "~/lib/haptics"
 
 import type { FlagEntityType } from "~/db/schema"
 
@@ -41,7 +40,6 @@ export function DetailActionsMenu({
   onDelete,
   leadingItems,
 }: DetailActionsMenuProps) {
-  const haptics = useHaptics()
   const [flagOpen, setFlagOpen] = useState(false)
 
   return (
@@ -59,7 +57,6 @@ export function DetailActionsMenu({
           <DropdownMenuItem
             onClick={() => {
               navigator.clipboard.writeText(globalThis.location.href)
-              haptics.success()
               toast.success("link copied")
             }}
           >

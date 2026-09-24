@@ -32,7 +32,6 @@ import {
 import { MobileFooter } from "~/components/site-header"
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
 import { Toaster } from "~/components/ui/sonner"
-import { HapticsProvider } from "~/lib/haptics-provider"
 import { useRootRouteContext } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type HausSession } from "~/lib/session/schema"
@@ -202,46 +201,44 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <body className="overscroll-none font-mono antialiased">
         <AppErrorBoundary>
           <ThemeProvider>
-            <HapticsProvider>
-              <Toaster />
-              <ConfirmDialog />
-              {isChromeless ? (
-                <div className="relative h-dvh overflow-y-auto">{children}</div>
-              ) : (
-                <MobileNavProvider>
-                  <div ref={setPortalContainer} className="relative h-dvh">
-                    <MobileNavIndentBackground />
-                    <MobileNavIndent>
-                      <MobileBreadcrumbsProvider>
-                        <SidebarProvider
-                          defaultOpen={sessionData.sidebarOpen}
-                          style={
-                            {
-                              "--sidebar-width": "calc(var(--spacing) * 62)",
-                              "--header-height": "calc(var(--spacing) * 12)",
-                            } as React.CSSProperties
-                          }
-                        >
-                          <GlobalShortcuts />
-                          <CommandPalette />
-                          <AppSidebar variant="inset" />
-                          <SidebarInset>
-                            <div
-                              className="flex flex-1 flex-col overflow-y-auto overscroll-none"
-                              id="main-content"
-                            >
-                              {children}
-                            </div>
-                            <MobileFooter />
-                          </SidebarInset>
-                        </SidebarProvider>
-                      </MobileBreadcrumbsProvider>
-                    </MobileNavIndent>
-                    <MobileNavPopup portalContainer={portalContainer} />
-                  </div>
-                </MobileNavProvider>
-              )}
-            </HapticsProvider>
+            <Toaster />
+            <ConfirmDialog />
+            {isChromeless ? (
+              <div className="relative h-dvh overflow-y-auto">{children}</div>
+            ) : (
+              <MobileNavProvider>
+                <div ref={setPortalContainer} className="relative h-dvh">
+                  <MobileNavIndentBackground />
+                  <MobileNavIndent>
+                    <MobileBreadcrumbsProvider>
+                      <SidebarProvider
+                        defaultOpen={sessionData.sidebarOpen}
+                        style={
+                          {
+                            "--sidebar-width": "calc(var(--spacing) * 62)",
+                            "--header-height": "calc(var(--spacing) * 12)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        <GlobalShortcuts />
+                        <CommandPalette />
+                        <AppSidebar variant="inset" />
+                        <SidebarInset>
+                          <div
+                            className="flex flex-1 flex-col overflow-y-auto overscroll-none"
+                            id="main-content"
+                          >
+                            {children}
+                          </div>
+                          <MobileFooter />
+                        </SidebarInset>
+                      </SidebarProvider>
+                    </MobileBreadcrumbsProvider>
+                  </MobileNavIndent>
+                  <MobileNavPopup portalContainer={portalContainer} />
+                </div>
+              </MobileNavProvider>
+            )}
           </ThemeProvider>
         </AppErrorBoundary>
         <TanStackDevtools

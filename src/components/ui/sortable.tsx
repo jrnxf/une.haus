@@ -23,7 +23,6 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import * as React from "react"
 
-import { useHaptics } from "~/lib/haptics"
 import { Slot } from "~/lib/slot"
 import { cn } from "~/lib/utils"
 
@@ -66,7 +65,6 @@ function Sortable<T>({
   onDragStart,
   onDragEnd,
 }: SortableRootProps<T>) {
-  const haptics = useHaptics()
   const [activeId, setActiveId] = React.useState<UniqueIdentifier | null>(null)
 
   const sensors = useSensors(
@@ -82,11 +80,10 @@ function Sortable<T>({
 
   const handleDragStart = React.useCallback(
     (event: DragStartEvent) => {
-      haptics.light()
       setActiveId(event.active.id)
       onDragStart?.(event)
     },
-    [onDragStart, haptics],
+    [onDragStart],
   )
 
   const handleDragEnd = React.useCallback(
@@ -106,7 +103,6 @@ function Sortable<T>({
       )
 
       if (activeIndex !== overIndex) {
-        haptics.medium()
         if (onMove) {
           onMove({ event, activeIndex, overIndex })
         } else {
@@ -115,7 +111,7 @@ function Sortable<T>({
         }
       }
     },
-    [value, getItemValue, onValueChange, onMove, onDragEnd, haptics],
+    [value, getItemValue, onValueChange, onMove, onDragEnd],
   )
 
   const getStrategy = () => {

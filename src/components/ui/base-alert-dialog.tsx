@@ -3,7 +3,6 @@ import * as React from "react"
 
 import { buttonVariants } from "~/components/ui/base-button"
 import { buttonVariants as uiButtonVariants } from "~/components/ui/button"
-import { useHaptics } from "~/lib/haptics"
 import { cn } from "~/lib/utils"
 
 // Base UI Alert Dialog Backdrop
@@ -120,7 +119,6 @@ function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const haptics = useHaptics()
   const isConfirmingRef = React.useRef(false)
   return (
     <AlertDialogPrimitive.Root
@@ -155,7 +153,6 @@ function ConfirmDialog({
               )}
               onClick={() => {
                 isConfirmingRef.current = true
-                if (variant === "destructive") haptics.warning()
                 onConfirm()
               }}
             >

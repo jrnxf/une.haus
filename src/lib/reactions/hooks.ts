@@ -11,7 +11,6 @@ import {
   labels,
   queryKeyFor,
 } from "~/lib/engagement/manifest"
-import { useHaptics } from "~/lib/haptics"
 import { invariant } from "~/lib/invariant"
 import { reactions } from "~/lib/reactions"
 import { type RecordWithLikesType } from "~/lib/reactions/schemas"
@@ -93,12 +92,10 @@ function useLikeRecord({
 }: ResolvedReactionArgs) {
   const qc = useQueryClient()
   const sessionUser = useSessionUser()
-  const haptics = useHaptics()
 
   const mutation = useMutation({
     mutationFn: reactions.like.fn,
     onMutate: async () => {
-      haptics.selection()
       invariant(sessionUser, "Not authenticated")
       qc.cancelQueries({ queryKey: optimisticUpdateQueryKey })
 
@@ -175,12 +172,10 @@ function useUnlikeRecord({
 }: ResolvedReactionArgs) {
   const qc = useQueryClient()
   const sessionUser = useSessionUser()
-  const haptics = useHaptics()
 
   const mutation = useMutation({
     mutationFn: reactions.unlike.fn,
     onMutate: async () => {
-      haptics.selection()
       invariant(sessionUser, "Not authenticated")
 
       qc.cancelQueries({ queryKey: optimisticUpdateQueryKey })
