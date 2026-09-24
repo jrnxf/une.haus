@@ -38,7 +38,10 @@ export function UnicycleGame({
   const isDeadRef = useRef(false)
   const onHighScoreRef = useRef(onHighScore)
   onHighScoreRef.current = onHighScore
-  const stateRef = useRef<GameState>(createInitialState(initialHighScore))
+  const [initialState] = useState<GameState>(() =>
+    createInitialState(initialHighScore),
+  )
+  const stateRef = useRef<GameState>(initialState)
   const animRef = useRef<number>(0)
   const colorsRef = useRef({
     fg: "#000",

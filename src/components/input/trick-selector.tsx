@@ -1,23 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { useVirtualizer } from "@tanstack/react-virtual"
-import { Check, X } from "lucide-react"
-import { useMemo, useState } from "react"
+import { X } from "lucide-react"
+import { useMemo } from "react"
 
+import { VirtualizedCommandCombobox } from "~/components/input/virtualized-command-combobox"
 import { Badge } from "~/components/ui/badge"
-import { Button } from "~/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "~/components/ui/command"
-import { ResponsiveCombobox } from "~/components/ui/responsive-combobox"
 import { tricks } from "~/lib/tricks"
 import { type ElementFormValue } from "~/lib/tricks/schemas"
-import { cn } from "~/lib/utils"
-import { useFzf } from "~/lib/ux/hooks/use-fzf"
+
+const EMPTY_IDS: number[] = []
 
 type TrickOption = {
   id: number
@@ -34,7 +24,7 @@ type TrickRelationship = {
 export function TrickRelationshipSelector({
   value,
   onChange,
-  excludeIds = [],
+  excludeIds = EMPTY_IDS,
   relationshipType,
 }: {
   value: TrickRelationship[]
@@ -42,49 +32,27 @@ export function TrickRelationshipSelector({
   excludeIds?: number[]
   relationshipType: "prerequisite" | "related"
 }) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [listElement, setListElement] = useState<HTMLDivElement | null>(null)
-
   const { data: allTricks } = useSuspenseQuery(
     tricks.search.queryOptions({ excludeIds }),
   )
 
-  const selectedIds = value.map((v) => v.targetTrickId)
+  const selectedIds = useMemo(
+    () => new Set(value.map((v) => v.targetTrickId)),
+    [value],
+  )
+
+  const excludedIds = useMemo(() => new Set(excludeIds), [excludeIds])
 
   const availableTricks = useMemo(
     () =>
       allTricks.filter(
-        (trick) =>
-          !excludeIds.includes(trick.id) && !selectedIds.includes(trick.id),
+        (trick) => !excludedIds.has(trick.id) && !selectedIds.has(trick.id),
       ),
-    [allTricks, excludeIds, selectedIds],
+    [allTricks, excludedIds, selectedIds],
   )
-
-  const searchReadyTricks = useMemo(
-    () =>
-      availableTricks.map((trick) => ({
-        ...trick,
-        searchKey: trick.name.toLowerCase(),
-      })),
-    [availableTricks],
-  )
-
-  const fzf = useFzf([searchReadyTricks, { selector: (t) => t.searchKey }])
-  const filteredTricks = query
-    ? fzf.find(query.toLowerCase())
-    : searchReadyTricks.map((item) => ({ item }))
-
-  const virtualizer = useVirtualizer({
-    count: filteredTricks.length,
-    getScrollElement: () => listElement,
-    estimateSize: () => 36,
-    overscan: 5,
-  })
 
   const handleSelect = (trick: TrickOption) => {
-    const isSelected = selectedIds.includes(trick.id)
-    if (isSelected) {
+    if (selectedIds.has(trick.id)) {
       onChange(value.filter((v) => v.targetTrickId !== trick.id))
     } else {
       onChange([
@@ -96,7 +64,6 @@ export function TrickRelationshipSelector({
         },
       ])
     }
-    setQuery("")
   }
 
   const handleRemove = (trickId: number) => {
@@ -105,68 +72,16 @@ export function TrickRelationshipSelector({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ResponsiveCombobox
-        open={open}
-        onOpenChange={(nextOpen) => {
-          setOpen(nextOpen)
-          if (!nextOpen) setQuery("")
-        }}
+      <VirtualizedCommandCombobox
+        items={availableTricks}
+        selectedIds={selectedIds}
         title="select tricks"
-        trigger={
-          <Button
-            variant="secondary"
-            className="h-auto rounded-full py-0.5 text-xs"
-          >
-            add
-          </Button>
-        }
-      >
-        <Command shouldFilter={false}>
-          <CommandInput
-            placeholder="search tricks..."
-            value={query}
-            onValueChange={setQuery}
-          />
-          <CommandList ref={setListElement}>
-            <CommandEmpty>no tricks found</CommandEmpty>
-            <CommandGroup>
-              <div
-                style={{
-                  height: virtualizer.getTotalSize(),
-                  position: "relative",
-                }}
-              >
-                {virtualizer.getVirtualItems().map((virtualItem) => {
-                  const { item: trick } = filteredTricks[virtualItem.index]
-                  const isSelected = selectedIds.includes(trick.id)
-                  return (
-                    <CommandItem
-                      key={trick.id}
-                      value={trick.id.toString()}
-                      onSelect={() => handleSelect(trick)}
-                      style={{
-                        position: "absolute",
-                        top: virtualItem.start,
-                        left: 0,
-                        right: 0,
-                        height: `${virtualItem.size}px`,
-                      }}
-                    >
-                      <span className="truncate">{trick.name}</span>
-                      <Check
-                        className={cn(
-                          "ml-auto size-4",
-                          isSelected ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  )
-                })}
-              </div>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </ResponsiveCombobox>
+        triggerLabel="add"
+        searchPlaceholder="search tricks..."
+        emptyText="no tricks found"
+        clearQueryOnSelect
+        onSelect={handleSelect}
+      />
 
       {value.map((rel) => (
         <Badge
@@ -197,45 +112,19 @@ export function ElementSelector({
   value: ElementFormValue[]
   onChange: (elements: ElementFormValue[]) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [listElement, setListElement] = useState<HTMLDivElement | null>(null)
-
   const { data: allElements = [] } = useSuspenseQuery(
     tricks.elements.list.queryOptions(),
   )
 
-  const selectedIds = value.map((v) => v.id)
+  const selectedIds = useMemo(() => new Set(value.map((v) => v.id)), [value])
 
   const availableElements = useMemo(
-    () => allElements.filter((element) => !selectedIds.includes(element.id)),
+    () => allElements.filter((element) => !selectedIds.has(element.id)),
     [allElements, selectedIds],
   )
 
-  const searchReadyElements = useMemo(
-    () =>
-      availableElements.map((element) => ({
-        ...element,
-        searchKey: element.name.toLowerCase(),
-      })),
-    [availableElements],
-  )
-
-  const fzf = useFzf([searchReadyElements, { selector: (e) => e.searchKey }])
-  const filteredElements = query
-    ? fzf.find(query.toLowerCase())
-    : searchReadyElements.map((item) => ({ item }))
-
-  const virtualizer = useVirtualizer({
-    count: filteredElements.length,
-    getScrollElement: () => listElement,
-    estimateSize: () => 36,
-    overscan: 5,
-  })
-
-  const handleSelect = (element: { id: number; name: string }) => {
-    const isSelected = selectedIds.includes(element.id)
-    if (isSelected) {
+  const handleSelect = (element: TrickOption) => {
+    if (selectedIds.has(element.id)) {
       onChange(value.filter((v) => v.id !== element.id))
     } else {
       onChange([
@@ -254,68 +143,15 @@ export function ElementSelector({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ResponsiveCombobox
-        open={open}
-        onOpenChange={(nextOpen) => {
-          setOpen(nextOpen)
-          if (!nextOpen) setQuery("")
-        }}
+      <VirtualizedCommandCombobox
+        items={availableElements}
+        selectedIds={selectedIds}
         title="select elements"
-        trigger={
-          <Button
-            variant="secondary"
-            className="h-auto rounded-full py-0.5 text-xs"
-          >
-            add
-          </Button>
-        }
-      >
-        <Command shouldFilter={false}>
-          <CommandInput
-            placeholder="search elements..."
-            value={query}
-            onValueChange={setQuery}
-          />
-          <CommandList ref={setListElement}>
-            <CommandEmpty>no elements found</CommandEmpty>
-            <CommandGroup>
-              <div
-                style={{
-                  height: virtualizer.getTotalSize(),
-                  position: "relative",
-                }}
-              >
-                {virtualizer.getVirtualItems().map((virtualItem) => {
-                  const { item: element } = filteredElements[virtualItem.index]
-                  const isSelected = selectedIds.includes(element.id)
-                  return (
-                    <CommandItem
-                      key={element.id}
-                      value={element.id.toString()}
-                      onSelect={() => handleSelect(element)}
-                      style={{
-                        position: "absolute",
-                        top: virtualItem.start,
-                        left: 0,
-                        right: 0,
-                        height: `${virtualItem.size}px`,
-                      }}
-                    >
-                      <span className="truncate">{element.name}</span>
-                      <Check
-                        className={cn(
-                          "ml-auto size-4",
-                          isSelected ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  )
-                })}
-              </div>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </ResponsiveCombobox>
+        triggerLabel="add"
+        searchPlaceholder="search elements..."
+        emptyText="no elements found"
+        onSelect={handleSelect}
+      />
 
       {value.map((element) => (
         <Badge key={element.id} variant="secondary" className="gap-1 pr-1">

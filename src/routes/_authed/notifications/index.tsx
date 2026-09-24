@@ -4,7 +4,6 @@ import { Check, GhostIcon, Loader2 } from "lucide-react"
 import { Suspense, useDeferredValue, useState } from "react"
 
 import { ContentHeaderRow } from "~/components/content-header-row"
-import { formatActorNames } from "~/components/notifications/notification-item"
 import {
   NotificationTimeline,
   NotificationTimelineItem,
@@ -22,6 +21,7 @@ import {
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { notifications } from "~/lib/notifications"
+import { formatActorNames } from "~/lib/notifications/format"
 import {
   useMarkAllNotificationsRead,
   useMarkGroupRead,

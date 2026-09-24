@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { EllipsisVerticalIcon } from "lucide-react"
 import { type ReactNode } from "react"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { Button } from "~/components/ui/button"
 import {
   DropdownMenu,

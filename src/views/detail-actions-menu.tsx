@@ -8,7 +8,7 @@ import {
 import { type ReactElement, type ReactNode, useState } from "react"
 import { toast } from "sonner"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { FlagTray } from "~/components/flag-tray"
 import { Button } from "~/components/ui/button"
 import {

@@ -326,40 +326,42 @@ export const deleteTrickServerFn = createServerFn({
 export const getAllTricksForGraphServerFn = createServerFn({
   method: "GET",
 }).handler(async () => {
-  const { transformDbTricksToTricksData } = await import("./compute")
-  const dbTricks = await db.query.tricks.findMany({
-    with: {
-      videos: {
-        with: {
-          video: {
-            columns: {
-              playbackId: true,
+  const [{ transformDbTricksToTricksData }, dbTricks] = await Promise.all([
+    import("./compute"),
+    db.query.tricks.findMany({
+      with: {
+        videos: {
+          with: {
+            video: {
+              columns: {
+                playbackId: true,
+              },
+            },
+          },
+          orderBy: (videos, { asc, sql }) => [
+            sql`${videos.pinnedRank} asc nulls last`,
+            asc(videos.sortOrder),
+          ],
+        },
+        elementAssignments: {
+          with: {
+            element: true,
+          },
+        },
+        outgoingRelationships: {
+          with: {
+            targetTrick: {
+              columns: {
+                id: true,
+                name: true,
+              },
             },
           },
         },
-        orderBy: (videos, { asc, sql }) => [
-          sql`${videos.pinnedRank} asc nulls last`,
-          asc(videos.sortOrder),
-        ],
       },
-      elementAssignments: {
-        with: {
-          element: true,
-        },
-      },
-      outgoingRelationships: {
-        with: {
-          targetTrick: {
-            columns: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
-    },
-    orderBy: [asc(tricks.name)],
-  })
+      orderBy: [asc(tricks.name)],
+    }),
+  ])
   return transformDbTricksToTricksData(
     dbTricks as unknown as DbTrickWithRelations[],
   )

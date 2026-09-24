@@ -36,12 +36,16 @@ export function useCreateSet() {
   })
 }
 
-export function useCreateSubmission() {
+export function useCreateSubmission({ setId }: { setId: number }) {
   const navigate = useNavigate()
+  const qc = useQueryClient()
 
   return useMutation({
     mutationFn: games.rius.submissions.create.fn,
     onSuccess: (data) => {
+      qc.invalidateQueries({
+        queryKey: games.rius.sets.get.queryOptions({ setId }).queryKey,
+      })
       toast.success("submission uploaded", {
         action: {
           label: "View",

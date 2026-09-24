@@ -304,6 +304,15 @@ function DataGridTableBodyRow<TData>({
           : undefined
       }
       onClick={() => props.onRowClick && props.onRowClick(row.original)}
+      // diverges from upstream reui: a clickable row is unreachable by keyboard without these
+      tabIndex={props.onRowClick ? 0 : undefined}
+      role={props.onRowClick ? "button" : undefined}
+      onKeyDown={(event) => {
+        if (!props.onRowClick) return
+        if (event.key !== "Enter" && event.key !== " ") return
+        if (event.key === " ") event.preventDefault()
+        props.onRowClick(row.original)
+      }}
       className={cn(
         "hover:bg-muted/40 data-[state=selected]:bg-muted/50",
         props.onRowClick && "cursor-pointer",

@@ -5,7 +5,8 @@ import { Button } from "~/components/ui/button"
 import { Checkbox } from "~/components/ui/checkbox"
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
-import { getMuxPoster, VideoPlayer } from "~/components/video-player"
+import { VideoPlayer } from "~/components/video-player"
+import { getMuxPoster } from "~/lib/mux/poster"
 
 import type { GameVideoOption } from "~/lib/tricks"
 

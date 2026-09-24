@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Suspense } from "react"
+import { Suspense, useMemo } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { MentionTextarea } from "~/components/input/mention-textarea"
@@ -98,7 +98,10 @@ export function TrickForm({
     })
   }
 
-  const excludeIds = excludeTrickId ? [excludeTrickId] : []
+  const excludeIds = useMemo(
+    () => (excludeTrickId ? [excludeTrickId] : []),
+    [excludeTrickId],
+  )
 
   return (
     <Form rhf={rhf} onSubmit={handleSubmit(handleFormSubmit)}>

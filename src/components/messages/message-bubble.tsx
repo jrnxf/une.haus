@@ -12,7 +12,7 @@ import {
 import React from "react"
 import { toast } from "sonner"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { FlagTray } from "~/components/flag-tray"
 import { MentionTextarea } from "~/components/input/mention-textarea"
 import { LikesButtonGroup } from "~/components/likes-button-group"
@@ -184,7 +184,7 @@ export function MessageBubble({
                 type="button"
                 data-slot="message-bubble"
                 aria-label={`Message: ${message.content}`}
-                className="bg-card hover:bg-accent/50 relative cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-all"
+                className="bg-card hover:bg-accent/50 relative cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-colors"
                 style={{ wordBreak: "break-word" }}
               >
                 <RichText

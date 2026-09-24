@@ -51,7 +51,7 @@ export function CreateRiuSubmissionForm({ riuSetId }: { riuSetId: number }) {
 
   const { control, handleSubmit } = rhf
 
-  const createSubmission = useCreateSubmission()
+  const createSubmission = useCreateSubmission({ setId: riuSetId })
 
   return (
     <Form

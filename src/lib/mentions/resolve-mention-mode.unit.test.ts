@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 
-import { resolveMentionMode } from "./rich-text"
+import { resolveMentionMode } from "./resolve-mention-mode"
 
 describe("resolveMentionMode", () => {
   it("defaults to link mode", () => {

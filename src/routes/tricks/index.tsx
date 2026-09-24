@@ -3,7 +3,6 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import {
   createColumnHelper,
-  flexRender,
   getCoreRowModel,
   getSortedRowModel,
   type SortingState,
@@ -22,20 +21,9 @@ import {
 } from "~/components/filters/filters"
 import { NoResultsEmpty } from "~/components/no-results-empty"
 import { PageHeader } from "~/components/page-header"
-import {
-  DataGrid,
-  DataGridContainer,
-} from "~/components/reui/data-grid/data-grid"
+import { DataGrid } from "~/components/reui/data-grid/data-grid"
 import { DataGridColumnHeader } from "~/components/reui/data-grid/data-grid-column-header"
-import {
-  DataGridTableBase,
-  DataGridTableBody,
-  DataGridTableBodyRow,
-  DataGridTableBodyRowCell,
-  DataGridTableHead,
-  DataGridTableHeadRow,
-  DataGridTableHeadRowCell,
-} from "~/components/reui/data-grid/data-grid-table"
+import { VirtualizedDataGridTable } from "~/components/reui/data-grid/virtualized-data-grid-table"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import { normalizeMultiOperator } from "~/hooks/use-filtered-list"
@@ -483,12 +471,6 @@ function TricksListPage() {
     initialRect: { width: 0, height: 800 },
   })
 
-  const virtualRows = virtualizer.getVirtualItems()
-  const totalSize = virtualizer.getTotalSize()
-  const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start : 0
-  const paddingBottom =
-    virtualRows.length > 0 ? totalSize - (virtualRows.at(-1)?.end ?? 0) : 0
-
   const handleRowClick = useCallback(
     (trick: Trick) => {
       navigate({
@@ -551,64 +533,11 @@ function TricksListPage() {
               rowBorder: true,
             }}
           >
-            <DataGridContainer className="flex min-h-0 flex-1 flex-col">
-              <div
-                ref={scrollRef}
-                className="min-h-0 flex-1 overflow-auto overscroll-none"
-              >
-                <DataGridTableBase>
-                  <DataGridTableHead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <DataGridTableHeadRow
-                        key={headerGroup.id}
-                        headerGroup={headerGroup}
-                      >
-                        {headerGroup.headers.map((header) => (
-                          <DataGridTableHeadRowCell
-                            key={header.id}
-                            header={header}
-                          >
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
-                          </DataGridTableHeadRowCell>
-                        ))}
-                      </DataGridTableHeadRow>
-                    ))}
-                  </DataGridTableHead>
-                  <DataGridTableBody>
-                    {paddingTop > 0 && (
-                      <tr>
-                        <td style={{ height: paddingTop }} />
-                      </tr>
-                    )}
-                    {virtualRows.map((virtualRow) => {
-                      const row = rows[virtualRow.index]!
-                      return (
-                        <DataGridTableBodyRow key={row.id} row={row}>
-                          {row.getVisibleCells().map((cell) => (
-                            <DataGridTableBodyRowCell key={cell.id} cell={cell}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}
-                            </DataGridTableBodyRowCell>
-                          ))}
-                        </DataGridTableBodyRow>
-                      )
-                    })}
-                    {paddingBottom > 0 && (
-                      <tr>
-                        <td style={{ height: paddingBottom }} />
-                      </tr>
-                    )}
-                  </DataGridTableBody>
-                </DataGridTableBase>
-              </div>
-            </DataGridContainer>
+            <VirtualizedDataGridTable
+              table={table}
+              virtualizer={virtualizer}
+              scrollRef={scrollRef}
+            />
           </DataGrid>
         )}
       </div>

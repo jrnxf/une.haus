@@ -127,6 +127,56 @@ describe("game-start-reminders task", () => {
     expect(second.skipped).toBe(1)
   })
 
+  it("dedup across many users: only the un-reminded ones receive mail", async () => {
+    const riu = await seedUpcomingRiu()
+    const hoursUntilStart = getHoursUntilNextRotation(NOW)
+    const hoursBefore = clamp(hoursUntilStart)
+    expect(matchesWindow(hoursUntilStart, hoursBefore)).toBe(true)
+
+    const seeded = []
+    for (let index = 0; index < 12; index++) {
+      seeded.push(
+        await seedReminderUser({ gameStartReminderHoursBefore: hoursBefore }),
+      )
+    }
+
+    const alreadyReminded = seeded.slice(0, 5)
+    await db.insert(emailRemindersSent).values(
+      alreadyReminded.map((user) => ({
+        userId: user.id,
+        reminderType: "game_start" as const,
+        riuId: riu.id,
+      })),
+    )
+
+    const result = await runReminders()
+
+    expect(result.skipped).toBe(alreadyReminded.length)
+    expect(result.sent).toBe(seeded.length - alreadyReminded.length)
+    expect(result.errors).toBe(0)
+    expect(sendMock).toHaveBeenCalledTimes(
+      seeded.length - alreadyReminded.length,
+    )
+
+    const recipients = new Set(
+      sendMock.mock.calls.flatMap((call) => call[0]?.to ?? []),
+    )
+    for (const user of alreadyReminded) {
+      expect(recipients.has(user.email)).toBe(false)
+    }
+    for (const user of seeded.slice(alreadyReminded.length)) {
+      expect(recipients.has(user.email)).toBe(true)
+    }
+
+    const sentRows = await db.query.emailRemindersSent.findMany({
+      where: and(
+        eq(emailRemindersSent.reminderType, "game_start"),
+        eq(emailRemindersSent.riuId, riu.id),
+      ),
+    })
+    expect(sentRows).toHaveLength(seeded.length)
+  })
+
   it("non-matching window: user whose hoursBefore fails the filter gets nothing", async () => {
     await seedUpcomingRiu()
     const hoursUntilStart = getHoursUntilNextRotation(NOW)

@@ -290,21 +290,23 @@ export async function archiveSiuRound({
 
   const participantIds = [...new Set(round.sets.map((s) => s.userId))]
 
-  for (const participantId of participantIds) {
-    await createNotification({
-      userId: participantId,
-      actorId: context.user.id,
-      type: "chain_archived",
-      entityType: "siu",
-      entityId: input.roundId,
-      data: {
-        actorName: context.user.name,
-        actorAvatarId: context.user.avatarId,
-        entityTitle: `Stack It Up round with ${round.sets.length} ${pluralize("trick", round.sets.length)}`,
-        entityPreview: "Round has been archived",
-      },
-    })
-  }
+  await Promise.all(
+    participantIds.map((participantId) =>
+      createNotification({
+        userId: participantId,
+        actorId: context.user.id,
+        type: "chain_archived",
+        entityType: "siu",
+        entityId: input.roundId,
+        data: {
+          actorName: context.user.name,
+          actorAvatarId: context.user.avatarId,
+          entityTitle: `Stack It Up round with ${round.sets.length} ${pluralize("trick", round.sets.length)}`,
+          entityPreview: "Round has been archived",
+        },
+      }),
+    ),
+  )
 
   await topUpActiveRounds()
 

@@ -1,5 +1,5 @@
 import "@tanstack/react-start/server-only"
-import { and, eq, sql } from "drizzle-orm"
+import { and, eq, inArray, sql } from "drizzle-orm"
 import { Resend } from "resend"
 
 import GameStartReminderTemplate from "../../../emails/game-start-reminder"
@@ -18,6 +18,10 @@ import { signUnsubscribe } from "~/lib/notification-settings/unsubscribe-token"
 import { TASK_NAMES } from "~/lib/tasks/constants"
 
 const resendClient = new Resend(env.RESEND_API_KEY)
+
+// Resend rate-limits bursts, so reminders go out in bounded batches rather than
+// all at once.
+const SEND_CHUNK_SIZE = 10
 
 // Reminder timing derives from the single rotation cadence. `now` is injectable
 // so tests can pin a deterministic instant; production callers use the real
@@ -91,27 +95,40 @@ export async function sendGameStartReminders(now: Date = new Date()) {
     potentialUsers: usersToNotify.length,
   })
 
-  let sentCount = 0
-  let skippedCount = 0
-  let errorCount = 0
+  // Users who already have a reminder row for this RIU are resolved in one
+  // query rather than one per user.
+  const alreadyRemindedUserIds = new Set<number>()
 
-  for (const user of usersToNotify) {
-    try {
-      // Check if we already sent a reminder for this RIU
-      const existingReminder = await db.query.emailRemindersSent.findFirst({
-        where: and(
-          eq(emailRemindersSent.userId, user.userId),
+  if (usersToNotify.length > 0) {
+    const existingReminders = await db
+      .select({ userId: emailRemindersSent.userId })
+      .from(emailRemindersSent)
+      .where(
+        and(
           eq(emailRemindersSent.reminderType, "game_start"),
           eq(emailRemindersSent.riuId, upcomingRiu.id),
+          inArray(
+            emailRemindersSent.userId,
+            usersToNotify.map((user) => user.userId),
+          ),
         ),
-      })
+      )
 
-      if (existingReminder) {
-        skippedCount++
-        continue
-      }
+    for (const reminder of existingReminders) {
+      alreadyRemindedUserIds.add(reminder.userId)
+    }
+  }
 
-      // Send email
+  const pendingUsers = usersToNotify.filter(
+    (user) => !alreadyRemindedUserIds.has(user.userId),
+  )
+
+  let sentCount = 0
+  const skippedCount = usersToNotify.length - pendingUsers.length
+  let errorCount = 0
+
+  const sendReminder = async (user: (typeof pendingUsers)[number]) => {
+    try {
       const { error } = await resendClient.emails.send({
         from: "une.haus <colby@jrnxf.co>",
         to: [user.email],
@@ -134,8 +151,7 @@ export async function sendGameStartReminders(now: Date = new Date()) {
           userId: user.userId,
           err: error,
         })
-        errorCount++
-        continue
+        return "error" as const
       }
 
       // Record that we sent this reminder
@@ -145,15 +161,29 @@ export async function sendGameStartReminders(now: Date = new Date()) {
         riuId: upcomingRiu.id,
       })
 
-      sentCount++
       logger.info("reminder sent", { task, userId: user.userId })
+      return "sent" as const
     } catch (error) {
       logger.error("reminder processing error", {
         task,
         userId: user.userId,
         err: error,
       })
-      errorCount++
+      return "error" as const
+    }
+  }
+
+  for (let index = 0; index < pendingUsers.length; index += SEND_CHUNK_SIZE) {
+    const outcomes = await Promise.all(
+      pendingUsers.slice(index, index + SEND_CHUNK_SIZE).map(sendReminder),
+    )
+
+    for (const outcome of outcomes) {
+      if (outcome === "sent") {
+        sentCount++
+      } else {
+        errorCount++
+      }
     }
   }
 

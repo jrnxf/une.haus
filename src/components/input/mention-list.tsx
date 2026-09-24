@@ -27,6 +27,12 @@ export const MentionList = forwardRef<
 >(function MentionList(props, ref) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [previousItems, setPreviousItems] = useState(props.items)
+
+  if (previousItems !== props.items) {
+    setPreviousItems(props.items)
+    setSelectedIndex(0)
+  }
 
   const selectItem = (index: number) => {
     const item = props.items[index]
@@ -54,10 +60,6 @@ export const MentionList = forwardRef<
       return false
     },
   }))
-
-  useEffect(() => {
-    setSelectedIndex(0)
-  }, [props.items])
 
   // Scroll selected item into view
   useEffect(() => {

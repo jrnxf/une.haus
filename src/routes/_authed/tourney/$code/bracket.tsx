@@ -10,7 +10,7 @@ import {
   useState,
 } from "react"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { PageHeader } from "~/components/page-header"
 import { BracketContainer, FitText } from "~/components/tourney/bracket-graph"
 import {

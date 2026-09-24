@@ -13,7 +13,7 @@ import { useTheme } from "~/lib/theme/context"
 import { type UsersWithLocationsData } from "~/lib/users"
 import { cn } from "~/lib/utils"
 
-import type MapLibreGL from "maplibre-gl"
+import type * as MapLibreGL from "maplibre-gl"
 
 type UserGlobeProps = {
   users: UsersWithLocationsData

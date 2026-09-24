@@ -7,7 +7,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { type ReactNode, useState } from "react"
 import { toast } from "sonner"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
 import {

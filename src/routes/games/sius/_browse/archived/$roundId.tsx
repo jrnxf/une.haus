@@ -10,13 +10,14 @@ export const Route = createFileRoute("/games/sius/_browse/archived/$roundId")({
   loader: async ({ context, params }) => {
     const roundId = Number.parseInt(params.roundId, 10)
 
-    await context.queryClient.ensureQueryData(
-      games.sius.rounds.archived.list.queryOptions(),
-    )
-
-    const round = await context.queryClient.ensureQueryData(
-      games.sius.rounds.archived.get.queryOptions({ roundId }),
-    )
+    const [, round] = await Promise.all([
+      context.queryClient.ensureQueryData(
+        games.sius.rounds.archived.list.queryOptions(),
+      ),
+      context.queryClient.ensureQueryData(
+        games.sius.rounds.archived.get.queryOptions({ roundId }),
+      ),
+    ])
 
     invariant(round, "Round not found")
   },

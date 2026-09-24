@@ -58,22 +58,23 @@ export async function getOnlineUsers() {
   // garbage the next poll can clear.
   await db.delete(presence).where(lt(presence.lastSeenAt, cutoff))
 
-  const onlineUserDetails = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      avatarId: users.avatarId,
-    })
-    .from(presence)
-    .innerJoin(users, eq(users.id, presence.userId))
-    .where(and(isNotNull(presence.userId), gt(presence.lastSeenAt, cutoff)))
+  const [onlineUserDetails, guestRows] = await Promise.all([
+    db
+      .select({
+        id: users.id,
+        name: users.name,
+        avatarId: users.avatarId,
+      })
+      .from(presence)
+      .innerJoin(users, eq(users.id, presence.userId))
+      .where(and(isNotNull(presence.userId), gt(presence.lastSeenAt, cutoff))),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(presence)
+      .where(and(isNull(presence.userId), gt(presence.lastSeenAt, cutoff))),
+  ])
 
-  const [guestRow] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(presence)
-    .where(and(isNull(presence.userId), gt(presence.lastSeenAt, cutoff)))
-
-  const guests = guestRow?.count ?? 0
+  const guests = guestRows[0]?.count ?? 0
 
   return {
     users: onlineUserDetails,

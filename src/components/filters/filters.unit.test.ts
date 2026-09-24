@@ -6,9 +6,9 @@ import {
   getFieldsSortedByActive,
   toggleFilterByField,
   toggleFilterValue,
-} from "./filters"
+} from "./filter-utils"
 
-import type { ActiveFilter, FilterOption } from "./filters"
+import type { ActiveFilter, FilterOption } from "./filter-utils"
 
 // --- countSelected ---
 

@@ -16,9 +16,10 @@ import { PageHeader } from "~/components/page-header"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
-import { getMuxPoster, VideoPlayer } from "~/components/video-player"
+import { VideoPlayer } from "~/components/video-player"
 import { type UserDiscipline } from "~/db/schema"
 import { invariant } from "~/lib/invariant"
+import { getMuxPoster } from "~/lib/mux/poster"
 import { session } from "~/lib/session"
 import { generateOrderId, type OrderedRiderEntry } from "~/lib/tourney/bracket"
 import { users } from "~/lib/users"
@@ -69,7 +70,7 @@ function RouteComponent() {
   const [disciplines, setDisciplines] = useState<UserDiscipline[]>(
     video.disciplines ?? [],
   )
-  const [riders, setRiders] = useState<OrderedRiderEntry[]>(
+  const [riders, setRiders] = useState<OrderedRiderEntry[]>(() =>
     video.riders.map((r) => ({
       orderId: generateOrderId(),
       userId: r.userId,

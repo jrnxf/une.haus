@@ -12,7 +12,7 @@ import {
   useFormContext,
 } from "react-hook-form"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { Button, type ButtonProps } from "~/components/ui/button"
 import { ButtonGroup } from "~/components/ui/button-group"
 import {

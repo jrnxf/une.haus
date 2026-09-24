@@ -25,13 +25,14 @@ export const Route = createFileRoute("/games/rius/_browse/archived/$riuId")({
   loader: async ({ context, params }) => {
     const riuId = Number.parseInt(params.riuId, 10)
 
-    await context.queryClient.ensureQueryData(
-      games.rius.archived.list.queryOptions(),
-    )
-
-    const riu = await context.queryClient.ensureQueryData(
-      games.rius.archived.get.queryOptions({ riuId }),
-    )
+    const [, riu] = await Promise.all([
+      context.queryClient.ensureQueryData(
+        games.rius.archived.list.queryOptions(),
+      ),
+      context.queryClient.ensureQueryData(
+        games.rius.archived.get.queryOptions({ riuId }),
+      ),
+    ])
 
     invariant(riu, "RIU not found")
   },

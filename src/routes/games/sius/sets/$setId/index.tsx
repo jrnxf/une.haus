@@ -17,12 +17,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip"
-import { getMuxPoster, VideoPlayer } from "~/components/video-player"
+import { VideoPlayer } from "~/components/video-player"
 import { games } from "~/lib/games"
 import { useDeleteSet } from "~/lib/games/sius/hooks"
 import { invariant } from "~/lib/invariant"
 import { messages } from "~/lib/messages"
 import { useCreateMessage } from "~/lib/messages/hooks"
+import { getMuxPoster } from "~/lib/mux/poster"
 import { useLikeUnlikeRecord } from "~/lib/reactions/hooks"
 import { seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"

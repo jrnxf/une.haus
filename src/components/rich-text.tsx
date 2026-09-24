@@ -2,10 +2,12 @@ import { Link } from "@tanstack/react-router"
 import { Fragment } from "react"
 
 import { type RichToken, parseRichTokens } from "~/lib/mentions/parse"
+import {
+  type MentionMode,
+  resolveMentionMode,
+} from "~/lib/mentions/resolve-mention-mode"
 import { useUserMap } from "~/lib/users/use-user-map"
 import { preprocessText } from "~/lib/utils"
-
-type MentionMode = "link" | "accentText" | "plainText"
 
 type RichTextProps = {
   content: string
@@ -13,15 +15,6 @@ type RichTextProps = {
   mentionMode?: MentionMode
   /** Backward-compatible alias for mentionMode="accentText" */
   disableLinks?: boolean
-}
-
-export function resolveMentionMode({
-  mentionMode,
-  disableLinks,
-}: Pick<RichTextProps, "mentionMode" | "disableLinks">): MentionMode {
-  if (mentionMode) return mentionMode
-  if (disableLinks) return "accentText"
-  return "link"
 }
 
 export function RichText({

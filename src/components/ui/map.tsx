@@ -1,6 +1,7 @@
 import { Loader2, Locate, Maximize, Minus, Plus, XIcon } from "lucide-react"
-import MapLibreGL, { type PopupOptions } from "maplibre-gl"
+import * as MapLibreGL from "maplibre-gl"
 import "maplibre-gl/dist/maplibre-gl.css"
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url"
 import {
   createContext,
   forwardRef,
@@ -19,6 +20,11 @@ import { createPortal } from "react-dom"
 import { Button } from "~/components/ui/button"
 import { useTheme } from "~/lib/theme/context"
 import { cn } from "~/lib/utils"
+
+// maplibre resolves its worker relative to its own module URL, which neither
+// vite's dep pre-bundle (dev) nor the built chunk (prod) can serve. Hand it a
+// bundled worker asset instead.
+MapLibreGL.setWorkerUrl(maplibreWorkerUrl)
 
 type MapContextValue = {
   map: MapLibreGL.Map | null
@@ -64,15 +70,28 @@ type MapProps = {
 
 type MapRef = MapLibreGL.Map
 
-// Helper to fetch and transform a style
-async function fetchAndTransformStyle(
-  styleUrl: string,
+// Fetches and transforms a style URL. Falls back to the untransformed URL so a
+// CDN failure still renders a map instead of leaving the container blank.
+async function resolveStyle(
+  styleOption: MapStyleOption,
   theme: "light" | "dark",
   transformStyle?: MapProps["transformStyle"],
-): Promise<MapLibreGL.StyleSpecification> {
-  const response = await fetch(styleUrl)
-  const style = (await response.json()) as MapLibreGL.StyleSpecification
-  return transformStyle ? transformStyle(style, theme) : style
+): Promise<MapStyleOption> {
+  if (typeof styleOption !== "string" || !transformStyle) return styleOption
+
+  try {
+    const response = await fetch(styleOption)
+    if (!response.ok) {
+      throw new Error(
+        `failed to fetch map style ${styleOption}: ${response.status} ${response.statusText}`,
+      )
+    }
+    const style = (await response.json()) as MapLibreGL.StyleSpecification
+    return transformStyle(style, theme)
+  } catch (error) {
+    console.error(error)
+    return styleOption
+  }
 }
 
 const Map = forwardRef<MapRef, MapProps>(function Map(
@@ -112,7 +131,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   // Initialize map with potentially transformed style
   // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- the cleanup calls map.remove(), which drops every listener registered on the map
   useEffect(() => {
-    if (!containerRef.current) return
+    const container = containerRef.current
+    if (!container) return
 
     let cancelled = false
     let map: MapLibreGL.Map | null = null
@@ -124,17 +144,12 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     currentThemeRef.current = theme
 
     const initMap = async () => {
-      let style: MapStyleOption = styleOption
-
-      // If it's a URL and we have a transform function, fetch and transform
-      if (typeof styleOption === "string" && transformStyle) {
-        style = await fetchAndTransformStyle(styleOption, theme, transformStyle)
-      }
+      const style = await resolveStyle(styleOption, theme, transformStyle)
 
       if (cancelled) return
 
-      map = new MapLibreGL.Map({
-        container: containerRef.current!,
+      const instance = new MapLibreGL.Map({
+        container,
         style,
         renderWorldCopies: false,
         attributionControl: {
@@ -142,20 +157,23 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
         },
         ...propsRef.current,
       })
+      map = instance
 
       const loadHandler = () => {
         if (projectionRef.current) {
-          map?.setProjection(projectionRef.current)
+          instance.setProjection(projectionRef.current)
         }
         setIsLoaded(true)
-        onLoadRef.current?.(map!)
+        onLoadRef.current?.(instance)
       }
 
-      map.on("load", loadHandler)
-      setMapInstance(map)
+      instance.on("load", loadHandler)
+      setMapInstance(instance)
     }
 
-    initMap()
+    initMap().catch((error: unknown) => {
+      console.error(error)
+    })
 
     return () => {
       cancelled = true
@@ -180,11 +198,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     const styleOption = theme === "dark" ? mapStyles.dark : mapStyles.light
 
     const applyStyle = async () => {
-      let style: MapStyleOption = styleOption
-
-      if (typeof styleOption === "string" && transformStyle) {
-        style = await fetchAndTransformStyle(styleOption, theme, transformStyle)
-      }
+      const style = await resolveStyle(styleOption, theme, transformStyle)
 
       const handleStyleLoad = () => {
         if (projectionRef.current) {
@@ -197,7 +211,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       mapInstance.setStyle(style, { diff: false })
     }
 
-    applyStyle()
+    applyStyle().catch((error: unknown) => {
+      console.error(error)
+    })
   }, [mapInstance, resolvedTheme, mapStyles, transformStyle])
 
   const contextValue = useMemo(
@@ -389,7 +405,7 @@ type MapPopupProps = {
   className?: string
   /** Show a close button in the popup (default: false) */
   closeButton?: boolean
-} & Omit<PopupOptions, "className" | "closeButton">
+} & Omit<MapLibreGL.PopupOptions, "className" | "closeButton">
 
 function MapPopup({
   longitude,
@@ -745,19 +761,15 @@ function MapClusterLayer<
     if (!isLoaded || !map) return
 
     // Cluster click handler - zoom into cluster
-    const handleClusterClick = async (
-      e: MapLibreGL.MapMouseEvent & {
-        features?: MapLibreGL.MapGeoJSONFeature[]
-      },
-    ) => {
+    const handleClusterClick = async (e: MapLibreGL.MapLayerMouseEvent) => {
       e.originalEvent?.stopPropagation()
 
       const features = map.queryRenderedFeatures(e.point, {
         layers: [clusterLayerId],
       })
-      if (features.length === 0) return
-
       const feature = features[0]
+      if (!feature) return
+
       const clusterId = feature.properties?.cluster_id as number
       const pointCount = feature.properties?.point_count as number
       const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [
@@ -790,16 +802,12 @@ function MapClusterLayer<
     }
 
     // Unclustered point click handler
-    const handlePointClick = (
-      e: MapLibreGL.MapMouseEvent & {
-        features?: MapLibreGL.MapGeoJSONFeature[]
-      },
-    ) => {
+    const handlePointClick = (e: MapLibreGL.MapLayerMouseEvent) => {
       e.originalEvent?.stopPropagation()
 
-      if (!onPointClick || e.features?.length === 0) return
+      const feature = e.features?.[0]
+      if (!onPointClick || !feature) return
 
-      const feature = e.features![0]
       const coordinates = [
         ...(feature.geometry as GeoJSON.Point).coordinates,
       ] as [number, number]

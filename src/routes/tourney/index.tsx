@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import { GhostIcon } from "lucide-react"
 import { useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { PageHeader } from "~/components/page-header"
+import { TourneyCodeField } from "~/components/tourney/tourney-code-field"
 import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
 import {
@@ -16,12 +16,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
-import { Field, FieldDescription, FieldLabel } from "~/components/ui/field"
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "~/components/ui/input-otp"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
@@ -86,31 +80,13 @@ function UnauthenticatedView() {
 
       <div className="mx-auto w-full max-w-xl p-4">
         <div className="bg-card space-y-4 rounded-xl border p-6">
-          <Field>
-            <FieldLabel>join</FieldLabel>
-            <FieldDescription>
-              enter the 4-digit code to watch live
-            </FieldDescription>
-            <InputOTP
-              aria-label="tournament code"
-              maxLength={4}
-              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-              value={code}
-              onChange={(v) => setCode(v.toUpperCase())}
-              onComplete={handleComplete}
-              disabled={loading}
-              autoFocus
-              autoComplete="off"
-              ref={inputRef}
-            >
-              <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border">
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-              </InputOTPGroup>
-            </InputOTP>
-          </Field>
+          <TourneyCodeField
+            value={code}
+            onChange={setCode}
+            onComplete={handleComplete}
+            disabled={loading}
+            ref={inputRef}
+          />
           <p className="text-muted-foreground text-sm">
             managing a tournament?{" "}
             <Link

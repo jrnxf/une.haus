@@ -18,7 +18,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty"
 import { Field, FieldLabel } from "~/components/ui/field"
-import { getMuxPoster } from "~/components/video-player"
+import { getMuxPoster } from "~/lib/mux/poster"
 import { tricks } from "~/lib/tricks"
 import { useLandTrick } from "~/lib/tricks/landings/hooks"
 import { cn } from "~/lib/utils"

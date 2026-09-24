@@ -500,34 +500,35 @@ export const listUpcomingRiuRosterServerFn = createServerFn({
 })
   .middleware([authOptionalMiddleware])
   .handler(async ({ context }) => {
-    const upcomingRound = await db.query.rius.findFirst({
-      where: eq(rius.status, "upcoming"),
-      columns: { id: true, createdAt: true },
-    })
-
-    const sets = await db
-      .select({
-        createdAt: riuSets.createdAt,
-        instructions: riuSets.instructions,
-        id: riuSets.id,
-        name: riuSets.name,
-        user: {
-          avatarId: users.avatarId,
-          id: users.id,
-          name: users.name,
-          bio: users.bio,
-          disciplines: users.disciplines,
-          createdAt: users.createdAt,
-        },
-        video: {
-          playbackId: muxVideos.playbackId,
-        },
-      })
-      .from(riuSets)
-      .innerJoin(rius, eq(rius.id, riuSets.riuId))
-      .innerJoin(users, eq(riuSets.userId, users.id))
-      .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
-      .where(eq(rius.status, "upcoming"))
+    const [upcomingRound, sets] = await Promise.all([
+      db.query.rius.findFirst({
+        where: eq(rius.status, "upcoming"),
+        columns: { id: true, createdAt: true },
+      }),
+      db
+        .select({
+          createdAt: riuSets.createdAt,
+          instructions: riuSets.instructions,
+          id: riuSets.id,
+          name: riuSets.name,
+          user: {
+            avatarId: users.avatarId,
+            id: users.id,
+            name: users.name,
+            bio: users.bio,
+            disciplines: users.disciplines,
+            createdAt: users.createdAt,
+          },
+          video: {
+            playbackId: muxVideos.playbackId,
+          },
+        })
+        .from(riuSets)
+        .innerJoin(rius, eq(rius.id, riuSets.riuId))
+        .innerJoin(users, eq(riuSets.userId, users.id))
+        .innerJoin(muxVideos, eq(riuSets.muxAssetId, muxVideos.assetId))
+        .where(eq(rius.status, "upcoming")),
+    ])
 
     const map = new Map<
       number,

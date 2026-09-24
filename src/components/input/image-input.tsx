@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import { Loader2Icon, UploadIcon } from "lucide-react"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useDropzone } from "react-dropzone-esm"
 import z from "zod"
 
@@ -29,7 +29,34 @@ export const ImageInput = ({
 }) => {
   const { formItemId } = useFormField()
 
-  const [file, setFile] = useState<File>()
+  const [preview, setPreview] = useState<{ file: File; url: string }>()
+  const previewUrlRef = useRef<null | string>(null)
+
+  const setPreviewFile = useCallback((nextFile: File | undefined) => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current)
+      previewUrlRef.current = null
+    }
+
+    if (!nextFile) {
+      setPreview(undefined)
+      return
+    }
+
+    const url = URL.createObjectURL(nextFile)
+    previewUrlRef.current = url
+    setPreview({ file: nextFile, url })
+  }, [])
+
+  useEffect(
+    () => () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current)
+        previewUrlRef.current = null
+      }
+    },
+    [],
+  )
 
   const createCloudflareImagesDirectUpload = useMutation({
     mutationFn: media.createCloudflareImagesDirectUpload.fn,
@@ -46,7 +73,7 @@ export const ImageInput = ({
     async (acceptedFiles: File[]) => {
       const [file] = acceptedFiles
       if (file) {
-        setFile(file)
+        setPreviewFile(file)
         setMediaUploadFileName(file.name)
         setMediaUploadFileSizeBytes(file.size)
         try {
@@ -72,7 +99,7 @@ export const ImageInput = ({
 
           onChange(parsedData.result.id)
         } catch {
-          setFile(undefined)
+          setPreviewFile(undefined)
           setMediaUploadFileName(undefined)
           setMediaUploadFileSizeBytes(undefined)
         } finally {
@@ -85,6 +112,7 @@ export const ImageInput = ({
     [
       createCloudflareImagesDirectUpload,
       onChange,
+      setPreviewFile,
       setImageUploadStatus,
       setMediaUploadFileName,
       setMediaUploadFileSizeBytes,
@@ -97,8 +125,8 @@ export const ImageInput = ({
     onDrop,
   })
 
-  const previewSource = file
-    ? URL.createObjectURL(file)
+  const previewSource = preview
+    ? preview.url
     : value
       ? getCloudflareImageUrl(value, { width: 400, quality: 80 })
       : null
@@ -129,7 +157,7 @@ export const ImageInput = ({
         <Button
           className="self-start"
           onClick={() => {
-            setFile(undefined)
+            setPreviewFile(undefined)
             onChange(null)
           }}
           type="button"
@@ -146,7 +174,7 @@ export const ImageInput = ({
       getRootProps={getRootProps}
       getInputProps={getInputProps}
       inputId={formItemId}
-      hasFile={Boolean(file)}
+      hasFile={Boolean(preview)}
     >
       <UploadIcon className="size-3.5" />
       <span className="truncate text-left">select file</span>

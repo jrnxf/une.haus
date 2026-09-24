@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { CheckIcon, GhostIcon } from "lucide-react"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { PageHeader } from "~/components/page-header"
 import { RichText } from "~/components/rich-text"
 import { VideoCarousel } from "~/components/tricks/video-carousel"
@@ -15,7 +15,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty"
-import { getMuxPoster } from "~/components/video-player"
+import { getMuxPoster } from "~/lib/mux/poster"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session"
 import { tricks } from "~/lib/tricks"

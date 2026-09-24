@@ -25,12 +25,9 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty"
 import { RelativeTimeCard } from "~/components/ui/relative-time-card"
-import {
-  getMuxPoster,
-  VideoPlayer,
-  VideoPreload,
-} from "~/components/video-player"
+import { VideoPlayer, VideoPreload } from "~/components/video-player"
 import { useFilteredList } from "~/hooks/use-filtered-list"
+import { getMuxPoster } from "~/lib/mux/poster"
 import { seo } from "~/lib/seo"
 import { session } from "~/lib/session/index"
 import { users, type UserVideoItem } from "~/lib/users"

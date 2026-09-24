@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router"
 import { InfoIcon, ShieldIcon } from "lucide-react"
 
-import { confirm } from "~/components/confirm-dialog"
+import { confirm } from "~/components/confirm-dialog-handle"
 import { ContentHeaderRow } from "~/components/content-header-row"
 import { ArchiveVoteButton } from "~/components/games/sius/archive-vote-button"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"

@@ -275,16 +275,16 @@ export async function reviewSuggestion({
 
       // Add relationships
       if (diff.relationships.added.length > 0) {
-        for (const rel of diff.relationships.added) {
-          await db.insert(trickRelationships).values({
+        await db.insert(trickRelationships).values(
+          diff.relationships.added.map((rel) => ({
             sourceTrickId: suggestion.trickId,
             targetTrickId: rel.targetId,
             type: rel.type as
               | "prerequisite"
               | "optional_prerequisite"
               | "related",
-          })
-        }
+          })),
+        )
       }
     }
   }

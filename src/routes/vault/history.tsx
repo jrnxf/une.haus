@@ -1,7 +1,6 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import confetti from "canvas-confetti"
-import { motion, useReducedMotion } from "framer-motion"
 import pluralize from "pluralize"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -71,7 +70,6 @@ function ClapButton() {
   const isMutatingRef = useRef(false)
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const reduceMotion = useReducedMotion()
 
   const flushClicks = useCallback(async () => {
     if (isMutatingRef.current || pendingClicksRef.current === 0) return
@@ -144,16 +142,15 @@ function ClapButton() {
 
   return (
     <div className="flex items-center gap-3">
-      <motion.button
+      <button
         ref={buttonRef}
+        type="button"
         onClick={handleClick}
-        whileTap={reduceMotion ? undefined : { scale: 0.92 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-colors"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition duration-150 active:scale-90 motion-reduce:transition-none motion-reduce:active:scale-100"
       >
         <span className="text-base">👏</span>
         clap for olaf
-      </motion.button>
+      </button>
       <span className="text-muted-foreground text-sm tabular-nums">
         {displayCount.toLocaleString()} {pluralize("clap", displayCount)}
       </span>
