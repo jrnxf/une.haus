@@ -21,6 +21,15 @@ describe("startup screens", () => {
     )
   })
 
+  test("no picture address needs percent-encoding", () => {
+    // The host redirects an address holding such a character (for instance
+    // "@") to its encoded form, and iOS does not reliably follow that.
+    for (const { href } of STARTUP_LINKS) {
+      expect(href).toMatch(/^\/startup\/[A-Za-z0-9._-]+\.png$/)
+      expect(encodeURI(href)).toBe(href)
+    }
+  })
+
   test("the pixel size matches the screen the media query selects", () => {
     for (const picture of STARTUP_PICTURES) {
       const [, w, h, r] =

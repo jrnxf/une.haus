@@ -95,7 +95,7 @@ export const STARTUP_PICTURES: StartupPicture[] = (
     // A screen on its side still reports its upright width and height.
     const screen = `(prefers-color-scheme: ${theme}) and (device-width: ${width}px) and (device-height: ${height}px) and (-webkit-device-pixel-ratio: ${ratio})`
     const upright: StartupPicture = {
-      file: `startup/${theme}-${width}x${height}@${ratio}x.png`,
+      file: `startup/${theme}-${width}x${height}-${ratio}x.png`,
       theme,
       media: `${screen} and (orientation: portrait)`,
       width: width * ratio,
@@ -106,7 +106,7 @@ export const STARTUP_PICTURES: StartupPicture[] = (
     return [
       upright,
       {
-        file: `startup/${theme}-${height}x${width}@${ratio}x.png`,
+        file: `startup/${theme}-${height}x${width}-${ratio}x.png`,
         theme,
         media: `${screen} and (orientation: landscape)`,
         width: height * ratio,
