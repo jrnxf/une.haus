@@ -15,10 +15,8 @@ import { LogoRandomScatter } from "~/components/logo-animated"
 import { RichText } from "~/components/rich-text"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Badge } from "~/components/ui/badge"
-import { Button } from "~/components/ui/button"
 import { type HomeLatestData } from "~/lib/home"
 import { getMuxPoster } from "~/lib/mux/poster"
-import { useSessionUser } from "~/lib/session/hooks"
 import { cn } from "~/lib/utils"
 
 type Rider = { id: number; name: string; avatarId: string | null }
@@ -32,8 +30,6 @@ const wideTileClass = "col-span-2 h-40 @4xl:h-auto"
 // The home page: one slot per section, every slot always filled. It shows no
 // times and no counts by design; `~/lib/home/slots` decides what fills a slot.
 export function HomeMosaic({ latest }: { latest: HomeLatestData }) {
-  const sessionUser = useSessionUser()
-
   return (
     <div className="@container mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-4">
       {/* The sidebar carries the logo from md up; below that the page does.
@@ -43,7 +39,6 @@ export function HomeMosaic({ latest }: { latest: HomeLatestData }) {
           <LogoRandomScatter className="h-8 w-auto" />
         </div>
       )}
-      {!sessionUser && <JoinStrip />}
       <div className="grid grid-cols-2 gap-3 @4xl:max-h-180 @4xl:min-h-140 @4xl:flex-1 @4xl:grid-cols-4 @4xl:grid-rows-3">
         <LeadTile lead={latest.lead} />
         <GamesTile games={latest.games} />
@@ -53,19 +48,6 @@ export function HomeMosaic({ latest }: { latest: HomeLatestData }) {
         <TrickTile trick={latest.trick} />
         <VaultTile clip={latest.vault} />
       </div>
-    </div>
-  )
-}
-
-function JoinStrip() {
-  return (
-    <div className="bg-card flex items-center gap-4 rounded-xl border p-4">
-      <p className="min-w-0 flex-1 text-sm">
-        new here? une.haus is all things une.
-      </p>
-      <Button asChild>
-        <Link to="/auth">join</Link>
-      </Button>
     </div>
   )
 }

@@ -14,7 +14,7 @@ The home page (`src/routes/index.tsx`) is a mosaic: one slot per section of the 
 | trick | the newest trick                                             | that trick              |
 | vault | a vault clip, a different one each day                       | that clip               |
 
-A signed-out visitor sees the same slots plus one join strip. Below `md` the page shows the logo itself, because the sidebar that carries it is hidden.
+A signed-out visitor sees the same slots as a member and nothing more. Below `md` the page shows the logo itself, because the sidebar that carries it is hidden.
 
 ## No clocks, no counts
 

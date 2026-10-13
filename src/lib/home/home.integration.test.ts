@@ -5,9 +5,12 @@ import {
   biuSets,
   bius,
   chatMessages,
+  muxVideos,
   riuSets,
   riuSubmissions,
   rius,
+  siuSets,
+  sius,
   tricks,
   trickVideos,
   utvVideos,
@@ -59,8 +62,16 @@ async function seedRiuSet({
   return set
 }
 
-async function seedVaultClip(title: string) {
-  const video = await seedMuxVideo()
+async function seedUnprocessedVideo(assetId: string) {
+  const [video] = await db
+    .insert(muxVideos)
+    .values({ assetId, playbackId: null })
+    .returning()
+  return video
+}
+
+async function seedVaultClip(title: string, video?: { assetId: string }) {
+  video ??= await seedMuxVideo()
   const [clip] = await db
     .insert(utvVideos)
     .values({
@@ -126,7 +137,7 @@ describe("home latest", () => {
     expect(JSON.stringify(latest)).not.toContain("private set")
   })
 
-  it("leaves out deleted sets, unapproved trick videos and unprocessed videos", async () => {
+  it("leaves out deleted sets and unapproved trick videos", async () => {
     const rider = await seedUser()
     const [chain] = await db.insert(bius).values({}).returning()
     const deleted = await seedMuxVideo()
@@ -155,6 +166,65 @@ describe("home latest", () => {
     const latest = await computeHomeLatest(now)
 
     expect(latest.lead).toBeNull()
+  })
+
+  it("leaves out videos that have not finished processing", async () => {
+    const rider = await seedUser()
+    const active = await seedRound("active")
+    const [riuSet] = await db
+      .insert(riuSets)
+      .values({
+        riuId: active.id,
+        userId: rider.id,
+        name: "unprocessed riu set",
+        muxAssetId: (await seedUnprocessedVideo("riu-set")).assetId,
+        createdAt: minutesAgo(5),
+      })
+      .returning()
+    await db.insert(riuSubmissions).values({
+      riuSetId: riuSet.id,
+      userId: rider.id,
+      muxAssetId: (await seedUnprocessedVideo("riu-submission")).assetId,
+      createdAt: minutesAgo(4),
+    })
+    const [chain] = await db.insert(bius).values({}).returning()
+    await db.insert(biuSets).values({
+      biuId: chain.id,
+      userId: rider.id,
+      name: "unprocessed biu set",
+      position: 1,
+      muxAssetId: (await seedUnprocessedVideo("biu-set")).assetId,
+      createdAt: minutesAgo(3),
+    })
+    const [stack] = await db.insert(sius).values({}).returning()
+    await db.insert(siuSets).values({
+      siuId: stack.id,
+      userId: rider.id,
+      name: "unprocessed siu set",
+      position: 1,
+      muxAssetId: (await seedUnprocessedVideo("siu-set")).assetId,
+      createdAt: minutesAgo(2),
+    })
+    const [trick] = await db
+      .insert(tricks)
+      .values({ name: "unprocessed trick", createdAt: longAgo })
+      .returning()
+    await db.insert(trickVideos).values({
+      trickId: trick.id,
+      muxAssetId: (await seedUnprocessedVideo("trick-video")).assetId,
+      submittedByUserId: rider.id,
+      status: "active",
+      createdAt: minutesAgo(1),
+    })
+    await seedVaultClip(
+      "unprocessed clip",
+      await seedUnprocessedVideo("vault-clip"),
+    )
+
+    const latest = await computeHomeLatest(now)
+
+    expect(latest.lead).toBeNull()
+    expect(latest.vault).toBeNull()
   })
 
   it("ranks the active round's podium", async () => {
