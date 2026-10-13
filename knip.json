@@ -15,7 +15,12 @@
     "**/*.unit.test.{ts,tsx}",
     "**/*.integration.test.ts"
   ],
-  "project": ["build/**/*.ts", "src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
+  "project": [
+    "build/**/*.ts",
+    "src/**/*.{ts,tsx}",
+    "server/**/*.ts",
+    "emails/**/*.tsx"
+  ],
   "ignore": ["src/lib/gelato/**", "src/lib/clients/gelato.ts"],
   "drizzle": false,
   "ignoreDependencies": [
