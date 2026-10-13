@@ -1,10 +1,15 @@
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
-import { LogoRandomScatter } from "~/components/logo-animated"
+import { HomeMosaic } from "~/components/home/home-mosaic"
 import { PageHeader } from "~/components/page-header"
+import { home } from "~/lib/home"
 import { SITE_NAME, SITE_URL, seo } from "~/lib/seo"
 
 export const Route = createFileRoute("/")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(home.latest.queryOptions())
+  },
   head: () =>
     seo({
       title: SITE_NAME,
@@ -79,6 +84,8 @@ const jsonLd = {
 }
 
 function RouteComponent() {
+  const { data: latest } = useSuspenseQuery(home.latest.queryOptions())
+
   return (
     <>
       <PageHeader />
@@ -86,9 +93,7 @@ function RouteComponent() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="flex flex-1 items-center justify-center p-4">
-        <LogoRandomScatter className="h-auto w-full max-w-48" />
-      </div>
+      <HomeMosaic latest={latest} />
     </>
   )
 }
