@@ -1,6 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@latest/schema.json",
   "entry": [
+    "build/*.ts",
     "src/start.ts",
     "src/server.ts",
     "src/router.tsx",
@@ -14,7 +15,7 @@
     "**/*.unit.test.{ts,tsx}",
     "**/*.integration.test.ts"
   ],
-  "project": ["src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
+  "project": ["build/**/*.ts", "src/**/*.{ts,tsx}", "server/**/*.ts", "emails/**/*.tsx"],
   "ignore": ["src/lib/gelato/**", "src/lib/clients/gelato.ts"],
   "drizzle": false,
   "ignoreDependencies": [

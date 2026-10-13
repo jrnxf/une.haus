@@ -32,6 +32,7 @@ import {
 import { MobileFooter } from "~/components/site-header"
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
 import { Toaster } from "~/components/ui/sonner"
+import { STARTUP_LINKS, STARTUP_PAPER } from "~/lib/pwa/startup-screens"
 import { useRootRouteContext } from "~/lib/session/hooks"
 import { session } from "~/lib/session/index"
 import { type HausSession } from "~/lib/session/schema"
@@ -94,8 +95,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       {
         rel: "apple-touch-icon",
         href: "/icons/apple-touch-icon.png",
-        sizes: "any",
+        sizes: "512x512",
       },
+      // one picture per exact iOS screen size, drawn at build time
+      ...STARTUP_LINKS,
       {
         rel: "icon",
         href: "/icons/logo-white.svg",
@@ -197,6 +200,19 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     >
       <head>
         <HeadContent />
+        {/* the bar colour, equal to --background in each theme (styles.css).
+            Rendered here because head() meta is keyed by name, so two
+            theme-color tags cannot both come from it. */}
+        <meta
+          name="theme-color"
+          content={STARTUP_PAPER.light}
+          media="(prefers-color-scheme: light)"
+        />
+        <meta
+          name="theme-color"
+          content={STARTUP_PAPER.dark}
+          media="(prefers-color-scheme: dark)"
+        />
       </head>
       <body className="overscroll-none font-mono antialiased">
         <AppErrorBoundary>

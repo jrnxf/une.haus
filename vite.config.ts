@@ -9,6 +9,8 @@ import { type LoggingFunction, type RollupLog } from "rollup"
 import { defineConfig, type PluginOption } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
 
+import { startupImages } from "./build/startup-images-plugin"
+
 const devtoolsPlugin = async (): Promise<PluginOption> => {
   const { devtools } = await import("@tanstack/devtools-vite")
   return devtools({
@@ -63,6 +65,7 @@ const config = defineConfig(async () => {
       // handler in src/server.ts dispatches on the cron expression.
       cloudflare({ viteEnvironment: { name: "ssr" } }),
       tailwindcss(),
+      startupImages(),
       // beasties({
       //   options: {
       //     fonts: true,

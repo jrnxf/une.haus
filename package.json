@@ -120,6 +120,7 @@
     "@cloudflare/vite-plugin": "^1.54.2",
     "@floating-ui/dom": "^1.7.5",
     "@react-email/preview-server": "5.2.5",
+    "@resvg/resvg-js": "^2.6.2",
     "@shadcn/lint": "^0.1.0",
     "@tanstack/devtools-client": "^0.0.5",
     "@tanstack/devtools-vite": "^0.4.1",
