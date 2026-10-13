@@ -148,6 +148,10 @@ function Still({
           alt={title}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
+          // a server-rendered still can fail before hydration attaches onError
+          ref={(img) => {
+            if (img?.complete && img.naturalWidth === 0) setFailed(true)
+          }}
           onError={() => setFailed(true)}
           className="absolute inset-0 size-full object-cover"
           // vault stills are zoomed past the letterboxing baked into old uploads
