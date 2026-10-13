@@ -35,7 +35,7 @@ A rack it up set is posted while its round is still private, so a set of the act
 
 Archive picks turn over once a day and are the same for everyone. The post slot always shows the newest post, and the games slot always shows the active round.
 
-A slot with nothing at all behind it (an empty section, or no active round between rotations) becomes a plain link to its section. With no video and no vault clip, the lead slot shows the logo.
+A slot with nothing at all behind it (an empty section, or no active round between rotations) becomes a plain link to its section. A stale lead with no vault clip to give way to keeps the newest video up whatever its age; with no video and no vault clip, the lead slot shows the logo. The lead and the vault slot never show the same clip: when the lead has taken the only clip in the vault, the vault slot becomes a plain link.
 
 ## What never appears
 
