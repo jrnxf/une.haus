@@ -227,6 +227,24 @@ describe("home latest", () => {
     expect(latest.vault).toBeNull()
   })
 
+  it("leads with a set on its round's reveal day however early it was posted", async () => {
+    const reveal = new Date("2026-10-12T00:00:00Z")
+    const revealDay = new Date("2026-10-12T08:00:00Z")
+    const rider = await seedUser()
+    const active = await seedRound("active")
+    await seedRiuSet({
+      roundId: active.id,
+      userId: rider.id,
+      name: "only set",
+      createdAt: new Date(reveal.getTime() - STALE_AFTER_MS),
+    })
+    await seedVaultClip("vault one")
+
+    const latest = await computeHomeLatest(revealDay)
+
+    expect(latest.lead).toMatchObject({ kind: "riuSet", title: "only set" })
+  })
+
   it("ranks the active round's podium", async () => {
     const leader = await seedUser({ name: "leader" })
     const chaser = await seedUser({ name: "chaser" })

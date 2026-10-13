@@ -31,6 +31,8 @@ A slot shows its newest item while that item is fresh, meaning younger than one 
 | trick | the newest trick, "new trick" | a trick from the catalogue, "trick" |
 | chat  | the last chat line            | a way into the arcade               |
 
+A rack it up set is posted while its round is still private, so a set of the active round counts as new from the round's reveal (the Monday 00:00 UTC rotation), not from when it was posted.
+
 Archive picks turn over once a day and are the same for everyone. The post slot always shows the newest post, and the games slot always shows the active round.
 
 A slot with nothing at all behind it (an empty section, or no active round between rotations) becomes a plain link to its section. With no video and no vault clip, the lead slot shows the logo.

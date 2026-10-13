@@ -34,7 +34,11 @@ import {
   users,
   utvVideos,
 } from "~/db/schema"
-import { isRosterPrivate, RIU_STATUSES } from "~/lib/games/rius/lifecycle"
+import {
+  isRosterPrivate,
+  msUntilNextRotation,
+  RIU_STATUSES,
+} from "~/lib/games/rius/lifecycle"
 import { calculateRiderRankings } from "~/lib/games/rius/ranking"
 import { ttlCache } from "~/lib/ttl-cache"
 
@@ -51,13 +55,22 @@ const videoReady = isNotNull(muxVideos.playbackId)
 
 const PODIUM_SIZE = 3
 const TRICK_ELEMENT_LIMIT = 2
+const ROTATION_PERIOD_MS = 7 * 24 * 60 * 60 * 1000
 
-async function newestRiuSet() {
+// When the active round went public: the latest Monday 00:00 UTC rotation.
+function activeRoundReveal(now: Date) {
+  return new Date(now.getTime() + msUntilNextRotation(now) - ROTATION_PERIOD_MS)
+}
+
+// A set is posted while its round is still private, so an active round's set
+// is dated from the round's reveal rather than from when it was posted.
+async function newestRiuSet(now: Date) {
   const [row] = await db
     .select({
       id: riuSets.id,
       title: riuSets.name,
       createdAt: riuSets.createdAt,
+      status: rius.status,
       playbackId: muxVideos.playbackId,
       user: rider,
     })
@@ -68,7 +81,13 @@ async function newestRiuSet() {
     .where(and(inArray(rius.status, PUBLIC_ROUND_STATUSES), videoReady))
     .orderBy(desc(riuSets.createdAt))
     .limit(1)
-  return row ? { kind: "riuSet" as const, ...row } : null
+  if (!row) return null
+  const { status, ...set } = row
+  return {
+    kind: "riuSet" as const,
+    ...set,
+    createdAt: status === "active" ? activeRoundReveal(now) : set.createdAt,
+  }
 }
 
 async function newestRiuSubmission() {
@@ -147,9 +166,9 @@ async function newestTrickVideo() {
   return row ? { kind: "trickVideo" as const, ...row } : null
 }
 
-async function newestRiderVideo() {
+async function newestRiderVideo(now: Date) {
   const candidates = await Promise.all([
-    newestRiuSet(),
+    newestRiuSet(now),
     newestRiuSubmission(),
     newestBiuSet(),
     newestSiuSet(),
@@ -356,7 +375,7 @@ export async function computeHomeLatest(now: Date = new Date()) {
     newTrick,
     catalogue,
   ] = await Promise.all([
-    newestRiderVideo(),
+    newestRiderVideo(now),
     vaultClips(now),
     podium(),
     newestRider(),
