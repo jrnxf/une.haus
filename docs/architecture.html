@@ -1781,10 +1781,10 @@ loader: async ({ context }) =&gt; {
         </div>
         <p class="lede">
           continuous deployment with a single serialized lane: push to
-          <code>main</code>, and github actions does the rest. rollback is a
-          worker-version revert in the cloudflare dash — which is why migrations
-          are roll-forward only and must stay backward-compatible with the
-          previous worker.
+          <code>main</code>, and cloudflare workers builds does the rest.
+          rollback is a worker-version revert in the cloudflare dash — which is
+          why migrations are roll-forward only and must stay backward-compatible
+          with the previous worker.
         </p>
 
         <figure class="card figure">
@@ -1792,7 +1792,7 @@ loader: async ({ context }) =&gt; {
             viewBox="0 0 980 210"
             width="100%"
             role="img"
-            aria-label="deploy pipeline from git push through ci, build, migrations, wrangler deploy, and smoke check"
+            aria-label="deploy pipeline from git push through checks, build, migrations, and wrangler deploy"
           >
             <title>deploy pipeline</title>
             <defs>
@@ -1854,7 +1854,7 @@ loader: async ({ context }) =&gt; {
                 text-anchor="middle"
                 style="font-size: 11px"
               >
-                ci · preflight
+                checks · preflight
               </text>
               <text class="svg-sub" x="265" y="102" text-anchor="middle">
                 lint · types · tests
@@ -1940,31 +1940,6 @@ loader: async ({ context }) =&gt; {
                 wrangler
               </text>
             </g>
-            <g id="dep-smoke">
-              <title>smoke check against https://une.haus</title>
-              <rect
-                class="svg-node"
-                x="905"
-                y="60"
-                width="60"
-                height="60"
-                rx="8"
-                stroke="var(--success)"
-                stroke-width="1.2"
-              />
-              <text
-                class="svg-label"
-                x="935"
-                y="90"
-                text-anchor="middle"
-                style="font-size: 11px"
-              >
-                ✓
-              </text>
-              <text class="svg-sub" x="935" y="106" text-anchor="middle">
-                smoke
-              </text>
-            </g>
             <path
               class="svg-edgeline"
               d="M150 90 h27"
@@ -1989,15 +1964,8 @@ loader: async ({ context }) =&gt; {
               stroke-width="1.2"
               marker-end="url(#arr5)"
             />
-            <path
-              class="svg-edgeline"
-              d="M880 90 h17"
-              stroke-width="1.2"
-              marker-end="url(#arr5)"
-            />
             <text class="svg-sub" x="490" y="160" text-anchor="middle">
-              serialized via the unehaus-deploy concurrency group — deploys
-              never interleave
+              one build at a time per branch — deploys never interleave
             </text>
             <text class="svg-sub" x="490" y="178" text-anchor="middle">
               sentry source maps upload during the build · same preflight gate
@@ -2006,8 +1974,8 @@ loader: async ({ context }) =&gt; {
           </svg>
           <figcaption>
             runtime secrets live on the worker (<code>wrangler secret put</code
-            >), never in github; the ci env block only feeds the build. source:
-            <code>DEPLOY.md</code>, <code>.github/workflows/ci.yml</code>.
+            >), never in github; the workers builds variables only feed the
+            build. source: <code>DEPLOY.md</code>.
           </figcaption>
         </figure>
       </section>
@@ -2092,7 +2060,7 @@ loader: async ({ context }) =&gt; {
                 <b style="color: var(--foreground)">sentry, both sides</b> —
                 <code>@sentry/cloudflare</code> wraps the worker (20% traces in
                 prod), the tanstack-start client sdk covers the browser; source
-                maps upload in ci.
+                maps upload during the build.
               </li>
               <li>
                 <b style="color: var(--foreground)">named rpc ids</b> —
@@ -2193,7 +2161,8 @@ loader: async ({ context }) =&gt; {
                 <td>tooling</td>
                 <td>bun · oxlint · oxfmt · knip</td>
                 <td>
-                  <code>bun preflight</code> gates both local commits and ci
+                  <code>bun preflight</code> gates both local commits and the
+                  cloudflare build
                 </td>
               </tr>
             </tbody>
