@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test"
+import { JSDOM } from "jsdom"
 
 import { type FetchEvent, startOfflineWorker } from "./offline-worker"
 
@@ -7,7 +8,7 @@ const PAGE = "<!doctype html><h1>you’re offline</h1>"
 type Listener = (event: never) => void
 
 // Starts the worker on a stand-in scope and returns its listeners.
-function start() {
+function start(html = PAGE) {
   const listeners = new Map<string, Listener>()
   const scope = {
     addEventListener: (type: string, listener: Listener) => {
@@ -19,7 +20,7 @@ function start() {
       navigationPreload: { enable: mock(() => Promise.resolve()) },
     },
   }
-  startOfflineWorker(scope, PAGE)
+  startOfflineWorker(scope, html)
   const listener = (type: string) => {
     const found = listeners.get(type)
     if (!found) throw new Error(`no ${type} listener`)
@@ -38,8 +39,9 @@ function request(mode: RequestMode, method = "GET") {
 async function dispatch(
   req: Request,
   preloadResponse?: Promise<Response | undefined>,
+  html?: string,
 ) {
-  const { listener } = start()
+  const { listener } = start(html)
   let answer: Promise<Response> | undefined
   const event: FetchEvent = {
     request: req,
@@ -134,12 +136,62 @@ describe("offline worker", () => {
   })
 })
 
+// Every URL the rules of a stylesheet load, including nested and imported.
+function cssUrls(rules: CSSRuleList): string[] {
+  return [...rules].flatMap((rule) => {
+    if ("styleSheet" in rule) return [(rule as CSSImportRule).href]
+    if ("cssRules" in rule) return cssUrls((rule as CSSGroupingRule).cssRules)
+    if (!("style" in rule)) return []
+    const { cssText } = (rule as CSSStyleRule).style
+    return [...cssText.matchAll(/url\(\s*["']?([^"')]+)/g)].map(
+      ([, url]) => url,
+    )
+  })
+}
+
 describe("offline page", () => {
-  test("stands alone, with only the font filled in at build", async () => {
-    const html = await Bun.file(new URL("offline.html", import.meta.url)).text()
-    expect(html.split("GEIST_MONO_URL")).toHaveLength(2)
-    // nothing it could load is reachable with no connection
-    expect(html).not.toMatch(/\b(?:src|href)=["'](?!#)/)
-    expect(html).not.toMatch(/url\((?!GEIST_MONO_URL\)|#)/)
+  test("is what the worker serves with no connection, and loads nothing", async () => {
+    const source = await Bun.file(
+      new URL("offline.html", import.meta.url),
+    ).text()
+    // filled in the way src/service-worker.ts builds the worker
+    const font = "data:font/woff2;base64,AAAA"
+    spyOn(globalThis, "fetch").mockRejectedValue(
+      new TypeError("Failed to fetch"),
+    )
+    const response = await dispatch(
+      request("navigate"),
+      undefined,
+      source.replace("GEIST_MONO_URL", font),
+    )
+    const html = (await response?.text()) ?? ""
+    const { document } = new JSDOM(html).window
+
+    expect(document.querySelector("h1")?.textContent).toBe("you’re offline")
+    const button = document.querySelector("button")
+    expect(button?.textContent).toBe("try again")
+    expect(button?.type).toBe("button")
+
+    // no element points anywhere but inside the page
+    const links = [...document.querySelectorAll("*")].flatMap((element) =>
+      [...element.attributes]
+        .filter((attribute) =>
+          ["src", "srcset", "href", "xlink:href", "poster", "data"].includes(
+            attribute.name,
+          ),
+        )
+        .map((attribute) => attribute.value),
+    )
+    expect(links.length).toBeGreaterThan(0)
+    for (const link of links) expect(link).toStartWith("#")
+
+    // the only stylesheet url is the inlined font
+    const urls = [...document.styleSheets].flatMap((sheet) =>
+      cssUrls(sheet.cssRules),
+    )
+    expect(urls).toContain(font)
+    for (const url of urls) {
+      if (url !== font) expect(url).toStartWith("#")
+    }
   })
 })

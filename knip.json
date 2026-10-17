@@ -35,7 +35,6 @@
     "@tanstack/nitro-v2-vite-plugin",
     "@testing-library/dom",
     "@testing-library/react",
-    "jsdom",
     "react-email",
     "@react-email/preview-server",
     "web-vitals"
