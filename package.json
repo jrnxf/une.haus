@@ -12,6 +12,7 @@
     "cf-typegen": "wrangler types",
     "db:generate": "bunx drizzle-kit generate",
     "db:check": "bun src/scripts/check-schema-migrations.ts",
+    "db:pull": "bun run src/scripts/db-pull.ts",
     "db:migrate": "bunx drizzle-kit migrate",
     "email:dev": "npx react-email dev",
     "typecheck": "tsc --noEmit",
