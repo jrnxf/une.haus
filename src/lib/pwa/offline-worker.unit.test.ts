@@ -2,7 +2,7 @@ import { afterEach, describe, expect, mock, spyOn, test } from "bun:test"
 
 import { type FetchEvent, startOfflineWorker } from "./offline-worker"
 
-const PAGE = "<!doctype html><h1>you're offline</h1>"
+const PAGE = "<!doctype html><h1>you’re offline</h1>"
 
 type Listener = (event: never) => void
 
