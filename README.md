@@ -56,21 +56,36 @@ bun dev
 
 ### scripts
 
-| command                    | description                                                                            |
-| -------------------------- | -------------------------------------------------------------------------------------- |
-| `bun dev`                  | dev server on a sandbox clone of prod (see [`sandbox/README.md`](./sandbox/README.md)) |
-| `bun run build`            | build for production                                                                   |
-| `bun start`                | run production server                                                                  |
-| `bun run lint`             | lint                                                                                   |
-| `bun run format`           | format with oxfmt                                                                      |
-| `bun run check`            | lint with auto-fix and format                                                          |
-| `bun run typecheck`        | type check                                                                             |
-| `bun preflight`            | lint, format, typecheck, react doctor, and test                                        |
-| `bun run test:unit`        | run unit tests                                                                         |
-| `bun run test:integration` | run integration tests                                                                  |
-| `bun run db:migrate`       | push database migrations                                                               |
-| `bun run db:seed`          | wipe, migrate, and seed database                                                       |
-| `bun run clean`            | find and fix unused code with knip                                                     |
+| command                    | description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `bun dev`                  | apply local migrations and start the dev server (local D1 starts empty, see below) |
+| `bun run build`            | build for production                                                               |
+| `bun start`                | run production server                                                              |
+| `bun run lint`             | lint                                                                               |
+| `bun run format`           | format with oxfmt                                                                  |
+| `bun run check`            | lint with auto-fix and format                                                      |
+| `bun run typecheck`        | type check                                                                         |
+| `bun preflight`            | lint, format, typecheck, react doctor, and test                                    |
+| `bun run test:unit`        | run unit tests                                                                     |
+| `bun run test:integration` | run integration tests                                                              |
+| `bun run db:migrate`       | push database migrations                                                           |
+| `bun run db:pull`          | replace the local database with a copy of the live one (see below)                 |
+| `bun run clean`            | find and fix unused code with knip                                                 |
+
+### local data
+
+`bun dev` runs against a local D1 database that starts empty. to work against real data, run:
+
+```sh
+bun run db:pull        # asks before overwriting local data
+bun run db:pull --yes  # skip the prompt
+```
+
+it exports the live `unehaus` database (read-only) with wrangler, wipes the local one, imports the dump, and deletes the dump. you need to be signed in first (`bunx wrangler login`).
+
+> the copy contains real member data. treat the machine accordingly.
+
+the app only binds D1 (see `wrangler.jsonc`), so there is no R2 or KV data to pull.
 
 ### contributing
 
