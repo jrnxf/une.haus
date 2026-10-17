@@ -4,6 +4,7 @@
     "build/*.ts",
     "src/start.ts",
     "src/server.ts",
+    "src/service-worker.ts",
     "src/router.tsx",
     "src/routes/**/*.tsx",
     "server/routes/**/*.ts",
