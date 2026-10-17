@@ -168,6 +168,11 @@ function RootComponent() {
     if (import.meta.env.DEV) {
       void import("react-grab")
     }
+    // shows the offline page when the app is opened with no connection
+    // (src/service-worker.ts); built into production only
+    if (import.meta.env.PROD && "serviceWorker" in navigator) {
+      void navigator.serviceWorker.register("/sw.js")
+    }
   }, [])
 
   return (

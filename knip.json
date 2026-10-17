@@ -4,6 +4,7 @@
     "build/*.ts",
     "src/start.ts",
     "src/server.ts",
+    "src/service-worker.ts",
     "src/router.tsx",
     "src/routes/**/*.tsx",
     "server/routes/**/*.ts",
@@ -34,7 +35,6 @@
     "@tanstack/nitro-v2-vite-plugin",
     "@testing-library/dom",
     "@testing-library/react",
-    "jsdom",
     "react-email",
     "@react-email/preview-server",
     "web-vitals"

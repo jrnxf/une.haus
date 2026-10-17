@@ -9,6 +9,7 @@ import { type LoggingFunction, type RollupLog } from "rollup"
 import { defineConfig, type PluginOption } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
 
+import { serviceWorker } from "./build/service-worker-plugin"
 import { startupImages } from "./build/startup-images-plugin"
 
 const devtoolsPlugin = async (): Promise<PluginOption> => {
@@ -66,6 +67,7 @@ const config = defineConfig(async () => {
       cloudflare({ viteEnvironment: { name: "ssr" } }),
       tailwindcss(),
       startupImages(),
+      serviceWorker(),
       // beasties({
       //   options: {
       //     fonts: true,
