@@ -3,20 +3,20 @@
 // single source for both the pictures drawn at build time
 // (build/startup-images-plugin.ts) and the links in the document head
 // (src/routes/__root.tsx), so the two cannot drift apart.
+//
+// There is one picture per screen, the dark one, whatever mode the phone is in.
+// iOS captures the startup picture once, when the app is added to the home
+// screen, and keeps it after the mode changes, so a picture per mode would
+// often mismatch. A brief dark flash in light mode is the lesser evil.
 
-export type StartupTheme = "light" | "dark"
-
-/** The page background of each theme, which the picture is filled with. */
-export const STARTUP_PAPER: Record<StartupTheme, string> = {
+/** The page background of each theme. */
+export const STARTUP_PAPER = {
   light: "#ffffff",
   dark: "#000000",
 }
 
-/** The wordmark in `public/icons` that reads on each theme's paper. */
-export const STARTUP_LOGO: Record<StartupTheme, string> = {
-  light: "logo-full-black.svg",
-  dark: "logo-full-white.svg",
-}
+/** The wordmark in `public/icons`, drawn on the dark paper. */
+export const STARTUP_LOGO = "logo-full-white.svg"
 
 /** How wide the wordmark is drawn, in the CSS pixels the screens are measured in. */
 export const STARTUP_LOGO_WIDTH = 200
@@ -78,8 +78,7 @@ const SCREENS: Screen[] = [
 export type StartupPicture = {
   /** Path under the site root the page links to and the build writes to. */
   file: string
-  theme: StartupTheme
-  /** The media query selecting the screen, its way up and the theme. */
+  /** The media query selecting the screen and its way up. */
   media: string
   /** Size in real pixels. */
   width: number
@@ -88,15 +87,12 @@ export type StartupPicture = {
   ratio: number
 }
 
-export const STARTUP_PICTURES: StartupPicture[] = (
-  ["light", "dark"] as const
-).flatMap((theme) =>
-  SCREENS.flatMap(({ width, height, ratio, landscape }) => {
+export const STARTUP_PICTURES: StartupPicture[] = SCREENS.flatMap(
+  ({ width, height, ratio, landscape }) => {
     // A screen on its side still reports its upright width and height.
-    const screen = `(prefers-color-scheme: ${theme}) and (device-width: ${width}px) and (device-height: ${height}px) and (-webkit-device-pixel-ratio: ${ratio})`
+    const screen = `(device-width: ${width}px) and (device-height: ${height}px) and (-webkit-device-pixel-ratio: ${ratio})`
     const upright: StartupPicture = {
-      file: `startup/${theme}-${width}x${height}-${ratio}x.png`,
-      theme,
+      file: `startup/${width}x${height}-${ratio}x.png`,
       media: `${screen} and (orientation: portrait)`,
       width: width * ratio,
       height: height * ratio,
@@ -106,15 +102,14 @@ export const STARTUP_PICTURES: StartupPicture[] = (
     return [
       upright,
       {
-        file: `startup/${theme}-${height}x${width}-${ratio}x.png`,
-        theme,
+        file: `startup/${height}x${width}-${ratio}x.png`,
         media: `${screen} and (orientation: landscape)`,
         width: height * ratio,
         height: width * ratio,
         ratio,
       },
     ]
-  }),
+  },
 )
 
 export const STARTUP_LINKS = STARTUP_PICTURES.map(({ file, media }) => ({
