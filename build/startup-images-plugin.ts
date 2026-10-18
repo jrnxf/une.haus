@@ -20,17 +20,17 @@ function draw(
   publicDir: string,
   logos: Map<string, string>,
 ) {
-  const { width, height, ratio, theme } = picture
-  let logo = logos.get(theme)
+  const { width, height, ratio } = picture
+  let logo = logos.get(STARTUP_LOGO)
   if (!logo) {
-    const svg = readFileSync(join(publicDir, "icons", STARTUP_LOGO[theme]))
+    const svg = readFileSync(join(publicDir, "icons", STARTUP_LOGO))
     logo = `data:image/svg+xml;base64,${svg.toString("base64")}`
-    logos.set(theme, logo)
+    logos.set(STARTUP_LOGO, logo)
   }
   const logoWidth = STARTUP_LOGO_WIDTH * ratio
   const logoHeight = logoWidth * LOGO_ASPECT
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-    <rect width="${width}" height="${height}" fill="${STARTUP_PAPER[theme]}" />
+    <rect width="${width}" height="${height}" fill="${STARTUP_PAPER.dark}" />
     <image href="${logo}" x="${(width - logoWidth) / 2}" y="${(height - logoHeight) / 2}" width="${logoWidth}" height="${logoHeight}" />
   </svg>`
   return new Resvg(svg).render().asPng()
