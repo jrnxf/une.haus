@@ -10,6 +10,7 @@ import {
   PowerIcon,
   ShieldIcon,
   ShoppingBagIcon,
+  SparklesIcon,
   StickyNoteIcon,
   TrafficConeIcon,
   UserIcon,
@@ -207,6 +208,12 @@ function MobileNavAccountItems() {
 
   return (
     <>
+      <NavItem
+        title="ask"
+        url="/ask"
+        icon={SparklesIcon}
+        isActive={currentPath.startsWith("/ask")}
+      />
       <Link
         to="/notifications"
         replace
