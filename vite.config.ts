@@ -9,6 +9,7 @@ import { type LoggingFunction, type RollupLog } from "rollup"
 import { defineConfig, type PluginOption } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
 
+import { anthropicSdkWorker } from "./build/anthropic-sdk-worker-plugin"
 import { serviceWorker } from "./build/service-worker-plugin"
 import { startupImages } from "./build/startup-images-plugin"
 
@@ -64,6 +65,7 @@ const config = defineConfig(async () => {
       }),
       // Cron schedules live in wrangler.jsonc (triggers.crons); the scheduled
       // handler in src/server.ts dispatches on the cron expression.
+      anthropicSdkWorker(),
       cloudflare({ viteEnvironment: { name: "ssr" } }),
       tailwindcss(),
       startupImages(),
