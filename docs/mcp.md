@@ -97,8 +97,16 @@ In Claude Code, run `/mcp__unehaus__riu_recap last`.
 
 `src/mcp/worker.ts` serves the shared tools over HTTP at `/mcp`, with `createMcpHandler` from the SDK. It is stateless: each request gets a fresh `McpServer`, so any Worker instance can answer.
 
-For now `/mcp` answers only in local dev (`bun run dev`), behind a localhost Host check. OAuth comes before it goes to production.
+`/mcp` needs an OAuth token. `src/mcp/oauth.ts` puts `@cloudflare/workers-oauth-provider` in front of the whole Worker: it serves `/mcp`, the OAuth metadata, `/oauth/token` and `/oauth/register`, and hands every other request to the app.
+
+- **Who can connect:** any signed-in member. The token carries `{ userId }` as `ctx.props`.
+- **Consent:** `/oauth/authorize` (`src/routes/oauth/authorize.ts`) is a server route. With no session it sends the member to `/auth` and back. With a session it shows the consent page from `src/mcp/consent-page.ts`.
+- **Clients:** dynamic registration and client metadata documents (CIMD) both work. CIMD needs the `global_fetch_strictly_public` flag in `wrangler.jsonc`.
+- **Storage:** grants, tokens and clients live in the `OAUTH_KV` namespace.
+- **Origins:** each origin (une.haus, a workers.dev preview, localhost) is its own resource, so a preview token never works on production.
+
+Try the whole flow locally with the Inspector. It opens the consent page in your browser:
 
 ```sh
-bunx @modelcontextprotocol/inspector@2.16.0 --cli http://localhost:5173/mcp --transport http --method tools/list
+bunx @modelcontextprotocol/inspector@2.16.0 http://localhost:5173/mcp --transport http
 ```

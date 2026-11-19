@@ -1,9 +1,5 @@
 import geistMonoLatin from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
 import geistLatin from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url"
-import {
-  hostHeaderValidationResponse,
-  localhostAllowedHostnames,
-} from "@modelcontextprotocol/server"
 import * as Sentry from "@sentry/cloudflare"
 import handler from "@tanstack/react-start/server-entry"
 
@@ -14,7 +10,7 @@ import { rotate } from "~/lib/games/rius/lifecycle.server"
 import { logger } from "~/lib/logger"
 import { sendGameStartReminders } from "~/lib/tasks/game-start-reminders.server"
 import { sendDigests } from "~/lib/tasks/send-digests.server"
-import { MCP_PATH, mcpHandler } from "~/mcp/worker"
+import { oauthFetch } from "~/mcp/oauth"
 import appCss from "~/styles.css?url"
 
 // Structural types for the Workers runtime — avoids pulling the full
@@ -101,19 +97,17 @@ function withBookmark(response: Response, bookmark: string | null): Response {
   return withCookie
 }
 
-// /mcp answers only in local dev until it has OAuth in front of it. The
-// host check stops a web page from reaching it through DNS rebinding.
-function serveMcp(request: Request): Promise<Response> | undefined {
-  if (!import.meta.env.DEV) return undefined
-  if (new URL(request.url).pathname !== MCP_PATH) return undefined
-  const rejected = hostHeaderValidationResponse(
-    request,
-    localhostAllowedHostnames(),
-  )
-  if (rejected) return Promise.resolve(rejected)
-  return runWithRequestDb(() => mcpHandler.fetch(request)).then(
-    ({ result }) => result,
-  )
+// The web app: TanStack Start with early hints and the D1 bookmark cookie.
+// The OAuth provider calls it for every request that is not /mcp or one of
+// its own OAuth endpoints.
+const app = {
+  async fetch(request: Request): Promise<Response> {
+    const { result, bookmark } = await runWithRequestDb(
+      async () => withEarlyHints(await handler.fetch(request)),
+      readBookmark(request) ?? "first-unconstrained",
+    )
+    return withBookmark(result, bookmark)
+  },
 }
 
 export default Sentry.withSentry(
@@ -134,18 +128,12 @@ export default Sentry.withSentry(
   {
     fetch(
       request: Request,
-      _env: unknown,
+      env: unknown,
       ctx: WorkerExecutionContext,
     ): Promise<Response> {
-      return runWithExecutionContext(ctx, async () => {
-        const mcp = serveMcp(request)
-        if (mcp) return mcp
-        const { result, bookmark } = await runWithRequestDb(
-          async () => withEarlyHints(await handler.fetch(request)),
-          readBookmark(request) ?? "first-unconstrained",
-        )
-        return withBookmark(result, bookmark)
-      })
+      return runWithExecutionContext(ctx, () =>
+        oauthFetch(request, env, ctx, app),
+      )
     },
     scheduled(
       controller: ScheduledController,

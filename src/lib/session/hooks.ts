@@ -24,6 +24,12 @@ export const useServerSession = createServerOnlyFn(() => {
   })
 })
 
+// The signed-in user for a server route handler, or null. Server routes are
+// not React, so they read the session through this plain function.
+export const getServerSessionUser = createServerOnlyFn(() =>
+  useServerSession().then((session) => session.data.user ?? null),
+)
+
 export function useSessionUser() {
   const { session } = useRouteContext({ from: rootRouteId })
   return session.user

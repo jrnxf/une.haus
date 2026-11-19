@@ -2,7 +2,10 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "unehaus",
   "compatibility_date": "2026-08-01",
-  "compatibility_flags": ["nodejs_compat"],
+  // global_fetch_strictly_public: the OAuth provider fetches client metadata
+  // documents (CIMD) by URL, and this flag keeps those fetches off private
+  // and same-zone origins.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "main": "./src/server.ts",
   "vars": {
     "VITE_ENVIRONMENT": "production",
@@ -16,6 +19,13 @@
       "database_name": "unehaus",
       "database_id": "65de246d-e126-41e9-854c-f7a848c432c1",
       "migrations_dir": "drizzle",
+    },
+  ],
+  // Grants, tokens and registered clients for the /mcp OAuth server.
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "45f74d892d464715b8a37eed28883e14",
     },
   ],
   "triggers": {

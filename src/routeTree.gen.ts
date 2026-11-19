@@ -27,6 +27,7 @@ import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as VaultHistoryRouteImport } from './routes/vault/history'
 import { Route as TricksTrickIdRouteImport } from './routes/tricks/$trickId'
 import { Route as TourneyJoinRouteImport } from './routes/tourney/join'
+import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as MetricsUsersRouteImport } from './routes/metrics/users'
 import { Route as IntroSplatRouteImport } from './routes/intro.$'
 import { Route as GamesArcadeRouteImport } from './routes/games/arcade'
@@ -193,6 +194,11 @@ const TricksTrickIdRoute = TricksTrickIdRouteImport.update({
 const TourneyJoinRoute = TourneyJoinRouteImport.update({
   id: '/tourney/join',
   path: '/tourney/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
+  id: '/oauth/authorize',
+  path: '/oauth/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MetricsUsersRoute = MetricsUsersRouteImport.update({
@@ -631,6 +637,7 @@ export interface FileRoutesByFullPath {
   '/games/arcade': typeof GamesArcadeRoute
   '/intro/$': typeof IntroSplatRoute
   '/metrics/users': typeof MetricsUsersRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
   '/tourney/join': typeof TourneyJoinRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/vault/history': typeof VaultHistoryRoute
@@ -721,6 +728,7 @@ export interface FileRoutesByTo {
   '/games/arcade': typeof GamesArcadeRoute
   '/intro/$': typeof IntroSplatRoute
   '/metrics/users': typeof MetricsUsersRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
   '/tourney/join': typeof TourneyJoinRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/vault/history': typeof VaultHistoryRoute
@@ -816,6 +824,7 @@ export interface FileRoutesById {
   '/games/arcade': typeof GamesArcadeRoute
   '/intro/$': typeof IntroSplatRoute
   '/metrics/users': typeof MetricsUsersRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
   '/tourney/join': typeof TourneyJoinRoute
   '/tricks/$trickId': typeof TricksTrickIdRoute
   '/vault/history': typeof VaultHistoryRoute
@@ -915,6 +924,7 @@ export interface FileRouteTypes {
     | '/games/arcade'
     | '/intro/$'
     | '/metrics/users'
+    | '/oauth/authorize'
     | '/tourney/join'
     | '/tricks/$trickId'
     | '/vault/history'
@@ -1005,6 +1015,7 @@ export interface FileRouteTypes {
     | '/games/arcade'
     | '/intro/$'
     | '/metrics/users'
+    | '/oauth/authorize'
     | '/tourney/join'
     | '/tricks/$trickId'
     | '/vault/history'
@@ -1099,6 +1110,7 @@ export interface FileRouteTypes {
     | '/games/arcade'
     | '/intro/$'
     | '/metrics/users'
+    | '/oauth/authorize'
     | '/tourney/join'
     | '/tricks/$trickId'
     | '/vault/history'
@@ -1196,6 +1208,7 @@ export interface RootRouteChildren {
   GamesArcadeRoute: typeof GamesArcadeRoute
   IntroSplatRoute: typeof IntroSplatRoute
   MetricsUsersRoute: typeof MetricsUsersRoute
+  OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   TourneyJoinRoute: typeof TourneyJoinRoute
   TricksTrickIdRoute: typeof TricksTrickIdRoute
   VaultHistoryRoute: typeof VaultHistoryRoute
@@ -1349,6 +1362,13 @@ declare module '@tanstack/react-router' {
       path: '/tourney/join'
       fullPath: '/tourney/join'
       preLoaderRoute: typeof TourneyJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/authorize': {
+      id: '/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof OauthAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/metrics/users': {
@@ -2120,6 +2140,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesArcadeRoute: GamesArcadeRoute,
   IntroSplatRoute: IntroSplatRoute,
   MetricsUsersRoute: MetricsUsersRoute,
+  OauthAuthorizeRoute: OauthAuthorizeRoute,
   TourneyJoinRoute: TourneyJoinRoute,
   TricksTrickIdRoute: TricksTrickIdRoute,
   VaultHistoryRoute: VaultHistoryRoute,

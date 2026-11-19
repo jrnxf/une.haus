@@ -23,6 +23,7 @@ import {
 import { Input } from "~/components/ui/input"
 import { USER_DISCIPLINES } from "~/db/schema"
 import { auth } from "~/lib/auth"
+import { isServerRedirect } from "~/lib/auth/redirect"
 import { session } from "~/lib/session"
 import { users } from "~/lib/users"
 
@@ -73,7 +74,11 @@ export function UserForm({
     onSuccess: async () => {
       await qc.resetQueries({ queryKey: session.get.queryOptions().queryKey })
       toast.success("welcome to une.haus!")
-      navigate({ to: redirectTo ?? "/auth/me" })
+      if (isServerRedirect(redirectTo)) {
+        globalThis.location.assign(redirectTo)
+      } else {
+        navigate({ to: redirectTo ?? "/auth/me" })
+      }
     },
     onError: (error) => {
       toast.error(error.message)
