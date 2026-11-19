@@ -33,7 +33,8 @@ function RouteComponent() {
         </PageHeader.Breadcrumbs>
       </PageHeader>
       <div className="mx-auto w-full max-w-3xl flex-col gap-4 p-4">
-        <UserForm user={user} />
+        {/* This page always shows the viewer's own profile, so email is set. */}
+        <UserForm user={{ ...user, email: user.email ?? "" }} />
       </div>
     </>
   )

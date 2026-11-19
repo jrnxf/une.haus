@@ -48,19 +48,25 @@ export const listUsersServerFn = createServerFn({
 export const getUserWithFollowsServerFn = createServerFn({
   method: "GET",
 })
+  .middleware([authOptionalMiddleware])
   .inputValidator(zodValidator(getUserSchema))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { getUser, getUserFollows, getUserStats, getUserVideosCount } =
       await loadUserOps()
-    const [user, follows, stats, videosCount] = await Promise.all([
-      getUser(data.userId),
-      getUserFollows(data.userId),
-      getUserStats(data.userId),
-      getUserVideosCount(data.userId),
-    ])
+    const [{ email, ...user }, follows, stats, videosCount] = await Promise.all(
+      [
+        getUser(data.userId),
+        getUserFollows(data.userId),
+        getUserStats(data.userId),
+        getUserVideosCount(data.userId),
+      ],
+    )
 
     return {
       ...user,
+      // Email is private. Only the profile owner gets it back, for the edit
+      // form. Everyone else gets null.
+      email: context.user?.id === data.userId ? email : null,
       ...follows,
       stats,
       videosCount,
