@@ -16,6 +16,7 @@ import {
 } from "~/components/ui/trace"
 import { type AskStep, type Exchange } from "~/lib/ask/hooks"
 import { type AskCard, CARD_KINDS, MAX_CARDS } from "~/lib/ask/schemas"
+import { cn } from "~/lib/utils"
 
 // What the model does, as it does it. While it works, the line shimmers with
 // the current step. After, it folds to "used N tools", and the fold shows the
@@ -66,6 +67,7 @@ function Card({ card }: { card: AskCard }) {
       to={card.path}
       className="bg-card hover:bg-accent/50 flex items-center gap-3 overflow-hidden rounded-md border"
     >
+      {/* Like the posts list: a card with no media gets no media slot. */}
       {card.poster ? (
         <img
           src={card.poster}
@@ -73,10 +75,13 @@ function Card({ card }: { card: AskCard }) {
           loading="lazy"
           className="bg-muted aspect-video w-24 shrink-0 object-cover"
         />
-      ) : (
-        <div className="bg-muted aspect-video w-24 shrink-0" />
-      )}
-      <div className="flex min-w-0 flex-col gap-1 py-2 pr-2">
+      ) : null}
+      <div
+        className={cn(
+          "flex min-w-0 flex-col gap-1 py-2 pr-2",
+          !card.poster && "pl-3",
+        )}
+      >
         <span className="truncate text-sm font-medium">{card.title}</span>
         <span className="text-muted-foreground truncate text-xs">
           {card.subtitle}

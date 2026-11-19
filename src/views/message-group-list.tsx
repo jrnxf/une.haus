@@ -9,15 +9,61 @@ import { cn } from "~/lib/utils"
 type Message = ServerFnReturn<typeof messages.list.fn>["messages"][number]
 
 /**
- * Renders a message list grouped by consecutive author: each run of messages
- * from the same user shows one author label, and the current user's messages
- * align to the right. Purely presentational — scroll behavior and show-more
- * state live in the views that use it.
+ * One message in a list grouped by consecutive author. The first message of
+ * a run shows the author label, and the current user's messages align to the
+ * right. `prev` is the message before it, or undefined for the first one.
  *
  * `withAnchors` adds the `#message-{id}` id and `data-slot="message"` that
  * MessagesView's scroll choreography queries by selector. `insetAuthor` nudges
  * the author label toward the aligned bubble edge (used by the embedded chat
  * layout).
+ */
+export function MessageGroupRow({
+  record,
+  message,
+  prev,
+  withAnchors = false,
+  insetAuthor = false,
+}: {
+  record: MessageParent
+  message: Message
+  prev: Message | undefined
+  withAnchors?: boolean
+  insetAuthor?: boolean
+}) {
+  const sessionUser = useSessionUser()
+  const isAuthUserMessage = Boolean(
+    sessionUser && sessionUser.id === message.user.id,
+  )
+  const isNewSection = prev?.user.id !== message.user.id
+  return (
+    <div
+      id={withAnchors ? `message-${message.id}` : undefined}
+      data-slot={withAnchors ? "message" : undefined}
+      className={cn(
+        "flex max-w-full flex-col",
+        isAuthUserMessage && "items-end",
+      )}
+    >
+      {isNewSection && (
+        <div
+          className={cn(
+            "mb-1",
+            insetAuthor && (isAuthUserMessage ? "mr-1" : "ml-1"),
+            prev && "mt-4",
+          )}
+        >
+          <MessageAuthor message={message} />
+        </div>
+      )}
+      <MessageBubble parent={record} message={message} />
+    </div>
+  )
+}
+
+/**
+ * Renders a message list grouped by consecutive author. Purely presentational
+ * — scroll behavior and show-more state live in the views that use it.
  */
 export function MessageGroupList({
   record,
@@ -30,41 +76,18 @@ export function MessageGroupList({
   withAnchors?: boolean
   insetAuthor?: boolean
 }) {
-  const sessionUser = useSessionUser()
-
   return (
     <>
-      {messages.map((message, index) => {
-        const prev = messages[index - 1]
-        const isAuthUserMessage = Boolean(
-          sessionUser && sessionUser.id === message.user.id,
-        )
-        const isNewSection = prev?.user.id !== message.user.id
-        return (
-          <div
-            key={message.id}
-            id={withAnchors ? `message-${message.id}` : undefined}
-            data-slot={withAnchors ? "message" : undefined}
-            className={cn(
-              "flex max-w-full flex-col",
-              isAuthUserMessage && "items-end",
-            )}
-          >
-            {isNewSection && (
-              <div
-                className={cn(
-                  "mb-1",
-                  insetAuthor && (isAuthUserMessage ? "mr-1" : "ml-1"),
-                  index !== 0 && "mt-4",
-                )}
-              >
-                <MessageAuthor message={message} />
-              </div>
-            )}
-            <MessageBubble parent={record} message={message} />
-          </div>
-        )
-      })}
+      {messages.map((message, index) => (
+        <MessageGroupRow
+          key={message.id}
+          record={record}
+          message={message}
+          prev={messages[index - 1]}
+          withAnchors={withAnchors}
+          insetAuthor={insetAuthor}
+        />
+      ))}
     </>
   )
 }
