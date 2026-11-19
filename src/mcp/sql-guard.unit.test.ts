@@ -33,4 +33,17 @@ describe("assertReadOnly", () => {
   ])("blocks private table in %s", (sql) => {
     expect(() => assertReadOnly(sql)).toThrow("off limits")
   })
+
+  test.each(["select email from users", 'select "users"."email" from "users"'])(
+    "blocks hidden column in %s",
+    (sql) => {
+      expect(() => assertReadOnly(sql)).toThrow("column is off limits")
+    },
+  )
+
+  test("does not mistake a table name for the email column", () => {
+    expect(() => assertReadOnly("select * from email_reminders_sent")).toThrow(
+      "table is off limits",
+    )
+  })
 })

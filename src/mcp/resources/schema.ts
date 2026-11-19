@@ -2,12 +2,9 @@ import { is } from "drizzle-orm"
 import { SQLiteTable, getTableConfig } from "drizzle-orm/sqlite-core"
 
 import * as schema from "~/db/schema"
-import { isBlockedTable } from "~/mcp/sql-guard"
+import { HIDDEN_COLUMNS, isBlockedTable } from "~/mcp/sql-guard"
 
 import type { McpServer } from "@modelcontextprotocol/server"
-
-// Columns the MCP server never shows, even in the schema.
-const HIDDEN_COLUMNS = new Set(["users.email"])
 
 // One line per table: `name(col type, col type, ...)`. Short, so it costs few
 // tokens when a client puts it in the model's context.
@@ -17,7 +14,7 @@ function describeSchema() {
     .filter((config) => !isBlockedTable(config.name))
     .map((config) => {
       const columns = config.columns
-        .filter((col) => !HIDDEN_COLUMNS.has(`${config.name}.${col.name}`))
+        .filter((col) => !HIDDEN_COLUMNS.includes(col.name))
         .map((col) => `${col.name} ${col.getSQLType()}`)
       return `${config.name}(${columns.join(", ")})`
     })
