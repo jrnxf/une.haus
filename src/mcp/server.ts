@@ -2,13 +2,9 @@ import { McpServer } from "@modelcontextprotocol/server"
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio"
 import { z } from "zod"
 
-import { registerRiuRecapPrompt } from "~/mcp/prompts/riu-recap"
-import { registerSchemaResource } from "~/mcp/resources/schema"
-import { registerGameTools } from "~/mcp/tools/games"
-import { registerPostTools } from "~/mcp/tools/posts"
+import { prodDb } from "~/mcp/d1"
+import { registerShared } from "~/mcp/register"
 import { registerQueryTool } from "~/mcp/tools/query"
-import { registerSearchTools } from "~/mcp/tools/search"
-import { registerUserTools } from "~/mcp/tools/users"
 
 // A local MCP server for une.haus. A client (Claude Code, the MCP Inspector)
 // starts this file as a child process and talks to it over stdin/stdout.
@@ -44,13 +40,11 @@ server.registerTool(
   },
 )
 
-registerUserTools(server)
-registerSearchTools(server)
-registerPostTools(server)
-registerGameTools(server)
+// The read tools, schema resource and riu_recap prompt, on live data.
+registerShared(server, prodDb)
+// Raw SQL goes only through the read-only REST path, so only this server
+// has it.
 registerQueryTool(server)
-registerSchemaResource(server)
-registerRiuRecapPrompt(server)
 
 await server.connect(new StdioServerTransport())
 console.error("unehaus mcp server ready on stdio")
