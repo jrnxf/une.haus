@@ -25,6 +25,7 @@ import {
   getUserActivity,
   getUserVideos,
   getUserVideosCount,
+  listUsers,
   unfollowUser,
   updateUser,
 } from "~/lib/users/ops.server"
@@ -746,5 +747,18 @@ describe("users integration", () => {
       expect(await getUserVideosCount(user.id)).toBe(6)
       expect(await getUserVideosCount(otherUser.id)).toBe(1)
     })
+  })
+})
+
+describe("listUsers", () => {
+  it("never returns email", async () => {
+    await seedUser()
+
+    const rows = await listUsers({ data: {} })
+
+    expect(rows.length).toBeGreaterThan(0)
+    for (const row of rows) {
+      expect(row).not.toHaveProperty("email")
+    }
   })
 })

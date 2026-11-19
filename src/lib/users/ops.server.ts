@@ -104,7 +104,6 @@ export async function listUsers({
       avatarId: users.avatarId,
       bio: users.bio,
       disciplines: users.disciplines,
-      email: users.email,
       id: users.id,
       location: {
         countryCode: userLocations.countryCode,
