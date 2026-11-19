@@ -9,6 +9,15 @@ bun run mcp          # start it on stdio (a client normally does this)
 bun run mcp:inspect  # open it in the MCP Inspector web UI
 ```
 
+## use it from Claude Code
+
+`.mcp.json` at the repo root registers the server for this project. The first time you start `claude` in the repo, it asks you to approve the server. After that:
+
+- `/mcp` shows the server status and its tools.
+- Ask a question such as "where is une.haus user 1 based?", and Claude calls `get_user` on its own.
+
+Claude Code starts the server from the repo root, so bun finds `.env` there.
+
 ## how it works
 
 - **Transport: stdio.** The client starts the server as a child process. Messages are JSON-RPC 2.0, one per line, on stdin and stdout. Logs must go to stderr, because any other text on stdout breaks the protocol.
