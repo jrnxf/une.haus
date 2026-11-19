@@ -77,11 +77,11 @@ export function AskCompose({
           </Button>
         </div>
       </form>
-      <p className="text-muted-foreground text-center text-xs">
-        {left === null
-          ? "answers come from une.haus and can be wrong."
-          : limitNote(left)}
-      </p>
+      {left === null ? null : (
+        <p className="text-muted-foreground text-center text-xs">
+          {limitNote(left)}
+        </p>
+      )}
     </div>
   )
 }
