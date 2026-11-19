@@ -22,6 +22,7 @@ Claude Code starts the server from the repo root, so bun finds `.env` there.
 
 - **Transport: stdio.** The client starts the server as a child process. Messages are JSON-RPC 2.0, one per line, on stdin and stdout. Logs must go to stderr, because any other text on stdout breaks the protocol.
 - **Handshake.** The client sends `initialize` with the protocol versions it supports. The server answers with its version, its name and its capabilities (for example `tools`). The client then sends `notifications/initialized`.
+- **Three primitives.** A server offers tools (the model calls them), resources (the client reads them, like files) and prompts (the user picks them, like slash commands).
 - **Tools.** `tools/list` returns each tool's name, description and JSON Schema for its input and output. The SDK makes the JSON Schema from the zod schema. `tools/call` runs a tool and returns `content` (text for the model) and `structuredContent` (the same data, typed).
 
 ## prod data
@@ -46,3 +47,19 @@ Two locks keep it read-only:
 | ---------- | ------------------------------------------------- |
 | `ping`     | returns the message you send to it                |
 | `get_user` | one rider's public profile and counts, by user id |
+
+## resources
+
+| uri                | what                                                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `unehaus://schema` | one line per readable table, with column names and SQLite types. Private tables and `users.email` are left out. |
+
+In Claude Code, type `@` and pick the resource to attach it to your message.
+
+## prompts
+
+| name        | args                         | what                                                                                |
+| ----------- | ---------------------------- | ----------------------------------------------------------------------------------- |
+| `riu_recap` | `round`: `last` or `current` | loads a RIU round with its sets and landings, then asks for a short lowercase recap |
+
+In Claude Code, run `/mcp__unehaus__riu_recap last`.

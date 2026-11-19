@@ -26,3 +26,7 @@ export function assertReadOnly(sql: string) {
     throw new Error("that table is off limits to the MCP server")
   }
 }
+
+export function isBlockedTable(name: string) {
+  return BLOCKED_TABLES.test(name)
+}
