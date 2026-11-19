@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 
-import { cardRefs, MAX_CARDS } from "~/lib/ask/cards"
+import { cardRefs, MAX_LINKS, postPoster } from "~/lib/ask/cards"
 import { askSchema } from "~/lib/ask/schemas"
 import { stepLabel } from "~/lib/ask/tools"
 
@@ -15,17 +15,46 @@ describe("cardRefs", () => {
     ])
   })
 
-  test("skips repeats, riders and plain text", () => {
+  test("finds riders and tricks, and skips repeats and plain text", () => {
     const answer =
-      "[alex](/users/4) posted [part 2](/posts/9). /posts/8 again [part 2](/posts/9)"
+      "[alex](/users/4) posted [part 2](/posts/9) about [a unispin](/tricks/5). /posts/8 again [part 2](/posts/9)"
     expect(cardRefs(answer)).toEqual([
+      { kind: "rider", id: 4, path: "/users/4" },
       { kind: "post", id: 9, path: "/posts/9" },
+      { kind: "trick", id: 5, path: "/tricks/5" },
     ])
   })
 
-  test("stops at the card limit", () => {
-    const answer = [1, 2, 3, 4, 5, 6].map((id) => `[p](/posts/${id})`).join(" ")
-    expect(cardRefs(answer)).toHaveLength(MAX_CARDS)
+  test("stops at the link limit", () => {
+    const answer = Array.from(
+      { length: MAX_LINKS + 3 },
+      (_, id) => `[p](/posts/${id})`,
+    ).join(" ")
+    expect(cardRefs(answer)).toHaveLength(MAX_LINKS)
+  })
+})
+
+describe("postPoster", () => {
+  const none = { playbackId: null, imageId: null, youtubeVideoId: null }
+
+  test("uses the uploaded video first", () => {
+    expect(
+      postPoster({ ...none, playbackId: "abc", imageId: "img" }),
+    ).toStartWith("https://image.mux.com/abc/thumbnail.webp")
+  })
+
+  test("uses the photo", () => {
+    expect(postPoster({ ...none, imageId: "img" })).toContain("/img/width=480")
+  })
+
+  test("uses the YouTube thumbnail", () => {
+    expect(postPoster({ ...none, youtubeVideoId: "dQw4w9WgXcQ" })).toBe(
+      "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    )
+  })
+
+  test("has no poster for a text post", () => {
+    expect(postPoster(none)).toBeNull()
   })
 })
 

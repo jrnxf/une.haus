@@ -1,14 +1,19 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 
-import { Button } from "~/components/ui/button"
-import { Textarea } from "~/components/ui/textarea"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupTextarea,
+} from "~/components/ui/input-group"
 
-// The question box at the bottom of /ask. Enter asks, shift+enter adds a line.
 function limitNote(left: number) {
   if (left <= 0) return "you reached today's limit. ask again tomorrow."
   return `${left} ${left === 1 ? "question" : "questions"} left today.`
 }
 
+// The question box at the bottom of /ask (AI Elements prompt input). Enter
+// asks, shift+enter adds a line.
 export function AskCompose({
   busy,
   followUp,
@@ -22,22 +27,21 @@ export function AskCompose({
   onAsk: (question: string) => void
 }) {
   const [text, setText] = useState("")
-  const submit = () => {
-    if (busy || !text.trim()) return
-    onAsk(text)
-    setText("")
-  }
+  const formRef = useRef<HTMLFormElement>(null)
+  const canAsk = !busy && text.trim().length > 0
   return (
     <form
-      className="bg-background sticky bottom-0 flex flex-col gap-2 py-4"
+      ref={formRef}
+      className="flex flex-col gap-2"
       onSubmit={(event) => {
         event.preventDefault()
-        submit()
+        if (!canAsk) return
+        onAsk(text)
+        setText("")
       }}
     >
-      <div className="flex items-end gap-2">
-        <Textarea
-          size="compact"
+      <InputGroup>
+        <InputGroupTextarea
           value={text}
           maxLength={2000}
           placeholder={followUp ? "ask a follow-up" : "ask anything"}
@@ -47,14 +51,22 @@ export function AskCompose({
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault()
-              submit()
+              formRef.current?.requestSubmit()
             }
           }}
         />
-        <Button type="submit" disabled={busy || !text.trim()}>
-          Ask
-        </Button>
-      </div>
+        <InputGroupAddon align="block-end">
+          <InputGroupButton
+            type="submit"
+            variant="default"
+            size="sm"
+            disabled={!canAsk}
+            className="ml-auto"
+          >
+            Ask
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
       <p className="text-muted-foreground text-center text-xs">
         {left === null
           ? "answers come from une.haus and can be wrong."

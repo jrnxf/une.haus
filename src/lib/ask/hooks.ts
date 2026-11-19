@@ -72,13 +72,15 @@ export function useAskThread() {
       ),
     )
 
-  async function ask(question: string) {
+  // Ask a question after the exchanges in base (the whole thread unless
+  // this is a retry).
+  async function ask(question: string, base: Exchange[] = thread) {
     const text = question.trim()
     if (!text || busy) return
     const id = nextId.current++
-    const messages = [...history(thread), { role: "user", content: text }]
-    setThread((current) => [
-      ...current,
+    const messages = [...history(base), { role: "user", content: text }]
+    setThread([
+      ...base,
       {
         id,
         question: text,
@@ -145,10 +147,17 @@ export function useAskThread() {
     }
   }
 
+  // Ask the last question again, in place of its answer.
+  function retry() {
+    const last = thread.at(-1)
+    if (!last || busy) return
+    void ask(last.question, thread.slice(0, -1))
+  }
+
   function reset() {
     controller.current?.abort()
     setThread([])
   }
 
-  return { thread, busy, left, ask, reset }
+  return { thread, busy, left, ask, retry, reset }
 }
