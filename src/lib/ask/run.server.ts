@@ -7,7 +7,7 @@ import { askTools, stepLabel } from "~/lib/ask/tools"
 import { logger } from "~/lib/logger"
 import { type ToolDb } from "~/mcp/tools/define"
 
-const MODEL = "claude-opus-5-5"
+const MODEL = "claude-sonnet-5-5"
 // Thinking is on by default and counts toward max_tokens.
 const MAX_TOKENS = 16_000
 // Model turns per question. A normal answer needs 2 to 4.
@@ -46,7 +46,17 @@ export async function runAsk({
       model: MODEL,
       max_tokens: MAX_TOKENS,
       output_config: { effort: "medium" },
-      system: askSystemPrompt(today()),
+      // The tools and the system prompt are the same for every question, so
+      // cache them. Top-level cache_control also caches the thread as it
+      // grows, so each tool turn reads the turns before it from the cache.
+      system: [
+        {
+          type: "text",
+          text: askSystemPrompt(today()),
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+      cache_control: { type: "ephemeral" },
       tools,
       messages: input.messages,
       max_iterations: MAX_TURNS,
@@ -57,6 +67,8 @@ export async function runAsk({
 
   // Only the last turn is the answer. Text before a tool call is a preamble.
   let answer = ""
+  // Token totals for the whole question, logged once so cost can be checked.
+  const usage = { turns: 0, input: 0, cacheWrite: 0, cacheRead: 0, output: 0 }
   for await (const turn of runner) {
     send({ type: "turn" })
     answer = ""
@@ -70,6 +82,11 @@ export async function runAsk({
       }
     }
     const message = await turn.finalMessage()
+    usage.turns += 1
+    usage.input += message.usage.input_tokens
+    usage.cacheWrite += message.usage.cache_creation_input_tokens ?? 0
+    usage.cacheRead += message.usage.cache_read_input_tokens ?? 0
+    usage.output += message.usage.output_tokens
     if (message.stop_reason === "refusal") {
       send({ type: "error", message: "this question cannot be answered." })
       return
@@ -81,5 +98,6 @@ export async function runAsk({
     }
   }
 
+  logger.info("ask usage", { model: MODEL, ...usage })
   send({ type: "cards", cards: await answerCards(db, answer) })
 }

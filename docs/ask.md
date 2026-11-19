@@ -6,10 +6,11 @@
 
 1. The page (`src/routes/_authed/ask.tsx`) keeps the thread in React state. Nothing is saved. "New" clears it.
 2. Each question POSTs the thread to `/api/ask` (`src/routes/api/ask.ts`) as plain text turns.
-3. The route checks the session, the API key and a limit of 20 questions per member per day (`rateLimit("ask:<userId>")`).
-4. `runAsk` (`src/lib/ask/run.server.ts`) runs the SDK tool runner on `claude-opus-5-5` with medium effort and at most 8 model turns.
+3. The route checks the session, the API key and a limit of 25 questions per member per day (`countHit("ask:<userId>")`). From the 20th question, the page shows how many are left.
+4. `runAsk` (`src/lib/ask/run.server.ts`) runs the SDK tool runner on `claude-sonnet-5-5` with medium effort and at most 8 model turns.
 5. The response streams newline-delimited JSON events (`AskEvent` in `src/lib/ask/schemas.ts`):
    - `step` when a tool starts, with plain words for the page and the raw call for the "used N tools" fold
+   - `quota` with the questions left today, only from the 20th question
    - `turn` when a new model turn starts (text before a tool call is a preamble, so the page drops it)
    - `text` for answer text
    - `cards` for up to 4 posts, riu sets and vault videos that the answer links to
@@ -34,4 +35,4 @@
 
 ## Cost
 
-Opus 5.5 costs $4 per million input tokens and $20 per million output tokens. Thinking counts as output. Check the `usage` of a real question before you raise the daily limit.
+Sonnet 5.5 costs $2 per million input tokens and $10 per million output tokens, and $0.10 per million for cache reads. Thinking counts as output. The tools and the system prompt are cached, and so is the thread as each tool turn adds to it. Each question logs its token totals as `ask usage`. Measured on 19 Nov 2026 on the 4 suggestions: $0.006 to $0.013 per question, about $0.01 on average. At the limit of 25, one member costs at most about $0.30 a day. Check `ask usage` again before you raise the limit or change the model.

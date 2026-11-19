@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
-import { __resetRateLimits, rateLimit } from "~/lib/auth/rate-limit"
+import { __resetRateLimits, countHit, rateLimit } from "~/lib/auth/rate-limit"
 
 beforeEach(() => __resetRateLimits())
 
@@ -33,5 +33,12 @@ describe("rateLimit", () => {
     expect(await rateLimit("k", 3, 60_000)).toBe(false)
     await __resetRateLimits()
     expect(await rateLimit("k", 3, 60_000)).toBe(true)
+  })
+
+  it("countHit returns the hits so far and restarts with the window", async () => {
+    const t = Date.now()
+    expect(await countHit("q", 50, t)).toBe(1)
+    expect(await countHit("q", 50, t)).toBe(2)
+    expect(await countHit("q", 50, t + 51)).toBe(1)
   })
 })

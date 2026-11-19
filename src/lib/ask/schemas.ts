@@ -36,6 +36,8 @@ export type AskEvent =
   | { type: "step"; label: string; tool: string; args: string }
   // A new model turn started. Text from the turn before was only a preamble.
   | { type: "turn" }
+  // Questions left today. Sent only when few are left.
+  | { type: "quota"; left: number }
   | { type: "text"; text: string }
   | { type: "cards"; cards: AskCard[] }
   | { type: "error"; message: string }

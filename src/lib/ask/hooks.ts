@@ -30,6 +30,8 @@ function history(thread: Exchange[]) {
 
 function apply(exchange: Exchange, event: AskEvent): Exchange {
   switch (event.type) {
+    case "quota":
+      return exchange
     case "step":
       return {
         ...exchange,
@@ -56,6 +58,8 @@ function apply(exchange: Exchange, event: AskEvent): Exchange {
 // The /ask thread. It lives in the page only: nothing is saved.
 export function useAskThread() {
   const [thread, setThread] = useState<Exchange[]>([])
+  // Questions left today, known only once few are left.
+  const [left, setLeft] = useState<number | null>(null)
   const controller = useRef<AbortController | null>(null)
   const nextId = useRef(0)
 
@@ -101,6 +105,7 @@ export function useAskThread() {
         body: JSON.stringify({ messages }),
         signal: abort.signal,
       })
+      if (response.status === 429) setLeft(0)
       if (!response.ok || !response.body) {
         const body = (await response.json().catch(() => null)) as {
           message?: string
@@ -121,6 +126,7 @@ export function useAskThread() {
         for (const line of lines) {
           if (!line) continue
           const event = JSON.parse(line) as AskEvent
+          if (event.type === "quota") setLeft(event.left)
           update(id, (exchange) => apply(exchange, event))
         }
       }
@@ -144,5 +150,5 @@ export function useAskThread() {
     setThread([])
   }
 
-  return { thread, busy, ask, reset }
+  return { thread, busy, left, ask, reset }
 }

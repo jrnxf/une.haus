@@ -4,13 +4,21 @@ import { Button } from "~/components/ui/button"
 import { Textarea } from "~/components/ui/textarea"
 
 // The question box at the bottom of /ask. Enter asks, shift+enter adds a line.
+function limitNote(left: number) {
+  if (left <= 0) return "you reached today's limit. ask again tomorrow."
+  return `${left} ${left === 1 ? "question" : "questions"} left today.`
+}
+
 export function AskCompose({
   busy,
   followUp,
+  left,
   onAsk,
 }: {
   busy: boolean
   followUp: boolean
+  // Questions left today, or null while there are plenty.
+  left: number | null
   onAsk: (question: string) => void
 }) {
   const [text, setText] = useState("")
@@ -48,7 +56,9 @@ export function AskCompose({
         </Button>
       </div>
       <p className="text-muted-foreground text-center text-xs">
-        answers come from une.haus and can be wrong.
+        {left === null
+          ? "answers come from une.haus and can be wrong."
+          : limitNote(left)}
       </p>
     </form>
   )

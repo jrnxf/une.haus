@@ -19,13 +19,13 @@ export const Route = createFileRoute("/_authed/ask")({
 
 const suggestions = [
   "what's the current riu round?",
-  "show me flatland videos from this year",
-  "how do i learn a backspin?",
-  "who rides in finland?",
+  "what are people posting about?",
+  "how do i learn a unispin?",
+  "show me some street videos",
 ]
 
 function RouteComponent() {
-  const { thread, busy, ask, reset } = useAskThread()
+  const { thread, busy, left, ask, reset } = useAskThread()
 
   return (
     <>
@@ -75,6 +75,7 @@ function RouteComponent() {
         <AskCompose
           busy={busy}
           followUp={thread.length > 0}
+          left={left}
           onAsk={(question) => void ask(question)}
         />
       </div>
