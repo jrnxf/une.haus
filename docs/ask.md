@@ -15,6 +15,7 @@
    - `text` for answer text
    - `cards` for up to 4 posts, riu sets and vault videos that the answer links to
    - `error`, then `done`
+6. The page draws the thread with shadcn AI Elements parts in `src/components/ui/`: `MessageScroller` for the thread, `Message` and `Bubble` for the turns, `Trace` for the steps and `InputGroup` for the question box. `shadcn/tailwind.css` (imported in `src/styles.css`) gives them the `shimmer` and `scroll-fade` utilities.
 
 ## Prompt rules
 
