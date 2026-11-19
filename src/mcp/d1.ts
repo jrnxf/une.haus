@@ -57,7 +57,7 @@ const rawResponse = z.object({
     .default([]),
 })
 
-async function rawQuery(sql: string, params: unknown[]) {
+export async function rawQuery(sql: string, params: unknown[]) {
   assertReadOnly(sql)
   const res = await fetch(endpoint, {
     method: "POST",

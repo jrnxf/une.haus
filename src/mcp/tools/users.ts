@@ -11,6 +11,7 @@ import {
   users,
 } from "~/db/schema"
 import { prodDb } from "~/mcp/d1"
+import { errorResult, jsonResult } from "~/mcp/tools/result"
 
 import type { McpServer } from "@modelcontextprotocol/server"
 
@@ -71,14 +72,7 @@ export function registerUserTools(server: McpServer) {
         .where(eq(users.id, userId))
         .limit(1)
 
-      if (!user) {
-        // isError puts the failure in front of the model as a normal result,
-        // so it can correct itself instead of the whole call failing.
-        return {
-          isError: true,
-          content: [{ type: "text", text: `no user with id ${userId}` }],
-        }
-      }
+      if (!user) return errorResult(`no user with id ${userId}`)
 
       // Five small counts. Each is one HTTP round trip to D1.
       const countWhere = async (
@@ -118,7 +112,7 @@ export function registerUserTools(server: McpServer) {
         }).filter((entry): entry is [string, string] => Boolean(entry[1])),
       )
 
-      const output = {
+      return jsonResult({
         id: user.id,
         name: user.name,
         bio: user.bio,
@@ -137,12 +131,7 @@ export function registerUserTools(server: McpServer) {
           riuSets: setCount,
           riuSubmissions: submissionCount,
         },
-      }
-
-      return {
-        content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
-        structuredContent: output,
-      }
+      })
     },
   )
 }

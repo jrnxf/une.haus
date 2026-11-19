@@ -43,10 +43,28 @@ Two locks keep it read-only:
 
 ## tools
 
-| tool       | what it does                                      |
-| ---------- | ------------------------------------------------- |
-| `ping`     | returns the message you send to it                |
-| `get_user` | one rider's public profile and counts, by user id |
+| tool            | what it does                                                       |
+| --------------- | ------------------------------------------------------------------ |
+| `ping`          | returns the message you send to it                                 |
+| `get_user`      | one rider's public profile and counts, by user id                  |
+| `search_users`  | riders by name                                                     |
+| `list_posts`    | posts newest first, by words or author, with a `before` cursor     |
+| `get_post`      | one post with its full text, video link, likes and latest comments |
+| `get_riu_round` | a RIU round (active, upcoming, last or an id) with its sets        |
+| `get_riu_set`   | one RIU set with every submission and its video link               |
+| `search_tricks` | the trick glossary by name or alternate name                       |
+| `search_videos` | the vault by title or rider name                                   |
+| `query`         | one read-only SELECT, at most 200 rows, for questions no tool fits |
+
+BIU and SIU have no tools of their own yet. `query` can read them.
+
+### tool design rules
+
+- A list tool returns ids and short excerpts. A detail tool returns the full record.
+- Every list tool takes `limit` (default 10, at most 50).
+- A wrong id comes back as an `isError` result, so the model can try again.
+- Video links are public Mux HLS URLs (`https://stream.mux.com/<id>.m3u8`).
+- No tool returns `users.email`. The SQL guard refuses the column, and `query` drops it from `SELECT *`.
 
 ## resources
 

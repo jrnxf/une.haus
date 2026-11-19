@@ -4,6 +4,10 @@ import { z } from "zod"
 
 import { registerRiuRecapPrompt } from "~/mcp/prompts/riu-recap"
 import { registerSchemaResource } from "~/mcp/resources/schema"
+import { registerGameTools } from "~/mcp/tools/games"
+import { registerPostTools } from "~/mcp/tools/posts"
+import { registerQueryTool } from "~/mcp/tools/query"
+import { registerSearchTools } from "~/mcp/tools/search"
 import { registerUserTools } from "~/mcp/tools/users"
 
 // A local MCP server for une.haus. A client (Claude Code, the MCP Inspector)
@@ -41,6 +45,10 @@ server.registerTool(
 )
 
 registerUserTools(server)
+registerSearchTools(server)
+registerPostTools(server)
+registerGameTools(server)
+registerQueryTool(server)
 registerSchemaResource(server)
 registerRiuRecapPrompt(server)
 

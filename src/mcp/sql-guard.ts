@@ -14,6 +14,11 @@ const SECOND_STATEMENT = /;\s*\S/
 const BLOCKED_TABLES =
   /\b(auth_codes|rate_limits|presence|notifications|user_notification_settings|email_reminders_sent)\b/i
 
+// Columns no tool may read. Only users has one today. The query tool also
+// drops these from every result, so `SELECT *` cannot leak them.
+export const HIDDEN_COLUMNS: readonly string[] = ["email"]
+const HIDDEN_COLUMN = new RegExp(`\\b(${HIDDEN_COLUMNS.join("|")})\\b`, "i")
+
 export function assertReadOnly(sql: string) {
   if (
     !READ_ONLY.test(sql) ||
@@ -24,6 +29,9 @@ export function assertReadOnly(sql: string) {
   }
   if (BLOCKED_TABLES.test(sql)) {
     throw new Error("that table is off limits to the MCP server")
+  }
+  if (HIDDEN_COLUMN.test(sql)) {
+    throw new Error("that column is off limits to the MCP server")
   }
 }
 
