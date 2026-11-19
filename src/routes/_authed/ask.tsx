@@ -33,7 +33,7 @@ const suggestions = [
 ]
 
 function RouteComponent() {
-  const { thread, busy, left, ask, retry, reset } = useAskThread()
+  const { thread, busy, left, ask, reset } = useAskThread()
 
   return (
     <>
@@ -91,14 +91,7 @@ function RouteComponent() {
                       </MessageScrollerItem>
                       <MessageScrollerItem messageId={`a${exchange.id}`}>
                         <div className="px-4">
-                          <AskAnswer
-                            exchange={exchange}
-                            onRetry={
-                              !busy && exchange === thread.at(-1)
-                                ? retry
-                                : undefined
-                            }
-                          />
+                          <AskAnswer exchange={exchange} />
                         </div>
                       </MessageScrollerItem>
                     </div>
