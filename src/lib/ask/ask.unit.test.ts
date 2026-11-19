@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 
-import { cardRefs, MAX_LINKS } from "~/lib/ask/cards"
+import { cardRefs, MAX_LINKS, postPoster } from "~/lib/ask/cards"
 import { askSchema } from "~/lib/ask/schemas"
 import { stepLabel } from "~/lib/ask/tools"
 
@@ -31,6 +31,30 @@ describe("cardRefs", () => {
       (_, id) => `[p](/posts/${id})`,
     ).join(" ")
     expect(cardRefs(answer)).toHaveLength(MAX_LINKS)
+  })
+})
+
+describe("postPoster", () => {
+  const none = { playbackId: null, imageId: null, youtubeVideoId: null }
+
+  test("uses the uploaded video first", () => {
+    expect(
+      postPoster({ ...none, playbackId: "abc", imageId: "img" }),
+    ).toStartWith("https://image.mux.com/abc/thumbnail.webp")
+  })
+
+  test("uses the photo", () => {
+    expect(postPoster({ ...none, imageId: "img" })).toContain("/img/width=480")
+  })
+
+  test("uses the YouTube thumbnail", () => {
+    expect(postPoster({ ...none, youtubeVideoId: "dQw4w9WgXcQ" })).toBe(
+      "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    )
+  })
+
+  test("has no poster for a text post", () => {
+    expect(postPoster(none)).toBeNull()
   })
 })
 

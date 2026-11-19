@@ -13,7 +13,7 @@
    - `quota` with the questions left today, only from the 20th question
    - `turn` when a new model turn starts (text before a tool call is a preamble, so the page drops it)
    - `text` for answer text
-   - `cards` for the first 24 une.haus pages the answer links to (posts, riu sets, vault videos, riders and tricks). Up to 4 posts, riu sets and videos show as cards under the answer. Every linked page also gets a hover preview on its link (the AI Elements inline citation pattern, on our `HoverCard`). On touch screens a tap follows the link.
+   - `cards` for the first 24 une.haus pages the answer links to (posts, riu sets, vault videos, riders and tricks). Up to 4 posts, riu sets and videos show as cards under the answer. Every linked page also gets a hover preview on its link (the AI Elements inline citation pattern, on our `HoverCard`). On touch screens a tap follows the link. The image is the uploaded video, photo or YouTube thumbnail for a post, the chosen thumbnail time for a vault video, the first active video for a trick, and the avatar for a rider.
    - `error`, then `done`
 6. The page draws the thread with shadcn AI Elements parts in `src/components/ui/`: `MessageScroller` for the thread, `Message` and `Bubble` for the turns, `Trace` for the steps and `InputGroup` for the question box. The last answer has a Retry button. It asks the same question again with the same history and replaces that answer. `shadcn/tailwind.css` (imported in `src/styles.css`) gives them the `shimmer` and `scroll-fade` utilities.
 

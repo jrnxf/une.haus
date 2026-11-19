@@ -1,9 +1,10 @@
-import { eq, inArray } from "drizzle-orm"
+import { and, asc, eq, inArray, sql } from "drizzle-orm"
 
 import {
   muxVideos,
   posts,
   riuSets,
+  trickVideos,
   tricks,
   users,
   utvVideos,
@@ -48,8 +49,25 @@ export function cardRefs(answer: string): Ref[] {
     .map(({ kind, id, path }) => ({ kind, id, path }))
 }
 
-const poster = (playbackId: string | null) =>
-  getMuxPoster({ playbackId, width: 480 }) ?? null
+const poster = (playbackId: string | null, time = 0) =>
+  getMuxPoster({ playbackId, width: 480, time }) ?? null
+
+// A post holds one of: an uploaded video, a photo or a YouTube video. Same
+// order as the posts list.
+export function postPoster(row: {
+  playbackId: string | null
+  imageId: string | null
+  youtubeVideoId: string | null
+}) {
+  if (row.playbackId) return poster(row.playbackId)
+  if (row.imageId) {
+    return getCloudflareImageUrl(row.imageId, { width: 480, quality: 80 })
+  }
+  if (row.youtubeVideoId) {
+    return `https://img.youtube.com/vi/${row.youtubeVideoId}/hqdefault.jpg`
+  }
+  return null
+}
 
 // Long bios and descriptions are cut for the hover preview.
 const DESCRIPTION_LENGTH = 160
@@ -71,7 +89,7 @@ export async function answerCards(
   const ids = (kind: AskCard["kind"]) =>
     refs.filter((ref) => ref.kind === kind).map((ref) => ref.id)
 
-  const [postRows, setRows, videoRows, riderRows, trickRows] =
+  const [postRows, setRows, videoRows, riderRows, trickRows, trickVideoRows] =
     await Promise.all([
       ids("post").length === 0
         ? []
@@ -81,6 +99,7 @@ export async function answerCards(
               title: posts.title,
               author: users.name,
               imageId: posts.imageId,
+              youtubeVideoId: posts.youtubeVideoId,
               playbackId: muxVideos.playbackId,
             })
             .from(posts)
@@ -107,6 +126,7 @@ export async function answerCards(
               id: utvVideos.id,
               title: utvVideos.title,
               legacyTitle: utvVideos.legacyTitle,
+              thumbnailSeconds: utvVideos.thumbnailSeconds,
               playbackId: muxVideos.playbackId,
             })
             .from(utvVideos)
@@ -133,19 +153,43 @@ export async function answerCards(
             })
             .from(tricks)
             .where(inArray(tricks.id, ids("trick"))),
+      // Active trick videos, in the order the trick page shows them.
+      ids("trick").length === 0
+        ? []
+        : db
+            .select({
+              trickId: trickVideos.trickId,
+              playbackId: muxVideos.playbackId,
+            })
+            .from(trickVideos)
+            .innerJoin(muxVideos, eq(muxVideos.assetId, trickVideos.muxAssetId))
+            .where(
+              and(
+                inArray(trickVideos.trickId, ids("trick")),
+                eq(trickVideos.status, "active"),
+              ),
+            )
+            .orderBy(
+              sql`${trickVideos.pinnedRank} asc nulls last`,
+              asc(trickVideos.sortOrder),
+            ),
     ])
+
+  const trickPosters = new Map<number, string>()
+  for (const row of trickVideoRows) {
+    const url = poster(row.playbackId)
+    if (url && !trickPosters.has(row.trickId))
+      trickPosters.set(row.trickId, url)
+  }
 
   const cards = new Map<string, AskCard>()
   for (const row of postRows) {
-    const image = row.imageId
-      ? getCloudflareImageUrl(row.imageId, { width: 480, quality: 80 })
-      : null
     cards.set(`/posts/${row.id}`, {
       path: `/posts/${row.id}`,
       kind: "post",
       title: row.title,
       subtitle: `post · ${row.author}`,
-      poster: poster(row.playbackId) ?? image,
+      poster: postPoster(row),
       description: null,
     })
   }
@@ -165,7 +209,7 @@ export async function answerCards(
       kind: "video",
       title: row.title || row.legacyTitle,
       subtitle: "vault video",
-      poster: poster(row.playbackId),
+      poster: poster(row.playbackId, row.thumbnailSeconds),
       description: null,
     })
   }
@@ -187,7 +231,7 @@ export async function answerCards(
       kind: "trick",
       title: row.name,
       subtitle: "trick",
-      poster: null,
+      poster: trickPosters.get(row.id) ?? null,
       description: short(row.description),
     })
   }
