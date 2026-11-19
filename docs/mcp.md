@@ -64,7 +64,7 @@ Each tool is one `defineTool({ name, title, description, inputSchema, outputSche
 
 - `src/mcp/tools/registry.ts` lists the shared read tools.
 - `src/mcp/register.ts` wraps each one as an MCP tool. A `ToolError` becomes an `isError` result.
-- The local server passes `prodDb` (D1 over REST). The Worker will pass its D1 binding.
+- The local server passes `prodDb` (D1 over REST). The Worker (`src/mcp/worker.ts`) passes its per-request D1 binding.
 - `query` and `ping` are on the local server only. `query` needs the read-only REST path, because the D1 binding can write.
 
 To add a tool: write it with `defineTool`, add it to `readTools`, and add a case to `src/mcp/tools/tools.integration.test.ts`.
@@ -92,3 +92,13 @@ In Claude Code, type `@` and pick the resource to attach it to your message.
 | `riu_recap` | `round`: `last` or `current` | loads a RIU round with its sets and landings, then asks for a short lowercase recap |
 
 In Claude Code, run `/mcp__unehaus__riu_recap last`.
+
+## the Worker endpoint
+
+`src/mcp/worker.ts` serves the shared tools over HTTP at `/mcp`, with `createMcpHandler` from the SDK. It is stateless: each request gets a fresh `McpServer`, so any Worker instance can answer.
+
+For now `/mcp` answers only in local dev (`bun run dev`), behind a localhost Host check. OAuth comes before it goes to production.
+
+```sh
+bunx @modelcontextprotocol/inspector@2.16.0 --cli http://localhost:5173/mcp --transport http --method tools/list
+```
