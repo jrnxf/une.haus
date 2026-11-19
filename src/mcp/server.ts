@@ -2,6 +2,8 @@ import { McpServer } from "@modelcontextprotocol/server"
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio"
 import { z } from "zod"
 
+import { registerUserTools } from "~/mcp/tools/users"
+
 // A local MCP server for une.haus. A client (Claude Code, the MCP Inspector)
 // starts this file as a child process and talks to it over stdin/stdout.
 //
@@ -35,6 +37,8 @@ server.registerTool(
     }
   },
 )
+
+registerUserTools(server)
 
 await server.connect(new StdioServerTransport())
 console.error("unehaus mcp server ready on stdio")
