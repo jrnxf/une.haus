@@ -17,7 +17,7 @@ import { NuqsAdapter } from "nuqs/adapters/tanstack-router"
 import { type ReactNode, useEffect, useState } from "react"
 import { z } from "zod"
 
-import { AppSidebar } from "~/components/app-sidebar"
+import { AppRail } from "~/components/app-rail"
 import { CommandPalette } from "~/components/command-palette"
 import { ConfirmDialog } from "~/components/confirm-dialog"
 import { AppErrorBoundary } from "~/components/error-boundary"
@@ -30,7 +30,7 @@ import {
   MobileNavProvider,
 } from "~/components/mobile-nav"
 import { MobileFooter } from "~/components/site-header"
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar"
+import { SidebarProvider } from "~/components/ui/sidebar"
 import { Toaster } from "~/components/ui/sonner"
 import { STARTUP_LINKS, STARTUP_PAPER } from "~/lib/pwa/startup-screens"
 import { useRootRouteContext } from "~/lib/session/hooks"
@@ -219,7 +219,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           media="(prefers-color-scheme: dark)"
         />
       </head>
-      <body className="overscroll-none font-mono antialiased">
+      <body className="overscroll-none antialiased">
         <AppErrorBoundary>
           <ThemeProvider>
             <Toaster />
@@ -243,8 +243,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                       >
                         <GlobalShortcuts />
                         <CommandPalette />
-                        <AppSidebar variant="inset" />
-                        <SidebarInset>
+                        <AppRail />
+                        <main className="relative flex h-dvh min-w-0 flex-1 flex-col overflow-hidden">
                           <div
                             className="flex flex-1 flex-col overflow-y-auto overscroll-none"
                             id="main-content"
@@ -252,7 +252,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                             {children}
                           </div>
                           <MobileFooter />
-                        </SidebarInset>
+                        </main>
                       </SidebarProvider>
                     </MobileBreadcrumbsProvider>
                   </MobileNavIndent>

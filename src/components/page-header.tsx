@@ -2,6 +2,8 @@ import { Link, type LinkProps, useLocation } from "@tanstack/react-router"
 import { Children, type ReactNode, useEffect } from "react"
 
 import { useSetMobileBreadcrumbs } from "~/components/mobile-breadcrumbs-context"
+import { OnlineIndicator } from "~/components/online-indicator"
+import { SearchTrigger } from "~/components/search-trigger"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,12 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb"
-import { SidebarTrigger } from "~/components/ui/sidebar"
 import { cn } from "~/lib/utils"
-
-function HeaderDivider() {
-  return <div className="bg-border h-4 w-px" />
-}
 
 function PageHeaderRoot({
   children,
@@ -27,15 +24,16 @@ function PageHeaderRoot({
   return (
     // the command palette is mounted once at the root route shell
     // (src/routes/__root.tsx), not per page header
-    <header className="bg-background sticky top-0 z-30 hidden shrink-0 border-b md:block">
+    <header className="bg-background/80 sticky top-0 z-30 hidden shrink-0 backdrop-blur-lg md:block">
       <div
         className={cn(
           "mx-auto flex h-(--header-height) w-full items-center gap-2 px-4",
           // maxWidth,
         )}
       >
-        <SidebarTrigger className="-ml-1" size="icon-xs" />
         <div className="flex min-w-0 flex-1 items-center gap-2">{children}</div>
+        <OnlineIndicator />
+        <SearchTrigger className="w-56 shrink-0" />
       </div>
     </header>
   )
@@ -69,12 +67,7 @@ function Breadcrumbs({ children }: { children: ReactNode }) {
     return () => setMobileBreadcrumbs(null)
   })
 
-  return (
-    <>
-      <HeaderDivider />
-      <BreadcrumbsContent>{children}</BreadcrumbsContent>
-    </>
-  )
+  return <BreadcrumbsContent>{children}</BreadcrumbsContent>
 }
 
 function Right({ children }: { children: ReactNode }) {

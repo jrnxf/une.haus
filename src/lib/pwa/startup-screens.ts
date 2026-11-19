@@ -11,8 +11,8 @@
 
 /** The page background of each theme. */
 export const STARTUP_PAPER = {
-  light: "#ffffff",
-  dark: "#000000",
+  light: "#f2f1ef",
+  dark: "#0b0a09",
 }
 
 /** The wordmark in `public/icons`, drawn on the dark paper. */
