@@ -82,7 +82,7 @@ function RouteComponent() {
       </PageHeader>
 
       <div className="overflow-y-auto">
-        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 p-4">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 p-4">
           <div className="flex items-center justify-between">
             <Filters
               fields={filterFields}
@@ -94,14 +94,16 @@ function RouteComponent() {
             </Button>
           </div>
 
-          <Suspense fallback={<SuspenseLoader />}>
-            <UsersList
-              queryParams={
-                queryParams as { name?: string; disciplines?: string[] }
-              }
-              disciplinesOperator={operators.disciplines ?? "contain"}
-            />
-          </Suspense>
+          <div className="bg-card flex flex-col rounded-3xl p-2">
+            <Suspense fallback={<SuspenseLoader />}>
+              <UsersList
+                queryParams={
+                  queryParams as { name?: string; disciplines?: string[] }
+                }
+                disciplinesOperator={operators.disciplines ?? "contain"}
+              />
+            </Suspense>
+          </div>
         </div>
       </div>
     </>
@@ -160,44 +162,42 @@ function UsersList({
               }
             }}
           >
-            <Button
-              variant="card"
-              className="flex w-full flex-col gap-4 p-3 sm:flex-row"
-              asChild
+            <Link
+              to="/users/$userId"
+              params={{ userId: user.id }}
+              className="group hover:bg-card-2 block rounded-2xl px-4 transition-colors duration-150"
             >
-              <Link to="/users/$userId" params={{ userId: user.id }}>
-                <div className="flex w-full flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <Avatar
-                      cloudflareId={user.avatarId}
-                      alt={user.name}
-                      className="size-6"
-                    >
-                      <AvatarImage
-                        width={72}
-                        quality={70}
-                        fetchPriority="high"
-                        loading={idx < 6 ? "eager" : "lazy"}
-                      />
-                      <AvatarFallback name={user.name} />
-                    </Avatar>
-                    <span className="truncate text-base font-semibold">
-                      {user.name}
-                    </span>
-                    <UserOnlineStatus userId={user.id} />
-                  </div>
+              <div className="flex flex-col gap-2 border-b py-4 group-hover:border-transparent md:flex-row md:items-center md:gap-5">
+                <div className="flex min-w-0 shrink-0 items-center gap-4 md:w-64">
+                  <Avatar
+                    cloudflareId={user.avatarId}
+                    alt={user.name}
+                    className="size-11"
+                  >
+                    <AvatarImage
+                      width={88}
+                      quality={70}
+                      fetchPriority="high"
+                      loading={idx < 12 ? "eager" : "lazy"}
+                    />
+                    <AvatarFallback name={user.name} />
+                  </Avatar>
+                  <span className="truncate font-medium">{user.name}</span>
+                  <UserOnlineStatus userId={user.id} />
+                </div>
+                <div className="text-muted-foreground line-clamp-2 min-w-0 flex-1 text-sm">
                   {user.bio && (
-                    <div className="line-clamp-3 text-sm">
-                      <RichText content={user.bio} mentionMode="plainText" />
-                    </div>
+                    <RichText content={user.bio} mentionMode="plainText" />
                   )}
+                </div>
+                <div className="shrink-0">
                   <Badges
                     content={user.disciplines}
                     active={queryParams.disciplines ?? []}
                   />
                 </div>
-              </Link>
-            </Button>
+              </div>
+            </Link>
           </div>
         )
       })}

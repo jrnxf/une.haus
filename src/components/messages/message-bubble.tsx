@@ -179,7 +179,12 @@ export function MessageBubble({
                 type="button"
                 data-slot="message-bubble"
                 aria-label={`Message: ${message.content}`}
-                className="bg-card hover:bg-accent/50 relative cursor-pointer rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-pre-wrap transition-colors"
+                className={cn(
+                  "relative cursor-pointer rounded-2xl px-4 py-2.5 text-left text-sm font-normal whitespace-pre-wrap transition-colors duration-150",
+                  isOwnMessage
+                    ? "bg-primary/15 hover:bg-primary/20"
+                    : "bg-card hover:bg-card-2",
+                )}
                 style={{ wordBreak: "break-word" }}
               >
                 <RichText

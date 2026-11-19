@@ -112,6 +112,7 @@ export async function listPosts({
       tags: posts.tags,
       title: posts.title,
       user: {
+        avatarId: users.avatarId,
         id: users.id,
         name: users.name,
       },
