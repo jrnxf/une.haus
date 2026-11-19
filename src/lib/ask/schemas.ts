@@ -20,14 +20,22 @@ export const askSchema = z.object({
 
 export type AskInput = z.infer<typeof askSchema>
 
-// A content card under an answer.
+// Something an answer links to. Posts, riu sets and videos also show as
+// cards under the answer. Every kind gets a hover preview on its link.
 export type AskCard = {
   path: string
-  kind: "post" | "riu set" | "video"
+  kind: "post" | "riu set" | "video" | "rider" | "trick"
   title: string
   subtitle: string
   poster: string | null
+  // A short bio or trick description, for the hover preview.
+  description: string | null
 }
+
+// Cards under an answer. Only these kinds show as cards: riders and tricks
+// only get a hover preview on their link.
+export const MAX_CARDS = 4
+export const CARD_KINDS = new Set<AskCard["kind"]>(["post", "riu set", "video"])
 
 // What the /api/ask stream sends, one JSON object per line.
 export type AskEvent =

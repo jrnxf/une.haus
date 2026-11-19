@@ -3,6 +3,7 @@ import { CircleCheckIcon, LoaderCircleIcon } from "lucide-react"
 
 import { AskMarkdown } from "~/components/ask/ask-markdown"
 import { Bubble, BubbleContent } from "~/components/ui/bubble"
+import { Button } from "~/components/ui/button"
 import { Message, MessageContent } from "~/components/ui/message"
 import {
   Trace,
@@ -14,7 +15,7 @@ import {
   TraceTitle,
 } from "~/components/ui/trace"
 import { type AskStep, type Exchange } from "~/lib/ask/hooks"
-import { type AskCard } from "~/lib/ask/schemas"
+import { type AskCard, CARD_KINDS, MAX_CARDS } from "~/lib/ask/schemas"
 
 // What the model does, as it does it. While it works, the line shimmers with
 // the current step. After, it folds to "used N tools", and the fold shows the
@@ -98,17 +99,27 @@ export function AskQuestion({ question }: { question: string }) {
   )
 }
 
-// The answer to one question: steps, text, cards, or an error.
-export function AskAnswer({ exchange }: { exchange: Exchange }) {
+// The answer to one question: steps, text, cards, or an error. onRetry is
+// set on the last answer once it ends.
+export function AskAnswer({
+  exchange,
+  onRetry,
+}: {
+  exchange: Exchange
+  onRetry?: () => void
+}) {
   const { steps, answer, cards, status, error } = exchange
+  const shown = cards
+    .filter((card) => CARD_KINDS.has(card.kind))
+    .slice(0, MAX_CARDS)
   return (
     <Message>
       <MessageContent>
         <Steps steps={steps} working={status === "working" && !answer} />
-        {answer ? <AskMarkdown>{answer}</AskMarkdown> : null}
-        {cards.length > 0 ? (
+        {answer ? <AskMarkdown links={cards}>{answer}</AskMarkdown> : null}
+        {shown.length > 0 ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {cards.map((card) => (
+            {shown.map((card) => (
               <Card key={card.path} card={card} />
             ))}
           </div>
@@ -117,6 +128,19 @@ export function AskAnswer({ exchange }: { exchange: Exchange }) {
           <Bubble variant="destructive">
             <BubbleContent>{error}</BubbleContent>
           </Bubble>
+        ) : null}
+        {onRetry ? (
+          <div>
+            {/* The negative margin lines the label up with the answer text. */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2.5"
+              onClick={onRetry}
+            >
+              Retry
+            </Button>
+          </div>
         ) : null}
       </MessageContent>
     </Message>
