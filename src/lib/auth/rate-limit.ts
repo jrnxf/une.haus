@@ -10,16 +10,16 @@ import { rateLimits } from "~/db/schema"
 // can never both sneak under the cap.
 
 /**
- * Returns true if the action is allowed, false if the limit is exceeded.
- * Counts hits per `key` within a fixed window of `windowMs`; allows up to `max`.
- * `now` is injectable so tests can step the clock instead of sleeping.
+ * Counts one hit for `key` and returns the hits so far in its fixed window of
+ * `windowMs`, this one included. Use it when the caller needs the count, for
+ * example to warn before the limit. `now` is injectable so tests can step the
+ * clock instead of sleeping.
  */
-export async function rateLimit(
+export async function countHit(
   key: string,
-  max: number,
   windowMs: number,
   now = Date.now(),
-): Promise<boolean> {
+): Promise<number> {
   const [row] = await db
     .insert(rateLimits)
     .values({ key, count: 1, resetsAt: new Date(now + windowMs) })
@@ -36,7 +36,20 @@ export async function rateLimit(
   // keeps the table at the size of the currently-limited key set.
   await db.delete(rateLimits).where(lt(rateLimits.resetsAt, new Date(now)))
 
-  return (row?.count ?? 1) <= max
+  return row?.count ?? 1
+}
+
+/**
+ * Returns true if the action is allowed, false if the limit is exceeded.
+ * Counts hits per `key` within a fixed window of `windowMs`; allows up to `max`.
+ */
+export async function rateLimit(
+  key: string,
+  max: number,
+  windowMs: number,
+  now = Date.now(),
+): Promise<boolean> {
+  return (await countHit(key, windowMs, now)) <= max
 }
 
 // Exposed for tests to reset state between cases.

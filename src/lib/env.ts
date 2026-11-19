@@ -52,6 +52,9 @@ export const env = createEnv({
     // Optional until a Gelato account is provisioned. The Gelato client throws
     // a clear error if a call is attempted without it set.
     GELATO_API_KEY: z.string().optional(),
+    // Optional so preview and test builds run without it. /api/ask answers
+    // 503 when it is missing.
+    ANTHROPIC_API_KEY: z.string().optional(),
     GOOGLE_API_KEY: z.string(),
     LOG_SQL: booleanEnvVar,
     MUX_TOKEN_ID: z.string(),
