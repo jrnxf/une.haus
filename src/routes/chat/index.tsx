@@ -34,9 +34,7 @@ function RouteComponent() {
           <PageHeader.Crumb>chat</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
       </PageHeader>
-      <div className="mx-auto w-full max-w-3xl p-4">
-        <ChatMessagesView focus={focus} />
-      </div>
+      <ChatMessagesView focus={focus} />
     </>
   )
 }
