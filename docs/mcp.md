@@ -58,11 +58,22 @@ Two locks keep it read-only:
 
 BIU and SIU have no tools of their own yet. `query` can read them.
 
+### where a tool lives
+
+Each tool is one `defineTool({ name, title, description, inputSchema, outputSchema, run })` in `src/mcp/tools/`. `run(db, input)` takes the database as an argument and knows nothing about MCP:
+
+- `src/mcp/tools/registry.ts` lists the shared read tools.
+- `src/mcp/register.ts` wraps each one as an MCP tool. A `ToolError` becomes an `isError` result.
+- The local server passes `prodDb` (D1 over REST). The Worker will pass its D1 binding.
+- `query` and `ping` are on the local server only. `query` needs the read-only REST path, because the D1 binding can write.
+
+To add a tool: write it with `defineTool`, add it to `readTools`, and add a case to `src/mcp/tools/tools.integration.test.ts`.
+
 ### tool design rules
 
 - A list tool returns ids and short excerpts. A detail tool returns the full record.
 - Every list tool takes `limit` (default 10, at most 50).
-- A wrong id comes back as an `isError` result, so the model can try again.
+- A wrong id throws `ToolError`, which comes back as an `isError` result, so the model can try again.
 - Video links are public Mux HLS URLs (`https://stream.mux.com/<id>.m3u8`).
 - No tool returns `users.email`. The SQL guard refuses the column, and `query` drops it from `SELECT *`.
 

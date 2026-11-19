@@ -3,15 +3,15 @@ import { alias } from "drizzle-orm/sqlite-core"
 import { z } from "zod"
 
 import { riuSets, riuSubmissions, rius, users } from "~/db/schema"
-import { prodDb } from "~/mcp/d1"
+import { type ToolDb } from "~/mcp/tools/define"
 
 import type { McpServer } from "@modelcontextprotocol/server"
 
 const submitters = alias(users, "submitters")
 
 // Loads one RIU round with its sets and who landed each one.
-async function loadRound(which: "last" | "current") {
-  const [round] = await prodDb
+async function loadRound(db: ToolDb, which: "last" | "current") {
+  const [round] = await db
     .select({ id: rius.id })
     .from(rius)
     .where(eq(rius.status, which === "last" ? "archived" : "active"))
@@ -19,7 +19,7 @@ async function loadRound(which: "last" | "current") {
     .limit(1)
   if (!round) return undefined
 
-  const rows = await prodDb
+  const rows = await db
     .select({
       setId: riuSets.id,
       setName: riuSets.name,
@@ -61,7 +61,7 @@ async function loadRound(which: "last" | "current") {
   }
 }
 
-export function registerRiuRecapPrompt(server: McpServer) {
+export function registerRiuRecapPrompt(server: McpServer, db: ToolDb) {
   server.registerPrompt(
     "riu_recap",
     {
@@ -77,7 +77,7 @@ export function registerRiuRecapPrompt(server: McpServer) {
       }),
     },
     async ({ round }) => {
-      const data = await loadRound(round)
+      const data = await loadRound(db, round)
       const label = round === "last" ? "archived" : "active"
       let text: string
       if (!data) {
