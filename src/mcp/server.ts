@@ -2,6 +2,8 @@ import { McpServer } from "@modelcontextprotocol/server"
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio"
 import { z } from "zod"
 
+import { registerRiuRecapPrompt } from "~/mcp/prompts/riu-recap"
+import { registerSchemaResource } from "~/mcp/resources/schema"
 import { registerUserTools } from "~/mcp/tools/users"
 
 // A local MCP server for une.haus. A client (Claude Code, the MCP Inspector)
@@ -39,6 +41,8 @@ server.registerTool(
 )
 
 registerUserTools(server)
+registerSchemaResource(server)
+registerRiuRecapPrompt(server)
 
 await server.connect(new StdioServerTransport())
 console.error("unehaus mcp server ready on stdio")
