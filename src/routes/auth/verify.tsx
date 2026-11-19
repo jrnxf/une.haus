@@ -17,6 +17,7 @@ import {
   InputOTPSlot,
 } from "~/components/ui/input-otp"
 import { auth } from "~/lib/auth"
+import { isServerRedirect } from "~/lib/auth/redirect"
 import { authSearchSchema } from "~/lib/auth/schemas"
 
 export const Route = createFileRoute("/auth/verify")({
@@ -37,7 +38,11 @@ function RouteComponent() {
       if (data.status === "success") {
         await queryClient.resetQueries({ queryKey: ["session.get"] })
         toast.success("welcome back to une.haus!")
-        navigate({ to: search.redirect ?? "/auth/me" })
+        if (isServerRedirect(search.redirect)) {
+          globalThis.location.assign(search.redirect)
+        } else {
+          navigate({ to: search.redirect ?? "/auth/me" })
+        }
       } else if (data.status === "user_not_found") {
         await queryClient.resetQueries({ queryKey: ["session.get"] })
         navigate({
