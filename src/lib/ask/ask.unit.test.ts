@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 
 import { cardRefs, MAX_LINKS, postPoster } from "~/lib/ask/cards"
 import { type AskStep, STEP_MIN_MS, stepTitle } from "~/lib/ask/hooks"
+import { askSystemPrompt } from "~/lib/ask/prompt"
 import { askSchema } from "~/lib/ask/schemas"
 import { stepLabel } from "~/lib/ask/tools"
 
@@ -59,6 +60,14 @@ describe("postPoster", () => {
   })
 })
 
+describe("askSystemPrompt", () => {
+  test("names the member who asks, so 'my bio' resolves", () => {
+    const prompt = askSystemPrompt("2026-11-20", { id: 42, name: "Ada Rider" })
+    expect(prompt).toContain('The member asking is "Ada Rider", user id 42')
+    expect(prompt).toContain("/users/42")
+  })
+})
+
 describe("stepLabel", () => {
   test("says what a tool does in plain words", () => {
     expect(stepLabel("get_riu_set", { setId: 2672 })).toBe(
@@ -66,6 +75,9 @@ describe("stepLabel", () => {
     )
     expect(stepLabel("get_riu_round", {})).toBe(
       "looking at the active riu round",
+    )
+    expect(stepLabel("search_videos", { sort: "likes" })).toBe(
+      "ranking the vault by likes",
     )
     expect(stepLabel("unknown_tool", {})).toBe("looking things up")
   })

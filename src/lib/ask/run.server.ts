@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk"
 import { type AskBudget } from "~/lib/ask/budget.server"
 import { answerCards } from "~/lib/ask/cards"
 import { costMicrousd, percentUsed, type TurnUsage } from "~/lib/ask/cost"
-import { askSystemPrompt } from "~/lib/ask/prompt"
+import { type AskMember, askSystemPrompt } from "~/lib/ask/prompt"
 import { type AskEvent, type AskInput } from "~/lib/ask/schemas"
 import { askTools, stepLabel } from "~/lib/ask/tools"
 import { background } from "~/lib/execution-context"
@@ -30,6 +30,7 @@ export async function runAsk({
   budget,
   db,
   input,
+  member,
   send,
   signal,
 }: {
@@ -37,6 +38,7 @@ export async function runAsk({
   budget: AskBudget | null
   db: ToolDb
   input: AskInput
+  member: AskMember
   send: (event: AskEvent) => void
   signal: AbortSignal
 }) {
@@ -61,7 +63,7 @@ export async function runAsk({
       system: [
         {
           type: "text",
-          text: askSystemPrompt(today()),
+          text: askSystemPrompt(today(), member),
           cache_control: { type: "ephemeral" },
         },
       ],
