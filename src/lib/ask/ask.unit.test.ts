@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 
 import { cardRefs, MAX_LINKS, postPoster } from "~/lib/ask/cards"
+import { type AskStep, STEP_MIN_MS, stepTitle } from "~/lib/ask/hooks"
 import { askSchema } from "~/lib/ask/schemas"
 import { stepLabel } from "~/lib/ask/tools"
 
@@ -67,6 +68,57 @@ describe("stepLabel", () => {
       "looking at the active riu round",
     )
     expect(stepLabel("unknown_tool", {})).toBe("looking things up")
+  })
+})
+
+describe("stepTitle", () => {
+  const step = (label: string, at: number): AskStep => ({
+    label,
+    tool: "tool",
+    args: "{}",
+    at,
+  })
+
+  test("says thinking before any step", () => {
+    expect(stepTitle([], false, 0)).toEqual({ title: "thinking", next: null })
+  })
+
+  test("holds a fast step label for the minimum time", () => {
+    const steps = [step("looking at a round", 1000)]
+    expect(stepTitle(steps, true, 1060)).toEqual({
+      title: "looking at a round",
+      next: 1000 + STEP_MIN_MS,
+    })
+    expect(stepTitle(steps, true, 1000 + STEP_MIN_MS)).toEqual({
+      title: "thinking",
+      next: null,
+    })
+  })
+
+  test("keeps the label while the tool runs", () => {
+    expect(stepTitle([step("a", 0)], false, 5000)).toEqual({
+      title: "a",
+      next: null,
+    })
+  })
+
+  test("shows steps that arrive together one after another", () => {
+    const steps = [step("a", 0), step("b", 10), step("c", 20)]
+    expect(stepTitle(steps, true, 20).title).toBe("a")
+    expect(stepTitle(steps, true, STEP_MIN_MS).title).toBe("b")
+    expect(stepTitle(steps, true, 2 * STEP_MIN_MS).title).toBe("c")
+    expect(stepTitle(steps, true, 3 * STEP_MIN_MS).title).toBe("thinking")
+  })
+
+  test("never goes back to an earlier label when the clock is old", () => {
+    expect(stepTitle([step("a", 500)], true, 0)).toEqual({
+      title: "a",
+      next: 500 + STEP_MIN_MS,
+    })
+    // "a" had its time and "thinking" showed. Then "b" arrives, and the
+    // clock is still from when "thinking" started.
+    const steps = [step("a", 0), step("b", 2000)]
+    expect(stepTitle(steps, false, STEP_MIN_MS).title).toBe("b")
   })
 })
 

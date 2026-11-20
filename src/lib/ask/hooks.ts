@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react"
 
 import { type AskCard, type AskEvent } from "~/lib/ask/schemas"
 
-export type AskStep = { label: string; tool: string; args: string }
+// at is when the step arrived, in Date.now() milliseconds.
+export type AskStep = { label: string; tool: string; args: string; at: number }
 
 // One question and its answer.
 export type Exchange = {
@@ -30,7 +31,7 @@ function history(thread: Exchange[]) {
     ])
 }
 
-function apply(exchange: Exchange, event: AskEvent): Exchange {
+function apply(exchange: Exchange, event: AskEvent, now: number): Exchange {
   switch (event.type) {
     case "quota":
       return exchange
@@ -40,7 +41,7 @@ function apply(exchange: Exchange, event: AskEvent): Exchange {
         thinking: false,
         steps: [
           ...exchange.steps,
-          { label: event.label, tool: event.tool, args: event.args },
+          { label: event.label, tool: event.tool, args: event.args, at: now },
         ],
       }
     case "turn":
@@ -132,7 +133,8 @@ export function useAskThread() {
           if (!line) continue
           const event = JSON.parse(line) as AskEvent
           if (event.type === "quota") setLeft(event.left)
-          update(id, (exchange) => apply(exchange, event))
+          const now = Date.now()
+          update(id, (exchange) => apply(exchange, event, now))
         }
       }
       // A stream cut off before "done" still counts as an error.
@@ -156,6 +158,64 @@ export function useAskThread() {
   }
 
   return { thread, busy, left, ask, reset }
+}
+
+// A tool often runs in a few milliseconds, so its label would only flash.
+// Each step label shows for at least this long, in order, before the next
+// label or "thinking" replaces it.
+export const STEP_MIN_MS = 700
+
+// What the working line says at now, and when that changes next (null when
+// only a new event can change it).
+export function stepTitle(
+  steps: AskStep[],
+  thinking: boolean,
+  clock: number,
+): { title: string; next: number | null } {
+  const latest = steps.at(-1)
+  if (!latest) return { title: "thinking", next: null }
+  // The clock can be older than the newest step. Time is at least when
+  // that step arrived, so an earlier label never comes back.
+  const now = Math.max(clock, latest.at)
+  // When each label starts: when its step arrived, or when the label
+  // before it has had its minimum time, whichever is later.
+  const starts: number[] = []
+  for (const step of steps) {
+    const previous = starts.at(-1)
+    starts.push(
+      previous === undefined
+        ? step.at
+        : Math.max(step.at, previous + STEP_MIN_MS),
+    )
+  }
+  const index = Math.max(
+    starts.findLastIndex((start) => start <= now),
+    0,
+  )
+  const label = steps[index]?.label ?? "thinking"
+  const nextStart = starts[index + 1]
+  if (nextStart !== undefined) return { title: label, next: nextStart }
+  if (!thinking) return { title: label, next: null }
+  const end = (starts[index] ?? now) + STEP_MIN_MS
+  return now < end
+    ? { title: label, next: end }
+    : { title: "thinking", next: null }
+}
+
+// stepTitle for the working line, kept current by a timer. The clock is
+// outside React, so it needs an effect.
+export function useStepTitle(steps: AskStep[], thinking: boolean) {
+  const [now, setNow] = useState(() => Date.now())
+  const { title, next } = stepTitle(steps, thinking, now)
+  useEffect(() => {
+    if (next === null) return
+    const timer = setTimeout(
+      () => setNow(Date.now()),
+      Math.max(next - Date.now(), 0),
+    )
+    return () => clearTimeout(timer)
+  }, [next])
+  return title
 }
 
 // The API holds back a reply that follows a tool result, then sends it in

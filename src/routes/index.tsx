@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { Fragment } from "react"
 import { z } from "zod"
 
 import { AskCompose } from "~/components/ask/ask-compose"
@@ -182,7 +183,10 @@ function RouteComponent() {
               <MessageScrollerViewport>
                 <MessageScrollerContent className="mx-auto my-4 w-full max-w-2xl">
                   {thread.map((exchange) => (
-                    <div key={exchange.id} className="contents">
+                    // A fragment, not a wrapper: the scroller reads only its
+                    // direct children, so a wrapper hides the scroll anchor
+                    // and a new question does not scroll into view.
+                    <Fragment key={exchange.id}>
                       <MessageScrollerItem
                         messageId={`q${exchange.id}`}
                         scrollAnchor
@@ -196,7 +200,7 @@ function RouteComponent() {
                           <AskAnswer exchange={exchange} />
                         </div>
                       </MessageScrollerItem>
-                    </div>
+                    </Fragment>
                   ))}
                 </MessageScrollerContent>
               </MessageScrollerViewport>
