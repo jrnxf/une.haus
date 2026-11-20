@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it } from "bun:test"
 
-import { __resetRateLimits, countHit, rateLimit } from "~/lib/auth/rate-limit"
+import {
+  __resetRateLimits,
+  addToWindow,
+  countHit,
+  rateLimit,
+  windowTotal,
+} from "~/lib/auth/rate-limit"
 
 beforeEach(() => __resetRateLimits())
 
@@ -40,5 +46,21 @@ describe("rateLimit", () => {
     expect(await countHit("q", 50, t)).toBe(1)
     expect(await countHit("q", 50, t)).toBe(2)
     expect(await countHit("q", 50, t + 51)).toBe(1)
+  })
+  it("addToWindow sums amounts and restarts with the window", async () => {
+    const t = Date.now()
+    expect(await addToWindow("s", 700, 50, t)).toBe(700)
+    expect(await addToWindow("s", 300, 50, t)).toBe(1000)
+    expect(await addToWindow("s", 5, 50, t + 51)).toBe(5)
+  })
+
+  it("windowTotal reads without adding, and is 0 after the window", async () => {
+    const t = Date.now()
+    expect(await windowTotal("s", t)).toBe(0)
+    await addToWindow("s", 700, 50, t)
+    expect(await windowTotal("s", t)).toBe(700)
+    expect(await windowTotal("s", t)).toBe(700)
+    expect(await windowTotal("s", t + 50)).toBe(700) // boundary is inclusive
+    expect(await windowTotal("s", t + 51)).toBe(0)
   })
 })
