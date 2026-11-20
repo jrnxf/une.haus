@@ -79,15 +79,25 @@ function AnswerLink({ href, children }: ComponentProps<"a">) {
 
 // Streamdown styles these tags itself. Plain tags keep the prose look.
 const plain =
-  <Tag extends "p" | "ul" | "ol" | "li" | "strong" | "code">(tag: Tag) =>
+  <Tag extends "ul" | "ol" | "li" | "strong" | "code">(tag: Tag) =>
   ({ node: _node, ...props }: ComponentProps<Tag> & { node?: unknown }) => {
     const Element = tag as ElementType
     return <Element {...props} />
   }
 
+// Paragraphs wrap greedily, not with the global text-wrap: pretty. Pretty
+// lays out the whole paragraph again as words arrive, so earlier lines
+// change their breaks and words jump between lines while the answer shows.
+function Paragraph({
+  node: _node,
+  ...props
+}: ComponentProps<"p"> & { node?: unknown }) {
+  return <p {...props} className="text-wrap" />
+}
+
 const components: Partial<DefaultComponents> = {
   a: AnswerLink,
-  p: plain("p"),
+  p: Paragraph,
   ul: plain("ul"),
   ol: plain("ol"),
   li: plain("li"),

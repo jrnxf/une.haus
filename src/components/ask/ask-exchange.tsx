@@ -13,13 +13,18 @@ import {
   TraceLine,
   TraceTitle,
 } from "~/components/ui/trace"
-import { type AskStep, type Exchange, usePacedText } from "~/lib/ask/hooks"
+import {
+  type AskStep,
+  type Exchange,
+  usePacedText,
+  useStepTitle,
+} from "~/lib/ask/hooks"
 import { type AskCard, CARD_KINDS, MAX_CARDS } from "~/lib/ask/schemas"
 import { cn } from "~/lib/utils"
 
 // What the model does, as it does it. While it works, the line shimmers with
 // the current step, or "thinking" once the model works on the tool results.
-// After, it folds to "used N tools", and the fold shows the raw tool calls.
+// Each step label shows for at least STEP_MIN_MS. After, it folds to "used N tools", and the fold shows the raw tool calls.
 function Steps({
   steps,
   working,
@@ -29,11 +34,10 @@ function Steps({
   working: boolean
   thinking: boolean
 }) {
+  const workingTitle = useStepTitle(steps, thinking)
   if (!working && steps.length === 0) return null
   const title = working
-    ? thinking
-      ? "thinking"
-      : (steps.at(-1)?.label ?? "thinking")
+    ? workingTitle
     : `used ${steps.length} ${steps.length === 1 ? "tool" : "tools"}`
   const line = (
     <TraceLine status={working ? "running" : undefined}>
