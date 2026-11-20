@@ -1,3 +1,4 @@
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Fragment } from "react"
 import { z } from "zod"
@@ -16,6 +17,7 @@ import {
   MessageScrollerViewport,
 } from "~/components/ui/message-scroller"
 import { useAskThread } from "~/lib/ask/hooks"
+import { ask } from "~/lib/ask/index"
 import { SITE_NAME, SITE_URL, seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
 
@@ -26,6 +28,11 @@ const homeSearchSchema = z.object({
 
 export const Route = createFileRoute("/")({
   validateSearch: homeSearchSchema,
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      ask.usage.queryOptions(context.session.user?.id ?? null),
+    )
+  },
   head: () =>
     seo({
       title: SITE_NAME,
@@ -116,7 +123,10 @@ function RouteComponent() {
   const sessionUser = useSessionUser()
   const { q } = Route.useSearch()
   const navigate = useNavigate()
-  const { thread, busy, left, ask, reset } = useAskThread()
+  const { thread, busy, ask: askQuestion, reset } = useAskThread()
+  const { data: usage } = useSuspenseQuery(
+    ask.usage.queryOptions(sessionUser?.id ?? null),
+  )
 
   // Guests see the page, but a question sends them to sign in first. The
   // question comes back in the box after sign-in. No model call runs for them.
@@ -129,7 +139,7 @@ function RouteComponent() {
       return
     }
     if (q) void navigate({ to: "/", search: {}, replace: true })
-    void ask(question)
+    void askQuestion(question)
   }
 
   return (
@@ -212,7 +222,7 @@ function RouteComponent() {
               busy={busy}
               defaultText={q}
               followUp={thread.length > 0}
-              left={left}
+              used={usage?.used ?? null}
               onAsk={onAsk}
             />
           </div>

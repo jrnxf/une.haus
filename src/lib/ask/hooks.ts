@@ -1,6 +1,9 @@
+import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
 
+import { ask as askApi } from "~/lib/ask/index"
 import { type AskCard, type AskEvent } from "~/lib/ask/schemas"
+import { useSessionUser } from "~/lib/session/hooks"
 
 // at is when the step arrived, in Date.now() milliseconds.
 export type AskStep = { label: string; tool: string; args: string; at: number }
@@ -62,8 +65,15 @@ function apply(exchange: Exchange, event: AskEvent, now: number): Exchange {
 // The /ask thread. It lives in the page only: nothing is saved.
 export function useAskThread() {
   const [thread, setThread] = useState<Exchange[]>([])
-  // Questions left today, known only once few are left.
-  const [left, setLeft] = useState<number | null>(null)
+  const queryClient = useQueryClient()
+  const userId = useSessionUser()?.id ?? null
+  // The server reports the share of today's budget used as the answer
+  // streams. It goes into the usage query, which the meter reads.
+  const setUsed = (used: number) =>
+    queryClient.setQueryData(
+      askApi.usage.queryOptions(userId).queryKey,
+      (old) => (old ? { used } : old),
+    )
   const controller = useRef<AbortController | null>(null)
   const nextId = useRef(0)
 
@@ -111,7 +121,7 @@ export function useAskThread() {
         body: JSON.stringify({ messages }),
         signal: abort.signal,
       })
-      if (response.status === 429) setLeft(0)
+      if (response.status === 429) setUsed(100)
       if (!response.ok || !response.body) {
         const body = (await response.json().catch(() => null)) as {
           message?: string
@@ -132,7 +142,7 @@ export function useAskThread() {
         for (const line of lines) {
           if (!line) continue
           const event = JSON.parse(line) as AskEvent
-          if (event.type === "quota") setLeft(event.left)
+          if (event.type === "quota") setUsed(event.used)
           const now = Date.now()
           update(id, (exchange) => apply(exchange, event, now))
         }
@@ -157,7 +167,7 @@ export function useAskThread() {
     setThread([])
   }
 
-  return { thread, busy, left, ask, reset }
+  return { thread, busy, ask, reset }
 }
 
 // A tool often runs in a few milliseconds, so its label would only flash.
