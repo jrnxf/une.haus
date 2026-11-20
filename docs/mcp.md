@@ -43,20 +43,25 @@ Two locks keep it read-only:
 
 ## tools
 
-| tool            | what it does                                                       |
-| --------------- | ------------------------------------------------------------------ |
-| `ping`          | returns the message you send to it                                 |
-| `get_user`      | one rider's public profile and counts, by user id                  |
-| `search_users`  | riders by name                                                     |
-| `list_posts`    | posts newest first, by words or author, with a `before` cursor     |
-| `get_post`      | one post with its full text, video link, likes and latest comments |
-| `get_riu_round` | a RIU round (active, upcoming, last or an id) with its sets        |
-| `get_riu_set`   | one RIU set with every submission and its video link               |
-| `search_tricks` | the trick glossary by name or alternate name                       |
-| `search_videos` | the vault by title or rider name                                   |
-| `query`         | one read-only SELECT, at most 200 rows, for questions no tool fits |
-
-BIU and SIU have no tools of their own yet. `query` can read them.
+| tool                | what it does                                                             |
+| ------------------- | ------------------------------------------------------------------------ |
+| `ping`              | returns the message you send to it                                       |
+| `get_user`          | one rider's public profile and counts, by user id                        |
+| `search_users`      | riders by name                                                           |
+| `list_posts`        | posts newest first, by words or author, with a `before` cursor           |
+| `get_post`          | one post with its full text, video link, likes and latest comments       |
+| `get_riu_round`     | a RIU round (active, last or an id) with its sets                        |
+| `get_riu_set`       | one RIU set with every submission and its video link                     |
+| `list_submissions`  | one rider's RIU submissions newest first, with a `before` cursor         |
+| `list_chain_rounds` | BIU or SIU rounds newest first, with live set count and newest set       |
+| `get_chain_round`   | one BIU or SIU chain in position order, with likes and comments          |
+| `get_chain_set`     | one BIU or SIU set, its parent and child, instructions and comments      |
+| `get_trick`         | one trick with its links to other tricks (both ways) and approved videos |
+| `recent_activity`   | posts, RIU, BIU and SIU sets, submissions and trick videos since a time  |
+| `get_stats`         | site totals and the top 10 riders by content count                       |
+| `search_tricks`     | the trick glossary by name or alternate name                             |
+| `search_videos`     | the vault by title or rider name                                         |
+| `query`             | one read-only SELECT, at most 200 rows, for questions no tool fits       |
 
 ### where a tool lives
 
@@ -76,6 +81,9 @@ To add a tool: write it with `defineTool`, add it to `readTools`, and add a case
 - A wrong id throws `ToolError`, which comes back as an `isError` result, so the model can try again.
 - Video links are public Mux HLS URLs (`https://stream.mux.com/<id>.m3u8`).
 - No tool returns `users.email`. The SQL guard refuses the column, and `query` drops it from `SELECT *`.
+- An upcoming RIU round's roster is private until the round starts. `get_riu_round` and `get_riu_set` return a `ToolError` for it, and no other tool lists its sets. A tool does not know who calls it, so there is no exception for the setter or an admin.
+- A soft-deleted BIU or SIU set (`deleted_at` set) never appears.
+- D1 rejects a compound SELECT with more than 5 UNION terms. `recent_activity` and `get_stats` run one query per source and merge the rows in code.
 
 ## resources
 
