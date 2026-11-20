@@ -7,7 +7,6 @@ import {
   MessagesSquareIcon,
   ShieldIcon,
   ShoppingBagIcon,
-  SparklesIcon,
   StickyNoteIcon,
   TrafficConeIcon,
   UserIcon,
@@ -101,7 +100,6 @@ function useNavItems(): NavMainItem[] {
 
     const authedItems: NavMainItem[] = [
       ...baseItems,
-      { title: "ask", url: "/ask", icon: SparklesIcon },
       {
         title: "notifications",
         url: "/notifications",

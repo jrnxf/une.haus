@@ -30,7 +30,11 @@ import {
 import { getPostTool, listPostsTool } from "~/mcp/tools/posts"
 import { readTools } from "~/mcp/tools/registry"
 import { listRoundsTool } from "~/mcp/tools/rounds"
-import { searchUsersTool, searchVideosTool } from "~/mcp/tools/search"
+import {
+  searchTricksTool,
+  searchUsersTool,
+  searchVideosTool,
+} from "~/mcp/tools/search"
 import { getTrickTool } from "~/mcp/tools/tricks"
 import { getUserTool } from "~/mcp/tools/users"
 import { getVideoTool } from "~/mcp/tools/videos"
@@ -382,6 +386,32 @@ describe("rider, trick and site tools", () => {
     expect(
       listSubmissionsTool.run(db, { userId: 999_999, limit: 10 }),
     ).rejects.toBeInstanceOf(ToolError)
+  })
+
+  it("search_tricks ignores spaces and hyphens, and falls back to near names", async () => {
+    await db
+      .insert(tricks)
+      .values([
+        { name: "360-unispin", alternateNames: ["3 Spin"] },
+        { name: "180-side-spin" },
+      ])
+    const names = async (q: string) => {
+      const out = await runChecked(searchTricksTool, { q })
+      return { names: out.tricks.map((t) => t.name), close: out.closeMatches }
+    }
+
+    for (const q of ["unispin", "uni spin", "uni-spin", "UNI_SPIN"]) {
+      expect(await names(q)).toEqual({ names: ["360-unispin"], close: false })
+    }
+    expect(await names("3spin")).toEqual({
+      names: ["360-unispin"],
+      close: false,
+    })
+    expect(await names("unspin")).toEqual({
+      names: ["360-unispin"],
+      close: true,
+    })
+    expect(await names("backflip")).toEqual({ names: [], close: true })
   })
 
   it("get_trick shows links both ways and only active videos", async () => {

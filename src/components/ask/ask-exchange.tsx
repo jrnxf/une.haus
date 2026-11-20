@@ -13,17 +13,27 @@ import {
   TraceLine,
   TraceTitle,
 } from "~/components/ui/trace"
-import { type AskStep, type Exchange } from "~/lib/ask/hooks"
+import { type AskStep, type Exchange, usePacedText } from "~/lib/ask/hooks"
 import { type AskCard, CARD_KINDS, MAX_CARDS } from "~/lib/ask/schemas"
 import { cn } from "~/lib/utils"
 
 // What the model does, as it does it. While it works, the line shimmers with
-// the current step. After, it folds to "used N tools", and the fold shows the
-// raw tool calls.
-function Steps({ steps, working }: { steps: AskStep[]; working: boolean }) {
+// the current step, or "thinking" once the model works on the tool results.
+// After, it folds to "used N tools", and the fold shows the raw tool calls.
+function Steps({
+  steps,
+  working,
+  thinking,
+}: {
+  steps: AskStep[]
+  working: boolean
+  thinking: boolean
+}) {
   if (!working && steps.length === 0) return null
   const title = working
-    ? (steps.at(-1)?.label ?? "thinking")
+    ? thinking
+      ? "thinking"
+      : (steps.at(-1)?.label ?? "thinking")
     : `used ${steps.length} ${steps.length === 1 ? "tool" : "tools"}`
   const line = (
     <TraceLine status={working ? "running" : undefined}>
@@ -108,16 +118,28 @@ export function AskQuestion({ question }: { question: string }) {
 
 // The answer to one question: steps, text, cards, or an error.
 export function AskAnswer({ exchange }: { exchange: Exchange }) {
-  const { steps, answer, cards, status, error } = exchange
+  const { steps, cards, status, error, thinking } = exchange
+  const answer = usePacedText(exchange.answer)
   const shown = cards
     .filter((card) => CARD_KINDS.has(card.kind))
     .slice(0, MAX_CARDS)
   return (
     <Message>
       <MessageContent>
-        <Steps steps={steps} working={status === "working" && !answer} />
-        {answer ? <AskMarkdown links={cards}>{answer}</AskMarkdown> : null}
-        {shown.length > 0 ? (
+        <Steps
+          steps={steps}
+          working={status === "working" && !answer.text}
+          thinking={thinking}
+        />
+        {answer.text ? (
+          <AskMarkdown
+            links={cards}
+            streaming={status === "working" || answer.pacing}
+          >
+            {answer.text}
+          </AskMarkdown>
+        ) : null}
+        {shown.length > 0 && !answer.pacing ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {shown.map((card) => (
               <Card key={card.path} card={card} />

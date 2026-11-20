@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
-import { type ComponentProps, use, useMemo } from "react"
-import Markdown, { type Components } from "react-markdown"
+import { type ComponentProps, type ElementType, use, useMemo } from "react"
+import { type DefaultComponents, Streamdown } from "streamdown"
 
 import { AskLinksContext } from "~/components/ask/ask-links-context"
 import {
@@ -77,16 +77,39 @@ function AnswerLink({ href, children }: ComponentProps<"a">) {
   )
 }
 
-const components: Components = { a: AnswerLink }
+// Streamdown styles these tags itself. Plain tags keep the prose look.
+const plain =
+  <Tag extends "p" | "ul" | "ol" | "li" | "strong" | "code">(tag: Tag) =>
+  ({ node: _node, ...props }: ComponentProps<Tag> & { node?: unknown }) => {
+    const Element = tag as ElementType
+    return <Element {...props} />
+  }
+
+const components: Partial<DefaultComponents> = {
+  a: AnswerLink,
+  p: plain("p"),
+  ul: plain("ul"),
+  ol: plain("ol"),
+  li: plain("li"),
+  strong: plain("strong"),
+  code: plain("code"),
+}
+
+// New words fade in as the answer shows. See usePacedText.
+const animated = { animation: "fadeIn", duration: 150 } as const
 
 // An answer from /api/ask. links holds the previews for its une.haus links.
 // They arrive when the answer ends, so the links preview only from then.
+// Streamdown closes half-written markdown (an open ** or link) while the
+// text grows, so it never shows raw syntax.
 export function AskMarkdown({
   children,
   links,
+  streaming,
 }: {
   children: string
   links: AskCard[]
+  streaming: boolean
 }) {
   const byPath = useMemo(
     () => new Map(links.map((link) => [link.path, link])),
@@ -95,13 +118,18 @@ export function AskMarkdown({
   return (
     <AskLinksContext value={byPath}>
       <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
-        <Markdown
+        <Streamdown
           allowedElements={allowed}
           unwrapDisallowed
+          skipHtml
           components={components}
+          linkSafety={{ enabled: false }}
+          controls={false}
+          animated={animated}
+          isAnimating={streaming}
         >
           {children}
-        </Markdown>
+        </Streamdown>
       </div>
     </AskLinksContext>
   )
