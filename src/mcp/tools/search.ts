@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray, like, or } from "drizzle-orm"
+import { and, asc, desc, eq, inArray, like, or } from "drizzle-orm"
 import { alias } from "drizzle-orm/sqlite-core"
 import { z } from "zod"
 
@@ -135,7 +135,7 @@ export const searchVideosTool = defineTool({
   name: "search_videos",
   title: "Search vault videos",
   description:
-    "Search the une.haus vault, the archive of unicycle videos, by title or rider name. Returns the riders and a playable video link.",
+    "Search the une.haus vault, the archive of unicycle videos, by title or rider name. Returns the riders and a playable video link. Call get_video for one video's likes and comments.",
   inputSchema: searchInput,
   outputSchema: videoHits,
   run: async (db, { q, limit }) => {
@@ -143,6 +143,7 @@ export const searchVideosTool = defineTool({
       .select({
         id: utvVideos.id,
         title: utvVideos.title,
+        legacyTitle: utvVideos.legacyTitle,
         disciplines: utvVideos.disciplines,
         playbackId: muxVideos.playbackId,
       })
@@ -151,6 +152,8 @@ export const searchVideosTool = defineTool({
       .where(
         or(
           like(utvVideos.title, `%${q}%`),
+          // An untitled video shows its title from the old site.
+          and(eq(utvVideos.title, ""), like(utvVideos.legacyTitle, `%${q}%`)),
           inArray(utvVideos.id, ridersMatching(db, q)),
         ),
       )
@@ -178,8 +181,9 @@ export const searchVideosTool = defineTool({
             .orderBy(asc(utvVideoRiders.order))
 
     return {
-      videos: videos.map(({ playbackId, ...video }) => ({
+      videos: videos.map(({ playbackId, legacyTitle, ...video }) => ({
         ...video,
+        title: video.title || legacyTitle,
         riders: riders
           .filter((r) => r.videoId === video.id)
           .flatMap((r) => {

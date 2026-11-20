@@ -1,15 +1,12 @@
 import { getStatsTool, recentActivityTool } from "~/mcp/tools/activity"
-import {
-  getChainRoundTool,
-  getChainSetTool,
-  listChainRoundsTool,
-} from "~/mcp/tools/chains"
+import { getChainRoundTool, getChainSetTool } from "~/mcp/tools/chains"
 import {
   getRiuRoundTool,
   getRiuSetTool,
   listSubmissionsTool,
 } from "~/mcp/tools/games"
 import { getPostTool, listPostsTool } from "~/mcp/tools/posts"
+import { listRoundsTool } from "~/mcp/tools/rounds"
 import {
   searchTricksTool,
   searchUsersTool,
@@ -17,6 +14,7 @@ import {
 } from "~/mcp/tools/search"
 import { getTrickTool } from "~/mcp/tools/tricks"
 import { getUserTool } from "~/mcp/tools/users"
+import { getVideoTool } from "~/mcp/tools/videos"
 
 // Every read tool that works on any une.haus database. The local server and
 // the Worker both serve this list. The raw `query` tool is not here: it
@@ -26,12 +24,13 @@ export const readTools = [
   searchUsersTool,
   searchTricksTool,
   searchVideosTool,
+  getVideoTool,
   listPostsTool,
   getPostTool,
   getRiuRoundTool,
   getRiuSetTool,
   listSubmissionsTool,
-  listChainRoundsTool,
+  listRoundsTool,
   getChainRoundTool,
   getChainSetTool,
   getTrickTool,
