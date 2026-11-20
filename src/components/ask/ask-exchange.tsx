@@ -68,12 +68,15 @@ function Card({ card }: { card: AskCard }) {
     >
       {/* Like the posts list: a card with no media gets no media slot. */}
       {card.poster ? (
-        <img
-          src={card.poster}
-          alt=""
-          loading="lazy"
-          className="bg-muted aspect-video w-24 shrink-0 object-cover"
-        />
+        <div className="bg-muted aspect-video w-24 shrink-0 overflow-hidden">
+          <img
+            src={card.poster}
+            alt=""
+            loading="lazy"
+            className="size-full object-cover"
+            style={{ transform: `scale(${card.posterScale})` }}
+          />
+        </div>
       ) : null}
       <div
         className={cn(

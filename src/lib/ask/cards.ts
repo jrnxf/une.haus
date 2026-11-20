@@ -127,6 +127,7 @@ export async function answerCards(
               title: utvVideos.title,
               legacyTitle: utvVideos.legacyTitle,
               thumbnailSeconds: utvVideos.thumbnailSeconds,
+              thumbnailScale: utvVideos.thumbnailScale,
               playbackId: muxVideos.playbackId,
             })
             .from(utvVideos)
@@ -190,6 +191,7 @@ export async function answerCards(
       title: row.title,
       subtitle: `post · ${row.author}`,
       poster: postPoster(row),
+      posterScale: 1,
       description: null,
     })
   }
@@ -200,6 +202,7 @@ export async function answerCards(
       title: row.name,
       subtitle: `riu set · ${row.author}`,
       poster: poster(row.playbackId),
+      posterScale: 1,
       description: null,
     })
   }
@@ -210,6 +213,7 @@ export async function answerCards(
       title: row.title || row.legacyTitle,
       subtitle: "vault video",
       poster: poster(row.playbackId, row.thumbnailSeconds),
+      posterScale: row.thumbnailScale,
       description: null,
     })
   }
@@ -222,6 +226,7 @@ export async function answerCards(
       poster: row.avatarId
         ? getCloudflareImageUrl(row.avatarId, { width: 160, quality: 80 })
         : null,
+      posterScale: 1,
       description: short(row.bio),
     })
   }
@@ -232,6 +237,7 @@ export async function answerCards(
       title: row.name,
       subtitle: "trick",
       poster: trickPosters.get(row.id) ?? null,
+      posterScale: 1,
       description: short(row.description),
     })
   }

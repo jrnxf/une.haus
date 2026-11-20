@@ -28,6 +28,8 @@ export type AskCard = {
   title: string
   subtitle: string
   poster: string | null
+  // How far to zoom the poster. Vault videos set it to crop letterboxing.
+  posterScale: number
   // A short bio or trick description, for the hover preview.
   description: string | null
 }

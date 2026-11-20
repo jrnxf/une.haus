@@ -21,16 +21,21 @@ function Preview({ link }: { link: AskCard }) {
   return (
     <div className="flex flex-col gap-2">
       {link.poster ? (
-        <img
-          src={link.poster}
-          alt=""
-          loading="lazy"
+        <div
           className={
             link.kind === "rider"
-              ? "bg-muted size-12 rounded-full object-cover"
-              : "bg-muted aspect-video w-full rounded-md object-cover"
+              ? "bg-muted size-12 overflow-hidden rounded-full"
+              : "bg-muted aspect-video w-full overflow-hidden rounded-md"
           }
-        />
+        >
+          <img
+            src={link.poster}
+            alt=""
+            loading="lazy"
+            className="size-full object-cover"
+            style={{ transform: `scale(${link.posterScale})` }}
+          />
+        </div>
       ) : null}
       <div className="flex flex-col gap-1">
         <span className="font-medium">{link.title}</span>
