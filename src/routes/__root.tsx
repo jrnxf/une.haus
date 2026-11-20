@@ -18,6 +18,7 @@ import { type ReactNode, useEffect, useState } from "react"
 import { z } from "zod"
 
 import { AppSidebar } from "~/components/app-sidebar"
+import { AskThreadProvider } from "~/components/ask/ask-thread-provider"
 import { CommandPalette } from "~/components/command-palette"
 import { ConfirmDialog } from "~/components/confirm-dialog"
 import { AppErrorBoundary } from "~/components/error-boundary"
@@ -178,7 +179,9 @@ function RootComponent() {
   return (
     <NuqsAdapter>
       <RootDocument>
-        <Outlet />
+        <AskThreadProvider>
+          <Outlet />
+        </AskThreadProvider>
       </RootDocument>
     </NuqsAdapter>
   )

@@ -10,6 +10,7 @@ import {
   PowerIcon,
   ShieldIcon,
   ShoppingBagIcon,
+  SparklesIcon,
   StickyNoteIcon,
   TrafficConeIcon,
   UserIcon,
@@ -39,6 +40,7 @@ import { useIsAdmin, useLogout, useSessionUser } from "~/lib/session/hooks"
 import { cn } from "~/lib/utils"
 
 const navItems = [
+  { title: "ask", url: "/ask", icon: SparklesIcon },
   { title: "games", url: "/games", icon: PodiumIcon },
   { title: "metrics", url: "/metrics", icon: ActivityIcon },
   { title: "users", url: "/users", icon: UsersIcon },

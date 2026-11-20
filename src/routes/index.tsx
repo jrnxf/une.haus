@@ -1,37 +1,30 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Fragment } from "react"
-import { z } from "zod"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+  ArrowRightIcon,
+  LockIcon,
+  TrafficConeIcon,
+  UsersIcon,
+} from "lucide-react"
 
 import { AskCompose } from "~/components/ask/ask-compose"
-import { AskAnswer, AskQuestion } from "~/components/ask/ask-exchange"
-import { LogoRandomScatter } from "~/components/logo-animated"
+import { PodiumIcon } from "~/components/icons/podium-icon"
 import { PageHeader } from "~/components/page-header"
-import { Button } from "~/components/ui/button"
-import {
-  MessageScroller,
-  MessageScrollerButton,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerProvider,
-  MessageScrollerViewport,
-} from "~/components/ui/message-scroller"
-import { useAskThread } from "~/lib/ask/hooks"
-import { ask } from "~/lib/ask/index"
+import { RichText } from "~/components/rich-text"
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import { buttonVariants } from "~/components/ui/button"
+import { useAskThread } from "~/lib/ask/thread-context"
+import { home } from "~/lib/home"
+import { getMuxPoster } from "~/lib/mux/poster"
 import { SITE_NAME, SITE_URL, seo } from "~/lib/seo"
 import { useSessionUser } from "~/lib/session/hooks"
+import { cn } from "~/lib/utils"
 
-// q holds a question a guest typed before sign-in, so it waits in the box.
-const homeSearchSchema = z.object({
-  q: z.string().max(2000).optional(),
-})
+import type { ComponentType, ReactNode } from "react"
 
 export const Route = createFileRoute("/")({
-  validateSearch: homeSearchSchema,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      ask.usage.queryOptions(context.session.user?.id ?? null),
-    )
+    await context.queryClient.ensureQueryData(home.board.queryOptions())
   },
   head: () =>
     seo({
@@ -42,19 +35,6 @@ export const Route = createFileRoute("/")({
     }),
   component: RouteComponent,
 })
-
-// Phones show only the first MOBILE_SUGGESTIONS, so the best ones go first.
-const suggestions = [
-  "what's the current rack-it-up round?",
-  "what tricks need to be backed up?",
-  "what is a unispin?",
-  "show me some street videos",
-  "who won the last rack-it-up round?",
-  "what are people posting about?",
-  "what is a treytriple?",
-  "show me a classic flatland video",
-]
-const MOBILE_SUGGESTIONS = 4
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -96,6 +76,11 @@ const jsonLd = {
       hasPart: [
         {
           "@type": "SiteNavigationElement",
+          name: "ask",
+          url: `${SITE_URL}/ask`,
+        },
+        {
+          "@type": "SiteNavigationElement",
           name: "games",
           url: `${SITE_URL}/games`,
         },
@@ -119,115 +104,289 @@ const jsonLd = {
   ],
 }
 
-function RouteComponent() {
-  const sessionUser = useSessionUser()
-  const { q } = Route.useSearch()
-  const navigate = useNavigate()
-  const { thread, busy, ask: askQuestion, reset } = useAskThread()
-  const { data: usage } = useSuspenseQuery(
-    ask.usage.queryOptions(sessionUser?.id ?? null),
-  )
+type Board = Awaited<ReturnType<typeof home.board.fn>>
+type HomeHero = NonNullable<Board["hero"]>
 
-  // Guests see the page, but a question sends them to sign in first. The
-  // question comes back in the box after sign-in. No model call runs for them.
+const panel = "bg-card flex min-w-0 flex-col gap-4 rounded-xl border p-6"
+
+function PanelLabel({ children }: { children: string }) {
+  return (
+    <div className="text-muted-foreground group-hover:text-foreground flex items-center justify-between text-xs transition-colors">
+      <span>{children}</span>
+      <ArrowRightIcon className="size-3.5" />
+    </div>
+  )
+}
+
+// The text and the link of each hero. See getHomeHero for which one shows.
+function heroCopy(hero: HomeHero) {
+  switch (hero.kind) {
+    case "riu":
+      return {
+        cta: "play",
+        eyebrow: "games / rack it up",
+        lines: hero.sets.map((set) => ({ by: set.rider, text: set.name })),
+        title: `round ${hero.riuId}`,
+      }
+    case "biu":
+      return {
+        cta: "play",
+        eyebrow: "games / back it up",
+        lines: [{ by: hero.rider, text: "set by" }],
+        note: "back it up, then set the next trick.",
+        title: hero.trick,
+      }
+    case "lastRiu":
+      return {
+        cta: "view",
+        eyebrow: "games / rack it up / last round",
+        lines: hero.sets.map((set) => ({ by: set.rider, text: set.name })),
+        title: `round ${hero.riuId}`,
+      }
+  }
+}
+
+const heroLink =
+  "bg-card group relative flex min-h-96 min-w-0 flex-col justify-end overflow-clip rounded-xl border p-6 text-white lg:col-span-7 lg:row-span-2"
+
+function HeroLink({ hero, children }: { hero: HomeHero; children: ReactNode }) {
+  switch (hero.kind) {
+    case "riu":
+      return (
+        <Link to="/games/rius/active" className={heroLink}>
+          {children}
+        </Link>
+      )
+    case "biu":
+      return (
+        <Link
+          to="/games/bius/$roundId"
+          params={{ roundId: hero.biuId }}
+          className={heroLink}
+        >
+          {children}
+        </Link>
+      )
+    case "lastRiu":
+      return (
+        <Link
+          to="/games/rius/archived/$riuId"
+          params={{ riuId: String(hero.riuId) }}
+          className={heroLink}
+        >
+          {children}
+        </Link>
+      )
+  }
+}
+
+function HeroPanel({ hero }: { hero: HomeHero }) {
+  const copy = heroCopy(hero)
+
+  return (
+    <HeroLink hero={hero}>
+      <img
+        src={getMuxPoster({ playbackId: hero.playbackId, width: 1280 })}
+        alt=""
+        className="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-103"
+      />
+      <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
+      <div className="relative flex flex-col gap-4">
+        <span className="text-xs text-white/75">{copy.eyebrow}</span>
+        <h2 className="text-3xl font-semibold">{copy.title}</h2>
+        <ul className="flex flex-col gap-1 text-sm text-white/85">
+          {copy.lines.map((line) => (
+            <li
+              key={`${line.text}-${line.by}`}
+              className="flex min-w-0 items-center gap-2"
+            >
+              <span className="truncate">{line.text}</span>
+              <span className="shrink-0 text-xs text-white/60">{line.by}</span>
+            </li>
+          ))}
+        </ul>
+        {copy.note ? (
+          <p className="text-sm text-white/75">{copy.note}</p>
+        ) : null}
+        <div>
+          <span className={buttonVariants({ variant: "secondary" })}>
+            {copy.cta}
+          </span>
+        </div>
+      </div>
+    </HeroLink>
+  )
+}
+
+function ChatPanel({
+  messages,
+  className,
+}: {
+  messages: Board["chat"]
+  className: string
+}) {
+  return (
+    <Link to="/chat" className={cn(panel, "group", className)}>
+      <PanelLabel>chat</PanelLabel>
+      <ul className="flex flex-col gap-4">
+        {messages.map((message) => (
+          <li key={message.id} className="flex min-w-0 gap-3">
+            <Avatar
+              className="size-8 shrink-0"
+              cloudflareId={message.user.avatarId}
+              alt={message.user.name}
+            >
+              <AvatarImage width={64} quality={85} />
+              <AvatarFallback name={message.user.name} />
+            </Avatar>
+            <div className="min-w-0">
+              <div className="text-sm font-medium">{message.user.name}</div>
+              <div className="text-muted-foreground line-clamp-2 text-sm">
+                <RichText content={message.content} mentionMode="plainText" />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Link>
+  )
+}
+
+function PostsPanel({
+  posts,
+  className,
+}: {
+  posts: Board["posts"]
+  className: string
+}) {
+  return (
+    <div className={cn(panel, className)}>
+      <Link to="/posts" className="group">
+        <PanelLabel>posts</PanelLabel>
+      </Link>
+      <ul className="flex flex-col gap-4">
+        {posts.map((post) => (
+          <li key={post.id}>
+            <Link
+              to="/posts/$postId"
+              params={{ postId: post.id }}
+              className="group block min-w-0"
+            >
+              <div className="truncate text-sm font-medium group-hover:underline">
+                {post.title}
+              </div>
+              <div className="text-muted-foreground line-clamp-1 text-sm">
+                <RichText content={post.content} mentionMode="plainText" />
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function SectionCard({
+  to,
+  icon: Icon,
+  title,
+  line,
+  className,
+}: {
+  to: "/games" | "/tricks" | "/vault" | "/users"
+  icon: ComponentType<{ className?: string }>
+  title: string
+  line: string
+  className: string
+}) {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        "bg-card focus-visible:ring-ring/50 flex min-w-0 flex-col gap-1 rounded-xl border p-4 outline-none focus-visible:ring-3",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <Icon className="text-muted-foreground size-3.5" />
+        <p className="text-sm font-semibold">{title}</p>
+      </div>
+      <p className="text-muted-foreground text-sm leading-relaxed">{line}</p>
+    </Link>
+  )
+}
+
+function RouteComponent() {
+  const { data: board } = useSuspenseQuery(home.board.queryOptions())
+  const sessionUser = useSessionUser()
+  const navigate = useNavigate()
+  const { ask } = useAskThread()
+
+  // A member's question starts a new thread and opens /ask, where the answer
+  // streams. A guest signs in first, and the question waits in the box.
   function onAsk(question: string) {
     if (!sessionUser) {
       void navigate({
         to: "/auth",
-        search: { redirect: `/?q=${encodeURIComponent(question)}` },
+        search: { redirect: `/ask?q=${encodeURIComponent(question)}` },
       })
       return
     }
-    if (q) void navigate({ to: "/", search: {}, replace: true })
-    void askQuestion(question)
+    void ask(question, { fresh: true })
+    void navigate({ to: "/ask" })
   }
+
+  // With no hero, chat and posts fill the row and games joins the cards.
+  const { hero } = board
+  const panelSpan = hero ? "lg:col-span-5" : "lg:col-span-6"
+  const cardSpan = hero ? "lg:col-span-4" : "lg:col-span-3"
 
   return (
     <>
-      <PageHeader>
-        {thread.length > 0 ? (
-          <PageHeader.Right>
-            <PageHeader.Actions>
-              <Button variant="secondary" onClick={reset}>
-                New
-              </Button>
-            </PageHeader.Actions>
-          </PageHeader.Right>
-        ) : null}
-      </PageHeader>
+      <PageHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <MessageScrollerProvider>
-        <div className="flex min-h-0 flex-1 flex-col">
-          {thread.length === 0 ? (
-            // pb-16 lifts the block a little above true center, so it sits
-            // at the optical center between the header and the question box.
-            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 p-4 pb-16">
-              <h1 className="sr-only">{SITE_NAME}</h1>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <LogoRandomScatter className="h-auto w-full max-w-64" />
-                <p className="text-muted-foreground">all things une</p>
-              </div>
-              <div className="flex flex-wrap justify-center gap-2">
-                {suggestions.map((suggestion, index) => (
-                  <Button
-                    key={suggestion}
-                    variant="outline"
-                    size="sm"
-                    className={
-                      index >= MOBILE_SUGGESTIONS
-                        ? "hidden sm:inline-flex"
-                        : undefined
-                    }
-                    onClick={() => onAsk(suggestion)}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <MessageScroller className="flex-1">
-              <MessageScrollerViewport>
-                <MessageScrollerContent className="mx-auto my-4 w-full max-w-2xl">
-                  {thread.map((exchange) => (
-                    // A fragment, not a wrapper: the scroller reads only its
-                    // direct children, so a wrapper hides the scroll anchor
-                    // and a new question does not scroll into view.
-                    <Fragment key={exchange.id}>
-                      <MessageScrollerItem
-                        messageId={`q${exchange.id}`}
-                        scrollAnchor
-                      >
-                        <div className="px-4">
-                          <AskQuestion question={exchange.question} />
-                        </div>
-                      </MessageScrollerItem>
-                      <MessageScrollerItem messageId={`a${exchange.id}`}>
-                        <div className="px-4">
-                          <AskAnswer exchange={exchange} />
-                        </div>
-                      </MessageScrollerItem>
-                    </Fragment>
-                  ))}
-                </MessageScrollerContent>
-              </MessageScrollerViewport>
-              <MessageScrollerButton />
-            </MessageScroller>
-          )}
-          <div className="mx-auto w-full max-w-2xl p-4 pt-0">
-            <AskCompose
-              busy={busy}
-              defaultText={q}
-              followUp={thread.length > 0}
-              used={usage?.used ?? null}
-              onAsk={onAsk}
-            />
-          </div>
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 md:p-6 lg:grid-cols-12">
+        <h1 className="sr-only">{SITE_NAME}</h1>
+        <div className="lg:col-span-12">
+          <AskCompose busy={false} followUp={false} used={null} onAsk={onAsk} />
         </div>
-      </MessageScrollerProvider>
+        {hero ? <HeroPanel hero={hero} /> : null}
+        <ChatPanel messages={board.chat} className={panelSpan} />
+        <PostsPanel posts={board.posts} className={panelSpan} />
+        {hero ? null : (
+          <SectionCard
+            to="/games"
+            icon={PodiumIcon}
+            title="games"
+            line="rack it up, back it up and stack it up."
+            className={cardSpan}
+          />
+        )}
+        <SectionCard
+          to="/tricks"
+          icon={TrafficConeIcon}
+          title="tricks"
+          line="every trick, who landed it first, and how the tricks connect."
+          className={cardSpan}
+        />
+        <SectionCard
+          to="/vault"
+          icon={LockIcon}
+          title="vault"
+          line="the old videos, kept safe and easy to find."
+          className={cardSpan}
+        />
+        <SectionCard
+          to="/users"
+          icon={UsersIcon}
+          title="users"
+          line="riders from around the world, on a list and on a globe."
+          className={cardSpan}
+        />
+      </div>
     </>
   )
 }

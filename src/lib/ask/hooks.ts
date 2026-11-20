@@ -62,11 +62,21 @@ function apply(exchange: Exchange, event: AskEvent, now: number): Exchange {
   }
 }
 
-// The /ask thread. It lives in the page only: nothing is saved.
-export function useAskThread() {
+// The state of the ask thread. AskThreadProvider holds it above the routes,
+// so a question sent from the home page shows on /ask and the thread stays
+// when the member opens another page. Nothing is saved: a reload clears it.
+// Pages read it with useAskThread.
+export function useAskThreadState() {
   const [thread, setThread] = useState<Exchange[]>([])
   const queryClient = useQueryClient()
   const userId = useSessionUser()?.id ?? null
+  // A thread belongs to the member who asked. It clears when the session
+  // user changes, so a sign-out does not leave it for the next person.
+  const [owner, setOwner] = useState(userId)
+  if (owner !== userId) {
+    setOwner(userId)
+    setThread([])
+  }
   // The server reports the share of today's budget used as the answer
   // streams. It goes into the usage query, which the meter reads.
   const setUsed = (used: number) =>
@@ -86,14 +96,17 @@ export function useAskThread() {
       ),
     )
 
-  // Ask a question after the exchanges so far.
-  async function ask(question: string) {
+  // Ask a question after the exchanges so far. fresh starts a new thread
+  // with the question instead, and stops an answer that still streams.
+  async function ask(question: string, { fresh = false } = {}) {
     const text = question.trim()
-    if (!text || busy) return
+    if (!text || (busy && !fresh)) return
+    if (fresh) controller.current?.abort()
+    const earlier = fresh ? [] : thread
     const id = nextId.current++
-    const messages = [...history(thread), { role: "user", content: text }]
+    const messages = [...history(earlier), { role: "user", content: text }]
     setThread([
-      ...thread,
+      ...earlier,
       {
         id,
         question: text,
