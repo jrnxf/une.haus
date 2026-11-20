@@ -1,10 +1,10 @@
-import { count, desc, eq } from "drizzle-orm"
+import { and, count, desc, eq, lt, ne } from "drizzle-orm"
 import { z } from "zod"
 
 import { muxVideos, riuSets, riuSubmissions, rius, users } from "~/db/schema"
-import { RIU_STATUSES } from "~/lib/games/rius/lifecycle"
+import { RIU_STATUSES, isRosterPrivate } from "~/lib/games/rius/lifecycle"
 import { type ToolDb, ToolError, defineTool } from "~/mcp/tools/define"
-import { videoUrl } from "~/mcp/tools/result"
+import { LIST_LIMIT, videoUrl } from "~/mcp/tools/result"
 
 const roundOutput = z.object({
   roundId: z.number(),
@@ -43,8 +43,14 @@ const roundArg = z
   .union([z.enum(["active", "upcoming", "last"]), z.number().int().positive()])
   .default("active")
   .describe(
-    "active = this week, upcoming = next week (sets only), last = the round that just ended, or a round id",
+    "active = this week, last = the round that just ended, or a round id. upcoming = next week, but its roster is private until the round starts, so it returns an error",
   )
+
+// The site hides an upcoming round's sets from everyone but the setter and
+// admins (isRosterPrivate). A tool does not know who calls it, so it has no
+// owner exception: an upcoming roster is private to every caller.
+const PRIVATE_ROSTER =
+  "the upcoming RIU round's roster is private until the round starts"
 
 async function findRoundId(db: ToolDb, round: z.infer<typeof roundArg>) {
   if (typeof round === "number") {
@@ -81,6 +87,9 @@ export const getRiuRoundTool = defineTool({
       .from(rius)
       .where(eq(rius.id, roundId))
       .limit(1)
+    if (isRosterPrivate(meta?.status ?? null)) {
+      throw new ToolError(PRIVATE_ROSTER)
+    }
 
     // A grouped left join counts landings per set in one query.
     const sets = await db
@@ -115,7 +124,7 @@ export const getRiuSetTool = defineTool({
   name: "get_riu_set",
   title: "Get RIU set",
   description:
-    "Get one RIU set by id, with every submission: who landed it, when, and a link to their video.",
+    "Get one RIU set by id, with every submission: who landed it, when, and a link to their video. Sets in the upcoming round are private until it starts.",
   inputSchema: z.object({
     setId: z.number().int().positive().describe("the RIU set id"),
   }),
@@ -130,13 +139,16 @@ export const getRiuSetTool = defineTool({
         setterId: users.id,
         setterName: users.name,
         playbackId: muxVideos.playbackId,
+        roundStatus: rius.status,
       })
       .from(riuSets)
       .innerJoin(users, eq(users.id, riuSets.userId))
+      .innerJoin(rius, eq(rius.id, riuSets.riuId))
       .leftJoin(muxVideos, eq(muxVideos.assetId, riuSets.muxAssetId))
       .where(eq(riuSets.id, setId))
       .limit(1)
     if (!set) throw new ToolError(`no RIU set with id ${setId}`)
+    if (isRosterPrivate(set.roundStatus)) throw new ToolError(PRIVATE_ROSTER)
 
     const submissions = await db
       .select({
@@ -165,6 +177,89 @@ export const getRiuSetTool = defineTool({
         createdAt: s.createdAt.toISOString(),
         videoUrl: videoUrl(s.playbackId),
       })),
+    }
+  },
+})
+
+const submissionsOutput = z.object({
+  submissions: z.array(
+    z.object({
+      submissionId: z.number(),
+      setId: z.number(),
+      setName: z.string(),
+      roundId: z.number(),
+      createdAt: z.string(),
+      videoUrl: z.string().nullable(),
+    }),
+  ),
+  // Pass this back as `before` to get the next page. Null on the last page.
+  nextBefore: z.number().nullable(),
+})
+
+export const listSubmissionsTool = defineTool({
+  name: "list_submissions",
+  title: "List RIU submissions",
+  description:
+    "List one rider's Rack It Up (RIU) submissions, newest first: which set they landed, in which round, and a link to their video. Call get_riu_set for the set.",
+  inputSchema: z.object({
+    userId: z.number().int().positive().describe("the rider's user id"),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(LIST_LIMIT.max)
+      .default(LIST_LIMIT.default),
+    before: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("nextBefore from the previous page"),
+  }),
+  outputSchema: submissionsOutput,
+  run: async (db, { userId, limit, before }) => {
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+    if (!user) throw new ToolError(`no user with id ${userId}`)
+
+    // Ask for one extra row. If it comes back, there is a next page. Only an
+    // active round takes submissions, but the status check keeps any set of
+    // a private (upcoming) roster out all the same.
+    const rows = await db
+      .select({
+        submissionId: riuSubmissions.id,
+        setId: riuSets.id,
+        setName: riuSets.name,
+        roundId: riuSets.riuId,
+        createdAt: riuSubmissions.createdAt,
+        playbackId: muxVideos.playbackId,
+      })
+      .from(riuSubmissions)
+      .innerJoin(riuSets, eq(riuSets.id, riuSubmissions.riuSetId))
+      .innerJoin(rius, eq(rius.id, riuSets.riuId))
+      .leftJoin(muxVideos, eq(muxVideos.assetId, riuSubmissions.muxAssetId))
+      .where(
+        and(
+          eq(riuSubmissions.userId, userId),
+          ne(rius.status, "upcoming"),
+          before ? lt(riuSubmissions.id, before) : undefined,
+        ),
+      )
+      .orderBy(desc(riuSubmissions.id))
+      .limit(limit + 1)
+
+    const page = rows.slice(0, limit)
+    return {
+      submissions: page.map(({ playbackId, createdAt, ...row }) => ({
+        ...row,
+        createdAt: createdAt.toISOString(),
+        videoUrl: videoUrl(playbackId),
+      })),
+      nextBefore:
+        rows.length > limit ? (page.at(-1)?.submissionId ?? null) : null,
     }
   },
 })
