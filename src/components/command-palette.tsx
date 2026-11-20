@@ -17,6 +17,7 @@ import {
   PlayIcon,
   ShieldIcon,
   ShoppingBagIcon,
+  SparklesIcon,
   StickyNoteIcon,
   SunIcon,
   SunMoonIcon,
@@ -177,6 +178,16 @@ export function CommandPalette() {
 
   // Define command items with their actions
   const commandItems: CommandItemConfig[] = [
+    {
+      id: "ask",
+      label: "ask",
+      value: "/ask",
+      icon: SparklesIcon,
+      primaryAction: {
+        label: "open",
+        onAction: () => closeAndNavigate("/ask"),
+      },
+    },
     {
       id: "games",
       label: "games",

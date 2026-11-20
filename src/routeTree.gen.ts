@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as AskRouteImport } from './routes/ask'
 import { Route as ArcadeRouteImport } from './routes/arcade'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
@@ -121,6 +122,11 @@ const ShopRoute = ShopRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AskRoute = AskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArcadeRoute = ArcadeRouteImport.update({
@@ -628,6 +634,7 @@ const AuthedGamesBiusSetsSetIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/arcade': typeof ArcadeRoute
+  '/ask': typeof AskRoute
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
@@ -724,6 +731,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/arcade': typeof ArcadeRoute
+  '/ask': typeof AskRoute
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
@@ -817,6 +825,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
   '/arcade': typeof ArcadeRoute
+  '/ask': typeof AskRoute
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
@@ -918,6 +927,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/arcade'
+    | '/ask'
     | '/privacy'
     | '/shop'
     | '/terms'
@@ -1014,6 +1024,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/arcade'
+    | '/ask'
     | '/privacy'
     | '/shop'
     | '/terms'
@@ -1106,6 +1117,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authed'
     | '/arcade'
+    | '/ask'
     | '/privacy'
     | '/shop'
     | '/terms'
@@ -1207,6 +1219,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
   ArcadeRoute: typeof ArcadeRoute
+  AskRoute: typeof AskRoute
   PrivacyRoute: typeof PrivacyRoute
   ShopRoute: typeof ShopRoute
   TermsRoute: typeof TermsRoute
@@ -1270,6 +1283,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ask': {
+      id: '/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/arcade': {
@@ -2147,6 +2167,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
   ArcadeRoute: ArcadeRoute,
+  AskRoute: AskRoute,
   PrivacyRoute: PrivacyRoute,
   ShopRoute: ShopRoute,
   TermsRoute: TermsRoute,

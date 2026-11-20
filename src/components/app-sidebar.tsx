@@ -7,6 +7,7 @@ import {
   MessagesSquareIcon,
   ShieldIcon,
   ShoppingBagIcon,
+  SparklesIcon,
   StickyNoteIcon,
   TrafficConeIcon,
   UserIcon,
@@ -36,6 +37,11 @@ import { useNavCounts } from "~/hooks/use-nav-counts"
 import { useIsAdmin, useSessionUser } from "~/lib/session/hooks"
 
 const baseItems: NavMainItem[] = [
+  {
+    title: "ask",
+    url: "/ask",
+    icon: SparklesIcon,
+  },
   {
     title: "games",
     url: "/games",

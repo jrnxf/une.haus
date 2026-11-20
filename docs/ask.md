@@ -1,11 +1,13 @@
 # ask
 
-The home page (`/`) lets a signed-in member ask questions about une.haus. Claude answers with the same read tools that `/mcp` serves (`src/mcp/tools/registry.ts`).
+The ask page (`/ask`) lets a signed-in member ask questions about une.haus. Claude answers with the same read tools that `/mcp` serves (`src/mcp/tools/registry.ts`). The home board (`/`) has an ask box too.
 
 ## How it works
 
-1. The page (`src/routes/index.tsx`) keeps the thread in React state. Nothing is saved. "New" clears it.
-   - Guests see the same page. When a guest asks, the page goes to `/auth` with `redirect=/?q=<question>`. After sign-in, the question waits in the box (`?q=`). No model call runs for a guest.
+1. `AskThreadProvider` (`src/components/ask/ask-thread-provider.tsx`) keeps the thread in React state above the routes. Pages read it with `useAskThread` (`src/lib/ask/thread-context.ts`). Nothing is saved: a reload clears it, and so does a change of the session user. "New" clears it.
+   - The thread stays when the member opens another page and comes back to `/ask` (`src/routes/ask.tsx`).
+   - A question from the home board (`src/routes/index.tsx`) starts a new thread and opens `/ask`, where the answer streams.
+   - Guests see the same pages. When a guest asks, the page goes to `/auth` with `redirect=/ask?q=<question>`. After sign-in, the question waits in the box (`?q=`). No model call runs for a guest.
 2. Each question POSTs the thread to `/api/ask` (`src/routes/api/ask.ts`) as plain text turns.
 3. The route checks the session, the API key and the member's daily budget of $2 (`src/lib/ask/budget.server.ts`). At $2 or more it answers 429. User 1, the site owner, has no budget.
    - The spend is a fixed 24-hour window in `rate_limits` (`addToWindow` and `windowTotal` in `src/lib/auth/rate-limit.ts`, key `ask-spend:<userId>`), in millionths of a dollar. The window starts at the first question.

@@ -7,7 +7,7 @@ import { cn } from "~/lib/utils"
 
 const MAX_LENGTH = 2000
 
-// The question box at the bottom of the home page. It is one line that grows
+// The question box of the ask page and the home board. It is one line that grows
 // with its text. Enter asks, shift+enter adds a line.
 //
 // The meter and the ask button sit in the bottom right corner, and the text
