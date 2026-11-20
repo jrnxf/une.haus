@@ -2,6 +2,7 @@ import {
   type SQL,
   and,
   asc,
+  count,
   desc,
   eq,
   inArray,
@@ -18,6 +19,7 @@ import {
   tricks,
   userLocations,
   users,
+  utvVideoLikes,
   utvVideoRiders,
   utvVideos,
 } from "~/db/schema"
@@ -117,6 +119,7 @@ const videoHits = z.object({
       title: z.string(),
       disciplines: z.array(z.string()).nullable(),
       riders: z.array(z.string()),
+      likes: z.number(),
       videoUrl: z.string().nullable(),
     }),
   ),
@@ -201,29 +204,58 @@ export const searchVideosTool = defineTool({
   name: "search_videos",
   title: "Search vault videos",
   description:
-    "Search the une.haus vault, the archive of unicycle videos, by title or rider name. Returns the riders and a playable video link. Call get_video for one video's likes and comments.",
-  inputSchema: searchInput,
+    "Search or rank the une.haus vault, the archive of unicycle videos. Filter by title or rider name, or leave q out to cover the whole vault. Sort by newest or by most likes, so 'the top 10 most liked vault videos' is sort 'likes' with no q. Returns the riders, the like count and a playable video link. Call get_video for one video's comments.",
+  inputSchema: searchInput.extend({
+    q: searchInput.shape.q
+      .optional()
+      .describe(
+        "words to find in the title or rider name; leave out for the whole vault",
+      ),
+    sort: z
+      .enum(["newest", "likes"])
+      .default("newest")
+      .describe("newest first, or most liked first"),
+  }),
   outputSchema: videoHits,
-  run: async (db, { q, limit }) => {
+  run: async (db, { q, limit, sort }) => {
+    const likes = db.$with("likes").as(
+      db
+        .select({
+          videoId: utvVideoLikes.utvVideoId,
+          n: count().as("n"),
+        })
+        .from(utvVideoLikes)
+        .groupBy(utvVideoLikes.utvVideoId),
+    )
+    const likeCount = sql<number>`coalesce(${likes.n}, 0)`
     const videos = await db
+      .with(likes)
       .select({
         id: utvVideos.id,
         title: utvVideos.title,
         legacyTitle: utvVideos.legacyTitle,
         disciplines: utvVideos.disciplines,
         playbackId: muxVideos.playbackId,
+        likes: likeCount,
       })
       .from(utvVideos)
       .leftJoin(muxVideos, eq(muxVideos.assetId, utvVideos.muxAssetId))
+      .leftJoin(likes, eq(likes.videoId, utvVideos.id))
       .where(
-        or(
-          looseLike(utvVideos.title, q),
-          // An untitled video shows its title from the old site.
-          and(eq(utvVideos.title, ""), looseLike(utvVideos.legacyTitle, q)),
-          inArray(utvVideos.id, ridersMatching(db, q)),
-        ),
+        q
+          ? or(
+              looseLike(utvVideos.title, q),
+              // An untitled video shows its title from the old site.
+              and(eq(utvVideos.title, ""), looseLike(utvVideos.legacyTitle, q)),
+              inArray(utvVideos.id, ridersMatching(db, q)),
+            )
+          : undefined,
       )
-      .orderBy(desc(utvVideos.id))
+      .orderBy(
+        ...(sort === "likes"
+          ? [desc(likeCount), desc(utvVideos.id)]
+          : [desc(utvVideos.id)]),
+      )
       .limit(limit)
 
     // Riders for every hit in one query, not one query per video.

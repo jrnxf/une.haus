@@ -5,6 +5,7 @@ import {
   biuSetMessages,
   biuSets,
   bius,
+  postLikes,
   posts,
   riuSets,
   riuSubmissions,
@@ -89,11 +90,12 @@ describe("shared MCP tools", () => {
       await db.insert(posts).values({ title, content: title, userId: user.id })
     }
 
-    const page1 = await listPostsTool.run(db, { limit: 2 })
+    const page1 = await listPostsTool.run(db, { limit: 2, sort: "newest" })
     expect(page1.posts.map((p) => p.title)).toEqual(["third", "second"])
     expect(page1.nextBefore).not.toBeNull()
 
     const page2 = await listPostsTool.run(db, {
+      sort: "newest",
       limit: 2,
       before: page1.nextBefore ?? undefined,
     })
@@ -103,6 +105,31 @@ describe("shared MCP tools", () => {
     const firstId = page2.posts[0]?.id ?? 0
     const post = await getPostTool.run(db, { postId: firstId })
     expect(getPostTool.outputSchema.parse(post).title).toBe("first")
+  })
+
+  it("list_posts ranks by likes in one page", async () => {
+    const { ada, bo } = await seedRiders()
+    const [one, two] = await db
+      .insert(posts)
+      .values([
+        { title: "one like", content: "a", userId: ada.id },
+        { title: "two likes", content: "b", userId: ada.id },
+        { title: "no likes", content: "c", userId: ada.id },
+      ])
+      .returning()
+    if (!one || !two) throw new Error("seed failed")
+    await db.insert(postLikes).values([
+      { postId: one.id, userId: bo.id },
+      { postId: two.id, userId: ada.id },
+      { postId: two.id, userId: bo.id },
+    ])
+
+    const out = await runChecked(listPostsTool, { sort: "likes", limit: 2 })
+    expect(out.posts.map((p) => [p.title, p.likes])).toEqual([
+      ["two likes", 2],
+      ["one like", 1],
+    ])
+    expect(out.nextBefore).toBeNull()
   })
 })
 
@@ -564,12 +591,55 @@ describe("vault tools", () => {
     expect(out.comments.map((c) => c.content)).toEqual(["first", "second"])
 
     const hits = await runChecked(searchVideosTool, { q: "old site" })
-    expect(hits.videos.map((v) => [v.id, v.title])).toEqual([
-      [video.id, "old site title"],
+    expect(hits.videos.map((v) => [v.id, v.title, v.likes])).toEqual([
+      [video.id, "old site title", 1],
     ])
 
     await expect(
       getVideoTool.run(db, { videoId: 999_999 }),
     ).rejects.toBeInstanceOf(ToolError)
+  })
+
+  it("search_videos ranks the whole vault by likes with no q", async () => {
+    const { ada, bo } = await seedRiders()
+    const [liked, most, none] = await db
+      .insert(utvVideos)
+      .values([
+        {
+          legacyUrl: "https://example.com/1",
+          legacyTitle: "one like",
+          title: "one like",
+        },
+        {
+          legacyUrl: "https://example.com/2",
+          legacyTitle: "two likes",
+          title: "two likes",
+        },
+        {
+          legacyUrl: "https://example.com/3",
+          legacyTitle: "no likes",
+          title: "no likes",
+        },
+      ])
+      .returning()
+    if (!liked || !most || !none) throw new Error("seed failed")
+    await db.insert(utvVideoLikes).values([
+      { utvVideoId: liked.id, userId: ada.id },
+      { utvVideoId: most.id, userId: ada.id },
+      { utvVideoId: most.id, userId: bo.id },
+    ])
+
+    const top = await runChecked(searchVideosTool, { sort: "likes", limit: 2 })
+    expect(top.videos.map((v) => [v.title, v.likes])).toEqual([
+      ["two likes", 2],
+      ["one like", 1],
+    ])
+
+    const newest = await runChecked(searchVideosTool, {})
+    expect(newest.videos.map((v) => v.title)).toEqual([
+      "no likes",
+      "two likes",
+      "one like",
+    ])
   })
 })

@@ -1,4 +1,4 @@
-import { and, count, desc, eq, like, lt, or } from "drizzle-orm"
+import { and, count, desc, eq, like, lt, or, sql } from "drizzle-orm"
 import { z } from "zod"
 
 import { muxVideos, postLikes, postMessages, posts, users } from "~/db/schema"
@@ -16,6 +16,7 @@ const listOutput = z.object({
       tags: z.array(z.string()).nullable(),
       author,
       createdAt: z.string(),
+      likes: z.number(),
     }),
   ),
   // Pass this back as `before` to get the next page. Null on the last page.
@@ -45,7 +46,7 @@ export const listPostsTool = defineTool({
   name: "list_posts",
   title: "List posts",
   description:
-    "List une.haus community posts, newest first. Filter by words in the title or body, or by author user id. Returns short excerpts; call get_post for the full text and comments.",
+    "List une.haus community posts, newest first or most liked first. Filter by words in the title or body, or by author user id. Returns short excerpts and like counts; call get_post for the full text and comments.",
   inputSchema: z.object({
     q: z
       .string()
@@ -64,18 +65,32 @@ export const listPostsTool = defineTool({
       .min(1)
       .max(LIST_LIMIT.max)
       .default(LIST_LIMIT.default),
+    sort: z
+      .enum(["newest", "likes"])
+      .default("newest")
+      .describe("newest first, or most liked first"),
     before: z
       .number()
       .int()
       .positive()
       .optional()
-      .describe("nextBefore from the previous page"),
+      .describe("nextBefore from the previous page; newest sort only"),
   }),
   outputSchema: listOutput,
-  run: async (db, { q, userId, limit, before }) => {
+  run: async (db, { q, userId, limit, sort, before }) => {
+    const likes = db.$with("likes").as(
+      db
+        .select({ postId: postLikes.postId, n: count().as("n") })
+        .from(postLikes)
+        .groupBy(postLikes.postId),
+    )
+    const likeCount = sql<number>`coalesce(${likes.n}, 0)`
+    const byLikes = sort === "likes"
     // Ask for one extra row. If it comes back, there is a next page.
     const rows = await db
+      .with(likes)
       .select({
+        likes: likeCount,
         id: posts.id,
         title: posts.title,
         content: posts.content,
@@ -86,16 +101,19 @@ export const listPostsTool = defineTool({
       })
       .from(posts)
       .innerJoin(users, eq(users.id, posts.userId))
+      .leftJoin(likes, eq(likes.postId, posts.id))
       .where(
         and(
           q
             ? or(like(posts.title, `%${q}%`), like(posts.content, `%${q}%`))
             : undefined,
           userId ? eq(posts.userId, userId) : undefined,
-          before ? lt(posts.id, before) : undefined,
+          before && !byLikes ? lt(posts.id, before) : undefined,
         ),
       )
-      .orderBy(desc(posts.id))
+      .orderBy(
+        ...(byLikes ? [desc(likeCount), desc(posts.id)] : [desc(posts.id)]),
+      )
       .limit(limit + 1)
 
     const page = rows.slice(0, limit)
@@ -107,8 +125,11 @@ export const listPostsTool = defineTool({
         tags: row.tags,
         author: { id: row.authorId, name: row.authorName },
         createdAt: row.createdAt.toISOString(),
+        likes: row.likes,
       })),
-      nextBefore: rows.length > limit ? (page.at(-1)?.id ?? null) : null,
+      // A like ranking has no id cursor, so it is one page.
+      nextBefore:
+        !byLikes && rows.length > limit ? (page.at(-1)?.id ?? null) : null,
     }
   },
 })

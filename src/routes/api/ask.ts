@@ -51,6 +51,7 @@ export const Route = createFileRoute("/api/ask")({
                 budget,
                 db,
                 input: parsed.data,
+                member: { id: user.id, name: user.name },
                 send,
                 signal: request.signal,
               })

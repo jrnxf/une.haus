@@ -11,9 +11,18 @@ const labels: Record<string, (input: Record<string, unknown>) => string> = {
   get_user: () => "looking at a rider",
   search_users: ({ q }) => `searching riders for "${q}"`,
   search_tricks: ({ q }) => `searching tricks for "${q}"`,
-  search_videos: ({ q }) => `searching the vault for "${q}"`,
-  list_posts: ({ q }) =>
-    q ? `searching posts for "${q}"` : "looking at posts",
+  search_videos: ({ q, sort }) =>
+    q
+      ? `searching the vault for "${q}"`
+      : sort === "likes"
+        ? "ranking the vault by likes"
+        : "looking at the vault",
+  list_posts: ({ q, sort }) =>
+    q
+      ? `searching posts for "${q}"`
+      : sort === "likes"
+        ? "ranking posts by likes"
+        : "looking at posts",
   get_post: ({ postId }) => `reading post ${postId}`,
   get_riu_round: ({ round }) =>
     typeof round === "number"
