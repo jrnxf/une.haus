@@ -35,12 +35,18 @@ export const Route = createFileRoute("/")({
   component: RouteComponent,
 })
 
+// Phones show only the first MOBILE_SUGGESTIONS, so the best ones go first.
 const suggestions = [
-  "what's the current riu round?",
-  "what are people posting about?",
+  "what's the current rack-it-up round?",
+  "what tricks need to be backed up?",
   "what is a unispin?",
   "show me some street videos",
+  "who won the last rack-it-up round?",
+  "what are people posting about?",
+  "what is a treytriple?",
+  "show me a classic flatland video",
 ]
+const MOBILE_SUGGESTIONS = 4
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -145,21 +151,25 @@ function RouteComponent() {
       <MessageScrollerProvider>
         <div className="flex min-h-0 flex-1 flex-col">
           {thread.length === 0 ? (
-            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-4 p-4">
-              <LogoRandomScatter className="h-auto w-full max-w-32" />
-              <div className="flex flex-col gap-1">
-                <h1 className="text-lg font-semibold">ask une.haus</h1>
-                <p className="text-muted-foreground text-sm">
-                  questions about riders, posts, tricks, videos and the riu
-                  game.
-                </p>
+            // pb-16 lifts the block a little above true center, so it sits
+            // at the optical center between the header and the question box.
+            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-6 p-4 pb-16">
+              <h1 className="sr-only">{SITE_NAME}</h1>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <LogoRandomScatter className="h-auto w-full max-w-64" />
+                <p className="text-muted-foreground">all things une</p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {suggestions.map((suggestion) => (
+              <div className="flex flex-wrap justify-center gap-2">
+                {suggestions.map((suggestion, index) => (
                   <Button
                     key={suggestion}
                     variant="outline"
                     size="sm"
+                    className={
+                      index >= MOBILE_SUGGESTIONS
+                        ? "hidden sm:inline-flex"
+                        : undefined
+                    }
                     onClick={() => onAsk(suggestion)}
                   >
                     {suggestion}
