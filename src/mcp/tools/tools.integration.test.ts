@@ -14,13 +14,13 @@ import {
   trickRelationships,
   trickVideos,
   tricks,
+  utvVideoLikes,
+  utvVideoMessages,
+  utvVideoRiders,
+  utvVideos,
 } from "~/db/schema"
 import { getStatsTool, recentActivityTool } from "~/mcp/tools/activity"
-import {
-  getChainRoundTool,
-  getChainSetTool,
-  listChainRoundsTool,
-} from "~/mcp/tools/chains"
+import { getChainRoundTool, getChainSetTool } from "~/mcp/tools/chains"
 import { type Tool, ToolError } from "~/mcp/tools/define"
 import {
   getRiuRoundTool,
@@ -29,9 +29,11 @@ import {
 } from "~/mcp/tools/games"
 import { getPostTool, listPostsTool } from "~/mcp/tools/posts"
 import { readTools } from "~/mcp/tools/registry"
-import { searchUsersTool } from "~/mcp/tools/search"
+import { listRoundsTool } from "~/mcp/tools/rounds"
+import { searchUsersTool, searchVideosTool } from "~/mcp/tools/search"
 import { getTrickTool } from "~/mcp/tools/tricks"
 import { getUserTool } from "~/mcp/tools/users"
+import { getVideoTool } from "~/mcp/tools/videos"
 import {
   seedMuxVideo,
   seedUser,
@@ -242,7 +244,7 @@ describe("chain game tools", () => {
       { biuSetId: second.id, userId: ada.id, content: "nice" },
     ])
 
-    const rounds = await runChecked(listChainRoundsTool, { game: "biu" })
+    const rounds = await runChecked(listRoundsTool, { game: "biu" })
     expect(rounds.rounds).toEqual([
       expect.objectContaining({
         roundId: round.id,
@@ -305,12 +307,44 @@ describe("chain game tools", () => {
       name: "hop",
     })
 
-    const out = await runChecked(listChainRoundsTool, { game: "siu" })
+    const out = await runChecked(listRoundsTool, { game: "siu" })
     expect(out.rounds.map((r) => [r.roundId, r.status, r.sets])).toEqual([
       [live.id, "active", 1],
       [old.id, "archived", 0],
     ])
     expect(out.rounds[1]?.endedAt).toBe(endedAt.toISOString())
+  })
+
+  it("lists RIU rounds and leaves out the private upcoming round", async () => {
+    const { ada } = await seedRiders()
+    const [old] = await db
+      .insert(rius)
+      .values({ status: "archived" })
+      .returning()
+    const [active] = await db
+      .insert(rius)
+      .values({ status: "active" })
+      .returning()
+    const [upcoming] = await db
+      .insert(rius)
+      .values({ status: "upcoming" })
+      .returning()
+    if (!old || !active || !upcoming) throw new Error("seed failed")
+    await seedRiuSet(active.id, ada.id, "first set")
+    await seedRiuSet(active.id, ada.id, "newest set")
+    await seedRiuSet(upcoming.id, ada.id, "secret set")
+
+    const out = await runChecked(listRoundsTool, { game: "riu" })
+    expect(out.rounds).toEqual([
+      expect.objectContaining({
+        roundId: active.id,
+        status: "active",
+        sets: 2,
+        latestSet: "newest set",
+      }),
+      expect.objectContaining({ roundId: old.id, status: "archived", sets: 0 }),
+    ])
+    expect(JSON.stringify(out)).not.toContain("secret set")
   })
 })
 
@@ -457,5 +491,55 @@ describe("rider, trick and site tools", () => {
       { id: bo.id, name: "Bo Rider", contentCount: 2 },
       { id: ada.id, name: "Ada Rider", contentCount: 1 },
     ])
+  })
+})
+
+describe("vault tools", () => {
+  it("get_video reads riders, likes and comments, and falls back to the old title", async () => {
+    const { ada, bo } = await seedRiders()
+    const mux = await seedMuxVideo()
+    const [video] = await db
+      .insert(utvVideos)
+      .values({
+        legacyUrl: "https://example.com/v",
+        legacyTitle: "old site title",
+        muxAssetId: mux.assetId,
+      })
+      .returning()
+    if (!video) throw new Error("seed failed")
+    await db.insert(utvVideoRiders).values([
+      { utvVideoId: video.id, userId: bo.id, order: 1 },
+      { utvVideoId: video.id, userId: ada.id, order: 0 },
+      { utvVideoId: video.id, name: "Guest Rider", order: 2 },
+    ])
+    await db
+      .insert(utvVideoLikes)
+      .values({ utvVideoId: video.id, userId: bo.id })
+    await db.insert(utvVideoMessages).values([
+      { utvVideoId: video.id, userId: ada.id, content: "first" },
+      { utvVideoId: video.id, userId: bo.id, content: "second" },
+    ])
+
+    const out = await runChecked(getVideoTool, { videoId: video.id })
+    expect(out).toMatchObject({
+      title: "old site title",
+      likes: 1,
+      videoUrl: `https://stream.mux.com/${mux.playbackId}.m3u8`,
+    })
+    expect(out.riders).toEqual([
+      { id: ada.id, name: "Ada Rider" },
+      { id: bo.id, name: "Bo Rider" },
+      { id: null, name: "Guest Rider" },
+    ])
+    expect(out.comments.map((c) => c.content)).toEqual(["first", "second"])
+
+    const hits = await runChecked(searchVideosTool, { q: "old site" })
+    expect(hits.videos.map((v) => [v.id, v.title])).toEqual([
+      [video.id, "old site title"],
+    ])
+
+    await expect(
+      getVideoTool.run(db, { videoId: 999_999 }),
+    ).rejects.toBeInstanceOf(ToolError)
   })
 })

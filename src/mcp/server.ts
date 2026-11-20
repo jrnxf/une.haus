@@ -1,6 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/server"
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio"
-import { z } from "zod"
 
 import { prodDb } from "~/mcp/d1"
 import { registerShared } from "~/mcp/register"
@@ -16,29 +15,6 @@ import { registerQueryTool } from "~/mcp/tools/query"
 // message. Log with console.error, which goes to stderr.
 
 const server = new McpServer({ name: "unehaus", version: "0.1.0" })
-
-server.registerTool(
-  "ping",
-  {
-    title: "Ping",
-    description:
-      "Check that the une.haus MCP server is running. Returns the message you send.",
-    inputSchema: z.object({
-      message: z.string().default("pong").describe("text to send back"),
-    }),
-    outputSchema: z.object({ message: z.string(), at: z.string() }),
-    annotations: { readOnlyHint: true },
-  },
-  async ({ message }) => {
-    const output = { message, at: new Date().toISOString() }
-    return {
-      // content is what older clients and the model read as text.
-      // structuredContent is the same data, typed by outputSchema.
-      content: [{ type: "text", text: JSON.stringify(output) }],
-      structuredContent: output,
-    }
-  },
-)
 
 // The read tools, schema resource and riu_recap prompt, on live data.
 registerShared(server, prodDb)
