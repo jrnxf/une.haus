@@ -37,7 +37,6 @@ import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiAskRouteImport } from './routes/api/ask'
 import { Route as AuthedFeedbackRouteImport } from './routes/_authed/feedback'
-import { Route as AuthedAskRouteImport } from './routes/_authed/ask'
 import { Route as AuthedAdminRouteImport } from './routes/_authed/admin'
 import { Route as GamesSiusRouteRouteImport } from './routes/games/sius/route'
 import { Route as GamesRiusRouteRouteImport } from './routes/games/rius/route'
@@ -246,11 +245,6 @@ const ApiAskRoute = ApiAskRouteImport.update({
 const AuthedFeedbackRoute = AuthedFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedAskRoute = AuthedAskRouteImport.update({
-  id: '/ask',
-  path: '/ask',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
@@ -641,7 +635,6 @@ export interface FileRoutesByFullPath {
   '/games/rius': typeof GamesRiusBrowseRouteWithChildren
   '/games/sius': typeof GamesSiusBrowseRouteWithChildren
   '/admin': typeof AuthedAdminRouteWithChildren
-  '/ask': typeof AuthedAskRoute
   '/feedback': typeof AuthedFeedbackRoute
   '/api/ask': typeof ApiAskRoute
   '/api/health': typeof ApiHealthRoute
@@ -734,7 +727,6 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
-  '/ask': typeof AuthedAskRoute
   '/feedback': typeof AuthedFeedbackRoute
   '/api/ask': typeof ApiAskRoute
   '/api/health': typeof ApiHealthRoute
@@ -832,7 +824,6 @@ export interface FileRoutesById {
   '/games/rius': typeof GamesRiusRouteRouteWithChildren
   '/games/sius': typeof GamesSiusRouteRouteWithChildren
   '/_authed/admin': typeof AuthedAdminRouteWithChildren
-  '/_authed/ask': typeof AuthedAskRoute
   '/_authed/feedback': typeof AuthedFeedbackRoute
   '/api/ask': typeof ApiAskRoute
   '/api/health': typeof ApiHealthRoute
@@ -934,7 +925,6 @@ export interface FileRouteTypes {
     | '/games/rius'
     | '/games/sius'
     | '/admin'
-    | '/ask'
     | '/feedback'
     | '/api/ask'
     | '/api/health'
@@ -1027,7 +1017,6 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/shop'
     | '/terms'
-    | '/ask'
     | '/feedback'
     | '/api/ask'
     | '/api/health'
@@ -1124,7 +1113,6 @@ export interface FileRouteTypes {
     | '/games/rius'
     | '/games/sius'
     | '/_authed/admin'
-    | '/_authed/ask'
     | '/_authed/feedback'
     | '/api/ask'
     | '/api/health'
@@ -1457,13 +1445,6 @@ declare module '@tanstack/react-router' {
       path: '/feedback'
       fullPath: '/feedback'
       preLoaderRoute: typeof AuthedFeedbackRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/ask': {
-      id: '/_authed/ask'
-      path: '/ask'
-      fullPath: '/ask'
-      preLoaderRoute: typeof AuthedAskRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/admin': {
@@ -1979,7 +1960,6 @@ const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
 
 interface AuthedRouteChildren {
   AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
-  AuthedAskRoute: typeof AuthedAskRoute
   AuthedFeedbackRoute: typeof AuthedFeedbackRoute
   AuthedNotificationsSettingsRoute: typeof AuthedNotificationsSettingsRoute
   AuthedPostsCreateRoute: typeof AuthedPostsCreateRoute
@@ -2013,7 +1993,6 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAdminRoute: AuthedAdminRouteWithChildren,
-  AuthedAskRoute: AuthedAskRoute,
   AuthedFeedbackRoute: AuthedFeedbackRoute,
   AuthedNotificationsSettingsRoute: AuthedNotificationsSettingsRoute,
   AuthedPostsCreateRoute: AuthedPostsCreateRoute,

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { type AskCard, type AskEvent } from "~/lib/ask/schemas"
 
@@ -13,6 +13,8 @@ export type Exchange = {
   cards: AskCard[]
   status: "working" | "done" | "error"
   error?: string
+  // A model turn started after a tool ran. The model is thinking again.
+  thinking: boolean
 }
 
 // Earlier exchanges sent back as context. The server allows 20 messages.
@@ -35,13 +37,14 @@ function apply(exchange: Exchange, event: AskEvent): Exchange {
     case "step":
       return {
         ...exchange,
+        thinking: false,
         steps: [
           ...exchange.steps,
           { label: event.label, tool: event.tool, args: event.args },
         ],
       }
     case "turn":
-      return { ...exchange, answer: "" }
+      return { ...exchange, answer: "", thinking: exchange.steps.length > 0 }
     case "text":
       return { ...exchange, answer: exchange.answer + event.text }
     case "cards":
@@ -87,6 +90,7 @@ export function useAskThread() {
         answer: "",
         cards: [],
         status: "working",
+        thinking: false,
       },
     ])
 
@@ -152,4 +156,59 @@ export function useAskThread() {
   }
 
   return { thread, busy, left, ask, reset }
+}
+
+// The API holds back a reply that follows a tool result, then sends it in
+// one burst. So the page shows the text at a steady rate instead: at least
+// MIN_RATE, and fast enough to show all of it CATCH_UP_MS after the last
+// chunk arrived. It shows whole words only. Reduced motion shows it at once.
+const MIN_RATE = 0.4 // characters per millisecond
+const CATCH_UP_MS = 600
+
+export function usePacedText(text: string) {
+  // Text that is already there on mount (an earlier exchange) shows at once.
+  const [shown, setShown] = useState(text.length)
+  const position = useRef(text.length)
+  const previous = useRef(text)
+
+  // An animation frame loop is a clock outside React, so it needs an effect.
+  useEffect(() => {
+    // A new model turn replaces the text instead of adding to it.
+    if (!text.startsWith(previous.current)) position.current = 0
+    previous.current = text
+    if (
+      position.current >= text.length ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      position.current = text.length
+      setShown(text.length)
+      return
+    }
+    const deadline = performance.now() + CATCH_UP_MS
+    let last = performance.now()
+    let frame = 0
+    const tick = (now: number) => {
+      const backlog = text.length - position.current
+      const rate = Math.max(MIN_RATE, backlog / Math.max(deadline - now, 16))
+      position.current = Math.min(
+        text.length,
+        position.current + rate * (now - last),
+      )
+      last = now
+      setShown(wordEnd(text, position.current))
+      if (position.current < text.length) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [text])
+
+  const visible = text.slice(0, Math.min(shown, text.length))
+  return { text: visible, pacing: visible.length < text.length }
+}
+
+// The end of the last whole word at or before position.
+function wordEnd(text: string, position: number) {
+  if (position >= text.length) return text.length
+  const end = text.slice(0, Math.floor(position)).search(/\s\S*$/)
+  return Math.max(end, 0)
 }

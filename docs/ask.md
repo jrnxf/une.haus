@@ -1,10 +1,11 @@
 # ask
 
-`/ask` lets a signed-in member ask questions about une.haus. Claude answers with the same read tools that `/mcp` serves (`src/mcp/tools/registry.ts`).
+The home page (`/`) lets a signed-in member ask questions about une.haus. Claude answers with the same read tools that `/mcp` serves (`src/mcp/tools/registry.ts`).
 
 ## How it works
 
-1. The page (`src/routes/_authed/ask.tsx`) keeps the thread in React state. Nothing is saved. "New" clears it.
+1. The page (`src/routes/index.tsx`) keeps the thread in React state. Nothing is saved. "New" clears it.
+   - Guests see the same page. When a guest asks, the page goes to `/auth` with `redirect=/?q=<question>`. After sign-in, the question waits in the box (`?q=`). No model call runs for a guest.
 2. Each question POSTs the thread to `/api/ask` (`src/routes/api/ask.ts`) as plain text turns.
 3. The route checks the session, the API key and a limit of 25 questions per member per day (`countHit("ask:<userId>")`). From the 20th question, the page shows how many are left.
 4. `runAsk` (`src/lib/ask/run.server.ts`) runs the SDK tool runner on `claude-sonnet-5-5` with medium effort and at most 8 model turns.
@@ -12,10 +13,12 @@
    - `step` when a tool starts, with plain words for the page and the raw call for the "used N tools" fold
    - `quota` with the questions left today, only from the 20th question
    - `turn` when a new model turn starts (text before a tool call is a preamble, so the page drops it)
-   - `text` for answer text
+   - `text` for answer text. After any tool result, the Anthropic API holds back the whole reply and sends every text delta in one burst (measured 0-5 ms apart on Sonnet 5.5 and Opus 5.5). A reply with no tool call streams normally. Our route and the worker pass chunks through as they come.
    - `cards` for the first 24 une.haus pages the answer links to (posts, riu sets, vault videos, riders and tricks). Up to 4 posts, riu sets and videos show as cards under the answer. Every linked page also gets a hover preview on its link (the AI Elements inline citation pattern, on our `HoverCard`). On touch screens a tap follows the link. The image is the uploaded video, photo or YouTube thumbnail for a post, the chosen thumbnail time for a vault video, the first active video for a trick, and the avatar for a rider.
    - `error`, then `done`
 6. The page draws the thread with shadcn AI Elements parts in `src/components/ui/`: `MessageScroller` for the thread, `Message` and `Bubble` for the turns, and `Trace` for the steps. The question box matches the /chat message box: one line that grows with its text, with a small submit button. `shadcn/tailwind.css` (imported in `src/styles.css`) gives them the `shimmer` and `scroll-fade` utilities.
+7. `usePacedText` (`src/lib/ask/hooks.ts`) paces the answer so the burst reads as a stream. It shows at least 0.4 characters per ms, and it speeds up so the text is all shown 600 ms after the last chunk. It reveals whole words only. With reduced motion, it shows all text at once. Cards wait until the pacing ends. While a model turn after a tool waits for its burst, the trace reads "thinking", because that turn can also call another tool.
+8. `AskMarkdown` renders the answer with Streamdown (it replaced react-markdown). Streamdown closes partial markdown while text arrives, and fades in new words over 150 ms. We override its styled tags with plain ones so the `prose` styles apply. `src/styles.css` imports `streamdown/styles.css` and adds Streamdown's dist to Tailwind's `@source`.
 
 ## Prompt rules
 

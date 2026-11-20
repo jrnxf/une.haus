@@ -58,10 +58,12 @@ Two locks keep it read-only:
 | `get_trick`        | one trick with its links to other tricks (both ways) and approved videos |
 | `recent_activity`  | posts, RIU, BIU and SIU sets, submissions and trick videos since a time  |
 | `get_stats`        | site totals and the top 10 riders by content count                       |
-| `search_tricks`    | the trick glossary by name or alternate name                             |
+| `search_tricks`    | the trick glossary by name or alternate name, nearest names on a typo    |
 | `search_videos`    | the vault by title or rider name                                         |
 | `get_video`        | one vault video with its riders in order, likes and latest comments      |
 | `query`            | one read-only SELECT, at most 200 rows, for questions no tool fits       |
+
+The three `search_*` tools ignore case, spaces, hyphens, underscores and dots, so `uni spin`, `uni-spin` and `unispin` find the same rows. `search_tricks` lists the shortest names first. When no name holds the query, it returns the nearest names (fuse.js) and sets `closeMatches: true`, so `unspin` finds the unispins.
 
 ### where a tool lives
 

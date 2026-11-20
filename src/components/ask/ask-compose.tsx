@@ -8,21 +8,24 @@ function limitNote(left: number) {
   return `${left} ${left === 1 ? "question" : "questions"} left today.`
 }
 
-// The question box at the bottom of /ask. It matches the /chat message box:
+// The question box at the bottom of the home page. It matches the /chat message box:
 // one line that grows with its text. Enter asks, shift+enter adds a line.
 export function AskCompose({
   busy,
+  defaultText = "",
   followUp,
   left,
   onAsk,
 }: {
   busy: boolean
+  // Text to start with, such as a question a guest typed before sign-in.
+  defaultText?: string
   followUp: boolean
   // Questions left today, or null while there are plenty.
   left: number | null
   onAsk: (question: string) => void
 }) {
-  const [text, setText] = useState("")
+  const [text, setText] = useState(defaultText)
   const formRef = useRef<HTMLFormElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const canAsk = !busy && text.trim().length > 0
