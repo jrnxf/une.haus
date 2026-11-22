@@ -37,6 +37,12 @@ export function setRequestUser(userId: number | undefined): void {
   if (store) store.userId = userId
 }
 
+// The signed-in member of the current request, once the session middleware
+// in src/start.ts resolved it.
+export function requestUserId(): number | undefined {
+  return storage.getStore()?.userId
+}
+
 export function newRequestId(): string {
   return crypto.randomUUID()
 }

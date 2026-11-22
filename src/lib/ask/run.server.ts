@@ -4,9 +4,10 @@ import { type AskBudget } from "~/lib/ask/budget.server"
 import { answerCards } from "~/lib/ask/cards"
 import { costMicrousd, percentUsed, type TurnUsage } from "~/lib/ask/cost"
 import { type AskMember, askSystemPrompt } from "~/lib/ask/prompt"
-import { type AskEvent, type AskInput } from "~/lib/ask/schemas"
+import { type AskError, type AskEvent, type AskInput } from "~/lib/ask/schemas"
 import { askTools, stepLabel } from "~/lib/ask/tools"
 import { background } from "~/lib/execution-context"
+import { recordAsk } from "~/lib/insights/record.server"
 import { logger } from "~/lib/logger"
 import { type ToolDb } from "~/mcp/tools/define"
 
@@ -25,6 +26,9 @@ const today = () =>
 // happen: steps while tools run, answer text as it streams, then cards.
 // With a budget, each model turn's cost is charged as soon as the turn ends,
 // and no new turn starts once the budget is spent.
+// When it ends, one ask_events row saves who asked, from where, the tool
+// names, the turns, the cost and any error. It never saves question or
+// answer text.
 export async function runAsk({
   apiKey,
   budget,
@@ -43,14 +47,16 @@ export async function runAsk({
   signal: AbortSignal
 }) {
   const client = new Anthropic({ apiKey })
-  const tools = askTools(db, (tool, toolInput) =>
+  const toolNames: string[] = []
+  const tools = askTools(db, (tool, toolInput) => {
+    toolNames.push(tool)
     send({
       type: "step",
       tool,
       args: JSON.stringify(toolInput),
       label: stepLabel(tool, toolInput),
-    }),
-  )
+    })
+  })
 
   const runner = client.beta.messages.toolRunner(
     {
@@ -80,6 +86,11 @@ export async function runAsk({
   let answer = ""
   // Token totals for the whole question, logged once so cost can be checked.
   const totals = { turns: 0, input: 0, cacheWrite: 0, cacheRead: 0, output: 0 }
+  let costTotal = 0
+  // Set before each early return. A throw is "failed", or "stopped" when
+  // the member left.
+  let error: AskError | null = null
+  let threw = false
   try {
     for await (const turn of runner) {
       send({ type: "turn" })
@@ -123,19 +134,23 @@ export async function runAsk({
         totals.cacheWrite += usage.cacheWrite
         totals.cacheRead += usage.cacheRead
         totals.output += usage.output
+        const cost = costMicrousd(usage)
+        costTotal += cost
         if (budget) {
-          spent = budget.charge(costMicrousd(usage))
+          spent = budget.charge(cost)
           // On Workers, this keeps the write alive after the member leaves.
           background(spent, "ask spend")
         }
       }
       const message = await turn.finalMessage()
       if (message.stop_reason === "refusal") {
+        error = "refusal"
         send({ type: "error", message: "this question cannot be answered." })
         return
       }
       if (message.stop_reason === "max_tokens") {
         logger.warn("ask hit max_tokens", { usage: message.usage })
+        error = "too_long"
         send({ type: "error", message: "the answer got too long. ask again." })
         return
       }
@@ -144,13 +159,29 @@ export async function runAsk({
         send({ type: "quota", used })
         // The answer needs another turn, but the budget is gone.
         if (used >= 100 && message.stop_reason === "tool_use") {
+          error = "limit"
           send({ type: "error", message: LIMIT_MESSAGE })
           return
         }
       }
     }
+  } catch (caught) {
+    threw = true
+    throw caught
   } finally {
     logger.info("ask usage", { model: MODEL, ...totals })
+    if (threw) error = signal.aborted ? "stopped" : "failed"
+    background(
+      recordAsk({
+        userId: member.id,
+        source: input.source,
+        tools: toolNames,
+        turns: totals.turns,
+        costMicrousd: costTotal,
+        error,
+      }),
+      "ask event",
+    )
   }
 
   send({ type: "cards", cards: await answerCards(db, answer) })

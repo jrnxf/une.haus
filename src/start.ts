@@ -5,9 +5,12 @@ import {
 } from "@sentry/tanstackstart-react"
 import { createMiddleware, createStart } from "@tanstack/react-start"
 
+import { background } from "~/lib/execution-context"
+import { featureOfServerFn } from "~/lib/insights/features"
 import { logger } from "~/lib/logger"
 import {
   newRequestId,
+  requestUserId,
   runWithRequestContext,
   setRequestUser,
 } from "~/lib/request-context"
@@ -60,11 +63,32 @@ const sentryUserMiddleware = createMiddleware().server(async ({ next }) => {
   return next()
 })
 
+// Counts each successful write (a POST server function) by a signed-in
+// member as one action for admin insights, under the feature its source
+// folder maps to. Reads and housekeeping writes count nothing.
+const activityMiddleware = createMiddleware({ type: "function" }).server(
+  async ({ next, method, serverFnMeta }) => {
+    const result = await next()
+    const userId = requestUserId()
+    const feature =
+      method === "POST" ? featureOfServerFn(serverFnMeta.filename) : null
+    if (userId !== undefined && feature) {
+      background(
+        import("~/lib/insights/record.server").then(({ recordAction }) =>
+          recordAction(userId, feature),
+        ),
+        "activity",
+      )
+    }
+    return result
+  },
+)
+
 export const startInstance = createStart(() => ({
   requestMiddleware: [
     requestLoggerMiddleware,
     sentryUserMiddleware,
     sentryGlobalRequestMiddleware,
   ],
-  functionMiddleware: [sentryGlobalFunctionMiddleware],
+  functionMiddleware: [sentryGlobalFunctionMiddleware, activityMiddleware],
 }))

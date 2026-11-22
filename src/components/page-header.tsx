@@ -130,18 +130,27 @@ function Tabs({ children }: { children: ReactNode }) {
 function Tab({
   to,
   icon: Icon,
+  exact = false,
+  keepSearch = false,
   children,
 }: {
   to: string
   icon?: React.ComponentType<{ className?: string }>
+  // Active only on `to` itself, not on the pages under it.
+  exact?: boolean
+  // Keep the current search params, such as a date range.
+  keepSearch?: boolean
   children: ReactNode
 }) {
   const pathname = useLocation({ select: (l) => l.pathname })
-  const isActive = pathname.startsWith(to)
+  const isActive = exact
+    ? pathname.replace(/(.)\/$/, "$1") === to
+    : pathname.startsWith(to)
 
   return (
     <Link
       to={to}
+      search={keepSearch ? true : undefined}
       className={
         isActive
           ? "bg-secondary text-foreground flex items-center gap-2 rounded-md px-2 py-1 text-xs font-medium transition-colors"

@@ -106,6 +106,9 @@ function RouteComponent() {
             </Button>
           )}
           <Button variant="secondary" size="sm" asChild>
+            <Link to="/admin/insights">insights</Link>
+          </Button>
+          <Button variant="secondary" size="sm" asChild>
             <Link to="/admin/sandbox">sandbox</Link>
           </Button>
         </div>

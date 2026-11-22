@@ -91,6 +91,19 @@ function RouteComponent() {
             similar tracking on this site.
           </p>
 
+          <h2>Usage Counts</h2>
+          <p>
+            To see which parts of une.haus get used, we keep daily counts in our
+            own database. We count views of each page type (for example "a vault
+            video", not which video). For logged-in members, we count how many
+            pages they view and how many actions they take in each feature per
+            day. For each question asked on the ask page, we keep the day, the
+            tools it used, its cost, and whether it failed. We never save the
+            text of a question or an answer. These counts use no extra cookies
+            and are never sent to a third party. Only the site admin can see
+            them.
+          </p>
+
           <h2>Online Presence</h2>
           <p>
             We display a count of who's currently active on the site using a

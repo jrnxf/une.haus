@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
 
 import { ask as askApi } from "~/lib/ask/index"
-import { type AskCard, type AskEvent } from "~/lib/ask/schemas"
+import { type AskCard, type AskEvent, type AskSource } from "~/lib/ask/schemas"
 import { useSessionUser } from "~/lib/session/hooks"
 
 // at is when the step arrived, in Date.now() milliseconds.
@@ -98,7 +98,11 @@ export function useAskThreadState() {
 
   // Ask a question after the exchanges so far. fresh starts a new thread
   // with the question instead, and stops an answer that still streams.
-  async function ask(question: string, { fresh = false } = {}) {
+  // from says where the member asked, for the admin insights counts.
+  async function ask(
+    question: string,
+    { fresh = false, from = "ask" }: { fresh?: boolean; from?: AskSource } = {},
+  ) {
     const text = question.trim()
     if (!text || (busy && !fresh)) return
     if (fresh) controller.current?.abort()
@@ -131,7 +135,7 @@ export function useAskThreadState() {
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages, source: from }),
         signal: abort.signal,
       })
       if (response.status === 429) setUsed(100)
