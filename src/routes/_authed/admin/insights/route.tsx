@@ -7,6 +7,12 @@ import { insights } from "~/lib/insights"
 
 export const Route = createFileRoute("/_authed/admin/insights")({
   validateSearch: insights.schema,
+  // Only the site admin (user 1). The server functions check again.
+  beforeLoad: ({ context }) => {
+    if (context.user.id !== 1) {
+      throw new Error("Not authorized")
+    }
+  },
   component: RouteComponent,
 })
 
