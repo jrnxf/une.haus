@@ -127,7 +127,10 @@ function RouteComponent() {
           ) : (
             <MessageScroller className="flex-1">
               <MessageScrollerViewport>
-                <MessageScrollerContent className="mx-auto my-4 w-full max-w-2xl">
+                {/* Padding, not margin: the content is min-h-full, so a
+                    margin makes a short thread overflow, and a thread asked
+                    from home then opens scrolled down by that margin. */}
+                <MessageScrollerContent className="mx-auto w-full max-w-2xl py-4">
                   {thread.map((exchange) => (
                     // A fragment, not a wrapper: the scroller reads only its
                     // direct children, so a wrapper hides the scroll anchor

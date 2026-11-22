@@ -107,7 +107,12 @@ const jsonLd = {
 type Board = Awaited<ReturnType<typeof home.board.fn>>
 type HomeHero = NonNullable<Board["hero"]>
 
-const panel = "bg-card flex min-w-0 flex-col gap-4 rounded-xl border p-6"
+// On a laptop the board fills the screen below the header, so chat and posts
+// may get shorter than their lists. The list wraps into a hidden second column
+// instead of growing, so it shows only the items that fit whole.
+const panel =
+  "bg-card flex min-h-0 min-w-0 flex-col gap-4 rounded-xl border p-6 lg:p-4"
+const panelList = "flex min-h-0 flex-col flex-wrap gap-4 overflow-hidden"
 
 function PanelLabel({ children }: { children: string }) {
   return (
@@ -147,7 +152,7 @@ function heroCopy(hero: HomeHero) {
 }
 
 const heroLink =
-  "bg-card group relative flex min-h-96 min-w-0 flex-col justify-end overflow-clip rounded-xl border p-6 text-white lg:col-span-7 lg:row-span-2"
+  "bg-card group relative flex min-h-96 min-w-0 flex-col justify-end overflow-clip rounded-xl border p-6 text-white lg:col-span-7 lg:min-h-0"
 
 function HeroLink({ hero, children }: { hero: HomeHero; children: ReactNode }) {
   switch (hero.kind) {
@@ -223,14 +228,14 @@ function ChatPanel({
   className,
 }: {
   messages: Board["chat"]
-  className: string
+  className?: string
 }) {
   return (
     <Link to="/chat" className={cn(panel, "group", className)}>
       <PanelLabel>chat</PanelLabel>
-      <ul className="flex flex-col gap-4">
+      <ul className={panelList}>
         {messages.map((message) => (
-          <li key={message.id} className="flex min-w-0 gap-3">
+          <li key={message.id} className="flex w-full min-w-0 gap-3">
             <Avatar
               className="size-8 shrink-0"
               cloudflareId={message.user.avatarId}
@@ -257,16 +262,16 @@ function PostsPanel({
   className,
 }: {
   posts: Board["posts"]
-  className: string
+  className?: string
 }) {
   return (
     <div className={cn(panel, className)}>
       <Link to="/posts" className="group">
         <PanelLabel>posts</PanelLabel>
       </Link>
-      <ul className="flex flex-col gap-4">
+      <ul className={panelList}>
         {posts.map((post) => (
-          <li key={post.id}>
+          <li key={post.id} className="w-full min-w-0">
             <Link
               to="/posts/$postId"
               params={{ postId: post.id }}
@@ -336,9 +341,8 @@ function RouteComponent() {
     void navigate({ to: "/ask" })
   }
 
-  // With no hero, chat and posts fill the row and games joins the cards.
+  // With no hero, chat and posts share the row and games joins the cards.
   const { hero } = board
-  const panelSpan = hero ? "lg:col-span-5" : "lg:col-span-6"
   const cardSpan = hero ? "lg:col-span-4" : "lg:col-span-3"
 
   return (
@@ -348,44 +352,59 @@ function RouteComponent() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 md:p-6 lg:grid-cols-12">
+      {/* On a laptop the board fills the screen, so the page does not scroll.
+          Only the middle row gives up height, down to a floor. */}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6 lg:min-h-0 lg:flex-1">
         <h1 className="sr-only">{SITE_NAME}</h1>
-        <div className="lg:col-span-12">
+        <div className="shrink-0">
           <AskCompose busy={false} followUp={false} used={null} onAsk={onAsk} />
         </div>
-        {hero ? <HeroPanel hero={hero} /> : null}
-        <ChatPanel messages={board.chat} className={panelSpan} />
-        <PostsPanel posts={board.posts} className={panelSpan} />
-        {hero ? null : (
+        {hero ? (
+          <div className="grid grid-cols-1 gap-4 lg:min-h-96 lg:grid-cols-12 lg:grid-rows-1">
+            <HeroPanel hero={hero} />
+            <div className="flex min-h-0 flex-col gap-4 lg:col-span-5">
+              <ChatPanel messages={board.chat} className="lg:shrink-0" />
+              <PostsPanel posts={board.posts} className="lg:grow" />
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 lg:min-h-0 lg:grid-cols-2 lg:grid-rows-1">
+            <ChatPanel messages={board.chat} />
+            <PostsPanel posts={board.posts} />
+          </div>
+        )}
+        <div className="grid shrink-0 grid-cols-1 gap-4 lg:grid-cols-12">
+          {hero ? null : (
+            <SectionCard
+              to="/games"
+              icon={PodiumIcon}
+              title="games"
+              line="rack it up, back it up and stack it up."
+              className={cardSpan}
+            />
+          )}
           <SectionCard
-            to="/games"
-            icon={PodiumIcon}
-            title="games"
-            line="rack it up, back it up and stack it up."
+            to="/tricks"
+            icon={TrafficConeIcon}
+            title="tricks"
+            line="every trick, who landed it first, and how the tricks connect."
             className={cardSpan}
           />
-        )}
-        <SectionCard
-          to="/tricks"
-          icon={TrafficConeIcon}
-          title="tricks"
-          line="every trick, who landed it first, and how the tricks connect."
-          className={cardSpan}
-        />
-        <SectionCard
-          to="/vault"
-          icon={LockIcon}
-          title="vault"
-          line="the old videos, kept safe and easy to find."
-          className={cardSpan}
-        />
-        <SectionCard
-          to="/users"
-          icon={UsersIcon}
-          title="users"
-          line="riders from around the world, on a list and on a globe."
-          className={cardSpan}
-        />
+          <SectionCard
+            to="/vault"
+            icon={LockIcon}
+            title="vault"
+            line="the old videos, kept safe and easy to find."
+            className={cardSpan}
+          />
+          <SectionCard
+            to="/users"
+            icon={UsersIcon}
+            title="users"
+            line="riders from around the world, on a list and on a globe."
+            className={cardSpan}
+          />
+        </div>
       </div>
     </>
   )
