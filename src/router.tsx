@@ -52,6 +52,17 @@ export function getRouter() {
   setupRouterSsrQueryIntegration({ router, queryClient })
 
   if (!router.isServer) {
+    // Page view beacon for admin insights: the route pattern of each page
+    // shown, such as /vault/$videoId. It fires on the first load too.
+    // A change to search params only (a filter) is not a new view.
+    router.subscribe("onResolved", ({ pathChanged }) => {
+      if (!pathChanged) return
+      const route = router.state.matches
+        .at(-1)
+        ?.fullPath.replace(/(.)\/$/, "$1")
+      if (route) navigator.sendBeacon("/api/view", route)
+    })
+
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       enabled: isProduction,

@@ -6,6 +6,8 @@ import { percentUsed } from "~/lib/ask/cost"
 import { LIMIT_MESSAGE, runAsk } from "~/lib/ask/run.server"
 import { askSchema, type AskEvent } from "~/lib/ask/schemas"
 import { env } from "~/lib/env"
+import { background } from "~/lib/execution-context"
+import { recordAsk } from "~/lib/insights/record.server"
 import { logger } from "~/lib/logger"
 import { getServerSessionUser } from "~/lib/session/hooks"
 
@@ -36,6 +38,17 @@ export const Route = createFileRoute("/api/ask")({
         const budget = askBudget(user.id)
         const spent = budget ? await budget.spent() : 0
         if (budget && spent >= budget.limit) {
+          background(
+            recordAsk({
+              userId: user.id,
+              source: parsed.data.source,
+              tools: [],
+              turns: 0,
+              costMicrousd: 0,
+              error: "limit",
+            }),
+            "ask event",
+          )
           return Response.json({ message: LIMIT_MESSAGE }, { status: 429 })
         }
 

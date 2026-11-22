@@ -11,6 +11,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core"
 
+import { ASK_ERRORS, ASK_SOURCES } from "~/lib/ask/schemas"
 import { RIU_STATUSES } from "~/lib/games/rius/lifecycle"
 import { type TournamentState } from "~/lib/tourney/types"
 
@@ -160,6 +161,66 @@ export const presence = sqliteTable("presence", {
   userId: integer("user_id"),
   lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }).notNull(),
 })
+
+// Admin insights (/admin/insights). These tables hold counts only: never a
+// URL with ids in it, never an IP, never question or answer text.
+
+// What one member did on one day (Portugal time), per feature. Views come
+// from the page view beacon, actions from server function writes.
+export const dailyActivity = sqliteTable(
+  "daily_activity",
+  {
+    day: text("day").notNull(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    feature: text("feature").notNull(),
+    views: integer("views").notNull().default(0),
+    actions: integer("actions").notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.day, t.userId, t.feature] }),
+    index("daily_activity_user_day_idx").on(t.userId, t.day),
+  ],
+)
+
+// Page views per day and route pattern (such as /vault/$videoId), for
+// members and guests together. A guest view saves no identity.
+export const dailyPageViews = sqliteTable(
+  "daily_page_views",
+  {
+    day: text("day").notNull(),
+    route: text("route").notNull(),
+    views: integer("views").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.day, t.route] })],
+)
+
+// One row per ask question: who, when, where from, which tools ran (names
+// only, no arguments) and what it cost.
+export const askEvents = sqliteTable(
+  "ask_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(CAST(unixepoch('subsec') * 1000 AS INTEGER))`),
+    // Portugal-time day of createdAt, so day groups match daily_activity.
+    day: text("day").notNull(),
+    source: text("source", { enum: ASK_SOURCES }).notNull(),
+    tools: text("tools", { mode: "json" }).$type<string[]>().notNull(),
+    turns: integer("turns").notNull(),
+    costMicrousd: integer("cost_microusd").notNull(),
+    error: text("error", { enum: ASK_ERRORS }),
+  },
+  (t) => [
+    index("ask_events_day_idx").on(t.day),
+    index("ask_events_user_day_idx").on(t.userId, t.day),
+  ],
+)
 
 export const posts = sqliteTable(
   "posts",

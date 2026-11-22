@@ -337,7 +337,7 @@ function RouteComponent() {
       })
       return
     }
-    void ask(question, { fresh: true })
+    void ask(question, { fresh: true, from: "home" })
     void navigate({ to: "/ask" })
   }
 

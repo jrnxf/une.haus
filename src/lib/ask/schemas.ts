@@ -7,7 +7,22 @@ const turn = z.object({
   content: z.string().trim().min(1).max(4000),
 })
 
+// Where a member asked: the /ask page or the box on the home page.
+export const ASK_SOURCES = ["ask", "home"] as const
+export type AskSource = (typeof ASK_SOURCES)[number]
+
+// Why a question got no full answer, as saved in ask_events.
+export const ASK_ERRORS = [
+  "limit",
+  "refusal",
+  "too_long",
+  "failed",
+  "stopped",
+] as const
+export type AskError = (typeof ASK_ERRORS)[number]
+
 export const askSchema = z.object({
+  source: z.enum(ASK_SOURCES).default("ask"),
   // The thread so far, ending with the new question.
   messages: z
     .array(turn)

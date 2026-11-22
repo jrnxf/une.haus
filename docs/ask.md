@@ -4,7 +4,7 @@ The ask page (`/ask`) lets a signed-in member ask questions about une.haus. Clau
 
 ## How it works
 
-1. `AskThreadProvider` (`src/components/ask/ask-thread-provider.tsx`) keeps the thread in React state above the routes. Pages read it with `useAskThread` (`src/lib/ask/thread-context.ts`). Nothing is saved: a reload clears it, and so does a change of the session user. "New" clears it.
+1. `AskThreadProvider` (`src/components/ask/ask-thread-provider.tsx`) keeps the thread in React state above the routes. Pages read it with `useAskThread` (`src/lib/ask/thread-context.ts`). No text is saved: a reload clears it, and so does a change of the session user. "New" clears it. Each question saves one `ask_events` row of numbers only (source, tool names, turns, cost and error), for admin insights. See `docs/insights.md`.
    - The thread stays when the member opens another page and comes back to `/ask` (`src/routes/ask.tsx`).
    - A question from the home board (`src/routes/index.tsx`) starts a new thread and opens `/ask`, where the answer streams.
    - Guests see the same pages. When a guest asks, the page goes to `/auth` with `redirect=/ask?q=<question>`. After sign-in, the question waits in the box (`?q=`). No model call runs for a guest.
