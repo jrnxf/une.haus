@@ -29,6 +29,15 @@ const labels: Record<string, (input: Record<string, unknown>) => string> = {
       ? `looking at riu round ${round}`
       : `looking at the ${round ?? "active"} riu round`,
   get_riu_set: ({ setId }) => `looking at riu set ${setId}`,
+  list_riu_winners: () => "counting riu wins",
+  list_rounds: ({ game }) =>
+    typeof game === "string"
+      ? `looking at ${game} rounds`
+      : "looking at rounds",
+  get_chain_round: ({ game, roundId }) =>
+    typeof game === "string" && typeof roundId === "number"
+      ? `looking at ${game} round ${roundId}`
+      : "looking at a chain",
 }
 
 export function stepLabel(name: string, input: Record<string, unknown>) {

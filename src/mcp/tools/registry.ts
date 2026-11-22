@@ -3,6 +3,7 @@ import { getChainRoundTool, getChainSetTool } from "~/mcp/tools/chains"
 import {
   getRiuRoundTool,
   getRiuSetTool,
+  listRiuWinnersTool,
   listSubmissionsTool,
 } from "~/mcp/tools/games"
 import { getPostTool, listPostsTool } from "~/mcp/tools/posts"
@@ -29,6 +30,7 @@ export const readTools = [
   getPostTool,
   getRiuRoundTool,
   getRiuSetTool,
+  listRiuWinnersTool,
   listSubmissionsTool,
   listRoundsTool,
   getChainRoundTool,

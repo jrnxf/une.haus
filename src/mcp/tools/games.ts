@@ -5,6 +5,7 @@ import { muxVideos, riuSets, riuSubmissions, rius, users } from "~/db/schema"
 import { RIU_STATUSES, isRosterPrivate } from "~/lib/games/rius/lifecycle"
 import { type ToolDb, ToolError, defineTool } from "~/mcp/tools/define"
 import { LIST_LIMIT, videoUrl } from "~/mcp/tools/result"
+import { riuStandings, standingOutput } from "~/mcp/tools/riu-standings"
 
 const roundOutput = z.object({
   roundId: z.number(),
@@ -19,6 +20,9 @@ const roundOutput = z.object({
       submissions: z.number(),
     }),
   ),
+  // Every rider who scored, best first. Rank 1 won an archived round, or
+  // leads the active one.
+  standings: z.array(standingOutput),
 })
 
 const setOutput = z.object({
@@ -75,7 +79,7 @@ export const getRiuRoundTool = defineTool({
   name: "get_riu_round",
   title: "Get RIU round",
   description:
-    "Get a Rack It Up (RIU) round: its sets, who set each one, the set video and how many riders landed it. RIU is the weekly une.haus game: riders post sets (tricks) for the upcoming week, then everyone tries to land them while the round is active. Call get_riu_set for the landings of one set.",
+    "Get a Rack It Up (RIU) round: its sets, who set each one, the set video, how many riders landed it, and the standings. RIU is the weekly une.haus game: riders post sets (tricks) for the upcoming week, then everyone tries to land them while the round is active. Each set and each landing (submission) is 1 point. Rank 1 of an archived round is its winner, and rank 1 of the active round is in the lead. Call get_riu_set for the landings of one set, and list_riu_winners for winners across rounds.",
   inputSchema: z.object({ round: roundArg }),
   outputSchema: roundOutput,
   run: async (db, { round }) => {
@@ -109,6 +113,8 @@ export const getRiuRoundTool = defineTool({
       .groupBy(riuSets.id)
       .orderBy(riuSets.id)
 
+    const standings = await riuStandings(db, { roundIds: [roundId] })
+
     return {
       roundId,
       status: meta?.status ?? null,
@@ -116,6 +122,7 @@ export const getRiuRoundTool = defineTool({
         ...set,
         videoUrl: videoUrl(playbackId),
       })),
+      standings: standings.get(roundId) ?? [],
     }
   },
 })
@@ -260,6 +267,73 @@ export const listSubmissionsTool = defineTool({
       })),
       nextBefore:
         rows.length > limit ? (page.at(-1)?.submissionId ?? null) : null,
+    }
+  },
+})
+
+const rider = z.object({ id: z.number(), name: z.string() })
+
+const winnersOutput = z.object({
+  archivedRounds: z.number(),
+  // Riders by number of rounds won, most first. A tie goes to the more
+  // recent win.
+  mostWins: z.array(
+    z.object({ rider, wins: z.number(), lastWinRoundId: z.number() }),
+  ),
+  // The newest archived rounds and who won each.
+  recentWinners: z.array(
+    z.object({ roundId: z.number(), winner: rider, points: z.number() }),
+  ),
+})
+
+export const listRiuWinnersTool = defineTool({
+  name: "list_riu_winners",
+  title: "List RIU winners",
+  description:
+    "Who won Rack It Up (RIU): the riders with the most round wins across every archived round, and the winner of each recent round. The winner of a round is the rider with the most points (1 per set, 1 per landing), the same ranking the round page shows. Call get_riu_round for the full standings of one round, or the active round's leader.",
+  inputSchema: z.object({
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(LIST_LIMIT.max)
+      .default(LIST_LIMIT.default)
+      .describe("how many riders and how many recent rounds to return"),
+  }),
+  outputSchema: winnersOutput,
+  run: async (db, { limit }) => {
+    const standings = await riuStandings(db, { status: "archived" })
+
+    const rounds = [...standings.entries()]
+      .flatMap(([roundId, ranks]) => {
+        const first = ranks[0]
+        return first
+          ? [{ roundId, winner: first.rider, points: first.points }]
+          : []
+      })
+      .sort((a, b) => b.roundId - a.roundId)
+
+    const tally = new Map<
+      number,
+      { rider: z.infer<typeof rider>; wins: number; lastWinRoundId: number }
+    >()
+    for (const round of rounds) {
+      const entry = tally.get(round.winner.id)
+      if (entry) entry.wins += 1
+      else
+        tally.set(round.winner.id, {
+          rider: round.winner,
+          wins: 1,
+          lastWinRoundId: round.roundId,
+        })
+    }
+
+    return {
+      archivedRounds: rounds.length,
+      mostWins: [...tally.values()]
+        .sort((a, b) => b.wins - a.wins || b.lastWinRoundId - a.lastWinRoundId)
+        .slice(0, limit),
+      recentWinners: rounds.slice(0, limit),
     }
   },
 })

@@ -49,11 +49,12 @@ Two locks keep it read-only:
 | `search_users`     | riders by name                                                           |
 | `list_posts`       | posts newest first, by words or author, with a `before` cursor           |
 | `get_post`         | one post with its full text, video link, likes and latest comments       |
-| `get_riu_round`    | a RIU round (active, last or an id) with its sets                        |
+| `get_riu_round`    | a RIU round (active, last or an id) with its sets and standings          |
+| `list_riu_winners` | the riders with the most RIU round wins, and recent round winners        |
 | `get_riu_set`      | one RIU set with every submission and its video link                     |
 | `list_submissions` | one rider's RIU submissions newest first, with a `before` cursor         |
-| `list_rounds`      | RIU, BIU or SIU rounds newest first, with set count and newest set       |
-| `get_chain_round`  | one BIU or SIU chain in position order, with likes and comments          |
+| `list_rounds`      | RIU, BIU or SIU rounds newest first, with set count, newest set, leader  |
+| `get_chain_round`  | one BIU or SIU chain in position order, its leader, likes and comments   |
 | `get_chain_set`    | one BIU or SIU set, its parent and child, instructions and comments      |
 | `get_trick`        | one trick with its links to other tricks (both ways) and approved videos |
 | `recent_activity`  | posts, RIU, BIU and SIU sets, submissions and trick videos since a time  |

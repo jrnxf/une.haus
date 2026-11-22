@@ -51,6 +51,10 @@ const setRef = z.object({ setId: z.number(), name: z.string(), rider })
 const chainOutput = z.object({
   game: z.enum(["biu", "siu"]),
   roundId: z.number(),
+  // The rider of the newest set. Chain games have no winners as such: this
+  // rider is in the lead, or held it when an archived round ended. Null when
+  // the chain has no sets.
+  leader: rider.nullable(),
   sets: z.array(
     z.object({
       setId: z.number(),
@@ -138,7 +142,7 @@ export const getChainRoundTool = defineTool({
   name: "get_chain_round",
   title: "Get BIU or SIU round",
   description:
-    "Get one Back It Up (biu) or Stack It Up (siu) chain in order, first set first: each set's name, rider, the set it continues, likes, comments and video link. Call get_chain_set for one set's comments.",
+    "Get one Back It Up (biu) or Stack It Up (siu) chain in order, first set first: each set's name, rider, the set it continues, likes, comments and video link. Chain games have no winners as such: leader is the rider of the newest set, who is in the lead (or held it when an archived round ended). Call get_chain_set for one set's comments.",
   inputSchema: z.object({
     game: gameArg,
     roundId: z.number().int().positive().describe("the round id"),
@@ -172,9 +176,11 @@ export const getChainRoundTool = defineTool({
       sets.map((set) => set.setId),
     )
 
+    const newest = sets.at(-1)
     return {
       game,
       roundId,
+      leader: newest ? { id: newest.riderId, name: newest.riderName } : null,
       sets: sets.map((set) => ({
         setId: set.setId,
         position: set.position,

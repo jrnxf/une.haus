@@ -26,6 +26,7 @@ import { type Tool, ToolError } from "~/mcp/tools/define"
 import {
   getRiuRoundTool,
   getRiuSetTool,
+  listRiuWinnersTool,
   listSubmissionsTool,
 } from "~/mcp/tools/games"
 import { getPostTool, listPostsTool } from "~/mcp/tools/posts"
@@ -244,6 +245,79 @@ describe("RIU roster privacy", () => {
   })
 })
 
+describe("RIU winners", () => {
+  async function seedLanding(setId: number, userId: number) {
+    const video = await seedMuxVideo()
+    await db
+      .insert(riuSubmissions)
+      .values({ riuSetId: setId, userId, muxAssetId: video.assetId })
+  }
+
+  it("ranks a round by points, and counts wins across archived rounds", async () => {
+    const { ada, bo } = await seedRiders()
+    const cy = await seedUser({ name: "Cy Rider" })
+    if (!cy) throw new Error("seed failed")
+    const [first, second, active] = await db
+      .insert(rius)
+      .values([
+        { status: "archived" },
+        { status: "archived" },
+        { status: "active" },
+      ])
+      .returning()
+    if (!first || !second || !active) throw new Error("seed failed")
+
+    // Round 1: ada sets twice and bo lands one. Ada wins 2 to 1.
+    const a1 = await seedRiuSet(first.id, ada.id, "a1")
+    await seedRiuSet(first.id, ada.id, "a2")
+    await seedLanding(a1.id, bo.id)
+    // Round 2: bo sets and cy lands it. A 1-1 tie goes to the setter, bo.
+    const b1 = await seedRiuSet(second.id, bo.id, "b1")
+    await seedLanding(b1.id, cy.id)
+    // Active round: cy leads, but it is not a win yet.
+    const c1 = await seedRiuSet(active.id, cy.id, "c1")
+    await seedLanding(c1.id, cy.id)
+
+    const round = await runChecked(getRiuRoundTool, { round: first.id })
+    expect(round.standings).toEqual([
+      {
+        rank: 1,
+        rider: { id: ada.id, name: "Ada Rider" },
+        sets: 2,
+        submissions: 0,
+        points: 2,
+      },
+      {
+        rank: 2,
+        rider: { id: bo.id, name: "Bo Rider" },
+        sets: 0,
+        submissions: 1,
+        points: 1,
+      },
+    ])
+
+    const winners = await runChecked(listRiuWinnersTool, {})
+    expect(winners.archivedRounds).toBe(2)
+    expect(
+      winners.recentWinners.map((r) => [r.roundId, r.winner.name]),
+    ).toEqual([
+      [second.id, "Bo Rider"],
+      [first.id, "Ada Rider"],
+    ])
+    expect(winners.mostWins.map((w) => [w.rider.name, w.wins])).toEqual([
+      ["Bo Rider", 1],
+      ["Ada Rider", 1],
+    ])
+
+    const rounds = await runChecked(listRoundsTool, { game: "riu" })
+    expect(rounds.rounds.map((r) => r.leader?.name)).toEqual([
+      "Cy Rider",
+      "Bo Rider",
+      "Ada Rider",
+    ])
+  })
+})
+
 describe("chain game tools", () => {
   it("list, read and walk a BIU chain, with deleted sets left out", async () => {
     const { ada, bo } = await seedRiders()
@@ -283,6 +357,8 @@ describe("chain game tools", () => {
         endedAt: null,
         sets: 2,
         latestSet: "unispin, crankflip",
+        // The newest live set leads. Ada's later set is deleted.
+        leader: { id: bo.id, name: "Bo Rider" },
       }),
     ])
 
@@ -291,6 +367,7 @@ describe("chain game tools", () => {
       roundId: round.id,
     })
     expect(chain.sets.map((s) => s.setId)).toEqual([first.id, second.id])
+    expect(chain.leader).toEqual({ id: bo.id, name: "Bo Rider" })
     expect(chain.sets[1]).toMatchObject({ parentSetId: first.id, comments: 2 })
 
     const set = await runChecked(getChainSetTool, {
