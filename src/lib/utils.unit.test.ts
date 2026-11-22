@@ -1,3 +1,4 @@
+import { notFound } from "@tanstack/react-router"
 import { z } from "zod"
 
 import {
@@ -85,7 +86,11 @@ describe("errorFmt", () => {
 
   it("formats unknown types", () => {
     expect(errorFmt(42)).toBe("42")
-    expect(errorFmt({ custom: "error" })).toBe("[object Object]")
+    expect(errorFmt({ custom: "error" })).toBe("something went wrong")
+  })
+
+  it("formats a router notFound", () => {
+    expect(errorFmt(notFound())).toBe("not found")
   })
 })
 

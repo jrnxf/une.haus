@@ -90,8 +90,15 @@ export function AskCompose({
             }
             tabIndex={0}
             className={cn(
-              "min-h-11 px-1.5 py-2.5 text-sm leading-6 break-words whitespace-pre-wrap outline-none after:inline-block sm:text-base",
-              used === null ? "after:w-7" : "after:w-13",
+              "min-h-11 px-1.5 py-2.5 text-sm leading-6 break-words whitespace-pre-wrap outline-none sm:text-base",
+              // An emptied box keeps a <br>, and the spacer would wrap
+              // to a second line under it. The box has no text to wrap
+              // then, so it needs no spacer.
+              empty
+                ? "after:hidden"
+                : used === null
+                  ? "after:inline-block after:w-7"
+                  : "after:inline-block after:w-13",
             )}
             onInput={(event) => {
               const node = event.currentTarget

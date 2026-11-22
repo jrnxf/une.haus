@@ -1,3 +1,4 @@
+import { isNotFound } from "@tanstack/react-router"
 import { type ClassValue, clsx } from "clsx"
 import pluralize from "pluralize"
 import { twMerge } from "tailwind-merge"
@@ -15,12 +16,16 @@ export function zodErrorFmt(error: ZodError) {
   return `Validation ${pluralize("error", errorCount)}: ${error.issues.map((issue) => issue.message).join(",")}`
 }
 
+// A message for a caught value. Loaders also catch thrown router objects,
+// such as notFound(), which are not Errors and would print "[object Object]".
 export function errorFmt(error: unknown) {
-  return error instanceof ZodError
-    ? zodErrorFmt(error)
-    : error instanceof Error
-      ? error.message
-      : String(error)
+  if (isNotFound(error)) return "not found"
+  if (error instanceof ZodError) return zodErrorFmt(error)
+  if (error instanceof Error) return error.message
+  if (typeof error === "string" || typeof error === "number") {
+    return String(error)
+  }
+  return "something went wrong"
 }
 
 export const preferCdn = (url?: string | null): string => {
