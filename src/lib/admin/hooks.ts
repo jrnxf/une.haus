@@ -5,6 +5,8 @@ import {
 } from "@tanstack/react-query"
 import { toast } from "sonner"
 
+import { admin } from "~/lib/admin"
+
 /**
  * A review mutation for one item of an admin queue. It removes the item from
  * the cached list at once, and puts the list back when the server refuses.
@@ -41,6 +43,10 @@ export function useQueueMutation<TVariables>({
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey })
+      // The count chips in the sidebar and on the queue tab.
+      qc.invalidateQueries({
+        queryKey: admin.pendingCount.queryOptions().queryKey,
+      })
     },
   })
 }

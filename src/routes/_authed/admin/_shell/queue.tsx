@@ -2,7 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState } from "react"
 
-import { AdminTabs } from "~/components/admin/admin-tabs"
 import {
   FlagCard,
   GlossaryCard,
@@ -11,7 +10,6 @@ import {
   VaultCard,
   VideoCard,
 } from "~/components/admin/review-items"
-import { PageHeader } from "~/components/page-header"
 import { Button } from "~/components/ui/button"
 import {
   Empty,
@@ -29,12 +27,8 @@ import { flagsDomain } from "~/lib/flags"
 import { tricks } from "~/lib/tricks"
 import { utv } from "~/lib/utv/core"
 
-export const Route = createFileRoute("/_authed/admin/")({
+export const Route = createFileRoute("/_authed/admin/_shell/queue")({
   loader: async ({ context }) => {
-    if (context.user.id !== 1) {
-      throw new Error("Not authorized")
-    }
-
     await Promise.all([
       context.queryClient.ensureQueryData(
         tricks.submissions.list.queryOptions({ status: "pending" }),
@@ -61,59 +55,28 @@ export const Route = createFileRoute("/_authed/admin/")({
 
 function RouteComponent() {
   return (
-    <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb>admin</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-        <PageHeader.Right>
-          <AdminTabs />
-        </PageHeader.Right>
-      </PageHeader>
-      <div className="mx-auto w-full max-w-4xl space-y-4 p-4 md:p-6">
-        {/* The page header is hidden on small screens, so the tabs move
-            into the page there. */}
-        <div className="md:hidden">
-          <AdminTabs />
+    <div className="mx-auto w-full max-w-4xl space-y-4 p-4 md:p-6">
+      <Queue />
+      {import.meta.env.DEV && (
+        <div className="flex justify-end">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              import("@tanstack/devtools-client").then(
+                ({ devtoolsEventClient }) => {
+                  devtoolsEventClient.emit("trigger-toggled", {
+                    isOpen: true,
+                  })
+                },
+              )
+            }}
+          >
+            devtools
+          </Button>
         </div>
-
-        <Queue />
-
-        <div className="flex items-center justify-between gap-2">
-          {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" ? (
-            <p className="text-muted-foreground text-xs tabular-nums">
-              <a
-                href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors"
-              >
-                {__COMMIT_SHA__}
-              </a>
-            </p>
-          ) : (
-            <span />
-          )}
-          {import.meta.env.DEV && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                import("@tanstack/devtools-client").then(
-                  ({ devtoolsEventClient }) => {
-                    devtoolsEventClient.emit("trigger-toggled", {
-                      isOpen: true,
-                    })
-                  },
-                )
-              }}
-            >
-              devtools
-            </Button>
-          )}
-        </div>
-      </div>
-    </>
+      )}
+    </div>
   )
 }
 

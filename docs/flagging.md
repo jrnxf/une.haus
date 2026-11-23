@@ -47,7 +47,7 @@ A unified content moderation system that lets any authenticated user flag any pi
 ┌─────────────────────────────────────────────────────────────────┐
 │                     ADMIN REVIEW                                 │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐   │
-│  │  /admin        │  │  Dismiss or   │  │  Notify Flagger   │   │
+│  │  /admin/queue  │  │  Dismiss or   │  │  Notify Flagger   │   │
 │  │  review queue  │──│  Remove       │──│  of Resolution    │   │
 │  └───────────────┘  └───────────────┘  └───────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
@@ -73,7 +73,7 @@ src/
 │
 ├── routes/_authed/flag.tsx               # Flag submission page (all entity types)
 │
-└── routes/_authed/admin/index.tsx        # Admin review queue (flags are one kind)
+└── routes/_authed/admin/_shell/queue.tsx # Admin review queue (flags are one kind)
 ```
 
 ### Design Decisions
@@ -270,7 +270,7 @@ sequenceDiagram
     participant DB as Database
     participant F as Flagger (original user)
 
-    A->>UI: View unresolved flags in the /admin queue
+    A->>UI: View unresolved flags in the /admin/queue list
     A->>UI: Click "dismiss" or "remove"
 
     UI->>SF: resolveFlag({ flagId, resolution: "dismissed" | "removed" })
@@ -429,9 +429,9 @@ Messages show a "flag" option in the long-press context menu. Clicking it opens 
 
 ## Admin Review
 
-**Files:** `src/routes/_authed/admin/index.tsx` (the queue), `src/components/admin/review-items.tsx` (`FlagCard`)
+**Files:** `src/routes/_authed/admin/_shell/queue.tsx` (the queue), `src/components/admin/review-items.tsx` (`FlagCard`)
 
-`/admin` shows one review queue. It holds every pending item of every kind: trick submissions, trick suggestions, trick videos, glossary proposals, vault suggestions and flags. The oldest item is first.
+`/admin/queue` shows one review queue. It holds every pending item of every kind: trick submissions, trick suggestions, trick videos, glossary proposals, vault suggestions and flags. The oldest item is first.
 
 ### Filter Chips
 
@@ -540,7 +540,7 @@ Notifies **the original flagger** with `type: "review"`:
 │  db/schema.ts          - flags table + enum                     │
 │  lib/flags/            - Domain library (fns, schemas, hooks)   │
 │  routes/_authed/flag   - Flag submission page                   │
-│  admin/index           - Admin review queue                     │
+│  admin/_shell/queue    - Admin review queue                     │
 │  views/post            - Post flag button                       │
 │  messages/bubble       - Message flag menu item                 │
 │  games/*/detail pages  - Game entity flag buttons               │

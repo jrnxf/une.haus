@@ -9,7 +9,7 @@ import {
 import { cn } from "~/lib/utils"
 
 // A card with a small title, the frame for every chart and table on
-// /admin/insights. `flush` drops the content padding for tables.
+// the admin overview. `flush` drops the content padding for tables.
 export function Panel({
   title,
   hint,

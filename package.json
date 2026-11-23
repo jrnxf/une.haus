@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit",
     "preflight": "bun run scripts/preflight.ts",
     "doctor": "react-doctor",
-    "lint": "oxlint --max-warnings 296",
+    "lint": "oxlint --max-warnings 290",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "check": "oxlint --fix && oxfmt --write",

@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb"
+import { CountChip } from "~/components/ui/count-chip"
 import { SidebarTrigger } from "~/components/ui/sidebar"
 import { cn } from "~/lib/utils"
 
@@ -132,6 +133,7 @@ function Tab({
   icon: Icon,
   exact = false,
   keepSearch = false,
+  count = 0,
   children,
 }: {
   to: string
@@ -140,6 +142,8 @@ function Tab({
   exact?: boolean
   // Keep the current search params, such as a date range.
   keepSearch?: boolean
+  // A count chip after the label. It hides at zero.
+  count?: number
   children: ReactNode
 }) {
   const pathname = useLocation({ select: (l) => l.pathname })
@@ -159,6 +163,7 @@ function Tab({
     >
       {Icon && <Icon className="size-3.5" />}
       <span>{children}</span>
+      {count > 0 && <CountChip>{count > 99 ? "99+" : count}</CountChip>}
     </Link>
   )
 }

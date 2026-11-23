@@ -5,7 +5,7 @@ import { db } from "~/db"
 import { type AskError, type AskSource } from "~/lib/ask/schemas"
 import { insightsDay, lastDays } from "~/lib/insights/features"
 
-// Read queries for /admin/insights. Each tab looks at the last `days` days
+// Read queries for the admin overview and ask pages. Each page looks at the last `days` days
 // (Portugal time, today included) and, where it compares, at the same
 // number of days before them.
 
