@@ -30,7 +30,7 @@
             "allow": ["layout", "spacing", "typography", "color"]
           },
           { "pattern": "^Metaline$", "allow": ["layout", "typography"] },
-          { "pattern": "^Form$", "allow": ["layout", "spacing"] },
+          { "pattern": "^(Form|Sortable)$", "allow": ["layout", "spacing"] },
           {
             "pattern": "^(SortableItem|[A-Za-z]+Trigger)$",
             "allow": [
