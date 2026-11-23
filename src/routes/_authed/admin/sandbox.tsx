@@ -19,6 +19,7 @@ import {
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { AdminTabs } from "~/components/admin/admin-tabs"
 import { PageHeader } from "~/components/page-header"
 import { Tray, TrayContent, TrayTitle, TrayTrigger } from "~/components/tray"
 import {
@@ -138,8 +139,16 @@ function RouteComponent() {
           <PageHeader.Crumb to="/admin">admin</PageHeader.Crumb>
           <PageHeader.Crumb>sandbox</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
+        <PageHeader.Right>
+          <AdminTabs />
+        </PageHeader.Right>
       </PageHeader>
       <div className="@container w-full space-y-6 p-4 md:p-6">
+        {/* The page header is hidden on small screens, so the tabs move
+            into the page there. */}
+        <div className="md:hidden">
+          <AdminTabs />
+        </div>
         {/* 3 columns */}
         <div className="grid grid-cols-1 gap-4 @4xl:grid-cols-3">
           <Card>

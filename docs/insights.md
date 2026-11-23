@@ -1,6 +1,6 @@
 # insights
 
-`/admin/insights` shows the site admin how une.haus gets used. It has three tabs (overview, ask, members) and a range select of 7, 30 or 90 days (`?days=`, default 30). The admin page links to it.
+`/admin/insights` shows the site admin how une.haus gets used. It has three tabs (overview, ask, members) and a range select of 7, 30 or 90 days (`?days=`, default 30). The admin tabs in the page header (queue, insights, sandbox) link to it.
 
 Insights save numbers only. No question or answer text, no raw URL and no third party. The counts live in our own D1. The privacy page (`src/routes/privacy.tsx`, "Usage Counts") says so.
 

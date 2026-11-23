@@ -1,52 +1,33 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { type ReactNode, useState } from "react"
-import { toast } from "sonner"
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
 
-import { confirm } from "~/components/confirm-dialog-handle"
+import { AdminTabs } from "~/components/admin/admin-tabs"
+import {
+  FlagCard,
+  GlossaryCard,
+  SubmissionCard,
+  SuggestionCard,
+  VaultCard,
+  VideoCard,
+} from "~/components/admin/review-items"
 import { PageHeader } from "~/components/page-header"
-import { RichText } from "~/components/rich-text"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "~/components/ui/accordion"
-import { Badge } from "~/components/ui/badge"
 import { Button } from "~/components/ui/button"
-import { Card, CardContent } from "~/components/ui/card"
-import { CodeViewer } from "~/components/ui/code-viewer"
-import { CountChip } from "~/components/ui/count-chip"
-import { DiffViewer } from "~/components/ui/diff-viewer"
-import { Metaline } from "~/components/ui/metaline"
-import { RelativeTimeCard } from "~/components/ui/relative-time-card"
-import { Textarea } from "~/components/ui/textarea"
-import { VideoPlayer } from "~/components/video-player"
 import {
-  type FlagEntityType,
-  type GlossaryProposalDiff,
-  type TrickSuggestionDiff,
-  type UtvVideoSuggestionDiff,
-} from "~/db/schema"
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "~/components/ui/empty"
+import {
+  countKinds,
+  REVIEW_KIND_FILTER_LABELS,
+  type ReviewKind,
+  sortQueue,
+} from "~/lib/admin/review"
 import { flagsDomain } from "~/lib/flags"
-import { type PendingVideosData, tricks } from "~/lib/tricks"
-import { MULTIPLE_TRICKS_REJECTION } from "~/lib/tricks/videos/schemas"
-import { type ServerFnReturn } from "~/lib/types"
+import { tricks } from "~/lib/tricks"
 import { utv } from "~/lib/utv/core"
-
-function buildJsonDiff(
-  current: unknown,
-  proposed: unknown,
-): { original: string; modified: string } {
-  return {
-    original: JSON.stringify(current, null, 2),
-    modified: JSON.stringify(proposed, null, 2),
-  }
-}
 
 export const Route = createFileRoute("/_authed/admin/")({
   loader: async ({ context }) => {
@@ -85,9 +66,34 @@ function RouteComponent() {
         <PageHeader.Breadcrumbs>
           <PageHeader.Crumb>admin</PageHeader.Crumb>
         </PageHeader.Breadcrumbs>
+        <PageHeader.Right>
+          <AdminTabs />
+        </PageHeader.Right>
       </PageHeader>
       <div className="mx-auto w-full max-w-4xl space-y-4 p-4 md:p-6">
-        <div className="flex items-center justify-end gap-2">
+        {/* The page header is hidden on small screens, so the tabs move
+            into the page there. */}
+        <div className="md:hidden">
+          <AdminTabs />
+        </div>
+
+        <Queue />
+
+        <div className="flex items-center justify-between gap-2">
+          {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" ? (
+            <p className="text-muted-foreground text-xs tabular-nums">
+              <a
+                href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                {__COMMIT_SHA__}
+              </a>
+            </p>
+          ) : (
+            <span />
+          )}
           {import.meta.env.DEV && (
             <Button
               variant="secondary"
@@ -105,93 +111,16 @@ function RouteComponent() {
               devtools
             </Button>
           )}
-          <Button variant="secondary" size="sm" asChild>
-            <Link to="/admin/insights">insights</Link>
-          </Button>
-          <Button variant="secondary" size="sm" asChild>
-            <Link to="/admin/sandbox">sandbox</Link>
-          </Button>
         </div>
-        <Accordion multiple variant="card">
-          <AccordionItem value="tricks">
-            <AccordionTrigger>
-              <TricksLabel />
-            </AccordionTrigger>
-            <AccordionContent>
-              <Accordion multiple variant="card">
-                <AccordionItem value="submissions">
-                  <AccordionTrigger>
-                    <SubmissionsLabel />
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <SubmissionsSection />
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="suggestions">
-                  <AccordionTrigger>
-                    <SuggestionsLabel />
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <SuggestionsSection />
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="videos">
-                  <AccordionTrigger>
-                    <VideosLabel />
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <VideosSection />
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="glossary">
-                  <AccordionTrigger>
-                    <GlossaryLabel />
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <GlossarySection />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="vault">
-            <AccordionTrigger>
-              <VaultLabel />
-            </AccordionTrigger>
-            <AccordionContent>
-              <VaultSection />
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="flags">
-            <AccordionTrigger>
-              <FlagsLabel />
-            </AccordionTrigger>
-            <AccordionContent>
-              <FlagsSection />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-
-        {__COMMIT_SHA__ && __COMMIT_SHA__ !== "unknown" && (
-          <p className="text-muted-foreground mt-6 text-xs tabular-nums">
-            <a
-              href={`https://github.com/jrnxf/une.haus/commit/${__COMMIT_SHA__}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
-            >
-              {__COMMIT_SHA__}
-            </a>
-          </p>
-        )}
       </div>
     </>
   )
 }
 
-// ==================== Accordion Labels ====================
+/** Every pending item of every kind in one list, oldest first. */
+function Queue() {
+  const [filter, setFilter] = useState<ReviewKind | "all">("all")
 
-function TricksLabel() {
   const { data: submissions } = useSuspenseQuery(
     tricks.submissions.list.queryOptions({ status: "pending" }),
   )
@@ -204,941 +133,116 @@ function TricksLabel() {
   const { data: proposals } = useSuspenseQuery(
     tricks.glossary.proposals.list.queryOptions({ status: "pending" }),
   )
-  const count =
-    submissions.length + suggestions.length + videos.length + proposals.length
-
-  return (
-    <span className="flex items-center gap-2">
-      tricks
-      {count > 0 && <CountChip>{count}</CountChip>}
-    </span>
-  )
-}
-
-function SubmissionsLabel() {
-  const { data } = useSuspenseQuery(
-    tricks.submissions.list.queryOptions({ status: "pending" }),
-  )
-  return (
-    <span className="flex items-center gap-2">
-      submissions
-      {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </span>
-  )
-}
-
-function SuggestionsLabel() {
-  const { data } = useSuspenseQuery(
-    tricks.suggestions.list.queryOptions({ status: "pending" }),
-  )
-  return (
-    <span className="flex items-center gap-2">
-      suggestions
-      {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </span>
-  )
-}
-
-function VideosLabel() {
-  const { data } = useSuspenseQuery(tricks.videos.listPending.queryOptions())
-  return (
-    <span className="flex items-center gap-2">
-      videos
-      {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </span>
-  )
-}
-
-function GlossaryLabel() {
-  const { data } = useSuspenseQuery(
-    tricks.glossary.proposals.list.queryOptions({ status: "pending" }),
-  )
-  return (
-    <span className="flex items-center gap-2">
-      glossary
-      {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </span>
-  )
-}
-
-function VaultLabel() {
-  const { data } = useSuspenseQuery(
+  const { data: vaultSuggestions } = useSuspenseQuery(
     utv.suggestions.list.queryOptions({ status: "pending" }),
   )
-  return (
-    <span className="flex items-center gap-2">
-      vault
-      {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </span>
-  )
-}
-
-function FlagsLabel() {
-  const { data } = useSuspenseQuery(flagsDomain.list.queryOptions())
-  return (
-    <span className="flex items-center gap-2">
-      flags
-      {data.length > 0 && <CountChip>{data.length}</CountChip>}
-    </span>
-  )
-}
-
-// ==================== Layout ====================
-
-function SectionEmpty({ children }: { children: ReactNode }) {
-  return <p className="text-muted-foreground text-sm">{children}</p>
-}
-
-// ==================== Tricks: Submissions ====================
-
-function SubmissionsSection() {
-  const qc = useQueryClient()
-  const submissionsQueryKey = tricks.submissions.list.queryOptions({
-    status: "pending",
-  }).queryKey
-  const graphQueryKey = tricks.graph.queryOptions().queryKey
-
-  const { data: submissions } = useSuspenseQuery(
-    tricks.submissions.list.queryOptions({ status: "pending" }),
-  )
-
-  const review = useMutation({
-    mutationFn: tricks.submissions.review.fn,
-    onMutate: async ({ data: { id } }) => {
-      await qc.cancelQueries({ queryKey: submissionsQueryKey })
-      const prev = qc.getQueryData(submissionsQueryKey)
-      qc.setQueryData(submissionsQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== id),
-      )
-      return { prev }
-    },
-    onSuccess: (_, variables) => {
-      qc.removeQueries({ queryKey: graphQueryKey })
-      toast.success(
-        variables.data.status === "approved"
-          ? "submission approved"
-          : "submission rejected",
-      )
-    },
-    onError: (error, _, context) => {
-      if (context?.prev) qc.setQueryData(submissionsQueryKey, context.prev)
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: submissionsQueryKey })
-    },
-  })
-
-  if (submissions.length === 0) {
-    return <SectionEmpty>no pending submissions</SectionEmpty>
-  }
-
-  return (
-    <div className="space-y-2">
-      {submissions.map((s) => {
-        const proposed = {
-          name: s.name,
-          alternateNames: s.alternateNames ?? [],
-          description: s.description ?? null,
-          inventedBy: s.inventedBy ?? null,
-          yearLanded: s.yearLanded ?? null,
-          notes: s.notes ?? null,
-          videoUrl: s.videoUrl ?? null,
-          videoTimestamp: s.videoTimestamp ?? null,
-          elements: s.elementAssignments.map((a) => a.element.name),
-          relationships: s.relationships.map((r) => ({
-            targetId: r.targetTrick.id,
-            type: r.type,
-          })),
-        }
-
-        return (
-          <Card key={s.id} className="rounded-md py-3">
-            <CardContent className="space-y-4 px-4">
-              <SubmitterBadge
-                userId={s.submittedBy.id}
-                name={s.submittedBy.name}
-                createdAt={s.createdAt}
-              />
-
-              <CodeViewer value={JSON.stringify(proposed, null, 2)} />
-
-              <ReviewActions
-                onApprove={() =>
-                  review.mutate({
-                    data: { id: s.id, status: "approved", reviewNotes: "" },
-                  })
-                }
-                onReject={() =>
-                  confirm.open({
-                    title: "reject submission?",
-                    description:
-                      "this will reject the submission. this action cannot be undone.",
-                    confirmText: "reject",
-                    variant: "destructive",
-                    onConfirm: () =>
-                      review.mutate({
-                        data: { id: s.id, status: "rejected", reviewNotes: "" },
-                      }),
-                  })
-                }
-                isPending={review.isPending}
-              />
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  )
-}
-
-// ==================== Tricks: Suggestions ====================
-
-function SuggestionsSection() {
-  const qc = useQueryClient()
-  const suggestionsQueryKey = tricks.suggestions.list.queryOptions({
-    status: "pending",
-  }).queryKey
-  const graphQueryKey = tricks.graph.queryOptions().queryKey
-
-  const { data: suggestions } = useSuspenseQuery(
-    tricks.suggestions.list.queryOptions({ status: "pending" }),
-  )
-
-  const review = useMutation({
-    mutationFn: tricks.suggestions.review.fn,
-    onMutate: async ({ data: { id } }) => {
-      await qc.cancelQueries({ queryKey: suggestionsQueryKey })
-      const prev = qc.getQueryData(suggestionsQueryKey)
-      qc.setQueryData(suggestionsQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== id),
-      )
-      return { prev }
-    },
-    onSuccess: (_, variables) => {
-      qc.removeQueries({ queryKey: graphQueryKey })
-      toast.success(
-        variables.data.status === "approved"
-          ? "suggestion approved"
-          : "suggestion rejected",
-      )
-    },
-    onError: (error, _, context) => {
-      if (context?.prev) qc.setQueryData(suggestionsQueryKey, context.prev)
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: suggestionsQueryKey })
-    },
-  })
-
-  if (suggestions.length === 0) {
-    return <SectionEmpty>no pending suggestions</SectionEmpty>
-  }
-
-  return (
-    <div className="space-y-2">
-      {suggestions.map((s) => {
-        const diff = s.diff as TrickSuggestionDiff
-
-        const currentRelationships = (s.trick.outgoingRelationships ?? []).map(
-          (r) => ({
-            targetId: r.targetTrick.id,
-            type: r.type,
-          }),
-        )
-        const proposedRelationships = diff.relationships
-          ? [
-              ...currentRelationships.filter(
-                (r) =>
-                  !diff.relationships!.removed.some(
-                    (rem) => rem.targetId === r.targetId && rem.type === r.type,
-                  ),
-              ),
-              ...diff.relationships.added,
-            ]
-          : currentRelationships
-
-        const current = {
-          name: s.trick.name,
-          alternateNames: s.trick.alternateNames ?? [],
-          description: s.trick.description ?? null,
-          inventedBy: s.trick.inventedBy ?? null,
-          yearLanded: s.trick.yearLanded ?? null,
-          notes: s.trick.notes ?? null,
-          elements: (s.trick.elementAssignments ?? []).map(
-            (a) => a.element.name,
-          ),
-          relationships: currentRelationships,
-        }
-        const proposed = {
-          ...current,
-          ...(diff.name !== undefined && { name: diff.name }),
-          ...(diff.alternateNames !== undefined && {
-            alternateNames: diff.alternateNames,
-          }),
-          ...(diff.description !== undefined && {
-            description: diff.description,
-          }),
-          ...(diff.inventedBy !== undefined && { inventedBy: diff.inventedBy }),
-          ...(diff.yearLanded !== undefined && { yearLanded: diff.yearLanded }),
-          ...(diff.notes !== undefined && { notes: diff.notes }),
-          ...(diff.elements !== undefined && { elements: diff.elements }),
-          ...(diff.relationships !== undefined && {
-            relationships: proposedRelationships,
-          }),
-        }
-        const { original, modified } = buildJsonDiff(current, proposed)
-
-        return (
-          <Card key={s.id} className="rounded-md py-3">
-            <CardContent className="space-y-4 px-4">
-              <div className="flex w-full items-center justify-between gap-2">
-                <Link
-                  to="/tricks/$trickId"
-                  params={{ trickId: String(s.trick.id) }}
-                  className="truncate text-sm font-medium hover:underline"
-                >
-                  {s.trick.name}
-                </Link>
-                <SubmitterBadge
-                  userId={s.submittedBy.id}
-                  name={s.submittedBy.name}
-                  createdAt={s.createdAt}
-                />
-              </div>
-
-              <DiffViewer original={original} modified={modified} />
-
-              {s.reason && (
-                <p className="text-muted-foreground text-xs text-pretty italic">
-                  &quot;{s.reason}&quot;
-                </p>
-              )}
-
-              <ReviewActions
-                onApprove={() =>
-                  review.mutate({
-                    data: { id: s.id, status: "approved", reviewNotes: "" },
-                  })
-                }
-                onReject={() =>
-                  confirm.open({
-                    title: "reject suggestion?",
-                    description:
-                      "this will reject the suggestion. this action cannot be undone.",
-                    confirmText: "reject",
-                    variant: "destructive",
-                    onConfirm: () =>
-                      review.mutate({
-                        data: { id: s.id, status: "rejected", reviewNotes: "" },
-                      }),
-                  })
-                }
-                isPending={review.isPending}
-              />
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  )
-}
-
-// ==================== Tricks: Videos ====================
-
-function VideosSection() {
-  const { data: videos } = useSuspenseQuery(
-    tricks.videos.listPending.queryOptions(),
-  )
-
-  if (videos.length === 0) {
-    return <SectionEmpty>no pending videos</SectionEmpty>
-  }
-
-  return (
-    <div className="space-y-2">
-      {videos.map((video) => (
-        <VideoReviewCard key={video.id} video={video} />
-      ))}
-    </div>
-  )
-}
-
-function VideoReviewCard({ video }: { video: PendingVideosData[number] }) {
-  const qc = useQueryClient()
-  const [reviewNotes, setReviewNotes] = useState("")
-  const trimmedNotes = reviewNotes.trim()
-  const pendingVideosQueryKey =
-    tricks.videos.listPending.queryOptions().queryKey
-  const graphQueryKey = tricks.graph.queryOptions().queryKey
-
-  const review = useMutation({
-    mutationFn: tricks.videos.review.fn,
-    onMutate: async ({ data: { id } }) => {
-      await qc.cancelQueries({ queryKey: pendingVideosQueryKey })
-      const prev = qc.getQueryData(pendingVideosQueryKey)
-      qc.setQueryData(pendingVideosQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== id),
-      )
-      return { prev }
-    },
-    onSuccess: (_, variables) => {
-      qc.removeQueries({ queryKey: graphQueryKey })
-      qc.removeQueries({
-        queryKey: tricks.videos.list.queryOptions({ trickId: video.trick.id })
-          .queryKey,
-      })
-      qc.removeQueries({
-        queryKey: tricks.videos.list.queryOptions({
-          trickId: video.trick.id,
-          status: "active",
-        }).queryKey,
-      })
-      toast.success(
-        variables.data.status === "active"
-          ? "video approved"
-          : "video rejected",
-      )
-    },
-    onError: (error, _, context) => {
-      if (context?.prev) qc.setQueryData(pendingVideosQueryKey, context.prev)
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: pendingVideosQueryKey })
-    },
-  })
-
-  return (
-    <Card className="rounded-md py-3">
-      <CardContent className="space-y-4 px-4">
-        <div className="flex items-start justify-between gap-2">
-          <Link
-            to="/admin/tricks/$trickId/videos"
-            params={{ trickId: String(video.trick.id) }}
-            className="truncate text-sm font-medium underline-offset-4 hover:underline"
-          >
-            {video.trick.name}
-          </Link>
-          <SubmitterBadge
-            userId={video.submittedBy.id}
-            name={video.submittedBy.name}
-            createdAt={video.createdAt}
-          />
-        </div>
-        {video.video?.playbackId && (
-          <VideoPlayer playbackId={video.video.playbackId} />
-        )}
-        {video.notes && (
-          <p className="text-muted-foreground text-sm text-pretty">
-            {video.notes}
-          </p>
-        )}
-        <div className="space-y-2">
-          <Textarea
-            aria-label="review notes"
-            placeholder="review notes (required to reject)..."
-            rows={2}
-            value={reviewNotes}
-            onChange={(e) => setReviewNotes(e.target.value)}
-          />
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setReviewNotes(MULTIPLE_TRICKS_REJECTION)}
-            disabled={review.isPending}
-          >
-            contains multiple tricks
-          </Button>
-        </div>
-        <ReviewActions
-          onApprove={() =>
-            review.mutate({
-              data: {
-                id: video.id,
-                status: "active",
-                reviewNotes: trimmedNotes,
-              },
-            })
-          }
-          onReject={() =>
-            confirm.open({
-              title: "reject video?",
-              description:
-                "this will reject the video and revoke the rider's landing. this action cannot be undone.",
-              confirmText: "reject",
-              variant: "destructive",
-              onConfirm: () =>
-                review.mutate({
-                  data: {
-                    id: video.id,
-                    status: "rejected",
-                    reviewNotes: trimmedNotes,
-                  },
-                }),
-            })
-          }
-          rejectDisabled={!trimmedNotes}
-          isPending={review.isPending}
-        />
-      </CardContent>
-    </Card>
-  )
-}
-
-// ==================== Tricks: Glossary ====================
-
-function GlossarySection() {
-  const qc = useQueryClient()
-  const proposalsQueryKey = tricks.glossary.proposals.list.queryOptions({
-    status: "pending",
-  }).queryKey
-
-  const { data: proposals } = useSuspenseQuery(
-    tricks.glossary.proposals.list.queryOptions({ status: "pending" }),
-  )
-  const { data: elements } = useSuspenseQuery(
-    tricks.elements.list.queryOptions(),
-  )
-  const { data: modifiers } = useSuspenseQuery(
-    tricks.modifiers.list.queryOptions(),
-  )
-
-  const review = useMutation({
-    mutationFn: tricks.glossary.proposals.review.fn,
-    onMutate: async ({ data: { id } }) => {
-      await qc.cancelQueries({ queryKey: proposalsQueryKey })
-      const prev = qc.getQueryData(proposalsQueryKey)
-      qc.setQueryData(proposalsQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== id),
-      )
-      return { prev }
-    },
-    onSuccess: (_, variables) => {
-      qc.removeQueries({
-        queryKey: tricks.elements.list.queryOptions().queryKey,
-      })
-      qc.removeQueries({
-        queryKey: tricks.modifiers.list.queryOptions().queryKey,
-      })
-      toast.success(
-        variables.data.status === "approved"
-          ? "proposal approved"
-          : "proposal rejected",
-      )
-    },
-    onError: (error, _, context) => {
-      if (context?.prev) qc.setQueryData(proposalsQueryKey, context.prev)
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: proposalsQueryKey })
-    },
-  })
-
-  if (proposals.length === 0) {
-    return <SectionEmpty>no pending proposals</SectionEmpty>
-  }
-
-  return (
-    <div className="space-y-2">
-      {proposals.map((p) => {
-        const diff = p.diff as GlossaryProposalDiff | null
-
-        let diffViewer: React.ReactNode = null
-        if (p.action === "edit" && diff && p.targetId) {
-          const target =
-            p.type === "element"
-              ? elements.find((e) => e.id === p.targetId)
-              : modifiers.find((m) => m.id === p.targetId)
-          const current = {
-            name: target?.name ?? null,
-            description: target?.description ?? null,
-          }
-          const proposed = {
-            ...current,
-            ...(diff.name !== undefined && { name: diff.name }),
-            ...(diff.description !== undefined && {
-              description: diff.description,
-            }),
-          }
-          const { original, modified } = buildJsonDiff(current, proposed)
-          diffViewer = <DiffViewer original={original} modified={modified} />
-        }
-
-        return (
-          <Card key={p.id} className="rounded-md py-3">
-            <CardContent className="space-y-4 px-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">{p.type}</Badge>
-                  <Badge variant="secondary">{p.action}</Badge>
-                  <p className="truncate text-sm font-medium">{p.name}</p>
-                </div>
-                <SubmitterBadge
-                  userId={p.submittedBy.id}
-                  name={p.submittedBy.name}
-                  createdAt={p.createdAt}
-                />
-              </div>
-
-              {p.action === "create" && p.description && (
-                <p className="text-sm text-pretty">{p.description}</p>
-              )}
-
-              {diffViewer}
-
-              {p.reason && (
-                <p className="text-muted-foreground text-xs text-pretty italic">
-                  &quot;{p.reason}&quot;
-                </p>
-              )}
-
-              <ReviewActions
-                onApprove={() =>
-                  review.mutate({
-                    data: { id: p.id, status: "approved", reviewNotes: "" },
-                  })
-                }
-                onReject={() =>
-                  confirm.open({
-                    title: "reject proposal?",
-                    description:
-                      "this will reject the glossary proposal. this action cannot be undone.",
-                    confirmText: "reject",
-                    variant: "destructive",
-                    onConfirm: () =>
-                      review.mutate({
-                        data: { id: p.id, status: "rejected", reviewNotes: "" },
-                      }),
-                  })
-                }
-                isPending={review.isPending}
-              />
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  )
-}
-
-// ==================== Vault ====================
-
-function VaultSection() {
-  const qc = useQueryClient()
-  const suggestionsQueryKey = utv.suggestions.list.queryOptions({
-    status: "pending",
-  }).queryKey
-
-  const { data: suggestions } = useSuspenseQuery(
-    utv.suggestions.list.queryOptions({ status: "pending" }),
-  )
-
-  const review = useMutation({
-    mutationFn: utv.suggestions.review.fn,
-    onMutate: async ({ data: { id } }) => {
-      await qc.cancelQueries({ queryKey: suggestionsQueryKey })
-      const prev = qc.getQueryData(suggestionsQueryKey)
-      qc.setQueryData(suggestionsQueryKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== id),
-      )
-      return { prev }
-    },
-    onSuccess: (_, variables) => {
-      toast.success(
-        variables.data.status === "approved"
-          ? "suggestion approved"
-          : "suggestion rejected",
-      )
-    },
-    onError: (error, _, context) => {
-      if (context?.prev) qc.setQueryData(suggestionsQueryKey, context.prev)
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: suggestionsQueryKey })
-    },
-  })
-
-  if (suggestions.length === 0) {
-    return <SectionEmpty>no pending suggestions</SectionEmpty>
-  }
-
-  return (
-    <div className="space-y-2">
-      {suggestions.map((s) => {
-        const diff = s.diff as UtvVideoSuggestionDiff
-
-        const current = {
-          title: s.utvVideo.title || s.utvVideo.legacyTitle,
-          disciplines: s.utvVideo.disciplines ?? null,
-          riders: (s.utvVideo.riders ?? []).map((r) => ({
-            userId: r.userId,
-            name: r.user?.name ?? r.name,
-          })),
-        }
-        const proposed = {
-          ...current,
-          ...(diff.title !== undefined && { title: diff.title }),
-          ...(diff.disciplines !== undefined && {
-            disciplines: diff.disciplines,
-          }),
-          ...(diff.riders !== undefined && { riders: diff.riders }),
-        }
-        const { original, modified } = buildJsonDiff(current, proposed)
-
-        return (
-          <Card key={s.id} className="rounded-md py-3">
-            <CardContent className="space-y-4 px-4">
-              <div className="flex items-start justify-between gap-2">
-                <p className="truncate text-sm font-medium">
-                  {s.utvVideo.title || s.utvVideo.legacyTitle}
-                </p>
-                <SubmitterBadge
-                  userId={s.submittedBy.id}
-                  name={s.submittedBy.name}
-                  createdAt={s.createdAt}
-                />
-              </div>
-
-              <DiffViewer original={original} modified={modified} />
-
-              {s.reason && (
-                <p className="text-muted-foreground text-xs text-pretty italic">
-                  &quot;{s.reason}&quot;
-                </p>
-              )}
-
-              <ReviewActions
-                onApprove={() =>
-                  review.mutate({
-                    data: { id: s.id, status: "approved", reviewNotes: "" },
-                  })
-                }
-                onReject={() =>
-                  confirm.open({
-                    title: "reject suggestion?",
-                    description:
-                      "this will reject the vault suggestion. this action cannot be undone.",
-                    confirmText: "reject",
-                    variant: "destructive",
-                    onConfirm: () =>
-                      review.mutate({
-                        data: { id: s.id, status: "rejected", reviewNotes: "" },
-                      }),
-                  })
-                }
-                isPending={review.isPending}
-              />
-            </CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  )
-}
-
-// ==================== Flags ====================
-
-const ENTITY_TYPE_LABELS: Record<FlagEntityType, string> = {
-  post: "post",
-  biuSet: "BIU set",
-  siuSet: "SIU set",
-  riuSet: "RIU set",
-  riuSubmission: "RIU submission",
-  postMessage: "post message",
-  biuSetMessage: "BIU message",
-  siuSetMessage: "SIU message",
-  riuSetMessage: "RIU message",
-  riuSubmissionMessage: "RIU message",
-  utvVideoMessage: "vault message",
-  chatMessage: "chat message",
-}
-
-type FlagItem = ServerFnReturn<typeof flagsDomain.list.fn>[number]
-
-function FlagsSection() {
-  const qc = useQueryClient()
-  const flagsKey = flagsDomain.list.queryOptions().queryKey
-
   const { data: flags } = useSuspenseQuery(flagsDomain.list.queryOptions())
 
-  const resolveFlag = useMutation({
-    mutationFn: flagsDomain.resolve.fn,
-    onMutate: async ({ data: { flagId } }) => {
-      await qc.cancelQueries({ queryKey: flagsKey })
-      const prev = qc.getQueryData(flagsKey)
-      qc.setQueryData(flagsKey, (old: typeof prev) =>
-        old?.filter((item) => item.id !== flagId),
-      )
-      return { prev }
-    },
-    onSuccess: (_, variables) => {
-      toast.success(
-        variables.data.resolution === "dismissed"
-          ? "flag dismissed"
-          : "content removed",
-      )
-    },
-    onError: (error, _, context) => {
-      if (context?.prev) qc.setQueryData(flagsKey, context.prev)
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: flagsKey })
-    },
-  })
+  const items = sortQueue([
+    ...submissions.map((s) => ({
+      kind: "submission" as const,
+      id: s.id,
+      createdAt: s.createdAt,
+      card: <SubmissionCard submission={s} />,
+    })),
+    ...suggestions.map((s) => ({
+      kind: "suggestion" as const,
+      id: s.id,
+      createdAt: s.createdAt,
+      card: <SuggestionCard suggestion={s} />,
+    })),
+    ...videos.map((v) => ({
+      kind: "video" as const,
+      id: v.id,
+      createdAt: v.createdAt,
+      card: <VideoCard video={v} />,
+    })),
+    ...proposals.map((p) => ({
+      kind: "glossary" as const,
+      id: p.id,
+      createdAt: p.createdAt,
+      card: <GlossaryCard proposal={p} />,
+    })),
+    ...vaultSuggestions.map((s) => ({
+      kind: "vault" as const,
+      id: s.id,
+      createdAt: s.createdAt,
+      card: <VaultCard suggestion={s} />,
+    })),
+    ...flags.map((f) => ({
+      kind: "flag" as const,
+      id: f.id,
+      createdAt: f.createdAt,
+      card: <FlagCard flag={f} />,
+    })),
+  ])
 
-  if (flags.length === 0) {
-    return <SectionEmpty>no pending flags</SectionEmpty>
+  if (items.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>all clear</EmptyTitle>
+          <EmptyDescription>nothing to review</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
   }
 
-  return (
-    <div className="space-y-2">
-      {flags.map((flag) => (
-        <FlagCard
-          key={flag.id}
-          flag={flag}
-          onDismiss={() =>
-            resolveFlag.mutate({
-              data: { flagId: flag.id, resolution: "dismissed" },
-            })
-          }
-          onRemove={() =>
-            confirm.open({
-              title: "remove content?",
-              description:
-                "this will remove the flagged content. this action cannot be undone.",
-              confirmText: "remove",
-              variant: "destructive",
-              onConfirm: () =>
-                resolveFlag.mutate({
-                  data: { flagId: flag.id, resolution: "removed" },
-                }),
-            })
-          }
-          isPending={resolveFlag.isPending}
-        />
-      ))}
-    </div>
-  )
-}
+  const kinds = countKinds(items)
+  // When the last item of the chosen kind goes away, show every kind again.
+  const active = kinds.some((entry) => entry.kind === filter) ? filter : "all"
+  const shown = items.filter((item) => active === "all" || item.kind === active)
 
-function FlagCard({
-  flag,
-  onDismiss,
-  onRemove,
-  isPending,
-}: {
-  flag: FlagItem
-  onDismiss: () => void
-  onRemove: () => void
-  isPending: boolean
-}) {
   return (
-    <Card className="rounded-md py-3">
-      <CardContent className="space-y-4 px-4">
-        <div className="flex items-start justify-between gap-2">
-          <Badge variant="outline">{ENTITY_TYPE_LABELS[flag.entityType]}</Badge>
-          <p className="text-muted-foreground inline-flex items-center gap-1.5 text-xs">
-            <Link
-              to="/users/$userId"
-              params={{ userId: flag.user.id }}
-              className="hover:text-foreground transition-colors"
-            >
-              {flag.user.name}
-            </Link>
-            <span>·</span>
-            <RelativeTimeCard date={flag.createdAt} variant="muted" />
-          </p>
+    <>
+      {kinds.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          <FilterChip
+            label="all"
+            count={items.length}
+            pressed={active === "all"}
+            onPress={() => setFilter("all")}
+          />
+          {kinds.map(({ kind, count }) => (
+            <FilterChip
+              key={kind}
+              label={REVIEW_KIND_FILTER_LABELS[kind]}
+              count={count}
+              pressed={active === kind}
+              onPress={() => setFilter(kind)}
+            />
+          ))}
         </div>
-        <RichText
-          content={flag.reason}
-          className="text-muted-foreground text-xs italic"
-        />
-        <div className="flex justify-end gap-2">
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={onRemove}
-            disabled={isPending}
-          >
-            remove
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onDismiss}
-            disabled={isPending}
-          >
-            dismiss
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      )}
+      <div className="space-y-2">
+        {shown.map((item) => (
+          <div key={`${item.kind}-${item.id}`}>{item.card}</div>
+        ))}
+      </div>
+    </>
   )
 }
 
-// ==================== Shared ====================
-
-function SubmitterBadge({
-  userId,
-  name,
-  createdAt,
+function FilterChip({
+  label,
+  count,
+  pressed,
+  onPress,
 }: {
-  userId: number
-  name: string
-  createdAt: Date
+  label: string
+  count: number
+  pressed: boolean
+  onPress: () => void
 }) {
   return (
-    <Metaline
-      className="shrink-0 text-xs"
-      parts={[
-        <Link
-          key="name"
-          to="/users/$userId"
-          params={{ userId }}
-          className="hover:text-foreground transition-colors"
-        >
-          {name}
-        </Link>,
-        <RelativeTimeCard key="time" date={createdAt} variant="muted" />,
-      ]}
-    />
-  )
-}
-
-function ReviewActions({
-  onApprove,
-  onReject,
-  isPending,
-  rejectDisabled = false,
-}: {
-  onApprove: () => void
-  onReject: () => void
-  isPending: boolean
-  rejectDisabled?: boolean
-}) {
-  return (
-    <div className="flex justify-end gap-2">
-      <Button
-        size="sm"
-        variant="destructive"
-        onClick={onReject}
-        disabled={isPending || rejectDisabled}
-      >
-        reject
-      </Button>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={onApprove}
-        disabled={isPending}
-      >
-        approve
-      </Button>
-    </div>
+    <Button
+      size="sm"
+      variant={pressed ? "default" : "outline"}
+      aria-pressed={pressed}
+      onClick={onPress}
+    >
+      {label}
+      <span className="tabular-nums opacity-60">{count}</span>
+    </Button>
   )
 }

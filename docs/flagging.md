@@ -47,8 +47,8 @@ A unified content moderation system that lets any authenticated user flag any pi
 ┌─────────────────────────────────────────────────────────────────┐
 │                     ADMIN REVIEW                                 │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────────────┐   │
-│  │  /admin/review │  │  Dismiss or   │  │  Notify Flagger   │   │
-│  │  "flags" tab   │──│  Remove       │──│  of Resolution    │   │
+│  │  /admin        │  │  Dismiss or   │  │  Notify Flagger   │   │
+│  │  review queue  │──│  Remove       │──│  of Resolution    │   │
 │  └───────────────┘  └───────────────┘  └───────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -73,7 +73,7 @@ src/
 │
 ├── routes/_authed/flag.tsx               # Flag submission page (all entity types)
 │
-└── routes/_authed/admin/review.tsx       # Admin panel with "flags" tab
+└── routes/_authed/admin/index.tsx        # Admin review queue (flags are one kind)
 ```
 
 ### Design Decisions
@@ -270,7 +270,7 @@ sequenceDiagram
     participant DB as Database
     participant F as Flagger (original user)
 
-    A->>UI: View unresolved flags in /admin/review → "flags" tab
+    A->>UI: View unresolved flags in the /admin queue
     A->>UI: Click "dismiss" or "remove"
 
     UI->>SF: resolveFlag({ flagId, resolution: "dismissed" | "removed" })
@@ -429,19 +429,19 @@ Messages show a "flag" option in the long-press context menu. Clicking it opens 
 
 ## Admin Review
 
-**File:** `src/routes/_authed/admin/review.tsx`
+**Files:** `src/routes/_authed/admin/index.tsx` (the queue), `src/components/admin/review-items.tsx` (`FlagCard`)
 
-The admin review page has three outer tabs: **tricks**, **vault**, and **flags**. The flags tab shows all unresolved flags in a single list.
+`/admin` shows one review queue. It holds every pending item of every kind: trick submissions, trick suggestions, trick videos, glossary proposals, vault suggestions and flags. The oldest item is first.
 
-### Tab with Count Badge
+### Filter Chips
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  [ tricks (12) ]  [ vault (3) ]  [ flags (2) ]             │
+│  [ all 7 ]  [ submissions 1 ]  [ videos 2 ]  [ flags 2 ]    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The count badge shows the number of unresolved flags.
+A chip shows only for a kind that has items. The number is the count of pending items. The chips do not show when the queue holds one kind only.
 
 ### Flag Card
 
@@ -449,42 +449,39 @@ Each flag card displays:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  [BIU set]                            alice · 2 hours ago   │
+│  [flag]  BIU set                       alice / 2 hours ago  │
 │                                                             │
-│  "the rider didn't fully land the previous set"             │
+│  the rider didn't fully land the previous set               │
 │                                                             │
-│                              [ remove ]  [ dismiss ]        │
+│                                [ remove ]  [ dismiss ]      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-- **Entity type badge** — human-readable label (e.g. "BIU set", "post message")
+- **Kind badge and entity type** — a human-readable label (e.g. "BIU set", "post message")
 - **Flagger** — name + relative timestamp, links to user profile
 - **Reason** — rendered as rich text
-- **Actions** — "remove" (destructive) and "dismiss" (outline)
+- **Actions** — "remove" (red text, asks to confirm) and "dismiss" (outline)
+
+The other kinds show an approve and reject pair with a notes field. A flag has no notes field.
 
 ### Optimistic Updates
 
-Resolving a flag optimistically removes it from the list:
+Resolving a flag optimistically removes it from the list. All queue cards share one hook for this, `useQueueMutation` in `src/lib/admin/hooks.ts`:
 
 ```typescript
-const resolveFlag = useMutation({
+const resolve = useQueueMutation({
+  queryKey: flagsDomain.list.queryOptions().queryKey,
   mutationFn: flagsDomain.resolve.fn,
-  onMutate: async ({ data: { flagId } }) => {
-    await qc.cancelQueries({ queryKey: flagsKey })
-    const prev = qc.getQueryData(flagsKey)
-    qc.setQueryData(flagsKey, (old) =>
-      old?.filter((item) => item.id !== flagId),
+  itemId: ({ data }) => data.flagId,
+  onSuccess: ({ data }) => {
+    toast.success(
+      data.resolution === "dismissed" ? "flag dismissed" : "content removed",
     )
-    return { prev }
-  },
-  onError: (error, _, context) => {
-    if (context?.prev) qc.setQueryData(flagsKey, context.prev)
-  },
-  onSettled: () => {
-    qc.invalidateQueries({ queryKey: flagsKey })
   },
 })
 ```
+
+The hook cancels the list query, removes the item from the cached list, puts the list back on an error, and invalidates the list when the request ends.
 
 ---
 
@@ -543,7 +540,7 @@ Notifies **the original flagger** with `type: "review"`:
 │  db/schema.ts          - flags table + enum                     │
 │  lib/flags/            - Domain library (fns, schemas, hooks)   │
 │  routes/_authed/flag   - Flag submission page                   │
-│  admin/review          - Admin panel ("flags" tab)              │
+│  admin/index           - Admin review queue                     │
 │  views/post            - Post flag button                       │
 │  messages/bubble       - Message flag menu item                 │
 │  games/*/detail pages  - Game entity flag buttons               │
