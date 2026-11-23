@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authed/admin/_shell")({
 })
 
 // The pages that show numbers over a range of days.
-const RANGED = new Set(["/admin", "/admin/ask"])
+const RANGED = new Set(["/admin", "/admin/traffic", "/admin/ask"])
 
 function RouteComponent() {
   const { days } = Route.useSearch()

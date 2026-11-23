@@ -2,9 +2,9 @@
 
 The admin area shows the site admin how une.haus gets used. `/admin` is the overview: totals, daily active members, feature use, top pages and a usage table with one row per member. `/admin/ask` shows the ask numbers. Both have a range select of 7, 30 or 90 days (`?days=`, default 30, left out of the address when it is 30). The old `/admin/insights` links redirect to these pages.
 
-The admin area is a pathless layout, `src/routes/_authed/admin/_shell.tsx`. It renders the header tabs (overview, queue, ask, sandbox), the range select and the build sha. The trick admin pages under `/admin/tricks` stay outside it and keep their own header.
+The admin area is a pathless layout, `src/routes/_authed/admin/_shell.tsx`. It renders the header tabs (overview, queue, traffic, ask, sandbox), the range select and the build sha. The trick admin pages under `/admin/tricks` stay outside it and keep their own header.
 
-Insights save numbers only. No question or answer text, no raw URL and no third party. The counts live in our own D1. The privacy page (`src/routes/privacy.tsx`, "Usage Counts") says so.
+Insights save numbers only. No question or answer text, no raw URL and no third party. The Cloudflare numbers on `/admin/traffic` are a separate source, see `docs/traffic.md`. The counts live in our own D1. The privacy page (`src/routes/privacy.tsx`, "Usage Counts") says so.
 
 ## Tables
 

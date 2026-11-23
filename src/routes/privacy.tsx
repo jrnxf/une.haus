@@ -104,6 +104,23 @@ function RouteComponent() {
             them.
           </p>
 
+          <h2>Traffic Numbers</h2>
+          <p>
+            The site runs on{" "}
+            <a
+              href="https://www.cloudflare.com/privacypolicy/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Cloudflare
+            </a>
+            , which serves every page. Cloudflare Web Analytics measures visits
+            and page speed with a small script. It uses no cookies and keeps no
+            profile of you. It reports totals only, such as visits per country,
+            per browser and per referring site. Only the site admin can see
+            them.
+          </p>
+
           <h2>Online Presence</h2>
           <p>
             We display a count of who's currently active on the site using a
