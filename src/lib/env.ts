@@ -46,6 +46,9 @@ export const env = createEnv({
   server: {
     CLOUDFLARE_IMAGES_EDITOR_API_TOKEN: z.string(),
     CLOUDFLARE_ACCOUNT_ID: z.string(),
+    // A read-only token (Account Analytics: Read) for /admin/traffic.
+    // Optional: the page says so when it is missing.
+    CLOUDFLARE_ANALYTICS_API_TOKEN: z.string().optional(),
     // A `file:` sqlite path for bun contexts (tests, scripts, drizzle-kit).
     // Absent on Workers, where the database is the D1 binding instead.
     DATABASE_URL: z.string().optional(),

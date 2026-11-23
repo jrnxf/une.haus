@@ -87,6 +87,7 @@ import { Route as AuthedGamesBiusUploadRouteImport } from './routes/_authed/game
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
 import { Route as AuthedAdminInsightsMembersRouteImport } from './routes/_authed/admin/insights/members'
 import { Route as AuthedAdminInsightsAskRouteImport } from './routes/_authed/admin/insights/ask'
+import { Route as AuthedAdminShellTrafficRouteImport } from './routes/_authed/admin/_shell/traffic'
 import { Route as AuthedAdminShellSandboxRouteImport } from './routes/_authed/admin/_shell/sandbox'
 import { Route as AuthedAdminShellQueueRouteImport } from './routes/_authed/admin/_shell/queue'
 import { Route as AuthedAdminShellAskRouteImport } from './routes/_authed/admin/_shell/ask'
@@ -511,6 +512,11 @@ const AuthedAdminInsightsAskRoute = AuthedAdminInsightsAskRouteImport.update({
   path: '/insights/ask',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
+const AuthedAdminShellTrafficRoute = AuthedAdminShellTrafficRouteImport.update({
+  id: '/traffic',
+  path: '/traffic',
+  getParentRoute: () => AuthedAdminShellRoute,
+} as any)
 const AuthedAdminShellSandboxRoute = AuthedAdminShellSandboxRouteImport.update({
   id: '/sandbox',
   path: '/sandbox',
@@ -731,6 +737,7 @@ export interface FileRoutesByFullPath {
   '/admin/ask': typeof AuthedAdminShellAskRoute
   '/admin/queue': typeof AuthedAdminShellQueueRoute
   '/admin/sandbox': typeof AuthedAdminShellSandboxRoute
+  '/admin/traffic': typeof AuthedAdminShellTrafficRoute
   '/admin/insights/ask': typeof AuthedAdminInsightsAskRoute
   '/admin/insights/members': typeof AuthedAdminInsightsMembersRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -830,6 +837,7 @@ export interface FileRoutesByTo {
   '/admin/ask': typeof AuthedAdminShellAskRoute
   '/admin/queue': typeof AuthedAdminShellQueueRoute
   '/admin/sandbox': typeof AuthedAdminShellSandboxRoute
+  '/admin/traffic': typeof AuthedAdminShellTrafficRoute
   '/admin/insights/ask': typeof AuthedAdminInsightsAskRoute
   '/admin/insights/members': typeof AuthedAdminInsightsMembersRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -938,6 +946,7 @@ export interface FileRoutesById {
   '/_authed/admin/_shell/ask': typeof AuthedAdminShellAskRoute
   '/_authed/admin/_shell/queue': typeof AuthedAdminShellQueueRoute
   '/_authed/admin/_shell/sandbox': typeof AuthedAdminShellSandboxRoute
+  '/_authed/admin/_shell/traffic': typeof AuthedAdminShellTrafficRoute
   '/_authed/admin/insights/ask': typeof AuthedAdminInsightsAskRoute
   '/_authed/admin/insights/members': typeof AuthedAdminInsightsMembersRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -1043,6 +1052,7 @@ export interface FileRouteTypes {
     | '/admin/ask'
     | '/admin/queue'
     | '/admin/sandbox'
+    | '/admin/traffic'
     | '/admin/insights/ask'
     | '/admin/insights/members'
     | '/auth/me/edit'
@@ -1142,6 +1152,7 @@ export interface FileRouteTypes {
     | '/admin/ask'
     | '/admin/queue'
     | '/admin/sandbox'
+    | '/admin/traffic'
     | '/admin/insights/ask'
     | '/admin/insights/members'
     | '/auth/me/edit'
@@ -1249,6 +1260,7 @@ export interface FileRouteTypes {
     | '/_authed/admin/_shell/ask'
     | '/_authed/admin/_shell/queue'
     | '/_authed/admin/_shell/sandbox'
+    | '/_authed/admin/_shell/traffic'
     | '/_authed/admin/insights/ask'
     | '/_authed/admin/insights/members'
     | '/_authed/auth/me/edit'
@@ -1892,6 +1904,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAdminInsightsAskRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
+    '/_authed/admin/_shell/traffic': {
+      id: '/_authed/admin/_shell/traffic'
+      path: '/traffic'
+      fullPath: '/admin/traffic'
+      preLoaderRoute: typeof AuthedAdminShellTrafficRouteImport
+      parentRoute: typeof AuthedAdminShellRoute
+    }
     '/_authed/admin/_shell/sandbox': {
       id: '/_authed/admin/_shell/sandbox'
       path: '/sandbox'
@@ -2095,6 +2114,7 @@ interface AuthedAdminShellRouteChildren {
   AuthedAdminShellAskRoute: typeof AuthedAdminShellAskRoute
   AuthedAdminShellQueueRoute: typeof AuthedAdminShellQueueRoute
   AuthedAdminShellSandboxRoute: typeof AuthedAdminShellSandboxRoute
+  AuthedAdminShellTrafficRoute: typeof AuthedAdminShellTrafficRoute
   AuthedAdminShellIndexRoute: typeof AuthedAdminShellIndexRoute
 }
 
@@ -2102,6 +2122,7 @@ const AuthedAdminShellRouteChildren: AuthedAdminShellRouteChildren = {
   AuthedAdminShellAskRoute: AuthedAdminShellAskRoute,
   AuthedAdminShellQueueRoute: AuthedAdminShellQueueRoute,
   AuthedAdminShellSandboxRoute: AuthedAdminShellSandboxRoute,
+  AuthedAdminShellTrafficRoute: AuthedAdminShellTrafficRoute,
   AuthedAdminShellIndexRoute: AuthedAdminShellIndexRoute,
 }
 

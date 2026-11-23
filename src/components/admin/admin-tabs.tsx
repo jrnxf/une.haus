@@ -13,6 +13,9 @@ export function AdminTabs() {
       <PageHeader.Tab to="/admin/queue" keepSearch count={adminPendingCount}>
         queue
       </PageHeader.Tab>
+      <PageHeader.Tab to="/admin/traffic" keepSearch>
+        traffic
+      </PageHeader.Tab>
       <PageHeader.Tab to="/admin/ask" keepSearch>
         ask
       </PageHeader.Tab>

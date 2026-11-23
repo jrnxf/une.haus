@@ -15,6 +15,7 @@ import { FeaturesTable } from "~/components/insights/features-table"
 import { MembersTable } from "~/components/insights/members-table"
 import { PagesTable } from "~/components/insights/pages-table"
 import { StatCard } from "~/components/stats/stat-card"
+import { TrafficStrip } from "~/components/traffic/traffic-strip"
 import { insights } from "~/lib/insights"
 import { formatUsd } from "~/lib/insights/format"
 
@@ -104,6 +105,7 @@ function RouteComponent() {
         features={usage.features}
         members={usage.members}
       />
+      <TrafficStrip days={days} />
     </div>
   )
 }

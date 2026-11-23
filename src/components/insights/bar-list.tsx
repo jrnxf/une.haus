@@ -17,12 +17,15 @@ export function BarList({
   unit,
   data,
   empty,
+  labelWidth = 96,
 }: {
   title: string
   hint?: string
   unit: string
   data: { label: string; value: number }[]
   empty: string
+  // Room for the labels, in px. Raise it for long labels such as hosts.
+  labelWidth?: number
 }) {
   const chartConfig = { value: { label: unit } } satisfies ChartConfig
   const rows = data.map((row, index) => ({
@@ -54,7 +57,7 @@ export function BarList({
               tickLine={false}
               tickMargin={8}
               axisLine={false}
-              width={96}
+              width={labelWidth}
               fontSize={11}
             />
             <XAxis dataKey="value" type="number" hide domain={[0, "dataMax"]} />
