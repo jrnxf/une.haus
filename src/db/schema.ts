@@ -162,7 +162,7 @@ export const presence = sqliteTable("presence", {
   lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }).notNull(),
 })
 
-// Admin insights (/admin/insights). These tables hold counts only: never a
+// Admin insights (the /admin overview and /admin/ask). These tables hold counts only: never a
 // URL with ids in it, never an IP, never question or answer text.
 
 // What one member did on one day (Portugal time), per feature. Views come

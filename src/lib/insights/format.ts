@@ -1,6 +1,6 @@
 import { INSIGHTS_TIME_ZONE } from "~/lib/insights/features"
 
-// Display helpers for /admin/insights. Days are YYYY-MM-DD strings in
+// Display helpers for the admin overview and ask pages. Days are YYYY-MM-DD strings in
 // Portugal time, and moments are epoch milliseconds.
 
 export function formatUsd(microusd: number, digits = 2) {

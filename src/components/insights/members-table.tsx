@@ -31,7 +31,7 @@ export function MembersTable({
 }) {
   return (
     <Panel
-      title="who uses what"
+      title="usage"
       hint="views plus actions per member in each feature. the most used features get a column"
       flush
     >

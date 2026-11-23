@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { PageHeader } from "~/components/page-header"
 import { ButtonsSection } from "~/components/sandbox/buttons-section"
 import { ContentSection } from "~/components/sandbox/content-section"
 import { DatavizSection } from "~/components/sandbox/dataviz-section"
@@ -15,7 +14,7 @@ import { Button } from "~/components/ui/button"
 import { ButtonGroup } from "~/components/ui/button-group"
 import { useTheme } from "~/lib/theme/context"
 
-export const Route = createFileRoute("/_authed/admin/sandbox")({
+export const Route = createFileRoute("/_authed/admin/_shell/sandbox")({
   component: RouteComponent,
 })
 
@@ -36,27 +35,19 @@ const THEMES = ["light", "dark", "system"] as const
 
 function RouteComponent() {
   return (
-    <>
-      <PageHeader>
-        <PageHeader.Breadcrumbs>
-          <PageHeader.Crumb to="/admin">admin</PageHeader.Crumb>
-          <PageHeader.Crumb>sandbox</PageHeader.Crumb>
-        </PageHeader.Breadcrumbs>
-      </PageHeader>
-      <div className="@container w-full space-y-6 p-4 md:p-6">
-        <Toolbar />
-        <TokensSection />
-        <ButtonsSection />
-        <FormSection />
-        <NavigationSection />
-        <OverlaysSection />
-        <FeedbackSection />
-        <DisplaySection />
-        <DatavizSection />
-        <ContentSection />
-        <RareSection />
-      </div>
-    </>
+    <div className="@container w-full space-y-6 p-4 md:p-6">
+      <Toolbar />
+      <TokensSection />
+      <ButtonsSection />
+      <FormSection />
+      <NavigationSection />
+      <OverlaysSection />
+      <FeedbackSection />
+      <DisplaySection />
+      <DatavizSection />
+      <ContentSection />
+      <RareSection />
+    </div>
   )
 }
 

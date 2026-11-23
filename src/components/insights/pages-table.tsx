@@ -33,8 +33,9 @@ export function PagesTable({
           <Body>
             {data.map((row) => (
               <Row key={row.route}>
-                <Td>
-                  <code className="font-mono">{row.route}</code>
+                {/* A long route wraps, so the views stay in sight. */}
+                <Td className="whitespace-normal">
+                  <code className="font-mono wrap-anywhere">{row.route}</code>
                 </Td>
                 <Td numeric>
                   <Count value={row.views} text="text-chart-2" />

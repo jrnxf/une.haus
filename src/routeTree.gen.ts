@@ -52,7 +52,6 @@ import { Route as GamesSiusIndexRouteImport } from './routes/games/sius/index'
 import { Route as GamesRiusIndexRouteImport } from './routes/games/rius/index'
 import { Route as GamesBiusIndexRouteImport } from './routes/games/bius/index'
 import { Route as AuthedNotificationsIndexRouteImport } from './routes/_authed/notifications/index'
-import { Route as AuthedAdminIndexRouteImport } from './routes/_authed/admin/index'
 import { Route as VaultVideoIdEditRouteImport } from './routes/vault/$videoId/edit'
 import { Route as UsersUserIdVideosRouteImport } from './routes/users/$userId/videos'
 import { Route as UsersUserIdTricksRouteImport } from './routes/users/$userId/tricks'
@@ -67,11 +66,11 @@ import { Route as AuthedTricksCreateRouteImport } from './routes/_authed/tricks/
 import { Route as AuthedTourneyCreateRouteImport } from './routes/_authed/tourney/create'
 import { Route as AuthedPostsCreateRouteImport } from './routes/_authed/posts/create'
 import { Route as AuthedNotificationsSettingsRouteImport } from './routes/_authed/notifications/settings'
-import { Route as AuthedAdminSandboxRouteImport } from './routes/_authed/admin/sandbox'
-import { Route as AuthedAdminInsightsRouteRouteImport } from './routes/_authed/admin/insights/route'
+import { Route as AuthedAdminShellRouteImport } from './routes/_authed/admin/_shell'
 import { Route as GamesRiusSetsIndexRouteImport } from './routes/games/rius/sets/index'
 import { Route as AuthedAuthMeIndexRouteImport } from './routes/_authed/auth/me/index'
 import { Route as AuthedAdminInsightsIndexRouteImport } from './routes/_authed/admin/insights/index'
+import { Route as AuthedAdminShellIndexRouteImport } from './routes/_authed/admin/_shell/index'
 import { Route as GamesRiusBrowseActiveRouteImport } from './routes/games/rius/_browse/active'
 import { Route as ApiTourneySseCodeRouteImport } from './routes/api/tourney/sse.$code'
 import { Route as AuthedVaultVideoIdSuggestRouteImport } from './routes/_authed/vault/$videoId/suggest'
@@ -88,6 +87,9 @@ import { Route as AuthedGamesBiusUploadRouteImport } from './routes/_authed/game
 import { Route as AuthedAuthMeEditRouteImport } from './routes/_authed/auth/me/edit'
 import { Route as AuthedAdminInsightsMembersRouteImport } from './routes/_authed/admin/insights/members'
 import { Route as AuthedAdminInsightsAskRouteImport } from './routes/_authed/admin/insights/ask'
+import { Route as AuthedAdminShellSandboxRouteImport } from './routes/_authed/admin/_shell/sandbox'
+import { Route as AuthedAdminShellQueueRouteImport } from './routes/_authed/admin/_shell/queue'
+import { Route as AuthedAdminShellAskRouteImport } from './routes/_authed/admin/_shell/ask'
 import { Route as TricksGlossaryListModifiersIndexRouteImport } from './routes/tricks/glossary/_list/modifiers/index'
 import { Route as TricksGlossaryListElementsIndexRouteImport } from './routes/tricks/glossary/_list/elements/index'
 import { Route as GamesSiusSetsSetIdIndexRouteImport } from './routes/games/sius/sets/$setId/index'
@@ -329,11 +331,6 @@ const AuthedNotificationsIndexRoute =
     path: '/notifications/',
     getParentRoute: () => AuthedRoute,
   } as any)
-const AuthedAdminIndexRoute = AuthedAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthedAdminRoute,
-} as any)
 const VaultVideoIdEditRoute = VaultVideoIdEditRouteImport.update({
   id: '/vault/$videoId/edit',
   path: '/vault/$videoId/edit',
@@ -402,17 +399,10 @@ const AuthedNotificationsSettingsRoute =
     path: '/notifications/settings',
     getParentRoute: () => AuthedRoute,
   } as any)
-const AuthedAdminSandboxRoute = AuthedAdminSandboxRouteImport.update({
-  id: '/sandbox',
-  path: '/sandbox',
+const AuthedAdminShellRoute = AuthedAdminShellRouteImport.update({
+  id: '/_shell',
   getParentRoute: () => AuthedAdminRoute,
 } as any)
-const AuthedAdminInsightsRouteRoute =
-  AuthedAdminInsightsRouteRouteImport.update({
-    id: '/insights',
-    path: '/insights',
-    getParentRoute: () => AuthedAdminRoute,
-  } as any)
 const GamesRiusSetsIndexRoute = GamesRiusSetsIndexRouteImport.update({
   id: '/sets/',
   path: '/sets/',
@@ -425,10 +415,15 @@ const AuthedAuthMeIndexRoute = AuthedAuthMeIndexRouteImport.update({
 } as any)
 const AuthedAdminInsightsIndexRoute =
   AuthedAdminInsightsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthedAdminInsightsRouteRoute,
+    id: '/insights/',
+    path: '/insights/',
+    getParentRoute: () => AuthedAdminRoute,
   } as any)
+const AuthedAdminShellIndexRoute = AuthedAdminShellIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedAdminShellRoute,
+} as any)
 const GamesRiusBrowseActiveRoute = GamesRiusBrowseActiveRouteImport.update({
   id: '/active',
   path: '/active',
@@ -507,14 +502,29 @@ const AuthedAuthMeEditRoute = AuthedAuthMeEditRouteImport.update({
 } as any)
 const AuthedAdminInsightsMembersRoute =
   AuthedAdminInsightsMembersRouteImport.update({
-    id: '/members',
-    path: '/members',
-    getParentRoute: () => AuthedAdminInsightsRouteRoute,
+    id: '/insights/members',
+    path: '/insights/members',
+    getParentRoute: () => AuthedAdminRoute,
   } as any)
 const AuthedAdminInsightsAskRoute = AuthedAdminInsightsAskRouteImport.update({
+  id: '/insights/ask',
+  path: '/insights/ask',
+  getParentRoute: () => AuthedAdminRoute,
+} as any)
+const AuthedAdminShellSandboxRoute = AuthedAdminShellSandboxRouteImport.update({
+  id: '/sandbox',
+  path: '/sandbox',
+  getParentRoute: () => AuthedAdminShellRoute,
+} as any)
+const AuthedAdminShellQueueRoute = AuthedAdminShellQueueRouteImport.update({
+  id: '/queue',
+  path: '/queue',
+  getParentRoute: () => AuthedAdminShellRoute,
+} as any)
+const AuthedAdminShellAskRoute = AuthedAdminShellAskRouteImport.update({
   id: '/ask',
   path: '/ask',
-  getParentRoute: () => AuthedAdminInsightsRouteRoute,
+  getParentRoute: () => AuthedAdminShellRoute,
 } as any)
 const TricksGlossaryListModifiersIndexRoute =
   TricksGlossaryListModifiersIndexRouteImport.update({
@@ -674,7 +684,7 @@ export interface FileRoutesByFullPath {
   '/games/bius': typeof GamesBiusBrowseRouteWithChildren
   '/games/rius': typeof GamesRiusBrowseRouteWithChildren
   '/games/sius': typeof GamesSiusBrowseRouteWithChildren
-  '/admin': typeof AuthedAdminRouteWithChildren
+  '/admin': typeof AuthedAdminShellRouteWithChildren
   '/feedback': typeof AuthedFeedbackRoute
   '/api/ask': typeof ApiAskRoute
   '/api/health': typeof ApiHealthRoute
@@ -698,8 +708,6 @@ export interface FileRoutesByFullPath {
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
-  '/admin/insights': typeof AuthedAdminInsightsRouteRouteWithChildren
-  '/admin/sandbox': typeof AuthedAdminSandboxRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
@@ -711,7 +719,6 @@ export interface FileRoutesByFullPath {
   '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
-  '/admin/': typeof AuthedAdminIndexRoute
   '/notifications/': typeof AuthedNotificationsIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/rius/': typeof GamesRiusIndexRoute
@@ -721,6 +728,9 @@ export interface FileRoutesByFullPath {
   '/users/$userId/': typeof UsersUserIdIndexRoute
   '/users/globe/': typeof UsersGlobeIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
+  '/admin/ask': typeof AuthedAdminShellAskRoute
+  '/admin/queue': typeof AuthedAdminShellQueueRoute
+  '/admin/sandbox': typeof AuthedAdminShellSandboxRoute
   '/admin/insights/ask': typeof AuthedAdminInsightsAskRoute
   '/admin/insights/members': typeof AuthedAdminInsightsMembersRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -737,6 +747,7 @@ export interface FileRoutesByFullPath {
   '/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
   '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/active': typeof GamesRiusBrowseActiveRoute
+  '/admin/': typeof AuthedAdminShellIndexRoute
   '/admin/insights/': typeof AuthedAdminInsightsIndexRoute
   '/auth/me/': typeof AuthedAuthMeIndexRoute
   '/games/rius/sets/': typeof GamesRiusSetsIndexRoute
@@ -773,6 +784,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/shop': typeof ShopRoute
   '/terms': typeof TermsRoute
+  '/admin': typeof AuthedAdminShellIndexRoute
   '/feedback': typeof AuthedFeedbackRoute
   '/api/ask': typeof ApiAskRoute
   '/api/health': typeof ApiHealthRoute
@@ -796,7 +808,6 @@ export interface FileRoutesByTo {
   '/tricks': typeof TricksIndexRoute
   '/users': typeof UsersIndexRoute
   '/vault': typeof VaultIndexRoute
-  '/admin/sandbox': typeof AuthedAdminSandboxRoute
   '/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/posts/create': typeof AuthedPostsCreateRoute
   '/tourney/create': typeof AuthedTourneyCreateRoute
@@ -811,12 +822,14 @@ export interface FileRoutesByTo {
   '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
-  '/admin': typeof AuthedAdminIndexRoute
   '/notifications': typeof AuthedNotificationsIndexRoute
   '/posts/$postId': typeof PostsPostIdIndexRoute
   '/users/$userId': typeof UsersUserIdIndexRoute
   '/users/globe': typeof UsersGlobeIndexRoute
   '/vault/$videoId': typeof VaultVideoIdIndexRoute
+  '/admin/ask': typeof AuthedAdminShellAskRoute
+  '/admin/queue': typeof AuthedAdminShellQueueRoute
+  '/admin/sandbox': typeof AuthedAdminShellSandboxRoute
   '/admin/insights/ask': typeof AuthedAdminInsightsAskRoute
   '/admin/insights/members': typeof AuthedAdminInsightsMembersRoute
   '/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -898,8 +911,7 @@ export interface FileRoutesById {
   '/tricks/': typeof TricksIndexRoute
   '/users/': typeof UsersIndexRoute
   '/vault/': typeof VaultIndexRoute
-  '/_authed/admin/insights': typeof AuthedAdminInsightsRouteRouteWithChildren
-  '/_authed/admin/sandbox': typeof AuthedAdminSandboxRoute
+  '/_authed/admin/_shell': typeof AuthedAdminShellRouteWithChildren
   '/_authed/notifications/settings': typeof AuthedNotificationsSettingsRoute
   '/_authed/posts/create': typeof AuthedPostsCreateRoute
   '/_authed/tourney/create': typeof AuthedTourneyCreateRoute
@@ -914,7 +926,6 @@ export interface FileRoutesById {
   '/users/$userId/tricks': typeof UsersUserIdTricksRoute
   '/users/$userId/videos': typeof UsersUserIdVideosRoute
   '/vault/$videoId/edit': typeof VaultVideoIdEditRoute
-  '/_authed/admin/': typeof AuthedAdminIndexRoute
   '/_authed/notifications/': typeof AuthedNotificationsIndexRoute
   '/games/bius/': typeof GamesBiusIndexRoute
   '/games/rius/': typeof GamesRiusIndexRoute
@@ -924,6 +935,9 @@ export interface FileRoutesById {
   '/users/$userId/': typeof UsersUserIdIndexRoute
   '/users/globe/': typeof UsersGlobeIndexRoute
   '/vault/$videoId/': typeof VaultVideoIdIndexRoute
+  '/_authed/admin/_shell/ask': typeof AuthedAdminShellAskRoute
+  '/_authed/admin/_shell/queue': typeof AuthedAdminShellQueueRoute
+  '/_authed/admin/_shell/sandbox': typeof AuthedAdminShellSandboxRoute
   '/_authed/admin/insights/ask': typeof AuthedAdminInsightsAskRoute
   '/_authed/admin/insights/members': typeof AuthedAdminInsightsMembersRoute
   '/_authed/auth/me/edit': typeof AuthedAuthMeEditRoute
@@ -940,6 +954,7 @@ export interface FileRoutesById {
   '/_authed/vault/$videoId/suggest': typeof AuthedVaultVideoIdSuggestRoute
   '/api/tourney/sse/$code': typeof ApiTourneySseCodeRoute
   '/games/rius/_browse/active': typeof GamesRiusBrowseActiveRoute
+  '/_authed/admin/_shell/': typeof AuthedAdminShellIndexRoute
   '/_authed/admin/insights/': typeof AuthedAdminInsightsIndexRoute
   '/_authed/auth/me/': typeof AuthedAuthMeIndexRoute
   '/games/rius/sets/': typeof GamesRiusSetsIndexRoute
@@ -1005,8 +1020,6 @@ export interface FileRouteTypes {
     | '/tricks/'
     | '/users/'
     | '/vault/'
-    | '/admin/insights'
-    | '/admin/sandbox'
     | '/notifications/settings'
     | '/posts/create'
     | '/tourney/create'
@@ -1018,7 +1031,6 @@ export interface FileRouteTypes {
     | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
-    | '/admin/'
     | '/notifications/'
     | '/games/bius/'
     | '/games/rius/'
@@ -1028,6 +1040,9 @@ export interface FileRouteTypes {
     | '/users/$userId/'
     | '/users/globe/'
     | '/vault/$videoId/'
+    | '/admin/ask'
+    | '/admin/queue'
+    | '/admin/sandbox'
     | '/admin/insights/ask'
     | '/admin/insights/members'
     | '/auth/me/edit'
@@ -1044,6 +1059,7 @@ export interface FileRouteTypes {
     | '/vault/$videoId/suggest'
     | '/api/tourney/sse/$code'
     | '/games/rius/active'
+    | '/admin/'
     | '/admin/insights/'
     | '/auth/me/'
     | '/games/rius/sets/'
@@ -1080,6 +1096,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/shop'
     | '/terms'
+    | '/admin'
     | '/feedback'
     | '/api/ask'
     | '/api/health'
@@ -1103,7 +1120,6 @@ export interface FileRouteTypes {
     | '/tricks'
     | '/users'
     | '/vault'
-    | '/admin/sandbox'
     | '/notifications/settings'
     | '/posts/create'
     | '/tourney/create'
@@ -1118,12 +1134,14 @@ export interface FileRouteTypes {
     | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
-    | '/admin'
     | '/notifications'
     | '/posts/$postId'
     | '/users/$userId'
     | '/users/globe'
     | '/vault/$videoId'
+    | '/admin/ask'
+    | '/admin/queue'
+    | '/admin/sandbox'
     | '/admin/insights/ask'
     | '/admin/insights/members'
     | '/auth/me/edit'
@@ -1204,8 +1222,7 @@ export interface FileRouteTypes {
     | '/tricks/'
     | '/users/'
     | '/vault/'
-    | '/_authed/admin/insights'
-    | '/_authed/admin/sandbox'
+    | '/_authed/admin/_shell'
     | '/_authed/notifications/settings'
     | '/_authed/posts/create'
     | '/_authed/tourney/create'
@@ -1220,7 +1237,6 @@ export interface FileRouteTypes {
     | '/users/$userId/tricks'
     | '/users/$userId/videos'
     | '/vault/$videoId/edit'
-    | '/_authed/admin/'
     | '/_authed/notifications/'
     | '/games/bius/'
     | '/games/rius/'
@@ -1230,6 +1246,9 @@ export interface FileRouteTypes {
     | '/users/$userId/'
     | '/users/globe/'
     | '/vault/$videoId/'
+    | '/_authed/admin/_shell/ask'
+    | '/_authed/admin/_shell/queue'
+    | '/_authed/admin/_shell/sandbox'
     | '/_authed/admin/insights/ask'
     | '/_authed/admin/insights/members'
     | '/_authed/auth/me/edit'
@@ -1246,6 +1265,7 @@ export interface FileRouteTypes {
     | '/_authed/vault/$videoId/suggest'
     | '/api/tourney/sse/$code'
     | '/games/rius/_browse/active'
+    | '/_authed/admin/_shell/'
     | '/_authed/admin/insights/'
     | '/_authed/auth/me/'
     | '/games/rius/sets/'
@@ -1627,13 +1647,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotificationsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/admin/': {
-      id: '/_authed/admin/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AuthedAdminIndexRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
     '/vault/$videoId/edit': {
       id: '/vault/$videoId/edit'
       path: '/vault/$videoId/edit'
@@ -1732,18 +1745,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedNotificationsSettingsRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/admin/sandbox': {
-      id: '/_authed/admin/sandbox'
-      path: '/sandbox'
-      fullPath: '/admin/sandbox'
-      preLoaderRoute: typeof AuthedAdminSandboxRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/admin/insights': {
-      id: '/_authed/admin/insights'
-      path: '/insights'
-      fullPath: '/admin/insights'
-      preLoaderRoute: typeof AuthedAdminInsightsRouteRouteImport
+    '/_authed/admin/_shell': {
+      id: '/_authed/admin/_shell'
+      path: ''
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthedAdminShellRouteImport
       parentRoute: typeof AuthedAdminRoute
     }
     '/games/rius/sets/': {
@@ -1762,10 +1768,17 @@ declare module '@tanstack/react-router' {
     }
     '/_authed/admin/insights/': {
       id: '/_authed/admin/insights/'
-      path: '/'
+      path: '/insights'
       fullPath: '/admin/insights/'
       preLoaderRoute: typeof AuthedAdminInsightsIndexRouteImport
-      parentRoute: typeof AuthedAdminInsightsRouteRoute
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/_shell/': {
+      id: '/_authed/admin/_shell/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthedAdminShellIndexRouteImport
+      parentRoute: typeof AuthedAdminShellRoute
     }
     '/games/rius/_browse/active': {
       id: '/games/rius/_browse/active'
@@ -1867,17 +1880,38 @@ declare module '@tanstack/react-router' {
     }
     '/_authed/admin/insights/members': {
       id: '/_authed/admin/insights/members'
-      path: '/members'
+      path: '/insights/members'
       fullPath: '/admin/insights/members'
       preLoaderRoute: typeof AuthedAdminInsightsMembersRouteImport
-      parentRoute: typeof AuthedAdminInsightsRouteRoute
+      parentRoute: typeof AuthedAdminRoute
     }
     '/_authed/admin/insights/ask': {
       id: '/_authed/admin/insights/ask'
-      path: '/ask'
+      path: '/insights/ask'
       fullPath: '/admin/insights/ask'
       preLoaderRoute: typeof AuthedAdminInsightsAskRouteImport
-      parentRoute: typeof AuthedAdminInsightsRouteRoute
+      parentRoute: typeof AuthedAdminRoute
+    }
+    '/_authed/admin/_shell/sandbox': {
+      id: '/_authed/admin/_shell/sandbox'
+      path: '/sandbox'
+      fullPath: '/admin/sandbox'
+      preLoaderRoute: typeof AuthedAdminShellSandboxRouteImport
+      parentRoute: typeof AuthedAdminShellRoute
+    }
+    '/_authed/admin/_shell/queue': {
+      id: '/_authed/admin/_shell/queue'
+      path: '/queue'
+      fullPath: '/admin/queue'
+      preLoaderRoute: typeof AuthedAdminShellQueueRouteImport
+      parentRoute: typeof AuthedAdminShellRoute
+    }
+    '/_authed/admin/_shell/ask': {
+      id: '/_authed/admin/_shell/ask'
+      path: '/ask'
+      fullPath: '/admin/ask'
+      preLoaderRoute: typeof AuthedAdminShellAskRouteImport
+      parentRoute: typeof AuthedAdminShellRoute
     }
     '/tricks/glossary/_list/modifiers/': {
       id: '/tricks/glossary/_list/modifiers/'
@@ -2057,36 +2091,37 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthedAdminInsightsRouteRouteChildren {
+interface AuthedAdminShellRouteChildren {
+  AuthedAdminShellAskRoute: typeof AuthedAdminShellAskRoute
+  AuthedAdminShellQueueRoute: typeof AuthedAdminShellQueueRoute
+  AuthedAdminShellSandboxRoute: typeof AuthedAdminShellSandboxRoute
+  AuthedAdminShellIndexRoute: typeof AuthedAdminShellIndexRoute
+}
+
+const AuthedAdminShellRouteChildren: AuthedAdminShellRouteChildren = {
+  AuthedAdminShellAskRoute: AuthedAdminShellAskRoute,
+  AuthedAdminShellQueueRoute: AuthedAdminShellQueueRoute,
+  AuthedAdminShellSandboxRoute: AuthedAdminShellSandboxRoute,
+  AuthedAdminShellIndexRoute: AuthedAdminShellIndexRoute,
+}
+
+const AuthedAdminShellRouteWithChildren =
+  AuthedAdminShellRoute._addFileChildren(AuthedAdminShellRouteChildren)
+
+interface AuthedAdminRouteChildren {
+  AuthedAdminShellRoute: typeof AuthedAdminShellRouteWithChildren
   AuthedAdminInsightsAskRoute: typeof AuthedAdminInsightsAskRoute
   AuthedAdminInsightsMembersRoute: typeof AuthedAdminInsightsMembersRoute
   AuthedAdminInsightsIndexRoute: typeof AuthedAdminInsightsIndexRoute
-}
-
-const AuthedAdminInsightsRouteRouteChildren: AuthedAdminInsightsRouteRouteChildren =
-  {
-    AuthedAdminInsightsAskRoute: AuthedAdminInsightsAskRoute,
-    AuthedAdminInsightsMembersRoute: AuthedAdminInsightsMembersRoute,
-    AuthedAdminInsightsIndexRoute: AuthedAdminInsightsIndexRoute,
-  }
-
-const AuthedAdminInsightsRouteRouteWithChildren =
-  AuthedAdminInsightsRouteRoute._addFileChildren(
-    AuthedAdminInsightsRouteRouteChildren,
-  )
-
-interface AuthedAdminRouteChildren {
-  AuthedAdminInsightsRouteRoute: typeof AuthedAdminInsightsRouteRouteWithChildren
-  AuthedAdminSandboxRoute: typeof AuthedAdminSandboxRoute
-  AuthedAdminIndexRoute: typeof AuthedAdminIndexRoute
   AuthedAdminTricksTrickIdEditRoute: typeof AuthedAdminTricksTrickIdEditRoute
   AuthedAdminTricksTrickIdVideosRoute: typeof AuthedAdminTricksTrickIdVideosRoute
 }
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
-  AuthedAdminInsightsRouteRoute: AuthedAdminInsightsRouteRouteWithChildren,
-  AuthedAdminSandboxRoute: AuthedAdminSandboxRoute,
-  AuthedAdminIndexRoute: AuthedAdminIndexRoute,
+  AuthedAdminShellRoute: AuthedAdminShellRouteWithChildren,
+  AuthedAdminInsightsAskRoute: AuthedAdminInsightsAskRoute,
+  AuthedAdminInsightsMembersRoute: AuthedAdminInsightsMembersRoute,
+  AuthedAdminInsightsIndexRoute: AuthedAdminInsightsIndexRoute,
   AuthedAdminTricksTrickIdEditRoute: AuthedAdminTricksTrickIdEditRoute,
   AuthedAdminTricksTrickIdVideosRoute: AuthedAdminTricksTrickIdVideosRoute,
 }

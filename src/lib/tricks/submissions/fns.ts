@@ -1,6 +1,6 @@
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start"
 import { zodValidator } from "@tanstack/zod-adapter"
-import { and, desc, eq, lt } from "drizzle-orm"
+import { and, desc, eq, inArray, lt } from "drizzle-orm"
 
 import {
   createSubmissionSchema,
@@ -13,7 +13,7 @@ import {
   reviewSuggestionSchema,
 } from "./schemas"
 import { db } from "~/db"
-import { trickSubmissions, trickSuggestions } from "~/db/schema"
+import { tricks, trickSubmissions, trickSuggestions } from "~/db/schema"
 import { adminOnlyMiddleware, authMiddleware } from "~/lib/middleware"
 
 const loadTrickSubmissionOps = createServerOnlyFn(() => import("./ops.server"))
@@ -163,7 +163,7 @@ export const listSuggestionsServerFn = createServerFn({
             outgoingRelationships: {
               columns: { type: true },
               with: {
-                targetTrick: { columns: { id: true } },
+                targetTrick: { columns: { id: true, name: true } },
               },
             },
           },
@@ -180,7 +180,34 @@ export const listSuggestionsServerFn = createServerFn({
       limit,
     })
 
-    return suggestions
+    // A diff names an added relationship by trick id only. Send the names
+    // too, so a reviewer reads a trick name and not a number.
+    const addedTargetIds = [
+      ...new Set(
+        suggestions.flatMap((s) =>
+          (s.diff.relationships?.added ?? []).map((r) => r.targetId),
+        ),
+      ),
+    ]
+    const addedTargets =
+      addedTargetIds.length > 0
+        ? await db.query.tricks.findMany({
+            where: inArray(tricks.id, addedTargetIds),
+            columns: { id: true, name: true },
+          })
+        : []
+    const nameById = new Map(addedTargets.map((t) => [t.id, t.name]))
+
+    return suggestions.map((s) => ({
+      ...s,
+      addedRelationshipTargets: (s.diff.relationships?.added ?? []).map(
+        (r) => ({
+          id: r.targetId,
+          type: r.type,
+          name: nameById.get(r.targetId) ?? null,
+        }),
+      ),
+    }))
   })
 
 export const getSuggestionServerFn = createServerFn({
