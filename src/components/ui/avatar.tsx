@@ -84,7 +84,7 @@ function AvatarFallback({
 }) {
   const { imageStatus } = useAvatar()
 
-  if (imageStatus === "success" || imageStatus === "error") {
+  if (imageStatus === "success") {
     return null
   }
 
